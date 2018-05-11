@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         /* Hard Code */
         private string[] EXPOSED_HEADERS = new string[] { "Content-Disposition", "api-version", "content-length", "content-md5", "content-type", "date", "request-id", "response-time" };
         private string PURCHASING_POLICITY = "PurchasingPolicy";
+        private string PURCHASING_ENDPOINT = "PurchasingEndpoint";
         private string DEFAULT_CONNECTION = "DefaultConnection";
         private string SECRET = "Secret";
         
@@ -35,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         private void RegisterEndpoints()
         {
-
+            APIEndpoint.Purchasing = Configuration.GetValue<string>(PURCHASING_ENDPOINT) ?? Configuration[PURCHASING_ENDPOINT];
         }
 
         private void RegisterFacades(IServiceCollection services)
