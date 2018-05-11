@@ -122,6 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     {
                         unitPaymentOrders.Add(purchasingDocumentExpedition.UnitPaymentOrderNo);
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        purchasingDocumentExpedition.Active = true;
                         purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
                         Created += await this.purchasingDocumentExpeditionService.CreateAsync(purchasingDocumentExpedition);
                     }
