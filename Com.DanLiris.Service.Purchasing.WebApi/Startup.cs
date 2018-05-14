@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
+using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,9 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         /* Hard Code */
         private string[] EXPOSED_HEADERS = new string[] { "Content-Disposition", "api-version", "content-length", "content-md5", "content-type", "date", "request-id", "response-time" };
         private string PURCHASING_POLICITY = "PurchasingPolicy";
-        private string PURCHASING_ENDPOINT = "PurchasingEndpoint";
-        private string DEFAULT_CONNECTION = "DefaultConnection";
-        private string SECRET = "Secret";
         
         public IConfiguration Configuration { get; }
 
@@ -37,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         private void RegisterEndpoints()
         {
-            APIEndpoint.Purchasing = Configuration.GetValue<string>(PURCHASING_ENDPOINT) ?? Configuration[PURCHASING_ENDPOINT];
+            APIEndpoint.Purchasing = Configuration.GetValue<string>(Constant.PURCHASING_ENDPOINT) ?? Configuration[Constant.PURCHASING_ENDPOINT];
         }
 
         private void RegisterFacades(IServiceCollection services)
@@ -59,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString(DEFAULT_CONNECTION) ?? Configuration[DEFAULT_CONNECTION];
+            string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
 
             /* Register */
             services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
@@ -71,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
 
             /* Authentication */
-            string Secret = Configuration.GetValue<string>(SECRET) ?? Configuration[SECRET];
+            string Secret = Configuration.GetValue<string>(Constant.SECRET) ?? Configuration[Constant.SECRET];
             SymmetricSecurityKey Key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Secret));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

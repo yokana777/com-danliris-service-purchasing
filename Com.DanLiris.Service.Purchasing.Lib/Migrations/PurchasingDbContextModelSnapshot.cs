@@ -28,40 +28,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("CashierDivisionBy");
+                    b.Property<string>("CashierDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("CashierDivisionDate");
 
-                    b.Property<string>("Division");
+                    b.Property<string>("Currency")
+                        .HasMaxLength(255);
 
-                    b.Property<string>("FinanceDivisionBy");
+                    b.Property<string>("DivisionCode")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("DivisionName")
+                        .HasMaxLength(255);
+
+                    b.Property<DateTimeOffset>("DueDate");
+
+                    b.Property<string>("FinanceDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("FinanceDivisionDate");
 
                     b.Property<int>("Position");
 
-                    b.Property<string>("SendToCashierDivisionBy");
+                    b.Property<string>("SendToCashierDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("SendToCashierDivisionDate");
 
-                    b.Property<string>("SendToFinanceDivisionBy");
+                    b.Property<string>("SendToFinanceDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("SendToFinanceDivisionDate");
 
-                    b.Property<string>("SendToPurchasingDivisionBy");
+                    b.Property<string>("SendToPurchasingDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("SendToPurchasingDivisionDate");
 
-                    b.Property<string>("SendToVerificationDivisionBy");
+                    b.Property<string>("SendToVerificationDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("SendToVerificationDivisionDate");
 
-                    b.Property<string>("Supplier");
+                    b.Property<string>("SupplierCode")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("SupplierName")
+                        .HasMaxLength(255);
+
+                    b.Property<double>("TotalPaid");
+
+                    b.Property<DateTimeOffset>("UPODate");
 
                     b.Property<string>("UnitPaymentOrderNo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("VerificationDivisionBy");
+                    b.Property<string>("VerificationDivisionBy")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("VerificationDivisionDate");
 
