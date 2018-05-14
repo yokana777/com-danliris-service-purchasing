@@ -69,8 +69,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 {
                     SendToVerificationDivisionDate = (DateTimeOffset)this.SubmissionDate,
                     UnitPaymentOrderNo = unitPaymentOrder.No,
-                    Supplier = unitPaymentOrder.Supplier,
-                    Division = unitPaymentOrder.Division
+                    UPODate = unitPaymentOrder.UPODate,
+                    DueDate = unitPaymentOrder.DueDate,
+                    SupplierCode = unitPaymentOrder.SupplierCode,
+                    SupplierName = unitPaymentOrder.SupplierName,
+                    DivisionCode = unitPaymentOrder.DivisionCode,
+                    DivisionName = unitPaymentOrder.DivisionName,
+                    TotalPaid = unitPaymentOrder.TotalPaid,
+                    Currency = unitPaymentOrder.Currency,
                 });
             }
 

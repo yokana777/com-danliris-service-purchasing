@@ -36,15 +36,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 {
                     Id = s.Id,
                     UnitPaymentOrderNo = s.UnitPaymentOrderNo,
-                    Supplier = s.Supplier,
-                    Division = s.Division,
+                    UPODate = s.UPODate,
+                    DueDate = s.DueDate,
+                    SupplierName = s.SupplierName,
+                    DivisionName = s.DivisionName,
+                    TotalPaid = s.TotalPaid,
+                    Currency = s.Currency,
                     Position = s.Position,
                     _LastModifiedUtc = s._LastModifiedUtc
                 });
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitPaymentOrderNo", "Supplier", "Division"
+                "UnitPaymentOrderNo", "SupplierName", "DivisionName"
             };
 
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(Query, searchAttributes, keyword);
@@ -65,8 +69,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                {
                    Id = s.Id,
                    UnitPaymentOrderNo = s.UnitPaymentOrderNo,
-                   Supplier = s.Supplier,
-                   Division = s.Division,
+                   UPODate = s.UPODate,
+                   DueDate = s.DueDate,
+                   SupplierName = s.SupplierName,
+                   DivisionName = s.DivisionName,
+                   TotalPaid = s.TotalPaid,
+                   Currency = s.Currency,
                    _LastModifiedUtc = s._LastModifiedUtc
                }).ToList()
             );
@@ -122,6 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     {
                         unitPaymentOrders.Add(purchasingDocumentExpedition.UnitPaymentOrderNo);
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        purchasingDocumentExpedition.Active = true;
                         purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
                         Created += await this.purchasingDocumentExpeditionService.CreateAsync(purchasingDocumentExpedition);
                     }
