@@ -28,6 +28,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
+                    b.Property<string>("BankExpenditureNoteNo")
+                        .HasMaxLength(255);
+
                     b.Property<string>("CashierDivisionBy")
                         .HasMaxLength(255);
 
@@ -48,6 +51,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("FinanceDivisionDate");
+
+                    b.Property<string>("NotVerifiedReason")
+                        .HasMaxLength(255);
 
                     b.Property<int>("Position");
 
@@ -88,6 +94,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("VerificationDivisionDate");
+
+                    b.Property<DateTimeOffset?>("VerifyDate");
 
                     b.Property<string>("_CreatedAgent")
                         .IsRequired()

@@ -7,10 +7,10 @@ using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 {
-    public class PurchasingToVerificationViewModel : BaseViewModel, IValidatableObject
+    public class PurchasingToVerificationViewModel : IValidatableObject
     {
         public DateTimeOffset? SubmissionDate { get; set; }
-        public List<UnitPaymentOrder> UnitPaymentOrders { get; set; }
+        public List<UnitPaymentOrderViewModel> UnitPaymentOrders { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 int Count = 0;
                 string error = "[";
 
-                foreach (UnitPaymentOrder unitPaymentOrder in UnitPaymentOrders)
+                foreach (UnitPaymentOrderViewModel unitPaymentOrder in UnitPaymentOrders)
                 {
                     if (string.IsNullOrWhiteSpace(unitPaymentOrder.No))
                     {
@@ -59,11 +59,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             }
         }
 
-        public override object ToModel()
+        public object ToModel()
         {
             List<PurchasingDocumentExpedition> list = new List<PurchasingDocumentExpedition>();
 
-            foreach (UnitPaymentOrder unitPaymentOrder in this.UnitPaymentOrders)
+            foreach (UnitPaymentOrderViewModel unitPaymentOrder in this.UnitPaymentOrders)
             {
                 list.Add(new PurchasingDocumentExpedition()
                 {

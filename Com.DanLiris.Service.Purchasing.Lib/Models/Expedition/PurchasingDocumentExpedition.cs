@@ -33,6 +33,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public DateTimeOffset? CashierDivisionDate { get; set; }
         public string FinanceDivisionBy { get; set; }
         public DateTimeOffset? FinanceDivisionDate { get; set; }
+        public string NotVerifiedReason { get; set; }
+        public DateTimeOffset? VerifyDate { get; set; }
+        public string BankExpenditureNoteNo { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

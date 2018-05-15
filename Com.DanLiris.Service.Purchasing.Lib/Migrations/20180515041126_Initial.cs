@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Active = table.Column<bool>(type: "bit", nullable: false),
+                    BankExpenditureNoteNo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     CashierDivisionBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     CashierDivisionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Currency = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
@@ -24,6 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     DueDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     FinanceDivisionBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     FinanceDivisionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    NotVerifiedReason = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Position = table.Column<int>(type: "int", nullable: false),
                     SendToCashierDivisionBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     SendToCashierDivisionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -40,6 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     UnitPaymentOrderNo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     VerificationDivisionBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     VerificationDivisionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    VerifyDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     _CreatedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     _CreatedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     _CreatedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
