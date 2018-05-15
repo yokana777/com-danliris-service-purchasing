@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 {
-    public class UnitPaymentOrder
+    public class UnitPaymentOrderViewModel
     {
         public string No { get; set; }
         public DateTimeOffset UPODate { get; set; }

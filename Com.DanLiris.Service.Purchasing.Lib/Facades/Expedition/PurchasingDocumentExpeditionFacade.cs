@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.Moonlay.NetCore.Lib;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ using System.Linq.Dynamic.Core;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using static Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition.PurchasingDocumentAcceptanceViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -38,7 +40,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     UnitPaymentOrderNo = s.UnitPaymentOrderNo,
                     UPODate = s.UPODate,
                     DueDate = s.DueDate,
+                    SupplierCode = s.SupplierCode,
                     SupplierName = s.SupplierName,
+                    DivisionCode = s.DivisionCode,
                     DivisionName = s.DivisionName,
                     TotalPaid = s.TotalPaid,
                     Currency = s.Currency,
@@ -152,6 +156,216 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             return Created;
+        }
+
+        public async Task<int> PurchasingDocumentAcceptance(PurchasingDocumentAcceptanceViewModel data, string username)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var DbContext = this.purchasingDocumentExpeditionService.DbContext;
+                    List<string> unitPaymentOrders = new List<string>();
+
+                    #region Verification
+                    if (data.Role.Equals("VERIFICATION"))
+                    {
+                        foreach (PurchasingDocumentAcceptanceItem item in data.PurchasingDocumentExpedition)
+                        {
+                            unitPaymentOrders.Add(item.UnitPaymentOrderNo);
+
+                            PurchasingDocumentExpedition model = new PurchasingDocumentExpedition
+                            {
+                                Id = item.Id,
+                                VerificationDivisionBy = username,
+                                VerificationDivisionDate = data.ReceiptDate,
+                                Position = ExpeditionPosition.VERIFICATION_DIVISION,
+                            };
+
+                            this.purchasingDocumentExpeditionService.OnUpdating(model.Id, model);
+                            DbContext.Attach(model);
+                            DbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
+                            DbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
+                            DbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                        }
+
+                        Updated = await DbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.VERIFICATION_DIVISION);
+                    }
+                    #endregion Verification
+                    #region Cashier
+                    else if (data.Role.Equals("CASHIER"))
+                    {
+                        foreach (PurchasingDocumentAcceptanceItem item in data.PurchasingDocumentExpedition)
+                        {
+                            unitPaymentOrders.Add(item.UnitPaymentOrderNo);
+
+                            PurchasingDocumentExpedition model = new PurchasingDocumentExpedition
+                            {
+                                Id = item.Id,
+                                CashierDivisionBy = username,
+                                CashierDivisionDate = data.ReceiptDate,
+                                Position = ExpeditionPosition.CASHIER_DIVISION,
+                            };
+
+                            this.purchasingDocumentExpeditionService.OnUpdating(model.Id, model);
+                            DbContext.Attach(model);
+                            DbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
+                            DbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
+                            DbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                        }
+
+                        Updated = await DbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.CASHIER_DIVISION);
+                    }
+                    #endregion Cashier
+                    #region Finance
+                    else if (data.Role.Equals("FINANCE"))
+                    {
+                        foreach (PurchasingDocumentAcceptanceItem item in data.PurchasingDocumentExpedition)
+                        {
+                            unitPaymentOrders.Add(item.UnitPaymentOrderNo);
+
+                            PurchasingDocumentExpedition model = new PurchasingDocumentExpedition
+                            {
+                                Id = item.Id,
+                                FinanceDivisionBy = username,
+                                FinanceDivisionDate = data.ReceiptDate,
+                                Position = ExpeditionPosition.FINANCE_DIVISION,
+                            };
+
+                            this.purchasingDocumentExpeditionService.OnUpdating(model.Id, model);
+                            DbContext.Attach(model);
+                            DbContext.Entry(model).Property(x => x.FinanceDivisionBy).IsModified = true;
+                            DbContext.Entry(model).Property(x => x.FinanceDivisionDate).IsModified = true;
+                            DbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
+                            DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                        }
+
+                        Updated = await DbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.FINANCE_DIVISION);
+                    }
+                    #endregion Finance
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public async Task<int> DeletePurchasingDocumentAcceptance(int id)
+        {
+            int Count = 0;
+
+            if (!this.purchasingDocumentExpeditionService.IsExists(id))
+            {
+                return 0;
+            }
+
+            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var DbContext = this.purchasingDocumentExpeditionService.DbContext;
+
+                    PurchasingDocumentExpedition model;
+                    PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(p => p.Id == id);
+
+                    if(purchasingDocumentExpedition.Position == ExpeditionPosition.VERIFICATION_DIVISION)
+                    {
+                        model = new PurchasingDocumentExpedition
+                        {
+                            Id = id,
+                            VerificationDivisionBy = null,
+                            VerificationDivisionDate = null,
+                            Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION,
+                        };
+
+                        DbContext.Attach(model);
+                        DbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
+                        DbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
+                        DbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+
+                        Count = await DbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
+                    }
+                    else if(purchasingDocumentExpedition.Position == ExpeditionPosition.CASHIER_DIVISION)
+                    {
+                        model = new PurchasingDocumentExpedition
+                        {
+                            Id = id,
+                            CashierDivisionBy = null,
+                            CashierDivisionDate = null,
+                            Position = ExpeditionPosition.SEND_TO_CASHIER_DIVISION,
+                        };
+
+                        DbContext.Attach(model);
+                        DbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
+                        DbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
+                        DbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+
+                        Count = await DbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
+                    }
+                    else if(purchasingDocumentExpedition.Position == ExpeditionPosition.FINANCE_DIVISION)
+                    {
+                        model = new PurchasingDocumentExpedition
+                        {
+                            Id = id,
+                            FinanceDivisionBy = null,
+                            SendToFinanceDivisionDate = null,
+                            Position = ExpeditionPosition.SEND_TO_FINANCE_DIVISION,
+                        };
+
+                        DbContext.Attach(model);
+                        DbContext.Entry(model).Property(x => x.FinanceDivisionBy).IsModified = true;
+                        DbContext.Entry(model).Property(x => x.SendToFinanceDivisionDate).IsModified = true;
+                        DbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
+                        DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+
+                        Count = await DbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_FINANCE_DIVISION);
+                    }
+
+                    transaction.Commit();
+                }
+                catch (DbUpdateConcurrencyException e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Count;
         }
 
         public void UpdateUnitPaymentOrderPosition(List<string> unitPaymentOrders, ExpeditionPosition position)
