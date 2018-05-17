@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
                     new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
-                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.service.test;User=SA;password=Standar123.;MultipleActiveResultSets=true;")
+                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.service.test;User=sa;password=Standar123.;MultipleActiveResultSets=true;")
                 })
                 .Build();
 
