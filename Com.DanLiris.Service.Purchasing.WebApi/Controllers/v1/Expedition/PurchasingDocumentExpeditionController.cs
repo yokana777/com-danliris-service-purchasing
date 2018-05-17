@@ -21,13 +21,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         private string ApiVersion = "1.0.0";
         private readonly PurchasingDocumentExpeditionFacade purchasingDocumentExpeditionFacade;
         private readonly IdentityService identityService;
-        private readonly PurchasingDocumentExpedition purchasingDocumentExpedition;
 
-        public PurchasingDocumentExpeditionController(PurchasingDocumentExpeditionFacade purchasingDocumentExpeditionFacade, IdentityService identityService, PurchasingDocumentExpedition purchasingDocumentExpedition)
+        public PurchasingDocumentExpeditionController(PurchasingDocumentExpeditionFacade purchasingDocumentExpeditionFacade, IdentityService identityService)
         {
             this.purchasingDocumentExpeditionFacade = purchasingDocumentExpeditionFacade;
             this.identityService = identityService;
-            this.purchasingDocumentExpedition = purchasingDocumentExpedition;
         }
 
         [HttpGet]
@@ -72,10 +70,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 
             try
             {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok();
-                return Ok(Result);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = model,
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
             }
             catch (Exception e)
             {

@@ -47,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     TotalPaid = s.TotalPaid,
                     Currency = s.Currency,
                     Position = s.Position,
+                    VerifyDate = s.VerifyDate,
                     _LastModifiedUtc = s._LastModifiedUtc
                 });
 
@@ -56,6 +57,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             };
 
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(Query, searchAttributes, keyword);
+
+            if (filter.Contains("verificationFilter"))
+            {
+                filter = "{}";
+                List<ExpeditionPosition> positions = new List<ExpeditionPosition> { ExpeditionPosition.SEND_TO_PURCHASING_DIVISION, ExpeditionPosition.SEND_TO_FINANCE_DIVISION, ExpeditionPosition.SEND_TO_CASHIER_DIVISION };
+                Query = Query.Where(p => positions.Contains(p.Position));
+            }
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(filter);
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureFilter(Query, FilterDictionary);
@@ -79,6 +87,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    DivisionName = s.DivisionName,
                    TotalPaid = s.TotalPaid,
                    Currency = s.Currency,
+                   Position = s.Position,
+                   VerifyDate = s.VerifyDate,
                    _LastModifiedUtc = s._LastModifiedUtc
                }).ToList()
             );
