@@ -1,8 +1,10 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
                     new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
-                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.inventory.service.test;User=sa;password=Standar123.;MultipleActiveResultSets=true;")
+                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com.danliris.db.purchasing;Trusted_Connection=True;MultipleActiveResultSets=true")
                 })
                 .Build();
 
@@ -45,8 +47,10 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 }, ServiceLifetime.Transient)
                 .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
-                .AddSingleton<HttpClientTestService>(provider => new HttpClientTestService(provider))
-                .AddSingleton<HttpClientService>()
+                .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<SendToVerificationDataUtil>()
+                .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
+                .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
         }

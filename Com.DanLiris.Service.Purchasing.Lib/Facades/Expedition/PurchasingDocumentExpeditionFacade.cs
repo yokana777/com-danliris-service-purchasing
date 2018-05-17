@@ -86,6 +86,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Tuple.Create(list, TotalData, OrderDictionary);
         }
 
+        public PurchasingDocumentExpedition ReadById(int id)
+        {
+            return this.purchasingDocumentExpeditionService.DbSet
+                .First(d => d.Id.Equals(id) && d._IsDeleted.Equals(false));
+        }
+
         public async Task<int> Delete(int id)
         {
             int Count = 0;
@@ -287,7 +293,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     PurchasingDocumentExpedition model;
                     PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(p => p.Id == id);
 
-                    if(purchasingDocumentExpedition.Position == ExpeditionPosition.VERIFICATION_DIVISION)
+                    if (purchasingDocumentExpedition.Position == ExpeditionPosition.VERIFICATION_DIVISION)
                     {
                         model = new PurchasingDocumentExpedition
                         {
@@ -308,7 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         Count = await DbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
                     }
-                    else if(purchasingDocumentExpedition.Position == ExpeditionPosition.CASHIER_DIVISION)
+                    else if (purchasingDocumentExpedition.Position == ExpeditionPosition.CASHIER_DIVISION)
                     {
                         model = new PurchasingDocumentExpedition
                         {
@@ -329,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         Count = await DbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
                     }
-                    else if(purchasingDocumentExpedition.Position == ExpeditionPosition.FINANCE_DIVISION)
+                    else if (purchasingDocumentExpedition.Position == ExpeditionPosition.FINANCE_DIVISION)
                     {
                         model = new PurchasingDocumentExpedition
                         {
@@ -378,7 +384,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 unitPaymentOrders = unitPaymentOrders
             };
 
-            HttpClientService httpClient = (HttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(HttpClientService));
+            IHttpClientService httpClient = (IHttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
         }
