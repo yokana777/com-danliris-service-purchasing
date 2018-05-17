@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             {
                 try
                 {
-                    PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(p => p.Id == id);
+                    PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(p => p.Id == id && p.Position == ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
                     Count = await this.purchasingDocumentExpeditionService.DeleteAsync(id);
                     UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.PURCHASING_DIVISION);
 
