@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 {
@@ -20,11 +21,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         private string ApiVersion = "1.0.0";
         private readonly PurchasingDocumentExpeditionFacade purchasingDocumentExpeditionFacade;
         private readonly IdentityService identityService;
+        private readonly PurchasingDocumentExpedition purchasingDocumentExpedition;
 
-        public PurchasingDocumentExpeditionController(PurchasingDocumentExpeditionFacade purchasingDocumentExpeditionFacade, IdentityService identityService)
+        public PurchasingDocumentExpeditionController(PurchasingDocumentExpeditionFacade purchasingDocumentExpeditionFacade, IdentityService identityService, PurchasingDocumentExpedition purchasingDocumentExpedition)
         {
             this.purchasingDocumentExpeditionFacade = purchasingDocumentExpeditionFacade;
             this.identityService = identityService;
+            this.purchasingDocumentExpedition = purchasingDocumentExpedition;
         }
 
         [HttpGet]
@@ -48,5 +51,40 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             return await new BaseDelete<PurchasingDocumentExpeditionFacade>(purchasingDocumentExpeditionFacade, ApiVersion)
                 .Delete(id);
         }
+
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> GetById([FromRoute] int Id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var model =  await purchasingDocumentExpeditionFacade.ReadModelById(Id);
+
+            if (model == null)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.NOT_FOUND_STATUS_CODE, General.NOT_FOUND_MESSAGE)
+                    .Fail();
+                return NotFound(Result);
+            }
+
+            try
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
     }
 }

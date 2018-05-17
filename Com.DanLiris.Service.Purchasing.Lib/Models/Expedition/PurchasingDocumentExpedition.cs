@@ -46,5 +46,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
                 yield return new ValidationResult($"Unit Payment Order No {this.UnitPaymentOrderNo} is already exists", new List<string> { "UnitPaymentOrdersCollection" });
             }
         }
+
+        public object toViewModel(PurchasingDocumentExpedition model)
+        {
+            PurchasingDocumentExpedition data = new PurchasingDocumentExpedition();
+            return data;
+        }
+
     }
 }
