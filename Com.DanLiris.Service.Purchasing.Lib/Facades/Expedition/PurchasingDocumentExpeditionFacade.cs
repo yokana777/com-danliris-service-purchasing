@@ -507,7 +507,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 unitPaymentOrders = unitPaymentOrders
             };
 
-            HttpClientService httpClient = (HttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(HttpClientService));
+            IHttpClientService httpClient = (IHttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
         }

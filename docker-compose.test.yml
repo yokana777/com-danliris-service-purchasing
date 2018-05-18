@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  mssql:
+    image: microsoft/mssql-server-linux:latest
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "SA_PASSWORD=Standar123."
+      - "MSSQL_PID=Developer"
+    ports:
+      - "1401:1433"
