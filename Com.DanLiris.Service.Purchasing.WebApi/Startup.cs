@@ -42,7 +42,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
-                .AddTransient<PurchasingDocumentExpeditionReportFacade>();
+                .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>();
         }
 
         private void RegisterServices(IServiceCollection services)
