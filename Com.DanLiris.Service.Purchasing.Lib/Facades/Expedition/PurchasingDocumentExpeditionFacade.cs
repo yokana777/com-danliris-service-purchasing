@@ -393,8 +393,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 try
                 {
                     var DbContext = this.purchasingDocumentExpeditionService.DbContext;
+                    PurchasingDocumentExpedition purchasingDocumentExpedition;
 
-                    PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(d => d.UnitPaymentOrderNo == data.UnitPaymentOrderNo && d._IsDeleted == false && d.Active == true);
+                    if (!data.Id.Equals(0))
+                    {
+                        purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(d => d.Id == data.Id);
+                    }
+                    else
+                    {
+                        purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(d => d.UnitPaymentOrderNo == data.UnitPaymentOrderNo && d._IsDeleted == false && d.Active == true);
+                    }
+
                     if (data.Position.Equals(ExpeditionPosition.SEND_TO_PURCHASING_DIVISION))
                     {
 
@@ -404,6 +413,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.SendToPurchasingDivisionBy = username;
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_PURCHASING_DIVISION;
                         purchasingDocumentExpedition.Active = false;
+                        purchasingDocumentExpedition.NotVerifiedReason = data.NotVerifiedReason;
 
                         this.purchasingDocumentExpeditionService.OnUpdating(purchasingDocumentExpedition.Id, purchasingDocumentExpedition);
 
@@ -414,13 +424,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
-
+                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.NotVerifiedReason).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedAgent).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedBy).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedUtc).IsModified = true;
 
                         await DbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_PURCHASING_DIVISION);
                     }
                     else if (data.Position.Equals(ExpeditionPosition.SEND_TO_CASHIER_DIVISION))
                     {
@@ -429,7 +439,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.SendToCashierDivisionDate = data.VerifyDate;
                         purchasingDocumentExpedition.SendToCashierDivisionBy = username;
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_CASHIER_DIVISION;
-
+                        purchasingDocumentExpedition.Active = true;
 
                         this.purchasingDocumentExpeditionService.OnUpdating(purchasingDocumentExpedition.Id, purchasingDocumentExpedition);
 
@@ -437,7 +447,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToCashierDivisionDate).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToCashierDivisionBy).IsModified = true;
-
+                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
 
@@ -457,6 +467,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.SendToFinanceDivisionDate = data.VerifyDate;
                         purchasingDocumentExpedition.SendToFinanceDivisionBy = username;
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_FINANCE_DIVISION;
+                        purchasingDocumentExpedition.Active = true;
 
 
                         this.purchasingDocumentExpeditionService.OnUpdating(purchasingDocumentExpedition.Id, purchasingDocumentExpedition);
@@ -465,7 +476,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToFinanceDivisionDate).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToFinanceDivisionBy).IsModified = true;
-
+                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
 
@@ -474,7 +485,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedUtc).IsModified = true;
 
                         await DbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_FINANCE_DIVISION);
 
                     }
 
@@ -507,7 +518,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 unitPaymentOrders = unitPaymentOrders
             };
 
-            HttpClientService httpClient = (HttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(HttpClientService));
+            IHttpClientService httpClient = (IHttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
         }
