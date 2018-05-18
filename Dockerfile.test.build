@@ -1,0 +1,10 @@
+FROM microsoft/aspnetcore-build:2.0.2
+WORKDIR /app
+
+COPY Com.DanLiris.Service.Purchasing.Lib/*.csproj ./Com.DanLiris.Service.Purchasing.Lib/
+COPY Com.DanLiris.Service.Purchasing.WebApi/*.csproj ./Com.DanLiris.Service.Purchasing.WebApi/
+RUN dotnet restore ./Com.DanLiris.Service.Purchasing.WebApi/
+
+COPY Com.DanLiris.Service.Purchasing.Lib/. ./Com.DanLiris.Service.Purchasing.Lib/
+COPY Com.DanLiris.Service.Purchasing.WebApi/. ./Com.DanLiris.Service.Purchasing.WebApi/
+RUN dotnet publish ./Com.DanLiris.Service.Purchasing.WebApi/ --output /out/ --configuration Release

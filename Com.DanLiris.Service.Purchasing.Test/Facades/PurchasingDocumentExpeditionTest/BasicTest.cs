@@ -1,0 +1,64 @@
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Xunit;
+
+namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpeditionTest
+{
+    [Collection("ServiceProviderFixture Collection")]
+    public class BasicTest
+    {
+        private IServiceProvider ServiceProvider { get; set; }
+
+        public BasicTest(ServiceProviderFixture fixture)
+        {
+            ServiceProvider = fixture.ServiceProvider;
+
+            IdentityService identityService = (IdentityService)ServiceProvider.GetService(typeof(IdentityService));
+            identityService.Username = "Unit Test";
+        }
+
+        private SendToVerificationDataUtil DataUtil
+        {
+            get { return (SendToVerificationDataUtil)ServiceProvider.GetService(typeof(SendToVerificationDataUtil)); }
+        }
+
+        private PurchasingDocumentExpeditionFacade Facade
+        {
+            get { return (PurchasingDocumentExpeditionFacade)ServiceProvider.GetService(typeof(PurchasingDocumentExpeditionFacade)); }
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data()
+        {
+            await DataUtil.GetTestData();
+            var Response = this.Facade.Read();
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data_With_Arguments()
+        {
+            string order = "{\"UnitPaymentOrderNo\":\"desc\"}";
+            string filter = "{\"Position\":2}";
+            string keyword = "Supplier";
+
+            await DataUtil.GetTestData();
+            var Response = this.Facade.Read(1, 25, order, keyword, filter);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Delete_Data()
+        {
+            PurchasingDocumentExpedition Data = await DataUtil.GetTestData();
+            int AffectedRows = await this.Facade.Delete(Data.Id);
+            Assert.True(AffectedRows > 0);
+        }        
+    }
+}

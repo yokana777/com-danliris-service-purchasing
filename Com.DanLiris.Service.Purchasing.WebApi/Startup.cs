@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -51,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddScoped<IdentityService>()
-                .AddScoped<HttpClientService>()
+                .AddScoped<IHttpClientService, HttpClientService>()
                 .AddScoped<ValidateService>();
         }
 
