@@ -66,21 +66,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
         {
             PurchasingDocumentAcceptanceViewModel vModel = GetVerificationNewData();
             await Task.Run(() => Facade.PurchasingDocumentAcceptance(vModel, "Unit Test"));
-            return Facade.ReadById(purchasingDocumentExpedition.Id);
+            return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }
 
         public async Task<PurchasingDocumentExpedition> GetCashierTestData()
         {
             PurchasingDocumentAcceptanceViewModel vModel = GetCashierNewData();
             await Task.Run(() => Facade.PurchasingDocumentAcceptance(vModel, "Unit Test"));
-            return Facade.ReadById(purchasingDocumentExpedition.Id);
+            return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }
 
         public async Task<PurchasingDocumentExpedition> GetFinanceTestData()
         {
             PurchasingDocumentAcceptanceViewModel vModel = GetFinanceNewData();
             await Task.Run(() => Facade.PurchasingDocumentAcceptance(vModel, "Unit Test"));
-            return Facade.ReadById(purchasingDocumentExpedition.Id);
+            return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }
     }
 }

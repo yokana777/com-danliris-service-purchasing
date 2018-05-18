@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
                     new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
-                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.service.test;User Id=sa;password=Standar123.;MultipleActiveResultSets=true;")
+                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.service.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;")
                 })
                 .Build();
 
@@ -53,6 +53,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
+
+            PurchasingDbContext dbContext = ServiceProvider.GetService<PurchasingDbContext>();
+            dbContext.Database.Migrate();
         }
 
         public void Dispose()
