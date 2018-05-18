@@ -272,6 +272,6 @@ __pycache__/
 # tools/
 
 */appsettings.json
-*/launchSettings.json
+Com.DanLiris.Service.Purchasing.WebApi/Properties/launchSettings.json
 
 # End of https://www.gitignore.io/api/aspnetcore
