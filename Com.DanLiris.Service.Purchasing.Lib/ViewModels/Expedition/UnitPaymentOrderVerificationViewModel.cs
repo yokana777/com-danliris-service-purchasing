@@ -9,8 +9,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 {
     public class UnitPaymentOrderVerificationViewModel : IValidatableObject
     {
+        public int Id { get; set; }
         public DateTimeOffset? VerificationDate { get; set; }
         public string UnitPaymentOrderNo { get; set; }
+        public string Reason { get; set; }
         public ExpeditionPosition SubmitPosition { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -35,11 +37,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public PurchasingDocumentExpedition ToModel()
         {
 
-            PurchasingDocumentExpedition data = new PurchasingDocumentExpedition()
+            PurchasingDocumentExpedition data = new PurchasingDocumentExpedition
             {
+                Id = this.Id,
                 VerifyDate = this.VerificationDate,
                 UnitPaymentOrderNo = this.UnitPaymentOrderNo,
                 Position = this.SubmitPosition,
+                NotVerifiedReason = this.Reason,
             };
 
             return data;
