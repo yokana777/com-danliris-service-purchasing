@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Configs.Expedition
         public void Configure(EntityTypeBuilder<PurchasingDocumentExpedition> builder)
         {
             builder.Property(p => p.UnitPaymentOrderNo).HasMaxLength(255);
+            builder.Property(p => p.InvoiceNo).HasMaxLength(255);
             builder.Property(p => p.SupplierCode).HasMaxLength(255);
             builder.Property(p => p.SupplierName).HasMaxLength(255);
             builder.Property(p => p.DivisionCode).HasMaxLength(255);

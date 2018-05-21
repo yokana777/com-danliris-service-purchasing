@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     UnitPaymentOrderNo = s.UnitPaymentOrderNo,
                     UPODate = s.UPODate,
                     DueDate = s.DueDate,
+                    InvoiceNo = s.InvoiceNo,
                     SupplierCode = s.SupplierCode,
                     SupplierName = s.SupplierName,
                     DivisionCode = s.DivisionCode,
@@ -82,6 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    Id = s.Id,
                    UnitPaymentOrderNo = s.UnitPaymentOrderNo,
                    UPODate = s.UPODate,
+                   InvoiceNo = s.InvoiceNo,
                    DueDate = s.DueDate,
                    SupplierName = s.SupplierName,
                    DivisionName = s.DivisionName,
@@ -120,6 +122,52 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Count = await this.purchasingDocumentExpeditionService.DeleteAsync(id);
                     UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.PURCHASING_DIVISION);
 
+                    transaction.Commit();
+                }
+                catch (DbUpdateConcurrencyException e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Count;
+        }
+
+        public async Task<int> DeleteByUPONo(string unitPaymentOrderNo)
+        {
+            int Count = 0;
+
+            if (purchasingDocumentExpeditionService.DbSet.Count(p => p._IsDeleted == false && p.UnitPaymentOrderNo == unitPaymentOrderNo).Equals(0))
+            {
+                return 0;
+            }
+
+            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    IdentityService identityService = (IdentityService)purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(IdentityService));
+                    purchasingDocumentExpeditionService.DbContext.PurchasingDocumentExpeditions
+                        .Where(p => p.UnitPaymentOrderNo == unitPaymentOrderNo)
+                        .ToList()
+                        .ForEach(p =>
+                        {
+                            p._IsDeleted = true;
+                            p._LastModifiedAgent = "Service";
+                            p._LastModifiedBy = identityService.Username;
+                            p._LastModifiedUtc = DateTime.UtcNow;
+                            p._DeletedAgent = "Service";
+                            p._DeletedBy = identityService.Username;
+                            p._DeletedUtc = DateTime.UtcNow;
+                        });
+
+                    Count = await purchasingDocumentExpeditionService.DbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)
@@ -197,7 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             {
                                 Id = item.Id,
                                 VerificationDivisionBy = username,
-                                VerificationDivisionDate = data.ReceiptDate,
+                                VerificationDivisionDate = DateTimeOffset.UtcNow,
                                 Position = ExpeditionPosition.VERIFICATION_DIVISION,
                             };
 
@@ -226,7 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             {
                                 Id = item.Id,
                                 CashierDivisionBy = username,
-                                CashierDivisionDate = data.ReceiptDate,
+                                CashierDivisionDate = DateTimeOffset.UtcNow,
                                 Position = ExpeditionPosition.CASHIER_DIVISION,
                             };
 
@@ -255,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             {
                                 Id = item.Id,
                                 FinanceDivisionBy = username,
-                                FinanceDivisionDate = data.ReceiptDate,
+                                FinanceDivisionDate = DateTimeOffset.UtcNow,
                                 Position = ExpeditionPosition.FINANCE_DIVISION,
                             };
 

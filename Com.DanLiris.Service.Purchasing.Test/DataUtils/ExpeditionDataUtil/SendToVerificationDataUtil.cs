@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 UnitPaymentOrderNo = Guid.NewGuid().ToString(),
                 UPODate = DateTimeOffset.UtcNow,
                 DueDate = DateTimeOffset.UtcNow,
+                InvoiceNo = "Invoice",
                 SupplierCode = "Supplier",
                 SupplierName = "Supplier",
                 DivisionCode = "Division",
