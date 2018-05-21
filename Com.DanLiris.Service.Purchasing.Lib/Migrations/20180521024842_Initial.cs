@@ -25,6 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     DueDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     FinanceDivisionBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     FinanceDivisionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    InvoiceNo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     NotVerifiedReason = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Position = table.Column<int>(type: "int", nullable: false),
                     SendToCashierDivisionBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
