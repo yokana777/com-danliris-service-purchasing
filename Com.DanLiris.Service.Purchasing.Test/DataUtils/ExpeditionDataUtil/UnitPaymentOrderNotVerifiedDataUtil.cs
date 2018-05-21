@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
 {
-    class UnitPurchaseOrderNotVerifiedDataUtil
+    class UnitPaymentOrderNotVerifiedDataUtil
     {
         private readonly PurchasingDocumentExpeditionFacade Facade;
 
-        public UnitPurchaseOrderNotVerifiedDataUtil(PurchasingDocumentExpeditionFacade Facade)
+        public UnitPaymentOrderNotVerifiedDataUtil(PurchasingDocumentExpeditionFacade Facade)
         {
             this.Facade = Facade;
         }
