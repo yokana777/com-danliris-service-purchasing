@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             identityService.Username = "Unit Test";
         }
 
-        private SendToVerificationDataUtil DataUtil
+        private UnitPaymentOrderNotVerifiedDataUtil DataUtil
         {
-            get { return (SendToVerificationDataUtil)ServiceProvider.GetService(typeof(SendToVerificationDataUtil)); }
+            get { return (UnitPaymentOrderNotVerifiedDataUtil)ServiceProvider.GetService(typeof(UnitPaymentOrderNotVerifiedDataUtil)); }
         }
 
         private UnitPaymentOrderNotVerifiedReportFacade Facade
