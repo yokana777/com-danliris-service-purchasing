@@ -24,11 +24,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             get { return this.TestFixture.Client; }
         }
 
-        protected SendToVerificationDataUtil DataUtil
-        {
-            get { return (SendToVerificationDataUtil)this.TestFixture.Service.GetService(typeof(SendToVerificationDataUtil)); }
-        }
-
         public PurchasingToVerificationTest(TestServerFixture fixture)
         {
             TestFixture = fixture;
@@ -42,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                 UnitPaymentOrders = new List<UnitPaymentOrderViewModel>()
                 {
                     new UnitPaymentOrderViewModel(){
-                        No = "UPONo",
+                        No = Guid.NewGuid().ToString(),
                         Currency = "IDR",
                         DivisionCode = "Division",
                         DivisionName = "Division",
@@ -58,17 +53,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
 
             var response = await Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-
-            var responseLocationHeader = await this.Client.GetAsync(response.Headers.Location.OriginalString);
-            Assert.Equal(HttpStatusCode.OK, responseLocationHeader.StatusCode);
-
-            var json = responseLocationHeader.Content.ReadAsStringAsync().Result;
-            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
-
-            Assert.True(result.ContainsKey("apiVersion"));
-            Assert.True(result.ContainsKey("message"));
-            Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
         }
     }
 }

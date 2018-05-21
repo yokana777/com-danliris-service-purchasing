@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         /* Hard Code */
         private string[] EXPOSED_HEADERS = new string[] { "Content-Disposition", "api-version", "content-length", "content-md5", "content-type", "date", "request-id", "response-time" };
         private string PURCHASING_POLICITY = "PurchasingPolicy";
-        
+
         public IConfiguration Configuration { get; }
 
 
@@ -46,13 +46,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>();
         }
 
-        private void RegisterServices(IServiceCollection services)
+        private void RegisterServices(IServiceCollection services, bool isTest)
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddScoped<IdentityService>()
-                .AddScoped<IHttpClientService, HttpClientService>()
                 .AddScoped<ValidateService>();
+
+            if (isTest == false)
+            {
+                services.AddScoped<IHttpClientService, HttpClientService>();
+            }
         }
 
         #endregion Register
@@ -60,12 +64,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
+            string env = Configuration.GetValue<string>(Constant.ASPNETCORE_ENVIRONMENT);
 
             /* Register */
             services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
             RegisterEndpoints();
             RegisterFacades(services);
-            RegisterServices(services);
+            RegisterServices(services, env.Equals("Test"));
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });

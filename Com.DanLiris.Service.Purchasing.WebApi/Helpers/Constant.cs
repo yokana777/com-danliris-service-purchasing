@@ -10,5 +10,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
         public const string PURCHASING_ENDPOINT = "PurchasingEndpoint";
         public const string DEFAULT_CONNECTION = "DefaultConnection";
         public const string SECRET = "Secret";
+        public const string ASPNETCORE_ENVIRONMENT = "ASPNETCORE_ENVIRONMENT";
     }
 }

@@ -41,18 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             PurchasingDocumentAcceptanceViewModel ViewModel = DataUtil.GetVerificationNewData();
 
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(ViewModel).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-
-            var responseLocationHeader = await this.Client.GetAsync(response.Headers.Location.OriginalString);
-            Assert.Equal(HttpStatusCode.OK, responseLocationHeader.StatusCode);
-
-            var json = responseLocationHeader.Content.ReadAsStringAsync().Result;
-            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
-
-            Assert.True(result.ContainsKey("apiVersion"));
-            Assert.True(result.ContainsKey("message"));
-            Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]

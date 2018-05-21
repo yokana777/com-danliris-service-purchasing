@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi;
@@ -33,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 {
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
+                    new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
                     new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.controller.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;")
                 })
                 .Build();
@@ -45,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     services
                        .AddTransient<SendToVerificationDataUtil>()
                        .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
-                       .AddSingleton<IHttpClientService, HttpClientTestService>()
+                       .AddScoped<IHttpClientService, HttpClientTestService>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })
                 .UseStartup<Startup>();
@@ -67,6 +69,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
             var data = response.Content.ReadAsStringAsync();
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(data.Result.ToString());
             var token = result["data"].ToString();
+
+            IdentityService identityService = Service.GetService<IdentityService>();
+            identityService.Username = User.username;
 
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
         }
