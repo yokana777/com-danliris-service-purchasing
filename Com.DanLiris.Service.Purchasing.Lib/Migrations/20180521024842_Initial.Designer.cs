@@ -12,7 +12,7 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    [Migration("20180515041126_Initial")]
+    [Migration("20180521024842_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTimeOffset?>("FinanceDivisionDate");
+
+                    b.Property<string>("InvoiceNo")
+                        .HasMaxLength(255);
 
                     b.Property<string>("NotVerifiedReason")
                         .HasMaxLength(255);

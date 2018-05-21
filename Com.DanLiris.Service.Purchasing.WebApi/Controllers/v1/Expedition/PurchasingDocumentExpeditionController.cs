@@ -50,6 +50,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 .Delete(id);
         }
 
+        [HttpDelete("PDE/{UnitPaymentOrderNo}")]
+        public async Task<IActionResult> Delete([FromRoute] string unitPaymentOrderNo)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            this.identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            this.identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+
+            try
+            {
+                int Result = await purchasingDocumentExpeditionFacade.DeleteByUPONo(unitPaymentOrderNo);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetById([FromRoute] int Id)
         {

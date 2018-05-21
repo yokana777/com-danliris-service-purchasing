@@ -52,6 +52,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset?>("FinanceDivisionDate");
 
+                    b.Property<string>("InvoiceNo")
+                        .HasMaxLength(255);
+
                     b.Property<string>("NotVerifiedReason")
                         .HasMaxLength(255);
 

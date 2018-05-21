@@ -34,7 +34,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
 
             PurchasingDocumentAcceptanceViewModel TestData = new PurchasingDocumentAcceptanceViewModel()
             {
-                ReceiptDate = DateTimeOffset.UtcNow,
                 PurchasingDocumentExpedition = new List<PurchasingDocumentAcceptanceItem>() { item }
             };
 
