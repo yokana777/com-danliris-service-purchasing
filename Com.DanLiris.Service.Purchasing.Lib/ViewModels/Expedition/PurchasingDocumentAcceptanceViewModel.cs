@@ -29,11 +29,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 yield return new ValidationResult("Purchasing Document Expeditions is required", new List<string> { "PurchaseDocumentExpeditionCollection" });
             }
         }
+    }
 
-        public class PurchasingDocumentAcceptanceItem
-        {
-            public int Id { get; set; }
-            public string UnitPaymentOrderNo { get; set; }
-        }
+    public class PurchasingDocumentAcceptanceItem
+    {
+        public int Id { get; set; }
+        public string UnitPaymentOrderNo { get; set; }
     }
 }

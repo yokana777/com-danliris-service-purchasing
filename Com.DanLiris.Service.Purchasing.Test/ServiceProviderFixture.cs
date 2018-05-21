@@ -3,7 +3,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -44,7 +43,6 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 {
                     options.UseSqlServer(connectionString);
                 }, ServiceLifetime.Transient)
-                .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<SendToVerificationDataUtil>()

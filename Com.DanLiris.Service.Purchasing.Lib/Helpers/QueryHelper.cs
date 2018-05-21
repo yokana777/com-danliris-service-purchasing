@@ -57,9 +57,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             /* Default Order */
             if (OrderDictionary.Count.Equals(0))
             {
-                OrderDictionary.Add("_LastModifiedUtc", "desc");
+                OrderDictionary.Add("LastModifiedUtc", "desc");
 
-                Query = Query.OrderByDescending(b => b._LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             }
             /* Custom Order */
             else

@@ -3,7 +3,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -49,7 +48,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         private void RegisterServices(IServiceCollection services, bool isTest)
         {
             services
-                .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddScoped<IdentityService>()
                 .AddScoped<ValidateService>();
 
