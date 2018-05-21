@@ -64,15 +64,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             try
             {
                 int Result = await purchasingDocumentExpeditionFacade.DeleteByUPONo(unitPaymentOrderNo);
-
-                if (Result.Equals(0))
-                {
-                    Dictionary<string, object> ResultNotFound =
-                       new ResultFormatter(ApiVersion, General.NOT_FOUND_STATUS_CODE, General.NOT_FOUND_MESSAGE)
-                       .Fail();
-                    return NotFound(ResultNotFound);
-                }
-
                 return NoContent();
             }
             catch (Exception e)
