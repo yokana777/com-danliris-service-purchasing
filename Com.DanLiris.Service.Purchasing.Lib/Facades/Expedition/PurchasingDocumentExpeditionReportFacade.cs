@@ -1,26 +1,25 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
-using System;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
     public class PurchasingDocumentExpeditionReportFacade
     {
-        public readonly PurchasingDocumentExpeditionService purchasingDocumentExpeditionService;
-
-        public PurchasingDocumentExpeditionReportFacade(PurchasingDocumentExpeditionService purchasingDocumentExpeditionService)
+        private readonly PurchasingDbContext dbContext;
+        private readonly DbSet<PurchasingDocumentExpedition> dbSet;
+        public PurchasingDocumentExpeditionReportFacade(PurchasingDbContext dbContext)
         {
-            this.purchasingDocumentExpeditionService = purchasingDocumentExpeditionService;
+            this.dbContext = dbContext;
+            this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
         }
 
         public List<PurchasingDocumentExpeditionReportViewModel> GetReport(List<string> unitPaymentOrders)
         {
-            var data = this.purchasingDocumentExpeditionService.DbSet
+            var data = this.dbSet
                 .Select(s => new PurchasingDocumentExpedition
                 {
                     UnitPaymentOrderNo = s.UnitPaymentOrderNo,
