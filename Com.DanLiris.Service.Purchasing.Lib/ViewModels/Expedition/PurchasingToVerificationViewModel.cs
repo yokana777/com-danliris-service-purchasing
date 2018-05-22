@@ -9,19 +9,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 {
     public class PurchasingToVerificationViewModel : IValidatableObject
     {
-        public DateTimeOffset? SubmissionDate { get; set; }
+        /* public DateTimeOffset? SubmissionDate { get; set; } */
         public List<UnitPaymentOrderViewModel> UnitPaymentOrders { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (this.SubmissionDate == null)
-            {
-                yield return new ValidationResult("Submission Date is required", new List<string> { "SubmissionDate" });
-            }
-            else if (this.SubmissionDate > DateTimeOffset.UtcNow)
-            {
-                yield return new ValidationResult("Submission Date must be lower or equal than today's date", new List<string> { "SubmissionDate" });
-            }
+            /*
+                if (this.SubmissionDate == null)
+                {
+                    yield return new ValidationResult("Submission Date is required", new List<string> { "SubmissionDate" });
+                }
+                else if (this.SubmissionDate > DateTimeOffset.UtcNow)
+                {
+                    yield return new ValidationResult("Submission Date must be lower or equal than today's date", new List<string> { "SubmissionDate" });
+                }
+            */
 
             if (this.UnitPaymentOrders.Count.Equals(0))
             {
@@ -67,9 +69,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             {
                 list.Add(new PurchasingDocumentExpedition()
                 {
-                    SendToVerificationDivisionDate = (DateTimeOffset)this.SubmissionDate,
+                    SendToVerificationDivisionDate = DateTimeOffset.UtcNow,
                     UnitPaymentOrderNo = unitPaymentOrder.No,
                     UPODate = unitPaymentOrder.UPODate,
+                    InvoiceNo = unitPaymentOrder.InvoiceNo,
                     DueDate = unitPaymentOrder.DueDate,
                     SupplierCode = unitPaymentOrder.SupplierCode,
                     SupplierName = unitPaymentOrder.SupplierName,

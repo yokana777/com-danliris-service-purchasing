@@ -3,8 +3,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
+using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.EntityFrameworkCore;
@@ -16,22 +16,26 @@ using System.Linq.Dynamic.Core;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using static Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition.PurchasingDocumentAcceptanceViewModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
     public class PurchasingDocumentExpeditionFacade : IReadable, IDeleteable
     {
-        public readonly PurchasingDocumentExpeditionService purchasingDocumentExpeditionService;
+        private readonly PurchasingDbContext dbContext;
+        public readonly IServiceProvider serviceProvider;
+        private readonly DbSet<PurchasingDocumentExpedition> dbSet;
 
-        public PurchasingDocumentExpeditionFacade(PurchasingDocumentExpeditionService purchasingDocumentExpeditionService)
+        public PurchasingDocumentExpeditionFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
-            this.purchasingDocumentExpeditionService = purchasingDocumentExpeditionService;
+            this.serviceProvider = serviceProvider;
+            this.dbContext = dbContext;
+            this.dbSet = dbContext.Set<PurchasingDocumentExpedition>();
         }
 
         public Tuple<List<object>, int, Dictionary<string, string>> Read(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            IQueryable<PurchasingDocumentExpedition> Query = this.purchasingDocumentExpeditionService.DbSet;
+            IQueryable<PurchasingDocumentExpedition> Query = this.dbContext.PurchasingDocumentExpeditions;
 
             Query = Query
                 .Select(s => new PurchasingDocumentExpedition
@@ -40,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     UnitPaymentOrderNo = s.UnitPaymentOrderNo,
                     UPODate = s.UPODate,
                     DueDate = s.DueDate,
+                    InvoiceNo = s.InvoiceNo,
                     SupplierCode = s.SupplierCode,
                     SupplierName = s.SupplierName,
                     DivisionCode = s.DivisionCode,
@@ -48,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Currency = s.Currency,
                     Position = s.Position,
                     VerifyDate = s.VerifyDate,
-                    _LastModifiedUtc = s._LastModifiedUtc
+                    LastModifiedUtc = s.LastModifiedUtc
                 });
 
             List<string> searchAttributes = new List<string>()
@@ -82,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    Id = s.Id,
                    UnitPaymentOrderNo = s.UnitPaymentOrderNo,
                    UPODate = s.UPODate,
+                   InvoiceNo = s.InvoiceNo,
                    DueDate = s.DueDate,
                    SupplierName = s.SupplierName,
                    DivisionName = s.DivisionName,
@@ -89,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    Currency = s.Currency,
                    Position = s.Position,
                    VerifyDate = s.VerifyDate,
-                   _LastModifiedUtc = s._LastModifiedUtc
+                   _LastModifiedUtc = s.LastModifiedUtc
                }).ToList()
             );
 
@@ -98,8 +104,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
         public async Task<PurchasingDocumentExpedition> ReadModelById(int id)
         {
-            return await this.purchasingDocumentExpeditionService.DbSet
-                .Where(d => d.Id.Equals(id) && d._IsDeleted.Equals(false))
+            return await this.dbContext.PurchasingDocumentExpeditions
+                .Where(d => d.Id.Equals(id) && d.IsDeleted.Equals(false))
                 .FirstOrDefaultAsync();
         }
 
@@ -107,19 +113,70 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             int Count = 0;
 
-            if (!this.purchasingDocumentExpeditionService.IsExists(id))
+            if (this.dbContext.PurchasingDocumentExpeditions.Count(p => p.Id == id && p.IsDeleted == false).Equals(0)) 
             {
                 return 0;
             }
 
-            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(p => p.Id == id && p.Position == ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
-                    Count = await this.purchasingDocumentExpeditionService.DeleteAsync(id);
+                    IdentityService identityService = serviceProvider.GetService<IdentityService>();
+                    PurchasingDocumentExpedition purchasingDocumentExpedition = dbContext.PurchasingDocumentExpeditions.Single(p => p.Id == id && p.Position == ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
+
+                    EntityExtension.FlagForDelete(purchasingDocumentExpedition, identityService.Username, "Facade");
+                    this.dbSet.Update(purchasingDocumentExpedition);
+                    Count = await this.dbContext.SaveChangesAsync();
+
                     UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.PURCHASING_DIVISION);
 
+                    transaction.Commit();
+                }
+                catch (DbUpdateConcurrencyException e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Count;
+        }
+
+        public async Task<int> DeleteByUPONo(string unitPaymentOrderNo)
+        {
+            int Count = 0;
+
+            if (this.dbSet.Count(p => p.IsDeleted == false && p.UnitPaymentOrderNo == unitPaymentOrderNo).Equals(0))
+            {
+                return 0;
+            }
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    IdentityService identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+                    dbContext.PurchasingDocumentExpeditions
+                        .Where(p => p.UnitPaymentOrderNo == unitPaymentOrderNo)
+                        .ToList()
+                        .ForEach(p =>
+                        {
+                            p.IsDeleted = true;
+                            p.LastModifiedAgent = "Service";
+                            p.LastModifiedBy = identityService.Username;
+                            p.LastModifiedUtc = DateTime.UtcNow;
+                            p.DeletedAgent = "Service";
+                            p.DeletedBy = identityService.Username;
+                            p.DeletedUtc = DateTime.UtcNow;
+                        });
+
+                    Count = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)
@@ -141,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             int Created = 0;
 
-            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
@@ -153,8 +210,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
                         purchasingDocumentExpedition.Active = true;
                         purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
-                        Created += await this.purchasingDocumentExpeditionService.CreateAsync(purchasingDocumentExpedition);
+
+                        EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
+                        this.dbSet.Add(purchasingDocumentExpedition);
                     }
+
+                    Created = await dbContext.SaveChangesAsync();
 
                     UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
 
@@ -179,11 +240,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             int Updated = 0;
 
-            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var DbContext = this.purchasingDocumentExpeditionService.DbContext;
                     List<string> unitPaymentOrders = new List<string>();
 
                     #region Verification
@@ -197,21 +257,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             {
                                 Id = item.Id,
                                 VerificationDivisionBy = username,
-                                VerificationDivisionDate = data.ReceiptDate,
+                                VerificationDivisionDate = DateTimeOffset.UtcNow,
                                 Position = ExpeditionPosition.VERIFICATION_DIVISION,
                             };
 
-                            this.purchasingDocumentExpeditionService.OnUpdating(model.Id, model);
-                            DbContext.Attach(model);
-                            DbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
-                            DbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
-                            DbContext.Entry(model).Property(x => x.Position).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                            EntityExtension.FlagForUpdate(model, username, "Facade");
+                            dbContext.Attach(model);
+                            dbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
 
-                        Updated = await DbContext.SaveChangesAsync();
+                        Updated = await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.VERIFICATION_DIVISION);
                     }
                     #endregion Verification
@@ -226,24 +286,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             {
                                 Id = item.Id,
                                 CashierDivisionBy = username,
-                                CashierDivisionDate = data.ReceiptDate,
+                                CashierDivisionDate = DateTimeOffset.UtcNow,
                                 Position = ExpeditionPosition.CASHIER_DIVISION,
                             };
 
-                            this.purchasingDocumentExpeditionService.OnUpdating(model.Id, model);
-                            DbContext.Attach(model);
-                            DbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
-                            DbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
-                            DbContext.Entry(model).Property(x => x.Position).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                            EntityExtension.FlagForUpdate(model, username, "Facade");
+                            dbContext.Attach(model);
+                            dbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
 
-                        Updated = await DbContext.SaveChangesAsync();
+                        Updated = await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.CASHIER_DIVISION);
                     }
                     #endregion Cashier
+                    /*
                     #region Finance
                     else if (data.Role.Equals("FINANCE"))
                     {
@@ -255,24 +316,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             {
                                 Id = item.Id,
                                 FinanceDivisionBy = username,
-                                FinanceDivisionDate = data.ReceiptDate,
+                                FinanceDivisionDate = DateTimeOffset.UtcNow,
                                 Position = ExpeditionPosition.FINANCE_DIVISION,
                             };
 
-                            this.purchasingDocumentExpeditionService.OnUpdating(model.Id, model);
-                            DbContext.Attach(model);
-                            DbContext.Entry(model).Property(x => x.FinanceDivisionBy).IsModified = true;
-                            DbContext.Entry(model).Property(x => x.FinanceDivisionDate).IsModified = true;
-                            DbContext.Entry(model).Property(x => x.Position).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
-                            DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                            EntityExtension.FlagForUpdate(model, username, "Facade");
+                            dbContext.Attach(model);
+                            dbContext.Entry(model).Property(x => x.FinanceDivisionBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.FinanceDivisionDate).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
 
-                        Updated = await DbContext.SaveChangesAsync();
+                        Updated = await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.FINANCE_DIVISION);
                     }
                     #endregion Finance
+                    */
 
                     transaction.Commit();
                 }
@@ -290,19 +352,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             int Count = 0;
 
-            if (!this.purchasingDocumentExpeditionService.IsExists(id))
+            if (this.dbContext.PurchasingDocumentExpeditions.Count(p => p.Id == id && p.IsDeleted == false).Equals(0))
             {
                 return 0;
             }
 
-            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var DbContext = this.purchasingDocumentExpeditionService.DbContext;
-
                     PurchasingDocumentExpedition model;
-                    PurchasingDocumentExpedition purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(p => p.Id == id);
+                    PurchasingDocumentExpedition purchasingDocumentExpedition = this.dbSet.AsNoTracking().Single(p => p.Id == id);
+                    IdentityService identityService = serviceProvider.GetService<IdentityService>();
 
                     if (purchasingDocumentExpedition.Position == ExpeditionPosition.VERIFICATION_DIVISION)
                     {
@@ -314,15 +375,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION,
                         };
 
-                        DbContext.Attach(model);
-                        DbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
-                        DbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
-                        DbContext.Entry(model).Property(x => x.Position).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                        EntityExtension.FlagForUpdate(model, identityService.Username, "Facade");
+                        dbContext.Attach(model);
+                        dbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        Count = await DbContext.SaveChangesAsync();
+                        Count = await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
                     }
                     else if (purchasingDocumentExpedition.Position == ExpeditionPosition.CASHIER_DIVISION)
@@ -335,17 +397,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             Position = ExpeditionPosition.SEND_TO_CASHIER_DIVISION,
                         };
 
-                        DbContext.Attach(model);
-                        DbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
-                        DbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
-                        DbContext.Entry(model).Property(x => x.Position).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                        EntityExtension.FlagForUpdate(model, identityService.Username, "Facade");
+                        dbContext.Attach(model);
+                        dbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        Count = await DbContext.SaveChangesAsync();
+                        Count = await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
                     }
+                    /*
                     else if (purchasingDocumentExpedition.Position == ExpeditionPosition.FINANCE_DIVISION)
                     {
                         model = new PurchasingDocumentExpedition
@@ -356,17 +420,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             Position = ExpeditionPosition.SEND_TO_FINANCE_DIVISION,
                         };
 
-                        DbContext.Attach(model);
-                        DbContext.Entry(model).Property(x => x.FinanceDivisionBy).IsModified = true;
-                        DbContext.Entry(model).Property(x => x.SendToFinanceDivisionDate).IsModified = true;
-                        DbContext.Entry(model).Property(x => x.Position).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedAgent).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedBy).IsModified = true;
-                        DbContext.Entry(model).Property(x => x._LastModifiedUtc).IsModified = true;
+                        EntityExtension.FlagForUpdate(model, identityService.Username, "Facade");
+                        dbContext.Attach(model);
+                        dbContext.Entry(model).Property(x => x.FinanceDivisionBy).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.SendToFinanceDivisionDate).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                        dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        Count = await DbContext.SaveChangesAsync();
+                        Count = await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_FINANCE_DIVISION);
                     }
+                    */
 
                     transaction.Commit();
                 }
@@ -388,20 +454,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public async Task<int> UnitPaymentOrderVerification(PurchasingDocumentExpedition data, string username)
         {
             int Count = 0;
-            using (var transaction = this.purchasingDocumentExpeditionService.DbContext.Database.BeginTransaction())
+            using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var DbContext = this.purchasingDocumentExpeditionService.DbContext;
                     PurchasingDocumentExpedition purchasingDocumentExpedition;
 
                     if (!data.Id.Equals(0))
                     {
-                        purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(d => d.Id == data.Id);
+                        purchasingDocumentExpedition = this.dbSet.AsNoTracking().Single(d => d.Id == data.Id);
                     }
                     else
                     {
-                        purchasingDocumentExpedition = purchasingDocumentExpeditionService.DbSet.AsNoTracking().Single(d => d.UnitPaymentOrderNo == data.UnitPaymentOrderNo && d._IsDeleted == false && d.Active == true);
+                        purchasingDocumentExpedition = this.dbSet.AsNoTracking().Single(d => d.UnitPaymentOrderNo == data.UnitPaymentOrderNo && d.IsDeleted == false && d.Active == true);
                     }
 
                     if (data.Position.Equals(ExpeditionPosition.SEND_TO_PURCHASING_DIVISION))
@@ -415,21 +480,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.Active = false;
                         purchasingDocumentExpedition.NotVerifiedReason = data.NotVerifiedReason;
 
-                        this.purchasingDocumentExpeditionService.OnUpdating(purchasingDocumentExpedition.Id, purchasingDocumentExpedition);
+                        EntityExtension.FlagForUpdate(purchasingDocumentExpedition, username, "Facade");
+                        dbContext.Attach(purchasingDocumentExpedition);
 
-                        DbContext.Attach(purchasingDocumentExpedition);
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToPurchasingDivisionDate).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToPurchasingDivisionBy).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.NotVerifiedReason).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedAgent).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedBy).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToPurchasingDivisionDate).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToPurchasingDivisionBy).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.NotVerifiedReason).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedAgent).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedBy).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedUtc).IsModified = true;
-
-                        await DbContext.SaveChangesAsync();
+                        await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_PURCHASING_DIVISION);
                     }
                     else if (data.Position.Equals(ExpeditionPosition.SEND_TO_CASHIER_DIVISION))
@@ -441,21 +505,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_CASHIER_DIVISION;
                         purchasingDocumentExpedition.Active = true;
 
-                        this.purchasingDocumentExpeditionService.OnUpdating(purchasingDocumentExpedition.Id, purchasingDocumentExpedition);
+                        EntityExtension.FlagForUpdate(purchasingDocumentExpedition, username, "Facade");
+                        dbContext.Attach(purchasingDocumentExpedition);
 
-                        DbContext.Attach(purchasingDocumentExpedition);
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToCashierDivisionDate).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToCashierDivisionBy).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
 
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToCashierDivisionDate).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToCashierDivisionBy).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedAgent).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedBy).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedAgent).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedBy).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedUtc).IsModified = true;
-
-                        await DbContext.SaveChangesAsync();
+                        await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
 
                     }
@@ -470,21 +533,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         purchasingDocumentExpedition.Active = true;
 
 
-                        this.purchasingDocumentExpeditionService.OnUpdating(purchasingDocumentExpedition.Id, purchasingDocumentExpedition);
+                        EntityExtension.FlagForUpdate(purchasingDocumentExpedition, username, "Facade");
 
-                        DbContext.Attach(purchasingDocumentExpedition);
+                        dbContext.Attach(purchasingDocumentExpedition);
 
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToFinanceDivisionDate).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToFinanceDivisionBy).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToFinanceDivisionDate).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.SendToFinanceDivisionBy).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.Active).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.VerifyDate).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.Position).IsModified = true;
 
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedAgent).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedBy).IsModified = true;
-                        DbContext.Entry(purchasingDocumentExpedition).Property(x => x._LastModifiedUtc).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedAgent).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedBy).IsModified = true;
+                        dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        await DbContext.SaveChangesAsync();
+                        await dbContext.SaveChangesAsync();
                         UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_FINANCE_DIVISION);
 
                     }
@@ -518,7 +581,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 unitPaymentOrders = unitPaymentOrders
             };
 
-            IHttpClientService httpClient = (IHttpClientService)this.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(IHttpClientService));
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
         }

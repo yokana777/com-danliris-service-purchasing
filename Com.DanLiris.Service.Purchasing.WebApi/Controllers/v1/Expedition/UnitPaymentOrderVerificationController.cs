@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             this.identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             this.identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-            ValidateService validateService = (ValidateService)purchasingDocumentExpeditionFacade.purchasingDocumentExpeditionService.ServiceProvider.GetService(typeof(ValidateService));
+            ValidateService validateService = (ValidateService)purchasingDocumentExpeditionFacade.serviceProvider.GetService(typeof(ValidateService));
 
             try
             {
@@ -65,7 +65,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
     }
 }
 

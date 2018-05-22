@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public string UnitPaymentOrderNo { get; set; }
         public DateTimeOffset UPODate { get; set; }
         public DateTimeOffset DueDate { get; set; }
+        public string InvoiceNo { get; set; }
         public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
         public string DivisionCode { get; set; }
@@ -32,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public string CashierDivisionBy { get; set; }
         public DateTimeOffset? CashierDivisionDate { get; set; }
         public string FinanceDivisionBy { get; set; }
-        public DateTimeOffset? FinanceDivisionDate { get; set; }
+        /* public DateTimeOffset? FinanceDivisionDate { get; set; } */
         public string NotVerifiedReason { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }
         public string BankExpenditureNoteNo { get; set; }
@@ -41,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         {
             PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
 
-            if (dbContext.PurchasingDocumentExpeditions.Count(p => p._IsDeleted.Equals(false) && p.Id != this.Id && p.UnitPaymentOrderNo.Equals(this.UnitPaymentOrderNo)) > 0) /* Unique */
+            if (dbContext.PurchasingDocumentExpeditions.Count(p => p.IsDeleted.Equals(false) && p.Id != this.Id && p.UnitPaymentOrderNo.Equals(this.UnitPaymentOrderNo)) > 0) /* Unique */
             {
                 yield return new ValidationResult($"Unit Payment Order No {this.UnitPaymentOrderNo} is already exists", new List<string> { "UnitPaymentOrdersCollection" });
             }

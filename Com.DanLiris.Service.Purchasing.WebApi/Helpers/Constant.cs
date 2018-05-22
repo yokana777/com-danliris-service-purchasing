@@ -11,5 +11,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
         public const string DEFAULT_CONNECTION = "DefaultConnection";
         public const string MONGODB_CONNECTION = "MongoDbConnection";
         public const string SECRET = "Secret";
+        public const string ASPNETCORE_ENVIRONMENT = "ASPNETCORE_ENVIRONMENT";
     }
 }

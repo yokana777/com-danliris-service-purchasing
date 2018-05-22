@@ -3,7 +3,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -16,7 +15,7 @@ using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
-    public class ServiceProviderFixture : IDisposable
+    public class ServiceProviderFixture
     {
         public IServiceProvider ServiceProvider { get; private set; }
 
@@ -32,7 +31,6 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 {
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
-                    new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
                     new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.service.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;")
                 })
                 .Build();
@@ -45,7 +43,6 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 {
                     options.UseSqlServer(connectionString);
                 }, ServiceLifetime.Transient)
-                .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<SendToVerificationDataUtil>()
@@ -56,15 +53,11 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
             PurchasingDbContext dbContext = ServiceProvider.GetService<PurchasingDbContext>();
             dbContext.Database.Migrate();
-        }
+        }     
+    }
 
-        public void Dispose()
-        {
-        }
-
-        [CollectionDefinition("ServiceProviderFixture Collection")]
-        public class ServiceProviderFixtureCollection : ICollectionFixture<ServiceProviderFixture>
-        {
-        }
+    [CollectionDefinition("ServiceProviderFixture Collection")]
+    public class ServiceProviderFixtureCollection : ICollectionFixture<ServiceProviderFixture>
+    {
     }
 }
