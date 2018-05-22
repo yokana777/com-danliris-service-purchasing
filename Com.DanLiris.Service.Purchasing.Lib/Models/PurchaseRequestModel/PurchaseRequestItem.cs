@@ -1,0 +1,30 @@
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.Moonlay.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel
+{
+    public class PurchaseRequestItem : StandardEntity<long>
+    {
+        /* Product */
+        [MaxLength(255)]
+        public string ProductId { get; set; }
+        [MaxLength(255)]
+        public string ProductCode { get; set; }
+        [MaxLength(4000)]
+        public string ProductName { get; set; }
+        [MaxLength(255)]
+        public string Uom { get; set; }
+
+        public long Quantity { get; set; }
+        public string Remark { get; set; }
+
+        public virtual long PurchaseRequestId { get; set; }
+        [ForeignKey("PurchaseRequestId")]
+        public virtual PurchaseRequest PurchaseRequest { get; set; }
+    }
+}
