@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Com.Moonlay.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Utilities
 {
-    public class BaseModel
+    public abstract class BaseModel : StandardEntity<long>
     {
+        [MaxLength(255)]
+        public string UId { get; set; } /* Object Id MongoDb */
     }
 }
