@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
     {
         public const string PURCHASING_ENDPOINT = "PurchasingEndpoint";
         public const string DEFAULT_CONNECTION = "DefaultConnection";
+        public const string MONGODB_CONNECTION = "MongoDbConnection";
         public const string SECRET = "Secret";
     }
 }

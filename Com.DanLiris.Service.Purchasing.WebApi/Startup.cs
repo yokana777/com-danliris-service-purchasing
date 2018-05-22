@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Services.LocalPurchasingBookReport;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -50,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionService>()
+                .AddTransient<LocalPurchasingBookReportService>()
                 .AddScoped<IdentityService>()
                 .AddScoped<IHttpClientService, HttpClientService>()
                 .AddScoped<ValidateService>();
@@ -66,6 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services);
+            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
