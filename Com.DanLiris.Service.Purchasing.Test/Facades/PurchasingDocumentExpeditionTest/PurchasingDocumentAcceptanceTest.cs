@@ -49,6 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             Assert.True(AffectedRows > 0);
         }
 
+        /*
         [Fact]
         private async void Should_Success_Accept_Document_With_Finance_Role()
         {
@@ -56,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             int AffectedRows = await Facade.PurchasingDocumentAcceptance(vModel, "Unit Test");
             Assert.True(AffectedRows > 0);
         }
+        */
 
         [Fact]
         private async void Should_Success_Delete_Verification_Document()
@@ -73,6 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             Assert.True(AffectedRows > 0);
         }
 
+        /*
         [Fact]
         private async void Should_Success_Delete_Finance_Document()
         {
@@ -80,5 +83,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             int AffectedRows = await Facade.DeletePurchasingDocumentAcceptance(model.Id);
             Assert.True(AffectedRows > 0);
         }
+        */
     }
 }
