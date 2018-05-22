@@ -1,13 +1,9 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-<<<<<<< HEAD
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
-using Com.DanLiris.Service.Purchasing.Lib.Services.LocalPurchasingBookReport;
-=======
->>>>>>> upstream/dev
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -47,17 +43,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
-                .AddTransient<PurchasingDocumentExpeditionReportFacade>();
+                .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<ImportPurchasingBookReportFacade>()
+                .AddTransient<LocalPurchasingBookReportFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
         {
             services
-<<<<<<< HEAD
-                .AddTransient<PurchasingDocumentExpeditionService>()
-                .AddTransient<LocalPurchasingBookReportService>()
-=======
->>>>>>> upstream/dev
                 .AddScoped<IdentityService>()
                 .AddScoped<ValidateService>();
 
@@ -78,12 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
             RegisterEndpoints();
             RegisterFacades(services);
-<<<<<<< HEAD
-            RegisterServices(services);
-            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
-=======
             RegisterServices(services, env.Equals("Test"));
->>>>>>> upstream/dev
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
