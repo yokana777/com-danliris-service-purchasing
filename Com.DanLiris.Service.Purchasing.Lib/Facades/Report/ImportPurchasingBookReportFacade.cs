@@ -50,9 +50,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             IMongoCollection<UnitReceiptNoteViewModel> collection = new MongoDbContext().UnitReceiptNoteViewModel;
             List<UnitReceiptNoteViewModel> ListData = collection.Find(filterBuilderUnitReceiptNote.And(filter)).ToList();
-            //List<UnitReceiptNoteViewModel> ListData = collection.Aggregate()
-            //    .Match(filterBuilder.And(filter))
-            //    .ToList();
 
             foreach (var data in ListData)
             {
@@ -65,80 +62,80 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         #region Ra sido dinggo
 
-        public Tuple<List<UnitReceiptNoteViewModel>, int> GetReports(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
-        {
-            List<FilterDefinition<BsonDocument>> filter = new List<FilterDefinition<BsonDocument>>
-            {
-                filterBuilder.Eq("_deleted", false),
-                filterBuilder.Eq("supplier.import", true)
-            };
+        //public Tuple<List<UnitReceiptNoteViewModel>, int> GetReports(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        //{
+        //    List<FilterDefinition<BsonDocument>> filter = new List<FilterDefinition<BsonDocument>>
+        //    {
+        //        filterBuilder.Eq("_deleted", false),
+        //        filterBuilder.Eq("supplier.import", true)
+        //    };
 
-            if (no != null)
-                filter.Add(filterBuilder.Eq("no", no));
-            if (unit != null)
-                filter.Add(filterBuilder.Eq("unit.code", unit));
-            if (category != null)
-                filter.Add(filterBuilder.Eq("items.purchaseOrder.category.code", category));
-            if (dateFrom != null && dateTo != null)
-                filter.Add(filterBuilder.And(filterBuilder.Gte("date", dateFrom), filterBuilder.Lte("date", dateTo)));
+        //    if (no != null)
+        //        filter.Add(filterBuilder.Eq("no", no));
+        //    if (unit != null)
+        //        filter.Add(filterBuilder.Eq("unit.code", unit));
+        //    if (category != null)
+        //        filter.Add(filterBuilder.Eq("items.purchaseOrder.category.code", category));
+        //    if (dateFrom != null && dateTo != null)
+        //        filter.Add(filterBuilder.And(filterBuilder.Gte("date", dateFrom), filterBuilder.Lte("date", dateTo)));
 
-            List<BsonDocument> ListData = collection.Find(filterBuilder.And(filter)).ToList();
-            //List<BsonDocument> ListData = collection.Aggregate()
-            //    .Match(filterBuilder.And(filter))
-            //    .ToList();
+        //    List<BsonDocument> ListData = collection.Find(filterBuilder.And(filter)).ToList();
+        //    //List<BsonDocument> ListData = collection.Aggregate()
+        //    //    .Match(filterBuilder.And(filter))
+        //    //    .ToList();
 
-            List<UnitReceiptNoteViewModel> Data = new List<UnitReceiptNoteViewModel>();
+        //    List<UnitReceiptNoteViewModel> Data = new List<UnitReceiptNoteViewModel>();
 
-            foreach (var data in ListData)
-            {
-                List<UnitReceiptNoteItemViewModel> Items = new List<UnitReceiptNoteItemViewModel>();
-                foreach (var item in data.GetValue("items").AsBsonArray)
-                {
-                    var itemDocument = item.AsBsonDocument;
-                    Items.Add(new UnitReceiptNoteItemViewModel
-                    {
-                        deliveredQuantity = GetBsonValue.ToDouble(itemDocument, "deliveredQuantity"),
-                        pricePerDealUnit = GetBsonValue.ToDouble(itemDocument, "pricePerDealUnit"),
-                        currencyRate = GetBsonValue.ToDouble(itemDocument, "currencyRate"),
-                        product = new ProductViewModel
-                        {
-                            name = GetBsonValue.ToString(itemDocument, "product.name")
-                        },
-                        purchaseOrder = new PurchaseOrderViewModel
-                        {
-                            category = new CategoryViewModel
-                            {
-                                name = GetBsonValue.ToString(itemDocument, "purchaseOrder.category.code")
-                            }
-                        },
-                    });
-                }
-                var UnitReceiptNoteNo = GetBsonValue.ToString(data, "no");
-                var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", UnitReceiptNoteNo)).FirstOrDefault();
-                Data.Add(new UnitReceiptNoteViewModel
-                {
-                    no = UnitReceiptNoteNo,
-                    date = data.GetValue("date").ToUniversalTime(),
-                    unit = new UnitViewModel
-                    {
-                        name = GetBsonValue.ToString(data, "unit.name")
-                    },
-                    pibNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "pibNo", new BsonString("-")) : "-",
-                    items = Items,
-                });
-            }
+        //    foreach (var data in ListData)
+        //    {
+        //        List<UnitReceiptNoteItemViewModel> Items = new List<UnitReceiptNoteItemViewModel>();
+        //        foreach (var item in data.GetValue("items").AsBsonArray)
+        //        {
+        //            var itemDocument = item.AsBsonDocument;
+        //            Items.Add(new UnitReceiptNoteItemViewModel
+        //            {
+        //                deliveredQuantity = GetBsonValue.ToDouble(itemDocument, "deliveredQuantity"),
+        //                pricePerDealUnit = GetBsonValue.ToDouble(itemDocument, "pricePerDealUnit"),
+        //                currencyRate = GetBsonValue.ToDouble(itemDocument, "currencyRate"),
+        //                product = new ProductViewModel
+        //                {
+        //                    name = GetBsonValue.ToString(itemDocument, "product.name")
+        //                },
+        //                purchaseOrder = new PurchaseOrderViewModel
+        //                {
+        //                    category = new CategoryViewModel
+        //                    {
+        //                        name = GetBsonValue.ToString(itemDocument, "purchaseOrder.category.code")
+        //                    }
+        //                },
+        //            });
+        //        }
+        //        var UnitReceiptNoteNo = GetBsonValue.ToString(data, "no");
+        //        var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", UnitReceiptNoteNo)).FirstOrDefault();
+        //        Data.Add(new UnitReceiptNoteViewModel
+        //        {
+        //            no = UnitReceiptNoteNo,
+        //            date = data.GetValue("date").ToUniversalTime(),
+        //            unit = new UnitViewModel
+        //            {
+        //                name = GetBsonValue.ToString(data, "unit.name")
+        //            },
+        //            pibNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "pibNo", new BsonString("-")) : "-",
+        //            items = Items,
+        //        });
+        //    }
 
-            return Tuple.Create(Data, Data.Count);
-        }
+        //    return Tuple.Create(Data, Data.Count);
+        //}
 
-        // JSON ora iso nge-cast
-        public Tuple<List<BsonDocument>, int> GetReport()
-        {
-            IMongoCollection<BsonDocument> collection = new MongoDbContext().UnitReceiptNote;
-            List<BsonDocument> ListData = collection.Aggregate().ToList();
+        //// JSON ora iso nge-cast
+        //public Tuple<List<BsonDocument>, int> GetReport()
+        //{
+        //    IMongoCollection<BsonDocument> collection = new MongoDbContext().UnitReceiptNote;
+        //    List<BsonDocument> ListData = collection.Aggregate().ToList();
 
-            return Tuple.Create(ListData, ListData.Count);
-        }
+        //    return Tuple.Create(ListData, ListData.Count);
+        //}
 
         #endregion
 
