@@ -131,6 +131,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 cm.AutoMap();
                 cm.SetIgnoreExtraElements(true);
             });
+
+            BsonClassMap.RegisterClassMap<SupplierViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
         }
 
         #endregion Register

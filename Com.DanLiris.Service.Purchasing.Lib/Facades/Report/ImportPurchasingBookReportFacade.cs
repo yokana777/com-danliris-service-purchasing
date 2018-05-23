@@ -63,6 +63,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return Tuple.Create(ListData, ListData.Count);
         }
 
+        #region Ra sido dinggo
+
         public Tuple<List<UnitReceiptNoteViewModel>, int> GetReports(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
             List<FilterDefinition<BsonDocument>> filter = new List<FilterDefinition<BsonDocument>>
@@ -137,6 +139,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             return Tuple.Create(ListData, ListData.Count);
         }
+
+        #endregion
 
         public MemoryStream GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {

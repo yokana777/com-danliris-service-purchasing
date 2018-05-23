@@ -6,6 +6,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
 {
     public class UnitReceiptNoteViewModel
     {
+        public bool _deleted { get; set; }
+        public SupplierViewModel supplier { get; set; }
         public string no { get; set; }
         public DateTimeOffset date { get; set; }
         public UnitViewModel unit { get; set; }
