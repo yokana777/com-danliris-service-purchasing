@@ -3,7 +3,11 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Serializers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
@@ -11,6 +15,7 @@ using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson.Serialization;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -24,6 +29,68 @@ namespace Com.DanLiris.Service.Purchasing.Test
         private void RegisterEndpoints(IConfigurationRoot Configuration)
         {
             APIEndpoint.Purchasing = Configuration.GetValue<string>(Constant.PURCHASING_ENDPOINT) ?? Configuration[Constant.PURCHASING_ENDPOINT];
+        }
+
+        private void RegisterSerializationProvider()
+        {
+            BsonSerializer.RegisterSerializationProvider(new SerializationProvider());
+        }
+
+        private void RegisterClassMap()
+        {
+            BsonClassMap.RegisterClassMap<UnitReceiptNoteViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<UnitReceiptNoteItemViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<UnitViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<DivisionViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<CategoryViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<ProductViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<UomViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<PurchaseOrderViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<SupplierViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
         }
 
         public ServiceProviderFixture()
@@ -55,6 +122,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
+
+            RegisterSerializationProvider();
+            RegisterClassMap();
             MongoDbContext.connectionString = configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? configuration[Constant.MONGODB_CONNECTION];
 
             PurchasingDbContext dbContext = ServiceProvider.GetService<PurchasingDbContext>();

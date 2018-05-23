@@ -69,6 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote
         public BsonDocument GetTestData()
         {
             BsonDocument data = GetNewData();
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
             this.Facade.InsertToMongo(data);
 
             return data;

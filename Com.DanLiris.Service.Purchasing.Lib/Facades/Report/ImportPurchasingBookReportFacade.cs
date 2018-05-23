@@ -217,9 +217,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         {
             collection.InsertOne(document);
         }
-        public void DeleteDataMongo(BsonObjectId id)
+        public void DeleteDataMongoByNo(string no)
         {
-            collection.DeleteOne(filterBuilder.Eq("_id" , id));
+            collection.DeleteOne(filterBuilder.Eq("no" , no));
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             BsonDocument data = DataUtil.GetTestData();
             var Response = this.Facade.GetReport(GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "unit.code"), GetBsonValue.ToString(data, "items.purchaseOrder.category.code"), null, null);
             Assert.NotEqual(Response.Item2, 0);
-            this.Facade.DeleteDataMongo(data["_id"].AsObjectId);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
         }
 
         [Fact]
@@ -44,7 +44,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             BsonDocument data = DataUtil.GetTestData();
             var Response = this.Facade.GetReport(null, null, null, data["date"].ToUniversalTime(), data["date"].ToUniversalTime());
             Assert.NotEqual(Response.Item2, 0);
-            this.Facade.DeleteDataMongo(data["_id"].AsObjectId);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Excel()
+        {
+            BsonDocument data = DataUtil.GetTestData();
+            var xls = this.Facade.GenerateExcel(GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "unit.code"), GetBsonValue.ToString(data, "items.purchaseOrder.category.code"), null, null);
+            Assert.IsType(typeof(System.IO.MemoryStream), xls);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        {
+            BsonDocument data = DataUtil.GetTestData();
+            var xls = this.Facade.GenerateExcel(null, null, null, data["date"].ToUniversalTime(), data["date"].ToUniversalTime());
+            byte[] xlsInBytes = xls.ToArray();
+            Assert.IsType(typeof(System.IO.MemoryStream), xls);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
         }
     }
 }
