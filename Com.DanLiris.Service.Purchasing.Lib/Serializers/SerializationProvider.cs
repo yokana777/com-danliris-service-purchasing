@@ -4,7 +4,6 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Serializers
 {
     public class SerializationProvider : IBsonSerializationProvider
-
     {
         public IBsonSerializer GetSerializer(Type type)
         {
@@ -19,6 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Serializers
             else if (type == typeof(int))
             {
                 return new CustomInt32Serializer();
+            }
+            else if (type == typeof(DateTimeOffset))
+            {
+                return new CustomDateTimeOffsetSerializer();
             }
 
             return null;

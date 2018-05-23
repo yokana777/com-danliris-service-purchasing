@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -26,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         }
 
         public IMongoCollection<BsonDocument> UnitReceiptNote => database.GetCollection<BsonDocument>("unit-receipt-notes");
+        public IMongoCollection<UnitReceiptNoteViewModel> UnitReceiptNoteViewModel => database.GetCollection<UnitReceiptNoteViewModel>("unit-receipt-notes");
         public IMongoCollection<BsonDocument> UnitPaymentOrder => database.GetCollection<BsonDocument>("unit-payment-orders");
     }
 }

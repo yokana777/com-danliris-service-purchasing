@@ -23,6 +23,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Serializers
                     return Convert.ToString(context.Reader.ReadInt64());
                 case BsonType.Double:
                     return Convert.ToString(context.Reader.ReadDouble());
+                case BsonType.ObjectId:
+                    return context.Reader.ReadObjectId().ToString();
                 default:
                     var message = string.Format("Cannot convert a {0} to an String.", type);
                     throw new NotSupportedException(message);

@@ -32,6 +32,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public Tuple<List<UnitReceiptNoteViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
+            FilterDefinitionBuilder<UnitReceiptNoteViewModel> filterBuilderUnitReceiptNote = Builders<UnitReceiptNoteViewModel>.Filter;
+            List<FilterDefinition<UnitReceiptNoteViewModel>> filter = new List<FilterDefinition<UnitReceiptNoteViewModel>>
+            {
+                filterBuilderUnitReceiptNote.Eq("_deleted", false),
+                filterBuilderUnitReceiptNote.Eq("supplier.import", true)
+            };
+
+            if (no != null)
+                filter.Add(filterBuilderUnitReceiptNote.Eq("no", no));
+            if (unit != null)
+                filter.Add(filterBuilderUnitReceiptNote.Eq("unit.code", unit));
+            if (category != null)
+                filter.Add(filterBuilderUnitReceiptNote.Eq("items.purchaseOrder.category.code", category));
+            if (dateFrom != null && dateTo != null)
+                filter.Add(filterBuilderUnitReceiptNote.And(filterBuilderUnitReceiptNote.Gte("date", dateFrom), filterBuilderUnitReceiptNote.Lte("date", dateTo)));
+
+            IMongoCollection<UnitReceiptNoteViewModel> collection = new MongoDbContext().UnitReceiptNoteViewModel;
+            List<UnitReceiptNoteViewModel> ListData = collection.Find(filterBuilderUnitReceiptNote.And(filter)).ToList();
+            //List<UnitReceiptNoteViewModel> ListData = collection.Aggregate()
+            //    .Match(filterBuilder.And(filter))
+            //    .ToList();
+
+            foreach (var data in ListData)
+            {
+                var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", data.no)).FirstOrDefault();
+                data.pibNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "pibNo", new BsonString("-")) : "-";
+            }
+
+            return Tuple.Create(ListData, ListData.Count);
+        }
+
+        public Tuple<List<UnitReceiptNoteViewModel>, int> GetReports(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        {
             List<FilterDefinition<BsonDocument>> filter = new List<FilterDefinition<BsonDocument>>
             {
                 filterBuilder.Eq("_deleted", false),

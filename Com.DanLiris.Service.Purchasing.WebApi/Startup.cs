@@ -7,6 +7,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -75,6 +77,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services.AddSingleton(mapper);
         }
 
+        private void RegisterSerializationProvider()
+        {
+            BsonSerializer.RegisterSerializationProvider(new SerializationProvider());
+        }
+
         private void RegisterClassMap()
         {
             BsonClassMap.RegisterClassMap<UnitReceiptNoteViewModel>(cm =>
@@ -82,11 +89,48 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 cm.AutoMap();
                 cm.SetIgnoreExtraElements(true);
             });
-        }
 
-        private void RegisterSerializationProvider()
-        {
-            BsonSerializer.RegisterSerializationProvider(new SerializationProvider());
+            BsonClassMap.RegisterClassMap<UnitReceiptNoteItemViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<UnitViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<DivisionViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<CategoryViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<ProductViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<UomViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
+            BsonClassMap.RegisterClassMap<PurchaseOrderViewModel>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
         }
 
         #endregion Register
@@ -103,8 +147,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterServices(services, env.Equals("Test"));
             RegisterAutoMapper(services);
 
-            RegisterClassMap();
             RegisterSerializationProvider();
+            RegisterClassMap();
             MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             /* Versioning */
