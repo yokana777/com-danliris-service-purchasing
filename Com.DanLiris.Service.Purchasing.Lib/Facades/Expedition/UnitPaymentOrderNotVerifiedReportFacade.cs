@@ -25,16 +25,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbSet;
 
-            //DateTime dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
-            //DateTime dateToFilter = (dateTo == null ? DateTime.UtcNow.AddHours(offset).Date : dateTo.Value.Date);
+            DateTimeOffset dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
+            DateTimeOffset dateToFilter = (dateTo == null ? DateTimeOffset.UtcNow.Date : dateTo.Value.Date);
 
             Query = Query
                 .Where(p => p.IsDeleted == false &&
                     p.UnitPaymentOrderNo == (string.IsNullOrWhiteSpace(no) ? p.UnitPaymentOrderNo : no) &&
                     p.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? p.SupplierCode : supplier) &&
                     p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
-                    p.VerifyDate >= dateFrom &&
-                    p.VerifyDate <= dateTo
+                    p.VerifyDate >= dateFromFilter &&
+                    p.VerifyDate <= dateToFilter
                     && p.Position == (ExpeditionPosition)6
                 );
 
