@@ -1,5 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Master;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using MongoDB.Bson;
@@ -62,18 +62,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     var itemDocument = item.AsBsonDocument;
                     Items.Add(new UnitReceiptNoteItemViewModel
                     {
-                        DeliveredQuantity = GetBsonValue.ToDouble(itemDocument, "deliveredQuantity"),
-                        PricePerDealUnit = GetBsonValue.ToDouble(itemDocument, "pricePerDealUnit"),
-                        CurrencyRate = GetBsonValue.ToDouble(itemDocument, "currencyRate"),
-                        Product = new ProductViewModel
+                        deliveredQuantity = GetBsonValue.ToDouble(itemDocument, "deliveredQuantity"),
+                        pricePerDealUnit = GetBsonValue.ToDouble(itemDocument, "pricePerDealUnit"),
+                        currencyRate = GetBsonValue.ToDouble(itemDocument, "currencyRate"),
+                        product = new ProductViewModel
                         {
-                            Name = GetBsonValue.ToString(itemDocument, "product.name")
+                            name = GetBsonValue.ToString(itemDocument, "product.name")
                         },
-                        PurchaseOrder = new PurchaseOrderViewModel
+                        purchaseOrder = new PurchaseOrderViewModel
                         {
-                            Category = new CategoryViewModel
+                            category = new CategoryViewModel
                             {
-                                Name = GetBsonValue.ToString(itemDocument, "purchaseOrder.category.code")
+                                name = GetBsonValue.ToString(itemDocument, "purchaseOrder.category.code")
                             }
                         },
                     });
@@ -82,14 +82,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", UnitReceiptNoteNo)).FirstOrDefault();
                 Data.Add(new UnitReceiptNoteViewModel
                 {
-                    No = UnitReceiptNoteNo,
-                    Date = data.GetValue("date").ToUniversalTime(),
-                    Unit = new UnitViewModel
+                    no = UnitReceiptNoteNo,
+                    date = data.GetValue("date").ToUniversalTime(),
+                    unit = new UnitViewModel
                     {
-                        Name = GetBsonValue.ToString(data, "unit.name")
+                        name = GetBsonValue.ToString(data, "unit.name")
                     },
-                    PIB = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "pibNo", new BsonString("-")) : "-",
-                    UnitReceiptNoteItems = Items,
+                    pibNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "pibNo", new BsonString("-")) : "-",
+                    items = Items,
                 });
             }
 
@@ -133,22 +133,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
                 foreach (UnitReceiptNoteViewModel data in Data.Item1)
                 {
-                    foreach (UnitReceiptNoteItemViewModel item in data.UnitReceiptNoteItems)
+                    foreach (UnitReceiptNoteItemViewModel item in data.items)
                     {
-                        string categoryName = item.PurchaseOrder.Category.Name;
+                        string categoryName = item.purchaseOrder.category.name;
 
                         if (!dataByCategory.ContainsKey(categoryName)) dataByCategory.Add(categoryName, new List<UnitReceiptNoteViewModel> { });
                         dataByCategory[categoryName].Add(new UnitReceiptNoteViewModel
                         {
-                            No = data.No,
-                            Date = data.Date,
-                            PIB = data.PIB,
-                            Unit = data.Unit,
-                            UnitReceiptNoteItems = new List<UnitReceiptNoteItemViewModel>() { item }
+                            no = data.no,
+                            date = data.date,
+                            pibNo = data.pibNo,
+                            unit = data.unit,
+                            items = new List<UnitReceiptNoteItemViewModel>() { item }
                         });
 
                         if (!subTotalCategory.ContainsKey(categoryName)) subTotalCategory.Add(categoryName, 0);
-                        subTotalCategory[categoryName] += item.DeliveredQuantity;
+                        subTotalCategory[categoryName] += item.deliveredQuantity;
                     }
                 }
 
@@ -159,8 +159,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     foreach (UnitReceiptNoteViewModel data in categoryName.Value)
                     {
-                        UnitReceiptNoteItemViewModel item = data.UnitReceiptNoteItems[0];
-                        result.Rows.Add(data.Date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.No, item.Product.Name, item.PurchaseOrder.Category.Name, data.Unit.Name, data.PIB, item.PricePerDealUnit * item.DeliveredQuantity, item.CurrencyRate, item.PricePerDealUnit * item.DeliveredQuantity * item.CurrencyRate);
+                        UnitReceiptNoteItemViewModel item = data.items[0];
+                        result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, item.purchaseOrder.category.name, data.unit.name, data.pibNo, item.pricePerDealUnit * item.deliveredQuantity, item.currencyRate, item.pricePerDealUnit * item.deliveredQuantity * item.currencyRate);
                         rowPosition += 1;
                     }
                     result.Rows.Add("SUB TOTAL", "", "", "", "", "", 0, 0, subTotalCategory[categoryName.Key]);

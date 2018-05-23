@@ -1,13 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Master;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.IdGenerators;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote
 {
