@@ -30,7 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 DivisionName = "Division",
                 TotalPaid = 1000000,
                 Currency = "IDR",
-                Position = (ExpeditionPosition) 6
+                Position = (ExpeditionPosition) 6,
+                VerifyDate= DateTimeOffset.UtcNow
             };
 
             return TestData;

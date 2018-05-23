@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
                     p.VerifyDate >= dateFromFilter &&
                     p.VerifyDate <= dateToFilter 
-                    && (int)p.Position==6 
+                    && p.Position == (ExpeditionPosition)6
                 );
 
             Query = Query
