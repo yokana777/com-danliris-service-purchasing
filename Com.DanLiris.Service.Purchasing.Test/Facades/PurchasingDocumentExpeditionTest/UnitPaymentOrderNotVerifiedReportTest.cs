@@ -9,6 +9,7 @@ using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpeditionTest
 {
+    [Collection("ServiceProviderFixture Collection")]
     public class UnitPaymentOrderNotVerifiedReportTest
     {
         private IServiceProvider ServiceProvider { get; set; }
