@@ -21,20 +21,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
         }
 
-        public Tuple<List<UnitPaymentOrderNotVerifiedReportViewModel>, int> GetReport(string no, string supplier, string division, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<UnitPaymentOrderNotVerifiedReportViewModel>, int> GetReport(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int page, int size, string Order, int offset)
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbSet;
 
-            DateTime dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
-            DateTime dateToFilter = (dateTo == null ? DateTime.UtcNow.AddHours(offset).Date : dateTo.Value.Date);
+            //DateTime dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
+            //DateTime dateToFilter = (dateTo == null ? DateTime.UtcNow.AddHours(offset).Date : dateTo.Value.Date);
 
             Query = Query
                 .Where(p => p.IsDeleted == false &&
                     p.UnitPaymentOrderNo == (string.IsNullOrWhiteSpace(no) ? p.UnitPaymentOrderNo : no) &&
                     p.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? p.SupplierCode : supplier) &&
                     p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
-                    p.VerifyDate >= dateFromFilter &&
-                    p.VerifyDate <= dateToFilter 
+                    p.VerifyDate >= dateFrom &&
+                    p.VerifyDate <= dateTo
                     && p.Position == (ExpeditionPosition)6
                 );
 
