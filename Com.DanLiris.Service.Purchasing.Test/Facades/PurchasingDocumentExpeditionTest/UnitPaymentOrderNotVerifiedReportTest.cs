@@ -35,7 +35,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         public async void Should_Success_Get_Report_Data()
         {
             PurchasingDocumentExpedition model = await DataUtil.GetTestData();
-            //List<string> unitPaymentOrders = new List<string>() { model.UnitPaymentOrderNo };
             var Response = this.Facade.GetReport(model.UnitPaymentOrderNo, model.SupplierCode, model.DivisionCode, null, null, 1,25, model.UnitPaymentOrderNo, 7);
             Assert.NotEqual(Response.Item1.Count, 0);
         }

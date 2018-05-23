@@ -40,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
         public async Task<PurchasingDocumentExpedition> GetTestData()
         {
             PurchasingDocumentExpedition model = GetNewData();
-            await Facade.SendToVerification(new List<PurchasingDocumentExpedition>() { model }, "Unit Test");
+            await Facade.UnitPaymentOrderVerification( model , "Unit Test");
             return model;
         }
     }
