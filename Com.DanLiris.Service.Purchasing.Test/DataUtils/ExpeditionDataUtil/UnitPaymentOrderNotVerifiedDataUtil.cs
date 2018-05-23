@@ -11,11 +11,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
     class UnitPaymentOrderNotVerifiedDataUtil
     {
         private readonly PurchasingDocumentExpeditionFacade Facade;
+        private readonly SendToVerificationDataUtil sendToVerificationDataUtil;
+        private PurchasingDocumentExpedition purchasingDocumentExpedition;
 
         public UnitPaymentOrderNotVerifiedDataUtil(PurchasingDocumentExpeditionFacade Facade)
         {
             this.Facade = Facade;
         }
+
         public PurchasingDocumentExpedition GetNewData()
         {
             PurchasingDocumentExpedition TestData = new PurchasingDocumentExpedition()
@@ -30,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 DivisionName = "Division",
                 TotalPaid = 1000000,
                 Currency = "IDR",
-                Position = (ExpeditionPosition) 6,
+                Position = ExpeditionPosition.SEND_TO_PURCHASING_DIVISION,
                 VerifyDate= DateTimeOffset.UtcNow
             };
 

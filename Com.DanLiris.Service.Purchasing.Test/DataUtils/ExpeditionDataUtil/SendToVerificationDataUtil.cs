@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
         {
             PurchasingDocumentExpedition model = GetNewData();
             await Facade.SendToVerification(new List<PurchasingDocumentExpedition>() { model }, "Unit Test");
+            return model;
+        }
+
+        public async Task<PurchasingDocumentExpedition> GetTestDataNotVerified()
+        {
+            PurchasingDocumentExpedition model = Task.Run(() => GetTestData()).Result;
+            model.Position = ExpeditionPosition.SEND_TO_PURCHASING_DIVISION;
+            await Facade.UnitPaymentOrderVerification(model , "Unit Test");
             return model;
         }
     }

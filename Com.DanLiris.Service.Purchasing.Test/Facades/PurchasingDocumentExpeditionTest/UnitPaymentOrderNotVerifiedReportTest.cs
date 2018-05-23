@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             identityService.Username = "Unit Test";
         }
 
-        private UnitPaymentOrderNotVerifiedDataUtil DataUtil
+        private SendToVerificationDataUtil DataUtil
         {
-            get { return (UnitPaymentOrderNotVerifiedDataUtil)ServiceProvider.GetService(typeof(UnitPaymentOrderNotVerifiedDataUtil)); }
+            get { return (SendToVerificationDataUtil)ServiceProvider.GetService(typeof(SendToVerificationDataUtil)); }
         }
 
         private UnitPaymentOrderNotVerifiedReportFacade Facade
@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         [Fact]
         public async void Should_Success_Get_Report_Data()
         {
-            PurchasingDocumentExpedition model = await DataUtil.GetTestData();
+            PurchasingDocumentExpedition model = await DataUtil.GetTestDataNotVerified();
             var Response = this.Facade.GetReport(model.UnitPaymentOrderNo, model.SupplierCode, model.DivisionCode, null, null, 1,25, model.UnitPaymentOrderNo, 7);
             Assert.NotEqual(Response.Item1.Count, 0);
         }
