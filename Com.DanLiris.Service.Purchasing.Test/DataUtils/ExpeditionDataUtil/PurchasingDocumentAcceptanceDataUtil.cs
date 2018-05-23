@@ -53,13 +53,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             TestData.Role = "CASHIER";
             return TestData;
         }
-
+        
+        /*
         public PurchasingDocumentAcceptanceViewModel GetFinanceNewData()
         {
             PurchasingDocumentAcceptanceViewModel TestData = GetNewData();
             TestData.Role = "FINANCE";
             return TestData;
         }
+        */
 
         public async Task<PurchasingDocumentExpedition> GetVerificationTestData()
         {
@@ -75,11 +77,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }
 
+        /*
         public async Task<PurchasingDocumentExpedition> GetFinanceTestData()
         {
             PurchasingDocumentAcceptanceViewModel vModel = GetFinanceNewData();
             await Task.Run(() => Facade.PurchasingDocumentAcceptance(vModel, "Unit Test"));
             return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }
+        */
     }
 }

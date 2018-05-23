@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         {
             PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
 
-            if (dbContext.PurchasingDocumentExpeditions.Count(p => p._IsDeleted.Equals(false) && p.Id != this.Id && p.UnitPaymentOrderNo.Equals(this.UnitPaymentOrderNo)) > 0) /* Unique */
+            if (dbContext.PurchasingDocumentExpeditions.Count(p => p.IsDeleted.Equals(false) && p.Id != this.Id && p.UnitPaymentOrderNo.Equals(this.UnitPaymentOrderNo)) > 0) /* Unique */
             {
                 yield return new ValidationResult($"Unit Payment Order No {this.UnitPaymentOrderNo} is already exists", new List<string> { "UnitPaymentOrdersCollection" });
             }

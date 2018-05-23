@@ -1,9 +1,10 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.Services.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -50,7 +51,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         private void RegisterServices(IServiceCollection services, bool isTest)
         {
             services
-                .AddTransient<PurchasingDocumentExpeditionService>()
                 .AddScoped<IdentityService>()
                 .AddScoped<ValidateService>();
 
@@ -58,6 +58,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             {
                 services.AddScoped<IHttpClientService, HttpClientService>();
             }
+        }
+
+        private void RegisterAutoMapper(IServiceCollection services)
+        {
+            var config = new AutoMapper.MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new PurchaseRequestProfile());
+            });
+
+            var mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
         #endregion Register
@@ -72,6 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
+            RegisterAutoMapper(services);
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });

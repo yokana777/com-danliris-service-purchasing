@@ -1,18 +1,22 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Configs.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.Moonlay.Data.EntityFrameworkCore;
 using Com.Moonlay.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
-    public class PurchasingDbContext : BaseDbContext
+    public class PurchasingDbContext : StandardDbContext
     {
         public PurchasingDbContext(DbContextOptions<PurchasingDbContext> options) : base(options)
         {
         }
 
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
+        public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
+        public DbSet<PurchaseRequestItem> PurchaseRequestItems { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
