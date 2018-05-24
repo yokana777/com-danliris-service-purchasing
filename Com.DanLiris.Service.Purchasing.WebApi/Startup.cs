@@ -55,7 +55,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
-                .AddTransient<ImportPurchasingBookReportFacade>();
+                .AddTransient<ImportPurchasingBookReportFacade>()
+                .AddTransient<LocalPurchasingBookReportFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -101,6 +102,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
             services.AddAutoMapper();
+
+            RegisterSerializationProvider();
+            RegisterClassMap();
+            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             RegisterSerializationProvider();
             RegisterClassMap();

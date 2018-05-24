@@ -9,16 +9,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/report/import-purchasing-book-reports")]
+    [Route("v{version:apiVersion}/report/local-purchasing-book-reports")]
     [Authorize]
-    public class ImportPurchasingBookReportController : Controller
+    public class LocalPurchasingBookReportController : Controller
     {
         private string ApiVersion = "1.0.0";
-        private readonly ImportPurchasingBookReportFacade importPurchasingBookReportFacade;
+        private readonly LocalPurchasingBookReportFacade localPurchasingBookReportFacade;
 
-        public ImportPurchasingBookReportController(ImportPurchasingBookReportFacade importPurchasingBookReportFacade)
+        public LocalPurchasingBookReportController(LocalPurchasingBookReportFacade localPurchasingBookReportFacade)
         {
-            this.importPurchasingBookReportFacade = importPurchasingBookReportFacade;
+            this.localPurchasingBookReportFacade = localPurchasingBookReportFacade;
         }
 
         [HttpGet]
@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         {
             try
             {
-                var data = importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                var data = localPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 return Ok(new
@@ -55,12 +55,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             {
                 byte[] xlsInBytes;
 
-                var xls = importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
+                var xls = localPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
 
-                string filename = "Laporan Buku Pembelian Impor";
-       
-                if (dateFrom != null) filename += " " + ((DateTime) dateFrom).ToString("dd-MM-yyyy");
-
+                string filename = "Laporan Buku Pembelian Lokal";
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
                 if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
                 filename += ".xlsx";
 

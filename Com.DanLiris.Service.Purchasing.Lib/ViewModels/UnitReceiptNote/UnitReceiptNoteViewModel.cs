@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public DateTimeOffset date { get; set; }
         public UnitViewModel unit { get; set; }
         public string pibNo { get; set; }
+        public string incomeTaxNo { get; set; }
         public List<UnitReceiptNoteItemViewModel> items { get; set; }
 
     }

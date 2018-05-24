@@ -31,4 +31,3 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public IMongoCollection<BsonDocument> UnitPaymentOrder => database.GetCollection<BsonDocument>("unit-payment-orders");
     }
 }
-
