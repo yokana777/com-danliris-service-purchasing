@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote
     {
         private readonly LocalPurchasingBookReportFacade Facade;
 
-        public UnitReceiptNoteImportFalseBsonDataUtil(ImportPurchasingBookReportFacade Facade)
+        public UnitReceiptNoteImportFalseBsonDataUtil(LocalPurchasingBookReportFacade Facade)
         {
             this.Facade = Facade;
         }
