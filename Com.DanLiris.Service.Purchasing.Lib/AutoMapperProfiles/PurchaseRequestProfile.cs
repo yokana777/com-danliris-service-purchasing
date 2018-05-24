@@ -10,44 +10,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
     {
         public PurchaseRequestProfile()
         {
-            CreateMap<PurchaseRequestItem, UomViewModel>()
-                .ForMember(d => d.unit, opt => opt.MapFrom(s => s.Uom));
-
-            CreateMap<PurchaseRequestItem, ProductViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.ProductId))
-                .ForMember(d => d.code, opt => opt.MapFrom(s => s.ProductCode))
-                .ForMember(d => d.name, opt => opt.MapFrom(s => s.ProductName))
-                .ForMember(d => d.uom, opt => opt.MapFrom(s => Mapper.Map<PurchaseRequestItem, UomViewModel>(s)));
-
             CreateMap<PurchaseRequestItem, PurchaseRequestItemViewModel>()
-                .ForMember(d => d.product, opt => opt.MapFrom(s => Mapper.Map<PurchaseRequestItem, ProductViewModel>(s)));
-
-            CreateMap<PurchaseRequest, BudgetViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.BudgetId))
-                .ForMember(d => d.code, opt => opt.MapFrom(s => s.BudgetCode))
-                .ForMember(d => d.name, opt => opt.MapFrom(s => s.BudgetName));
-
-            CreateMap<PurchaseRequest, DivisionViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.DivisionId))
-                .ForMember(d => d.code, opt => opt.MapFrom(s => s.DivisionCode))
-                .ForMember(d => d.name, opt => opt.MapFrom(s => s.DivisionName));
-
-            CreateMap<PurchaseRequest, UnitViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.UnitId))
-                .ForMember(d => d.code, opt => opt.MapFrom(s => s.UnitCode))
-                .ForMember(d => d.name, opt => opt.MapFrom(s => s.UnitName))
-                .ForMember(d => d.division, opt => opt.MapFrom(s => Mapper.Map<PurchaseRequest, DivisionViewModel>(s)));
-
-            CreateMap<PurchaseRequest, CategoryViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.CategoryId))
-                .ForMember(d => d.code, opt => opt.MapFrom(s => s.CategoryCode))
-                .ForMember(d => d.name, opt => opt.MapFrom(s => s.CategoryName));
+                .ForPath(d => d.product._id, opt => opt.MapFrom(s => s.ProductId))
+                .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))
+                .ForPath(d => d.product.name, opt => opt.MapFrom(s => s.ProductName))
+                .ForPath(d => d.product.uom.unit, opt => opt.MapFrom(s => s.Uom))
+                .ReverseMap();
 
             CreateMap<PurchaseRequest, PurchaseRequestViewModel>()
-                .ForMember(d => d.budget, opt => opt.MapFrom(s => Mapper.Map<PurchaseRequest, BudgetViewModel>(s)))
-                .ForMember(d => d.unit, opt => opt.MapFrom(s => Mapper.Map<PurchaseRequest, UnitViewModel>(s)))
-                .ForMember(d => d.category, opt => opt.MapFrom(s => Mapper.Map<PurchaseRequest, CategoryViewModel>(s)))
-                .ForMember(d => d.items, opt => opt.MapFrom(s => Mapper.Map<ICollection<PurchaseRequestItem>, List<PurchaseRequestItemViewModel>>(s.Items)));
+                /* Budget */
+                .ForPath(d => d.budget._id, opt => opt.MapFrom(s => s.BudgetId))
+                .ForPath(d => d.budget.code, opt => opt.MapFrom(s => s.BudgetCode))
+                .ForPath(d => d.budget.name, opt => opt.MapFrom(s => s.BudgetName))
+                /* Category */
+                .ForPath(d => d.category._id, opt => opt.MapFrom(s => s.CategoryId))
+                .ForPath(d => d.category.code, opt => opt.MapFrom(s => s.CategoryCode))
+                .ForPath(d => d.category.name, opt => opt.MapFrom(s => s.CategoryName))
+                /* Unit */
+                .ForPath(d => d.unit._id, opt => opt.MapFrom(s => s.UnitId))
+                .ForPath(d => d.unit.code, opt => opt.MapFrom(s => s.UnitCode))
+                .ForPath(d => d.unit.name, opt => opt.MapFrom(s => s.UnitName))
+                /* Division */
+                .ForPath(d => d.unit.division._id, opt => opt.MapFrom(s => s.DivisionId))
+                .ForPath(d => d.unit.division.code, opt => opt.MapFrom(s => s.DivisionCode))
+                .ForPath(d => d.unit.division.name, opt => opt.MapFrom(s => s.DivisionName))
+                .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))
+                .ReverseMap();
         }
     }
 }

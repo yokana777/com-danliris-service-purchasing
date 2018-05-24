@@ -1,5 +1,7 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
@@ -51,6 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<ImportPurchasingBookReportFacade>();
         }
 
@@ -64,17 +67,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             {
                 services.AddScoped<IHttpClientService, HttpClientService>();
             }
-        }
-
-        private void RegisterAutoMapper(IServiceCollection services)
-        {
-            var config = new AutoMapper.MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new PurchaseRequestProfile());
-            });
-
-            var mapper = config.CreateMapper();
-            services.AddSingleton(mapper);
         }
 
         private void RegisterSerializationProvider()
@@ -107,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
-            RegisterAutoMapper(services);
+            services.AddAutoMapper();
 
             RegisterSerializationProvider();
             RegisterClassMap();
