@@ -9,7 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/report/import-purchasing-book-reports")]
+    [Route("v{version:apiVersion}/report/local-purchasing-book-reports")]
     [Authorize]
     public class LocalPurchasingBookReportController : Controller
     {

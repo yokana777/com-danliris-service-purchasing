@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -13,13 +14,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         {
             MongoUrl mongoUrl = new MongoUrl(connectionString);
 
-            MongoClientSettings mongoClientSettings = new MongoClientSettings()
-            {
-                Server = mongoUrl.Server,
-                Credential = MongoCredential.CreateCredential(mongoUrl.DatabaseName, mongoUrl.Username, mongoUrl.Password),
-                UseSsl = mongoUrl.UseSsl,
-                VerifySslCertificate = false
-            };
+            MongoClientSettings mongoClientSettings = new MongoClientSettings();
+            mongoClientSettings.Server = mongoUrl.Server;
+            if (mongoUrl.DatabaseName != null && mongoUrl.Username != null && mongoUrl.Password != null)
+                mongoClientSettings.Credential = MongoCredential.CreateCredential(mongoUrl.DatabaseName, mongoUrl.Username, mongoUrl.Password);
+            mongoClientSettings.UseSsl = mongoUrl.UseSsl;
+            mongoClientSettings.VerifySslCertificate = false;
 
             MongoClient mongoClient = new MongoClient(mongoClientSettings);
 
@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         }
 
         public IMongoCollection<BsonDocument> UnitReceiptNote => database.GetCollection<BsonDocument>("unit-receipt-notes");
+        public IMongoCollection<UnitReceiptNoteViewModel> UnitReceiptNoteViewModel => database.GetCollection<UnitReceiptNoteViewModel>("unit-receipt-notes");
         public IMongoCollection<BsonDocument> UnitPaymentOrder => database.GetCollection<BsonDocument>("unit-payment-orders");
     }
 }

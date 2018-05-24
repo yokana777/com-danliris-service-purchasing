@@ -1,86 +1,74 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Master;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using OfficeOpenXml;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 {
     public class LocalPurchasingBookReportFacade
     {
+        IMongoCollection<BsonDocument> collection;
+        IMongoCollection<BsonDocument> collectionUnitPaymentOrder;
+
+        FilterDefinitionBuilder<BsonDocument> filterBuilder;
+
+        public LocalPurchasingBookReportFacade()
+        {
+            MongoDbContext mongoDbContext = new MongoDbContext();
+            collection = mongoDbContext.UnitReceiptNote;
+            collectionUnitPaymentOrder = mongoDbContext.UnitPaymentOrder;
+
+            filterBuilder = Builders<BsonDocument>.Filter;
+        }
+
         public Tuple<List<UnitReceiptNoteViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
-            IMongoCollection<BsonDocument> collection = new MongoDbContext().UnitReceiptNote;
-            IMongoCollection<BsonDocument> collectionUnitPaymentOrder = new MongoDbContext().UnitPaymentOrder;
-
-            FilterDefinitionBuilder<BsonDocument> filterBuilder = Builders<BsonDocument>.Filter;
-            List<FilterDefinition<BsonDocument>> filter = new List<FilterDefinition<BsonDocument>>
+            FilterDefinitionBuilder<UnitReceiptNoteViewModel> filterBuilderUnitReceiptNote = Builders<UnitReceiptNoteViewModel>.Filter;
+            List<FilterDefinition<UnitReceiptNoteViewModel>> filter = new List<FilterDefinition<UnitReceiptNoteViewModel>>
             {
-                filterBuilder.Eq("_deleted", false),
-                filterBuilder.Eq("supplier.import", false)
+                filterBuilderUnitReceiptNote.Eq("_deleted", false),
+                filterBuilderUnitReceiptNote.Eq("supplier.import", false)
             };
 
             if (no != null)
-                filter.Add(filterBuilder.Eq("no", no));
+                filter.Add(filterBuilderUnitReceiptNote.Eq("no", no));
             if (unit != null)
-                filter.Add(filterBuilder.Eq("unit.code", unit));
+                filter.Add(filterBuilderUnitReceiptNote.Eq("unit.code", unit));
             if (category != null)
-                filter.Add(filterBuilder.Eq("items.purchaseOrder.category.code", category));
+                filter.Add(filterBuilderUnitReceiptNote.Eq("items.purchaseOrder.category.code", category));
             if (dateFrom != null && dateTo != null)
-                filter.Add(filterBuilder.And(filterBuilder.Gte("date", dateFrom), filterBuilder.Lte("date", dateTo)));
+                filter.Add(filterBuilderUnitReceiptNote.And(filterBuilderUnitReceiptNote.Gte("date", dateFrom), filterBuilderUnitReceiptNote.Lte("date", dateTo)));
 
-            List<BsonDocument> ListData = collection.Aggregate()
-                .Match(filterBuilder.And(filter))
-                .ToList();
-
-            List<UnitReceiptNoteViewModel> Data = new List<UnitReceiptNoteViewModel>();
+            IMongoCollection<UnitReceiptNoteViewModel> collection = new MongoDbContext().UnitReceiptNoteViewModel;
+            List<UnitReceiptNoteViewModel> ListData = collection.Find(o=>true).ToList();
+            //List<UnitReceiptNoteViewModel> ListData = collection.Aggregate()
+            //    .Match(filterBuilder.And(filter))
+            //    .ToList();
 
             foreach (var data in ListData)
             {
-                List<UnitReceiptNoteItemViewModel> Items = new List<UnitReceiptNoteItemViewModel>();
-                foreach (var item in data.GetValue("items").AsBsonArray)
-                {
-                    var itemDocument = item.AsBsonDocument;
-                    Items.Add(new UnitReceiptNoteItemViewModel
-                    {
-                        DeliveredQuantity = GetDoubleValue(itemDocument, "deliveredQuantity"),
-                        PricePerDealUnit = GetDoubleValue(itemDocument, "pricePerDealUnit"),
-                        //CurrencyRate = GetDoubleValue(itemDocument, "currencyRate"),
-                        Product = new ProductViewModel
-                        {
-                            Name = GetStringValue(itemDocument, "product.name")
-                        },
-                        PurchaseOrder = new PurchaseOrderViewModel
-                        {
-                            Category = new CategoryViewModel
-                            {
-                                Name = GetStringValue(itemDocument, "purchaseOrder.category.code")
-                            }
-                        },
-                    });
-                }
-                var UnitReceiptNoteNo = GetStringValue(data, "no");
-                var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", UnitReceiptNoteNo)).FirstOrDefault();
-                Data.Add(new UnitReceiptNoteViewModel
-                {
-                    No = UnitReceiptNoteNo,
-                    Date = data.GetValue("date").ToUniversalTime(),
-                    Unit = new UnitViewModel
-                    {
-                        Name = GetStringValue(data, "unit.name")
-                    },
-                    SPB = dataUnitPaymentOrder != null ? GetStringValue(dataUnitPaymentOrder, "incomeTaxNo", new BsonString("-")) : "-",
-                    UnitReceiptNoteItems = Items,
-                });
+                var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", data.no)).FirstOrDefault();
+                data.pibNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "incomeTaxNo", new BsonString("-")) : "-";
             }
 
-            return Tuple.Create(Data, Data.Count);
+            return Tuple.Create(ListData, ListData.Count);
+        }
+
+        public Tuple<List<BsonDocument>, int> GetReport()
+        {
+            IMongoCollection<BsonDocument> collection = new MongoDbContext().UnitReceiptNote;
+            List<BsonDocument> ListData = collection.Aggregate().ToList();
+
+            return Tuple.Create(ListData, ListData.Count);
         }
 
         public MemoryStream GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
@@ -128,22 +116,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
                 foreach (UnitReceiptNoteViewModel data in Data.Item1)
                 {
-                    foreach (UnitReceiptNoteItemViewModel item in data.UnitReceiptNoteItems)
+                    foreach (UnitReceiptNoteItemViewModel item in data.items)
                     {
-                        string categoryCode = item.PurchaseOrder.Category.Code;
+                        string categoryCode = item.purchaseOrder.category.code;
 
                         if (!dataByCategory.ContainsKey(categoryCode)) dataByCategory.Add(categoryCode, new List<UnitReceiptNoteViewModel> { });
                         dataByCategory[categoryCode].Add(new UnitReceiptNoteViewModel
                         {
-                            No = data.No,
-                            Date = data.Date,
-                            SPB = data.SPB,
-                            Unit = data.Unit,
-                            UnitReceiptNoteItems = new List<UnitReceiptNoteItemViewModel>() { item }
+                            no = data.no,
+                            date = data.date,
+                            incomeTaxNo = data.incomeTaxNo,
+                            unit = data.unit,
+                            items = new List<UnitReceiptNoteItemViewModel>() { item }
                         });
 
                         if (!subTotalCategory.ContainsKey(categoryCode)) subTotalCategory.Add(categoryCode, 0);
-                        subTotalCategory[categoryCode] += item.DeliveredQuantity;
+                        subTotalCategory[categoryCode] += item.deliveredQuantity;
                     }
                 }
 
@@ -155,10 +143,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     string catCode="";
                     foreach (UnitReceiptNoteViewModel data in categoryCode.Value)
                     {
-                        UnitReceiptNoteItemViewModel item = data.UnitReceiptNoteItems[0];
-                        result.Rows.Add(data.Date.ToShortDateString(), data.No, item.Product.Name, data.SPB, item.PurchaseOrder.Category.Code, data.Unit.Name,  item.PricePerDealUnit * item.DeliveredQuantity, (item.PricePerDealUnit * item.DeliveredQuantity)*0.1, (item.PricePerDealUnit * item.DeliveredQuantity)+((item.PricePerDealUnit * item.DeliveredQuantity)*0.1));
+                        UnitReceiptNoteItemViewModel item = data.items[0];
+                        result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name,  item.pricePerDealUnit * item.deliveredQuantity, (item.pricePerDealUnit * item.deliveredQuantity)*0.1, (item.pricePerDealUnit * item.deliveredQuantity)+((item.pricePerDealUnit * item.deliveredQuantity)*0.1));
                         rowPosition += 1;
-                        catCode = item.PurchaseOrder.Category.Code;
+                        catCode = item.purchaseOrder.category.code;
                     }
                     result.Rows.Add("", "", "", "SUB TOTAL", catCode, "", subTotalCategory[categoryCode.Key], subTotalCategory[categoryCode.Key]*0.1, subTotalCategory[categoryCode.Key]+(subTotalCategory[categoryCode.Key]*0.1));
                     rowPosition += 1;
@@ -177,61 +165,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
 
-        public Tuple<List<BsonDocument>, int> GetReport()
+        public void InsertToMongo(BsonDocument document)
         {
-            IMongoCollection<BsonDocument> collection = new MongoDbContext().UnitReceiptNote;
-            List<BsonDocument> ListData = collection.Aggregate().ToList();
-
-            return Tuple.Create(ListData, ListData.Count);
+            collection.InsertOne(document);
         }
-
-        string GetStringValue(BsonDocument bsonDocument, string field, BsonString bsonString)
+        public void DeleteDataMongo(BsonObjectId id)
         {
-            BsonValue bsonValue;
-            string[] fields = field.Split(".");
-
-            bsonValue = fields.Length > 1 ?
-                bsonDocument.GetValue(fields[0], new BsonDocument()) :
-                bsonDocument.GetValue(fields[0], bsonString);
-
-            for (int i = 1; i < fields.Length; i++)
-            {
-                bsonValue = i < field.Length ?
-                    bsonValue.AsBsonDocument.GetValue(fields[i], new BsonDocument()) :
-                    bsonValue.AsBsonDocument.GetValue(fields[i], bsonString);
-            }
-
-            if (bsonValue.IsString) return bsonValue.AsString;
-            else if (bsonValue.IsInt32) return bsonValue.AsInt32.ToString();
-            else if (bsonValue.IsDouble) return bsonValue.AsDouble.ToString();
-            else throw new Exception("Cannot convert to dtring");
-        }
-
-        string GetStringValue(BsonDocument bsonDocument, string field)
-        {
-            return this.GetStringValue(bsonDocument, field, new BsonString(""));
-        }
-
-        double GetDoubleValue(BsonDocument bsonDocument, string field)
-        {
-            BsonValue bsonValue;
-            string[] fields = field.Split(".");
-
-            bsonValue = fields.Length > 1 ?
-                bsonDocument.GetValue(fields[0], new BsonDocument()) :
-                bsonDocument.GetValue(fields[0], new BsonDouble(0));
-
-            for (int i = 1; i < fields.Length; i++)
-            {
-                bsonValue = i < field.Length ?
-                    bsonValue.AsBsonDocument.GetValue(fields[i], new BsonDocument()) :
-                    bsonValue.AsBsonDocument.GetValue(fields[i], new BsonDouble(0));
-            }
-
-            if (bsonValue.IsString) return double.Parse(bsonValue.AsString);
-            else if (bsonValue.IsInt32) return bsonValue.AsInt32;
-            else if (bsonValue.IsDouble) return bsonValue.AsDouble;
-            else throw new Exception("Cannot convert to double");
+            collection.DeleteOne(filterBuilder.Eq("_id", id));
         }
     }
 }

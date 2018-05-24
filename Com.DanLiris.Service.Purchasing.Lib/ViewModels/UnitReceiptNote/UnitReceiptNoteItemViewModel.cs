@@ -1,16 +1,14 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Master;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
 {
     public class UnitReceiptNoteItemViewModel
     {
-        public double DeliveredQuantity { get; set; }
-        public double PricePerDealUnit { get; set; }
-        public double CurrencyRate { get; set; }
-        public ProductViewModel Product { get; set; }
-        public PurchaseOrderViewModel PurchaseOrder { get; set; }
+        public double deliveredQuantity { get; set; }
+        public double pricePerDealUnit { get; set; }
+        public double currencyRate { get; set; }
+        public ProductViewModel product { get; set; }
+        public PurchaseOrderViewModel purchaseOrder { get; set; }
     }
 }
