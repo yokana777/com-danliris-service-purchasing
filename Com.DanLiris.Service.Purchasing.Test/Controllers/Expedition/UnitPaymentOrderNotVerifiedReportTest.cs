@@ -13,8 +13,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
     public class UnitPaymentOrderNotVerifiedReportTest
     {
         private const string MediaType = "application/json";
-        private readonly string URI = "v1/expedition/purchasing-document-expeditions-report";
-        private readonly List<string> CreateValidationAttributes;
+        private readonly string URI = "v1/purchasing/unit-payment-orders-not-verified-report";
+       
 
         private TestServerFixture TestFixture { get; set; }
 
@@ -31,14 +31,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         [Fact]
         public async Task Should_Success_Get_All_Data()
         {
-            var response = await this.Client.GetAsync(URI);
+            DateTimeOffset yesterday = DateTimeOffset.UtcNow.AddDays(-1);
+            DateTimeOffset tomorrow = DateTimeOffset.UtcNow.AddDays(1);
+            string param = "?dateFrom=" + yesterday.ToString("yyyy-MM-dd") + "&dateTo=" + tomorrow.ToString("yyyy-MM-dd") + "&page=1&size=25";
+            var response = await this.Client.GetAsync(URI+param);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             var json = response.Content.ReadAsStringAsync().Result;
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
 
             Assert.True(result.ContainsKey("apiVersion"));
-            Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
             Assert.True(result["data"].GetType().Name.Equals("JArray"));
         }
