@@ -38,59 +38,15 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
         private void RegisterClassMap()
         {
-            BsonClassMap.RegisterClassMap<UnitReceiptNoteViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<UnitReceiptNoteItemViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<UnitViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<DivisionViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<CategoryViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<ProductViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<UomViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<PurchaseOrderViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<SupplierViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
+            ClassMap<UnitReceiptNoteViewModel>.Register();
+            ClassMap<UnitReceiptNoteItemViewModel>.Register();
+            ClassMap<UnitViewModel>.Register();
+            ClassMap<DivisionViewModel>.Register();
+            ClassMap<CategoryViewModel>.Register();
+            ClassMap<ProductViewModel>.Register();
+            ClassMap<UomViewModel>.Register();
+            ClassMap<PurchaseOrderViewModel>.Register();
+            ClassMap<SupplierViewModel>.Register();
         }
 
         public ServiceProviderFixture()
