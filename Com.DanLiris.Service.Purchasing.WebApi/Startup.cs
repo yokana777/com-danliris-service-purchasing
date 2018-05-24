@@ -53,6 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<ImportPurchasingBookReportFacade>();
         }
