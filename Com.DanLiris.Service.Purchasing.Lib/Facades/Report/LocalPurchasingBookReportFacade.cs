@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             foreach (var data in ListData)
             {
                 var dataUnitPaymentOrder = collectionUnitPaymentOrder.Find(filterBuilder.Eq("items.unitReceiptNote.no", data.no)).FirstOrDefault();
-                data.pibNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "incomeTaxNo", new BsonString("-")) : "-";
+                data.incomeTaxNo = dataUnitPaymentOrder != null ? GetBsonValue.ToString(dataUnitPaymentOrder, "incomeTaxNo", new BsonString("-")) : "-";
             }
 
             return Tuple.Create(ListData, ListData.Count);
