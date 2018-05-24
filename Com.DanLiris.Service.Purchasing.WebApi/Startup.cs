@@ -1,5 +1,7 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
@@ -52,6 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<ImportPurchasingBookReportFacade>()
+                .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<LocalPurchasingBookReportFacade>();
         }
 
@@ -67,17 +70,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
         }
 
-        private void RegisterAutoMapper(IServiceCollection services)
-        {
-            var config = new AutoMapper.MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new PurchaseRequestProfile());
-            });
-
-            var mapper = config.CreateMapper();
-            services.AddSingleton(mapper);
-        }
-
         private void RegisterSerializationProvider()
         {
             BsonSerializer.RegisterSerializationProvider(new SerializationProvider());
@@ -85,59 +77,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         private void RegisterClassMap()
         {
-            BsonClassMap.RegisterClassMap<UnitReceiptNoteViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<UnitReceiptNoteItemViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<UnitViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<DivisionViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<CategoryViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<ProductViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<UomViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<PurchaseOrderViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
-
-            BsonClassMap.RegisterClassMap<SupplierViewModel>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
+            ClassMap<UnitReceiptNoteViewModel>.Register();
+            ClassMap<UnitReceiptNoteItemViewModel>.Register();
+            ClassMap<UnitViewModel>.Register();
+            ClassMap<DivisionViewModel>.Register();
+            ClassMap<CategoryViewModel>.Register();
+            ClassMap<ProductViewModel>.Register();
+            ClassMap<UomViewModel>.Register();
+            ClassMap<PurchaseOrderViewModel>.Register();
+            ClassMap<SupplierViewModel>.Register();
         }
 
         #endregion Register
@@ -152,7 +100,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
-            RegisterAutoMapper(services);
+            services.AddAutoMapper();
+
+            RegisterSerializationProvider();
+            RegisterClassMap();
+            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             RegisterSerializationProvider();
             RegisterClassMap();

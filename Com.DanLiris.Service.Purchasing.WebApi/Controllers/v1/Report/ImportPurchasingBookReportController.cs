@@ -58,7 +58,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
                 var xls = importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
 
                 string filename = "Laporan Buku Pembelian Impor";
-                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+       
+                if (dateFrom != null) filename += " " + ((DateTime) dateFrom).ToString("dd-MM-yyyy");
+
                 if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
                 filename += ".xlsx";
 
