@@ -42,13 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             return model;
         }
 
-        public async Task<PurchasingDocumentExpedition> GetTestDataNotVerified()
-        {
-            PurchasingDocumentExpedition model = Task.Run(() => GetTestData()).Result;
-            model.Position = ExpeditionPosition.SEND_TO_PURCHASING_DIVISION;
-            model.VerifyDate = DateTimeOffset.UtcNow;
-            await Facade.UnitPaymentOrderVerification(model , "Unit Test");
-            return model;
-        }
+
+        
     }
 }

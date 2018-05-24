@@ -47,7 +47,6 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     services
                        .AddTransient<SendToVerificationDataUtil>()
                        .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
-                       .AddTransient<UnitPaymentOrderNotVerifiedDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })

@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
@@ -32,12 +33,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             get { return (UnitPaymentOrderNotVerifiedReportFacade)ServiceProvider.GetService(typeof(UnitPaymentOrderNotVerifiedReportFacade)); }
         }
 
+        private PurchasingDocumentExpeditionFacade FacadeExpedition
+        {
+            get { return (PurchasingDocumentExpeditionFacade)ServiceProvider.GetService(typeof(PurchasingDocumentExpeditionFacade)); }
+        }
+
+
         [Fact]
         public async void Should_Success_Get_Report_Data()
         {
-            PurchasingDocumentExpedition model = await DataUtil.GetTestDataNotVerified();
-            var Response = this.Facade.GetReport(model.UnitPaymentOrderNo, model.SupplierCode, model.DivisionCode, null, null, 1,25, model.UnitPaymentOrderNo, 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            PurchasingDocumentExpedition model = await DataUtil.GetTestData();
+            model.Position = (ExpeditionPosition)6;
+            model.VerifyDate = DateTimeOffset.UtcNow;
+            DateTimeOffset tomorrow = DateTimeOffset.UtcNow.AddDays(1);
+            var Response = this.FacadeExpedition.Read();
+            this.FacadeExpedition.UnitPaymentOrderVerification(model, "Unit Test");
+            var Report = this.Facade.GetReport("", "", "", model.VerifyDate, tomorrow, 1,25, "{}", 7);
+            Assert.NotEqual(Report.Item1.Count, 0);
         }
     }
 }
