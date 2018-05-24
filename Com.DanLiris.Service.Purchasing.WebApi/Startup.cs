@@ -1,5 +1,7 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -45,7 +47,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
-                .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>();
+                .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
+                .AddTransient<PurchaseRequestFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -60,17 +63,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
         }
 
-        private void RegisterAutoMapper(IServiceCollection services)
-        {
-            var config = new AutoMapper.MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new PurchaseRequestProfile());
-            });
-
-            var mapper = config.CreateMapper();
-            services.AddSingleton(mapper);
-        }
-
         #endregion Register
 
         public void ConfigureServices(IServiceCollection services)
@@ -83,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
-            RegisterAutoMapper(services);
+            services.AddAutoMapper();
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });

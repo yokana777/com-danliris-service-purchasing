@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
+using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
 {
@@ -13,31 +18,53 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
     [Route("v{version:apiVersion}/purchase-requests")]
     public class PurchaseRequestController : Controller
     {
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IMapper _mapper;
+        private readonly PurchaseRequestFacade _facade;
+        public PurchaseRequestController(IMapper mapper, PurchaseRequestFacade facade)
         {
-            return new string[] { "value1", "value2" };
+            _mapper = mapper;
+            _facade = facade;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            /* TODO API Result */
+
+            /* Dibawah ini hanya dummy */
+
+            return Ok(_mapper.Map<List<PurchaseRequestViewModel>>(_facade.Read()));
         }
 
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            /* TODO API Result */
+
+            /* Dibawah ini hanya dummy */
+
+            return Ok(_mapper.Map<PurchaseRequestViewModel>(_facade.ReadById(id)));
         }
 
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post([FromBody]PurchaseRequestViewModel vm)
         {
-        }
-        
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-        
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            PurchaseRequest m = _mapper.Map<PurchaseRequest>(vm);
+
+            int Result = _facade.Create(m);
+
+            /* TODO API Result */
+
+            /* Dibawah ini hanya dummy */
+
+            if (Result.Equals(0))
+            {
+                return StatusCode(500);
+            }
+            else
+            {
+                return Ok();
+            }
         }
     }
 }
