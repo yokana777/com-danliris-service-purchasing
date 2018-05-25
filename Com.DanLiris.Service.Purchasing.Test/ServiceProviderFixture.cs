@@ -77,6 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
                 .AddTransient<UnitReceiptNoteBsonDataUtil>()
+                .AddTransient<UnitReceiptNoteImportFalseBsonDataUtil>()
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
