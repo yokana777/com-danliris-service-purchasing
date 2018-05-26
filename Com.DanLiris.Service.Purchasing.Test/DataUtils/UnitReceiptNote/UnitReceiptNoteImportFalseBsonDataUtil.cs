@@ -52,7 +52,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote
                                     }
                                 }
                             },
-                            { "incomeTaxNo", "FP001" },
                             { "deliveredQuantity", 200 },
                             { "pricePerDealUnit", 1000 },
                             { "unitReceiptNote", new BsonDocument

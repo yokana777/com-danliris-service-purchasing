@@ -19,9 +19,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             ServiceProvider = fixture.ServiceProvider;
         }
 
-        private UnitReceiptNoteBsonDataUtil DataUtil
+        private UnitReceiptNoteImportFalseBsonDataUtil DataUtil
         {
-            get { return (UnitReceiptNoteBsonDataUtil)ServiceProvider.GetService(typeof(UnitReceiptNoteBsonDataUtil)); }
+            get { return (UnitReceiptNoteImportFalseBsonDataUtil)ServiceProvider.GetService(typeof(UnitReceiptNoteImportFalseBsonDataUtil)); }
         }
 
         private LocalPurchasingBookReportFacade Facade

@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 filter.Add(filterBuilderUnitReceiptNote.And(filterBuilderUnitReceiptNote.Gte("date", dateFrom), filterBuilderUnitReceiptNote.Lte("date", dateTo)));
 
             IMongoCollection<UnitReceiptNoteViewModel> collection = new MongoDbContext().UnitReceiptNoteViewModel;
-            List<UnitReceiptNoteViewModel> ListData = collection.Find(o=>true).ToList();
+            List<UnitReceiptNoteViewModel> ListData = collection.Find(filterBuilderUnitReceiptNote.And(filter)).ToList();
             //List<UnitReceiptNoteViewModel> ListData = collection.Aggregate()
             //    .Match(filterBuilder.And(filter))
             //    .ToList();
