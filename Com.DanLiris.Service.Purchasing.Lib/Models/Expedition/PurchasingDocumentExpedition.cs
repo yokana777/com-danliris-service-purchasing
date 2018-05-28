@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public string CashierDivisionBy { get; set; }
         public DateTimeOffset? CashierDivisionDate { get; set; }
         public string FinanceDivisionBy { get; set; }
-        /* public DateTimeOffset? FinanceDivisionDate { get; set; } */
+        public DateTimeOffset? FinanceDivisionDate { get; set; }
         public string NotVerifiedReason { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }
         public string BankExpenditureNoteNo { get; set; }
