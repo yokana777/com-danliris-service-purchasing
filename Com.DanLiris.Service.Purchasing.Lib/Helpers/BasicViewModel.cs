@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 {
-    public abstract class BaseViewModel
+    public class BasicViewModel
     {
         public int Id { get; set; }
         public bool _IsDeleted { get; set; }
@@ -15,7 +15,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
         public DateTime _LastModifiedUtc { get; set; }
         public string _LastModifiedBy { get; set; }
         public string _LastModifiedAgent { get; set; }
-
-        public abstract object ToModel();
     }
 }
