@@ -10,8 +10,9 @@ using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 
-namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
@@ -66,5 +67,39 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 return Ok();
             }
         }
+
+        [HttpPost("post")]
+        public IActionResult PRPost([FromBody]List<PurchaseRequestViewModel> ListPurchaseRequestViewModel)
+        {
+            try
+            {
+                _facade.PRPost(
+                    ListPurchaseRequestViewModel.Select(vm => _mapper.Map<PurchaseRequest>(vm)).ToList(),
+                    User.Claims.Single(p => p.Type.Equals("username")).Value
+                );
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
+        [HttpPut("unpost/{id}")]
+        public IActionResult PRUnpost([FromRoute]int id)
+        {
+            try
+            {
+                _facade.PRUnpost(id, User.Claims.Single(p => p.Type.Equals("username")).Value);
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
     }
 }
