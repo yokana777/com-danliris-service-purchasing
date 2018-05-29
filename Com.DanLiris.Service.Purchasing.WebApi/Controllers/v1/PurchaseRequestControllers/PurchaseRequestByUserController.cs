@@ -36,6 +36,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            filter = filter.Replace("{", string.Empty).Replace("}", string.Empty);
+            if (!filter.Equals(string.Empty)) filter += ", ";
+            filter = string.Concat(filter, "'CreatedBy':'", identityService.Username, "'");
+            filter = string.Concat("{", filter, "}");
+
             Tuple<List<object>, int, Dictionary<string, string>> Data = facade.Read(page, size, order, keyword, filter);
 
             return Ok(new
