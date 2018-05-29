@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
     public class PurchaseRequestFacade : IReadable
     {
+        #region DUMMY_DATA
         private List<PurchaseRequest> DUMMY_DATA = new List<PurchaseRequest>()
         {
             new PurchaseRequest()
@@ -181,6 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 }
             }
         };
+        #endregion
 
         private readonly IMapper mapper;
         private readonly PurchasingDbContext dbContext;
@@ -203,7 +205,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         public Tuple<List<object>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<PurchaseRequest> Query = this.dbSet;
-            //IQueryable<PurchaseRequest> Query = DUMMY_DATA.AsQueryable();
 
             Query = Query.Select(s => new PurchaseRequest
             {
@@ -227,18 +228,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             Query = QueryHelper<PurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
 
-            //if (Keyword != null)
-            //{
-            //    //Query = Query.Where(w => w.UnitName.Contains(Keyword));
-            //    Query = Query.Where("UnitName.Contains(@0)", Keyword);
-            //    //Query = Query.Where("UnitName.Contains(@0) OR CategoryName.Contains(@0) OR DivisionName.Contains(@0)", Keyword);
-            //}
-
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<PurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            //Query = QueryHelper<PurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+            Query = QueryHelper<PurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<PurchaseRequest> pageable = new Pageable<PurchaseRequest>(Query, Page - 1, Size);
             List<PurchaseRequest> Data = pageable.Data.ToList<PurchaseRequest>();
