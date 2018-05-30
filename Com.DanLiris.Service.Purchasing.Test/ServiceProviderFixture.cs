@@ -89,7 +89,6 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
-                .AddAutoMapper()
                 .BuildServiceProvider();
 
             RegisterSerializationProvider();
