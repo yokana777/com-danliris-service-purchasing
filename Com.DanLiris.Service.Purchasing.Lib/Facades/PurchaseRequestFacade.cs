@@ -223,7 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitName", "CategoryName", "DivisionName"
+                "No", "UnitName", "CategoryName", "DivisionName"
             };
 
             Query = QueryHelper<PurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -446,11 +446,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             string Year = Now.ToString("yy");
             string Month = Now.ToString("MM");
 
-            string no = "ETO" + Year + Month;
+            string no = $"PR-{model.BudgetCode}-{model.UnitCode}-{model.CategoryCode}-{Year}-";
+            int Padding = 3;
 
             var lastNo = await this.dbSet.Where(w => w.No.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.No).FirstOrDefaultAsync();
-
-            int Padding = 5;
+            no = $"{no}-{Month}-";
 
             if (lastNo == null)
             {
