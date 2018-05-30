@@ -293,6 +293,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, "Facade");
+
+                        item.Status = "Belum diterima Pembelian";
                     }
 
                     this.dbSet.Add(m);

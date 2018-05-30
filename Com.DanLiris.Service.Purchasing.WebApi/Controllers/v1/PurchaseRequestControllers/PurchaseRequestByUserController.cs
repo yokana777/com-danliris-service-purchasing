@@ -64,13 +64,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(new
+            try
             {
-                apiVersion = ApiVersion,
-                statusCode = General.OK_STATUS_CODE,
-                message = General.OK_MESSAGE,
-                data = mapper.Map<PurchaseRequestViewModel>(facade.ReadById(id)),
-            });
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = mapper.Map<PurchaseRequestViewModel>(facade.ReadById(id)),
+                    });
+                }
+                else
+                {
+                    throw new Exception("Hahaha");
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
 
         [HttpPost]
