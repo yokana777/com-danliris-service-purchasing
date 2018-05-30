@@ -11,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestControllers
 {
@@ -21,61 +22,64 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
     {
         private readonly IMapper _mapper;
         private readonly PurchaseRequestFacade _facade;
-        public PurchaseRequestController(IMapper mapper, PurchaseRequestFacade facade)
+        private readonly IdentityService identityService;
+
+        public PurchaseRequestController(IMapper mapper, PurchaseRequestFacade facade, IdentityService identityService)
         {
             _mapper = mapper;
             _facade = facade;
+            this.identityService = identityService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            /* TODO API Result */
+        //[HttpGet]
+        //public IActionResult Get()
+        //{
+        //    /* TODO API Result */
 
-            /* Dibawah ini hanya dummy */
+        //    /* Dibawah ini hanya dummy */
 
-            return Ok(_mapper.Map<List<PurchaseRequestViewModel>>(_facade.Read()));
-        }
+        //    return Ok(_mapper.Map<List<PurchaseRequestViewModel>>(_facade.Read()));
+        //}
 
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            /* TODO API Result */
+        //[HttpGet("{id}")]
+        //public IActionResult Get(int id)
+        //{
+        //    /* TODO API Result */
 
-            /* Dibawah ini hanya dummy */
+        //    /* Dibawah ini hanya dummy */
 
-            return Ok(_mapper.Map<PurchaseRequestViewModel>(_facade.ReadById(id)));
-        }
+        //    return Ok(_mapper.Map<PurchaseRequestViewModel>(_facade.ReadById(id)));
+        //}
 
-        [HttpPost]
-        public IActionResult Post([FromBody]PurchaseRequestViewModel vm)
-        {
-            PurchaseRequest m = _mapper.Map<PurchaseRequest>(vm);
+        //[HttpPost]
+        //public IActionResult Post([FromBody]PurchaseRequestViewModel vm)
+        //{
+        //    PurchaseRequest m = _mapper.Map<PurchaseRequest>(vm);
 
-            int Result = _facade.Create(m);
+        //    int Result = _facade.Create(m);
 
-            /* TODO API Result */
+        //    /* TODO API Result */
 
-            /* Dibawah ini hanya dummy */
+        //    /* Dibawah ini hanya dummy */
 
-            if (Result.Equals(0))
-            {
-                return StatusCode(500);
-            }
-            else
-            {
-                return Ok();
-            }
-        }
+        //    if (Result.Equals(0))
+        //    {
+        //        return StatusCode(500);
+        //    }
+        //    else
+        //    {
+        //        return Ok();
+        //    }
+        //}
 
         [HttpPost("post")]
         public IActionResult PRPost([FromBody]List<PurchaseRequestViewModel> ListPurchaseRequestViewModel)
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
             try
             {
                 _facade.PRPost(
-                    ListPurchaseRequestViewModel.Select(vm => _mapper.Map<PurchaseRequest>(vm)).ToList(),
-                    User.Claims.Single(p => p.Type.Equals("username")).Value
+                    ListPurchaseRequestViewModel.Select(vm => _mapper.Map<PurchaseRequest>(vm)).ToList(), identityService.Username
                 );
 
                 return NoContent();
@@ -89,9 +93,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
         [HttpPut("unpost/{id}")]
         public IActionResult PRUnpost([FromRoute]int id)
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
-                _facade.PRUnpost(id, User.Claims.Single(p => p.Type.Equals("username")).Value);
+                _facade.PRUnpost(id, identityService.Username);
 
                 return NoContent();
             }

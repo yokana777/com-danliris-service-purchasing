@@ -1,5 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -24,30 +26,52 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             get { return this.TestFixture.Client; }
         }
 
+        protected PurchaseRequestDataUtil DataUtil
+        {
+            get { return (PurchaseRequestDataUtil)this.TestFixture.Service.GetService(typeof(PurchaseRequestDataUtil)); }
+        }
+
         public PurchaseRequestControllerTest(TestServerFixture fixture)
         {
             TestFixture = fixture;
         }
 
+        //[Fact]
+        //public async Task Should_Success_Get_All_Data()
+        //{
+        //    var response = await this.Client.GetAsync(URI);
+        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Data_By_Id()
+        //{
+        //    var response = await this.Client.GetAsync($"{URI}/1");
+        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Create_Data()
+        //{
+        //    var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(new PurchaseRequest()).ToString(), Encoding.UTF8, MediaType));
+        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        //}
+
         [Fact]
-        public async Task Should_Success_Get_All_Data()
+        public async Task Should_Success_PRPost()
         {
-            var response = await this.Client.GetAsync(URI);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            PurchaseRequest model = await DataUtil.GetTestData("dev2");
+            List<PurchaseRequestViewModel> viewModelList = new List<PurchaseRequestViewModel> { DataUtil.GetViewModelFromModelTestData(model) };
+            var response = await this.Client.PostAsync($"{URI}/post", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]
-        public async Task Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_PRUnpost()
         {
-            var response = await this.Client.GetAsync($"{URI}/1");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Should_Success_Create_Data()
-        {
-            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(new PurchaseRequest()).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            PurchaseRequest model = await DataUtil.GetTestData("dev2");
+            var response = await this.Client.PutAsync($"{URI}/unpost/{model.Id}", new StringContent("", Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
     }
 }

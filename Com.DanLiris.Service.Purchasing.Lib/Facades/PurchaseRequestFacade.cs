@@ -197,10 +197,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             this.dbSet = dbContext.Set<PurchaseRequest>();
         }
 
-        public List<PurchaseRequestViewModel> Read()
-        {
-            return mapper.Map<List<PurchaseRequestViewModel>>(DUMMY_DATA);
-        }
+        //public List<PurchaseRequestViewModel> Read()
+        //{
+        //    return mapper.Map<List<PurchaseRequestViewModel>>(DUMMY_DATA);
+        //}
 
         public Tuple<List<object>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
@@ -262,21 +262,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         
         public PurchaseRequest ReadById(int id)
         {
-            return this.dbSet.Where(p => p.Id == id)
+            var a =  this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
                 .FirstOrDefault();
+            return a;
         }
 
-        public int Create(PurchaseRequest m)
-        {
-            int Result = 0;
+        //public int Create(PurchaseRequest m)
+        //{
+        //    int Result = 0;
 
-            /* TODO EF Operation */
+        //    /* TODO EF Operation */
 
-            Result = 1;
+        //    Result = 1;
 
-            return Result;
-        }
+        //    return Result;
+        //}
 
         public async Task<int> Create(PurchaseRequest m, string user)
         {
@@ -352,8 +353,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Updated;
         }
 
-        public void Delete(int id, string user)
+        public int Delete(int id, string user)
         {
+            int Deleted = 0;
+
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
@@ -369,7 +372,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         EntityExtension.FlagForDelete(item, user, "Facade");
                     }
 
-                    dbContext.SaveChanges();
+                    Deleted = dbContext.SaveChanges();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -378,10 +381,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     throw new Exception(e.Message);
                 }
             }
+
+            return Deleted;
         }
 
-        public void PRPost(List<PurchaseRequest> ListPurchaseRequest, string user)
+        public int PRPost(List<PurchaseRequest> ListPurchaseRequest, string user)
         {
+            int Updated = 0;
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
@@ -402,7 +408,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
                     });
 
-                    dbContext.SaveChanges();
+                    Updated = dbContext.SaveChanges();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -411,10 +417,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     throw new Exception(e.Message);
                 }
             }
+
+            return Updated;
         }
 
-        public void PRUnpost(int id, string user)
+        public int PRUnpost(int id, string user)
         {
+            int Updated = 0;
+
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
@@ -431,7 +441,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         EntityExtension.FlagForUpdate(item, user, "Facade");
                     }
 
-                    dbContext.SaveChanges();
+                    Updated = dbContext.SaveChanges();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -440,6 +450,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     throw new Exception(e.Message);
                 }
             }
+
+            return Updated;
         }
 
         async Task<string> GenerateNo(PurchaseRequest model)
