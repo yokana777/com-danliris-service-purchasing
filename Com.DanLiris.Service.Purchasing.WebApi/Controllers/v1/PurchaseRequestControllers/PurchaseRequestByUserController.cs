@@ -13,12 +13,15 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.Moonlay.NetCore.Lib.Service;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
+using System.IO;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/purchase-requests/by-user")]
+    //[Authorize]
     public class PurchaseRequestByUserController : Controller
     {
         private string ApiVersion = "1.0.0";
@@ -67,19 +70,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             try
             {
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
-                if (indexAcceptPdf < 0)
+
+                PurchaseRequest model = facade.ReadById(id);
+                PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
+
+                if (false)
                 {
                     return Ok(new
                     {
                         apiVersion = ApiVersion,
                         statusCode = General.OK_STATUS_CODE,
                         message = General.OK_MESSAGE,
-                        data = mapper.Map<PurchaseRequestViewModel>(facade.ReadById(id)),
+                        data = viewModel,
                     });
                 }
                 else
                 {
-                    throw new Exception("Hahaha");
+                    PurchaseRequestPDFTemplate PdfTemplate = new PurchaseRequestPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.no}.pdf"
+                    };
                 }
             }
             catch (Exception e)

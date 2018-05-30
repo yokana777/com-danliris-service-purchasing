@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/purchase-requests")]
+    [Authorize]
     public class PurchaseRequestController : Controller
     {
         private readonly IMapper _mapper;
