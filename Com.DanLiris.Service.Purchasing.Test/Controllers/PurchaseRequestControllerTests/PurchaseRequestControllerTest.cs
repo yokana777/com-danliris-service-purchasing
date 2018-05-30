@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Controllers
+namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestControllerTests
 {
     [Collection("TestServerFixture Collection")]
     public class PurchaseRequestControllerTest
