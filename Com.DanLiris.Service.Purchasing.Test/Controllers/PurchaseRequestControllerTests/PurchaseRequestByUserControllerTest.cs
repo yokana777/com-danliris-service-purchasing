@@ -59,19 +59,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        //[Fact]
-        //public async Task Should_Success_Get_Data_PDF_By_Id()
-        //{
-        //    PurchaseRequest model = await DataUtil.GetTestData("dev2");
-        //    HttpRequestMessage requestMessage = new HttpRequestMessage()
-        //    {
-        //        RequestUri = new Uri($"{URI}/{model.Id}"),
-        //        Method = HttpMethod.Get
-        //    };
-        //    requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
-        //    var response = await this.Client.SendAsync(requestMessage);
-        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_Data_PDF_By_Id()
+        {
+            PurchaseRequest model = await DataUtil.GetTestData("dev2");
+            HttpRequestMessage requestMessage = new HttpRequestMessage()
+            {
+                RequestUri = new Uri($"{Client.BaseAddress}{URI}/{model.Id}"),
+                Method = HttpMethod.Get
+            };
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
+            var response = await this.Client.SendAsync(requestMessage);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
 
         [Fact]
         public async Task Should_Success_Create_Data()
