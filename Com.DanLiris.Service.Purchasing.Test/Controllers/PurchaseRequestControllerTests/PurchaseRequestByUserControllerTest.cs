@@ -103,7 +103,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
                 item.product = null;
                 item.quantity = 0;
             }
-            viewModel.items = new List<PurchaseRequestItemViewModel> { };
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
@@ -112,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         public async Task Should_Error_Create_Data_date_more_than_expectedDeliveryDate()
         {
             PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
-            viewModel.expectedDeliveryDate = DateTimeOffset.MaxValue;
+            viewModel.date = DateTimeOffset.MaxValue;
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
