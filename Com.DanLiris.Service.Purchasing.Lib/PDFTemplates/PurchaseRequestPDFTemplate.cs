@@ -38,27 +38,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(lineSeparator);
 
             string codeNoString = "FM-PB-00-06-006/R1";
-            Paragraph codeNo = new Paragraph(codeNoString, normal_font) { Alignment = Element.ALIGN_RIGHT };
+            Paragraph codeNo = new Paragraph(codeNoString, bold_font) { Alignment = Element.ALIGN_RIGHT };
             codeNo.SpacingBefore = 5f;
             document.Add(codeNo);
 
             string titleString = "ORDER PEMESANAN";
+            bold_font.SetStyle(Font.UNDERLINE);
             Paragraph title = new Paragraph(titleString, bold_font) { Alignment = Element.ALIGN_CENTER };
-            title.SpacingBefore = 5f;
-            title.SpacingAfter = 10f;
             document.Add(title);
+            bold_font.SetStyle(Font.NORMAL);
 
             #endregion
 
             #region Identity
 
             PdfPTable tableIdentity = new PdfPTable(3);
-            tableIdentity.SetWidths(new float[] { 1f, 3f, 4f });
+            tableIdentity.SetWidths(new float[] { 1f, 4.5f, 2.5f });
             PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             PdfPCell cellIdentityContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
             cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.category.name, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.unit.name, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.date.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableIdentity.AddCell(cellIdentityContentRight);
@@ -111,8 +111,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 PurchaseRequestItemViewModel item = viewModel.items[indexItem];
 
-                cellLeft.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
-                tableContent.AddCell(cellLeft);
+                cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
+                tableContent.AddCell(cellCenter);
 
                 cellLeft.Phrase = new Phrase(item.product.code, normal_font);
                 tableContent.AddCell(cellLeft);
@@ -123,15 +123,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellCenter.Phrase = new Phrase($"{item.quantity} {item.product.uom.unit}", normal_font);
                 tableContent.AddCell(cellCenter);
 
-                cellLeft.Phrase = new Phrase($"{item.quantity} ???", normal_font);
-                tableContent.AddCell(cellLeft);
+                cellCenter.Phrase = new Phrase(" ", normal_font);
+                tableContent.AddCell(cellCenter);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                tableContent.AddCell(cellCenter);
             }
 
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
-            tableContent.SpacingBefore = 20f;
             tableContent.SpacingAfter = 20f;
             document.Add(tableContent);
+
+            #endregion
+
+            #region Footer
+
+            PdfPTable tableFooter = new PdfPTable(2);
+            tableFooter.SetWidths(new float[] { 2f, 8f });
+            PdfPCell cellFooterContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
+            cellFooterContent.Phrase = new Phrase("Kategori", normal_font);
+            tableFooter.AddCell(cellFooterContent);
+            cellFooterContent.Phrase = new Phrase(": " + viewModel.category.name, normal_font);
+            tableFooter.AddCell(cellFooterContent);
+            cellFooterContent.Phrase = new Phrase("Diminta Datang", normal_font);
+            tableFooter.AddCell(cellFooterContent);
+            cellFooterContent.Phrase = new Phrase(": " + (viewModel.expectedDeliveryDate != null && viewModel.expectedDeliveryDate != DateTimeOffset.MinValue ? viewModel.expectedDeliveryDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID")) : "-"), normal_font);
+            tableFooter.AddCell(cellFooterContent);
+            cellFooterContent.Phrase = new Phrase("Keterangan", normal_font);
+            tableFooter.AddCell(cellFooterContent);
+            cellFooterContent.Phrase = new Phrase(": " + viewModel.remark, normal_font);
+            tableFooter.AddCell(cellFooterContent);
+            PdfPCell cellFooter = new PdfPCell(tableFooter); // dont remove
+            tableFooter.ExtendLastRow = false;
+            document.Add(tableFooter);
 
             #endregion
 
