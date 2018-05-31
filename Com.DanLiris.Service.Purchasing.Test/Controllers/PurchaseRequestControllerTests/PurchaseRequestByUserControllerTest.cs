@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
             viewModel.date = DateTimeOffset.MaxValue;
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
