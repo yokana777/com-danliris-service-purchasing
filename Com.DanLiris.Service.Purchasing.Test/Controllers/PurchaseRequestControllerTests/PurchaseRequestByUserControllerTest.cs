@@ -52,6 +52,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_Error_Get_Invalid_Id()
+        {
+            var response = await this.Client.GetAsync($"{URI}/0");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
         //[Fact]
         //public async Task Should_Success_Get_Data_PDF_By_Id()
         //{
@@ -70,6 +77,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         public async Task Should_Success_Create_Data()
         {
             PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_Data()
+        {
+            PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel.date = DateTimeOffset.MinValue;
+            viewModel.budget = null;
+            viewModel.unit = null;
+            viewModel.category = null;
+            viewModel.items = new List<PurchaseRequestItemViewModel> { };
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_Data_Item()
+        {
+            PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
+            foreach (PurchaseRequestItemViewModel item in viewModel.items)
+            {
+                item.product = null;
+                item.quantity = 0;
+            }
+            viewModel.items = new List<PurchaseRequestItemViewModel> { };
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Data_date_more_than_expectedDeliveryDate()
+        {
+            PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel.expectedDeliveryDate = DateTimeOffset.MaxValue;
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
@@ -95,11 +138,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         }
 
         [Fact]
+        public async Task Should_Error_Update_Data_Id()
+        {
+            var response = await this.Client.PutAsync($"{URI}/0", new StringContent(JsonConvert.SerializeObject(new PurchaseRequestViewModel()).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Invalid_Data()
+        {
+            PurchaseRequest model = await DataUtil.GetTestData("dev2");
+
+            var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
+            var json = responseGetById.Content.ReadAsStringAsync().Result;
+
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+
+            PurchaseRequestViewModel viewModel = JsonConvert.DeserializeObject<PurchaseRequestViewModel>(result.GetValueOrDefault("data").ToString());
+            viewModel.date = DateTimeOffset.MinValue;
+            viewModel.budget = null;
+            viewModel.unit = null;
+            viewModel.category = null;
+            viewModel.items = new List<PurchaseRequestItemViewModel> { };
+
+            var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Delete_Data_By_Id()
         {
             PurchaseRequest model = await DataUtil.GetTestData("dev2");
             var response = await this.Client.DeleteAsync($"{URI}/{model.Id}");
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Delete_Data_Invalid_Id()
+        {
+            var response = await this.Client.DeleteAsync($"{URI}/0");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
     }
