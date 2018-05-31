@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         public async void Should_Success_Get_Data()
         {
             await DataUtil.GetTestData("Unit test");
-            Tuple<List<object>, int, Dictionary<string, string>> Response = Facade.Read();
+            Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
 

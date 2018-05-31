@@ -61,7 +61,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         public async Task Should_Success_PRPost()
         {
             PurchaseRequest model = await DataUtil.GetTestData("dev2");
-            List<PurchaseRequestViewModel> viewModelList = new List<PurchaseRequestViewModel> { DataUtil.GetViewModelFromModelTestData(model) };
+            PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel._id = model.Id;
+            List<PurchaseRequestViewModel> viewModelList = new List<PurchaseRequestViewModel> { viewModel };
             var response = await this.Client.PostAsync($"{URI}/post", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }

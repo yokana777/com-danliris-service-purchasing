@@ -2,8 +2,11 @@
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
     public class PurchaseRequestByUserControllerTest
     {
         private const string MediaType = "application/json";
+        private const string MediaTypePdf = "application/pdf";
         private readonly string URI = "v1/purchase-requests/by-user";
 
         private TestServerFixture TestFixture { get; set; }
@@ -48,10 +52,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        //[Fact]
+        //public async Task Should_Success_Get_Data_PDF_By_Id()
+        //{
+        //    PurchaseRequest model = await DataUtil.GetTestData("dev2");
+        //    HttpRequestMessage requestMessage = new HttpRequestMessage()
+        //    {
+        //        RequestUri = new Uri($"{URI}/{model.Id}"),
+        //        Method = HttpMethod.Get
+        //    };
+        //    requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
+        //    var response = await this.Client.SendAsync(requestMessage);
+        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        //}
+
         [Fact]
         public async Task Should_Success_Create_Data()
         {
-            PurchaseRequestViewModel viewModel = DataUtil.GetViewModelTestData();
+            PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
@@ -60,7 +78,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         public async Task Should_Success_Update_Data()
         {
             PurchaseRequest model = await DataUtil.GetTestData("dev2");
-            PurchaseRequestViewModel viewModel = DataUtil.GetViewModelFromModelTestData(model);
+
+            var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
+            var json = responseGetById.Content.ReadAsStringAsync().Result;
+
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+
+            PurchaseRequestViewModel viewModel = JsonConvert.DeserializeObject<PurchaseRequestViewModel>(result.GetValueOrDefault("data").ToString());
+
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }

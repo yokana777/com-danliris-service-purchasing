@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Facades;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
 using System;
 using System.Collections.Generic;
@@ -11,13 +11,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
     public class PurchaseRequestDataUtil
     {
         private PurchaseRequestItemDataUtil purchaseRequestItemDataUtil;
-        private readonly IMapper mapper;
         private readonly PurchaseRequestFacade facade;
 
-        public PurchaseRequestDataUtil(PurchaseRequestItemDataUtil purchaseRequestItemDataUtil, IMapper mapper, PurchaseRequestFacade facade)
+        public PurchaseRequestDataUtil(PurchaseRequestItemDataUtil purchaseRequestItemDataUtil, PurchaseRequestFacade facade)
         {
             this.purchaseRequestItemDataUtil = purchaseRequestItemDataUtil;
-            this.mapper = mapper;
             this.facade = facade;
         }
 
@@ -45,6 +43,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
             };
         }
 
+        public PurchaseRequestViewModel GetNewDataViewModel()
+        {
+            return new PurchaseRequestViewModel
+            {
+                no = "No1",
+                date = DateTimeOffset.Now,
+                expectedDeliveryDate = DateTimeOffset.Now,
+                budget = new BudgetViewModel
+                {
+                    _id = "BudgetId",
+                    code = "BudgetCode",
+                    name = "BudgetName",
+                },
+                unit = new UnitViewModel
+                {
+                    _id = "UnitId",
+                    code = "UnitCode",
+                    name = "UnitName",
+                    division = new DivisionViewModel
+                    {
+                        _id = "DivisionId",
+                        code = "DivisionCode",
+                        name = "DivisionName",
+                    }
+                },
+                category = new CategoryViewModel
+                {
+                    _id = "CategoryId",
+                    code = "CategoryCode",
+                    name = "CategoryName",
+                },
+                remark = "Remark",
+                items = new List<PurchaseRequestItemViewModel> { purchaseRequestItemDataUtil.GetNewDataViewModel() }
+            };
+        }
+
         public async Task<PurchaseRequest> GetTestData(string user)
         {
             PurchaseRequest purchaseRequest = GetNewData();
@@ -54,17 +88,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
             return purchaseRequest;
         }
 
-        public PurchaseRequestViewModel GetViewModelTestData()
-        {
-            PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(GetNewData());
+        //public PurchaseRequestViewModel GetViewModelTestData()
+        //{
+        //    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(GetNewData());
 
-            return viewModel;
-        }
-        public PurchaseRequestViewModel GetViewModelFromModelTestData(PurchaseRequest model)
-        {
-            PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
+        //    return viewModel;
+        //}
+        //public PurchaseRequestViewModel GetViewModelFromModelTestData(PurchaseRequest model)
+        //{
+        //    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
 
-            return viewModel;
-        }
+        //    return viewModel;
+        //}
     }
 }

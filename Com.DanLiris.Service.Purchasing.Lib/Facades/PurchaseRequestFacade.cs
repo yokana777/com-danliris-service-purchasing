@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
@@ -11,12 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
-    public class PurchaseRequestFacade : IReadable
+    public class PurchaseRequestFacade
     {
         #region DUMMY_DATA
         private List<PurchaseRequest> DUMMY_DATA = new List<PurchaseRequest>()
@@ -184,14 +182,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         };
         #endregion
 
-        private readonly IMapper mapper;
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<PurchaseRequest> dbSet;
 
-        public PurchaseRequestFacade(IMapper mapper, IServiceProvider serviceProvider, PurchasingDbContext dbContext)
+        public PurchaseRequestFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
-            this.mapper = mapper;
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<PurchaseRequest>();
@@ -202,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         //    return mapper.Map<List<PurchaseRequestViewModel>>(DUMMY_DATA);
         //}
 
-        public Tuple<List<object>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<PurchaseRequest> Query = this.dbSet;
 
@@ -238,26 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             List<PurchaseRequest> Data = pageable.Data.ToList<PurchaseRequest>();
             int TotalData = pageable.TotalCount;
 
-            var newData = mapper.Map<List<PurchaseRequestViewModel>>(Data);
-
-            List<object> list = new List<object>();
-            list.AddRange(
-                newData.AsQueryable().Select(s => new
-                {
-                    s._id,
-                    s.no,
-                    s.date,
-                    s.expectedDeliveryDate,
-                    unit = new {
-                        division = new { s.unit.division.name },
-                        s.unit.name
-                    },
-                    category = new { s.category.name },
-                    s.isPosted,
-                }).ToList()
-            );
-
-            return Tuple.Create(list, TotalData, OrderDictionary);
+            return Tuple.Create(Data, TotalData, OrderDictionary);
         }
         
         public PurchaseRequest ReadById(int id)
