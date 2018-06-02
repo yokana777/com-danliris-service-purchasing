@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
@@ -9,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -74,10 +77,16 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<ImportPurchasingBookReportFacade>()
                 .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<SendToVerificationDataUtil>()
+
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
                 .AddTransient<UnitReceiptNoteBsonDataUtil>()
                 .AddTransient<UnitReceiptNoteImportFalseBsonDataUtil>()
+
+                .AddTransient<PurchaseRequestFacade>()
+                .AddTransient<PurchaseRequestDataUtil>()
+                .AddTransient<PurchaseRequestItemDataUtil>()
+
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
