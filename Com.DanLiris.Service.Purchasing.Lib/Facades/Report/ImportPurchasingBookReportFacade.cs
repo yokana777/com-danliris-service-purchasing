@@ -182,7 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         });
 
                         if (!subTotalCategory.ContainsKey(categoryName)) subTotalCategory.Add(categoryName, 0);
-                        subTotalCategory[categoryName] += item.deliveredQuantity;
+                        subTotalCategory[categoryName] += (item.pricePerDealUnit * item.deliveredQuantity * item.currencyRate);
                     }
                 }
 
