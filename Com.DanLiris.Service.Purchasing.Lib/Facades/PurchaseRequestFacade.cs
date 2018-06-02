@@ -534,6 +534,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         s.category.name
                     },
                     s.isPosted,
+                    s.remark
                 }).ToList()
             );
 
