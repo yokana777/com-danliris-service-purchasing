@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -48,6 +49,8 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     services
                        .AddTransient<SendToVerificationDataUtil>()
                        .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
+                       .AddTransient<PurchaseRequestDataUtil>()
+                       .AddTransient<PurchaseRequestItemDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })

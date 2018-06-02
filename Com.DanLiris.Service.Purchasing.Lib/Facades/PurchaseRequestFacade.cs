@@ -1,13 +1,22 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
+using Com.Moonlay.Models;
+using Com.Moonlay.NetCore.Lib;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
     public class PurchaseRequestFacade
     {
+        #region DUMMY_DATA
         private List<PurchaseRequest> DUMMY_DATA = new List<PurchaseRequest>()
         {
             new PurchaseRequest()
@@ -57,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         CreatedUtc = DateTime.UtcNow,
                         LastModifiedAgent = "Dummy-1",
                         LastModifiedBy = "Dummy-1",
-                        LastModifiedUtc = DateTime.UtcNow,
+                        LastModifiedUtc = DateTime.UtcNow.AddDays(1),
                         DeletedAgent = "",
                         DeletedBy = "",
                         ProductId = "ProductId-1",
@@ -171,26 +180,279 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 }
             }
         };
+        #endregion
 
-        public List<PurchaseRequest> Read()
+        private readonly PurchasingDbContext dbContext;
+        public readonly IServiceProvider serviceProvider;
+        private readonly DbSet<PurchaseRequest> dbSet;
+
+        public PurchaseRequestFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
-            return DUMMY_DATA;
+            this.serviceProvider = serviceProvider;
+            this.dbContext = dbContext;
+            this.dbSet = dbContext.Set<PurchaseRequest>();
         }
 
+        //public List<PurchaseRequestViewModel> Read()
+        //{
+        //    return mapper.Map<List<PurchaseRequestViewModel>>(DUMMY_DATA);
+        //}
+
+        public Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<PurchaseRequest> Query = this.dbSet;
+
+            Query = Query.Select(s => new PurchaseRequest
+            {
+                Id = s.Id,
+                UId = s.UId,
+                No = s.No,
+                Date = s.Date,
+                ExpectedDeliveryDate = s.ExpectedDeliveryDate,
+                UnitName = s.UnitName,
+                DivisionName = s.DivisionName,
+                CategoryName = s.CategoryName,
+                IsPosted = s.IsPosted,
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc
+            });
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "No", "UnitName", "CategoryName", "DivisionName"
+            };
+
+            Query = QueryHelper<PurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<PurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<PurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<PurchaseRequest> pageable = new Pageable<PurchaseRequest>(Query, Page - 1, Size);
+            List<PurchaseRequest> Data = pageable.Data.ToList<PurchaseRequest>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+        
         public PurchaseRequest ReadById(int id)
         {
-            return DUMMY_DATA.Single(p => p.Id == id);
+            var a =  this.dbSet.Where(p => p.Id == id)
+                .Include(p => p.Items)
+                .FirstOrDefault();
+            return a;
         }
 
-        public int Create(PurchaseRequest m)
+        //public int Create(PurchaseRequest m)
+        //{
+        //    int Result = 0;
+
+        //    /* TODO EF Operation */
+
+        //    Result = 1;
+
+        //    return Result;
+        //}
+
+        public async Task<int> Create(PurchaseRequest m, string user)
         {
-            int Result = 0;
+            int Created = 0;
 
-            /* TODO EF Operation */
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    EntityExtension.FlagForCreate(m, user, "Facade");
 
-            Result = 1;
+                    m.No = await GenerateNo(m);
 
-            return Result;
+                    foreach (var item in m.Items)
+                    {
+                        EntityExtension.FlagForCreate(item, user, "Facade");
+
+                        item.Status = "Belum diterima Pembelian";
+                    }
+
+                    this.dbSet.Add(m);
+                    Created = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Created;
         }
+
+        public async Task<int> Update(int id, PurchaseRequest purchaseRequest, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet.AsNoTracking()
+                        .Include(d => d.Items)
+                        .Single(pr => pr.Id == id && !pr.IsDeleted);
+
+                    if (m != null)
+                    {
+
+                        EntityExtension.FlagForUpdate(purchaseRequest, user, "Facade");
+
+                        foreach (var item in purchaseRequest.Items)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                        }
+
+                        this.dbContext.Update(purchaseRequest);
+                        Updated = await dbContext.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Hoek");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public int Delete(int id, string user)
+        {
+            int Deleted = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+
+                    EntityExtension.FlagForDelete(m, user, "Facade");
+
+                    foreach (var item in m.Items)
+                    {
+                        EntityExtension.FlagForDelete(item, user, "Facade");
+                    }
+
+                    Deleted = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
+        }
+
+        public int PRPost(List<PurchaseRequest> ListPurchaseRequest, string user)
+        {
+            int Updated = 0;
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var Ids = ListPurchaseRequest.Select(d => d.Id).ToList();
+                    var listData = this.dbSet
+                        .Where(m => Ids.Contains(m.Id) && !m.IsDeleted)
+                        .Include(d => d.Items)
+                        .ToList();
+                    listData.ForEach(m =>
+                    {
+                        EntityExtension.FlagForUpdate(m, user, "Facade");
+                        m.IsPosted = true;
+
+                        foreach (var item in m.Items)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                        }
+                    });
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public int PRUnpost(int id, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsPosted = false;
+
+                    foreach (var item in m.Items)
+                    {
+                        EntityExtension.FlagForUpdate(item, user, "Facade");
+                    }
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        async Task<string> GenerateNo(PurchaseRequest model)
+        {
+            DateTime Now = DateTime.Now;
+            string Year = Now.ToString("yy");
+            string Month = Now.ToString("MM");
+
+            string no = $"PR-{model.BudgetCode}-{model.UnitCode}-{model.CategoryCode}-{Year}-";
+            int Padding = 3;
+
+            var lastNo = await this.dbSet.Where(w => w.No.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.No).FirstOrDefaultAsync();
+            no = $"{no}-{Month}-";
+
+            if (lastNo == null)
+            {
+                return no + "1".PadLeft(Padding, '0');
+            }
+            else
+            {
+                int lastNoNumber = Int32.Parse(lastNo.No.Replace(no, "")) + 1;
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+            }
+        }
+
     }
 }
