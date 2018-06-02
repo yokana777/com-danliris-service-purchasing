@@ -8,10 +8,8 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
 {
-    class InternalPurchaseOrderItem : BaseModel
+    public class InternalPurchaseOrderItem : StandardEntity<long>
     {
-        [MaxLength(255)]
-        public string POId { get; set; }
         [MaxLength(255)]
         public string PRDetailId { get; set; }
 
@@ -22,19 +20,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public string ProductCode { get; set; }
         [MaxLength(4000)]
         public string ProductName { get; set; }
-
-        public long Quantity { get; set; }
         [MaxLength(255)]
         public string UomId { get; set; }
         [MaxLength(255)]
         public string UomUnit { get; set; }
+
+
+        public long Quantity { get; set; }
         [MaxLength(1000)]
         public string ProductRemark { get; set; }
         [MaxLength(255)]
-        public string Stauts { get; set; }
+        public string Status { get; set; }
 
-        public virtual long InternalPurchaseOrderId { get; set; }
-        [ForeignKey("InternalPurchaseOrderId")]
+        public virtual long POId { get; set; }
+        [ForeignKey("POId")]
         public virtual InternalPurchaseOrder InternalPurchaseOrder { get; set;}
     }
 }

@@ -4,13 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel
 {
-    public class PurchaseRequestItemViewModel : BaseViewModel
+    public class InternalPurchaseOrderItemViewModel : BaseViewModel
     {
+        public string prDetailId { get; set; }
         public ProductViewModel product { get; set; }
         public long quantity { get; set; }
-        public string remark { get; set; }
+        //public string UomId { get; set; }
+        //public string UomUnit { get; set; }        
+        public string productRemark { get; set; }
         public string status { get; set; }
     }
 }

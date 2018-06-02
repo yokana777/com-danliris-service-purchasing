@@ -8,10 +8,8 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
 {
-    class InternalPurchaseOrder : BaseModel
+    public class InternalPurchaseOrder : BaseModel
     {
-        [MaxLength(255)]
-        public string UId { get; set; }
         [MaxLength(255)]
         public string PONo { get; set; }
         [MaxLength(255)]
