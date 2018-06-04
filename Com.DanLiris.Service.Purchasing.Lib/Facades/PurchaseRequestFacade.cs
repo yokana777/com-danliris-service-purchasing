@@ -437,11 +437,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             string Year = Now.ToString("yy");
             string Month = Now.ToString("MM");
 
-            string no = $"PR-{model.BudgetCode}-{model.UnitCode}-{model.CategoryCode}-{Year}-";
+            string no = $"PR-{model.BudgetCode}-{model.UnitCode}-{model.CategoryCode}-{Year}-{Month}-";
             int Padding = 3;
 
             var lastNo = await this.dbSet.Where(w => w.No.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.No).FirstOrDefaultAsync();
-            no = $"{no}-{Month}-";
 
             if (lastNo == null)
             {

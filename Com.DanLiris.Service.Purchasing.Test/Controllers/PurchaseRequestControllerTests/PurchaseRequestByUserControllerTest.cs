@@ -45,6 +45,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         }
 
         [Fact]
+        public async Task Should_Success_Get_All_Data_With_Filter()
+        {
+            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             PurchaseRequest model = await DataUtil.GetTestData("dev2");
