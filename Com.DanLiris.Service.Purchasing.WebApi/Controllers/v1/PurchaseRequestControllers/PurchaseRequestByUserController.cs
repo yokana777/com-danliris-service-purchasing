@@ -40,10 +40,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-            filter = filter.Replace("{", string.Empty).Replace("}", string.Empty);
-            if (!filter.Equals(string.Empty)) filter += ", ";
-            filter = string.Concat(filter, "'CreatedBy':'", identityService.Username, "'");
-            filter = string.Concat("{", filter, "}");
+            
+            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+            {
+                filter = string.Concat("{", filterUser, "}");
+            }
+            else
+            {
+                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+            }
 
             var Data = facade.Read(page, size, order, keyword, filter);
 
