@@ -82,19 +82,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         }
 
         [Fact]
-        public async Task Should_Error_Create_Invalid_Data_Item()
-        {
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
-            foreach (InternalPurchaseOrderItemViewModel item in viewModel.items)
-            {
-                item.product = null;
-                item.quantity = 0;
-            }
-            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
         public async Task Should_Success_Update_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
