@@ -199,14 +199,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             }
         };
 
-        private readonly IMapper mapper;
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<InternalPurchaseOrder> dbSet;
 
-        public InternalPurchaseOrderFacade(IMapper mapper, IServiceProvider serviceProvider, PurchasingDbContext dbContext)
+        public InternalPurchaseOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
-            this.mapper = mapper;
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<InternalPurchaseOrder>();
