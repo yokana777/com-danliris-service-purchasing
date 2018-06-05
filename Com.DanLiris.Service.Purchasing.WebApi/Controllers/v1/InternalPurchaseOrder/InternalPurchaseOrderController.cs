@@ -80,18 +80,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            /* TODO API Result */
-
-            /* Dibawah ini hanya dummy */
-
-            //return Ok(_mapper.Map<PurchaseRequestViewModel>(_facade.ReadById(id)));
-            return Ok(new
+            try
             {
-                apiVersion = ApiVersion,
-                statusCode = General.OK_STATUS_CODE,
-                message = General.OK_MESSAGE,
-                data = _mapper.Map<InternalPurchaseOrderItemViewModel>(_facade.ReadById(id)),
-            });
+                InternalPurchaseOrder model = _facade.ReadById(id);
+                InternalPurchaseOrderViewModel viewModel = _mapper.Map<InternalPurchaseOrderViewModel>(model);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = viewModel,
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
 
         [HttpPost]
