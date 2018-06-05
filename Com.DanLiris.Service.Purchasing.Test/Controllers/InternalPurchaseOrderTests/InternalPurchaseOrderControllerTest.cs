@@ -82,6 +82,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         }
 
         [Fact]
+        public async Task Should_Error_Create_Null_Item_Data()
+        {
+            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel.prNo = null;
+            viewModel.prDate = DateTimeOffset.MinValue;
+            viewModel.budget = null;
+            viewModel.unit = null;
+            viewModel.category = null;
+            viewModel.items = null;
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
