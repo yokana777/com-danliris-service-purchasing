@@ -121,7 +121,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 }
                 else
                 {
-                    return Ok();
+                    return Created(Request.Path,result);
                 }
             }
             catch (ServiceValidationExeption e)
