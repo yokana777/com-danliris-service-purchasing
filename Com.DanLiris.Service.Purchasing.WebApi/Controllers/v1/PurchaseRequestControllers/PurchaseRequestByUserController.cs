@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.Moonlay.NetCore.Lib.Service;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
+using System.IO;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/purchase-requests/by-user")]
+    [Authorize]
+
     public class PurchaseRequestByUserController : Controller
     {
         private string ApiVersion = "1.0.0";
@@ -42,17 +45,37 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             filter = string.Concat(filter, "'CreatedBy':'", identityService.Username, "'");
             filter = string.Concat("{", filter, "}");
 
-            Tuple<List<object>, int, Dictionary<string, string>> Data = facade.Read(page, size, order, keyword, filter);
+            var Data = facade.Read(page, size, order, keyword, filter);
+
+            var newData = mapper.Map<List<PurchaseRequestViewModel>>(Data.Item1);
+
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.no,
+                    s.date,
+                    s.expectedDeliveryDate,
+                    unit = new
+                    {
+                        division = new { s.unit.division.name },
+                        s.unit.name
+                    },
+                    category = new { s.category.name },
+                    s.isPosted,
+                }).ToList()
+            );
 
             return Ok(new
             {
                 apiVersion = ApiVersion,
                 statusCode = General.OK_STATUS_CODE,
                 message = General.OK_MESSAGE,
-                data = Data.Item1,
+                data = listData,
                 info = new Dictionary<string, object>
                 {
-                    { "count", Data.Item1.Count },
+                    { "count", listData.Count },
                     { "total", Data.Item2 },
                     { "order", Data.Item3 },
                     { "page", page },
@@ -67,6 +90,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             try
             {
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                PurchaseRequest model = facade.ReadById(id);
+                PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
+
                 if (indexAcceptPdf < 0)
                 {
                     return Ok(new
@@ -74,12 +101,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
                         apiVersion = ApiVersion,
                         statusCode = General.OK_STATUS_CODE,
                         message = General.OK_MESSAGE,
-                        data = mapper.Map<PurchaseRequestViewModel>(facade.ReadById(id)),
+                        data = viewModel,
                     });
                 }
                 else
                 {
-                    throw new Exception("Hahaha");
+                    PurchaseRequestPDFTemplate PdfTemplate = new PurchaseRequestPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.no}.pdf"
+                    };
                 }
             }
             catch (Exception e)

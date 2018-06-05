@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
+using Com.Moonlay.Models;
 using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    public class PurchaseRequestProfile : Profile
+    public class PurchaseRequestProfile : BaseAutoMapperProfile
     {
         public PurchaseRequestProfile()
         {
@@ -15,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))
                 .ForPath(d => d.product.name, opt => opt.MapFrom(s => s.ProductName))
                 .ForPath(d => d.product.uom.unit, opt => opt.MapFrom(s => s.Uom))
+                .ForPath(d => d.product.uom._id, opt => opt.MapFrom(s => s.UomId))
                 .ReverseMap();
 
             CreateMap<PurchaseRequest, PurchaseRequestViewModel>()

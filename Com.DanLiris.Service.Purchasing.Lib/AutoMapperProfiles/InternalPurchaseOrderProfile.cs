@@ -2,11 +2,13 @@
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.Moonlay.Models;
 using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    public class InternalPurchaseOrderProfile : Profile
+    public class InternalPurchaseOrderProfile : BaseAutoMapperProfile
     {
         public InternalPurchaseOrderProfile()
         {

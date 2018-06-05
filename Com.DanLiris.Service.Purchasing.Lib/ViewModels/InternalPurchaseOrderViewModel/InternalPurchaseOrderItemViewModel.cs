@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
 {
     public class InternalPurchaseOrderItemViewModel : BaseViewModel
     {
-        public string prDetailId { get; set; }
+        public string prItemId { get; set; }
         public ProductViewModel product { get; set; }
         public long quantity { get; set; }
         //public string UomId { get; set; }

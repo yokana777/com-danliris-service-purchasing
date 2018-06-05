@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 {
-    public class InternalPurchaseOrderFacade : IReadable
+    public class InternalPurchaseOrderFacade 
     {
         private List<InternalPurchaseOrder> DUMMY_DATA = new List<InternalPurchaseOrder>()
         {
@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 1,
-                        PRDetailId = "PurchaseRequestItem-1",
+                        PRItemId = "PurchaseRequestItem-1",
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 1,
-                        PRDetailId = "PurchaseRequestItem-1",
+                        PRItemId = "PurchaseRequestItem-1",
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -153,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 2,
-                        PRDetailId = "PurchaseRequestItem-2",
+                        PRItemId = "PurchaseRequestItem-2",
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -177,7 +177,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 2,
-                        PRDetailId = "PurchaseRequestItem-2",
+                        PRItemId = "PurchaseRequestItem-2",
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -224,6 +224,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 .FirstOrDefault();
         }
 
+        async Task<string> GeneratePONo(InternalPurchaseOrder model)
+        {
+            DateTime Now = DateTime.Now;
+            string Year = Now.ToString("yy");
+            string Month = Now.ToString("MM");
+
+            string internalPurchaseNo = Year + Month;
+
+            var lastInternalPurchaseNo = await this.dbSet.Where(w => w.PONo.StartsWith(internalPurchaseNo)).OrderByDescending(o => o.PONo).FirstOrDefaultAsync();
+
+            int Padding = 5;
+
+            if (lastInternalPurchaseNo == null)
+            {
+                return internalPurchaseNo + "1".PadLeft(Padding, '0');
+            }
+            else
+            {
+                int lastNo = Int32.Parse(lastInternalPurchaseNo.PONo.Replace(internalPurchaseNo, "")) + 1;
+                return internalPurchaseNo + lastNo.ToString().PadLeft(Padding, '0');
+            }
+        }
+
         public async Task<int> Create(InternalPurchaseOrder m, string user)
         {
             int Created = 0;
@@ -233,7 +256,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 try
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
-
+                    m.PONo = await this.GeneratePONo(m);
+                    m.PONo = "PO" + m.UnitCode + m.PONo;
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, "Facade");
@@ -253,7 +277,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Created;
         }
 
-        public Tuple<List<object>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public Tuple<List<InternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<InternalPurchaseOrder> Query = this.dbSet;
             //IQueryable<PurchaseRequest> Query = DUMMY_DATA.AsQueryable();
@@ -270,21 +294,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 CategoryName = s.CategoryName,
                 IsPosted = s.IsPosted,
                 CreatedBy = s.CreatedBy,
+                PRDate = s.PRDate,
                 LastModifiedUtc = s.LastModifiedUtc
+                //Items = s.Items
+                //    .Select(
+                //        q => new InternalPurchaseOrderItem
+                //        {
+                //            Id = q.Id,
+                //            POId = q.POId,
+                //            PRItemId = q.PRItemId,
+                //            ProductId =q.ProductId,
+                //            ProductName = q.ProductName,
+                //            ProductCode = q.ProductCode,
+                //            UomId = q.UomId,
+                //            UomUnit = q.UomUnit,
+                //            Quantity = q.Quantity,
+                //            ProductRemark = q.ProductRemark,
+                //            Status = q.Status
+                //        }
+                //    )
+                //    .Where(j => j.POId.Equals(s.Id))
+                //    .ToList()
             });
-
-            //List<string> searchAttributes = new List<string>()
-            //{
-            //    "UnitName", "CategoryName", "DivisionName"
-            //};
-
-            //Query = QueryHelper<PurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             if (Keyword != null)
             {
-                //Query = Query.Where(w => w.UnitName.Contains(Keyword));
                 Query = Query.Where("UnitName.Contains(@0)", Keyword);
-                //Query = Query.Where("UnitName.Contains(@0) OR CategoryName.Contains(@0) OR DivisionName.Contains(@0)", Keyword);
             }
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
@@ -297,27 +332,100 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             List<InternalPurchaseOrder> Data = pageable.Data.ToList<InternalPurchaseOrder>();
             int TotalData = pageable.TotalCount;
 
-            var newData = mapper.Map<List<InternalPurchaseOrderViewModel>>(Data);
+            //var newData = mapper.Map<List<InternalPurchaseOrderViewModel>>(Data);
 
-            List<object> list = new List<object>();
-            list.AddRange(
-                newData.AsQueryable().Select(s => new
+            //List<object> list = new List<object>();
+            //list.AddRange(
+            //    newData.AsQueryable().Select(s => new
+            //    {
+            //        s._id,
+            //        s.prNo,
+            //        s.poNo,
+            //        s.expectedDeliveryDate,
+            //        unit = new
+            //        {
+            //            division = new { s.unit.division.name },
+            //            s.unit.name
+            //        },
+            //        category = new { s.category.name },
+            //        s.isPosted,
+            //    }).ToList()
+            //);
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public async Task<int> Update(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
                 {
-                    s._id,
-                    s.prNo,
-                    s.poNo,
-                    s.expectedDeliveryDate,
-                    unit = new
-                    {
-                        division = new { s.unit.division.name },
-                        s.unit.name
-                    },
-                    category = new { s.category.name },
-                    s.isPosted,
-                }).ToList()
-            );
+                    var m = this.dbSet.AsNoTracking()
+                        .Include(d => d.Items)
+                        .Single(pr => pr.Id == id && !pr.IsDeleted);
 
-            return Tuple.Create(list, TotalData, OrderDictionary);
+                    if (m != null)
+                    {
+
+                        EntityExtension.FlagForUpdate(internalPurchaseOrder, user, "Facade");
+
+                        foreach (var item in internalPurchaseOrder.Items)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                        }
+
+                        this.dbContext.Update(internalPurchaseOrder);
+                        Updated = await dbContext.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Error while updating data");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public int Delete(int id, string user)
+        {
+            int Deleted = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+
+                    EntityExtension.FlagForDelete(m, user, "Facade");
+
+                    foreach (var item in m.Items)
+                    {
+                        EntityExtension.FlagForDelete(item, user, "Facade");
+                    }
+
+                    Deleted = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
         }
     }
 }

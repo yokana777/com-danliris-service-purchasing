@@ -35,7 +35,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.Read(page, size, order, keyword, filter);
+            //Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.Read(page, size, order, keyword, filter);
+            var Data = _facade.Read(page, size, order, keyword, filter);
+
+            var newData = _mapper.Map<List<InternalPurchaseOrderViewModel>>(Data.Item1);
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.poNo,
+                    s.isoNo,
+                    s.prId,
+                    s.prNo,
+                    s.prDate,
+                    s.expectedDeliveryDate,
+                    s.budget,
+                    s.division,
+                    s.unit,
+                    s.category,
+                    s.remark,
+                    s.status,
+                    s.isPosted,
+                }).ToList()
+            );
 
             return Ok(new
             {
@@ -72,17 +95,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]InternalPurchaseOrderItemViewModel vm)
+        public async Task<IActionResult> Post([FromBody]InternalPurchaseOrderViewModel vm)
         {
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
             InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
-
             ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
 
             try
-            {
+            {                
                 validateService.Validate(vm);
 
                 int result = await _facade.Create(m, identityService.Username);
@@ -112,6 +133,58 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
 
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
+
+            ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+
+            try
+            {
+                validateService.Validate(vm);
+
+                int result = await _facade.Update(id, m, identityService.Username);
+
+                return NoContent();
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute]int id)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                _facade.Delete(id, identityService.Username);
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
         }
     }
 }
