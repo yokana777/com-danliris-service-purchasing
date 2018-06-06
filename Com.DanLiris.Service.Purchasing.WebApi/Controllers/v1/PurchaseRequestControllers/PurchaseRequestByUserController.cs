@@ -40,54 +40,64 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-            
-            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
-            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+
+            try
             {
-                filter = string.Concat("{", filterUser, "}");
-            }
-            else
-            {
-                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
-            }
-
-            var Data = facade.Read(page, size, order, keyword, filter);
-
-            var newData = mapper.Map<List<PurchaseRequestViewModel>>(Data.Item1);
-
-            List<object> listData = new List<object>();
-            listData.AddRange(
-                newData.AsQueryable().Select(s => new
+                string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+                if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
                 {
-                    s._id,
-                    s.no,
-                    s.date,
-                    s.expectedDeliveryDate,
-                    unit = new
+                    filter = string.Concat("{", filterUser, "}");
+                }
+                else
+                {
+                    filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+                }
+
+                var Data = facade.Read(page, size, order, keyword, filter);
+
+                var newData = mapper.Map<List<PurchaseRequestViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    newData.AsQueryable().Select(s => new
                     {
-                        division = new { s.unit.division.name },
-                        s.unit.name
-                    },
-                    category = new { s.category.name },
-                    s.isPosted,
-                }).ToList()
-            );
+                        s._id,
+                        s.no,
+                        s.date,
+                        s.expectedDeliveryDate,
+                        unit = new
+                        {
+                            division = new { s.unit.division.name },
+                            s.unit.name
+                        },
+                        category = new { s.category.name },
+                        s.isPosted,
+                    }).ToList()
+                );
 
-            return Ok(new
-            {
-                apiVersion = ApiVersion,
-                statusCode = General.OK_STATUS_CODE,
-                message = General.OK_MESSAGE,
-                data = listData,
-                info = new Dictionary<string, object>
+                return Ok(new
                 {
-                    { "count", listData.Count },
-                    { "total", Data.Item2 },
-                    { "order", Data.Item3 },
-                    { "page", page },
-                    { "size", size }
-                },
-            });
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    },
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
 
         [HttpGet("{id}")]

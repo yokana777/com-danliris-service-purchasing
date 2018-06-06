@@ -42,6 +42,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         {
             var response = await this.Client.GetAsync(URI);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
+            Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
         }
 
         [Fact]
