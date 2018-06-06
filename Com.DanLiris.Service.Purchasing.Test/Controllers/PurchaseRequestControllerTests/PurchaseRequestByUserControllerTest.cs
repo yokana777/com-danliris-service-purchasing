@@ -42,6 +42,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         {
             var response = await this.Client.GetAsync(URI);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
+            Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
         }
 
         [Fact]
@@ -63,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         public async Task Should_Error_Get_Invalid_Id()
         {
             var response = await this.Client.GetAsync($"{URI}/0");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
         [Fact]
@@ -76,6 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
                 Method = HttpMethod.Get
             };
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
+            requestMessage.Headers.Add("x-timezone-offset", "0");
             var response = await this.Client.SendAsync(requestMessage);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
