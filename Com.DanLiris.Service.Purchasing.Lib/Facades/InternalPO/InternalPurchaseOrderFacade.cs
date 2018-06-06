@@ -293,32 +293,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 IsPosted = s.IsPosted,
                 CreatedBy = s.CreatedBy,
                 PRDate = s.PRDate,
-                LastModifiedUtc = s.LastModifiedUtc
-                //Items = s.Items
-                //    .Select(
-                //        q => new InternalPurchaseOrderItem
-                //        {
-                //            Id = q.Id,
-                //            POId = q.POId,
-                //            PRItemId = q.PRItemId,
-                //            ProductId =q.ProductId,
-                //            ProductName = q.ProductName,
-                //            ProductCode = q.ProductCode,
-                //            UomId = q.UomId,
-                //            UomUnit = q.UomUnit,
-                //            Quantity = q.Quantity,
-                //            ProductRemark = q.ProductRemark,
-                //            Status = q.Status
-                //        }
-                //    )
-                //    .Where(j => j.POId.Equals(s.Id))
-                //    .ToList()
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items
+                    .Select(
+                        q => new InternalPurchaseOrderItem
+                        {
+                            Id = q.Id,
+                            POId = q.POId,
+                            PRItemId = q.PRItemId,
+                            ProductId = q.ProductId,
+                            ProductName = q.ProductName,
+                            ProductCode = q.ProductCode,
+                            UomId = q.UomId,
+                            UomUnit = q.UomUnit,
+                            Quantity = q.Quantity,
+                            ProductRemark = q.ProductRemark,
+                            Status = q.Status
+                        }
+                    )
+                    .Where(j => j.POId.Equals(s.Id))
+                    .ToList()
             });
 
-            if (Keyword != null)
+            List<string> searchAttributes = new List<string>()
             {
-                Query = Query.Where("UnitName.Contains(@0)", Keyword);
-            }
+                "PRNo", "CreatedBy", "UnitName", "CategoryName", "DivisionName"
+            };
+
+            Query = QueryHelper<InternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<InternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
@@ -429,7 +431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         //public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
         //{
         //    int Splitted = 0;
-
+        //    InternalPurchaseOrder NewData = ReadById(id);
         //    using (var transaction = this.dbContext.Database.BeginTransaction())
         //    {
         //        try
@@ -442,14 +444,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         //            {
 
         //                EntityExtension.FlagForUpdate(internalPurchaseOrder, user, "Facade");
+        //                EntityExtension.FlagForCreate(NewData, user, "Facade");
 
-        //                foreach (var item in internalPurchaseOrder.Items)
+        //                foreach (var item in m.Items)
         //                {
         //                    EntityExtension.FlagForUpdate(item, user, "Facade");
+
         //                }
+
+                        
+
+                        
 
         //                this.dbContext.Update(internalPurchaseOrder);
         //                Splitted = await dbContext.SaveChangesAsync();
+
         //                transaction.Commit();
         //            }
         //            else

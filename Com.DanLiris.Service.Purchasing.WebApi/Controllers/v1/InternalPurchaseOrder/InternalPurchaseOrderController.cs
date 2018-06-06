@@ -50,13 +50,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                     s.prNo,
                     s.prDate,
                     s.expectedDeliveryDate,
-                    s.budget,
-                    s.division,
-                    s.unit,
-                    s.category,
+                    unit = new
+                    {
+                        division = new { s.unit.division.name },
+                        s.unit.name
+                    },
+                    category = new
+                    {
+                        s.category.name
+                    },
                     s.remark,
                     s.status,
-                    s.isPosted,
+                    s.CreatedBy,
+                    s.isPosted
                 }).ToList()
             );
 
@@ -65,10 +71,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 apiVersion = ApiVersion,
                 statusCode = General.OK_STATUS_CODE,
                 message = General.OK_MESSAGE,
-                data = Data.Item1,
+                data = listData,
                 info = new Dictionary<string, object>
                 {
-                    { "count", Data.Item1.Count },
+                    { "count", listData.Count },
                     { "total", Data.Item2 },
                     { "order", Data.Item3 },
                     { "page", page },
@@ -193,5 +199,24 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
+
+        //[HttpPost("split")]
+        //public async Task<IActionResult> Split([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
+        //{
+        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        //    InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
+        //    ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+        //    try
+        //    {
+        //        validateService.Validate(vm);
+        //        int result = await _facade.Split(id, m, identityService.Username);
+
+        //        return NoContent();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+        //    }
+        //}
     }
 }
