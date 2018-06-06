@@ -76,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
                 Method = HttpMethod.Get
             };
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
+            requestMessage.Headers.Add("x-timezone-offset", "0");
             var response = await this.Client.SendAsync(requestMessage);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }

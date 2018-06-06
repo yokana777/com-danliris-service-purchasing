@@ -112,8 +112,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
                 }
                 else
                 {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
                     PurchaseRequestPDFTemplate PdfTemplate = new PurchaseRequestPDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
