@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             viewModel.category = null;
             viewModel.items = new List<InternalPurchaseOrderItemViewModel> {null} ;
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
         [Fact]
