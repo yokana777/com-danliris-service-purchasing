@@ -109,6 +109,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
 
                 PurchaseRequest model = facade.ReadById(id);
                 PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
 
                 if (indexAcceptPdf < 0)
                 {

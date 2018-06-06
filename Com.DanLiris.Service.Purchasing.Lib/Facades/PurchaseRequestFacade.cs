@@ -450,9 +450,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         async Task<string> GenerateNo(PurchaseRequest model)
         {
-            DateTime Now = DateTime.Now;
-            string Year = Now.ToString("yy");
-            string Month = Now.ToString("MM");
+            string Year = model.Date.ToString("yy");
+            string Month = model.Date.ToString("MM");
 
             string no = $"PR-{model.BudgetCode}-{model.UnitCode}-{model.CategoryCode}-{Year}-{Month}-";
             int Padding = 3;
