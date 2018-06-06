@@ -182,6 +182,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         };
         #endregion
 
+        private string USER_AGENT = "Facade";
+
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<PurchaseRequest> dbSet;
@@ -264,13 +266,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             {
                 try
                 {
-                    EntityExtension.FlagForCreate(m, user, "Facade");
+                    EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
                     m.No = await GenerateNo(m);
 
                     foreach (var item in m.Items)
                     {
-                        EntityExtension.FlagForCreate(item, user, "Facade");
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                         item.Status = "Belum diterima Pembelian";
                     }
@@ -301,23 +303,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         .Include(d => d.Items)
                         .Single(pr => pr.Id == id && !pr.IsDeleted);
 
-                    if (m != null)
+                    if (m != null && !id.Equals(purchaseRequest.Id))
                     {
 
-                        EntityExtension.FlagForUpdate(purchaseRequest, user, "Facade");
+                        EntityExtension.FlagForUpdate(purchaseRequest, user, USER_AGENT);
 
                         foreach (var item in purchaseRequest.Items)
                         {
-                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                            if (item.Id == 0)
+                            {
+                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                            }
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                         }
 
                         this.dbContext.Update(purchaseRequest);
+
+                        foreach (var item in m.Items)
+                        {
+                            PurchaseRequestItem purchaseRequestItem = purchaseRequest.Items.FirstOrDefault(i => i.Id.Equals(item.Id));
+                            if (purchaseRequestItem == null)
+                            {
+                                EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                                this.dbContext.PurchaseRequestItems.Update(item);
+                            }
+                        }
+
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
                     else
                     {
-                        throw new Exception("Hoek");
+                        throw new Exception("Invalid Id");
                     }
                 }
                 catch (Exception e)
@@ -342,11 +359,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         .Include(d => d.Items)
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
 
-                    EntityExtension.FlagForDelete(m, user, "Facade");
+                    EntityExtension.FlagForDelete(m, user, USER_AGENT);
 
                     foreach (var item in m.Items)
                     {
-                        EntityExtension.FlagForDelete(item, user, "Facade");
+                        EntityExtension.FlagForDelete(item, user, USER_AGENT);
                     }
 
                     Deleted = dbContext.SaveChanges();
@@ -376,12 +393,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         .ToList();
                     listData.ForEach(m =>
                     {
-                        EntityExtension.FlagForUpdate(m, user, "Facade");
+                        EntityExtension.FlagForUpdate(m, user, USER_AGENT);
                         m.IsPosted = true;
 
                         foreach (var item in m.Items)
                         {
-                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                         }
                     });
 
@@ -410,12 +427,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         .Include(d => d.Items)
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
 
-                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    EntityExtension.FlagForUpdate(m, user, USER_AGENT);
                     m.IsPosted = false;
 
                     foreach (var item in m.Items)
                     {
-                        EntityExtension.FlagForUpdate(item, user, "Facade");
+                        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                     }
 
                     Updated = dbContext.SaveChanges();

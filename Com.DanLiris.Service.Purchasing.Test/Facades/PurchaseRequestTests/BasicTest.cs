@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
@@ -79,8 +80,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         public async void Should_Success_Update_Data()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
+
             var Response = await Facade.Update((int)model.Id, model, "Unit Test");
             Assert.NotEqual(Response, 0);
+
+            PurchaseRequestItem modelItem = DataUtil.GetNewData().Items.FirstOrDefault();
+            model.Items.Add(modelItem);
+            var ResponseAddItem = await Facade.Update((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(ResponseAddItem, 0);
+
+            model.Items.Remove(modelItem);
+            var ResponseRemoveItem = await Facade.Update((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(ResponseRemoveItem, 0);
         }
 
         [Fact]
