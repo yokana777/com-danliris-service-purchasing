@@ -85,12 +85,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         public async Task Should_Error_Create_Null_Item_Data()
         {
             InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
-            viewModel.prNo = null;
             viewModel.prDate = DateTimeOffset.MinValue;
             viewModel.budget = null;
             viewModel.unit = null;
             viewModel.category = null;
-            viewModel.items = null;
+            viewModel.items = new List<InternalPurchaseOrderItemViewModel> {null} ;
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }

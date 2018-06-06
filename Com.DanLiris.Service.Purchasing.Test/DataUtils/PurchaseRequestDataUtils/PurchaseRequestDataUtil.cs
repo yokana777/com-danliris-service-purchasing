@@ -88,6 +88,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
             return purchaseRequest;
         }
 
+        public async Task<PurchaseRequest> GetTestDataPosted(string user)
+        {
+            PurchaseRequest purchaseRequest = GetNewData();
+            purchaseRequest.IsPosted = true;
+            await facade.Create(purchaseRequest, user);
+
+            return purchaseRequest;
+        }
+
         //public PurchaseRequestViewModel GetViewModelTestData()
         //{
         //    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(GetNewData());
