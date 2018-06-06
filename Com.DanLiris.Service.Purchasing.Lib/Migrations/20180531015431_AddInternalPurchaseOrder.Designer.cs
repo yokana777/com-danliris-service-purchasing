@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180531015431_AddInternalPurchaseOrder")]
+    partial class AddInternalPurchaseOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -287,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("POId");
 
-                    b.Property<string>("PRItemId")
+                    b.Property<string>("PRDetailId")
                         .HasMaxLength(255);
 
                     b.Property<string>("ProductCode")
@@ -474,12 +475,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Remark");
 
-                    b.Property<string>("Status");
-
                     b.Property<string>("Uom")
                         .HasMaxLength(255);
-
-                    b.Property<string>("UomId");
 
                     b.HasKey("Id");
 

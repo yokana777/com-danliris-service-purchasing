@@ -75,5 +75,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             var response = await this.Client.PutAsync($"{URI}/unpost/{model.Id}", new StringContent("", Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Error_GetDataPosted()
+        {
+            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
     }
 }

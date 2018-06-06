@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 string Key = OrderDictionary.Keys.First();
                 string OrderType = OrderDictionary[Key];
 
-                Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+                Query = Query.OrderBy(string.Concat(Key.Replace(".", ""), " ", OrderType));
             }
             return Query;
         }

@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
@@ -236,10 +236,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
-        
+
         public PurchaseRequest ReadById(int id)
         {
-            var a =  this.dbSet.Where(p => p.Id == id)
+            var a = this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
                 .FirstOrDefault();
             return a;
@@ -453,5 +453,69 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
         }
 
+        public Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> ReadModelPosted(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<PurchaseRequest> Query = this.dbSet;
+
+            Query = Query.Select(s => new PurchaseRequest
+            {
+                Id = s.Id,
+                UId = s.UId,
+                No = s.No,
+                Date = s.Date,
+                ExpectedDeliveryDate = s.ExpectedDeliveryDate,
+                UnitName = s.UnitName,
+                UnitId = s.UnitId,
+                UnitCode = s.UnitCode,
+                BudgetCode = s.BudgetCode,
+                BudgetId = s.BudgetId,
+                BudgetName = s.BudgetName,
+                DivisionId = s.DivisionId,
+                DivisionCode = s.DivisionCode,
+                DivisionName = s.DivisionName,
+                CategoryCode = s.CategoryCode,
+                CategoryId = s.CategoryId,
+                CategoryName = s.CategoryName,
+                IsPosted = s.IsPosted,
+                Remark = s.Remark,
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items
+                    .Select(
+                        q => new PurchaseRequestItem
+                        {
+                            PurchaseRequestId = q.PurchaseRequestId,
+                            ProductId = q.ProductId,
+                            ProductCode = q.ProductCode,
+                            ProductName = q.ProductName,
+                            Uom = q.Uom,
+                            UomId = q.UomId,
+                            Status = q.Status,
+                            Quantity = q.Quantity,
+                            Remark = q.Remark
+                        })
+                    .Where(j => j.PurchaseRequestId.Equals(s.Id))
+                    .ToList()
+            }).Where(s => s.IsPosted == true);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "No", "UnitName", "CategoryName", "DivisionName"
+            };
+
+            Query = QueryHelper<PurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<PurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<PurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<PurchaseRequest> pageable = new Pageable<PurchaseRequest>(Query, Page - 1, Size);
+            List<PurchaseRequest> Data = pageable.Data.ToList<PurchaseRequest>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
     }
 }
