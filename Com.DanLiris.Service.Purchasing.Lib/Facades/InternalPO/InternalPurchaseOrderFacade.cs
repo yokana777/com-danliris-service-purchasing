@@ -426,45 +426,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Deleted;
         }
 
-        public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
-        {
-            int Splitted = 0;
+        //public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
+        //{
+        //    int Splitted = 0;
 
-            using (var transaction = this.dbContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    var m = this.dbSet.AsNoTracking()
-                        .Include(d => d.Items)
-                        .Single(pr => pr.Id == id && !pr.IsDeleted);
+        //    using (var transaction = this.dbContext.Database.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            var m = this.dbSet.AsNoTracking()
+        //                .Include(d => d.Items)
+        //                .Single(pr => pr.Id == id && !pr.IsDeleted);
 
-                    if (m != null)
-                    {
+        //            if (m != null)
+        //            {
 
-                        EntityExtension.FlagForUpdate(internalPurchaseOrder, user, "Facade");
+        //                EntityExtension.FlagForUpdate(internalPurchaseOrder, user, "Facade");
 
-                        foreach (var item in internalPurchaseOrder.Items)
-                        {
-                            EntityExtension.FlagForUpdate(item, user, "Facade");
-                        }
+        //                foreach (var item in internalPurchaseOrder.Items)
+        //                {
+        //                    EntityExtension.FlagForUpdate(item, user, "Facade");
+        //                }
 
-                        this.dbContext.Update(internalPurchaseOrder);
-                        Splitted = await dbContext.SaveChangesAsync();
-                        transaction.Commit();
-                    }
-                    else
-                    {
-                        throw new Exception("Error while updating data");
-                    }
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    throw new Exception(e.Message);
-                }
-            }
+        //                this.dbContext.Update(internalPurchaseOrder);
+        //                Splitted = await dbContext.SaveChangesAsync();
+        //                transaction.Commit();
+        //            }
+        //            else
+        //            {
+        //                throw new Exception("Error while updating data");
+        //            }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            transaction.Rollback();
+        //            throw new Exception(e.Message);
+        //        }
+        //    }
 
-            return Splitted;
-        }
+        //    return Splitted;
+        //}
     }
 }
