@@ -42,8 +42,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         [Fact]
         public async void Should_Success_Get_Data_Posted()
         {
-            await DataUtil.GetTestData("Unit test");
-            Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.ReadModelPosted();
+            await DataUtil.GetTestDataPosted("Unit test");
+            Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
 
