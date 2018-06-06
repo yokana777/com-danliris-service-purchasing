@@ -138,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("PurchasingDocumentExpeditions");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrder", b =>
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrder", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
@@ -255,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("ExternalPurchaseOrders");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrderDetail", b =>
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrderDetail", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
@@ -340,7 +340,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("ExternalPurchaseOrderDetails");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrderItem", b =>
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrderItem", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
@@ -575,17 +575,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("PurchaseRequestItems");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrderDetail", b =>
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrderDetail", b =>
                 {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrderItem", "ExternalPurchaseOrderItem")
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrderItem", "ExternalPurchaseOrderItem")
                         .WithMany("Details")
                         .HasForeignKey("EPOItemId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrderItem", b =>
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrderItem", b =>
                 {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseOrderExternalModel.ExternalPurchaseOrder", "ExternalPurchaseOrder")
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel.ExternalPurchaseOrder", "ExternalPurchaseOrder")
                         .WithMany("Items")
                         .HasForeignKey("EPOId")
                         .OnDelete(DeleteBehavior.Restrict);

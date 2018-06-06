@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Configs.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.Moonlay.Data.EntityFrameworkCore;
 using Com.Moonlay.EntityFrameworkCore;
@@ -17,7 +18,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
         public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
         public DbSet<PurchaseRequestItem> PurchaseRequestItems { get; set; }
-        
+
+        public DbSet<ExternalPurchaseOrder> ExternalPurchaseOrders { get; set; }
+        public DbSet<ExternalPurchaseOrderItem> ExternalPurchaseOrderItems { get; set; }
+        public DbSet<ExternalPurchaseOrderDetail> ExternalPurchaseOrderDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
