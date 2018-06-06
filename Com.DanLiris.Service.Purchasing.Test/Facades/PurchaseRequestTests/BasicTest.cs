@@ -40,6 +40,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
+        public async void Should_Success_Get_Data_Posted()
+        {
+            await DataUtil.GetTestDataPosted("Unit test");
+            Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.ReadModelPosted();
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
         public async void Should_Success_Get_Data_With_Arguments()
         {
             string order = "{\"UnitCode\":\"desc\"}";

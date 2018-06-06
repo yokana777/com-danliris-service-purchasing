@@ -1,31 +1,33 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
-using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils
+namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils
 {
-    public class PurchaseRequestDataUtil
+    public class InternalPurchaseOrderDataUtil
     {
-        private PurchaseRequestItemDataUtil purchaseRequestItemDataUtil;
-        private readonly PurchaseRequestFacade facade;
+        private InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil;
+        private readonly InternalPurchaseOrderFacade facade;
 
-        public PurchaseRequestDataUtil(PurchaseRequestItemDataUtil purchaseRequestItemDataUtil, PurchaseRequestFacade facade)
+        public InternalPurchaseOrderDataUtil(InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil, InternalPurchaseOrderFacade facade)
         {
-            this.purchaseRequestItemDataUtil = purchaseRequestItemDataUtil;
+            this.internalPurchaseOrderItemDataUtil = internalPurchaseOrderItemDataUtil;
             this.facade = facade;
         }
 
-        public PurchaseRequest GetNewData()
+        public InternalPurchaseOrder GetNewData()
         {
-            return new PurchaseRequest
+            return new InternalPurchaseOrder
             {
-                No = "No1",
-                Date = DateTimeOffset.Now,
-                ExpectedDeliveryDate = DateTimeOffset.Now,
+                IsoNo = "",
+                PRId = "PurchaseRequestId-1",
+                PRNo = "PurchaseRequestNo-1",
+                PRDate = DateTimeOffset.UtcNow,
+                ExpectedDeliveryDate = DateTimeOffset.UtcNow,
                 BudgetId = "BudgetId",
                 BudgetCode = "BudgetCode",
                 BudgetName = "BudgetName",
@@ -39,16 +41,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
                 CategoryCode = "CategoryCode",
                 CategoryName = "CategoryName",
                 Remark = "Remark",
-                Items = new List<PurchaseRequestItem> { purchaseRequestItemDataUtil.GetNewData() }
+                Items = new List<InternalPurchaseOrderItem> { internalPurchaseOrderItemDataUtil.GetNewData() }
             };
         }
 
-        public PurchaseRequestViewModel GetNewDataViewModel()
+        public InternalPurchaseOrderViewModel GetNewDataViewModel()
         {
-            return new PurchaseRequestViewModel
+            return new InternalPurchaseOrderViewModel
             {
-                no = "No1",
-                date = DateTimeOffset.Now,
+                prId = "PurchaseRequestId-1",
+                prNo = "PurchaseRequestNo",
+                prDate = DateTimeOffset.Now,
                 expectedDeliveryDate = DateTimeOffset.Now,
                 budget = new BudgetViewModel
                 {
@@ -75,26 +78,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
                     name = "CategoryName",
                 },
                 remark = "Remark",
-                items = new List<PurchaseRequestItemViewModel> { purchaseRequestItemDataUtil.GetNewDataViewModel() }
+                items = new List<InternalPurchaseOrderItemViewModel> { internalPurchaseOrderItemDataUtil.GetNewDataViewModel() }
             };
         }
 
-        public async Task<PurchaseRequest> GetTestData(string user)
+        public async Task<InternalPurchaseOrder> GetTestData(string user)
         {
-            PurchaseRequest purchaseRequest = GetNewData();
+            InternalPurchaseOrder internalPurchaseOrder = GetNewData();
 
-            await facade.Create(purchaseRequest, user);
+            await facade.Create(internalPurchaseOrder, user);
 
-            return purchaseRequest;
-        }
-
-        public async Task<PurchaseRequest> GetTestDataPosted(string user)
-        {
-            PurchaseRequest purchaseRequest = GetNewData();
-            purchaseRequest.IsPosted = true;
-            await facade.Create(purchaseRequest, user);
-
-            return purchaseRequest;
+            return internalPurchaseOrder;
         }
 
         //public PurchaseRequestViewModel GetViewModelTestData()

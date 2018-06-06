@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -58,7 +59,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<ImportPurchasingBookReportFacade>()
                 .AddTransient<LocalPurchasingBookReportFacade>()
-                .AddTransient<ExternalPurchaseOrderFacade>(); ;
+                .AddTransient<InternalPurchaseOrderFacade>()
+                .AddTransient<ExternalPurchaseOrderFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

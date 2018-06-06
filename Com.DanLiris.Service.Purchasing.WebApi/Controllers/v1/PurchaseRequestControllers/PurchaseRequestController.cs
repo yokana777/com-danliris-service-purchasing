@@ -19,8 +19,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/purchase-requests")]
     [Authorize]
+
     public class PurchaseRequestController : Controller
     {
+        private string ApiVersion = "1.0.0";
         private readonly IMapper _mapper;
         private readonly PurchaseRequestFacade _facade;
         private readonly IdentityService identityService;
@@ -106,6 +108,86 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             {
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
+        }
+
+        //[HttpGet("posted")]
+        //public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        //{
+        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        //    Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.ReadModelPosted(page, size, order, keyword, filter);
+
+        //    return Ok(new
+        //    {
+        //        apiVersion = "1.0.0",
+        //        statusCode = General.OK_STATUS_CODE,
+        //        message = General.OK_MESSAGE,
+        //        data = Data.Item1,
+        //        info = new Dictionary<string, object>
+        //    {
+        //        { "count", Data.Item1.Count },
+        //        { "total", Data.Item2 },
+        //        { "order", Data.Item3 },
+        //        { "page", page },
+        //        { "size", size }
+        //    },
+        //    });
+
+        //}
+        [HttpGet("posted")]
+        public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            var Data = _facade.ReadModelPosted(page, size, order, keyword, filter);
+
+            var newData = _mapper.Map<List<PurchaseRequestViewModel>>(Data.Item1);
+
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.no,
+                    s.date,
+                    s.expectedDeliveryDate,
+                    unit = new
+                    {
+                        division = new { s.unit.division.name, s.unit.division._id, s.unit.division.code },
+                        s.unit.name,
+                        s.unit._id,
+                        s.unit.code
+                    },
+                    category = new
+                    {
+                        s.category._id,
+                        s.category.code,
+                        s.category.name
+                    },
+                    budget = new
+                    {
+                        s.budget._id,
+                        s.budget.name,
+                        s.budget.code
+                    },
+                    s.isPosted,
+                    s.remark,
+                    s.items
+                }).ToList()
+            );
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                statusCode = General.OK_STATUS_CODE,
+                message = General.OK_MESSAGE,
+                data = listData,
+                info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                    { "total", Data.Item2 },
+                    { "order", Data.Item3 },
+                    { "page", page },
+                    { "size", size }
+                },
+            });
         }
 
     }
