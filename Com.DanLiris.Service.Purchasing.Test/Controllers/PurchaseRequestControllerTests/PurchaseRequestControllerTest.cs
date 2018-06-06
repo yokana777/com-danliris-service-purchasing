@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         [Fact]
         public async Task Should_Success_GetDataPosted()
         {
-            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
+            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':true}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
