@@ -189,6 +189,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         //    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         //}
 
+            
+        [Fact]
+        public async Task Should_Success_Split_Data()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel._id = model.Id;
+            List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
+            var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
         [Fact]
         public async Task Should_Error_Split_Data()
         {
