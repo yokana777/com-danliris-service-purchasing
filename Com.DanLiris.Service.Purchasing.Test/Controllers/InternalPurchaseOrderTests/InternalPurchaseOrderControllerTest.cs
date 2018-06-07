@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             InternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<InternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
 
             var response = await this.Client.PutAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
-            Assert.NotEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
     }
 }
