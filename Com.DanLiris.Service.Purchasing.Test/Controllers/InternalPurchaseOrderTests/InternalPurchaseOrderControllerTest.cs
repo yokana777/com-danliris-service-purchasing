@@ -201,11 +201,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
-        [Fact]
-        public async Task Should_Error_Split_Data()
-        {
-            var response = await this.Client.PutAsync($"{URI}/spliting/0", new StringContent(JsonConvert.SerializeObject(new InternalPurchaseOrderViewModel()).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
-        }
+        //[Fact]
+        //public async Task Should_Error_Split_Data()
+        //{
+        //    var response = await this.Client.PutAsync($"{URI}/spliting/0", new StringContent(JsonConvert.SerializeObject(new InternalPurchaseOrderViewModel()).ToString(), Encoding.UTF8, MediaType));
+        //    Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+        //}
     }
 }
