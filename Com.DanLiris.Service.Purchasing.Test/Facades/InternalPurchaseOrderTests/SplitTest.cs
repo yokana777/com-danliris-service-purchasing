@@ -35,7 +35,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = await Facade.Split((int)model.Id, model, "Unit Test");
+
+            var NewDataId = model.Id;
+            model.Id = 0;
+            foreach(var items in model.Items)
+            {
+                items.Id = 0;
+            }
+            var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
     }
