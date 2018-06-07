@@ -166,8 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         public async Task Should_Error_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
-            model.Id = 0;
-            
+
             var responseGetById = await this.Client.GetAsync($"{URI}/spliting/{model.Id}");
             var json = responseGetById.Content.ReadAsStringAsync().Result;
 
@@ -178,6 +177,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.True(result["data"].GetType().Name.Equals("JObject"));
 
             InternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<InternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            viewModel._id = 1;
+            viewModel.prNo = null;
+            viewModel.prDate = DateTimeOffset.MinValue;
+            viewModel.budget = null;
+            viewModel.unit = null;
+            viewModel.category = null;
+            viewModel.items = new List<InternalPurchaseOrderItemViewModel> { };
 
             var response = await this.Client.PutAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
