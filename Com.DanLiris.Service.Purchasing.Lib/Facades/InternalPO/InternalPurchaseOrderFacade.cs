@@ -428,52 +428,73 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Deleted;
         }
 
-        //public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
-        //{
-        //    int Splitted = 0;
-        //    InternalPurchaseOrder NewData = ReadById(id);
-        //    using (var transaction = this.dbContext.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var m = this.dbSet.AsNoTracking()
-        //                .Include(d => d.Items)
-        //                .Single(pr => pr.Id == id && !pr.IsDeleted);
+        public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
+        {
+            int Splitted = 0;
+            InternalPurchaseOrder NewData = ReadById(id);
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet.AsNoTracking()
+                        .Include(d => d.Items)
+                        .Single(pr => pr.Id == id && !pr.IsDeleted);
 
-        //            if (m != null)
-        //            {
-
-        //                EntityExtension.FlagForUpdate(internalPurchaseOrder, user, "Facade");
-        //                EntityExtension.FlagForCreate(NewData, user, "Facade");
-
-        //                foreach (var item in m.Items)
-        //                {
-        //                    EntityExtension.FlagForUpdate(item, user, "Facade");
-
-        //                }
-
+                    if (m != null)
+                    {
                         
+                        EntityExtension.FlagForUpdate(NewData, user, "Facade");
+                        EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");                        
 
-                        
+                        foreach (var itemCreate in NewData.Items)
+                        {
+                            foreach (var item in internalPurchaseOrder.Items)
+                            {
+                                if (item.ProductId == itemCreate.ProductId)
+                                {
+                                    if (item.Quantity != itemCreate.Quantity)
+                                    {
+                                        if(item.Quantity<itemCreate.Quantity)
+                                         {
+                                            EntityExtension.FlagForUpdate(itemCreate, user, "Facade");
+                                            itemCreate.Quantity = itemCreate.Quantity - item.Quantity;
+                                            EntityExtension.FlagForCreate(item, user, "Facade");
+                                            item.Id = 0;
+                                            item.POId = 0;
+                                        }
+                                        else
+                                        {
+                                            throw new Exception("Quantity tidak boleh lebih dari Quantity sebelum di pecah");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        EntityExtension.FlagForDelete(itemCreate, user, "Facade");
+                                        EntityExtension.FlagForCreate(item, user, "Facade");
+                                    }
+                                }
+                            }
+                        }
 
-        //                this.dbContext.Update(internalPurchaseOrder);
-        //                Splitted = await dbContext.SaveChangesAsync();
+                        this.dbContext.InternalPurchaseOrders.Add(internalPurchaseOrder);
+                        this.dbContext.Update(NewData);
+                        Splitted = await dbContext.SaveChangesAsync();
 
-        //                transaction.Commit();
-        //            }
-        //            else
-        //            {
-        //                throw new Exception("Error while updating data");
-        //            }
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            transaction.Rollback();
-        //            throw new Exception(e.Message);
-        //        }
-        //    }
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Error while splitting data");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
 
-        //    return Splitted;
-        //}
+            return Splitted;
+        }
     }
 }

@@ -36,6 +36,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             //Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.Read(page, size, order, keyword, filter);
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+            {
+                filter = string.Concat("{", filterUser, "}");
+            }
+            else
+            {
+                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+            }            
+
             var Data = _facade.Read(page, size, order, keyword, filter);
 
             var newData = _mapper.Map<List<InternalPurchaseOrderViewModel>>(Data.Item1);
@@ -200,23 +212,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             }
         }
 
-        //[HttpPost("split")]
-        //public async Task<IActionResult> Split([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
-        //{
-        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-        //    InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
-        //    ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
-        //    try
-        //    {
-        //        validateService.Validate(vm);
-        //        int result = await _facade.Split(id, m, identityService.Username);
+        [HttpPost("spliting/{id}")]
+        public async Task<IActionResult> Split([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
+            //ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+            try
+            {
+                //validateService.Validate(vm);
+                int result = await _facade.Split(id, m, identityService.Username);
 
-        //        return NoContent();
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
-        //    }
-        //}
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
     }
 }
