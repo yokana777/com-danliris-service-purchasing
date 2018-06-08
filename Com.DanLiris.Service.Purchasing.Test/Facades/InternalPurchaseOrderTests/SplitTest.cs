@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Error_Split_Data_When_Quantity_Before_Split_same_with_Quantity_After_Split()
+        public async void Should_Error_Split_Data_When_Quantity_After_Split_more_than_Quantity_Before_Split()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var error = false;
@@ -56,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             foreach (var items in model.Items)
             {
                 items.Id = 0;
-                items.Quantity = items.Quantity-1;
+                items.Quantity = items.Quantity + 1;
             }
             try
             {
@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             {
                 error = true;
             }
-            Assert.Equal(error, true);
+            Assert.Equal(error,true);
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             foreach (var items in model.Items)
             {
                 items.Id = 0;
-                items.Quantity = items.Quantity+1;
+                items.Quantity = items.Quantity - 1;
             }
             var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
             Assert.NotEqual(Response, 0);
