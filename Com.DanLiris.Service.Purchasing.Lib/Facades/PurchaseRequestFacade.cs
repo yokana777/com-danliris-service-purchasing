@@ -500,6 +500,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     .Select(
                         q => new PurchaseRequestItem
                         {
+                            Id=q.Id,
                             PurchaseRequestId = q.PurchaseRequestId,
                             ProductId = q.ProductId,
                             ProductCode = q.ProductCode,

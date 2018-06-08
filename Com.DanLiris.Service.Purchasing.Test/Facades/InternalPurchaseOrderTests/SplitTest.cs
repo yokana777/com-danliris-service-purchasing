@@ -9,11 +9,11 @@ using Xunit;
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTests
 {
     [Collection("ServiceProviderFixture Collection")]
-    public class BasicTest
+    public class SplitTest
     {
         private IServiceProvider ServiceProvider { get; set; }
 
-        public BasicTest(ServiceProviderFixture fixture)
+        public SplitTest(ServiceProviderFixture fixture)
         {
             ServiceProvider = fixture.ServiceProvider;
 
@@ -32,42 +32,56 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
-        {
-            await DataUtil.GetTestData("Unit test");
-            Tuple<List<InternalPurchaseOrder>, int, Dictionary<string, string>> Response = Facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
-        }
-
-        [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async void Should_Success_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.ReadById((int)model.Id);
-            Assert.NotNull(Response);
-        }
 
-        [Fact]
-        public async void Should_Success_Create_Data()
-        {
-            InternalPurchaseOrder model = await DataUtil.GetNewData("Unit test");
-            var Response = await Facade.Create(model, "Unit Test");
+            var NewDataId = model.Id;
+            model.Id = 0;
+            foreach(var items in model.Items)
+            {
+                items.Id = 0;
+            }
+            var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async void Should_Error_Split_Data_When_Quantity_After_Split_more_than_Quantity_Before_Split()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            var error = false;
+            var NewDataId = model.Id;
+            model.Id = 0;
+            foreach (var items in model.Items)
+            {
+                items.Id = 0;
+                items.Quantity = items.Quantity + 1;
+            }
+            try
+            {
+                var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
+            }
+            catch (Exception)
+            {
+                error = true;
+            }
+            Assert.Equal(error,true);
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async void Should_Success_Split_Data_When_Quantity_Before_Split_less_than_Quantity_After_Split()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.Delete((int)model.Id, "Unit Test");
+
+            var NewDataId = model.Id;
+            model.Id = 0;
+            foreach (var items in model.Items)
+            {
+                items.Id = 0;
+                items.Quantity = items.Quantity - 1;
+            }
+            var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
     }

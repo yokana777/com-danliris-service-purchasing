@@ -293,32 +293,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 IsPosted = s.IsPosted,
                 CreatedBy = s.CreatedBy,
                 PRDate = s.PRDate,
-                LastModifiedUtc = s.LastModifiedUtc
-                //Items = s.Items
-                //    .Select(
-                //        q => new InternalPurchaseOrderItem
-                //        {
-                //            Id = q.Id,
-                //            POId = q.POId,
-                //            PRItemId = q.PRItemId,
-                //            ProductId =q.ProductId,
-                //            ProductName = q.ProductName,
-                //            ProductCode = q.ProductCode,
-                //            UomId = q.UomId,
-                //            UomUnit = q.UomUnit,
-                //            Quantity = q.Quantity,
-                //            ProductRemark = q.ProductRemark,
-                //            Status = q.Status
-                //        }
-                //    )
-                //    .Where(j => j.POId.Equals(s.Id))
-                //    .ToList()
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items
+                    .Select(
+                        q => new InternalPurchaseOrderItem
+                        {
+                            Id = q.Id,
+                            POId = q.POId,
+                            PRItemId = q.PRItemId,
+                            ProductId = q.ProductId,
+                            ProductName = q.ProductName,
+                            ProductCode = q.ProductCode,
+                            UomId = q.UomId,
+                            UomUnit = q.UomUnit,
+                            Quantity = q.Quantity,
+                            ProductRemark = q.ProductRemark,
+                            Status = q.Status
+                        }
+                    )
+                    .Where(j => j.POId.Equals(s.Id))
+                    .ToList()
             });
 
-            if (Keyword != null)
+            List<string> searchAttributes = new List<string>()
             {
-                Query = Query.Where("UnitName.Contains(@0)", Keyword);
-            }
+                "PRNo", "CreatedBy", "UnitName", "CategoryName", "DivisionName"
+            };
+
+            Query = QueryHelper<InternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<InternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
@@ -426,45 +428,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Deleted;
         }
 
-        //public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
-        //{
-        //    int Splitted = 0;
+        public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
+        {
+            int Splitted = 0;
+            InternalPurchaseOrder NewData = ReadById(id);
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet.AsNoTracking()
+                        .Include(d => d.Items)
+                        .Single(pr => pr.Id == id && !pr.IsDeleted);
 
-        //    using (var transaction = this.dbContext.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var m = this.dbSet.AsNoTracking()
-        //                .Include(d => d.Items)
-        //                .Single(pr => pr.Id == id && !pr.IsDeleted);
+                    if (m != null)
+                    {
+                        
+                        EntityExtension.FlagForUpdate(NewData, user, "Facade");
+                        EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");                        
 
-        //            if (m != null)
-        //            {
+                        foreach (var itemCreate in NewData.Items)
+                        {
+                            foreach (var item in internalPurchaseOrder.Items)
+                            {
+                                if (item.ProductId == itemCreate.ProductId)
+                                {
+                                    if (item.Quantity != itemCreate.Quantity)
+                                    {
+                                        if(item.Quantity<itemCreate.Quantity)
+                                         {
+                                            EntityExtension.FlagForUpdate(itemCreate, user, "Facade");
+                                            itemCreate.Quantity = itemCreate.Quantity - item.Quantity;
+                                            EntityExtension.FlagForCreate(item, user, "Facade");
+                                            item.Id = 0;
+                                            item.POId = 0;
+                                        }
+                                        else
+                                        {
+                                            throw new Exception("Quantity tidak boleh lebih dari Quantity sebelum di pecah");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        EntityExtension.FlagForDelete(itemCreate, user, "Facade");
+                                        EntityExtension.FlagForCreate(item, user, "Facade");
+                                    }
+                                }
+                            }
+                        }
 
-        //                EntityExtension.FlagForUpdate(internalPurchaseOrder, user, "Facade");
+                        this.dbContext.InternalPurchaseOrders.Add(internalPurchaseOrder);
+                        this.dbContext.Update(NewData);
+                        Splitted = await dbContext.SaveChangesAsync();
 
-        //                foreach (var item in internalPurchaseOrder.Items)
-        //                {
-        //                    EntityExtension.FlagForUpdate(item, user, "Facade");
-        //                }
-
-        //                this.dbContext.Update(internalPurchaseOrder);
-        //                Splitted = await dbContext.SaveChangesAsync();
-        //                transaction.Commit();
-        //            }
-        //            else
-        //            {
-        //                throw new Exception("Error while updating data");
-        //            }
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            transaction.Rollback();
-        //            throw new Exception(e.Message);
-        //        }
-        //    }
-
-        //    return Splitted;
-        //}
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Error while splitting data");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+            return Splitted;
+        }
     }
 }

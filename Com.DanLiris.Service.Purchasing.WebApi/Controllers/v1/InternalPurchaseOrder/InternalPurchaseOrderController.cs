@@ -36,6 +36,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             //Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.Read(page, size, order, keyword, filter);
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+            {
+                filter = string.Concat("{", filterUser, "}");
+            }
+            else
+            {
+                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+            }            
+
             var Data = _facade.Read(page, size, order, keyword, filter);
 
             var newData = _mapper.Map<List<InternalPurchaseOrderViewModel>>(Data.Item1);
@@ -50,13 +62,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                     s.prNo,
                     s.prDate,
                     s.expectedDeliveryDate,
-                    s.budget,
-                    s.division,
-                    s.unit,
-                    s.category,
+                    unit = new
+                    {
+                        division = new { s.unit.division.name },
+                        s.unit.name
+                    },
+                    category = new
+                    {
+                        s.category.name
+                    },
                     s.remark,
                     s.status,
-                    s.isPosted,
+                    s.CreatedBy,
+                    s.isPosted
                 }).ToList()
             );
 
@@ -65,10 +83,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 apiVersion = ApiVersion,
                 statusCode = General.OK_STATUS_CODE,
                 message = General.OK_MESSAGE,
-                data = Data.Item1,
+                data = listData,
                 info = new Dictionary<string, object>
                 {
-                    { "count", Data.Item1.Count },
+                    { "count", listData.Count },
                     { "total", Data.Item2 },
                     { "order", Data.Item3 },
                     { "page", page },
@@ -185,6 +203,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             try
             {
                 _facade.Delete(id, identityService.Username);
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
+        [HttpPost("spliting/{id}")]
+        public async Task<IActionResult> Split([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
+            //ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+            try
+            {
+                //validateService.Validate(vm);
+                int result = await _facade.Split(id, m, identityService.Username);
 
                 return NoContent();
             }

@@ -1,36 +1,43 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
+﻿using System;
+using System.Collections.Generic;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils
 {
     public class InternalPurchaseOrderItemDataUtil
     {
-        public InternalPurchaseOrderItem GetNewData() => new InternalPurchaseOrderItem
+        private InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil;
+        private PurchaseRequestDataUtil purchaserequestDataUtil;
+
+        public InternalPurchaseOrderItem GetNewData(List<PurchaseRequestItem> purchaseRequestItem) => new InternalPurchaseOrderItem
         {
-            ProductId = "ProductId",
-            ProductCode = "ProductCode",
-            ProductName = "ProductName",
-            Quantity = 10,
-            UomId = "UomId",
-            UomUnit = "Uom",
-            ProductRemark = "Remark"
+            ProductId = purchaseRequestItem[0].ProductId,
+            ProductCode = purchaseRequestItem[0].ProductCode,
+            ProductName = purchaseRequestItem[0].ProductName,
+            Quantity = purchaseRequestItem[0].Quantity,
+            UomId = purchaseRequestItem[0].UomId,
+            UomUnit = purchaseRequestItem[0].Uom,
+            ProductRemark = purchaseRequestItem[0].Remark
         };
-        public InternalPurchaseOrderItemViewModel GetNewDataViewModel() => new InternalPurchaseOrderItemViewModel
+        public InternalPurchaseOrderItemViewModel GetNewDataViewModel(List<PurchaseRequestItem> purchaseRequestItem) => new InternalPurchaseOrderItemViewModel
         {
             product = new ProductViewModel
             {
-                _id = "ProductId",
-                code = "ProductCode",
-                name = "ProductName",
+                _id = purchaseRequestItem[0].ProductId,
+                code = purchaseRequestItem[0].ProductCode,
+                name = purchaseRequestItem[0].ProductName,
                 uom = new UomViewModel
                 {
-                    _id = "UomId",
-                    unit = "Uom",
+                    _id = purchaseRequestItem[0].UomId,
+                    unit = purchaseRequestItem[0].Uom,
                 }
             },
-            quantity = 10,
-            productRemark = "Remark"
+            quantity = purchaseRequestItem[0].Quantity,
+            productRemark = purchaseRequestItem[0].Remark
         };
     }
 }
