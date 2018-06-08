@@ -16,8 +16,4 @@
     <PackageReference Include="MongoDB.Driver" Version="2.6.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.6" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ViewModels\ExternalPurchaseOrderViewModel\" />
-  </ItemGroup>
 </Project>

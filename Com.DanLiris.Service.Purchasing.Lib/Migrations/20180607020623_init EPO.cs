@@ -131,7 +131,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     ProductCode = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     ProductId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     ProductName = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
-                    ProductRemark = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ProductRemark = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReceiptQuantity = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
