@@ -15,5 +15,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         //public string UomUnit { get; set; }        
         public string productRemark { get; set; }
         public string status { get; set; }
+        public long poId { get; set; }
     }
 }

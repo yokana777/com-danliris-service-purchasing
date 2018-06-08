@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
                     },
                     s.isPosted,
                     s.remark,
-                    s.items
+                    s.items,
                 }).ToList()
             );
 
