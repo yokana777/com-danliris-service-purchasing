@@ -11,7 +11,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
 {
     public class ExternalPurchaseOrderDataUtil
     {
-        private ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil;
         private InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil;
         private readonly ExternalPurchaseOrderFacade facade;
 
