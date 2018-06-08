@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class PurchaseRequestPDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(PurchaseRequestViewModel viewModel)
+        public MemoryStream GeneratePdfTemplate(PurchaseRequestViewModel viewModel, int clientTimeZoneOffset)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.unit.name, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.date.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.date.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableIdentity.AddCell(cellIdentityContentRight);
             cellIdentityContentLeft.Phrase = new Phrase("Budget", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableFooter.AddCell(cellFooterContent);
             cellFooterContent.Phrase = new Phrase("Diminta Datang", normal_font);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + (viewModel.expectedDeliveryDate != null && viewModel.expectedDeliveryDate != DateTimeOffset.MinValue ? viewModel.expectedDeliveryDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID")) : "-"), normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + (viewModel.expectedDeliveryDate != null && viewModel.expectedDeliveryDate != DateTimeOffset.MinValue ? viewModel.expectedDeliveryDate.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")) : "-"), normal_font);
             tableFooter.AddCell(cellFooterContent);
             cellFooterContent.Phrase = new Phrase("Keterangan", normal_font);
             tableFooter.AddCell(cellFooterContent);
