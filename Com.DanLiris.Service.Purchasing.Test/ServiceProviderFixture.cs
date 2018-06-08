@@ -98,8 +98,6 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderDataUtil>()
-                .AddTransient<ExternalPurchaseOrderItemDataUtil>()
-                .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
 
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()

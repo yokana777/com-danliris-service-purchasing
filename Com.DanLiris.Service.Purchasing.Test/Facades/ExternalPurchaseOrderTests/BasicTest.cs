@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Create_Data()
         {
-            ExternalPurchaseOrder model = DataUtil.GetNewData();
+            ExternalPurchaseOrder model = await DataUtil.GetNewData("Unit Test");
             var Response = await Facade.Create(model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
