@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Create_Data()
         {
-            InternalPurchaseOrder model = DataUtil.GetNewData();
+            InternalPurchaseOrder model = await DataUtil.GetNewData("Unit test");
             var Response = await Facade.Create(model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }

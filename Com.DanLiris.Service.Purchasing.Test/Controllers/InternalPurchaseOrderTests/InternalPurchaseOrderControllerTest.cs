@@ -62,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         [Fact]
         public async Task Should_Success_Create_Data()
         {
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         [Fact]
         public async Task Should_Error_Create_Invalid_Data()
         {
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel.prNo = null;
             viewModel.prDate = DateTimeOffset.MinValue;
             viewModel.budget = null;
@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         [Fact]
         public async Task Should_Error_Create_Null_Item_Data()
         {
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel.prDate = DateTimeOffset.MinValue;
             viewModel.budget = null;
             viewModel.unit = null;
@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         public async Task Should_Success_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel._id = 0;
             foreach (var items in viewModel.items)
             {
@@ -209,7 +209,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         public async Task Should_Error_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel._id = model.Id;
             List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
             var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
@@ -220,7 +220,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         public async Task Should_Error_Split_Data_When_Quantity_Splited_Bigger_than_Quantity_Before_Splited()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
-            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel._id = 0;
             foreach (var items in viewModel.items)
             { 
