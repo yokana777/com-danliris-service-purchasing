@@ -1,5 +1,7 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
+﻿using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
 using System;
@@ -11,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
     public class InternalPurchaseOrderDataUtil
     {
         private InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil;
+        private PurchaseRequestDataUtil purchaserequestDataUtil;
         private readonly InternalPurchaseOrderFacade facade;
 
         public InternalPurchaseOrderDataUtil(InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil, InternalPurchaseOrderFacade facade)
@@ -21,10 +24,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
         public InternalPurchaseOrder GetNewData()
         {
+            var purchaseRequestDataUtil = purchaserequestDataUtil.GetNewData().Id ;
             return new InternalPurchaseOrder
             {
                 IsoNo = "",
-                PRId = "PurchaseRequestId-1",
+                PRId = purchaserequestDataUtil.GetNewData().Id.ToString(),
                 PRNo = "PurchaseRequestNo-1",
                 PRDate = DateTimeOffset.UtcNow,
                 ExpectedDeliveryDate = DateTimeOffset.UtcNow,
@@ -49,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
         {
             return new InternalPurchaseOrderViewModel
             {
-                prId = "PurchaseRequestId-1",
+                prId = purchaserequestDataUtil.GetNewData().Id.ToString(),
                 prNo = "PurchaseRequestNo",
                 prDate = DateTimeOffset.Now,
                 expectedDeliveryDate = DateTimeOffset.Now,

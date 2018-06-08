@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 {
     public class InternalPurchaseOrderItemDataUtil
     {
+        private InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil;
         public InternalPurchaseOrderItem GetNewData() => new InternalPurchaseOrderItem
         {
             ProductId = "ProductId",
@@ -14,7 +15,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
             Quantity = 10,
             UomId = "UomId",
             UomUnit = "Uom",
-            ProductRemark = "Remark"
+            ProductRemark = "Remark",
+            POId = internalPurchaseOrderDataUtil.GetNewData().Id
         };
         public InternalPurchaseOrderItemViewModel GetNewDataViewModel() => new InternalPurchaseOrderItemViewModel
         {
@@ -30,7 +32,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
                 }
             },
             quantity = 10,
-            productRemark = "Remark"
+            productRemark = "Remark",
+            poId = internalPurchaseOrderDataUtil.GetNewData().Id
         };
     }
 }

@@ -189,7 +189,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         //    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         //}
 
-            
+        [Fact]
+        public async Task Should_Success_Split_Data()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel._id = 0;
+            foreach (var items in viewModel.items)
+            {
+                items._id = 0;
+            }
+            List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
+
+            var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
         [Fact]
         public async Task Should_Error_Split_Data()
         {
@@ -201,11 +216,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
-        //[Fact]
-        //public async Task Should_Error_Split_Data()
-        //{
-        //    var response = await this.Client.PutAsync($"{URI}/spliting/0", new StringContent(JsonConvert.SerializeObject(new InternalPurchaseOrderViewModel()).ToString(), Encoding.UTF8, MediaType));
-        //    Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
-        //}
+        [Fact]
+        public async Task Should_Error_Split_Data_When_Quantity_Splited_Bigger_than_Quantity_Before_Splited()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            InternalPurchaseOrderViewModel viewModel = DataUtil.GetNewDataViewModel();
+            viewModel._id = 0;
+            foreach (var items in viewModel.items)
+            { 
+                foreach (var modelItems in model.Items)   
+                {
+                    items._id = 0;
+                    items.quantity = modelItems.Quantity + 1;
+                }
+            }
+            List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
+
+            var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
     }
 }
