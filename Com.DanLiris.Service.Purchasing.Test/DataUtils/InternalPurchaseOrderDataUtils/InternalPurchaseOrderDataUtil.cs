@@ -24,7 +24,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
         public InternalPurchaseOrder GetNewData()
         {
-            var purchaseRequestDataUtil = purchaserequestDataUtil.GetNewData().Id ;
             return new InternalPurchaseOrder
             {
                 IsoNo = "",
