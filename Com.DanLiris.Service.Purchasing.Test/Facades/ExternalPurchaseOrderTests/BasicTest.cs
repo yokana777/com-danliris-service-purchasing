@@ -9,7 +9,8 @@ using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests
 {
-    class BasicTest
+    [Collection("ServiceProviderFixture Collection")]
+    public class BasicTest
     {
         private IServiceProvider ServiceProvider { get; set; }
 
