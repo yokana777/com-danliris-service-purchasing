@@ -69,11 +69,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-        [Fact]
-        public async Task Should_Error_GetDataPosted()
-        {
-            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
+        
     }
 }
