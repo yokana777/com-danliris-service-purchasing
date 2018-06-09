@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
@@ -78,6 +80,46 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 PaymentMethod = "test",
                 Remark = "Remark",
                 Items = new List<ExternalPurchaseOrderItem> { externalPurchaseOrderItemDataUtil.GetNewData(internalPurchaseOrder) }
+            };
+        }
+
+        public async Task<ExternalPurchaseOrderViewModel> GetNewDataViewModel(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await internalPurchaseOrderDataUtil.GetTestData(user);
+            
+
+            return new ExternalPurchaseOrderViewModel
+            {
+                unit = new UnitViewModel
+                {
+                    _id = internalPurchaseOrder.UnitId,
+                    code = internalPurchaseOrder.UnitCode,
+                    name = internalPurchaseOrder.UnitName,
+                    division = new DivisionViewModel
+                    {
+                        _id = internalPurchaseOrder.DivisionId,
+                        code = internalPurchaseOrder.DivisionCode,
+                        name = internalPurchaseOrder.DivisionName,
+                    }
+                },
+                currency= new CurrencyViewModel
+                {
+                    code = "CurrencyCode",
+                    _id = "CurrencyId",
+                    rate = "CurrencyRate",
+                },
+                freightCostBy = "test",
+                deliveryDate = DateTime.Now,
+                orderDate = DateTime.Now,
+                supplier= new SupplierViewModel
+                {
+                    code = "sup",
+                    _id = "supId",
+                    name = "Supplier",
+                },
+                paymentMethod = "test",
+                remark = "Remark",
+                items = new List<ExternalPurchaseOrderItemViewModel> { externalPurchaseOrderItemDataUtil.GetNewDataViewModel(internalPurchaseOrder) }
             };
         }
 
