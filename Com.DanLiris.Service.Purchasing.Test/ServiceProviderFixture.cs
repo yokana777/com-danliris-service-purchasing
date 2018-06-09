@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtil.cs;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -98,6 +98,8 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderDataUtil>()
+                .AddTransient<ExternalPurchaseOrderItemDataUtil>()
+                .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
 
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
