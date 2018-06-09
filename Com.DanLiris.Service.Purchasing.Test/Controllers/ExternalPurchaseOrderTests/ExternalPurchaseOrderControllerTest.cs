@@ -69,6 +69,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-        
+        [Fact]
+        public async Task Should_Success_Get_Data_By_Id()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            var response = await this.Client.GetAsync($"{URI}/{model.Id}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data()
+        {
+            var response = await this.Client.GetAsync(URI);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //var responseError = await this.Client.GetAsync(URI );
+            //Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
+        }
     }
 }
