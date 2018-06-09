@@ -22,6 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             DefaultQuantity = internalPurchaseOrderItem[0].Quantity,
             DealUomId = "UomId",
             DealUomUnit = "Uom",
+            DefaultUomId = "UomId",
+            DefaultUomUnit = "Uom",
             ProductRemark = "Remark",
             PriceBeforeTax = 1000,
             PricePerDealUnit = 200,
@@ -36,7 +38,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             {
                 _id = "ProductId",
                 code = "ProductCode",
-                name = "ProductName"
+                name = "ProductName",
+                uom =  new UomViewModel
+                {
+                    _id = "UomId",
+                    unit = "Uom",
+                }
             },
             defaultQuantity = internalPurchaseOrderItem[0].Quantity,
             dealUom=new UomViewModel

@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 DivisionCode = "DivisionCode",
                 DivisionName = "DivisionName",
                 FreightCostBy = "test",
-                DeliveryDate = DateTime.Now,
+                DeliveryDate = DateTime.Now.AddDays(1),
                 OrderDate = DateTime.Now,
                 SupplierCode = "sup",
                 SupplierId = "supId",
@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                     rate = "CurrencyRate",
                 },
                 freightCostBy = "test",
-                deliveryDate = DateTime.Now,
+                deliveryDate = DateTime.Now.AddDays(1),
                 orderDate = DateTime.Now,
                 supplier= new SupplierViewModel
                 {
