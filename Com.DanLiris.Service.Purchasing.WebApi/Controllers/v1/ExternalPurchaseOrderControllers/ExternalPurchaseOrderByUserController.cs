@@ -91,7 +91,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
 
                 ExternalPurchaseOrder model = _facade.ReadModelById(id);
                 ExternalPurchaseOrderViewModel viewModel = _mapper.Map<ExternalPurchaseOrderViewModel>(model);
-
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
                 if (indexAcceptPdf < 0)
                 {
                     return Ok(new

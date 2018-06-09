@@ -95,6 +95,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                             externalPurchaseOrderDetailError += "{ ";
 
                             //if (Detail.DefaultUom.unit.Equals(Detail.DealUom.unit) && Detail.DefaultQuantity == Detail.DealQuantity && Detail.Convertion != 1)
+                            if (Detail.defaultUom == null)
+                            {
+                                Detail.defaultUom = Detail.product.uom;
+                            }
                             if (Detail.defaultUom.unit.Equals(Detail.dealUom.unit) && Detail.conversion != 1)
                             {
                                 detailErrorCount++;
