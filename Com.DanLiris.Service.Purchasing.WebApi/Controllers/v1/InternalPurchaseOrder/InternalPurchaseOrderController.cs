@@ -74,7 +74,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                     s.remark,
                     s.status,
                     s.CreatedBy,
-                    s.isPosted
+                    s.isPosted,
+                    s.items
                 }).ToList()
             );
 
