@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             result.Columns.Add(new DataColumn() { ColumnName = "TIPE", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "UNIT", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PEMBELIAN", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TOTAL", DataType = typeof(double) });
 
             result.Rows.Add("", "", "", "", "", "", "DPP", "PPN", 0);
@@ -136,7 +136,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 }
 
                 double total = 0;
-                int rowPosition = 1;
+                int rowPosition = 2;
+
 
                 foreach (KeyValuePair<string, List<UnitReceiptNoteViewModel>> categoryCode in dataByCategory)
                 {
@@ -148,19 +149,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         rowPosition += 1;
                         catCode = item.purchaseOrder.category.code;
                     }
-                    result.Rows.Add("", "", "", "SUB TOTAL", catCode, "", subTotalCategory[categoryCode.Key], subTotalCategory[categoryCode.Key]*0.1, subTotalCategory[categoryCode.Key]+(subTotalCategory[categoryCode.Key]*0.1));
+                    result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", subTotalCategory[categoryCode.Key], subTotalCategory[categoryCode.Key]*0.1, subTotalCategory[categoryCode.Key]+(subTotalCategory[categoryCode.Key]*0.1));
                     rowPosition += 1;
-
-                    mergeCells.Add(($"A{rowPosition}:H{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
+                    
+                    mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
 
                     total += subTotalCategory[categoryCode.Key];
                 }
-                result.Rows.Add("", "", "", "TOTAL", "", "", total, total*0.1, total+(total*0.1));
+                result.Rows.Add("TOTAL", "", "", "", "", "", total, total*0.1, total+(total*0.1));
                 rowPosition += 1;
 
-                mergeCells.Add(($"A{rowPosition}:H{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
+                mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
-
+            mergeCells.Add(($"A{1}:A{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"B{1}:B{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"C{1}:C{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"D{1}:D{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"E{1}:E{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"F{1}:F{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"G{1}:H{1}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
+            mergeCells.Add(($"I{1}:I{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
 
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
