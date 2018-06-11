@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Xunit;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -54,6 +55,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                        .AddTransient<PurchaseRequestItemDataUtil>()
                        .AddTransient<InternalPurchaseOrderDataUtil>()
                        .AddTransient<InternalPurchaseOrderItemDataUtil>()
+                       .AddTransient<ExternalPurchaseOrderDataUtil>()
+                       .AddTransient<ExternalPurchaseOrderItemDataUtil>()
+                       .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })
