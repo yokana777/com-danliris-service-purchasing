@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             result.Columns.Add(new DataColumn() { ColumnName = "UNIT", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PEMBELIAN", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "TOTAL", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TOTAL", DataType = typeof(String) });
 
             result.Rows.Add("", "", "", "", "", "", "DPP", "PPN", 0);
 
@@ -169,21 +169,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         UnitReceiptNoteItemViewModel item = data.items[0];
                         if (item.purchaseOrder.useIncomeTax == true)
                         {
-                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name, String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)), String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity * 0.1)), Math.Round((double)((item.pricePerDealUnit * item.deliveredQuantity) + ((item.pricePerDealUnit * item.deliveredQuantity) * 0.1)),2));
+                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name, String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)), String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity * 0.1)), String.Format("{0:0.00}", ((item.pricePerDealUnit * item.deliveredQuantity) + ((item.pricePerDealUnit * item.deliveredQuantity) * 0.1))));
                         }
                         else
                         {
-                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name, String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)), "-", Math.Round((double)(item.pricePerDealUnit * item.deliveredQuantity),2));
+                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name, String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)), "-", String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)));
                         }                        
                         rowPosition += 1;
                         catCode = item.purchaseOrder.category.code;
                     }
                     if (subTotalPPNCategory[categoryCode.Key] == 0)
                     {
-                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", String.Format("{0:0.00}", subTotalDPPCategory[categoryCode.Key]), "-", Math.Round((double)subTotalCategory[categoryCode.Key],2));
+                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", String.Format("{0:0.00}", subTotalDPPCategory[categoryCode.Key]), "-", String.Format("{0:0.00}", subTotalCategory[categoryCode.Key]));
                     } else
                     {
-                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", String.Format("{0:0.00}", subTotalDPPCategory[categoryCode.Key]), String.Format("{0:0.00}", subTotalPPNCategory[categoryCode.Key]), Math.Round((double)subTotalCategory[categoryCode.Key],2));
+                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", String.Format("{0:0.00}", subTotalDPPCategory[categoryCode.Key]), String.Format("{0:0.00}", subTotalPPNCategory[categoryCode.Key]), String.Format("{0:0.00}", subTotalCategory[categoryCode.Key]));
                     }
                     rowPosition += 1;
                     
@@ -195,11 +195,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 }
                 if (totalPPN == 0)
                 {
-                    result.Rows.Add("TOTAL", "", "", "", "", "", String.Format("{0:0.00}", totalDPP), "-", Math.Round((double)total, 2));
+                    result.Rows.Add("TOTAL", "", "", "", "", "", String.Format("{0:0.00}", totalDPP), "-", String.Format("{0:0.00}", total));
                 }
                 else
                 {
-                    result.Rows.Add("TOTAL", "", "", "", "", "", String.Format("{0:0.00}", totalDPP), String.Format("{0:0.00}", totalPPN), Math.Round((double)total,2));
+                    result.Rows.Add("TOTAL", "", "", "", "", "", String.Format("{0:0.00}", totalDPP), String.Format("{0:0.00}", totalPPN), String.Format("{0:0.00}", total));
                 }
                 rowPosition += 1;
                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
