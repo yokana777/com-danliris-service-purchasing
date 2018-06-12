@@ -258,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         //    return Result;
         //}
 
-        public async Task<int> Create(PurchaseRequest m, string user)
+        public async Task<int> Create(PurchaseRequest m, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -268,7 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    m.No = await GenerateNo(m);
+                    m.No = await GenerateNo(m, clientTimeZoneOffset);
 
                     foreach (var item in m.Items)
                     {
@@ -448,10 +448,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Updated;
         }
 
-        async Task<string> GenerateNo(PurchaseRequest model)
+        async Task<string> GenerateNo(PurchaseRequest model, int clientTimeZoneOffset)
         {
-            string Year = model.Date.ToString("yy");
-            string Month = model.Date.ToString("MM");
+            string Year = model.Date.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy");
+            string Month = model.Date.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
 
             string no = $"PR-{model.BudgetCode}-{model.UnitCode}-{model.CategoryCode}-{Year}-{Month}-";
             int Padding = 3;

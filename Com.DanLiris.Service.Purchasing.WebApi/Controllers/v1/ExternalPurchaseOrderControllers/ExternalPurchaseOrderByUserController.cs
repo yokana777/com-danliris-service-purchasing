@@ -1,31 +1,33 @@
-﻿using System;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
+using Com.Moonlay.NetCore.Lib.Service;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
-using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
-using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
-using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.Moonlay.NetCore.Lib.Service;
 
-namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchaseOrderController
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchaseOrderControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/internal-purchase-orders")]
-    public class InternalPurchaseOrderController : Controller
+    [Route("v{version:apiVersion}/external-purchase-orders/by-user")]
+    [Authorize]
+    public class ExternalPurchaseOrderByUserController : Controller
     {
         private string ApiVersion = "1.0.0";
         private readonly IMapper _mapper;
-        private readonly InternalPurchaseOrderFacade _facade;
+        private readonly ExternalPurchaseOrderFacade _facade;
         private readonly IdentityService identityService;
-        public InternalPurchaseOrderController(IMapper mapper, InternalPurchaseOrderFacade facade, IdentityService identityService)
+
+        public ExternalPurchaseOrderByUserController(IMapper mapper, ExternalPurchaseOrderFacade facade, IdentityService identityService)
         {
             _mapper = mapper;
             _facade = facade;
@@ -35,45 +37,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            //Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.Read(page, size, order, keyword, filter);
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
-            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
-            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
-            {
-                filter = string.Concat("{", filterUser, "}");
-            }
-            else
-            {
-                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
-            }            
+            filter = filter.Replace("{", string.Empty).Replace("}", string.Empty);
+            if (!filter.Equals(string.Empty)) filter += ", ";
+            filter = string.Concat(filter, "'CreatedBy':'", identityService.Username, "'");
+            filter = string.Concat("{", filter, "}");
 
             var Data = _facade.Read(page, size, order, keyword, filter);
 
-            var newData = _mapper.Map<List<InternalPurchaseOrderViewModel>>(Data.Item1);
+            var newData = _mapper.Map<List<ExternalPurchaseOrderViewModel>>(Data.Item1);
+
             List<object> listData = new List<object>();
             listData.AddRange(
                 newData.AsQueryable().Select(s => new
                 {
                     s._id,
-                    s.poNo,
-                    s.isoNo,
-                    s.prId,
-                    s.prNo,
-                    s.prDate,
-                    s.expectedDeliveryDate,
+                    s.no,
+                    s.orderDate,
+                    s.supplier,
                     unit = new
                     {
                         division = new { s.unit.division.name },
                         s.unit.name
                     },
-                    category = new
-                    {
-                        s.category.name
-                    },
-                    s.remark,
-                    s.status,
-                    s.CreatedBy,
                     s.isPosted,
                     s.items
                 }).ToList()
@@ -101,15 +87,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         {
             try
             {
-                InternalPurchaseOrder model = _facade.ReadById(id);
-                InternalPurchaseOrderViewModel viewModel = _mapper.Map<InternalPurchaseOrderViewModel>(model);
-                return Ok(new
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                ExternalPurchaseOrder model = _facade.ReadModelById(id);
+                ExternalPurchaseOrderViewModel viewModel = _mapper.Map<ExternalPurchaseOrderViewModel>(model);
+                if (viewModel == null)
                 {
-                    apiVersion = ApiVersion,
-                    statusCode = General.OK_STATUS_CODE,
-                    message = General.OK_MESSAGE,
-                    data = viewModel,
-                });
+                    throw new Exception("Invalid Id");
+                }
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    ExternalPurchaseOrderPDFTemplate PdfTemplate = new ExternalPurchaseOrderPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.no}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -121,27 +126,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]InternalPurchaseOrderViewModel vm)
+        public async Task<IActionResult> Post([FromBody]ExternalPurchaseOrderViewModel vm)
         {
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-            InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
+
+            ExternalPurchaseOrder m = _mapper.Map<ExternalPurchaseOrder>(vm);
+
             ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
 
             try
-            {                
+            {
                 validateService.Validate(vm);
 
                 int result = await _facade.Create(m, identityService.Username);
 
-                if (result.Equals(0))
-                {
-                    return StatusCode(500);
-                }
-                else
-                {
-                    return Created(Request.Path,result);
-                }
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Created(String.Concat(Request.Path, "/", 0), Result);
             }
             catch (ServiceValidationExeption e)
             {
@@ -162,11 +165,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
+        public async Task<IActionResult> Put([FromRoute]int id, [FromBody]ExternalPurchaseOrderViewModel vm)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-            InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
+            ExternalPurchaseOrder m = _mapper.Map<ExternalPurchaseOrder>(vm);
 
             ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
 
@@ -213,16 +216,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             }
         }
 
-        [HttpPost("spliting/{id}")]
-        public async Task<IActionResult> Split([FromRoute]int id, [FromBody]InternalPurchaseOrderViewModel vm)
+        [HttpPost("post")]
+        public IActionResult EPOPost([FromBody]List<ExternalPurchaseOrderViewModel> ListExternalPurchaseOrderViewModel)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-            InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
-            //ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
             try
             {
-                //validateService.Validate(vm);
-                int result = await _facade.Split(id, m, identityService.Username);
+                _facade.EPOPost(
+                    ListExternalPurchaseOrderViewModel.Select(vm => _mapper.Map<ExternalPurchaseOrder>(vm)).ToList(), identityService.Username
+                );
 
                 return NoContent();
             }
@@ -231,5 +233,56 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
+
+        [HttpPut("unpost/{id}")]
+        public IActionResult EPOUnpost([FromRoute]int id)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                _facade.EPOUnpost(id, identityService.Username);
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
+        //[HttpPut("cancel/{id}")]
+        //public IActionResult EPOCancel([FromRoute]int id)
+        //{
+        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+        //    try
+        //    {
+        //        _facade.EPOCancel(id, identityService.Username);
+
+        //        return NoContent();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+        //    }
+        //}
+
+        //[HttpPut("close/{id}")]
+        //public IActionResult EPOClose([FromRoute]int id)
+        //{
+        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+        //    try
+        //    {
+        //        _facade.EPOClose(id, identityService.Username);
+
+        //        return NoContent();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+        //    }
+        //}
     }
 }
