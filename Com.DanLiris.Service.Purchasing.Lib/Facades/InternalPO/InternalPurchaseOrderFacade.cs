@@ -294,6 +294,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 CreatedBy = s.CreatedBy,
                 PRDate = s.PRDate,
                 LastModifiedUtc = s.LastModifiedUtc,
+                PRId= s.PRId,
                 Items = s.Items
                     .Select(
                         q => new InternalPurchaseOrderItem
