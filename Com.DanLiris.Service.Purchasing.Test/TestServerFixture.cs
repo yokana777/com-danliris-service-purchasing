@@ -2,6 +2,8 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -18,6 +20,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Xunit;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -35,7 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
                     new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
-                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.controller.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;")
+                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.controller.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;"),
+                    new KeyValuePair<string, string>(Constant.MONGODB_CONNECTION, "mongodb://localhost:27017/admin")
                 })
                 .Build();
 
@@ -47,6 +51,13 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     services
                        .AddTransient<SendToVerificationDataUtil>()
                        .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
+                       .AddTransient<PurchaseRequestDataUtil>()
+                       .AddTransient<PurchaseRequestItemDataUtil>()
+                       .AddTransient<InternalPurchaseOrderDataUtil>()
+                       .AddTransient<InternalPurchaseOrderItemDataUtil>()
+                       .AddTransient<ExternalPurchaseOrderDataUtil>()
+                       .AddTransient<ExternalPurchaseOrderItemDataUtil>()
+                       .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })

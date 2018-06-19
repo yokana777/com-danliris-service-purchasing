@@ -8,7 +8,7 @@ using System.Text;
 namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 {
     public static class QueryHelper<TModel>
-        where TModel : StandardEntity
+        where TModel : IStandardEntity
     {
         public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword)
         {
@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 string Key = OrderDictionary.Keys.First();
                 string OrderType = OrderDictionary[Key];
 
-                Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+                Query = Query.OrderBy(string.Concat(Key.Replace(".", ""), " ", OrderType));
             }
             return Query;
         }
