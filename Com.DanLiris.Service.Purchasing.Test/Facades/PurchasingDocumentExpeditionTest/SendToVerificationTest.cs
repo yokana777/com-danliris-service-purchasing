@@ -49,6 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             try
             {
                 PurchasingDocumentExpedition Data = await DataUtil.GetTestData();
+                Data.Items = new List<PurchasingDocumentExpeditionItem>();
                 Data.Id = 0;
 
                 await this.Facade.SendToVerification(new List<PurchasingDocumentExpedition>() { Data }, "Unit Test");

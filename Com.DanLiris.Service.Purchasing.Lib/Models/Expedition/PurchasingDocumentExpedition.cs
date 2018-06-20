@@ -17,6 +17,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public string SupplierName { get; set; }
         public string DivisionCode { get; set; }
         public string DivisionName { get; set; }
+        public double IncomeTax { get; set; }
+        public double Vat { get; set; }
+        public string IncomeTaxId { get; set; }
+        public string IncomeTaxName { get; set; }
+        public double IncomeTaxRate { get; set; }
         public double TotalPaid { get; set; }
         public string Currency { get; set; }
         public ExpeditionPosition Position { get; set; }
@@ -26,17 +31,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public DateTimeOffset? VerificationDivisionDate { get; set; }
         public string SendToCashierDivisionBy { get; set; }
         public DateTimeOffset? SendToCashierDivisionDate { get; set; }
-        public string SendToFinanceDivisionBy { get; set; }
-        public DateTimeOffset? SendToFinanceDivisionDate { get; set; }
+        public string SendToAccountingDivisionBy { get; set; }
+        public DateTimeOffset? SendToAccountingDivisionDate { get; set; }
         public string SendToPurchasingDivisionBy { get; set; }
         public DateTimeOffset? SendToPurchasingDivisionDate { get; set; }
         public string CashierDivisionBy { get; set; }
         public DateTimeOffset? CashierDivisionDate { get; set; }
-        public string FinanceDivisionBy { get; set; }
-        public DateTimeOffset? FinanceDivisionDate { get; set; }
+        public string AccountingDivisionBy { get; set; }
+        public DateTimeOffset? AccountingDivisionDate { get; set; }
         public string NotVerifiedReason { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }
+        public bool IsPaid { get; set; }
+        public bool IsPaidPPH { get; set; }
         public string BankExpenditureNoteNo { get; set; }
+        public virtual ICollection<PurchasingDocumentExpeditionItem> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
