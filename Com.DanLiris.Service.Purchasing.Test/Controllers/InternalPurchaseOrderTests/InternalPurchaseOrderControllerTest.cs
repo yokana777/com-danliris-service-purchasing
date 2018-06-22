@@ -227,7 +227,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
                 foreach (var modelItems in model.Items)   
                 {
                     items._id = 0;
-                    items.quantity = modelItems.Quantity + 1;
+                    items.quantity = modelItems.Quantity + items.quantity;
                 }
             }
             List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
