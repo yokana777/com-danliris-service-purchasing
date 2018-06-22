@@ -82,25 +82,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             result.Columns.Add(new DataColumn() { ColumnName = "NO FAKTUR PAJAK", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TIPE", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "UNIT", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PEMBELIAN", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "TOTAL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TOTAL", DataType = typeof(double) });
 
-            result.Rows.Add("", "", "", "", "", "", "DPP", "PPN", 0);
-
-            ExcelPackage package = new ExcelPackage();
-            foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Report") })
-            {
-                var sheet = package.Workbook.Worksheets.Add(item.Value);
-                sheet.Cells["A1:A2"].Merge = true;
-                sheet.Cells["B1:B2"].Merge = true;
-                sheet.Cells["C1:C2"].Merge = true;
-                sheet.Cells["D1:D2"].Merge = true;
-                sheet.Cells["E1:E2"].Merge = true;
-                sheet.Cells["F1:F2"].Merge = true;
-                sheet.Cells["G1:H1"].Merge = true;
-                sheet.Cells["I1:I2"].Merge = true;
-            }
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
@@ -169,21 +154,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         UnitReceiptNoteItemViewModel item = data.items[0];
                         if (item.purchaseOrder.useIncomeTax == true)
                         {
-                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name, String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)), String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity * 0.1)), String.Format("{0:0.00}", ((item.pricePerDealUnit * item.deliveredQuantity) + ((item.pricePerDealUnit * item.deliveredQuantity) * 0.1))));
+                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.name, data.unit.name, (item.pricePerDealUnit * item.deliveredQuantity), (item.pricePerDealUnit * item.deliveredQuantity * 0.1), ((item.pricePerDealUnit * item.deliveredQuantity) + ((item.pricePerDealUnit * item.deliveredQuantity) * 0.1)));
                         }
                         else
                         {
-                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name, String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)), "-", String.Format("{0:0.00}", (item.pricePerDealUnit * item.deliveredQuantity)));
+                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.name, data.unit.name, (item.pricePerDealUnit * item.deliveredQuantity), 0,(item.pricePerDealUnit * item.deliveredQuantity));
                         }                        
                         rowPosition += 1;
-                        catCode = item.purchaseOrder.category.code;
+                        catCode = item.purchaseOrder.category.name;
                     }
                     if (subTotalPPNCategory[categoryCode.Key] == 0)
                     {
-                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", String.Format("{0:0.00}", subTotalDPPCategory[categoryCode.Key]), "-", String.Format("{0:0.00}", subTotalCategory[categoryCode.Key]));
+                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "",  subTotalDPPCategory[categoryCode.Key], 0,  subTotalCategory[categoryCode.Key]);
                     } else
                     {
-                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", String.Format("{0:0.00}", subTotalDPPCategory[categoryCode.Key]), String.Format("{0:0.00}", subTotalPPNCategory[categoryCode.Key]), String.Format("{0:0.00}", subTotalCategory[categoryCode.Key]));
+                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", subTotalDPPCategory[categoryCode.Key], subTotalPPNCategory[categoryCode.Key], subTotalCategory[categoryCode.Key]);
                     }
                     rowPosition += 1;
                     
@@ -195,24 +180,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 }
                 if (totalPPN == 0)
                 {
-                    result.Rows.Add("TOTAL", "", "", "", "", "", String.Format("{0:0.00}", totalDPP), "-", String.Format("{0:0.00}", total));
+                    result.Rows.Add("TOTAL", "", "", "", "", "",  totalDPP, 0, total);
                 }
                 else
                 {
-                    result.Rows.Add("TOTAL", "", "", "", "", "", String.Format("{0:0.00}", totalDPP), String.Format("{0:0.00}", totalPPN), String.Format("{0:0.00}", total));
+                    result.Rows.Add("TOTAL", "", "", "", "", "",totalDPP, totalPPN, total);
                 }
                 rowPosition += 1;
                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
-            mergeCells.Add(($"A{1}:A{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"B{1}:B{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"C{1}:C{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"D{1}:D{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"E{1}:E{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"F{1}:F{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"G{1}:H{1}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-            mergeCells.Add(($"I{1}:I{2}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Center, OfficeOpenXml.Style.ExcelVerticalAlignment.Center));
-
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
 
