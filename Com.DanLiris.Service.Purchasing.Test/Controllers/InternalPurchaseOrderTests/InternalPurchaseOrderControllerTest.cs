@@ -261,6 +261,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_Error_Split_Data_with_Validation()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.prNo = null;
+            viewModel.prDate = DateTimeOffset.MinValue;
+            viewModel.budget = null;
+            viewModel.unit = null;
+            viewModel.category = null;
+            //List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
+            var response = await this.Client.PostAsync($"{URI}/spliting/{viewModel._id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
         //[Fact]
         //public async Task Should_Error_Split_Data_When_Quantity_Splited_Bigger_than_Quantity_Before_Splited()
         //{
