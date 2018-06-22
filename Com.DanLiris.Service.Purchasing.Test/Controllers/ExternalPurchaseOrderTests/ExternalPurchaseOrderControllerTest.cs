@@ -203,5 +203,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_PDF_By_Id()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            HttpRequestMessage requestMessage = new HttpRequestMessage()
+            {
+                RequestUri = new Uri($"{Client.BaseAddress}{URI}/{model.Id}"),
+                Method = HttpMethod.Get
+            };
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
+            requestMessage.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.SendAsync(requestMessage);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }
