@@ -10,20 +10,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
     public class UnitPaymentOrderVerificationViewModel : IValidatableObject
     {
         public int Id { get; set; }
-        public DateTimeOffset? VerificationDate { get; set; }
+        public DateTimeOffset? VerifyDate { get; set; }
         public string UnitPaymentOrderNo { get; set; }
         public string Reason { get; set; }
         public ExpeditionPosition SubmitPosition { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
 
-            if (this.VerificationDate == null)
+            if (this.VerifyDate == null)
             {
-                yield return new ValidationResult("Date is required", new List<string> { "VerificationDate" });
+                yield return new ValidationResult("Date is required", new List<string> { "VerifyDate" });
             }
-            else if (this.VerificationDate > DateTimeOffset.UtcNow)
+            else if (this.VerifyDate > DateTimeOffset.UtcNow)
             {
-                yield return new ValidationResult("Date must be lower or equal than today's date", new List<string> { "VerificationDate" });
+                yield return new ValidationResult("Date must be lower or equal than today's date", new List<string> { "VerifyDate" });
             }
 
             if (string.IsNullOrWhiteSpace(this.UnitPaymentOrderNo))
@@ -40,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             PurchasingDocumentExpedition data = new PurchasingDocumentExpedition
             {
                 Id = this.Id,
-                VerifyDate = this.VerificationDate,
+                VerifyDate = this.VerifyDate,
                 UnitPaymentOrderNo = this.UnitPaymentOrderNo,
                 Position = this.SubmitPosition,
                 NotVerifiedReason = this.Reason,
