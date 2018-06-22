@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 1,
-                        PRItemId = "PurchaseRequestItem-1",
+                        PRItemId = 1,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -89,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 1,
-                        PRItemId = "PurchaseRequestItem-1",
+                        PRItemId = 2,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -153,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 2,
-                        PRItemId = "PurchaseRequestItem-2",
+                        PRItemId = 1,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -177,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 2,
-                        PRItemId = "PurchaseRequestItem-2",
+                        PRItemId = 2,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -258,6 +259,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     m.PONo = "PO" + m.UnitCode + m.PONo;
                     foreach (var item in m.Items)
                     {
+                        item.Status = "PO Internal belum diorder";
+                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == item.PRItemId);
+                        purchaseRequestItem.Status = "Sudah diterima Pembelian";
                         EntityExtension.FlagForCreate(item, user, "Facade");
                     }
 
@@ -408,11 +412,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     var m = this.dbSet
                         .Include(d => d.Items)
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
-
                     EntityExtension.FlagForDelete(m, user, "Facade");
 
                     foreach (var item in m.Items)
                     {
+                        var n = this.dbContext.InternalPurchaseOrderItems
+                        .Count(pr => pr.PRItemId == item.PRItemId && !pr.IsDeleted);
+                        if (n == 1)
+                        {
+                            PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == item.PRItemId);
+                            purchaseRequestItem.Status = "Belum diterima Pembelian";
+                        }
                         EntityExtension.FlagForDelete(item, user, "Facade");
                     }
 
@@ -463,29 +473,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             item.Id = 0;
                                             item.POId = 0;
                                         }
-                                        else
-                                        {
-                                            throw new Exception("Quantity tidak boleh lebih dari Quantity sebelum di pecah");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        EntityExtension.FlagForDelete(itemCreate, user, "Facade");
-                                        EntityExtension.FlagForCreate(item, user, "Facade");
                                     }
                                 }
                             }
                         }
+                        internalPurchaseOrder.PONo = await this.GeneratePONo(internalPurchaseOrder);
+                        internalPurchaseOrder.PONo = "PO" + internalPurchaseOrder.UnitCode + internalPurchaseOrder.PONo;
 
                         this.dbContext.InternalPurchaseOrders.Add(internalPurchaseOrder);
                         this.dbContext.Update(NewData);
                         Splitted = await dbContext.SaveChangesAsync();
 
                         transaction.Commit();
-                    }
-                    else
-                    {
-                        throw new Exception("Error while splitting data");
                     }
                 }
                 catch (Exception e)

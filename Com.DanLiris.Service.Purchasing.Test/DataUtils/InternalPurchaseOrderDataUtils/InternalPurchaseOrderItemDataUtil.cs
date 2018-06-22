@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
             UomId = purchaseRequestItem[0].UomId,
             UomUnit = purchaseRequestItem[0].Uom,
             ProductRemark = purchaseRequestItem[0].Remark,
-            PRItemId = purchaseRequestItem[0].Id.ToString()
+            PRItemId = purchaseRequestItem[0].Id
         };
         public InternalPurchaseOrderItemViewModel GetNewDataViewModel(List<PurchaseRequestItem> purchaseRequestItem) => new InternalPurchaseOrderItemViewModel
         {

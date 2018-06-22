@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
     public class InternalPurchaseOrderItem : StandardEntity<long>
     {
         [MaxLength(255)]
-        public string PRItemId { get; set; }
+        public long PRItemId { get; set; }
 
         /*Product*/
         [MaxLength(255)]

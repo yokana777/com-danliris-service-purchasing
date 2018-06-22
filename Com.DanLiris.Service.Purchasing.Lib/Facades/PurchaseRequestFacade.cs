@@ -513,7 +513,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         })
                     .Where(j => j.PurchaseRequestId.Equals(s.Id))
                     .ToList()
-            }).Where(s => s.IsPosted == true);
+            }).Where(s => s.IsPosted == true && this.dbContext.InternalPurchaseOrders.Count(m=> m.PRNo.Equals(s.No))<=0);
 
             List<string> searchAttributes = new List<string>()
             {
