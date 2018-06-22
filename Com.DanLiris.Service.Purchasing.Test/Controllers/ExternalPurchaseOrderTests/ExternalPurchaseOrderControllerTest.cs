@@ -17,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
     public class ExternalPurchaseOrderControllerTest
     {
         private const string MediaType = "application/json";
+        private const string MediaTypePdf = "application/pdf";
         private readonly string URI = "v1/external-purchase-orders";
 
         private TestServerFixture TestFixture { get; set; }
