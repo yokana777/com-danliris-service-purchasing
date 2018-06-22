@@ -189,20 +189,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         //    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         //}
 
+        //[Fact]
+        //public async Task Should_Success_Split_Data()
+        //{
+        //    InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+        //    InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+        //    viewModel._id = 0;
+        //    foreach (var items in viewModel.items)
+        //    {
+        //        items._id = 0;
+        //    }
+        //    List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
+
+        //    var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
+        //    Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        //}
         [Fact]
         public async Task Should_Success_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
-            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
-            viewModel._id = 0;
-            foreach (var items in viewModel.items)
-            {
-                items._id = 0;
-            }
-            List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
+            //InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
+            var json = responseGetById.Content.ReadAsStringAsync().Result;
 
-            var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+
+            InternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<InternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+
+            var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]
