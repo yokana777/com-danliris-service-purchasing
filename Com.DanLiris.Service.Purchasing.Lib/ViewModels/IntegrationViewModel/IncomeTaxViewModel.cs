@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
 {
-    public class VatViewModel
+    public class IncomeTaxViewModel
     {
         public string _id { get; set; }
         public string name { get; set; }
