@@ -222,18 +222,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
             InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel._id = 0;
+            viewModel.prNo = model.PRNo;
             foreach (var items in viewModel.items)
             { 
                 foreach (var modelItems in model.Items)   
                 {
                     items._id = 0;
-                    modelItems.Quantity = modelItems.Quantity + items.quantity;
+                    items.quantity = modelItems.Quantity + .quantity;
                 }
             }
             List<InternalPurchaseOrderViewModel> viewModelList = new List<InternalPurchaseOrderViewModel> { viewModel };
 
             var response = await this.Client.PostAsync($"{URI}/spliting/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModelList).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
 
