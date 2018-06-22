@@ -142,5 +142,66 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Error_Create_Data_date_more_than_expectedDeliveryDate()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.orderDate = DateTimeOffset.MaxValue;
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+
+            var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
+            var json = responseGetById.Content.ReadAsStringAsync().Result;
+
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+
+            ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+
+            var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_Id()
+        {
+            var response = await this.Client.PutAsync($"{URI}/0", new StringContent(JsonConvert.SerializeObject(new ExternalPurchaseOrderViewModel()).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Invalid_Data()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+
+            var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
+            var json = responseGetById.Content.ReadAsStringAsync().Result;
+
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+
+            ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            viewModel.orderDate = DateTimeOffset.MinValue;
+            viewModel.supplier = null;
+            viewModel.unit = null;
+            viewModel.currency = null;
+            viewModel.items = new List<ExternalPurchaseOrderItemViewModel> { };
+
+            var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }
