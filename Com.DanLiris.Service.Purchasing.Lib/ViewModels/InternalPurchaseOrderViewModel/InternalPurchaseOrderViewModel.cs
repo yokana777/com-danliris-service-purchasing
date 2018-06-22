@@ -48,23 +48,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
             {
                 InternalPurchaseOrder NewData = dbContext.InternalPurchaseOrders.Include(p => p.Items).FirstOrDefault(p => p.PONo == this.poNo);
                 var n = dbContext.InternalPurchaseOrders.Count(pr => pr.PRNo == prNo && !pr.IsDeleted);
-                long quantityCount = 0;
                 foreach (var itemCreate in NewData.Items)
                 {
                     foreach (InternalPurchaseOrderItemViewModel Item in items)
                     {
-                        quantityCount = Item.quantity + quantityCount;
-                        if(quantityCount == 0)
-                        {
-                            yield return new ValidationResult("Data belum ada yang dipilih", new List<string> { "itemscount" });
-                        }
                         if (itemCreate.Quantity == Item.quantity)
                         {
                             yield return new ValidationResult("Data belum ada yang diubah", new List<string> { "itemscount" });
                         }
                         if (Item.quantity > itemCreate.Quantity)
                         {
-                            yield return new ValidationResult("Jumlah tidak boleh lebih dari (Quantity)", new List<string> { "items.quantity" });
+                            yield return new ValidationResult("Jumlah tidak boleh lebih dari (Quantity)", new List<string> { "itemscount" });
                         }
                     }
                 }
