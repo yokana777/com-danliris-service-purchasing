@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180621071522_unitReceiptNote")]
+    partial class unitReceiptNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,15 +190,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("FreightCostBy");
 
-                    b.Property<string>("IncomeTaxId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("IncomeTaxName")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("IncomeTaxRate")
-                        .HasMaxLength(1000);
-
                     b.Property<bool>("IsCanceled");
 
                     b.Property<bool>("IsClosed");
@@ -248,6 +240,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("UseIncomeTax");
 
                     b.Property<bool>("UseVat");
+
+                    b.Property<string>("VatId")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("VatName")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("VatRate")
+                        .HasMaxLength(1000);
 
                     b.HasKey("Id");
 

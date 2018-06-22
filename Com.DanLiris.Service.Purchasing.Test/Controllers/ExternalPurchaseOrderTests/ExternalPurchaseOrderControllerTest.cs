@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -86,5 +87,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             //var responseError = await this.Client.GetAsync(URI );
             //Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_Delete_Data_By_Id()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            var response = await this.Client.DeleteAsync($"{URI}/{model.Id}");
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Delete_Data_Invalid_Id()
+        {
+            var response = await this.Client.DeleteAsync($"{URI}/0");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Get_Invalid_Id()
+        {
+            var response = await this.Client.GetAsync($"{URI}/null");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
     }
 }

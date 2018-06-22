@@ -50,17 +50,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
 
         public string PaymentMethod { get; set; }
         public string PaymentDueDays { get; set; }
-        public bool UseVat { get; set; }
-
-        //Vat
-        [MaxLength(255)]
-        public string VatId { get; set; }
-        [MaxLength(255)]
-        public string VatName { get; set; }
-        [MaxLength(1000)]
-        public string VatRate { get; set; }
-
         public bool UseIncomeTax { get; set; }
+
+        //IncomeTax
+        [MaxLength(255)]
+        public string IncomeTaxId { get; set; }
+        [MaxLength(255)]
+        public string IncomeTaxName { get; set; }
+        [MaxLength(1000)]
+        public string IncomeTaxRate { get; set; }
+
+        public bool UseVat { get; set; }
         public bool IsPosted { get; set; }
         public bool IsClosed { get; set; }
         public bool IsCanceled { get; set; }
