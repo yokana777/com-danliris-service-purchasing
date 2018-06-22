@@ -56,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
                         quantityCount = Item.quantity + quantityCount;
                         if(quantityCount == 0)
                         {
-                            yield return new ValidationResult("Data belum ada yang dipilih", new List<string> { "items.quantity" });
+                            yield return new ValidationResult("Data belum ada yang dipilih", new List<string> { "itemscount" });
                         }
                         if (itemCreate.Quantity == Item.quantity)
                         {
