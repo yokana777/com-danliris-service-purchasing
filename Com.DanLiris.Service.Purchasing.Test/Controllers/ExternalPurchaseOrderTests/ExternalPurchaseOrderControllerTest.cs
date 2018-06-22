@@ -89,6 +89,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         }
 
         [Fact]
+        public async Task Should_Success_Get_All_Data_With_Filter()
+        {
+            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Delete_Data_By_Id()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
@@ -110,5 +117,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_Error_Create_Invalid_Data()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.orderDate = DateTimeOffset.MinValue;
+            viewModel.currency = null;
+            viewModel.unit = null;
+            viewModel.supplier = null;
+            viewModel.items = new List<ExternalPurchaseOrderItemViewModel> { };
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_Data_Item()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            foreach (ExternalPurchaseOrderItemViewModel item in viewModel.items)
+            {
+                item.prNo = "";
+                item.poNo = "";
+            }
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }
