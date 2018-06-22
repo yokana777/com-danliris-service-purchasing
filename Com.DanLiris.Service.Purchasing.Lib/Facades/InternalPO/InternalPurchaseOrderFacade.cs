@@ -412,9 +412,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     var m = this.dbSet
                         .Include(d => d.Items)
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
-                    //m.PONo this.dbContext.InternalPurchaseOrders.Count(m=> m.PRNo.Equals(s.No))<=0);
-                    //var n = this.dbSet
-                    //    .Count(pr => pr.PRNo == m.PRNo && !pr.IsDeleted);
                     EntityExtension.FlagForDelete(m, user, "Facade");
 
                     foreach (var item in m.Items)
@@ -476,15 +473,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             item.Id = 0;
                                             item.POId = 0;
                                         }
-                                        //else
-                                        //{
-                                        //    throw new Exception("Jumlah tidak boleh lebih dari (Quantity)");
-                                        //}
                                     }
-                                    //else
-                                    //{
-                                    //    throw new Exception("Data belum ada yang diubah");
-                                    //}
                                 }
                             }
                         }
@@ -497,10 +486,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                         transaction.Commit();
                     }
-                    //else
-                    //{
-                    //    throw new Exception("Error while splitting data");
-                    //}
                 }
                 catch (Exception e)
                 {
