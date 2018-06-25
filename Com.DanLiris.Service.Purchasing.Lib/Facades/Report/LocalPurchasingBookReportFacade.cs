@@ -143,7 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 double totalPPN = 0;
                 double totalDPP = 0;
                 double total = 0;
-                int rowPosition = 2;
+                int rowPosition = 1;
                           
 
                 foreach (KeyValuePair<string, List<UnitReceiptNoteViewModel>> categoryCode in dataByCategory)
