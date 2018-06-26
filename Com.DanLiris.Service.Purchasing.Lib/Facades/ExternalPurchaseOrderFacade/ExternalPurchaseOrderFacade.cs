@@ -49,7 +49,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     UnitName=s.UnitName,
                     UnitCode=s.UnitCode,
                     CreatedBy=s.CreatedBy,
-                    IsPosted=s.IsPosted
+                    IsPosted=s.IsPosted,
+                    Items = s.Items.Select(
+                        q => new ExternalPurchaseOrderItem
+                        {
+                            Id = q.Id,
+                            POId = q.POId,
+                            PRNo = q.PRNo
+                        }
+                    )
+                    .ToList()
                 });
 
             List<string> searchAttributes = new List<string>()
@@ -409,5 +418,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
+
+        public List<ExternalPurchaseOrder> ReadUnused(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo", "SupplierName", "DivisionName","UnitName"
+            };
+
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+
+            Query = Query
+                .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false)
+                .Select(s => new ExternalPurchaseOrder
+                {
+                    Id = s.Id,
+                    EPONo = s.EPONo,
+                    CurrencyCode = s.CurrencyCode,
+                    CurrencyRate = s.CurrencyRate,
+                    OrderDate = s.OrderDate,
+                    DeliveryDate = s.DeliveryDate,
+                    SupplierId = s.SupplierId,
+                    SupplierCode = s.SupplierCode,
+                    SupplierName = s.SupplierName,
+                    DivisionCode = s.DivisionCode,
+                    DivisionName = s.DivisionName,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    UnitName = s.UnitName,
+                    UnitCode = s.UnitCode,
+                    CreatedBy = s.CreatedBy,
+                    IsPosted = s.IsPosted,
+                    Items = s.Items
+                        .Select(i => new ExternalPurchaseOrderItem
+                        {
+                            Id = i.Id,
+                            PRId = i.PRId,
+                            PRNo = i.PRNo,
+                            Details = i.Details
+                                .Where(d => d.DOQuantity < d.DealQuantity && d.IsDeleted == false)
+                                .Select(d => new ExternalPurchaseOrderDetail
+                                {
+                                    Id = d.Id,
+                                    POItemId = d.POItemId,
+                                    PRItemId = d.PRItemId,
+                                    ProductId = d.ProductId,
+                                    ProductCode = d.ProductCode,
+                                    ProductName = d.ProductName,
+                                    DealQuantity = d.DealQuantity,
+                                    DealUomId = d.DealUomId,
+                                    DealUomUnit = d.DealUomUnit,
+                                    DOQuantity = d.DOQuantity,
+                                    ProductRemark = d.ProductRemark,
+                                })
+                                .ToList()
+                        })
+                        .Where(i => i.Details.Count > 0)
+                        .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            return Query.ToList();
+        }
+
     }
 }

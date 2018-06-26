@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 1,
-                        PRItemId = "PurchaseRequestItem-1",
+                        PRItemId = 1,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -89,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 1,
-                        PRItemId = "PurchaseRequestItem-1",
+                        PRItemId = 2,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -153,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 2,
-                        PRItemId = "PurchaseRequestItem-2",
+                        PRItemId = 1,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -177,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         Active = true,
                         IsDeleted = false,
                         POId = 2,
-                        PRItemId = "PurchaseRequestItem-2",
+                        PRItemId = 2,
                         CreatedAgent = "Dummy-1",
                         CreatedBy = "Dummy-1",
                         CreatedUtc = DateTime.UtcNow,
@@ -217,8 +218,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public InternalPurchaseOrder ReadById(int id)
         {
-            return this.dbSet.Where(p => p.Id == id)
-                .Include(p => p.Items)
+            return this.dbSet
+                .Select(s => new InternalPurchaseOrder
+                {
+                    Id = s.Id,
+                    UId = s.UId,
+                    PONo = s.PONo,
+                    PRNo = s.PRNo,
+                    ExpectedDeliveryDate = s.ExpectedDeliveryDate,
+                    UnitName = s.UnitName,
+                    DivisionName = s.DivisionName,
+                    CategoryName = s.CategoryName,
+                    IsPosted = s.IsPosted,
+                    CreatedBy = s.CreatedBy,
+                    PRDate = s.PRDate,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    PRId = s.PRId,
+                    Items = s.Items
+                    .Select(
+                        q => new InternalPurchaseOrderItem
+                        {
+                            Id = q.Id,
+                            POId = q.POId,
+                            PRItemId = q.PRItemId,
+                            ProductId = q.ProductId,
+                            ProductName = q.ProductName,
+                            ProductCode = q.ProductCode,
+                            UomId = q.UomId,
+                            UomUnit = q.UomUnit,
+                            Quantity = q.Quantity,
+                            ProductRemark = q.ProductRemark,
+                            Status = q.Status
+                        }
+                    )
+                    .Where(j => j.POId.Equals(s.Id) && j.Quantity != 0)
+                    .ToList()
+                })
+                .Where(p => p.Id == id)
                 .FirstOrDefault();
         }
 
@@ -227,11 +263,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             DateTime Now = DateTime.Now;
             string Year = Now.ToString("yy");
             string Month = Now.ToString("MM");
-
+            var lastInternalPurchaseNo = new InternalPurchaseOrder();
             string internalPurchaseNo = Year + Month;
-
-            var lastInternalPurchaseNo = await this.dbSet.Where(w => w.PONo.StartsWith(internalPurchaseNo)).OrderByDescending(o => o.PONo).FirstOrDefaultAsync();
-
+            //string Check_internalPurchaseNo = "PO" + model.UnitCode + internalPurchaseNo;
+            
+            if (model.PONo != null)
+            {
+                lastInternalPurchaseNo = await this.dbSet.Where(w => w.PONo.StartsWith(model.PONo)).OrderByDescending(o => o.PONo).FirstOrDefaultAsync();
+            }
+            else
+            {
+                lastInternalPurchaseNo = await this.dbSet.Where(w => w.PONo.StartsWith(internalPurchaseNo)).OrderByDescending(o => o.PONo).FirstOrDefaultAsync();
+            }
             int Padding = 5;
 
             if (lastInternalPurchaseNo == null)
@@ -240,6 +283,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             }
             else
             {
+                internalPurchaseNo = "PO" + model.UnitCode + internalPurchaseNo;
                 int lastNo = Int32.Parse(lastInternalPurchaseNo.PONo.Replace(internalPurchaseNo, "")) + 1;
                 return internalPurchaseNo + lastNo.ToString().PadLeft(Padding, '0');
             }
@@ -258,6 +302,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     m.PONo = "PO" + m.UnitCode + m.PONo;
                     foreach (var item in m.Items)
                     {
+                        item.Status = "PO Internal belum diorder";
+                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == item.PRItemId);
+                        purchaseRequestItem.Status = "Sudah diterima Pembelian";
                         EntityExtension.FlagForCreate(item, user, "Facade");
                     }
 
@@ -408,11 +455,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     var m = this.dbSet
                         .Include(d => d.Items)
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
-
                     EntityExtension.FlagForDelete(m, user, "Facade");
 
                     foreach (var item in m.Items)
                     {
+                        var n = this.dbContext.InternalPurchaseOrderItems
+                        .Count(pr => pr.PRItemId == item.PRItemId && !pr.IsDeleted);
+                        if (n == 1)
+                        {
+                            PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == item.PRItemId);
+                            purchaseRequestItem.Status = "Belum diterima Pembelian";
+                        }
                         EntityExtension.FlagForDelete(item, user, "Facade");
                     }
 
@@ -429,10 +482,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Deleted;
         }
 
+        public InternalPurchaseOrder ReadByIdforSplit(int id)
+        {
+            return this.dbSet.Where(p => p.Id == id)
+                .Include(p => p.Items)
+                .FirstOrDefault();
+        }
+
         public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
         {
             int Splitted = 0;
-            InternalPurchaseOrder NewData = ReadById(id);
+            InternalPurchaseOrder UpdateData = ReadByIdforSplit(id);
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
@@ -444,48 +504,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     if (m != null)
                     {
                         
-                        EntityExtension.FlagForUpdate(NewData, user, "Facade");
+                        EntityExtension.FlagForUpdate(UpdateData, user, "Facade");
                         EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");                        
 
-                        foreach (var itemCreate in NewData.Items)
+                        foreach (var itemUpdate in UpdateData.Items)
                         {
                             foreach (var item in internalPurchaseOrder.Items)
                             {
-                                if (item.ProductId == itemCreate.ProductId)
+                                if (item.ProductId == itemUpdate.ProductId)
                                 {
-                                    if (item.Quantity != itemCreate.Quantity)
+                                    if (item.Quantity <= itemUpdate.Quantity)
                                     {
-                                        if(item.Quantity<itemCreate.Quantity)
-                                         {
-                                            EntityExtension.FlagForUpdate(itemCreate, user, "Facade");
-                                            itemCreate.Quantity = itemCreate.Quantity - item.Quantity;
-                                            EntityExtension.FlagForCreate(item, user, "Facade");
-                                            item.Id = 0;
-                                            item.POId = 0;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("Quantity tidak boleh lebih dari Quantity sebelum di pecah");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        EntityExtension.FlagForDelete(itemCreate, user, "Facade");
+                                        EntityExtension.FlagForUpdate(itemUpdate, user, "Facade");
+                                        itemUpdate.Quantity = itemUpdate.Quantity - item.Quantity;
                                         EntityExtension.FlagForCreate(item, user, "Facade");
+                                        item.Id = 0;
+                                        item.POId = 0;
                                     }
                                 }
                             }
                         }
+                        internalPurchaseOrder.PONo = await this.GeneratePONo(UpdateData);
+                        internalPurchaseOrder.Active = UpdateData.Active;
+                        internalPurchaseOrder.BudgetCode = UpdateData.BudgetCode;
+                        internalPurchaseOrder.BudgetId = UpdateData.BudgetId;
+                        internalPurchaseOrder.BudgetName = UpdateData.BudgetName;
+                        internalPurchaseOrder.CategoryCode = UpdateData.CategoryCode;
+                        internalPurchaseOrder.CategoryId = UpdateData.CategoryId;
+                        internalPurchaseOrder.CategoryName = UpdateData.CategoryName;
+                        internalPurchaseOrder.DivisionCode = UpdateData.DivisionCode;
+                        internalPurchaseOrder.DivisionId = UpdateData.DivisionId;
+                        internalPurchaseOrder.UId = UpdateData.UId;
+                        internalPurchaseOrder.UnitCode = UpdateData.UnitCode;
+                        internalPurchaseOrder.UnitId = UpdateData.UnitId;
 
                         this.dbContext.InternalPurchaseOrders.Add(internalPurchaseOrder);
-                        this.dbContext.Update(NewData);
+                        this.dbContext.Update(UpdateData);
                         Splitted = await dbContext.SaveChangesAsync();
 
                         transaction.Commit();
-                    }
-                    else
-                    {
-                        throw new Exception("Error while splitting data");
                     }
                 }
                 catch (Exception e)

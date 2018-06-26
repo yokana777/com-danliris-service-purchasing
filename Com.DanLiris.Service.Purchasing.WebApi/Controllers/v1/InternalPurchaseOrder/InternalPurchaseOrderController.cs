@@ -218,13 +218,21 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
             InternalPurchaseOrder m = _mapper.Map<InternalPurchaseOrder>(vm);
-            //ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+            ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
             try
             {
-                //validateService.Validate(vm);
+                validateService.Validate(vm);
                 int result = await _facade.Split(id, m, identityService.Username);
 
                 return NoContent();
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+
             }
             catch (Exception)
             {

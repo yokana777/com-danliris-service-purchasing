@@ -131,6 +131,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
 
             return externalPurchaseOrder;
         }
+
+        public async Task<ExternalPurchaseOrder> GetTestDataUnused(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+            externalPurchaseOrder.IsPosted = true;
+            foreach (var item in externalPurchaseOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.DOQuantity = 0;
+                    detail.DealQuantity = 2;
+                }
+            }
+
+            await facade.Create(externalPurchaseOrder, user);
+
+            return externalPurchaseOrder;
+        }
     }
 }
     

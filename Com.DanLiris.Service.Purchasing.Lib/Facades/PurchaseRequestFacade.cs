@@ -303,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         .Include(d => d.Items)
                         .Single(pr => pr.Id == id && !pr.IsDeleted);
 
-                    if (m != null && !id.Equals(purchaseRequest.Id))
+                    if (m != null && id == purchaseRequest.Id)
                     {
 
                         EntityExtension.FlagForUpdate(purchaseRequest, user, USER_AGENT);
@@ -314,7 +314,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             {
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
                             }
-                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                            }
                         }
 
                         this.dbContext.Update(purchaseRequest);
@@ -513,7 +516,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         })
                     .Where(j => j.PurchaseRequestId.Equals(s.Id))
                     .ToList()
-            }).Where(s => s.IsPosted == true);
+            }).Where(s => s.IsPosted == true && this.dbContext.InternalPurchaseOrders.Count(m=> m.PRNo.Equals(s.No))<=0);
 
             List<string> searchAttributes = new List<string>()
             {

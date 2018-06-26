@@ -46,28 +46,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             Assert.NotEqual(Response, 0);
         }
 
-        [Fact]
-        public async void Should_Error_Split_Data_When_Quantity_After_Split_more_than_Quantity_Before_Split()
-        {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var error = false;
-            var NewDataId = model.Id;
-            model.Id = 0;
-            foreach (var items in model.Items)
-            {
-                items.Id = 0;
-                items.Quantity = items.Quantity + 1;
-            }
-            try
-            {
-                var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
-            }
-            catch (Exception)
-            {
-                error = true;
-            }
-            Assert.Equal(error,true);
-        }
+        //[Fact]
+        //public async void Should_Error_Split_Data_When_Quantity_After_Split_more_than_Quantity_Before_Split()
+        //{
+        //    InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+        //    var error = false;
+        //    var NewDataId = model.Id;
+        //    model.Id = 0;
+        //    foreach (var items in model.Items)
+        //    {
+        //        items.Id = 0;
+        //        items.Quantity = items.Quantity + 1;
+        //    }
+        //    try
+        //    {
+        //        var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        error = true;
+        //    }
+        //    Assert.Equal(error,true);
+        //}
 
         [Fact]
         public async void Should_Success_Split_Data_When_Quantity_Before_Split_less_than_Quantity_After_Split()
