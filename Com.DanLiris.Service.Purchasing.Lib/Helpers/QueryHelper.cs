@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             {
                 OrderDictionary.Add("LastModifiedUtc", "desc");
 
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderBy("LastModifiedUtc desc");
             }
             /* Custom Order */
             else

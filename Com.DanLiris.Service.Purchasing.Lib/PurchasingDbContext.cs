@@ -18,6 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
         public DbSet<PurchasingDocumentExpeditionItem> PurchasingDocumentExpeditionItems { get; set; }
+        public DbSet<PPHBankExpenditureNote> PPHBankExpenditureNotes { get; set; }
+        public DbSet<PPHBankExpenditureNoteItem> PPHBankExpenditureNoteItems { get; set; }
+
+
         public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
         public DbSet<PurchaseRequestItem> PurchaseRequestItems { get; set; }
 

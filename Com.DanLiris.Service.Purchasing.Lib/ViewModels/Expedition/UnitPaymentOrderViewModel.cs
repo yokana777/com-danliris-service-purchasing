@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
     public class UnitPaymentOrderViewModel
     {
         public int Id { get; set; }
+        public int PurchasingDocumentExpeditionId { get; set; }
         public string No { get; set; }
         public DateTimeOffset UPODate { get; set; }
         public DateTimeOffset DueDate { get; set; }
