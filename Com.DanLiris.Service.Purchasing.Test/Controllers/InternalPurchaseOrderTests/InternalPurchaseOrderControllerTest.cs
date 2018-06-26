@@ -282,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
             InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel._id = 0;
-            viewModel.prNo = "No1";
+            //viewModel.prNo = "No1";
             foreach (var items in viewModel.items)
             {
                 items._id = 0;
