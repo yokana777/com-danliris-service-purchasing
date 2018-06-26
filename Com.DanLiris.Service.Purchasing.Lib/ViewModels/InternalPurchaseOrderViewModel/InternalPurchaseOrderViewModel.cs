@@ -46,21 +46,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
             //var n = dbContext.InternalPurchaseOrders.Count(pr => pr.PRNo == prNo && !pr.IsDeleted);
             if(this.poNo != null)
             {
-                InternalPurchaseOrder NewData = dbContext.InternalPurchaseOrders.Include(p => p.Items).FirstOrDefault(p => p.PONo == this.poNo);
-                var n = dbContext.InternalPurchaseOrders.Count(pr => pr.PRNo == prNo && !pr.IsDeleted);
-                foreach (var itemCreate in NewData.Items)
-                {
-                    foreach (InternalPurchaseOrderItemViewModel Item in items)
+                InternalPurchaseOrder NewData = dbContext.InternalPurchaseOrders
+                    .Select(s => new InternalPurchaseOrder
                     {
-                        if (itemCreate.Quantity == Item.quantity)
+                        Id = s.Id,
+                        UId = s.UId,
+                        PONo = s.PONo,
+                        PRNo = s.PRNo,
+                        ExpectedDeliveryDate = s.ExpectedDeliveryDate,
+                        UnitName = s.UnitName,
+                        DivisionName = s.DivisionName,
+                        CategoryName = s.CategoryName,
+                        IsPosted = s.IsPosted,
+                        CreatedBy = s.CreatedBy,
+                        PRDate = s.PRDate,
+                        LastModifiedUtc = s.LastModifiedUtc,
+                        PRId = s.PRId,
+                        Items = s.Items
+                    .Select(
+                        q => new InternalPurchaseOrderItem
                         {
-                            yield return new ValidationResult("Data belum ada yang diubah", new List<string> { "itemscount" });
+                            Id = q.Id,
+                            POId = q.POId,
+                            PRItemId = q.PRItemId,
+                            ProductId = q.ProductId,
+                            ProductName = q.ProductName,
+                            ProductCode = q.ProductCode,
+                            UomId = q.UomId,
+                            UomUnit = q.UomUnit,
+                            Quantity = q.Quantity,
+                            ProductRemark = q.ProductRemark,
+                            Status = q.Status
                         }
-                        if (Item.quantity > itemCreate.Quantity)
+                    )
+                    .Where(t => t.POId.Equals(s.Id) && t.Quantity != 0)
+                    .ToList()
+                    })
+                .FirstOrDefault(p => p.PRNo == this.prNo);
+                ;
+                var n = dbContext.InternalPurchaseOrderItems.Count(pr => pr.POId == NewData.Id && pr.Quantity!=0 && !pr.IsDeleted);
+                var j = 0;
+                var k = 0;
+                foreach (InternalPurchaseOrderItemViewModel Item in items)
+                {
+                    foreach (var itemCreate in NewData.Items)
+                    {
+                        if (itemCreate.Quantity == Item.quantity && itemCreate.Id==Item._id)
+                        {
+                            k += 1;
+                        }
+                        if (Item.quantity > itemCreate.Quantity && itemCreate.Id == Item._id)
                         {
                             yield return new ValidationResult("Jumlah tidak boleh lebih dari (Quantity)", new List<string> { "itemscount" });
+                            j += 1;
+                            k = 0;
                         }
                     }
+                }
+                if (k >= 1 && j == 0 && this.items.Count == n)
+                {
+                    yield return new ValidationResult("Data belum ada yang diubah", new List<string> { "itemscount" });
                 }
             }
         }
