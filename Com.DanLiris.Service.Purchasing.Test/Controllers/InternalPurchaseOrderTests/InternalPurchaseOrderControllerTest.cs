@@ -59,13 +59,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        //[Fact]
-        //public async Task Should_Success_Create_Data()
-        //{
-        //    InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
-        //    var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
-        //    Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        //}
+        [Fact]
+        public async Task Should_Success_Create_Data()
+        {
+            InternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        }
 
         [Fact]
         public async Task Should_Error_Create_Invalid_Data()
