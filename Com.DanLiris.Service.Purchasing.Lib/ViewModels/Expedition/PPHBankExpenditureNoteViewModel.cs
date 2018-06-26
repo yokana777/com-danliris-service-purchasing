@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
     {
         public int Id { get; set; }
         public BankViewModel Bank { get; set; }
-        public IncomeTaxViewModel IncomeTax { get; set; }
+        public IncomeTaxExpeditionViewModel IncomeTax { get; set; }
         public string Currency { get; set; }
         public string BGNo { get; set; }
         public double TotalDPP { get; set; }
@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     code = model.Currency
                 }
             };
-            IncomeTax = new IncomeTaxViewModel()
+            IncomeTax = new IncomeTaxExpeditionViewModel()
             {
                 _id = model.IncomeTaxId,
                 name = model.IncomeTaxName,

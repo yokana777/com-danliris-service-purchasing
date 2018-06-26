@@ -68,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             {
                 return new PPHBankExpenditureNoteViewModel()
                 {
-                    IncomeTax = new IncomeTaxViewModel(),
+                    IncomeTax = new IncomeTaxExpeditionViewModel(),
                     Bank = new BankViewModel() { currency = new CurrencyViewModel() },
                     PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>() { new UnitPaymentOrderViewModel() { Items = new List<UnitPaymentOrderItemViewModel>() { new UnitPaymentOrderItemViewModel() } } }
                 };
