@@ -49,7 +49,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     UnitName=s.UnitName,
                     UnitCode=s.UnitCode,
                     CreatedBy=s.CreatedBy,
-                    IsPosted=s.IsPosted
+                    IsPosted=s.IsPosted,
+                    Items = s.Items.Select(
+                        q => new ExternalPurchaseOrderItem
+                        {
+                            Id = q.Id,
+                            POId = q.POId,
+                            PRNo = q.PRNo
+                        }
+                    )
+                    .ToList()
                 });
 
             List<string> searchAttributes = new List<string>()
