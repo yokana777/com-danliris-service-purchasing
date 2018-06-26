@@ -7,6 +7,7 @@ using Com.Moonlay.Data.EntityFrameworkCore;
 using Com.Moonlay.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -31,6 +32,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<UnitReceiptNote> UnitReceiptNotes { get; set; }
         public DbSet<UnitReceiptNoteItem> UnitReceiptNoteItems { get; set; }
+
+        public DbSet<DeliveryOrder> DeliveryOrders { get; set; }
+        public DbSet<DeliveryOrderItem> DeliveryOrderItems { get; set; }
+        public DbSet<DeliveryOrderDetail> DeliveryOrderDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

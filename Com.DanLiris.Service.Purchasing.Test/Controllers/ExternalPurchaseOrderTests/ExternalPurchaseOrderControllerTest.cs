@@ -219,5 +219,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.SendAsync(requestMessage);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Unused()
+        {
+            var response = await this.Client.GetAsync($"{URI}/unused");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }

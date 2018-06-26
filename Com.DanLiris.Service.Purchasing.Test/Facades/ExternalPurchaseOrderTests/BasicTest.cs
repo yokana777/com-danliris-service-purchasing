@@ -40,6 +40,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             Assert.NotEqual(Response.Item1.Count, 0);
         }
 
+        [Fact]
+        public async void Should_Success_Get_Data_Unused()
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetTestDataUnused("Unit test");
+            List<ExternalPurchaseOrder> Response = Facade.ReadUnused(Keyword:externalPurchaseOrder.EPONo);
+            Assert.NotEqual(Response.Count, 0);
+        }
+
         //[Fact]
         //public async void Should_Success_Get_Data_Posted()
         //{
