@@ -97,13 +97,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
                         }
                         if (Item.quantity > itemCreate.Quantity && itemCreate.Id == Item._id)
                         {
-                            yield return new ValidationResult("Jumlah tidak boleh lebih dari (Quantity)", new List<string> { "itemscount" });
+                            yield return new ValidationResult("Jumlah Pecah PO Tidak Boleh Lebih dari Jumlah Awal", new List<string> { "itemscount" });
                             j += 1;
                             k = 0;
                         }
                     }
                 }
-                if (k >= 1 && j == 0 && this.items.Count == n)
+                if (k >= n && j == 0 && this.items.Count == n)
                 {
                     yield return new ValidationResult("Data belum ada yang diubah", new List<string> { "itemscount" });
                 }
