@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180628042221_BankExpenditureNote")]
+    partial class BankExpenditureNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,12 +409,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("ReceiptQuantity");
 
-                    b.Property<string>("UnitCode")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("UnitId")
-                        .HasMaxLength(255);
-
                     b.Property<string>("UomId")
                         .HasMaxLength(255);
 
@@ -480,130 +475,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("DeliveryOrderItems");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Expedition.PPHBankExpenditureNote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<string>("BGNo");
-
-                    b.Property<string>("BankAccountName");
-
-                    b.Property<string>("BankAccountNumber");
-
-                    b.Property<string>("BankCode");
-
-                    b.Property<string>("BankId");
-
-                    b.Property<string>("BankName");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("Currency");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("IncomeTaxId");
-
-                    b.Property<string>("IncomeTaxName");
-
-                    b.Property<double>("IncomeTaxRate");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<string>("No");
-
-                    b.Property<double>("TotalDPP");
-
-                    b.Property<double>("TotalIncomeTax");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PPHBankExpenditureNotes");
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Expedition.PPHBankExpenditureNoteItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<int>("PPHBankExpenditureNoteId");
-
-                    b.Property<int>("PurchasingDocumentExpeditionId");
-
-                    b.Property<string>("UnitPaymentOrderNo");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PPHBankExpenditureNoteId");
-
-                    b.HasIndex("PurchasingDocumentExpeditionId");
-
-                    b.ToTable("PPHBankExpenditureNoteItems");
-                });
-
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Expedition.PurchasingDocumentExpedition", b =>
                 {
                     b.Property<int>("Id")
@@ -616,14 +487,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<DateTimeOffset?>("BankExpenditureNoteDate");
-
                     b.Property<string>("BankExpenditureNoteNo")
                         .HasMaxLength(255);
-
-                    b.Property<DateTimeOffset?>("BankExpenditureNotePPHDate");
-
-                    b.Property<string>("BankExpenditureNotePPHNo");
 
                     b.Property<string>("CashierDivisionBy")
                         .HasMaxLength(255);
@@ -1637,19 +1502,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel.DeliveryOrder", "DeliveryOrder")
                         .WithMany("Items")
                         .HasForeignKey("DOId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Expedition.PPHBankExpenditureNoteItem", b =>
-                {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.Expedition.PPHBankExpenditureNote", "PPHBankExpenditureNote")
-                        .WithMany("Items")
-                        .HasForeignKey("PPHBankExpenditureNoteId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.Expedition.PurchasingDocumentExpedition", "PurchasingDocumentExpedition")
-                        .WithMany()
-                        .HasForeignKey("PurchasingDocumentExpeditionId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
