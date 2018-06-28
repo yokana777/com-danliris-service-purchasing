@@ -47,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 IncomeTax = 20000,
                 Vat = 100000,
                 IncomeTaxId = "IncomeTaxId",
+                IncomeTaxName = "IncomeTaxName",
                 IncomeTaxRate = 2,
                 TotalPaid = 1000000,
                 Currency = "IDR",
