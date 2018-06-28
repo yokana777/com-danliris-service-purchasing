@@ -1,11 +1,12 @@
-﻿using Com.Moonlay.NetCore.Lib.Service;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.Moonlay.NetCore.Lib.Service;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Services
 {
-    public class ValidateService
+    public class ValidateService : IValidateService
     {
         private readonly IServiceProvider serviceProvider;
 
