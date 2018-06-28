@@ -117,5 +117,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             }
         }
 
+        [HttpGet("no-select/by-position")]
+        public ActionResult GetAllCashierPosition(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            Tuple<List<object>, int, Dictionary<string, string>> Data = purchasingDocumentExpeditionFacade.GetAllByPosition(page, size, order, keyword, filter);
+
+            return Ok(new
+            {
+                apiVersion = "1.0.0",
+                data = Data.Item1,
+                info = new Dictionary<string, object>
+                {
+                    { "count", Data.Item1.Count },
+                    { "total", Data.Item2 },
+                    { "order", Data.Item3 },
+                    { "page", page },
+                    { "size", size }
+                },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
+        }
+
     }
 }
