@@ -69,6 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddScoped<IdentityService>()
+                .AddScoped<ValidateService>()
                 .AddScoped<IValidateService, ValidateService>();
 
             if (isTest == false)
