@@ -24,6 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
                         PRId = item.PRId,
                         PRNo = item.PRNo,
                         PRItemId = detail.PRItemId,
+                        UnitId = item.UnitId,
+                        UnitCode = item.UnitCode,
                         ProductId = detail.ProductId,
                         ProductCode = detail.ProductCode,
                         ProductName = detail.ProductName,
@@ -54,6 +56,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
                             {
                                 _id = item.PRId,
                                 no = item.PRNo,
+                                unit = new UnitViewModel
+                                {
+                                    _id = item.UnitId,
+                                    code = item.UnitCode,
+                                }
                             }
                         },
                         PRItemId = detail.PRItemId,

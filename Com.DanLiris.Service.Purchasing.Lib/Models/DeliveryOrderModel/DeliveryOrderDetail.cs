@@ -15,7 +15,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel
         [MaxLength(255)]
         public string PRNo { get; set; }
         public long PRItemId { get; set; }
-        /*product*/
+
+        /* Unit */
+        [MaxLength(255)]
+        public string UnitId { get; set; }
+        [MaxLength(255)]
+        public string UnitCode { get; set; }
+
+        /* Product */
         [MaxLength(255)]
         public string ProductId { get; set; }
         [MaxLength(255)]
@@ -27,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel
         public double DOQuantity { get; set; }
         public double DealQuantity { get; set; }
 
+        /* UOM */
         [MaxLength(255)]
         public string UomId { get; set; }
         [MaxLength(1000)]
