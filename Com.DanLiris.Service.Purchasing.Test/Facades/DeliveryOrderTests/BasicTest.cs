@@ -52,8 +52,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         [Fact]
         public async void Should_Success_Get_Data()
         {
-            await DataUtil.GetTestData(USERNAME);
-            Tuple<List<DeliveryOrder>, int, Dictionary<string, string>> Response = Facade.Read();
+            var model = await DataUtil.GetTestData(USERNAME);
+            Tuple<List<DeliveryOrder>, int, Dictionary<string, string>> Response = Facade.Read(Keyword:model.DONo);
             Assert.NotEqual(Response.Item1.Count, 0);
         }
 
@@ -73,17 +73,61 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             {
                 foreach (var detail in item.Details)
                 {
-                    detail.DOQuantity -= 1; 
+                    detail.DOQuantity -= 1;
                 }
             }
             var Response = await Facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(Response, 0);
 
-            var newModelForAddDetail = await DataUtil.GetNewData(USERNAME);
-            DeliveryOrderDetail newModelDetail = newModelForAddDetail.Items.FirstOrDefault().Details.FirstOrDefault();
-            model.Items.FirstOrDefault().Details.Add(newModelDetail);
-            var ResponseAddDetail = await Facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAddDetail, 0);
+            DeliveryOrderItem oldItem = model.Items.FirstOrDefault();
+            DeliveryOrderDetail oldDetail = oldItem.Details.FirstOrDefault();
+            DeliveryOrderItem newDuplicateItem = new DeliveryOrderItem
+            {
+                EPOId = oldItem.EPOId,
+                EPONo = oldItem.EPONo,
+                Details = new List<DeliveryOrderDetail>()
+            };
+            DeliveryOrderDetail oldDuplicateDetail = new DeliveryOrderDetail
+            {
+                EPODetailId = oldDetail.EPODetailId,
+                POItemId = oldDetail.POItemId,
+                PRId = oldDetail.PRId,
+                PRNo = oldDetail.PRNo,
+                PRItemId = oldDetail.PRItemId,
+                ProductId = oldDetail.ProductId,
+                ProductCode = oldDetail.ProductCode,
+                ProductName = oldDetail.ProductName,
+                ProductRemark = oldDetail.ProductRemark,
+                DOQuantity = oldDetail.DOQuantity,
+                DealQuantity = oldDetail.DealQuantity,
+                UomId = oldDetail.UomId,
+                UomUnit = oldDetail.UomUnit,
+                ReceiptQuantity = oldDetail.ReceiptQuantity,
+                IsClosed = oldDetail.IsClosed,
+            };
+            DeliveryOrderDetail newDuplicateDetail = new DeliveryOrderDetail
+            {
+                EPODetailId = oldDetail.EPODetailId,
+                POItemId = oldDetail.POItemId,
+                PRId = oldDetail.PRId,
+                PRNo = oldDetail.PRNo,
+                PRItemId = oldDetail.PRItemId,
+                ProductId = "PrdId2",
+                ProductCode = "PrdCode2",
+                ProductName = "PrdName2",
+                ProductRemark = oldDetail.ProductRemark,
+                DOQuantity = oldDetail.DOQuantity,
+                DealQuantity = oldDetail.DealQuantity,
+                UomId = oldDetail.UomId,
+                UomUnit = oldDetail.UomUnit,
+                ReceiptQuantity = oldDetail.ReceiptQuantity,
+                IsClosed = oldDetail.IsClosed,
+            };
+            newDuplicateItem.Details.Add(oldDuplicateDetail);
+            newDuplicateItem.Details.Add(newDuplicateDetail);
+            model.Items.Add(newDuplicateItem);
+            var ResponseAddDuplicateItem = await Facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAddDuplicateItem, 0);
 
             var newModelForAddItem = await DataUtil.GetNewData(USERNAME);
             DeliveryOrderItem newModelItem = newModelForAddItem.Items.FirstOrDefault();
@@ -92,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             Assert.NotEqual(ResponseAddItem, 0);
 
             model.Items.Remove(newModelItem);
-            model.Items.FirstOrDefault().Details.Remove(newModelDetail);
+            model.Items.FirstOrDefault().Details.Remove(oldDetail);
             var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseRemoveItemDetail, 0);
         }

@@ -30,6 +30,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
             CreateMap<DeliveryOrderDetail, DeliveryOrderFulFillMentViewModel>()
                 .ForPath(d => d.purchaseOrder.purchaseRequest._id, opt => opt.MapFrom(s => s.PRId))
                 .ForPath(d => d.purchaseOrder.purchaseRequest.no, opt => opt.MapFrom(s => s.PRNo))
+                /*Unit*/
+                .ForPath(d => d.purchaseOrder.purchaseRequest.unit._id, opt => opt.MapFrom(s => s.UnitId))
+                .ForPath(d => d.purchaseOrder.purchaseRequest.unit.code, opt => opt.MapFrom(s => s.UnitCode))
                 /*Product*/
                 .ForPath(d => d.product._id, opt => opt.MapFrom(s => s.ProductId))
                 .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))

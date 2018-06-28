@@ -44,6 +44,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public bool IsPaid { get; set; }
         public bool IsPaidPPH { get; set; }
         public string BankExpenditureNoteNo { get; set; }
+        public DateTimeOffset? BankExpenditureNoteDate { get; set; }
+        public string BankExpenditureNotePPHNo { get; set; }
+        public DateTimeOffset? BankExpenditureNotePPHDate { get; set; }
         public virtual ICollection<PurchasingDocumentExpeditionItem> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
