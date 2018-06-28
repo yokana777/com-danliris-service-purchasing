@@ -99,12 +99,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DeliveryOrderCon
         {
             try
             {
-                DeliveryOrder model = facade.ReadById(id);
-                DeliveryOrderViewModel viewModel = mapper.Map<DeliveryOrderViewModel>(model);
+                var result = facade.ReadById(id);
+                DeliveryOrderViewModel viewModel = mapper.Map<DeliveryOrderViewModel>(result.Item1);
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
                 }
+
+                viewModel.unitReceiptNoteIds = result.Item2;
 
                 return Ok(new
                 {
