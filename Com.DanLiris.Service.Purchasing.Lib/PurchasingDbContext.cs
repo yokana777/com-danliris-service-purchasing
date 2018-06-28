@@ -45,7 +45,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<DeliveryOrder> DeliveryOrders { get; set; }
         public DbSet<DeliveryOrderItem> DeliveryOrderItems { get; set; }
         public DbSet<DeliveryOrderDetail> DeliveryOrderDetails { get; set; }
-        public object PPHBankExpenditureNoteItems { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
