@@ -28,5 +28,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel
     {
         public long _id { get; set; }
         public string no { get; set; }
+        public UnitViewModel unit { get; set; }
     }
 }

@@ -456,6 +456,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             Id = i.Id,
                             PRId = i.PRId,
                             PRNo = i.PRNo,
+                            UnitId = i.UnitId,
+                            UnitCode = i.UnitCode,
+                            UnitName = i.UnitName,
                             Details = i.Details
                                 .Where(d => d.DOQuantity < d.DealQuantity && d.IsDeleted == false)
                                 .Select(d => new ExternalPurchaseOrderDetail

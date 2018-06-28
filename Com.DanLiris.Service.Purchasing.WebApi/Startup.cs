@@ -56,6 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
@@ -70,7 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddScoped<IdentityService>()
-                .AddScoped<ValidateService>();
+                .AddScoped<ValidateService>()
+                .AddScoped<IValidateService, ValidateService>();
 
             if (isTest == false)
             {

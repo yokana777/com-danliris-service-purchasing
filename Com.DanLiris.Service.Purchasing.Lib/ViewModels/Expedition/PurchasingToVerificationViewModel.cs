@@ -99,6 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     IncomeTax = unitPaymentOrder.IncomeTax,
                     Vat = unitPaymentOrder.Vat,
                     IncomeTaxId = unitPaymentOrder.IncomeTaxId,
+                    IncomeTaxName = unitPaymentOrder.IncomeTaxName,
                     IncomeTaxRate = unitPaymentOrder.IncomeTaxRate,
                     TotalPaid = unitPaymentOrder.TotalPaid,
                     Currency = unitPaymentOrder.Currency,

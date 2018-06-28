@@ -105,6 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public async Task<PurchasingDocumentExpedition> ReadModelById(int id)
         {
             return await this.dbContext.PurchasingDocumentExpeditions
+                .AsNoTracking()
                 .Include(p => p.Items)
                 .Where(d => d.Id.Equals(id) && d.IsDeleted.Equals(false))
                 .FirstOrDefaultAsync();
@@ -276,7 +277,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             };
 
                             EntityExtension.FlagForUpdate(model, username, "Facade");
-                            dbContext.Attach(model);
+                            //dbContext.Attach(model);
                             dbContext.Entry(model).Property(x => x.VerificationDivisionBy).IsModified = true;
                             dbContext.Entry(model).Property(x => x.VerificationDivisionDate).IsModified = true;
                             dbContext.Entry(model).Property(x => x.Position).IsModified = true;
@@ -305,7 +306,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             };
 
                             EntityExtension.FlagForUpdate(model, username, "Facade");
-                            dbContext.Attach(model);
+                            //dbContext.Attach(model);
                             dbContext.Entry(model).Property(x => x.CashierDivisionBy).IsModified = true;
                             dbContext.Entry(model).Property(x => x.CashierDivisionDate).IsModified = true;
                             dbContext.Entry(model).Property(x => x.Position).IsModified = true;
