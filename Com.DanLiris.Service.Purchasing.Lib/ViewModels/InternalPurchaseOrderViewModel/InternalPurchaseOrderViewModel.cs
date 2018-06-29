@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
                     .Where(t => t.POId.Equals(s.Id) && t.Quantity != 0)
                     .ToList()
                     })
-                .FirstOrDefault(p => p.PRNo == this.prNo);
+                .FirstOrDefault(p => p.PRNo == this.prNo && p.PONo == this.poNo);
                 ;
                 var n = dbContext.InternalPurchaseOrderItems.Count(pr => pr.POId == NewData.Id && pr.Quantity!=0 && !pr.IsDeleted);
                 var j = 0;
