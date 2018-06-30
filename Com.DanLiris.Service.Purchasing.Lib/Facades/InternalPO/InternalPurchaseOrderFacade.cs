@@ -526,6 +526,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                 }
                             }
                         }
+                        internalPurchaseOrder.Id = 0;
                         internalPurchaseOrder.PONo = await this.GeneratePONo(UpdateData);
                         internalPurchaseOrder.Active = UpdateData.Active;
                         internalPurchaseOrder.BudgetCode = UpdateData.BudgetCode;
