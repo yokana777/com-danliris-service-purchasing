@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -76,13 +77,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public DeliveryOrder ReadById(int id)
+        public Tuple<DeliveryOrder, List<long>> ReadById(int id)
         {
             var Result = dbSet.Where(m => m.Id == id)
                 .Include(m => m.Items)
                     .ThenInclude(i => i.Details)
                 .FirstOrDefault();
-            return Result;
+
+            List<long> unitReceiptNoteIds = dbContext.UnitReceiptNotes.Where(m => m.DOId == id && m.IsDeleted == false).Select(m => m.Id).ToList();
+
+            return Tuple.Create(Result, unitReceiptNoteIds);
         }
 
         public async Task<int> Create(DeliveryOrder model, string username)
@@ -139,33 +143,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                     if (existingModel != null && id == model.Id)
                     {
-
                         EntityExtension.FlagForUpdate(model, user, USER_AGENT);
 
-                        foreach (var item in model.Items)
+                        foreach (var item in model.Items.ToList())
                         {
+                            var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
+                            List<DeliveryOrderItem> duplicateDeliveryOrderItems = model.Items.Where(i => i.EPOId == item.EPOId && i.Id != item.Id).ToList();
+
                             if (item.Id == 0)
                             {
-                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
-
-                                foreach (var detail in item.Details)
+                                if (duplicateDeliveryOrderItems.Count <= 0)
                                 {
-                                    EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+                                    EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
-                                    ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
-                                    externalPurchaseOrderDetail.DOQuantity += detail.DOQuantity;
-                                    EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
-                                    SetStatus(externalPurchaseOrderDetail, detail, user);
-                                }
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
-
-                                var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
-                                foreach (var detail in item.Details)
-                                {
-                                    if (detail.Id == 0)
+                                    foreach (var detail in item.Details)
                                     {
                                         EntityExtension.FlagForCreate(detail, user, USER_AGENT);
 
@@ -174,16 +165,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                         EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
                                         SetStatus(externalPurchaseOrderDetail, detail, user);
                                     }
-                                    else
+                                }
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+
+                                if (duplicateDeliveryOrderItems.Count > 0)
+                                {
+                                    foreach (var detail in item.Details.ToList())
                                     {
-                                        EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+                                        if (detail.Id != 0)
+                                        {
+                                            EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
 
-                                        var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
+                                            foreach (var duplicateItem in duplicateDeliveryOrderItems.ToList())
+                                            {
+                                                foreach (var duplicateDetail in duplicateItem.Details.ToList())
+                                                {
+                                                    if (detail.ProductId.Equals(duplicateDetail.ProductId))
+                                                    {
+                                                        detail.DOQuantity += duplicateDetail.DOQuantity;
+                                                        detail.ProductRemark = String.Concat(detail.ProductRemark, Environment.NewLine, duplicateDetail.ProductRemark).Trim();
 
-                                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
-                                        externalPurchaseOrderDetail.DOQuantity = externalPurchaseOrderDetail.DOQuantity - existingDetail.DOQuantity + detail.DOQuantity;
-                                        EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
-                                        SetStatus(externalPurchaseOrderDetail, detail, user);
+                                                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
+                                                        var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
+                                                        externalPurchaseOrderDetail.DOQuantity = externalPurchaseOrderDetail.DOQuantity - existingDetail.DOQuantity + detail.DOQuantity;
+                                                        EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
+                                                        SetStatus(externalPurchaseOrderDetail, detail, user);
+                                                    }
+                                                    else if(item.Details.Count(d => d.ProductId.Equals(duplicateDetail.ProductId)) < 1)
+                                                    {
+                                                        EntityExtension.FlagForCreate(duplicateDetail, user, USER_AGENT);
+                                                        item.Details.Add(duplicateDetail);
+
+                                                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == duplicateDetail.EPODetailId);
+                                                        externalPurchaseOrderDetail.DOQuantity += duplicateDetail.DOQuantity;
+                                                        EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
+                                                        SetStatus(externalPurchaseOrderDetail, duplicateDetail, user);
+                                                    }
+                                                }
+                                                model.Items.Remove(duplicateItem);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var detail in item.Details)
+                                    {
+                                        if (detail.Id != 0)
+                                        {
+                                            EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+
+                                            var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
+
+                                            ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
+                                            externalPurchaseOrderDetail.DOQuantity = externalPurchaseOrderDetail.DOQuantity - existingDetail.DOQuantity + detail.DOQuantity;
+                                            EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
+                                            SetStatus(externalPurchaseOrderDetail, detail, user);
+                                        }
                                     }
                                 }
                             }

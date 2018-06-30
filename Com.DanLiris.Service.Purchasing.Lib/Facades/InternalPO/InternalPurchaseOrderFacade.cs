@@ -234,6 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     PRDate = s.PRDate,
                     LastModifiedUtc = s.LastModifiedUtc,
                     PRId = s.PRId,
+                    Remark = s.Remark,
                     Items = s.Items
                     .Select(
                         q => new InternalPurchaseOrderItem
@@ -342,6 +343,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 PRDate = s.PRDate,
                 LastModifiedUtc = s.LastModifiedUtc,
                 PRId= s.PRId,
+                Remark = s.Remark,
                 Items = s.Items
                     .Select(
                         q => new InternalPurchaseOrderItem

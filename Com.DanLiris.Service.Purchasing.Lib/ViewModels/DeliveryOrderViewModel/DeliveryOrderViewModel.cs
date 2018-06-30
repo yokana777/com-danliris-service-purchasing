@@ -19,6 +19,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel
         public bool isClosed { get; set; }
         public List<DeliveryOrderItemViewModel> items { get; set; }
 
+        public List<long> unitReceiptNoteIds { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if(string.IsNullOrWhiteSpace(no))
@@ -66,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel
                         itemErrorCount++;
                         itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
                     }
-                    else if (items.Count(i => i.purchaseOrderExternal._id == item.purchaseOrderExternal._id) > 1)
+                    else if (items.Count(i => i.purchaseOrderExternal._id == item.purchaseOrderExternal._id) > 1 && _id == 0)
                     {
                         itemErrorCount++;
                         itemError += "purchaseOrderExternal: 'Data sudah ada', ";
