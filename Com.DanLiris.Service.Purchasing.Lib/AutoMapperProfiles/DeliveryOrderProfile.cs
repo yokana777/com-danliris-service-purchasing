@@ -1,14 +1,15 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    public class DeliveryOrderProfile : BaseAutoMapperProfile
+    public class DeliveryOrderProfile : Profile
     {
         public DeliveryOrderProfile()
         {
             CreateMap<DeliveryOrder, DeliveryOrderViewModel>()
+                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.no, opt => opt.MapFrom(s => s.DONo))
                 .ForMember(d => d.supplierDoDate, opt => opt.MapFrom(s => s.DODate))
                 .ForMember(d => d.date, opt => opt.MapFrom(s => s.ArrivalDate))
@@ -22,12 +23,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<DeliveryOrderItem, DeliveryOrderItemViewModel>()
+                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForPath(d => d.purchaseOrderExternal._id, opt => opt.MapFrom(s => s.EPOId))
                 .ForPath(d => d.purchaseOrderExternal.no, opt => opt.MapFrom(s => s.EPONo))
                 .ForMember(d => d.fulfillments, opt => opt.MapFrom(s => s.Details))
                 .ReverseMap();
 
             CreateMap<DeliveryOrderDetail, DeliveryOrderFulFillMentViewModel>()
+                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForPath(d => d.purchaseOrder.purchaseRequest._id, opt => opt.MapFrom(s => s.PRId))
                 .ForPath(d => d.purchaseOrder.purchaseRequest.no, opt => opt.MapFrom(s => s.PRNo))
                 /*Unit*/
