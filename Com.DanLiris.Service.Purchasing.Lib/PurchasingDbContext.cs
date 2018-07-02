@@ -10,7 +10,6 @@ using System.Linq;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -48,13 +47,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<DeliveryOrderItem> DeliveryOrderItems { get; set; }
         public DbSet<DeliveryOrderDetail> DeliveryOrderDetails { get; set; }
 
-        public DbSet<UnitPaymentOrder> UnitPaymentOrders { get; set; }
-        public DbSet<UnitPaymentOrderItem> UnitPaymentOrderItems { get; set; }
-        public DbSet<UnitPaymentOrderDetail> UnitPaymentOrderDetails { get; set; }
-
         public DbSet<UnitPaymentCorrectionNote> UnitPaymentCorrectionNotes { get; set; }
         public DbSet<UnitPaymentCorrectionNoteItem> UnitPaymentCorrectionNoteItems { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

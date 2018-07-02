@@ -1,15 +1,18 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewModel;
+using Com.Moonlay.Models;
+using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    public class PurchaseRequestProfile : Profile
+    public class PurchaseRequestProfile : BaseAutoMapperProfile
     {
         public PurchaseRequestProfile()
         {
             CreateMap<PurchaseRequestItem, PurchaseRequestItemViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForPath(d => d.product._id, opt => opt.MapFrom(s => s.ProductId))
                 .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))
                 .ForPath(d => d.product.name, opt => opt.MapFrom(s => s.ProductName))
@@ -18,7 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<PurchaseRequest, PurchaseRequestViewModel>()
-                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 /* Budget */
                 .ForPath(d => d.budget._id, opt => opt.MapFrom(s => s.BudgetId))
                 .ForPath(d => d.budget.code, opt => opt.MapFrom(s => s.BudgetCode))
