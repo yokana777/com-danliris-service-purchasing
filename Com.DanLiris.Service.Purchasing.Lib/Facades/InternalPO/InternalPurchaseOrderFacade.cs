@@ -264,11 +264,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             DateTime Now = DateTime.Now;
             string Year = Now.ToString("yy");
             string Month = Now.ToString("MM");
+            string YearCreated = model.CreatedUtc.ToString("yy");
+            string MonthCreated = model.CreatedUtc.ToString("MM");
             var lastInternalPurchaseNo = new InternalPurchaseOrder();
-            string internalPurchaseNo = Year + Month;
+            string internalPurchaseDate = Year + Month;
+            string CreatedDate = YearCreated + MonthCreated;
+            string internalPurchaseNo = "PO" + model.UnitCode + internalPurchaseDate;
             //string Check_internalPurchaseNo = "PO" + model.UnitCode + internalPurchaseNo;
-            
-            if (model.PONo != null)
+
+            if (model.PONo != null && internalPurchaseDate == CreatedDate)
             {
                 lastInternalPurchaseNo = await this.dbSet.Where(w => w.PONo.StartsWith(model.PONo)).OrderByDescending(o => o.PONo).FirstOrDefaultAsync();
             }
@@ -284,7 +288,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             }
             else
             {
-                internalPurchaseNo = "PO" + model.UnitCode + internalPurchaseNo;
                 int lastNo = Int32.Parse(lastInternalPurchaseNo.PONo.Replace(internalPurchaseNo, "")) + 1;
                 return internalPurchaseNo + lastNo.ToString().PadLeft(Padding, '0');
             }
@@ -300,7 +303,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
                     m.PONo = await this.GeneratePONo(m);
-                    m.PONo = "PO" + m.UnitCode + m.PONo;
                     foreach (var item in m.Items)
                     {
                         item.Status = "PO Internal belum diorder";
