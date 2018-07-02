@@ -142,30 +142,137 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             {
                 try
                 {
-                    var m = this.dbSet.AsNoTracking()
+                    var existingModel = this.dbSet.AsNoTracking()
                         .Include(d => d.Items)
                         .ThenInclude(d=>d.Details)
                         .Single(epo => epo.Id == id && !epo.IsDeleted);
 
-                    if (m != null)
+                    if (existingModel != null && id == externalPurchaseOrder.Id)
                     {
-
                         EntityExtension.FlagForUpdate(externalPurchaseOrder, user, "Facade");
 
-                        foreach (var item in externalPurchaseOrder.Items)
+                        foreach (var item in externalPurchaseOrder.Items.ToList())
                         {
-                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                            var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
+                            List<ExternalPurchaseOrderItem> duplicateExternalPurchaseOrderItems = externalPurchaseOrder.Items.Where(i => i.POId == item.POId && i.Id != item.Id).ToList();
 
-                            foreach(var detail in item.Details)
+                            if (item.Id == 0)
                             {
-                                detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
-                                EntityExtension.FlagForUpdate(detail, user, "Facade");
+                                if (duplicateExternalPurchaseOrderItems.Count <= 0)
+                                {
+
+                                    EntityExtension.FlagForCreate(item, user, "Facade");
+
+                                    foreach (var detail in item.Details)
+                                    {
+                                        detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
+                                        EntityExtension.FlagForCreate(detail, user, "Facade");
+                                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                                        purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+
+                                        InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
+                                        internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(item, user, "Facade");
+
+                                if (duplicateExternalPurchaseOrderItems.Count > 0)
+                                {
+                                    foreach (var detail in item.Details.ToList())
+                                    {
+                                        if (detail.Id != 0)
+                                        {
+                                            EntityExtension.FlagForUpdate(detail, user, "Facade");
+
+                                            foreach (var duplicateItem in duplicateExternalPurchaseOrderItems.ToList())
+                                            {
+                                                foreach (var duplicateDetail in duplicateItem.Details.ToList())
+                                                {
+                                                    if (detail.ProductId.Equals(duplicateDetail.ProductId))
+                                                    {
+                                                        detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
+                                                    }
+                                                    else if (item.Details.Count(d => d.ProductId.Equals(duplicateDetail.ProductId)) < 1)
+                                                    {
+                                                        EntityExtension.FlagForCreate(duplicateDetail, user, "Facade");
+                                                        item.Details.Add(duplicateDetail);
+                                                        detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
+                                                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                                                        purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+
+                                                        InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
+                                                        internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
+                                                    }
+                                                }
+                                                externalPurchaseOrder.Items.Remove(duplicateItem);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var detail in item.Details)
+                                    {
+                                        if (detail.Id != 0)
+                                        {
+                                            EntityExtension.FlagForUpdate(detail, user, "Facade");
+                                            detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
+
+                                        }
+                                    }
+                                }
                             }
                         }
 
                         this.dbContext.Update(externalPurchaseOrder);
+
+                        foreach (var existingItem in existingModel.Items)
+                        {
+                            var newItem = externalPurchaseOrder.Items.FirstOrDefault(i => i.Id == existingItem.Id);
+                            if (newItem == null)
+                            {
+                                EntityExtension.FlagForDelete(existingItem, user, "Facade");
+                                InternalPurchaseOrder internalPurchaseOrder = this.dbContext.InternalPurchaseOrders.FirstOrDefault(s => s.Id == existingItem.POId);
+                                internalPurchaseOrder.IsPosted = false;
+                                this.dbContext.ExternalPurchaseOrderItems.Update(existingItem);
+                                foreach (var existingDetail in existingItem.Details)
+                                {
+                                    EntityExtension.FlagForDelete(existingDetail, user, "Facade");
+                                    PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
+                                    purchaseRequestItem.Status = "Sudah diterima Pembelian";
+
+                                    InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == existingDetail.POItemId);
+                                    internalPurchaseOrderItem.Status = "PO Internal belum diorder";
+                                    this.dbContext.ExternalPurchaseOrderDetails.Update(existingDetail);
+                                }
+                            }
+                            else
+                            {
+                                foreach (var existingDetail in existingItem.Details)
+                                {
+                                    var newDetail = newItem.Details.FirstOrDefault(d => d.Id == existingDetail.Id);
+                                    if (newDetail == null)
+                                    {
+                                        EntityExtension.FlagForDelete(existingDetail, user, "Facade");
+                                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
+                                        purchaseRequestItem.Status = "Sudah diterima Pembelian";
+
+                                        InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == existingDetail.POItemId);
+                                        internalPurchaseOrderItem.Status = "PO Internal belum diorder";
+                                        this.dbContext.ExternalPurchaseOrderDetails.Update(existingDetail);
+
+                                    }
+                                }
+                            }
+                        }
+
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
+                        
                     }
                     else
                     {
