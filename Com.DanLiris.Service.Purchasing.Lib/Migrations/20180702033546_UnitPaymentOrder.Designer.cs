@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180702033546_UnitPaymentOrder")]
+    partial class UnitPaymentOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1844,9 +1845,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<long>("PRId");
+                    b.Property<long>("POId");
 
-                    b.Property<long>("PRItemId");
+                    b.Property<long>("PRDetailId");
+
+                    b.Property<long>("PRId");
 
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);

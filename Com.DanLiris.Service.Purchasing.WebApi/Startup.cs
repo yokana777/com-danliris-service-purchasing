@@ -66,7 +66,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
-                .AddTransient<UnitReceiptNoteFacade>();
+                .AddTransient<UnitReceiptNoteFacade>()
+                .AddTransient<UnitPaymentOrderFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
