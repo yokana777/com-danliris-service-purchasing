@@ -28,6 +28,8 @@ using Xunit;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -106,6 +108,10 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<DeliveryOrderDataUtil>()
                 .AddTransient<DeliveryOrderItemDataUtil>()
                 .AddTransient<DeliveryOrderDetailDataUtil>()
+
+                .AddTransient<UnitReceiptNoteFacade>()
+                .AddTransient<UnitReceiptNoteDataUtil>()
+                .AddTransient<UnitReceiptNoteItemDataUtil>()
 
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
