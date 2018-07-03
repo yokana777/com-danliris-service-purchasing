@@ -42,6 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                 prItemId= doDetail[0].PRItemId,
                 doDetailId= doDetail[0].Id,
                 deliveredQuantity= doDetail[0].DOQuantity,
+                epoDetailId=doDetail[0].EPODetailId,
                 product = new ProductViewModel
                 {
                     _id = "ProductId",

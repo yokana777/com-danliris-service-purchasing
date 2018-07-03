@@ -1,13 +1,14 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    public class UnitReceiptNoteProfile : BaseAutoMapperProfile
+    public class UnitReceiptNoteProfile : Profile
     {
         public UnitReceiptNoteProfile()
         {

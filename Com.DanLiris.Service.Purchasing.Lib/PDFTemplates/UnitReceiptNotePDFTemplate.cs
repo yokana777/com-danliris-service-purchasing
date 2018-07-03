@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.draw;

@@ -60,6 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                     _id = deliveryOrder.SupplierId,
                     code = deliveryOrder.SupplierCode,
                     name = deliveryOrder.SupplierName,
+                    import=true
                 },
                 unit = new UnitViewModel
                 {
@@ -73,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                         name = "DivisionName",
                     }
                 },
-                
+                doNo=deliveryOrder.DONo,
                 remark = "test",
                 items = new List<UnitReceiptNoteItemViewModel> { unitReceiptNoteItemDataUtil.GetNewDataViewModel(doItem) }
             };
