@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public List<UnitReceiptNoteItemViewModel> items { get; set; }
 
         public bool isStorage { get; set; }
+        public string remark { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -28,10 +29,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
                 yield return new ValidationResult("Date is required", new List<string> { "date" });
             }
             
-            if (this.supplier == null)
-            {
-                yield return new ValidationResult("Budget is required", new List<string> { "budget" });
-            }
             else
             {
                 if (this.no == "" || this.no ==null)
@@ -49,9 +46,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
             }
             if (this.unit == null)
             {
-                yield return new ValidationResult("Unit is required", new List<string> { "unit" });
+                yield return new ValidationResult("Unit is required", new List<string> { "unitId" });
             }
-            
+            if (this.supplier == null)
+            {
+                yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
+            }
 
             int itemErrorCount = 0;
 

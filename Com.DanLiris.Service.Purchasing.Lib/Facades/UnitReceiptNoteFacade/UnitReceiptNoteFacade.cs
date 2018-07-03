@@ -127,18 +127,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
                             {
-                                prItem.Status = "Barang sudah diterima Unit parsial";
+                                //prItem.Status = "Barang sudah diterima Unit parsial";
                                 poItem.Status = "Barang sudah diterima Unit parsial";
                             }
                             else
                             {
-                                prItem.Status = "Barang sudah diterima Unit semua";
+                                //prItem.Status = "Barang sudah diterima Unit semua";
                                 poItem.Status = "Barang sudah diterima Unit semua";
                             }
                         }
                         else
                         {
-                            prItem.Status = "Barang sudah diterima Unit parsial";
+                            //prItem.Status = "Barang sudah diterima Unit parsial";
                             poItem.Status = "Barang sudah diterima Unit parsial";
                         }
                         
@@ -192,18 +192,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                 {
                                     if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
                                     {
-                                        prItem.Status = "Barang sudah diterima Unit parsial";
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
                                         poItem.Status = "Barang sudah diterima Unit parsial";
                                     }
                                     else
                                     {
-                                        prItem.Status = "Barang sudah diterima Unit semua";
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
                                         poItem.Status = "Barang sudah diterima Unit semua";
                                     }
                                 }
                                 else
                                 {
-                                    prItem.Status = "Barang sudah diterima Unit parsial";
+                                    //prItem.Status = "Barang sudah diterima Unit parsial";
                                     poItem.Status = "Barang sudah diterima Unit parsial";
                                 }
                             }
@@ -230,12 +230,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                 {
                                     if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                                     {
-                                        prItem.Status = "Barang sudah diterima Unit semua";
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
                                         poItem.Status = "Barang sudah diterima Unit semua";
                                     }
                                     else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
                                     {
-                                        prItem.Status = "Barang sudah diterima Unit parsial";
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
                                         poItem.Status = "Barang sudah diterima Unit parsial";
                                     }
                                 }
@@ -245,12 +245,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                     {
                                         if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
                                         {
-                                            prItem.Status = "Barang sudah diterima Unit parsial";
+                                            //prItem.Status = "Barang sudah diterima Unit parsial";
                                             poItem.Status = "Barang sudah diterima Unit parsial";
                                         }
                                         else if (externalPurchaseOrderDetail.ReceiptQuantity >= externalPurchaseOrderDetail.DealQuantity)
                                         {
-                                            prItem.Status = "Barang sudah diterima Unit semua";
+                                            //prItem.Status = "Barang sudah diterima Unit semua";
                                             poItem.Status = "Barang sudah diterima Unit semua";
                                         }
                                     }
@@ -268,12 +268,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                 {
                                     if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                                     {
-                                        prItem.Status = "Barang sudah diterima Unit semua";
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
                                         poItem.Status = "Barang sudah diterima Unit semua";
                                     }
                                     else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
                                     {
-                                        prItem.Status = "Barang sudah diterima Unit parsial";
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
                                         poItem.Status = "Barang sudah diterima Unit parsial";
                                     }
                                 }
@@ -283,12 +283,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                     {
                                         if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
                                         {
-                                            prItem.Status = "Barang sudah diterima Unit parsial";
+                                            //prItem.Status = "Barang sudah diterima Unit parsial";
                                             poItem.Status = "Barang sudah diterima Unit parsial";
                                         }
                                         else if (externalPurchaseOrderDetail.ReceiptQuantity >= externalPurchaseOrderDetail.DealQuantity)
                                         {
-                                            prItem.Status = "Barang sudah diterima Unit semua";
+                                            //prItem.Status = "Barang sudah diterima Unit semua";
                                             poItem.Status = "Barang sudah diterima Unit semua";
                                         }
                                     }
@@ -345,12 +345,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             if (externalPurchaseOrderDetail.DOQuantity>0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                             {
-                                prItem.Status = "Barang sudah diterima Unit semua";
+                                //prItem.Status = "Barang sudah diterima Unit semua";
                                 poItem.Status = "Barang sudah diterima Unit semua";
                             }
                             else if(externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
                             {
-                                prItem.Status = "Barang sudah diterima Unit parsial";
+                                //prItem.Status = "Barang sudah diterima Unit parsial";
                                 poItem.Status = "Barang sudah diterima Unit parsial";
                             }
                         }
@@ -360,12 +360,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             {
                                 if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
                                 {
-                                    prItem.Status = "Barang sudah diterima Unit parsial";
+                                    //prItem.Status = "Barang sudah diterima Unit parsial";
                                     poItem.Status = "Barang sudah diterima Unit parsial";
                                 }
                                 else if (externalPurchaseOrderDetail.ReceiptQuantity >= externalPurchaseOrderDetail.DealQuantity)
                                 {
-                                    prItem.Status = "Barang sudah diterima Unit semua";
+                                    //prItem.Status = "Barang sudah diterima Unit semua";
                                     poItem.Status = "Barang sudah diterima Unit semua";
                                 }
                             }
