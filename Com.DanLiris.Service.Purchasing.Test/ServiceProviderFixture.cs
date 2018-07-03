@@ -28,6 +28,8 @@ using Xunit;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
@@ -109,6 +111,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<DeliveryOrderDataUtil>()
                 .AddTransient<DeliveryOrderItemDataUtil>()
                 .AddTransient<DeliveryOrderDetailDataUtil>()
+
+                .AddTransient<BankExpenditureNoteFacade>()
+                .AddTransient<BankExpenditureNoteDataUtil>()
 
                 .AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitReceiptNoteDataUtil>()
