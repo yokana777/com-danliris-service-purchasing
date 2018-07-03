@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -84,13 +85,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             Assert.NotEqual(Response, 0);
         }
 
-        [Fact]
-        public async void Should_Success_Update_Data()
-        {
-            ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
-        }
+        //[Fact]
+        //public async void Should_Success_Update_Data()
+        //{
+        //    ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+        //    var Response = await Facade.Update((int)model.Id, model, "Unit Test");
+        //    Assert.NotEqual(Response, 0);
+        //}
 
         [Fact]
         public async void Should_Success_Delete_Data()
@@ -106,5 +107,82 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         //    Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Update(0, new ExternalPurchaseOrder(), "Unit Test"));
         //    Assert.Equal(exception.Message, "Invalid Id");
         //}
+
+        [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.DealQuantity -= 1;
+                }
+            }
+            var Response = await Facade.Update((int)model.Id, model, "Unit test");
+            Assert.NotEqual(Response, 0);
+
+            ExternalPurchaseOrderItem oldItem = model.Items.FirstOrDefault();
+            ExternalPurchaseOrderDetail oldDetail = oldItem.Details.FirstOrDefault();
+            ExternalPurchaseOrderItem newDuplicateItem = new ExternalPurchaseOrderItem
+            {
+                POId= oldItem.POId,
+                PONo=oldItem.PONo,
+                PRId=oldItem.PRId,
+                PRNo=oldItem.PRNo,
+                UnitId=oldItem.UnitId,
+                UnitCode=oldItem.UnitCode,
+                UnitName=oldItem.UnitName,
+                Details = new List<ExternalPurchaseOrderDetail>()
+            };
+            ExternalPurchaseOrderDetail oldDuplicateDetail = new ExternalPurchaseOrderDetail
+            {
+                PRItemId = oldDetail.PRItemId,
+                ProductId = oldDetail.ProductId,
+                ProductCode = oldDetail.ProductCode,
+                ProductName = oldDetail.ProductName,
+                ProductRemark = oldDetail.ProductRemark,
+                DOQuantity = oldDetail.DOQuantity,
+                DealQuantity = oldDetail.DealQuantity,
+                DealUomId = oldDetail.DealUomId,
+                DealUomUnit = oldDetail.DealUomUnit,
+                ReceiptQuantity = oldDetail.ReceiptQuantity,
+                DefaultUomId=oldDetail.DefaultUomId,
+                DefaultUomUnit=oldDetail.DefaultUomUnit,
+                POItemId=oldDetail.POItemId
+            };
+            ExternalPurchaseOrderDetail newDuplicateDetail = new ExternalPurchaseOrderDetail
+            {
+                PRItemId = oldDetail.PRItemId,
+                ProductRemark = oldDetail.ProductRemark,
+                DOQuantity = oldDetail.DOQuantity,
+                DealQuantity = oldDetail.DealQuantity,
+                DealUomId = oldDetail.DealUomId,
+                DealUomUnit = oldDetail.DealUomUnit,
+                ReceiptQuantity = oldDetail.ReceiptQuantity,
+                DefaultUomId = oldDetail.DefaultUomId,
+                DefaultUomUnit = oldDetail.DefaultUomUnit,
+                POItemId = oldDetail.POItemId,
+                ProductId = "PrdId2",
+                ProductCode = "PrdCode2",
+                ProductName = "PrdName2",
+            };
+            newDuplicateItem.Details.Add(oldDuplicateDetail);
+            newDuplicateItem.Details.Add(newDuplicateDetail);
+            model.Items.Add(newDuplicateItem);
+            var ResponseAddDuplicateItem = await Facade.Update((int)model.Id, model, "Unit test");
+            Assert.NotEqual(ResponseAddDuplicateItem, 0);
+
+            var newModelForAddItem = await DataUtil.GetNewData("Unit test");
+            ExternalPurchaseOrderItem newModelItem = newModelForAddItem.Items.FirstOrDefault();
+            model.Items.Add(newModelItem);
+            var ResponseAddItem = await Facade.Update((int)model.Id, model, "Unit test");
+            Assert.NotEqual(ResponseAddItem, 0);
+
+            model.Items.Remove(newModelItem);
+            model.Items.FirstOrDefault().Details.Remove(oldDetail);
+            var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, "Unit test");
+            Assert.NotEqual(ResponseRemoveItemDetail, 0);
+        }
     }
 }
