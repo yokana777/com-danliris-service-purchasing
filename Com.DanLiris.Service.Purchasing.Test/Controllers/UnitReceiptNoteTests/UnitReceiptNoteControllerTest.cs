@@ -18,7 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
     {
         private const string MediaType = "application/json";
         private const string MediaTypePdf = "application/pdf";
-        private readonly string URI = "v1/purchase-requests/by-user";
+        private readonly string URI = "v1/unit-receipt-notes/by-user";
 
         private TestServerFixture TestFixture { get; set; }
 
@@ -44,12 +44,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        //[Fact]
-        //public async Task Should_Success_Get_All_Data_With_Filter()
-        //{
-        //    var response = await this.Client.GetAsync(URI + "?filter={'UnitName':UnitName}");
-        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_All_Data_With_Filter()
+        {
+            var response = await this.Client.GetAsync(URI + "?filter={'UnitName':'UnitName'}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
 
         [Fact]
         public async Task Should_Success_Get_Data_By_Id()
@@ -81,15 +81,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        //[Fact]
-        //public async Task Should_Success_Create_Data()
-        //{
-        //    UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
-        //    HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
-        //    httpContent.Headers.Add("x-timezone-offset", "0");
-        //    var response = await this.Client.PostAsync(URI, httpContent);
-        //    Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        //}
+        [Fact]
+        public async Task Should_Success_Create_Data()
+        {
+            UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        }
 
         [Fact]
         public async Task Should_Error_Create_Invalid_Data()
