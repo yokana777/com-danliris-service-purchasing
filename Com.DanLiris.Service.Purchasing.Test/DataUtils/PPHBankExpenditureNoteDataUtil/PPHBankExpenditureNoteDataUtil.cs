@@ -52,6 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
 
             PPHBankExpenditureNote TestData = new PPHBankExpenditureNote()
             {
+                Date = DateTimeOffset.UtcNow,
                 BankAccountNumber = "100020003000",
                 BankAccountName = "BankAccountName",
                 BankCode = "BankCode",
