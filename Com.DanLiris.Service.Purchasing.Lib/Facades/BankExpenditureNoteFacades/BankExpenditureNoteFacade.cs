@@ -311,7 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             return Count;
         }
 
-        ReadResponse IBankExpenditureNoteFacade.GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
+        public ReadResponse GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
         {
             IQueryable<PurchasingDocumentExpedition> Query = dbContext.PurchasingDocumentExpeditions;
 
