@@ -211,5 +211,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             var response = await this.Client.DeleteAsync($"{URI}/0");
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_By_Supplier()
+        {
+            DeliveryOrder model = await DataUtil.GetTestData(USERNAME);
+            var response = await this.Client.GetAsync($"{URI}/by-supplier?unitId={model.Items.FirstOrDefault().Details.FirstOrDefault().UnitId}&supplierId={model.SupplierId}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }

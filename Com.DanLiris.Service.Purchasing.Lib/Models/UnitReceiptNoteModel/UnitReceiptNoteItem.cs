@@ -11,11 +11,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel
     {
         public long EPODetailId { get; set; }
         public long DODetailId { get; set; }
-        public long POId { get; set; }
         [MaxLength(255)]
         public string PRNo { get; set; }
         public long PRId { get; set; }
-        public long PRDetailId { get; set; }
+        public long PRItemId { get; set; }
 
         /* Product */
         [MaxLength(255)]

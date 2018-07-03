@@ -44,13 +44,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 DODate = s.DODate,
                 ArrivalDate = s.ArrivalDate,
                 SupplierName = s.SupplierName,
+                SupplierId=s.SupplierId,
                 IsClosed = s.IsClosed,
                 CreatedBy = s.CreatedBy,
                 LastModifiedUtc = s.LastModifiedUtc,
                 Items = s.Items.Select(i => new DeliveryOrderItem
                 {
                     EPOId = i.EPOId,
-                    EPONo = i.EPONo
+                    EPONo = i.EPONo,
+                    Details=i.Details.ToList()
                 }).ToList()
             });
 
@@ -358,5 +360,68 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
         }
 
+        public List<DeliveryOrder> ReadBySupplier(string Keyword = null, string unitId="", string supplierId="")
+        {
+            IQueryable<DeliveryOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DONo", "SupplierName", "Items.EPONo"
+            };
+
+            Query = QueryHelper<DeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+
+            Query = Query
+                .Where(m => m.IsClosed == false && m.IsDeleted == false && m.SupplierId==supplierId)
+                .Select(s => new DeliveryOrder
+                {
+                    Id = s.Id,
+                    UId = s.UId,
+                    DONo = s.DONo,
+                    DODate = s.DODate,
+                    ArrivalDate = s.ArrivalDate,
+                    SupplierName = s.SupplierName,
+                    SupplierId = s.SupplierId,
+                    IsClosed = s.IsClosed,
+                    CreatedBy = s.CreatedBy,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    Items = s.Items.Select(i => new DeliveryOrderItem
+                    {
+                        EPOId = i.EPOId,
+                        EPONo = i.EPONo,
+                        DOId=i.DOId,
+                        Details = i.Details
+                                .Select(d => new DeliveryOrderDetail
+                                {
+                                    Id = d.Id,
+                                    POItemId = d.POItemId,
+                                    PRItemId = d.PRItemId,
+                                    PRId=d.PRId,
+                                    PRNo=d.PRNo,
+                                    ProductId = d.ProductId,
+                                    ProductCode = d.ProductCode,
+                                    ProductName = d.ProductName,
+                                    DealQuantity = d.DealQuantity,
+                                    DOQuantity = d.DOQuantity,
+                                    ProductRemark = d.ProductRemark,
+                                    UnitId=d.UnitId,
+                                    EPODetailId=d.EPODetailId,
+                                    DOItemId=d.DOItemId,
+                                    ReceiptQuantity=d.ReceiptQuantity,
+                                    UomId=d.UomId,
+                                    UomUnit=d.UomUnit
+                                }).Where(d=> d.UnitId==unitId)
+                                .ToList()
+                        })
+                        .Where(i => i.Details.Count > 0)
+                        .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
+
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            //Query = QueryHelper<DeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            return Query.ToList();
+        }
     }
 }
