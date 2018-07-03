@@ -48,6 +48,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                     _id = "ProductId",
                     code = "ProductCode",
                     name = "ProductName",
+                    uom= new UomViewModel
+                    {
+                        _id= doDetail[0].UomId,
+                        unit= "uom"
+                    }
                 },
                 uom= "uom",
                 uomId= doDetail[0].UomId

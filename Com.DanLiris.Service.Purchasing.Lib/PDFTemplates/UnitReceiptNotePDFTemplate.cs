@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeft.Phrase = new Phrase(item.product.uom.unit, normal_font);
                 tableContent.AddCell(cellLeft);
 
-                cellCenter.Phrase = new Phrase(item.productRemark, normal_font);
+                cellCenter.Phrase = new Phrase(item.prNo+"\n"+item.productRemark, normal_font);
                 tableContent.AddCell(cellCenter);
             }
 
