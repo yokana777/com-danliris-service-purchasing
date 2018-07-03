@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
     public class PPHBankExpenditureNoteViewModel : IValidatableObject
     {
         public int Id { get; set; }
+        public DateTimeOffset? Date { get; set; }
         public BankViewModel Bank { get; set; }
         public IncomeTaxExpeditionViewModel IncomeTax { get; set; }
         public string Currency { get; set; }
@@ -20,6 +21,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if (this.Date == null)
+            {
+                yield return new ValidationResult("Date is required", new List<string> { "Date" });
+            }
+            else if (this.Date > DateTimeOffset.UtcNow)
+            {
+                yield return new ValidationResult("Date must be lower or equal than today's date", new List<string> { "Date" });
+            }
+
             if (Bank == null)
             {
                 yield return new ValidationResult("Bank is required", new List<string> { "Bank" });
