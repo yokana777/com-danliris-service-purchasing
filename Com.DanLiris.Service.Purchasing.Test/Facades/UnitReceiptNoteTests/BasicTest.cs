@@ -56,23 +56,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotEqual(Response, 0);
         }
 
-        //[Fact]
-        //public async void Should_Success_Update_Data()
-        //{
-        //    UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
-
-        //    var Response = await Facade.Update((int)model.Id, model, "Unit Test");
-        //    Assert.NotEqual(Response, 0);
-
-        //    //UnitReceiptNoteItem modelItem = DataUtil.GetNewData("Unit Test").Items.FirstOrDefault();
-        //    //model.Items.Add(modelItem);
-        //    //var ResponseAddItem = await Facade.Update((int)model.Id, model, "Unit Test");
-        //    //Assert.NotEqual(ResponseAddItem, 0);
-
-        //    //model.Items.Remove(modelItem);
-        //    //var ResponseRemoveItem = await Facade.Update((int)model.Id, model, "Unit Test");
-        //    //Assert.NotEqual(ResponseRemoveItem, 0);
-        //}
+        [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
+            var Response = await Facade.Update((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
 
         [Fact]
         public async void Should_Success_Delete_Data()
@@ -80,6 +70,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");
             Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Create_Data_Null_Parameter()
+        {
+            Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Create(null, "Unit Test"));
+            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
         }
     }
 }

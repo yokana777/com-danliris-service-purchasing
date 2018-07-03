@@ -99,5 +99,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var Response = Facade.Delete((int)model.Id, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
+
+        //[Fact]
+        //public async void Should_Error_Update_Data_Invalid_Id()
+        //{
+        //    Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Update(0, new ExternalPurchaseOrder(), "Unit Test"));
+        //    Assert.Equal(exception.Message, "Invalid Id");
+        //}
     }
 }

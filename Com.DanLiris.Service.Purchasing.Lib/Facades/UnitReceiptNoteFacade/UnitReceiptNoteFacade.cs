@@ -224,6 +224,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             if (unitReceiptNoteItem == null)
                             {
                                 EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                                this.dbContext.UnitReceiptNoteItems.Update(item);
                                 doDetail.ReceiptQuantity -= item.ReceiptQuantity;
                                 externalPurchaseOrderDetail.ReceiptQuantity -= item.ReceiptQuantity;
                                 if (externalPurchaseOrderDetail.ReceiptQuantity == 0)
@@ -255,10 +256,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                         }
                                     }
                                 }
-                                this.dbContext.UnitReceiptNoteItems.Update(item);
                             }
                             else
                             {
+                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+
                                 doDetail.ReceiptQuantity -= unitReceiptNoteItem.ReceiptQuantity;
                                 externalPurchaseOrderDetail.ReceiptQuantity -= unitReceiptNoteItem.ReceiptQuantity;
 
@@ -293,7 +295,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                         }
                                     }
                                 }
-                                this.dbContext.UnitReceiptNoteItems.Update(item);
                             }
 
                         }
