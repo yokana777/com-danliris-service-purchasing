@@ -1,7 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel
 {
     public class UnitReceiptNoteItemViewModel
     {

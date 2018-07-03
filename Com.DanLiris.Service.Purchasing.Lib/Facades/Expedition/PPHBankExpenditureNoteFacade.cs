@@ -117,6 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 .Select(s => new PPHBankExpenditureNote
                 {
                     Id = s.Id,
+                    Date = s.Date,
                     No = s.No,
                     CreatedUtc = s.CreatedUtc,
                     BankAccountName = s.BankAccountName,
@@ -144,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                Data.Select(s => new
                {
                    Id = s.Id,
+                   Date = s.Date,
                    No = s.No,
                    CreatedUtc = s.CreatedUtc,
                    BankAccountName = s.BankAccountName,

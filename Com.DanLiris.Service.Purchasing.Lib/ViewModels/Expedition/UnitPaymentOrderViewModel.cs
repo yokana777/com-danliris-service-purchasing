@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public DateTimeOffset UPODate { get; set; }
         public DateTimeOffset DueDate { get; set; }
         public string InvoiceNo { get; set; }
+        public string PaymentMethod { get; set; }
         public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
         public string DivisionCode { get; set; }
