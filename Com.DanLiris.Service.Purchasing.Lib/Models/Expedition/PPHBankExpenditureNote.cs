@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
 {
     public class PPHBankExpenditureNote : StandardEntity, IValidatableObject
     {
+        public DateTimeOffset Date { get; set; }
         public string No { get; set; }
         public string BGNo { get; set; }
         public string IncomeTaxId { get; set; }

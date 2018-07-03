@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
@@ -134,6 +135,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNote Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             int AffectedRows = await facade.Delete(Data.Id, "Test");
             Assert.True(AffectedRows > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            PPHBankExpenditureNoteViewModel vm = new PPHBankExpenditureNoteViewModel()
+            {
+                Date = null,
+                Bank = null,
+                IncomeTax = null,
+                PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>()
+            };
+
+            Assert.True(vm.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Date_Data()
+        {
+            PPHBankExpenditureNoteViewModel vm = new PPHBankExpenditureNoteViewModel()
+            {
+                Date = DateTimeOffset.UtcNow.AddDays(1),
+                Bank = null,
+                IncomeTax = null,
+                PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>()
+            };
+
+            Assert.True(vm.Validate(null).Count() > 0);
         }
     }
 }
