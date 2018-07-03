@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -56,13 +57,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotEqual(Response, 0);
         }
 
-        [Fact]
-        public async void Should_Success_Update_Data()
-        {
-            UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
-            var Response = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
-        }
+        //[Fact]
+        //public async void Should_Success_Update_Data()
+        //{
+        //    UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
+        //    var Response = await Facade.Update((int)model.Id, model, "Unit Test");
+        //    Assert.NotEqual(Response, 0);
+        //}
 
         [Fact]
         public async void Should_Success_Delete_Data()
@@ -77,6 +78,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Create(null, "Unit Test"));
             Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            UnitReceiptNote model = await DataUtil.GetTestData("Unit Test");
+            foreach (var item in model.Items)
+            {
+                
+                    item.ReceiptQuantity -= 1;
+                
+            }
+            var Response = await Facade.Update((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(Response, 0);
+
+            UnitReceiptNoteItem oldItem = model.Items.FirstOrDefault();
+            
+
+            model.Items.Remove(oldItem);
+            model.Items.Add(oldItem);
+            var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(ResponseRemoveItemDetail, 0);
         }
     }
 }
