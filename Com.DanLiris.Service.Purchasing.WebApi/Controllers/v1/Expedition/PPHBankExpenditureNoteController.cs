@@ -80,7 +80,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             {
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
                 var model = await PPHBankExpenditureNoteFacade.ReadById(Id);
-                var viewModel = new PPHBankExpenditureNoteViewModel(model);
 
                 if (model == null)
                 {
@@ -89,6 +88,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                         .Fail();
                     return NotFound(Result);
                 }
+
+                var viewModel = new PPHBankExpenditureNoteViewModel(model);
 
                 if (indexAcceptPdf < 0)
                 {
@@ -109,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{viewModel.BGNo}.pdf"
+                        FileDownloadName = $"PPH Bank Expenditure Note {viewModel.No}pdf"
                     };
                 }     
             }

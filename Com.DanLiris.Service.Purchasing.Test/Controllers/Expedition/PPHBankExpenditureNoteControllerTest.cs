@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                     IncomeTaxName = "",
                     IncomeTaxRate = 1,
                     IsDeleted = false,
-                    Items = new List<PPHBankExpenditureNoteItem>() { new PPHBankExpenditureNoteItem() { PurchasingDocumentExpedition = new PurchasingDocumentExpedition() { Items = new List<PurchasingDocumentExpeditionItem>() { new PurchasingDocumentExpeditionItem() } } } },
+                    Items = new List<PPHBankExpenditureNoteItem>() { new PPHBankExpenditureNoteItem() { PurchasingDocumentExpedition = new PurchasingDocumentExpedition() { Items = new List<PurchasingDocumentExpeditionItem>() { new PurchasingDocumentExpeditionItem() { UnitCode = "1" }, new PurchasingDocumentExpeditionItem() { UnitCode = "2" }, new PurchasingDocumentExpeditionItem() { UnitCode = "1" } } } } },
                 };
             }
         }
@@ -68,6 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             {
                 return new PPHBankExpenditureNoteViewModel()
                 {
+                    Date = DateTimeOffset.UtcNow,
                     IncomeTax = new IncomeTaxExpeditionViewModel(),
                     Bank = new BankViewModel() { currency = new CurrencyViewModel() },
                     PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>() { new UnitPaymentOrderViewModel() { Items = new List<UnitPaymentOrderItemViewModel>() { new UnitPaymentOrderItemViewModel() } } }
@@ -170,6 +171,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                 .ReturnsAsync(this.Model);
 
             PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
             var response = controller.GetById(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -182,6 +190,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                 .ReturnsAsync((PPHBankExpenditureNote)null);
 
             PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
             var response = controller.GetById(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.NotFound, GetStatusCode(response));
         }
@@ -356,6 +371,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
 
             var response = controller.Delete(1).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_By_Id()
+        {
+            var mockFacade = new Mock<IPPHBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .ReturnsAsync(this.Model);
+
+            PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.GetById(It.IsAny<int>()).Result;
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
     }
 }
