@@ -18,16 +18,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
     public class BankExpenditureNoteFacade : IBankExpenditureNoteFacade, IReadByIdable<BankExpenditureNoteModel>
     {
         private readonly PurchasingDbContext dbContext;
-        public readonly IServiceProvider serviceProvider;
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
-        private readonly BankDocumentNumberGenerator bankDocumentNumberGenerator;
+        private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
 
         private readonly string USER_AGENT = "Facade";
 
-        public BankExpenditureNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext, BankDocumentNumberGenerator bankDocumentNumberGenerator)
+        public BankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator)
         {
-            this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
@@ -149,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             EntityExtension.FlagForDelete(detail, username, USER_AGENT);
 
-                            foreach (var item in detail.Items)
+                            foreach (var item in dbContext.BankExpenditureNoteItems.AsNoTracking().Where(p => p.BankExpenditureNoteDetailId == detail.Id))
                             {
                                 EntityExtension.FlagForDelete(item, username, USER_AGENT);
                                 dbContext.BankExpenditureNoteItems.Update(item);
