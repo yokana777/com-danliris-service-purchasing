@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                     IncomeTaxName = "",
                     IncomeTaxRate = 1,
                     IsDeleted = false,
-                    Items = new List<PPHBankExpenditureNoteItem>() { new PPHBankExpenditureNoteItem() { PurchasingDocumentExpedition = new PurchasingDocumentExpedition() { Items = new List<PurchasingDocumentExpeditionItem>() { new PurchasingDocumentExpeditionItem() { UnitCode = "1" }, new PurchasingDocumentExpeditionItem() { UnitCode = "2" }, new PurchasingDocumentExpeditionItem() { UnitCode = "1" } } } } },
+                    Items = new List<PPHBankExpenditureNoteItem>() { new PPHBankExpenditureNoteItem() { PurchasingDocumentExpedition = new PurchasingDocumentExpedition() { Items = new List<PurchasingDocumentExpeditionItem>() { new PurchasingDocumentExpeditionItem() { UnitCode = "1", Price = -1000 }, new PurchasingDocumentExpeditionItem() { UnitCode = "2", Price = 1000 }, new PurchasingDocumentExpeditionItem() { UnitCode = "1", Price = 100000.20 } } } } },
                 };
             }
         }
