@@ -46,7 +46,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 SupplierName = s.SupplierName,
                 DONo = s.DONo,
                 CreatedBy = s.CreatedBy,
-                LastModifiedUtc = s.LastModifiedUtc
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items.ToList()
             });
 
             List<string> searchAttributes = new List<string>()
