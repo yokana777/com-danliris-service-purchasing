@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
     public class PPHBankExpenditureNoteViewModel : IValidatableObject
     {
         public int Id { get; set; }
+        public string No { get; set; }
         public DateTimeOffset? Date { get; set; }
         public BankViewModel Bank { get; set; }
         public IncomeTaxExpeditionViewModel IncomeTax { get; set; }
@@ -54,8 +55,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public PPHBankExpenditureNoteViewModel(PPHBankExpenditureNote model)
         {
             Id = model.Id;
+            No = model.No;
             TotalIncomeTax = model.TotalIncomeTax;
             TotalDPP = model.TotalDPP;
+            Date = model.Date;
             Bank = new BankViewModel()
             {
                 _id = model.BankId,
@@ -127,6 +130,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             PPHBankExpenditureNote model = new PPHBankExpenditureNote()
             {
                 Id = Id,
+                No = No,
+                Date = Date.Value,
                 TotalIncomeTax = TotalIncomeTax,
                 TotalDPP = TotalDPP,
                 BankId = Bank._id,

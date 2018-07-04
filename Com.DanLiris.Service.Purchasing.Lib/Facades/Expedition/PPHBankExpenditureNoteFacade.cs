@@ -23,12 +23,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<PPHBankExpenditureNote> dbSet;
         private readonly DbSet<PurchasingDocumentExpedition> dbSetPurchasingDocumentExpedition;
+        private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
 
-        public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext)
+        public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator)
         {
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<PPHBankExpenditureNote>();
             this.dbSetPurchasingDocumentExpedition = dbContext.Set<PurchasingDocumentExpedition>();
+            this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
         }
 
         public List<object> GetUnitPaymentOrder(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency)
@@ -171,6 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 try
                 {
                     EntityExtension.FlagForUpdate(model, username, "Facade");
+                    dbContext.Entry(model).Property(x => x.Date).IsModified = true;
                     dbContext.Entry(model).Property(x => x.TotalDPP).IsModified = true;
                     dbContext.Entry(model).Property(x => x.TotalIncomeTax).IsModified = true;
                     dbContext.Entry(model).Property(x => x.BGNo).IsModified = true;
@@ -188,12 +191,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = item.PurchasingDocumentExpeditionId,
-                                IsPaidPPH = true
+                                IsPaidPPH = true,
+                                BankExpenditureNotePPHNo = model.No,
+                                BankExpenditureNotePPHDate = model.Date
                             };
 
                             EntityExtension.FlagForUpdate(pde, username, "Facade");
                             //dbContext.Attach(pde);
                             dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHDate).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
@@ -212,12 +219,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = item.PurchasingDocumentExpeditionId,
-                                IsPaidPPH = false
+                                IsPaidPPH = false,
+                                BankExpenditureNotePPHDate = null,
+                                BankExpenditureNotePPHNo = null
                             };
 
                             EntityExtension.FlagForUpdate(pde, username, "Facade");
                             //dbContext.Attach(pde);
                             dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHDate).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
@@ -257,6 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 try
                 {
                     EntityExtension.FlagForCreate(model, username, "Facade");
+                    model.No = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
 
                     foreach (var item in model.Items)
                     {
@@ -265,12 +277,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                         {
                             Id = item.PurchasingDocumentExpeditionId,
-                            IsPaidPPH = true
+                            IsPaidPPH = true,
+                            BankExpenditureNotePPHNo = model.No,
+                            BankExpenditureNotePPHDate = model.Date
                         };
 
                         EntityExtension.FlagForUpdate(pde, username, "Facade");
                         dbContext.Attach(pde);
                         dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
+                        dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
+                        dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHDate).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
@@ -315,12 +331,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                         {
                             Id = item.PurchasingDocumentExpeditionId,
-                            IsPaidPPH = false
+                            IsPaidPPH = false,
+                            BankExpenditureNotePPHNo = null,
+                            BankExpenditureNotePPHDate = null
                         };
 
                         EntityExtension.FlagForUpdate(pde, username, "Facade");
                         //dbContext.Attach(pde);
                         dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
+                        dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
+                        dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHDate).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
