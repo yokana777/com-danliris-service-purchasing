@@ -171,6 +171,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 try
                 {
                     EntityExtension.FlagForUpdate(model, username, "Facade");
+                    dbContext.Entry(model).Property(x => x.Date).IsModified = true;
                     dbContext.Entry(model).Property(x => x.TotalDPP).IsModified = true;
                     dbContext.Entry(model).Property(x => x.TotalIncomeTax).IsModified = true;
                     dbContext.Entry(model).Property(x => x.BGNo).IsModified = true;

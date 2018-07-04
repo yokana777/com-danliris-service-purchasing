@@ -14,6 +14,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Microsoft.EntityFrameworkCore;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
+using System.IO;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 {
@@ -76,7 +78,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         {
             try
             {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
                 var model = await PPHBankExpenditureNoteFacade.ReadById(Id);
+                var viewModel = new PPHBankExpenditureNoteViewModel(model);
 
                 if (model == null)
                 {
@@ -86,14 +90,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                     return NotFound(Result);
                 }
 
-
-                return Ok(new
+                if (indexAcceptPdf < 0)
                 {
-                    apiVersion = ApiVersion,
-                    data = new PPHBankExpenditureNoteViewModel(model),
-                    message = General.OK_MESSAGE,
-                    statusCode = General.OK_STATUS_CODE
-                });
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        data = viewModel,
+                        message = General.OK_MESSAGE,
+                        statusCode = General.OK_STATUS_CODE
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    PPHBankExpenditureNotePDFTemplate PdfTemplate = new PPHBankExpenditureNotePDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(model, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.BGNo}.pdf"
+                    };
+                }     
             }
             catch (Exception e)
             {

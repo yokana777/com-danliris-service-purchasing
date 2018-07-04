@@ -56,6 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             Id = model.Id;
             TotalIncomeTax = model.TotalIncomeTax;
             TotalDPP = model.TotalDPP;
+            Date = model.Date;
             Bank = new BankViewModel()
             {
                 _id = model.BankId,
@@ -127,6 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             PPHBankExpenditureNote model = new PPHBankExpenditureNote()
             {
                 Id = Id,
+                Date = Date.Value,
                 TotalIncomeTax = TotalIncomeTax,
                 TotalDPP = TotalDPP,
                 BankId = Bank._id,
