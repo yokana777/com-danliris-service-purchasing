@@ -91,6 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     UnitPaymentOrderNo = unitPaymentOrder.No,
                     UPODate = unitPaymentOrder.UPODate,
                     InvoiceNo = unitPaymentOrder.InvoiceNo,
+                    PaymentMethod = unitPaymentOrder.PaymentMethod,
                     DueDate = unitPaymentOrder.DueDate,
                     SupplierCode = unitPaymentOrder.SupplierCode,
                     SupplierName = unitPaymentOrder.SupplierName,

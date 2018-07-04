@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Com.Moonlay.NetCore.Lib.Service;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureNote
 {
@@ -20,32 +22,49 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
     [Authorize]
     public class BankExpenditureNoteController : Controller
     {
-        private readonly string ApiVersion = "1.0.0";
-        private readonly IMapper mapper;
-        private readonly BankExpenditureNoteFacade facade;
+        private string ApiVersion = "1.0.0";
+        public readonly IServiceProvider serviceProvider;
+        private readonly IBankExpenditureNoteFacade facade;
         private readonly IdentityService identityService;
+        private readonly IMapper mapper;
 
-        public BankExpenditureNoteController(IMapper mapper, BankExpenditureNoteFacade facade, IdentityService identityService)
+        public BankExpenditureNoteController(IServiceProvider serviceProvider, IBankExpenditureNoteFacade facade, IMapper mapper)
         {
-            this.mapper = mapper;
+            this.serviceProvider = serviceProvider;
             this.facade = facade;
-            this.identityService = identityService;
+            this.mapper = mapper;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
 
         [HttpGet]
         public ActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            return new BaseGet<BankExpenditureNoteFacade>(facade)
-                .Get(page, size, order, keyword, filter);
+            ReadResponse Response = this.facade.Read(page, size, order, keyword, filter);
+
+            return Ok(new
+            {
+                apiVersion = "1.0.0",
+                data = Response.Data,
+                info = new Dictionary<string, object>
+                {
+                    { "count", Response.Data.Count },
+                    { "total", Response.TotalData },
+                    { "order", Response.Order },
+                    { "page", page },
+                    { "size", size }
+                },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
         }
 
         [HttpGet("{Id}")]
-        public IActionResult GetById([FromRoute] int Id)
+        public async Task<IActionResult> GetById([FromRoute] int Id)
         {
             try
             {
-                var model = facade.ReadById(Id);
+                var model = await facade.ReadById(Id);
                 BankExpenditureNoteViewModel viewModel = mapper.Map<BankExpenditureNoteViewModel>(model);
 
                 if (viewModel == null)
@@ -79,7 +98,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-            ValidateService validateService = (ValidateService)facade.serviceProvider.GetService(typeof(ValidateService));
+            //ValidateService validateService = (ValidateService)facade.serviceProvider.GetService(typeof(ValidateService));
+            IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
             try
             {
@@ -114,15 +134,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         public async Task<IActionResult> Delete([FromRoute]int id)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
 
             try
             {
-                await facade.Delete(id, identityService.Username);
+                int Result = await facade.Delete(id, identityService.Username);
+
+                if (Result.Equals(0))
+                {
+                    Dictionary<string, object> ResultNotFound =
+                       new ResultFormatter(ApiVersion, General.NOT_FOUND_STATUS_CODE, General.NOT_FOUND_MESSAGE)
+                       .Fail();
+                    return NotFound(ResultNotFound);
+                }
+
                 return NoContent();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
 
@@ -133,7 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
 
             BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
 
-            ValidateService validateService = (ValidateService)facade.serviceProvider.GetService(typeof(ValidateService));
+            IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
             try
             {
@@ -159,6 +192,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
 
+        }
+
+        [HttpGet("no-select/by-position")]
+        public ActionResult GetAllCashierPosition(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            ReadResponse Response = facade.GetAllByPosition(page, size, order, keyword, filter);
+
+            return Ok(new
+            {
+                apiVersion = "1.0.0",
+                data = Response.Data,
+                info = new Dictionary<string, object>
+                {
+                    { "count", Response.Data.Count },
+                    { "total", Response.TotalData },
+                    { "order", Response.Order },
+                    { "page", page },
+                    { "size", size }
+                },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
         }
     }
 }

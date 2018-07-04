@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         #endregion
         [MaxLength(255)]
         public string BGCheckNumber { get; set; }
+        public DateTimeOffset Date { get; set; }
         public ICollection<BankExpenditureNoteDetailModel> Details { get; set; }
         [MaxLength(255)]
         public string DocumentNo { get; set; }

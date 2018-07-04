@@ -7,6 +7,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
@@ -55,7 +56,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
-                .AddTransient<BankExpenditureNoteFacade>()
+                .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
+                .AddTransient<BankDocumentNumberGenerator>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
@@ -65,6 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
+                .AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitPaymentOrderFacade>();
         }
 

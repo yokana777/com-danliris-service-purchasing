@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DeliveryOrderCon
                     s.supplierDoDate,
                     s.supplier,
                     s.LastModifiedUtc,
-                    items = s.items.Select(i => new { i.purchaseOrderExternal })
+                    items = s.items.Select(i => new { i.purchaseOrderExternal, i.fulfillments })
                 }));
 
                 return Ok(new
@@ -211,6 +211,41 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DeliveryOrderCon
             {
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
+        }
+
+        [HttpGet("by-supplier")]
+        public IActionResult BySupplier(string keyword = null, string unitId="", string supplierId="")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            var Data = facade.ReadBySupplier(keyword, unitId, supplierId);
+
+            var newData = mapper.Map<List<DeliveryOrderViewModel>>(Data);
+
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.no,
+                    s.supplierDoDate,
+                    s.supplier,
+                    s.LastModifiedUtc,
+                    items = s.items.Select(i => new { i.purchaseOrderExternal, i.fulfillments })
+                }).ToList()
+            );
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                statusCode = General.OK_STATUS_CODE,
+                message = General.OK_MESSAGE,
+                data = listData,
+                info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                },
+            });
         }
     }
 }

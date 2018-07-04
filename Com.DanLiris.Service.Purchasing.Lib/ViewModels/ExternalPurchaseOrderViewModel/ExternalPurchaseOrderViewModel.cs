@@ -69,6 +69,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
             }
             else
             {
+                var prNo = items.ToArray();
+                List<String> duplicate=new List<string>();
                 string externalPurchaseOrderItemError = "[";
 
                 foreach (ExternalPurchaseOrderItemViewModel Item in items)
@@ -79,6 +81,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                     {
                         itemErrorCount++;
                         externalPurchaseOrderItemError += "purchaseOrder: 'PurchaseRequest is required', ";
+                    }
+                    else
+                    {
+                        if (duplicate.Count <= 0)
+                        {
+                            duplicate.Add(Item.prNo);
+                        }
+                        else
+                        {
+                            //ExternalPurchaseOrderItemViewModel dup = Array.Find(duplicate, o => o.prNo == Item.prNo);
+                            var x=duplicate.Find(a => a == Item.prNo);
+                            if (x != null)
+                            {
+                                itemErrorCount++;
+                                externalPurchaseOrderItemError += "purchaseOrder: 'PurchaseRequest is already used', ";
+
+
+                            }
+                            else
+                            {
+                                duplicate.Add(Item.prNo);
+                            }
+                        }
+                        
                     }
 
                     if (Item.details.Count.Equals(0))

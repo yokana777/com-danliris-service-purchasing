@@ -11,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -51,6 +52,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<UnitPaymentOrder> UnitPaymentOrders { get; set; }
         public DbSet<UnitPaymentOrderItem> UnitPaymentOrderItems { get; set; }
         public DbSet<UnitPaymentOrderDetail> UnitPaymentOrderDetails { get; set; }
+
+        public DbSet<BankDocumentNumber> BankDocumentNumbers { get; set; }
 
         public DbSet<UnitPaymentCorrectionNote> UnitPaymentCorrectionNotes { get; set; }
         public DbSet<UnitPaymentCorrectionNoteItem> UnitPaymentCorrectionNoteItems { get; set; }

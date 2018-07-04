@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
         public ExternalPurchaseOrderProfile()
         {
             CreateMap<ExternalPurchaseOrderDetail, ExternalPurchaseOrderDetailViewModel>()
+                .ForPath(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForPath(d => d.product._id, opt => opt.MapFrom(s => s.ProductId))
                 .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))
                 .ForPath(d => d.product.name, opt => opt.MapFrom(s => s.ProductName))
@@ -22,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<ExternalPurchaseOrder, ExternalPurchaseOrderViewModel>()
+                .ForPath(d => d._id, opt => opt.MapFrom(s => s.Id))
                 /* Unit */
                 .ForPath(d => d.unit._id, opt => opt.MapFrom(s => s.UnitId))
                 .ForPath(d => d.unit.code, opt => opt.MapFrom(s => s.UnitCode))
@@ -48,6 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<ExternalPurchaseOrderItem, ExternalPurchaseOrderItemViewModel>()
+                .ForPath(d => d._id, opt => opt.MapFrom(s => s.Id))
                 /* Unit */
                 .ForPath(d => d.unit._id, opt => opt.MapFrom(s => s.UnitId))
                 .ForPath(d => d.unit.code, opt => opt.MapFrom(s => s.UnitCode))
