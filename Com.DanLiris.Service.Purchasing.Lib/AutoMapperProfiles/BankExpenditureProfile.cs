@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
         public BankExpenditureProfile()
         {
             CreateMap<BankExpenditureNoteModel, BankExpenditureNoteViewModel>()
+                .ForPath(d => d.Date , opt => opt.MapFrom(s => s.Date))
                 /* Bank */
                 .ForPath(d => d.Bank._id, opt => opt.MapFrom(s => s.BankId))
                 .ForPath(d => d.Bank.bankCode, opt => opt.MapFrom(s => s.BankCode))
