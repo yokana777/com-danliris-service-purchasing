@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber;
 using Com.Moonlay.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 {
-    public class BankDocumentNumberGenerator
+    public class BankDocumentNumberGenerator : IBankDocumentNumberGenerator
     {
         private readonly DbSet<BankDocumentNumber> dbSet;
         private readonly PurchasingDbContext dbContext;

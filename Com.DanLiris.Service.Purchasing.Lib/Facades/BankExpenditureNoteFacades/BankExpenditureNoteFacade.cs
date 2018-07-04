@@ -18,16 +18,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
     public class BankExpenditureNoteFacade : IBankExpenditureNoteFacade, IReadByIdable<BankExpenditureNoteModel>
     {
         private readonly PurchasingDbContext dbContext;
-        public readonly IServiceProvider serviceProvider;
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
-        private readonly BankDocumentNumberGenerator bankDocumentNumberGenerator;
+        private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
 
         private readonly string USER_AGENT = "Facade";
 
-        public BankExpenditureNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext, BankDocumentNumberGenerator bankDocumentNumberGenerator)
+        public BankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator)
         {
-            this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
