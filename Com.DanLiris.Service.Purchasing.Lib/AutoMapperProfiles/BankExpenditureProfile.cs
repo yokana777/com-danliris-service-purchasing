@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
             CreateMap<BankExpenditureNoteModel, BankExpenditureNoteViewModel>()
                 /* Bank */
                 .ForPath(d => d.Bank._id, opt => opt.MapFrom(s => s.BankId))
-                .ForPath(d => d.Bank.code, opt => opt.MapFrom(s => s.BankCode))
+                .ForPath(d => d.Bank.bankCode, opt => opt.MapFrom(s => s.BankCode))
                 .ForPath(d => d.Bank.accountCurrencyId, opt => opt.MapFrom(s => s.BankCurrencyId))
                 .ForPath(d => d.Bank.accountName, opt => opt.MapFrom(s => s.BankAccountName))
                 .ForPath(d => d.Bank.accountNumber, opt => opt.MapFrom(s => s.BankAccountNumber))
