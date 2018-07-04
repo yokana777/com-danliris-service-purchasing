@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderCS3.Phrase = new Phrase("Kel. Banaran (Selatan Laweyan)", normal_font);
             headerTable.AddCell(cellHeaderCS3);
 
-            cellHeader.Phrase = new Phrase("Telp 714400, 719113", normal_font);
+            cellHeader.Phrase = new Phrase("Telp. 714400, 719113", normal_font);
             cellHeader.HorizontalAlignment = Element.ALIGN_LEFT;
             headerTable.AddCell(cellHeader);
 
@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable bodyTable = new PdfPTable(6);
             PdfPCell bodyCell = new PdfPCell();
 
-            float[] widthsBody = new float[] { 10f, 10f, 10f, 10f, 10f, 10f };
+            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 10f, 15f };
             bodyTable.SetWidths(widthsBody);
             bodyTable.WidthPercentage = 100;
 
@@ -259,7 +259,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable receiverTable = new PdfPTable(1);
             PdfPCell cellReceiver = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
 
-            cellReceiver.Phrase = new Phrase("Sukoharjo, " + DateTimeOffset.UtcNow.AddHours(clientTimeZoneOffset).ToString("dd MMM yyyy HH:mm"), normal_font);
+            cellReceiver.Phrase = new Phrase("Sukoharjo, " + DateTimeOffset.UtcNow.AddHours(clientTimeZoneOffset).ToString("dd MMM yyyy"), normal_font);
             receiverTable.AddCell(cellReceiver);
 
             cellReceiver.FixedHeight = 60;
