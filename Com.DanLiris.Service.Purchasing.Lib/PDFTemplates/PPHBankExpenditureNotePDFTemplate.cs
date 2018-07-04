@@ -70,10 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region Body
 
-            PdfPTable bodyTable = new PdfPTable(6);
+            PdfPTable bodyTable = new PdfPTable(7);
             PdfPCell bodyCell = new PdfPCell();
 
-            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 10f, 15f };
+            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 10f, 15f, 15f };
             bodyTable.SetWidths(widthsBody);
             bodyTable.WidthPercentage = 100;
 
@@ -96,7 +96,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             bodyCell.Colspan = 1;
             bodyCell.Rowspan = 2;
-            bodyCell.Phrase = new Phrase("Jumlah", normal_font);
+            bodyCell.Phrase = new Phrase("PPH", normal_font);
+            bodyTable.AddCell(bodyCell);
+
+            bodyCell.Phrase = new Phrase("DPP", normal_font);
             bodyTable.AddCell(bodyCell);
 
             bodyCell.Colspan = 1;
@@ -126,7 +129,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     {
                         UnitCode = s.First().UnitCode,
                         UnitName = s.First().UnitName,
-                        Total = s.Sum(d => d.Price)
+                        TotalDPP = s.Sum(d => d.Price),
+                        TotalPPH = s.Sum(d => (d.Price * model.IncomeTaxRate) / 100)
                     });
 
                 foreach (var pdeItem in pdeItems)
@@ -150,19 +154,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     bodyTable.AddCell(bodyCell);
 
                     bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                    bodyCell.Phrase = new Phrase(string.Format("{0:n4}", pdeItem.Total), normal_font);
+                    bodyCell.Phrase = new Phrase(string.Format("{0:n4}", pdeItem.TotalPPH), normal_font);
+                    bodyTable.AddCell(bodyCell);
+
+                    bodyCell.Phrase = new Phrase(string.Format("{0:n4}", pdeItem.TotalDPP), normal_font);
                     bodyTable.AddCell(bodyCell);
 
                     if (units.ContainsKey(pdeItem.UnitCode))
                     {
-                        units[pdeItem.UnitCode] += pdeItem.Total;
+                        units[pdeItem.UnitCode] += pdeItem.TotalPPH;
                     }
                     else
                     {
-                        units.Add(pdeItem.UnitCode, pdeItem.Total);
+                        units.Add(pdeItem.UnitCode, pdeItem.TotalPPH);
                     }
 
-                    total += pdeItem.Total;
+                    total += pdeItem.TotalPPH;
                 }
             }
 
