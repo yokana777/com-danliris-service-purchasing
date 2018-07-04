@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             EntityExtension.FlagForDelete(detail, username, USER_AGENT);
 
-                            foreach (var item in detail.Items)
+                            foreach (var item in dbContext.BankExpenditureNoteItems.AsNoTracking().Where(p => p.BankExpenditureNoteDetailId == detail.Id))
                             {
                                 EntityExtension.FlagForDelete(item, username, USER_AGENT);
                                 dbContext.BankExpenditureNoteItems.Update(item);
