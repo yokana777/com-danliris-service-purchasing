@@ -136,6 +136,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                                 detailErrorCount++;
                                 externalPurchaseOrderDetailError += "price: 'Price should be more than 0', ";
                             }
+                            if (Detail.priceBeforeTax > Detail.productPrice)
+                            {
+                                detailErrorCount++;
+                                externalPurchaseOrderDetailError += "price: 'Price must not be greater than default price', ";
+                            }
+
+                            if (Detail.dealQuantity <= 0)
+                            {
+                                detailErrorCount++;
+                                externalPurchaseOrderDetailError += "dealQuantity: 'Quantity should be more than 0', ";
+                            }
 
                             externalPurchaseOrderDetailError += " }, ";
                         }

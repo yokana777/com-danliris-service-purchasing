@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     tableContent.AddCell(p1);
 
-                    cellLeft.Phrase = new Phrase($"{detail.dealQuantity} {detail.dealUom}", normal_font);
+                    cellLeft.Phrase = new Phrase($"{detail.dealQuantity} {detail.dealUom.unit}", normal_font);
                     tableContent.AddCell(cellLeft);
 
                     cellCenter.Phrase = new Phrase($"{viewModel.currency.code} {detail.pricePerDealUnit.ToString("N", new CultureInfo("id-ID"))}", normal_font);
@@ -160,7 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableContent.AddCell(cellRight);
             string ppn = "";
             double ppnNominal = 0;
-            if (viewModel.useIncomeTax)
+            if (viewModel.useVat)
             {
                 ppnNominal = total * 10 / 100;
                 ppn = $"{viewModel.currency.code} {ppnNominal.ToString("N", new CultureInfo("id-ID"))}";
@@ -203,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cellFooterContent.Phrase = new Phrase("Pembayaran", normal_font);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + viewModel.paymentMethod + "\n"+ "  "+ viewModel.paymentDueDays, normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + viewModel.paymentMethod + "\n"+ "  "+ viewModel.paymentDueDays + " hari setelah terima barang", normal_font);
             tableFooter.AddCell(cellFooterContent);
 
             cellFooterContent.Phrase = new Phrase("Lain-lain", normal_font);

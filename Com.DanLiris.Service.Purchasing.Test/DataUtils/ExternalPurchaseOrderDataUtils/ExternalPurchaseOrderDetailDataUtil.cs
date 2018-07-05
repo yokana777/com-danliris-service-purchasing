@@ -61,7 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             priceBeforeTax = 1000,
             pricePerDealUnit = 200,
             conversion=1,
-            dealQuantity = internalPurchaseOrderItem[0].Quantity
+            dealQuantity = internalPurchaseOrderItem[0].Quantity,
+            productPrice=10000
         };
     }
 }

@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public UomViewModel dealUom { get; set; }
 
         public double pricePerDealUnit { get; set; }
+        public double productPrice { get; set; }
         public double priceBeforeTax { get; set; }
         public double conversion { get; set; }
         public bool includePpn { get; set; }

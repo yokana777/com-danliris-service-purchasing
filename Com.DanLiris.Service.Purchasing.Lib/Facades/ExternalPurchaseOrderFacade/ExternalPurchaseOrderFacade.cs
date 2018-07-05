@@ -109,8 +109,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         foreach (var detail in item.Details)
                         {
                             detail.PricePerDealUnit= detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
-                            PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
-                            purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                            //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                            //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
                             EntityExtension.FlagForCreate(detail, user, "Facade");
 
                             InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
@@ -167,13 +167,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
                                         EntityExtension.FlagForCreate(detail, user, "Facade");
-                                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
-                                        purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                                        //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                                        //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
 
                                         InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
                                         internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
 
                                     }
+                                    InternalPurchaseOrder internalPurchaseOrder = this.dbContext.InternalPurchaseOrders.FirstOrDefault(s => s.Id == item.POId);
+                                    internalPurchaseOrder.IsPosted = true;
                                 }
                             }
                             else
@@ -201,8 +203,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                                         EntityExtension.FlagForCreate(duplicateDetail, user, "Facade");
                                                         item.Details.Add(duplicateDetail);
                                                         detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
-                                                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
-                                                        purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                                                        //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                                                        //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
 
                                                         InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
                                                         internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
@@ -242,8 +244,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                 foreach (var existingDetail in existingItem.Details)
                                 {
                                     EntityExtension.FlagForDelete(existingDetail, user, "Facade");
-                                    PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
-                                    purchaseRequestItem.Status = "Sudah diterima Pembelian";
+                                    //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
+                                    //purchaseRequestItem.Status = "Sudah diterima Pembelian";
 
                                     InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == existingDetail.POItemId);
                                     internalPurchaseOrderItem.Status = "PO Internal belum diorder";
@@ -258,8 +260,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     if (newDetail == null)
                                     {
                                         EntityExtension.FlagForDelete(existingDetail, user, "Facade");
-                                        PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
-                                        purchaseRequestItem.Status = "Sudah diterima Pembelian";
+                                        //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
+                                        //purchaseRequestItem.Status = "Sudah diterima Pembelian";
 
                                         InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == existingDetail.POItemId);
                                         internalPurchaseOrderItem.Status = "PO Internal belum diorder";
@@ -310,8 +312,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         EntityExtension.FlagForDelete(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
-                            purchaseRequestItem.Status = "Sudah diterima Pembelian";
+                            //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                            //purchaseRequestItem.Status = "Sudah diterima Pembelian";
                             EntityExtension.FlagForDelete(detail, user, "Facade");
 
                             InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
@@ -361,6 +363,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                 EntityExtension.FlagForUpdate(detail, user, "Facade");
                                 InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
                                 internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
+
+                                PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                                purchaseRequestItem.Status = "Sudah diorder ke Supplier";
                             }
                         }
                     });
@@ -480,10 +485,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                     foreach (var item in m.Items)
                     {
+                        var existPR = this.dbContext.ExternalPurchaseOrderItems.Where(a => a.PRId == item.PRId && a.IsDeleted==false && a.EPOId!=item.EPOId);
                         EntityExtension.FlagForUpdate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
                             EntityExtension.FlagForUpdate(detail, user, "Facade");
+
+                            if (existPR == null)
+                            {
+                                PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                                purchaseRequestItem.Status = "Sudah diterima Pembelian";
+                            }
+
 
                             InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
                             internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
