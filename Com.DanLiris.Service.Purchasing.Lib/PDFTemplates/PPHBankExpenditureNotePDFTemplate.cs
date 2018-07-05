@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             bodyTable.SetWidths(widthsBody);
             bodyTable.WidthPercentage = 100;
 
-            bodyCell.Colspan = 6;
+            bodyCell.Colspan = 7;
             bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
             bodyCell.VerticalAlignment = Element.ALIGN_MIDDLE;
             bodyCell.Phrase = new Phrase("Bank : " + model.BankName + " " + model.BankAccountNumber + " " + model.Currency, normal_font);
