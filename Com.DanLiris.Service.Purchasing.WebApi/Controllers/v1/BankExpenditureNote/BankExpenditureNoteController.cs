@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Com.Moonlay.NetCore.Lib.Service;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
+using System.IO;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureNote
 {
@@ -64,10 +66,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         {
             try
             {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
                 var model = await facade.ReadById(Id);
                 BankExpenditureNoteViewModel viewModel = mapper.Map<BankExpenditureNoteViewModel>(model);
 
-                if (viewModel == null)
+                if (model == null)
                 {
                     Dictionary<string, object> Result =
                         new ResultFormatter(ApiVersion, General.NOT_FOUND_STATUS_CODE, General.NOT_FOUND_MESSAGE)
@@ -75,13 +78,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                     return NotFound(Result);
                 }
 
-                return Ok(new
+                if (indexAcceptPdf < 0)
                 {
-                    apiVersion = ApiVersion,
-                    statusCode = General.OK_STATUS_CODE,
-                    message = General.OK_MESSAGE,
-                    data = viewModel,
-                });
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        data = viewModel,
+                        message = General.OK_MESSAGE,
+                        statusCode = General.OK_STATUS_CODE
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    BankExpenditureNotePDFTemplate PdfTemplate = new BankExpenditureNotePDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(model, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"PPH Bank Expenditure Note {viewModel.DocumentNo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
