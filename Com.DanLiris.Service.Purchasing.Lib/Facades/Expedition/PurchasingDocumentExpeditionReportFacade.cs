@@ -30,6 +30,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     SendToAccountingDivisionDate = s.SendToAccountingDivisionDate,
                     SendToPurchasingDivisionDate = s.SendToPurchasingDivisionDate,
                     CashierDivisionDate = s.CashierDivisionDate,
+                    BankExpenditureNoteDate = s.BankExpenditureNoteDate,
+                    BankExpenditureNoteNo = s.BankExpenditureNoteNo,
+                    BankExpenditureNotePPHDate = s.BankExpenditureNotePPHDate,
+                    BankExpenditureNotePPHNo = s.BankExpenditureNotePPHNo,
                     Position = s.Position,
                 })
                 .Where(p => unitPaymentOrders.Contains(p.UnitPaymentOrderNo));
@@ -47,7 +51,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     (d.Position == ExpeditionPosition.FINANCE_DIVISION || d.Position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION) ? d.SendToAccountingDivisionDate:
                     (d.Position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION) ? d.SendToPurchasingDivisionDate : null,
                     CashierDivisionDate = d.CashierDivisionDate,
-                    UnitPaymentOrderNo = d.UnitPaymentOrderNo
+                    UnitPaymentOrderNo = d.UnitPaymentOrderNo,
+                    BankExpenditureNoteDate = d.BankExpenditureNoteDate,
+                    BankExpenditureNoteNo = d.BankExpenditureNoteNo,
+                    BankExpenditureNotePPHDate = d.BankExpenditureNotePPHDate,
+                    BankExpenditureNotePPHNo = d.BankExpenditureNotePPHNo
                 };
 
                 list.Add(item);
