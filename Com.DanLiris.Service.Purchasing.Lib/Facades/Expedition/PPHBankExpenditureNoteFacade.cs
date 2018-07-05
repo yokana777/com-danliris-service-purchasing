@@ -44,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    p.IncomeTaxName == incomeTaxName &&
                    p.IncomeTaxRate == incomeTaxRate &&
                    p.Currency == currency &&
+                   p.IncomeTaxRate != 0 &&
                    p.IsPaidPPH == false && p.Position == ExpeditionPosition.CASHIER_DIVISION
                );
             }
@@ -54,6 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    p.IncomeTaxName == incomeTaxName &&
                    p.IncomeTaxRate == incomeTaxRate &&
                    p.Currency == currency &&
+                   p.IncomeTaxRate != 0 &&
                    p.DueDate.Date >= dateFrom.Value.Date &&
                    p.DueDate.Date <= dateTo.Value.Date &&
                    p.IsPaidPPH == false && p.Position == ExpeditionPosition.CASHIER_DIVISION
@@ -283,7 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         };
 
                         EntityExtension.FlagForUpdate(pde, username, "Facade");
-                        dbContext.Attach(pde);
+                        //dbContext.Attach(pde);
                         dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHDate).IsModified = true;
