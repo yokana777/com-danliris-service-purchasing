@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/internal-purchase-orders")]
+    [Authorize]
     public class InternalPurchaseOrderController : Controller
     {
         private string ApiVersion = "1.0.0";

@@ -35,7 +35,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            throw new NotImplementedException();
+            PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+            //InternalPurchaseOrder a =
+            if (this.uPOId == null)
+            {
+                yield return new ValidationResult("No. Surat Perintah Bayar is required", new List<string> { "uPOId" });
+            }
         }
     }
 }
