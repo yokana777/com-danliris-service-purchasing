@@ -57,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     SupplierName = s.SupplierName,
                     GrandTotal = s.GrandTotal,
                     BankCurrencyCode = s.BankCurrencyCode,
+                    Details = s.Details.Where(w => w.BankExpenditureNoteId == s.Id).ToList()
                 });
 
             List<string> searchAttributes = new List<string>()
@@ -86,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.SupplierName,
                    s.GrandTotal,
                    s.BankCurrencyCode,
+                   Details = s.Details.Select(sl => new { sl.SupplierName }).ToList(),
                }).ToList()
             );
 
@@ -360,7 +362,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             int TotalData = pageable.TotalCount;
 
             List<object> list = new List<object>();
-            list.AddRange(Data.Select(s => new {
+            list.AddRange(Data.Select(s => new
+            {
                 UnitPaymentOrderId = s.Id,
                 s.UnitPaymentOrderNo,
                 s.UPODate,
@@ -374,7 +377,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.IsPaid,
                 s.TotalPaid,
                 s.Currency,
-                Items = s.Items.Select(sl => new {
+                Items = s.Items.Select(sl => new
+                {
                     UnitPaymentOrderItemId = sl.Id,
                     sl.UnitId,
                     sl.UnitCode,
