@@ -61,8 +61,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeader.Phrase = new Phrase("No Dokumen : " + model.No, normal_font);
             headerTable.AddCell(cellHeader);
 
-            cellHeaderCS3.Phrase = new Phrase("SOLO - INDONESIA 57100", normal_font);
-            headerTable.AddCell(cellHeaderCS3);
+            cellHeader.Phrase = new Phrase("SOLO - INDONESIA 57100", normal_font);
+            headerTable.AddCell(cellHeader);
+
+            cellHeader.Phrase = new Phrase("", normal_font);
+            headerTable.AddCell(cellHeader);
+
+            cellHeader.Phrase = new Phrase("Pasal PPH     : " + model.IncomeTaxName, normal_font);
+            headerTable.AddCell(cellHeader);
+
             document.Add(headerTable);
             document.Add(new Paragraph("\n"));
 
@@ -73,14 +80,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable bodyTable = new PdfPTable(7);
             PdfPCell bodyCell = new PdfPCell();
 
-            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 10f, 15f, 15f };
+            float[] widthsBody = new float[] { 5f, 12f, 10f, 5f, 5f, 15f, 15f };
             bodyTable.SetWidths(widthsBody);
             bodyTable.WidthPercentage = 100;
 
             bodyCell.Colspan = 7;
             bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
             bodyCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-            bodyCell.Phrase = new Phrase("Bank : " + model.BankName + " " + model.BankAccountNumber + " " + model.Currency, normal_font);
+            bodyCell.Phrase = new Phrase("Bank : " + model.BankName + " " +  model.BankAccountName + " " + model.BankAccountNumber + " " + model.Currency, normal_font);
             bodyTable.AddCell(bodyCell);
 
             bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -96,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             bodyCell.Colspan = 1;
             bodyCell.Rowspan = 2;
-            bodyCell.Phrase = new Phrase("PPH", normal_font);
+            bodyCell.Phrase = new Phrase("PPH (" + model.IncomeTaxRate  + "%)", normal_font);
             bodyTable.AddCell(bodyCell);
 
             bodyCell.Phrase = new Phrase("DPP", normal_font);
@@ -117,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             bodyTable.AddCell(bodyCell);
 
             int index = 1;
-            double total = 0;
+            double totalDPP = 0, totalPPH = 0;
 
             Dictionary<string, double> units = new Dictionary<string, double>();
 
@@ -169,7 +176,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         units.Add(pdeItem.UnitCode, pdeItem.TotalPPH);
                     }
 
-                    total += pdeItem.TotalPPH;
+                    totalPPH += pdeItem.TotalPPH;
+                    totalDPP += pdeItem.TotalDPP;
                 }
             }
 
@@ -184,7 +192,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             bodyTable.AddCell(bodyCell);
 
             bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), normal_font);
+            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", totalPPH), normal_font);
+            bodyTable.AddCell(bodyCell);
+
+            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", totalDPP), normal_font);
             bodyTable.AddCell(bodyCell);
 
             document.Add(bodyTable);
@@ -194,59 +206,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region BodyFooter
 
-            PdfPTable bodyFooterTable = new PdfPTable(2);
+            PdfPTable bodyFooterTable = new PdfPTable(6);
             PdfPCell bodyFooterCell = new PdfPCell() { Border = Rectangle.NO_BORDER };
             bodyFooterTable.WidthPercentage = 100;
 
-            bodyFooterCell.Colspan = 2;
-            bodyFooterCell.Phrase = new Phrase("Rincian per bagian:", normal_font);
+            bodyFooterCell.Colspan = 6;
+            bodyFooterCell.Phrase = new Phrase("Rincian PPH per bagian:", normal_font);
             bodyFooterTable.AddCell(bodyFooterCell);
-
-            PdfPTable bodyFooterTableFirst = new PdfPTable(3);
-            bodyFooterTableFirst.WidthPercentage = 100;
-
-            PdfPTable bodyFooterTableSecond = new PdfPTable(3);
-            bodyFooterTableSecond.WidthPercentage = 100;
 
             bodyFooterCell.Colspan = 1;
 
-            int bodyFooterIndex = 0;
 
             foreach (var unit in units)
             {
-                if (bodyFooterIndex % 2 == 0)
-                {
-                    bodyFooterCell.Phrase = new Phrase(unit.Key, normal_font);
-                    bodyFooterTableFirst.AddCell(bodyFooterCell);
+                bodyFooterCell.Colspan = 1;
 
-                    bodyFooterCell.Phrase = new Phrase("=", normal_font);
-                    bodyFooterTableFirst.AddCell(bodyFooterCell);
+                bodyFooterCell.Phrase = new Phrase(unit.Key, normal_font);
+                bodyFooterTable.AddCell(bodyFooterCell);
 
-                    bodyFooterCell.Phrase = new Phrase(string.Format("{0:n4}", unit.Value), normal_font);
-                    bodyFooterTableFirst.AddCell(bodyFooterCell);
-                }
-                else
-                {
-                    bodyFooterCell.Phrase = new Phrase(unit.Key, normal_font);
-                    bodyFooterTableSecond.AddCell(bodyFooterCell);
+                bodyFooterCell.Phrase = new Phrase("= " + string.Format("{0:n4}", unit.Value), normal_font);
+                bodyFooterTable.AddCell(bodyFooterCell);
 
-                    bodyFooterCell.Phrase = new Phrase("=", normal_font);
-                    bodyFooterTableSecond.AddCell(bodyFooterCell);
-
-                    bodyFooterCell.Phrase = new Phrase(string.Format("{0:n4}", unit.Value), normal_font);
-                    bodyFooterTableSecond.AddCell(bodyFooterCell);
-                }
-
-                bodyFooterIndex++;
+                bodyFooterCell.Colspan = 4;
+                bodyFooterCell.Phrase = new Phrase("");
+                bodyFooterTable.AddCell(bodyFooterCell);
             }
-
-            bodyFooterTable.AddCell(new PdfPCell(bodyFooterTableFirst) { Border = Rectangle.NO_BORDER });
-            bodyFooterTable.AddCell(new PdfPCell(bodyFooterTableSecond) { Border = Rectangle.NO_BORDER });
 
             document.Add(bodyFooterTable);
             document.Add(new Paragraph("\n"));
 
-            document.Add(new Phrase(model.Currency + " " + NumberToTextIDN.terbilang(total), normal_font));
+            document.Add(new Phrase(model.Currency + " " + NumberToTextIDN.terbilang(totalPPH), normal_font));
             document.Add(new Paragraph("\n"));
 
             #endregion BodyFooter
