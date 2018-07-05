@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber;
 using Com.Moonlay.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 {
-    public class BankDocumentNumberGenerator
+    public class BankDocumentNumberGenerator : IBankDocumentNumberGenerator
     {
         private readonly DbSet<BankDocumentNumber> dbSet;
         private readonly PurchasingDbContext dbContext;
@@ -31,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             if (lastData == null)
             {
 
-                result = $"{Now.ToString("yy")}{Now.ToString("mm")}{BankCode}001";
+                result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}001";
                 BankDocumentNumber bankDocumentNumber = new BankDocumentNumber()
                 {
                     BankCode = BankCode,
@@ -47,14 +48,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             {
                 if (lastData.CreatedUtc.Month != Now.Month)
                 {
-                    result = $"{Now.ToString("yy")}{Now.ToString("mm")}{BankCode}001";
+                    result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}001";
 
                     lastData.LastDocumentNumber = 1;
                 }
                 else
                 {
                     lastData.LastDocumentNumber += 1;
-                    result = $"{Now.ToString("yy")}{Now.ToString("mm")}{BankCode}{lastData.LastDocumentNumber.ToString().PadLeft(4, '0')}";
+                    result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}{lastData.LastDocumentNumber.ToString().PadLeft(4, '0')}";
                 }
                 EntityExtension.FlagForUpdate(lastData, Username, USER_AGENT);
                 dbContext.Entry(lastData).Property(x => x.LastDocumentNumber).IsModified = true;
