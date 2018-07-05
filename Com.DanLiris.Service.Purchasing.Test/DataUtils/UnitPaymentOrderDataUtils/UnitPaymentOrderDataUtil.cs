@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
                 SupplierId = null,
                 SupplierCode = null,
                 SupplierName = null,
-                Date = null,
+                Date = new DateTimeOffset(),
                 CategoryId = null,
                 CategoryCode = null,
                 CategoryName = null,

@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         [MaxLength(1000)]
         public string SupplierName { get; set; }
 
-        public string Date { get; set; }
+        public DateTimeOffset Date { get; set; }
 
         /*Category*/
         [MaxLength(255)]
