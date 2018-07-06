@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public double IncomeTaxRate { get; set; }
         [MaxLength(255)]
         public string IncomeTaxNo { get; set; }
-        public DateTimeOffset IncomeTaxDate { get; set; }
+        public DateTimeOffset? IncomeTaxDate { get; set; }
 
         public bool UseVat { get; set; }
         [MaxLength(255)]
