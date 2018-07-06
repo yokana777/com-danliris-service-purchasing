@@ -142,6 +142,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result["data"].GetType().Name.Equals("JObject"));
 
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            foreach(var item in viewModel.items)
+            {
+                foreach(var detail in item.details)
+                {
+                    detail.productPrice = 100000;
+                    detail.pricePerDealUnit = 10000;
+                }
+            }
 
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);

@@ -1,8 +1,15 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderViewModel
@@ -118,6 +125,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
 
                         foreach (ExternalPurchaseOrderDetailViewModel Detail in Item.details)
                         {
+                            
+
                             externalPurchaseOrderDetailError += "{ ";
 
                             //if (Detail.DefaultUom.unit.Equals(Detail.DealUom.unit) && Detail.DefaultQuantity == Detail.DealQuantity && Detail.Convertion != 1)
@@ -136,10 +145,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                                 detailErrorCount++;
                                 externalPurchaseOrderDetailError += "price: 'Price should be more than 0', ";
                             }
-                            if (Detail.priceBeforeTax > Detail.productPrice)
+                            
+                            if(Detail.productPrice==null || Detail.productPrice == 0)
                             {
-                                detailErrorCount++;
-                                externalPurchaseOrderDetailError += "price: 'Price must not be greater than default price', ";
+                                ExternalPurchaseOrderFacade Service = (ExternalPurchaseOrderFacade)validationContext.GetService(typeof(ExternalPurchaseOrderFacade));
+                                ProductViewModel viewModel = Service.GetProduct(Detail.product._id);
+
+                                if (Detail.priceBeforeTax > viewModel.price)
+                                {
+                                    detailErrorCount++;
+                                    externalPurchaseOrderDetailError += "price: 'Price must not be greater than default price', ";
+                                }
+                            }
+                            else
+                            {
+                                if (Detail.priceBeforeTax > Detail.productPrice)
+                                {
+                                    detailErrorCount++;
+                                    externalPurchaseOrderDetailError += "price: 'Price must not be greater than default price', ";
+                                }
                             }
 
                             if (Detail.dealQuantity <= 0)

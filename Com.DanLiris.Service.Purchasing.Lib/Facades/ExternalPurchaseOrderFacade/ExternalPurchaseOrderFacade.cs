@@ -3,6 +3,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -188,6 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         if (detail.Id != 0)
                                         {
+                                            
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
 
                                             foreach (var duplicateItem in duplicateExternalPurchaseOrderItems.ToList())
@@ -221,6 +225,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         if (detail.Id != 0)
                                         {
+                                            
+
+
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
                                             detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
 
@@ -608,5 +615,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Query.ToList();
         }
 
+        public ProductViewModel GetProduct(string productId)
+        {
+            string productUri = "master/products";
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.GetAsync($"{APIEndpoint.Core}{productUri}/{productId}").Result.Content.ReadAsStringAsync();
+            //response.EnsureSuccessStatusCode();
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
+            ProductViewModel viewModel = JsonConvert.DeserializeObject<ProductViewModel>(result.GetValueOrDefault("data").ToString());
+            return viewModel;
+        }
     }
 }
