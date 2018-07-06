@@ -128,6 +128,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         }
 
         [Fact]
+        public async Task Should_Error_Create_Data_False_Conversion()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            foreach(var item in viewModel.items)
+            {
+                foreach(var detail in item.details)
+                {
+                    detail.defaultUom = detail.dealUom;
+                    detail.conversion = 2;
+                }
+            }
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
