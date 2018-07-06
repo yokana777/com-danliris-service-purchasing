@@ -200,7 +200,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
                 {
                     detail.productPrice = 100000;
                     detail.pricePerDealUnit = 10000;
-                    detail.dealQuantity = 0;
                 }
             }
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
@@ -260,6 +259,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
                 {
                     detail.productPrice = 1;
                     detail.pricePerDealUnit = 10000;
+                    detail.dealQuantity = 0;
+                }
+            }
+            var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_PriceBeforeTax_less_than_0()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+
+            var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
+            var json = responseGetById.Content.ReadAsStringAsync().Result;
+
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+
+            ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            foreach (var item in viewModel.items)
+            {
+                foreach (var detail in item.details)
+                {
+                    detail.productPrice = 100000;
+                    detail.pricePerDealUnit = 10000;
+                    detail.dealQuantity = 0;
+                    detail.priceBeforeTax = 0;
                 }
             }
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
