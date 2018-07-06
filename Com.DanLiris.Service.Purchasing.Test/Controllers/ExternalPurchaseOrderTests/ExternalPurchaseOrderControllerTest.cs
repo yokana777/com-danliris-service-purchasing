@@ -54,13 +54,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.PutAsync($"{URI}/unpost/{model.Id}", new StringContent("", Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
-
+        [Fact]
+        public async Task Should_Error_EPOUnpost_Data_InvalidId()
+        {
+            var response = await this.Client.PutAsync($"{URI}/unpost/0", new StringContent("", Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
         [Fact]
         public async Task Should_Success_EPOCancel()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
             var response = await this.Client.PutAsync($"{URI}/cancel/{model.Id}", new StringContent("", Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_EPOCancel_Data_InvalidId()
+        {
+            var response = await this.Client.PutAsync($"{URI}/cancel/0", new StringContent("", Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
         [Fact]
@@ -165,18 +177,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
-        public async Task Should_Error_Create_Data_Duplicate_PR()
-        {
-            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
-            viewModel.items.Add(new ExternalPurchaseOrderItemViewModel {
-                prNo = viewModel.items[0].prNo,
-                poId = viewModel.items[0].poId,
-                prId= viewModel.items[0].prId
-            });
-            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
+        
 
         [Fact]
         public async Task Should_Success_Update_Data()

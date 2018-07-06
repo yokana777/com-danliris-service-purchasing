@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         }
 
         [Fact]
-        public async Task Should_Error_Update_Data_Id()
+        public async Task Should_Error_Update_Data_InvalidId()
         {
             var response = await this.Client.PutAsync($"{URI}/0", new StringContent(JsonConvert.SerializeObject(new ExternalPurchaseOrderViewModel()).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
