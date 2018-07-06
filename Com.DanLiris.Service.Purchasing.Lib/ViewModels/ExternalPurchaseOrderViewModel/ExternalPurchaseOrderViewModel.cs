@@ -148,14 +148,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                             
                             if(Detail.productPrice==null || Detail.productPrice == 0)
                             {
-                                ExternalPurchaseOrderFacade Service = (ExternalPurchaseOrderFacade)validationContext.GetService(typeof(ExternalPurchaseOrderFacade));
-                                ProductViewModel viewModel = Service.GetProduct(Detail.product._id);
-
-                                if (Detail.priceBeforeTax > viewModel.price)
+                                if(Detail.product!=null && Detail.product._id != null)
                                 {
-                                    detailErrorCount++;
-                                    externalPurchaseOrderDetailError += "price: 'Price must not be greater than default price', ";
+                                    ExternalPurchaseOrderFacade Service = (ExternalPurchaseOrderFacade)validationContext.GetService(typeof(ExternalPurchaseOrderFacade));
+                                    ProductViewModel product = Service.GetProduct(Detail.product._id);
+
+                                    if (Detail.priceBeforeTax > product.price)
+                                    {
+                                        detailErrorCount++;
+                                        externalPurchaseOrderDetailError += "price: 'Price must not be greater than default price', ";
+                                    }
                                 }
+                                
                             }
                             else
                             {
