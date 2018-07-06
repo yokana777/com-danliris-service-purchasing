@@ -166,6 +166,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         }
 
         [Fact]
+        public async Task Should_Error_Create_Data_Duplicate_PR()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.items.Add(new ExternalPurchaseOrderItemViewModel {
+                prNo = viewModel.items[0].prNo,
+                poId = viewModel.items[0].poId,
+                prId= viewModel.items[0].prId
+            });
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
@@ -186,6 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
                 {
                     detail.productPrice = 100000;
                     detail.pricePerDealUnit = 10000;
+                    detail.dealQuantity = 0;
                 }
             }
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
