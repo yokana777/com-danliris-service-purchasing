@@ -124,12 +124,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                .ReturnsAsync(Model);
+                .ReturnsAsync(this.Model);
+
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(s => s.Map<BankExpenditureNoteViewModel>(It.IsAny<BankExpenditureNoteModel>()))
-                .Returns(new BankExpenditureNoteViewModel());
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
             var response = controller.GetById(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -158,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                     DeletedUtc = DateTime.UtcNow,
                     Id = 1,
                     IsDeleted = false,
-                    Details = new List<BankExpenditureNoteDetailModel>() { new BankExpenditureNoteDetailModel() { Items = new List<BankExpenditureNoteItemModel>() { new BankExpenditureNoteItemModel() } } },
+                    Details = new List<BankExpenditureNoteDetailModel>() { new BankExpenditureNoteDetailModel() { Items = new List<BankExpenditureNoteItemModel>() { new BankExpenditureNoteItemModel() { UnitCode = "code" }, new BankExpenditureNoteItemModel() { UnitCode = "code" } } } },
                 };
             }
         }
@@ -173,6 +179,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             var mockMapper = new Mock<IMapper>();
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
             var response = controller.GetById(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.NotFound, GetStatusCode(response));
         }
@@ -371,6 +384,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var response = controller.Delete(1).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_By_Id()
+        {
+            var mockFacade = new Mock<IBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .ReturnsAsync(this.Model);
+
+            var mockMapper = new Mock<IMapper>();
+
+            BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.GetById(It.IsAny<int>()).Result;
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
     }
 }
