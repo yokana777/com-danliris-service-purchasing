@@ -128,6 +128,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             Dictionary<string, double> units = new Dictionary<string, double>();
 
+            model.Items = model.Items.OrderBy(p => p.PurchasingDocumentExpedition.SupplierName).ToList();
+
             foreach (PPHBankExpenditureNoteItem item in model.Items)
             {
                 var pdeItems = item.PurchasingDocumentExpedition.Items
