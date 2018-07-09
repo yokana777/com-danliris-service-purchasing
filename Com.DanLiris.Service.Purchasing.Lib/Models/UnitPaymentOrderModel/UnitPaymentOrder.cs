@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         [MaxLength(1000)]
         public string SupplierName { get; set; }
 
-        public string Date { get; set; }
+        public DateTimeOffset Date { get; set; }
 
         /*Category*/
         [MaxLength(255)]
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public double IncomeTaxRate { get; set; }
         [MaxLength(255)]
         public string IncomeTaxNo { get; set; }
-        public DateTimeOffset IncomeTaxDate { get; set; }
+        public DateTimeOffset? IncomeTaxDate { get; set; }
 
         public bool UseVat { get; set; }
         [MaxLength(255)]

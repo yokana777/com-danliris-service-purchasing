@@ -20,5 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         {
             return Task.Run(() => new HttpResponseMessage());
         }
+        public Task<HttpResponseMessage> GetAsync(string url)
+        {
+            return Task.Run(() => new HttpResponseMessage());
+        }
     }
 }

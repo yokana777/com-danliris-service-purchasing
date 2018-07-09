@@ -128,6 +128,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         }
 
         [Fact]
+        public async Task Should_Error_Create_Data_False_Conversion()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            foreach(var item in viewModel.items)
+            {
+                foreach(var detail in item.details)
+                {
+                    detail.defaultUom = detail.dealUom;
+                    detail.conversion = 2;
+                }
+            }
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
@@ -142,13 +158,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result["data"].GetType().Name.Equals("JObject"));
 
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            foreach(var item in viewModel.items)
+            {
+                foreach(var detail in item.details)
+                {
+                    detail.productPrice = 100000;
+                    detail.pricePerDealUnit = 10000;
+                }
+            }
 
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]
-        public async Task Should_Error_Update_Data_Id()
+        public async Task Should_Error_Update_Data_InvalidId()
         {
             var response = await this.Client.PutAsync($"{URI}/0", new StringContent(JsonConvert.SerializeObject(new ExternalPurchaseOrderViewModel()).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
