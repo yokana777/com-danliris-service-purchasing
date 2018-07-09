@@ -215,6 +215,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         [HttpGet("no-select/by-position")]
         public ActionResult GetAllCashierPosition(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
+            size = int.MaxValue;
             ReadResponse Response = facade.GetAllByPosition(page, size, order, keyword, filter);
 
             return Ok(new
