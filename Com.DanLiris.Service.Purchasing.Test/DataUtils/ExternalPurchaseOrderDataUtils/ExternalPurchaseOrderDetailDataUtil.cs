@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                     unit = "Uom",
                 }
             },
-            defaultQuantity = internalPurchaseOrderItem[0].Quantity,
+            defaultQuantity = 100,
             dealUom=new UomViewModel
             {
                 _id = "UomId",
@@ -61,7 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             priceBeforeTax = 1000,
             pricePerDealUnit = 200,
             conversion=1,
-            dealQuantity = internalPurchaseOrderItem[0].Quantity
+            dealQuantity = 100,
+            productPrice=10000
         };
     }
 }
