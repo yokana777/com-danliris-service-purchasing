@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         }
 
         [Fact]
-        public void Should_Success_Get_All_Expedition_Data()
+        public void Should_Success_Get_All_Data()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Read(1, 25, "{}", null, "{}"))
@@ -110,12 +110,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         public void Should_Success_Get_All_By_Position_Data()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
-            mockFacade.Setup(x => x.GetAllByPosition(1, 25, "{}", null, "{}"))
+            mockFacade.Setup(x => x.GetAllByPosition(1, int.MaxValue, "{}", null, "{}"))
                 .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
             var mockMapper = new Mock<IMapper>();
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
-            var response = controller.GetAllCashierPosition(1, 25, "{}", null, "{}");
+            var response = controller.GetAllCashierPosition(1, int.MaxValue, "{}", null, "{}");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 

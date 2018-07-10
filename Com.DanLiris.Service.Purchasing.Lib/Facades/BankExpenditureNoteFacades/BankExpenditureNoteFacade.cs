@@ -87,7 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.SupplierName,
                    s.GrandTotal,
                    s.BankCurrencyCode,
-                   Details = s.Details.Select(sl => new { sl.SupplierName }).ToList(),
+                   Details = s.Details.Select(sl => new { sl.SupplierName, sl.UnitPaymentOrderNo }).ToList(),
                }).ToList()
             );
 
