@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
+{
+    public class PPHBankExpenditureNoteReportViewModel
+    {
+        public string No { get; set; }
+        public DateTimeOffset Date { get; set; }
+        public double DPP { get; set; }
+        public double IncomeTax { get; set; }
+        public string Currency { get; set; }
+        public string Bank { get; set; }
+        public string SPBSupplier { get; set; }
+        public string InvoiceNo { get; set; }
+    }
+}
