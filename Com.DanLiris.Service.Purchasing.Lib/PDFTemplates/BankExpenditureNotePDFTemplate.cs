@@ -126,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     {
                         s.First().UnitCode,
                         s.First().UnitName,
-                        Total = s.Sum(d => d.Price * 1.1)
+                        Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
                     });
 
                 foreach (var item in items)
