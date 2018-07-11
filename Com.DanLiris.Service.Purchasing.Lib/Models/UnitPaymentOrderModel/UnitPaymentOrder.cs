@@ -68,8 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
 
         public string Remark { get; set; }
         public DateTimeOffset DueDate { get; set; }
-        public string IsCorrection { get; set; }
-        public string IsPaid { get; set; }
+        public bool IsCorrection { get; set; }
+        public bool IsPaid { get; set; }
 
         public virtual ICollection<UnitPaymentOrderItem> Items { get; set; }
     }

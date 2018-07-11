@@ -9,9 +9,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
 {
     public class UnitPaymentOrderDetail : StandardEntity<long>
     {
-        public long URNDetailId { get; set; }
+        public long URNItemId { get; set; }
         [MaxLength(255)]
         public string EPONo { get; set; }
+        [NotMapped]
+        public long EPODetailId { get; set; }
         public long PRId { get; set; }
         [MaxLength(255)]
         public string PRNo { get; set; }
