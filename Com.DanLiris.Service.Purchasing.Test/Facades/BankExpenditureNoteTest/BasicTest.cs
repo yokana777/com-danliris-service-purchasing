@@ -150,5 +150,45 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
 
             Assert.True(vm.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Data_With_Params()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Data_With_Date()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Data_With_Date_And_Params()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", new DateTimeOffset(), new DateTimeOffset(), 0);
+
+            Assert.NotEqual(null, response);
+        }
     }
 }

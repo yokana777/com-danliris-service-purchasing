@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -393,6 +394,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             }));
 
             return new ReadResponse(list, TotalData, OrderDictionary);
+        }
+
+        public ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        {
+            IQueryable<BankExpenditureNoteReportViewModel> Query;
+
+            if (DateFrom == null || DateTo == null)
+            {
+                Query = (from a in dbContext.BankExpenditureNotes
+                         join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderId equals c.Id
+                         where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+                            && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+                            && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                         where a.DocumentNo == (DocumentNo ?? a.DocumentNo)
+                         orderby a.DocumentNo
+                         select new BankExpenditureNoteReportViewModel
+                         {
+                             DocumentNo = a.DocumentNo,
+                             Currency = a.BankCurrencyCode,
+                             Date = a.Date,
+                             SupplierName = c.SupplierName,
+                             DivisionName = c.DivisionName,
+                             PaymentMethod = c.PaymentMethod,
+                             UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+                             BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+                             DPP = c.TotalPaid - c.Vat,
+                             VAT = c.Vat,
+                             TotalPaid = c.TotalPaid,
+                             InvoiceNumber = c.InvoiceNo
+                         }
+                      );
+            }
+            else
+            {
+                Query = (from a in dbContext.BankExpenditureNotes
+                         join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderId equals c.Id
+                         where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+                            && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+                            && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                         where a.DocumentNo == (DocumentNo ?? a.DocumentNo) && a.Date.AddHours(Offset).Date >= DateFrom.Value.Date && a.Date.AddHours(Offset).Date <= DateTo.Value.Date
+                         orderby a.DocumentNo
+                         select new BankExpenditureNoteReportViewModel
+                         {
+                             DocumentNo = a.DocumentNo,
+                             Currency = a.BankCurrencyCode,
+                             Date = a.Date,
+                             SupplierName = c.SupplierName,
+                             DivisionName = c.DivisionName,
+                             PaymentMethod = c.PaymentMethod,
+                             UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+                             BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+                             DPP = c.TotalPaid - c.Vat,
+                             VAT = c.Vat,
+                             TotalPaid = c.TotalPaid,
+                             InvoiceNumber = c.InvoiceNo
+                         }
+                      );
+            }
+
+            Pageable<BankExpenditureNoteReportViewModel> pageable = new Pageable<BankExpenditureNoteReportViewModel>(Query, Page - 1, Size);
+            List<object> data = pageable.Data.ToList<object>();
+
+            return new ReadResponse(data, pageable.TotalCount, new Dictionary<string, string>());
         }
     }
 }

@@ -24,8 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
     [Authorize]
     public class BankExpenditureNoteController : Controller
     {
-        private string ApiVersion = "1.0.0";
-        public readonly IServiceProvider serviceProvider;
+        private readonly string ApiVersion = "1.0.0";
+        private readonly IServiceProvider serviceProvider;
         private readonly IBankExpenditureNoteFacade facade;
         private readonly IdentityService identityService;
         private readonly IMapper mapper;
@@ -229,6 +229,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                     { "order", Response.Order },
                     { "page", page },
                     { "size", size }
+                },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
+        }
+
+        [HttpGet("reports/list")]
+        public ActionResult GetReport(string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Size = 25, int Page = 1)
+        {
+            int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+            ReadResponse response = this.facade.GetReport(Size, Page, DocumentNo, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                data = response.Data,
+                info = new Dictionary<string, object>
+                {
+                    { "count", response.Data.Count },
+                    { "total", response.TotalData },
+                    { "order", response.Order },
+                    { "page", Page },
+                    { "size", Size }
                 },
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
