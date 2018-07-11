@@ -144,8 +144,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             {
                 Date = null,
                 Bank = null,
-                BGCheckNumber = null,
                 Details = new List<BankExpenditureNoteDetailViewModel>()
+            };
+
+            Assert.True(vm.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Date_Greater_Than_Now()
+        {
+            BankExpenditureNoteViewModel vm = new BankExpenditureNoteViewModel()
+            {
+                Date = DateTime.Now.AddDays(2),
+                Bank = null,
+                Details = null
             };
 
             Assert.True(vm.Validate(null).Count() > 0);
