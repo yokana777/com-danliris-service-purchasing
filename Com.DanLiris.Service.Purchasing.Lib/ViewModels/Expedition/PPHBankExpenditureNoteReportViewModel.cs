@@ -12,7 +12,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public double IncomeTax { get; set; }
         public string Currency { get; set; }
         public string Bank { get; set; }
-        public string SPBSupplier { get; set; }
+        public string Supplier { get; set; }
+        public string SPB { get; set; }
         public string InvoiceNo { get; set; }
     }
 }

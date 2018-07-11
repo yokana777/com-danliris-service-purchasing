@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PPHBankExpenditureNote>();
         }
 
-        public ReadResponse GetReport(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public ReadResponse GetReport(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             IQueryable<PPHBankExpenditureNoteReportViewModel> Query;
 
@@ -40,7 +40,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                              No = a.No,
                              Currency = a.Currency,
                              Date = a.Date,
-                             SPBSupplier = string.Concat(b.UnitPaymentOrderNo, " / ", c.SupplierName),
+                             Supplier = c.SupplierName,
+                             SPB = b.UnitPaymentOrderNo,
                              Bank = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.Currency),
                              DPP = c.TotalPaid - c.Vat,
                              IncomeTax = c.IncomeTax,
@@ -56,14 +57,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                          where c.InvoiceNo == (InvoiceNo == null ? c.InvoiceNo : InvoiceNo)
                             && c.SupplierCode == (SupplierCode == null ? c.SupplierCode : SupplierCode)
                             && c.UnitPaymentOrderNo == (UnitPaymentOrderNo == null ? c.UnitPaymentOrderNo : UnitPaymentOrderNo)
-                         where a.No == (No == null ? a.No : No) && a.Date.Date >= DateFrom && a.Date.Date <= DateTo
+                         where a.No == (No == null ? a.No : No) && a.Date.AddHours(Offset).Date >= DateFrom.Value.Date && a.Date.AddHours(Offset).Date <= DateTo.Value.Date
                          orderby a.No
                          select new PPHBankExpenditureNoteReportViewModel
                          {
                              No = a.No,
                              Currency = a.Currency,
                              Date = a.Date,
-                             SPBSupplier = string.Concat(b.UnitPaymentOrderNo, " / ", c.SupplierName),
+                             Supplier = c.SupplierName,
+                             SPB = b.UnitPaymentOrderNo,
                              Bank = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.Currency),
                              DPP = c.TotalPaid - c.Vat,
                              IncomeTax = c.IncomeTax,

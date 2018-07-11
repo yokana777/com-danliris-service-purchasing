@@ -29,7 +29,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         [HttpGet]
         public ActionResult Get(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
         {
-            ReadResponse response = this.pphBankExpenditureNoteReportFacade.GetReport(Size, Page, No, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DateFrom, DateTo);
+            int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+            ReadResponse response = this.pphBankExpenditureNoteReportFacade.GetReport(Size, Page, No, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         UnitCode = s.First().UnitCode,
                         UnitName = s.First().UnitName,
                         TotalDPP = s.Sum(d => d.Price),
-                        TotalPPH = s.Sum(d => (d.Price * model.IncomeTaxRate) / 100)
+                        TotalPPH = (s.Sum(d => d.Price) * model.IncomeTaxRate) / 100
                     });
 
                 foreach (var pdeItem in pdeItems)
