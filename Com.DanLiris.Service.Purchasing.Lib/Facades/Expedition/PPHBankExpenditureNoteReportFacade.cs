@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.Moonlay.NetCore.Lib;
@@ -11,7 +12,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
-    public class PPHBankExpenditureNoteReportFacade
+    public class PPHBankExpenditureNoteReportFacade : IPPHBankExpenditureNoteReportFacade
     {
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<PPHBankExpenditureNote> dbSet;
@@ -30,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 Query = (from a in dbContext.PPHBankExpenditureNotes
                          join b in dbContext.PPHBankExpenditureNoteItems on a.Id equals b.PPHBankExpenditureNoteId
                          join c in dbContext.PurchasingDocumentExpeditions on b.PurchasingDocumentExpeditionId equals c.Id
-                         where c.InvoiceNo == (InvoiceNo == null ? c.InvoiceNo : InvoiceNo)
+                         where a.IsDeleted == false && c.InvoiceNo == (InvoiceNo == null ? c.InvoiceNo : InvoiceNo)
                             && c.SupplierCode == (SupplierCode == null ? c.SupplierCode : SupplierCode)
                             && c.UnitPaymentOrderNo == (UnitPaymentOrderNo == null ? c.UnitPaymentOrderNo : UnitPaymentOrderNo)
                          where a.No == (No == null ? a.No : No)
@@ -57,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                          where c.InvoiceNo == (InvoiceNo == null ? c.InvoiceNo : InvoiceNo)
                             && c.SupplierCode == (SupplierCode == null ? c.SupplierCode : SupplierCode)
                             && c.UnitPaymentOrderNo == (UnitPaymentOrderNo == null ? c.UnitPaymentOrderNo : UnitPaymentOrderNo)
-                         where a.No == (No == null ? a.No : No) && a.Date.AddHours(Offset).Date >= DateFrom.Value.Date && a.Date.AddHours(Offset).Date <= DateTo.Value.Date
+                         where a.IsDeleted == false && a.No == (No == null ? a.No : No) && a.Date.AddHours(Offset).Date >= DateFrom.Value.Date && a.Date.AddHours(Offset).Date <= DateTo.Value.Date
                          orderby a.No
                          select new PPHBankExpenditureNoteReportViewModel
                          {
