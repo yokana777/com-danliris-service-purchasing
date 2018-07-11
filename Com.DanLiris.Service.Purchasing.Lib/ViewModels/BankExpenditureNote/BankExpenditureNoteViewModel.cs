@@ -35,11 +35,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
             {
                 yield return new ValidationResult("Tanggal harus lebih kecil dari atau sama dengan tanggal sekarang", new List<string> { "Date" });
             }
-
-            if (string.IsNullOrWhiteSpace(BGCheckNumber))
-            {
-                yield return new ValidationResult("Cek/BG harus diisi", new List<string> { "BGCheckNumber" });
-            }
         }
     }
 }
