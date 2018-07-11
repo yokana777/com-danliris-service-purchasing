@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities
 {
     public abstract class BaseViewModel
     {
+        public long _id { get; set; }
         public long Id { get; set; }
         public bool Active { get; set; }
         public DateTime CreatedUtc { get; set; }

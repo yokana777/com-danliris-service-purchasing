@@ -18,10 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Configs.Expedition
             builder.Property(p => p.SendToVerificationDivisionBy).HasMaxLength(255);
             builder.Property(p => p.VerificationDivisionBy).HasMaxLength(255);
             builder.Property(p => p.SendToCashierDivisionBy).HasMaxLength(255);
-            builder.Property(p => p.SendToFinanceDivisionBy).HasMaxLength(255);
+            builder.Property(p => p.SendToAccountingDivisionBy).HasMaxLength(255);
             builder.Property(p => p.SendToPurchasingDivisionBy).HasMaxLength(255);
             builder.Property(p => p.CashierDivisionBy).HasMaxLength(255);
-            builder.Property(p => p.FinanceDivisionBy).HasMaxLength(255);
+            builder.Property(p => p.AccountingDivisionBy).HasMaxLength(255);
             builder.Property(p => p.NotVerifiedReason).HasMaxLength(255);
             builder.Property(p => p.BankExpenditureNoteNo).HasMaxLength(255);
         }

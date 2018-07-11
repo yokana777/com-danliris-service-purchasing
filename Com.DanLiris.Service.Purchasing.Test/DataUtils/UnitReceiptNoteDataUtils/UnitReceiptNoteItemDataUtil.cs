@@ -1,0 +1,62 @@
+﻿using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+
+namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils
+{
+    public class UnitReceiptNoteItemDataUtil
+    {
+        private UnitReceiptNoteDataUtil unitReceiptNoteDataUtil;
+
+        public Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem GetNewData(List<DeliveryOrderItem> deliveryOrderItem)
+        {
+            List<DeliveryOrderDetail> doDetail = new List<DeliveryOrderDetail>(deliveryOrderItem[0].Details);
+            return new Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem
+            {
+                ProductId = doDetail[0].ProductId,
+                ProductCode = doDetail[0].ProductCode,
+                ProductName = doDetail[0].ProductName,
+                ReceiptQuantity = doDetail[0].DOQuantity,
+                UomId = doDetail[0].UomId,
+                Uom = doDetail[0].UomUnit,
+                ProductRemark = "Test",
+                PRItemId = doDetail[0].PRItemId,
+                PRId= doDetail[0].PRId,
+                PRNo= doDetail[0].PRNo,
+                EPODetailId= doDetail[0].EPODetailId,
+                DODetailId=doDetail[0].Id
+            };
+        }
+
+        public UnitReceiptNoteItemViewModel GetNewDataViewModel(List<DeliveryOrderItem> deliveryOrderItem)
+        {
+            List<DeliveryOrderDetail> doDetail = new List<DeliveryOrderDetail>(deliveryOrderItem[0].Details);
+
+            return new UnitReceiptNoteItemViewModel
+            {
+                prId = doDetail[0].PRId,
+                prNo = doDetail[0].PRNo,
+                prItemId= doDetail[0].PRItemId,
+                doDetailId= doDetail[0].Id,
+                deliveredQuantity= doDetail[0].DOQuantity,
+                epoDetailId=doDetail[0].EPODetailId,
+                product = new ProductViewModel
+                {
+                    _id = "ProductId",
+                    code = "ProductCode",
+                    name = "ProductName",
+                    uom= new UomViewModel
+                    {
+                        _id= doDetail[0].UomId,
+                        unit= "uom"
+                    }
+                },
+                uom= "uom",
+                uomId= doDetail[0].UomId
+            };
+        }
+    }
+}

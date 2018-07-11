@@ -19,5 +19,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services
         {
             return await _client.PutAsync(url, content);
         }
+
+        public async Task<HttpResponseMessage> GetAsync(string url)
+        {
+            return await _client.GetAsync(url);
+        }
     }
 }

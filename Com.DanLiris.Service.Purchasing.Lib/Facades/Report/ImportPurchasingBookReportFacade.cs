@@ -182,7 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         });
 
                         if (!subTotalCategory.ContainsKey(categoryName)) subTotalCategory.Add(categoryName, 0);
-                        subTotalCategory[categoryName] += item.deliveredQuantity;
+                        subTotalCategory[categoryName] += (item.pricePerDealUnit * item.deliveredQuantity * item.currencyRate);
                     }
                 }
 
@@ -194,17 +194,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     foreach (UnitReceiptNoteViewModel data in categoryName.Value)
                     {
                         UnitReceiptNoteItemViewModel item = data.items[0];
-                        result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, item.purchaseOrder.category.name, data.unit.name, data.pibNo, item.pricePerDealUnit * item.deliveredQuantity, item.currencyRate, item.pricePerDealUnit * item.deliveredQuantity * item.currencyRate);
+                        result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, item.purchaseOrder.category.name, data.unit.name, data.pibNo, Math.Round(item.pricePerDealUnit * item.deliveredQuantity, 2), Math.Round(item.currencyRate, 2), Math.Round(item.pricePerDealUnit * item.deliveredQuantity * item.currencyRate, 2));
                         rowPosition += 1;
                     }
-                    result.Rows.Add("SUB TOTAL", "", "", "", "", "", 0, 0, subTotalCategory[categoryName.Key]);
+                    result.Rows.Add("SUB TOTAL", "", "", "", "", "", 0, 0, Math.Round(subTotalCategory[categoryName.Key], 2));
                     rowPosition += 1;
 
                     mergeCells.Add(($"A{rowPosition}:H{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
 
                     total += subTotalCategory[categoryName.Key];
                 }
-                result.Rows.Add("TOTAL", "", "", "", "", "", 0, 0, total);
+                result.Rows.Add("TOTAL", "", "", "", "", "", 0, 0, Math.Round(total, 2));
                 rowPosition += 1;
 
                 mergeCells.Add(($"A{rowPosition}:H{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));

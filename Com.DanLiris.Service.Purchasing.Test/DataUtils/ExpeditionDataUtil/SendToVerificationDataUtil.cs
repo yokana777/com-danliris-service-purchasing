@@ -17,6 +17,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
         }
         public PurchasingDocumentExpedition GetNewData()
         {
+            List<PurchasingDocumentExpeditionItem> Items = new List<PurchasingDocumentExpeditionItem>()
+            {
+                new PurchasingDocumentExpeditionItem()
+                {
+                    ProductId = "ProductId",
+                    ProductCode = "ProductCode",
+                    ProductName = "ProductName",
+                    Price = 10000,
+                    Quantity = 5,
+                    Uom = "MTR",
+                    UnitId = "UnitId",
+                    UnitCode = "UnitCode",
+                    UnitName = "UnitName"
+                }
+            };
+
             PurchasingDocumentExpedition TestData = new PurchasingDocumentExpedition()
             {
                 SendToVerificationDivisionDate = DateTimeOffset.UtcNow,
@@ -24,12 +40,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 UPODate = DateTimeOffset.UtcNow,
                 DueDate = DateTimeOffset.UtcNow,
                 InvoiceNo = "Invoice",
+                PaymentMethod = "CASH",
                 SupplierCode = "Supplier",
                 SupplierName = "Supplier",
                 DivisionCode = "Division",
                 DivisionName = "Division",
+                IncomeTax = 20000,
+                Vat = 100000,
+                IncomeTaxId = "IncomeTaxId",
+                IncomeTaxName = "IncomeTaxName",
+                IncomeTaxRate = 2,
                 TotalPaid = 1000000,
                 Currency = "IDR",
+                Items = Items,
             };
 
             return TestData;
@@ -41,8 +64,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             await Facade.SendToVerification(new List<PurchasingDocumentExpedition>() { model }, "Unit Test");
             return model;
         }
-
-
-        
     }
 }

@@ -2,8 +2,12 @@
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
@@ -46,24 +50,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         private void RegisterEndpoints()
         {
             APIEndpoint.Purchasing = Configuration.GetValue<string>(Constant.PURCHASING_ENDPOINT) ?? Configuration[Constant.PURCHASING_ENDPOINT];
+            APIEndpoint.Core = Configuration.GetValue<string>(Constant.CORE_ENDPOINT) ?? Configuration[Constant.CORE_ENDPOINT];
         }
 
         private void RegisterFacades(IServiceCollection services)
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
+                .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
+                .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
+                .AddTransient<DeliveryOrderFacade>()
                 .AddTransient<ImportPurchasingBookReportFacade>()
-                .AddTransient<LocalPurchasingBookReportFacade>();
+                .AddTransient<LocalPurchasingBookReportFacade>()
+                .AddTransient<InternalPurchaseOrderFacade>()
+                .AddTransient<ExternalPurchaseOrderFacade>()
+                .AddTransient<UnitReceiptNoteFacade>()
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
         {
             services
                 .AddScoped<IdentityService>()
-                .AddScoped<ValidateService>();
+                .AddScoped<ValidateService>()
+                .AddScoped<IValidateService, ValidateService>();
 
             if (isTest == false)
             {
