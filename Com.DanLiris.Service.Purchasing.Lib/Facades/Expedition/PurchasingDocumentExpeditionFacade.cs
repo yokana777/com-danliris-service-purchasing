@@ -53,13 +53,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     TotalPaid = s.TotalPaid,
                     Currency = s.Currency,
                     Position = s.Position,
+                    IsPaid = s.IsPaid,
+                    IsPaidPPH = s.IsPaidPPH,
                     VerifyDate = s.VerifyDate,
                     LastModifiedUtc = s.LastModifiedUtc
                 });
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitPaymentOrderNo", "SupplierName", "DivisionName"
+                "UnitPaymentOrderNo", "InvoiceNo", "SupplierName", "DivisionName"
             };
 
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(Query, searchAttributes, keyword);

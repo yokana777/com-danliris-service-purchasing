@@ -61,6 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
+                .AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
+                .AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
