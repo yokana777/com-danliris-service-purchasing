@@ -17,32 +17,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public string pibNo { get; set; }
         public string incomeTaxNo { get; set; }
         public string doNo { get; set; }
+        public string doId { get; set; }
         public List<UnitReceiptNoteItemViewModel> items { get; set; }
+
+        public StorageViewModel storage { get; set; }
 
         public bool isStorage { get; set; }
         public string remark { get; set; }
 
+        public bool isPaid { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (this.date.Equals(DateTimeOffset.MinValue) || this.date == null)
             {
                 yield return new ValidationResult("Date is required", new List<string> { "date" });
             }
-            
-            else
+
+            if (this.isStorage)
             {
-                if (this.no == "" || this.no ==null)
+                if (storage._id == null)
                 {
-                    if (this.supplier.import == true)
-                    {
-                        this.no = "BPI";
-                    }
-                    else
-                    {
-                        this.no = "BPL";
-                    }
+                    yield return new ValidationResult("Storage is required", new List<string> { "storage" });
                 }
-               
             }
             if (this.unit == null)
             {

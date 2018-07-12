@@ -1,9 +1,10 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel
 {
-    public class UnitReceiptNoteItemViewModel
+    public class UnitReceiptNoteItemViewModel : BaseViewModel
     {
         public long epoDetailId { get; set; }
         public long doDetailId { get; set; }
