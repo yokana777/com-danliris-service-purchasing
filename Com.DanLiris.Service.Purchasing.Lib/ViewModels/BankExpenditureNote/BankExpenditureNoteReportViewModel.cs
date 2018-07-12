@@ -16,6 +16,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string BankName { get; set; }
         public string UnitPaymentOrderNo { get; set; }
         public string InvoiceNumber { get; set; }
-        public double TotalPaid { get; internal set; }
+        public double TotalPaid { get; set; }
     }
 }
