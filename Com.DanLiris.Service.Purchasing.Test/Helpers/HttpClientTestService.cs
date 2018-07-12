@@ -24,5 +24,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         {
             return Task.Run(() => new HttpResponseMessage());
         }
+
+        public Task<HttpResponseMessage> PostAsync(string url, HttpContent content)
+        {
+            return Task.Run(() => new HttpResponseMessage());
+        }
     }
 }
