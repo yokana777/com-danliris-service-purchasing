@@ -18,8 +18,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteMo
         public long PRId { get; set; }
         public string PRNo { get; set; }
         public long PRDetailId { get; set; }
+        [MaxLength(255)]
         public string ProductId { get; set; }
+        [MaxLength(255)]
         public string ProductCode { get; set; }
+        [MaxLength(1000)]
         public string ProductName { get; set; }
         public long Quantity { get; set; }
         public string UomId { get; set; }

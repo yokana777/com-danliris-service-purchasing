@@ -138,50 +138,96 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
             }
         }
 
-        //[HttpGet("pdf/{id}")]
-        //public IActionResult GetPDF(int id)
-        //{
-        //    try
-        //    {
-        //        var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+        [HttpGet("pdf/{id}")]
+        public IActionResult GetPDF(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
-        //        UnitPaymentCorrectionNote model = _facade.ReadById(id);
-        //        UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
-        //        if (viewModel == null)
-        //        {
-        //            throw new Exception("Invalid Id");
-        //        }
+                UnitPaymentCorrectionNote model = _facade.ReadById(id);
+                UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
 
-        //        if (indexAcceptPdf < 0)
-        //        {
-        //            return Ok(new
-        //            {
-        //                apiVersion = ApiVersion,
-        //                statusCode = General.OK_STATUS_CODE,
-        //                message = General.OK_MESSAGE,
-        //                data = viewModel,
-        //            });
-        //        }
-        //        else
-        //        {
-        //            int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-        //            UnitPaymentCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentCorrectionNotePDFTemplate();
-        //            MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+                    UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
 
-        //            return new FileStreamResult(stream, "application/pdf")
-        //            {
-        //                FileDownloadName = $"{viewModel.uPCNo}.pdf"
-        //            };
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Dictionary<string, object> Result =
-        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-        //            .Fail();
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-        //    }
-        //}
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.uPCNo}.pdf"
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("pdfNotaRetur/{id}")]
+        public IActionResult GetPDFNotaRetur(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                UnitPaymentCorrectionNote model = _facade.ReadById(id);
+                UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfNotaReturTemplate(viewModel, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.uPCNo}.pdf"
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }

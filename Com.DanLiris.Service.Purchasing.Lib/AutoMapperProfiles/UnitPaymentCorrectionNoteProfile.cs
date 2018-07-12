@@ -34,6 +34,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.supplier._id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.supplier.name, opt => opt.MapFrom(s => s.SupplierName))
+                /* Division */
+                .ForPath(d => d.division._id, opt => opt.MapFrom(s => s.DivisionId))
+                .ForPath(d => d.division.code, opt => opt.MapFrom(s => s.DivisionCode))
+                .ForPath(d => d.division.name, opt => opt.MapFrom(s => s.DivisionName))
+                /* Category */
+                .ForPath(d => d.category._id, opt => opt.MapFrom(s => s.CategoryId))
+                .ForPath(d => d.category.code, opt => opt.MapFrom(s => s.CategoryCode))
+                .ForPath(d => d.category.name, opt => opt.MapFrom(s => s.CategoryName))
 
                 .ReverseMap();
         }

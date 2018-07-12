@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel
@@ -12,9 +13,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteMo
         public string CorrectionType { get; set; }
         public long UPOId { get; set; }
         public string UPONo { get; set; }
+        [MaxLength(255)]
         public string SupplierId { get; set; }
+        [MaxLength(255)]
         public string SupplierCode { get; set; }
+        [MaxLength(1000)]
         public string SupplierName { get; set; }
+        [MaxLength(255)]
+        public string DivisionId { get; set; }
+        [MaxLength(255)]
+        public string DivisionCode { get; set; }
+        [MaxLength(1000)]
+        public string DivisionName { get; set; }
+        [MaxLength(255)]
+        public string CategoryId { get; set; }
+        [MaxLength(255)]
+        public string CategoryCode { get; set; }
+        [MaxLength(1000)]
+        public string CategoryName { get; set; }
         public string InvoiceCorrectionNo { get; set; }
         public DateTimeOffset InvoiceCorrectionDate { get; set; }
         public bool useVat { get; set; }
