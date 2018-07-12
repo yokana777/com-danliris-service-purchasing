@@ -170,7 +170,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
             BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, 0);
+            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, null, null, 0);
 
             Assert.NotEqual(null, response);
         }
@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
-            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, 0);
+            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, null, null, 0);
 
             Assert.NotEqual(null, response);
         }
@@ -190,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
-            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
+            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
 
             Assert.NotEqual(null, response);
         }
@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
-            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", new DateTimeOffset(), new DateTimeOffset(), 0);
+            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
 
             Assert.NotEqual(null, response);
         }

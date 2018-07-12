@@ -14,6 +14,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<BankExpenditureNoteModel> ReadById(int Id);
         Task<int> Create(BankExpenditureNoteModel model, string username);
         Task<int> Delete(int Id, string username);
-        ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
+        ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
     }
 }

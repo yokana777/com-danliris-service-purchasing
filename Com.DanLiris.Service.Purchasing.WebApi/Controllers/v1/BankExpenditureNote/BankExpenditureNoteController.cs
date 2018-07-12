@@ -236,10 +236,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         }
 
         [HttpGet("reports/list")]
-        public ActionResult GetReport(string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Size = 25, int Page = 1)
+        public ActionResult GetReport(string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Size = 25, int Page = 1)
         {
             int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-            ReadResponse response = this.facade.GetReport(Size, Page, DocumentNo, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
+            ReadResponse response = this.facade.GetReport(Size, Page, DocumentNo, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DivisionCode, PaymentMethod, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

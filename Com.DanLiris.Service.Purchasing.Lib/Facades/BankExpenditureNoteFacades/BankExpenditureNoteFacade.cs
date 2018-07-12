@@ -396,7 +396,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             return new ReadResponse(list, TotalData, OrderDictionary);
         }
 
-        public ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             IQueryable<BankExpenditureNoteReportViewModel> Query;
 
@@ -408,6 +408,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                             && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                             && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                            && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+                            && !c.PaymentMethod.ToUpper().Equals("CASH")
+                            && c.IsPaid
+                            && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
                          where a.DocumentNo == (DocumentNo ?? a.DocumentNo)
                          orderby a.DocumentNo
                          select new BankExpenditureNoteReportViewModel
@@ -435,6 +439,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                             && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                             && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                            && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+                            && !c.PaymentMethod.ToUpper().Equals("CASH")
+                            && c.IsPaid
+                            && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
                          where a.DocumentNo == (DocumentNo ?? a.DocumentNo) && a.Date.AddHours(Offset).Date >= DateFrom.Value.Date && a.Date.AddHours(Offset).Date <= DateTo.Value.Date
                          orderby a.DocumentNo
                          select new BankExpenditureNoteReportViewModel
