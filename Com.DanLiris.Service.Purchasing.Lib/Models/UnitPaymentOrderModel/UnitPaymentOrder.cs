@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public double IncomeTaxRate { get; set; }
         [MaxLength(255)]
         public string IncomeTaxNo { get; set; }
-        public DateTimeOffset IncomeTaxDate { get; set; }
+        public DateTimeOffset? IncomeTaxDate { get; set; }
 
         public bool UseVat { get; set; }
         [MaxLength(255)]
@@ -68,8 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
 
         public string Remark { get; set; }
         public DateTimeOffset DueDate { get; set; }
-        public string IsCorrection { get; set; }
-        public string IsPaid { get; set; }
+        public bool IsCorrection { get; set; }
+        public bool IsPaid { get; set; }
 
         public virtual ICollection<UnitPaymentOrderItem> Items { get; set; }
     }

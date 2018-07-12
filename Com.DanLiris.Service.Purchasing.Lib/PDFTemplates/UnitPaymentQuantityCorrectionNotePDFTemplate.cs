@@ -321,7 +321,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string currencyCodeTotal = "";
             DateTime receiptDate = new DateTime();
 
-            Document document = new Document(PageSize.A4.Rotate(), 40, 40, 40, 40);
+            Document document = new Document(PageSize.A5, 40, 40, 40, 40);
             //document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate())
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);

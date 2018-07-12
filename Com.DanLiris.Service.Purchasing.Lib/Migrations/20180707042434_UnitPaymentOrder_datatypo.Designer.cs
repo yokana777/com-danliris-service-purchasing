@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180707042434_UnitPaymentOrder_datatypo")]
+    partial class UnitPaymentOrder_datatypo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1486,179 +1487,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("PurchaseRequestItems");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNote", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<DateTimeOffset>("CorrectionDate");
-
-                    b.Property<string>("CorrectionType");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<DateTimeOffset>("DueDate");
-
-                    b.Property<string>("IncomeTaxCorrectionName");
-
-                    b.Property<string>("IncomeTaxCorrectionNo");
-
-                    b.Property<DateTimeOffset>("InvoiceCorrectionDate");
-
-                    b.Property<string>("InvoiceCorrectionNo");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<string>("ReleaseOrderNoteNo");
-
-                    b.Property<string>("Remark");
-
-                    b.Property<string>("ReturNoteNo");
-
-                    b.Property<string>("SupplierCode");
-
-                    b.Property<string>("SupplierId");
-
-                    b.Property<string>("SupplierName");
-
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("UPCNo");
-
-                    b.Property<long>("UPOId");
-
-                    b.Property<string>("UPONo");
-
-                    b.Property<DateTimeOffset>("VatTaxCorrectionDate");
-
-                    b.Property<string>("VatTaxCorrectionNo");
-
-                    b.Property<bool>("useIncomeTax");
-
-                    b.Property<bool>("useVat");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UnitPaymentCorrectionNotes");
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNoteItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<string>("CurrencyId");
-
-                    b.Property<string>("CurrencyRate");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("EPONo");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<long>("PRDetailId");
-
-                    b.Property<long>("PRId");
-
-                    b.Property<string>("PRNo");
-
-                    b.Property<long>("PricePerDealUnitAfter");
-
-                    b.Property<long>("PricePerDealUnitBefore");
-
-                    b.Property<long>("PriceTotalAfter");
-
-                    b.Property<long>("PriceTotalBefore");
-
-                    b.Property<string>("ProductCode");
-
-                    b.Property<string>("ProductId");
-
-                    b.Property<string>("ProductName");
-
-                    b.Property<long>("Quantity");
-
-                    b.Property<long>("UPCId");
-
-                    b.Property<long>("UPODetailId");
-
-                    b.Property<string>("URNNo");
-
-                    b.Property<string>("UomId");
-
-                    b.Property<string>("UomUnit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UPCId");
-
-                    b.ToTable("UnitPaymentCorrectionNoteItems");
-                });
-
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel.UnitPaymentOrder", b =>
                 {
                     b.Property<long>("Id")
@@ -2192,14 +2020,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel.PurchaseRequest", "PurchaseRequest")
                         .WithMany("Items")
                         .HasForeignKey("PurchaseRequestId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNoteItem", b =>
-                {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNote", "UnitPaymentCorrectionNote")
-                        .WithMany("Items")
-                        .HasForeignKey("UPCId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

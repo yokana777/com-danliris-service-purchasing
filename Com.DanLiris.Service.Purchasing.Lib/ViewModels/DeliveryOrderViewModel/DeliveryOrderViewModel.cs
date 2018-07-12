@@ -86,6 +86,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel
                         {
                             detailError += "{";
 
+                            //var duplicateItems = items.Where(i => i.purchaseOrderExternal._id == item.purchaseOrderExternal._id && i._id != item._id).ToList();
+                            //var duplicateDetails = duplicateItems.Where(i => i.fulfillments.Any(f => f.purchaseOrder.purchaseRequest._id == detail.purchaseOrder.purchaseRequest._id && f.product._id == detail.product._id)).ToList();
+                            //if (duplicateDetails.Count > 0)
+                            //{
+                            //    detailErrorCount++;
+                            //    detailError += "product: 'Data sudah ada', ";
+                            //}
+
                             if (detail.deliveredQuantity == 0)
                             {
                                 detailErrorCount++;
