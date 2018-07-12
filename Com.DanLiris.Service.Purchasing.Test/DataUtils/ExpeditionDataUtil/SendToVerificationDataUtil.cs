@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 UPODate = DateTimeOffset.UtcNow,
                 DueDate = DateTimeOffset.UtcNow,
                 InvoiceNo = "Invoice",
+                PaymentMethod = "CASH",
                 SupplierCode = "Supplier",
                 SupplierName = "Supplier",
                 DivisionCode = "Division",

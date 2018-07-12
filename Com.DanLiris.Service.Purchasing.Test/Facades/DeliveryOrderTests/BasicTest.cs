@@ -132,6 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var newModelForAddItem = await DataUtil.GetNewData(USERNAME);
             DeliveryOrderItem newModelItem = newModelForAddItem.Items.FirstOrDefault();
             model.Items.Add(newModelItem);
+            model.Items.Add(newModelItem);
             var ResponseAddItem = await Facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAddItem, 0);
 

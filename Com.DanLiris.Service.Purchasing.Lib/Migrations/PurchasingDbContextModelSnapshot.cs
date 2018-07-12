@@ -21,6 +21,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                 .HasAnnotation("ProductVersion", "2.0.1-rtm-125")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber.BankDocumentNumber", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Active");
+
+                    b.Property<string>("BankCode")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CreatedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("CreatedUtc");
+
+                    b.Property<string>("DeletedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("DeletedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("DeletedUtc");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<int>("LastDocumentNumber");
+
+                    b.Property<string>("LastModifiedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("LastModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("LastModifiedUtc");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(25);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BankDocumentNumbers");
+                });
+
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel.BankExpenditureNoteDetailModel", b =>
                 {
                     b.Property<long>("Id")
@@ -223,6 +275,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
+
+                    b.Property<DateTimeOffset>("Date");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -511,6 +565,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Currency");
 
+                    b.Property<DateTimeOffset>("Date");
+
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -690,6 +746,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("NotVerifiedReason")
                         .HasMaxLength(255);
+
+                    b.Property<string>("PaymentMethod");
 
                     b.Property<int>("Position");
 
@@ -1462,7 +1520,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("CurrencyRate");
 
-                    b.Property<string>("Date");
+                    b.Property<DateTimeOffset>("Date");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -1485,7 +1543,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
-                    b.Property<DateTimeOffset>("IncomeTaxDate");
+                    b.Property<DateTimeOffset?>("IncomeTaxDate");
 
                     b.Property<string>("IncomeTaxId")
                         .HasMaxLength(255);
@@ -1503,11 +1561,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("InvoiceNo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("IsCorrection");
+                    b.Property<bool>("IsCorrection");
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<string>("IsPaid");
+                    b.Property<bool>("IsPaid");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
@@ -1628,7 +1686,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("UPOItemId");
 
-                    b.Property<long>("URNDetailId");
+                    b.Property<long>("URNItemId");
 
                     b.Property<string>("UomId")
                         .HasMaxLength(255);

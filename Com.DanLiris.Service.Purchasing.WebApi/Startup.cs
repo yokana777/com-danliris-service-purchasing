@@ -58,9 +58,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
-                .AddTransient<BankExpenditureNoteFacade>()
+                .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
+                .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
                 .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
+                .AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
+                .AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
@@ -69,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<UnitReceiptNoteFacade>()
-                .AddTransient<UnitPaymentOrderFacade>();
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
