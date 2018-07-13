@@ -92,11 +92,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotEqual(Response, 0);
 
             UnitReceiptNoteItem oldItem = model.Items.FirstOrDefault();
-            
+            UnitReceiptNoteItem newItem = model.Items.FirstOrDefault();
+
+            newItem.ProductCode = "code02";
+            newItem.ProductId = "code02";
+            newItem.ProductName = "code02";
+
+            newItem.Id = 0;
+            model.Items.Add(newItem);
+            var ResponseAddItem = await Facade.Update((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(ResponseAddItem, 0);
+
             model.Items.Remove(oldItem);
             oldItem.Id = 0;
             model.Items.Add(oldItem);
             var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, "Unit Test");
+
             Assert.NotEqual(ResponseRemoveItemDetail, 0);
         }
     }
