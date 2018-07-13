@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             List<string> searchAttributes = new List<string>()
             {
-                "DocumentNo", "BankName", "SupplierName","CurrencyCode"
+                "DocumentNo", "BankName", "SupplierName","BankCurrencyCode"
             };
 
             Query = QueryHelper<BankExpenditureNoteModel>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -334,13 +334,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     VerifyDate = s.VerifyDate,
                     Vat = s.Vat,
                     IsPaid = s.IsPaid,
+                    PaymentMethod = s.PaymentMethod,
                     Items = s.Items.Where(w => w.PurchasingDocumentExpeditionId == s.Id).ToList(),
                     LastModifiedUtc = s.LastModifiedUtc
                 });
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitPaymentOrderNo", "SupplierName", "DivisionName", "SupplierCode"
+                "UnitPaymentOrderNo", "SupplierName", "DivisionName", "SupplierCode", "InvoiceNo"
             };
 
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -378,6 +379,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.IsPaid,
                 s.TotalPaid,
                 s.Currency,
+                s.PaymentMethod,
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
