@@ -35,6 +35,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.supplier._id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.supplier.name, opt => opt.MapFrom(s => s.SupplierName))
+                /* Storage */
+                .ForPath(d => d.storage._id, opt => opt.MapFrom(s => s.StorageId))
+                .ForPath(d => d.storage.code, opt => opt.MapFrom(s => s.StorageCode))
+                .ForPath(d => d.storage.name, opt => opt.MapFrom(s => s.StorageName))
                 .ForPath(d => d.no, opt => opt.MapFrom(s => s.URNNo))
                 .ForPath(d => d.date, opt => opt.MapFrom(s => s.ReceiptDate))
                 .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))

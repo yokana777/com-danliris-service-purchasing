@@ -206,7 +206,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                                     {
                                                         EntityExtension.FlagForCreate(duplicateDetail, user, "Facade");
                                                         item.Details.Add(duplicateDetail);
-                                                        detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
+                                                        duplicateDetail.PricePerDealUnit = duplicateDetail.IncludePpn ? (100 * duplicateDetail.PriceBeforeTax) / 110 : duplicateDetail.PriceBeforeTax;
                                                         //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
                                                         //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
 
@@ -225,9 +225,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         if (detail.Id != 0)
                                         {
-                                            
-
-
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
                                             detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
 
@@ -253,6 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     EntityExtension.FlagForDelete(existingDetail, user, "Facade");
                                     //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
                                     //purchaseRequestItem.Status = "Sudah diterima Pembelian";
+                                    existingDetail.PricePerDealUnit = existingDetail.IncludePpn ? (100 * existingDetail.PriceBeforeTax) / 110 : existingDetail.PriceBeforeTax;
 
                                     InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == existingDetail.POItemId);
                                     internalPurchaseOrderItem.Status = "PO Internal belum diorder";
@@ -269,6 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                         EntityExtension.FlagForDelete(existingDetail, user, "Facade");
                                         //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == existingDetail.PRItemId);
                                         //purchaseRequestItem.Status = "Sudah diterima Pembelian";
+                                        existingDetail.PricePerDealUnit = existingDetail.IncludePpn ? (100 * existingDetail.PriceBeforeTax) / 110 : existingDetail.PriceBeforeTax;
 
                                         InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == existingDetail.POItemId);
                                         internalPurchaseOrderItem.Status = "PO Internal belum diorder";
@@ -492,10 +491,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                     foreach (var item in m.Items)
                     {
-                        var existPR = this.dbContext.ExternalPurchaseOrderItems.Where(a => a.PRId == item.PRId && a.IsDeleted==false && a.EPOId!=item.EPOId);
+                        //var existPR = this.dbContext.ExternalPurchaseOrderItems.Include(a => a.Details).Where(a => a.EPOId != item.EPOId);
                         EntityExtension.FlagForUpdate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
+                            var existPR =( from a in this.dbContext.ExternalPurchaseOrderDetails
+                                          join b in dbContext.ExternalPurchaseOrderItems on a.EPOItemId equals b.Id
+                                          where a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId
+                                          select a).FirstOrDefault();
+
                             EntityExtension.FlagForUpdate(detail, user, "Facade");
 
                             if (existPR == null)
