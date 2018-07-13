@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
 
             if (this.isStorage)
             {
-                if (string.IsNullOrWhiteSpace(storage._id) == null || storage==null)
+                if (storage == null||string.IsNullOrWhiteSpace(storage._id) == null)
                 {
                     yield return new ValidationResult("Storage is required", new List<string> { "storage" });
                 }
