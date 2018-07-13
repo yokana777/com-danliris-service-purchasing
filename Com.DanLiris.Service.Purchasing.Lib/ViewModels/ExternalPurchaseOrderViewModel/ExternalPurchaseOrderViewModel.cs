@@ -93,12 +93,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                     {
                         if (duplicate.Count <= 0)
                         {
-                            duplicate.Add(Item.prNo);
+                            duplicate.Add(Item.poNo);
                         }
                         else
                         {
                             //ExternalPurchaseOrderItemViewModel dup = Array.Find(duplicate, o => o.prNo == Item.prNo);
-                            var x=duplicate.Find(a => a == Item.prNo);
+                            var x=duplicate.Find(a => a == Item.poNo);
                             if (x != null)
                             {
                                 itemErrorCount++;
@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                             }
                             else
                             {
-                                duplicate.Add(Item.prNo);
+                                duplicate.Add(Item.poNo);
                             }
                         }
                         
@@ -128,7 +128,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                             
 
                             externalPurchaseOrderDetailError += "{ ";
-
+                            if (!this.useVat)
+                            {
+                                Detail.includePpn = false;
+                            }
                             //if (Detail.DefaultUom.unit.Equals(Detail.DealUom.unit) && Detail.DefaultQuantity == Detail.DealQuantity && Detail.Convertion != 1)
                             if (Detail.defaultUom == null)
                             {
@@ -138,6 +141,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                             {
                                 detailErrorCount++;
                                 externalPurchaseOrderDetailError += "conversion: 'Conversion should be 1', ";
+                            }
+                            else if(Detail.conversion == 0)
+                            {
+                                detailErrorCount++;
+                                externalPurchaseOrderDetailError += "conversion: 'Conversion must be greater than 0', ";
                             }
 
                             if (Detail.priceBeforeTax <= 0)

@@ -45,6 +45,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         }
 
         [Fact]
+        public async Task Should_Success_Get_All_Data_All_User()
+        {
+            var response = await this.Client.GetAsync($"{URI}/all");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");

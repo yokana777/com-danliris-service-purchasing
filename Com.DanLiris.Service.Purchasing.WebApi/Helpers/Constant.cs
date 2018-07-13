@@ -13,5 +13,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
         public const string SECRET = "Secret";
         public const string ASPNETCORE_ENVIRONMENT = "ASPNETCORE_ENVIRONMENT";
         public const string CORE_ENDPOINT = "AzureCoreEndpoint";
+        public const string INVENTORY_ENDPOINT = "AzureInventoryEndpoint";
     }
 }

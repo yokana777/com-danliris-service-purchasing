@@ -239,5 +239,59 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
+
+        [HttpGet("all")]
+        public IActionResult GetAll(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            //Tuple<List<object>, int, Dictionary<string, string>> Data = _facade.Read(page, size, order, keyword, filter);
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            var Data = _facade.Read(page, size, order, keyword, filter);
+
+            var newData = _mapper.Map<List<InternalPurchaseOrderViewModel>>(Data.Item1);
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.poNo,
+                    s.isoNo,
+                    s.prId,
+                    s.prNo,
+                    s.prDate,
+                    s.expectedDeliveryDate,
+                    unit = new
+                    {
+                        division = new { s.unit.division.name },
+                        s.unit.name
+                    },
+                    category = new
+                    {
+                        s.category.name
+                    },
+                    s.remark,
+                    s.status,
+                    s.CreatedBy,
+                    s.isPosted,
+                    s.items
+                }).ToList()
+            );
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                statusCode = General.OK_STATUS_CODE,
+                message = General.OK_MESSAGE,
+                data = listData,
+                info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                    { "total", Data.Item2 },
+                    { "order", Data.Item3 },
+                    { "page", page },
+                    { "size", size }
+                },
+            });
+        }
     }
 }

@@ -17,38 +17,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public string pibNo { get; set; }
         public string incomeTaxNo { get; set; }
         public string doNo { get; set; }
+        public string doId { get; set; }
         public List<UnitReceiptNoteItemViewModel> items { get; set; }
+
+        public StorageViewModel storage { get; set; }
 
         public bool isStorage { get; set; }
         public string remark { get; set; }
 
+        public bool isPaid { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (this.date.Equals(DateTimeOffset.MinValue) || this.date == null)
             {
                 yield return new ValidationResult("Date is required", new List<string> { "date" });
             }
-            
-            else
+
+            if (this.isStorage)
             {
-                if (this.no == "" || this.no ==null)
+                if (string.IsNullOrWhiteSpace(storage._id) == null || storage==null)
                 {
-                    if (this.supplier.import == true)
-                    {
-                        this.no = "BPI";
-                    }
-                    else
-                    {
-                        this.no = "BPL";
-                    }
+                    yield return new ValidationResult("Storage is required", new List<string> { "storage" });
                 }
-               
             }
-            if (this.unit == null)
+            if (this.unit == null || string.IsNullOrWhiteSpace(unit._id))
             {
                 yield return new ValidationResult("Unit is required", new List<string> { "unitId" });
             }
-            if (this.supplier == null)
+            if (this.supplier == null || string.IsNullOrWhiteSpace(supplier._id))
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
             }
