@@ -35,16 +35,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
 
             if (this.isStorage)
             {
-                if (storage._id == null)
+                if (string.IsNullOrWhiteSpace(storage._id) == null || storage==null)
                 {
                     yield return new ValidationResult("Storage is required", new List<string> { "storage" });
                 }
             }
-            if (this.unit == null)
+            if (this.unit == null || string.IsNullOrWhiteSpace(unit._id))
             {
                 yield return new ValidationResult("Unit is required", new List<string> { "unitId" });
             }
-            if (this.supplier == null)
+            if (this.supplier == null || string.IsNullOrWhiteSpace(supplier._id))
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
             }

@@ -86,17 +86,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNote model = await DataUtil.GetTestData("Unit Test");
             foreach (var item in model.Items)
             {
-                
                     item.ReceiptQuantity -= 1;
-                
             }
             var Response = await Facade.Update((int)model.Id, model, "Unit Test");
             Assert.NotEqual(Response, 0);
 
             UnitReceiptNoteItem oldItem = model.Items.FirstOrDefault();
             
-
             model.Items.Remove(oldItem);
+            oldItem.Id = 0;
             model.Items.Add(oldItem);
             var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, "Unit Test");
             Assert.NotEqual(ResponseRemoveItemDetail, 0);
