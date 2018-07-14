@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils
 {
