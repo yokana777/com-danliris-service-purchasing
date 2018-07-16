@@ -93,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return a;
         }
 
-        public async Task<int> Create(ExternalPurchaseOrder m, string user)
+        public async Task<int> Create(ExternalPurchaseOrder m, string user, int clientTimeZoneOffset)
         {
             int Created = 0;
 
@@ -103,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
 
-                    m.EPONo = await GenerateNo(m);
+                    m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
 
                     foreach (var item in m.Items)
                     {
@@ -528,11 +528,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Updated;
         }
 
-        async Task<string> GenerateNo(ExternalPurchaseOrder model)
+        async Task<string> GenerateNo(ExternalPurchaseOrder model, int clientTimeZoneOffset)
         {
             DateTimeOffset Now = model.OrderDate;
-            string Year = Now.ToString("yy");
-            string Month = Now.ToString("MM");
+            string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); ;
+            string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); ;
 
             string no = $"PE-{model.UnitCode}-{Year}-{Month}-";
             int Padding = 3;

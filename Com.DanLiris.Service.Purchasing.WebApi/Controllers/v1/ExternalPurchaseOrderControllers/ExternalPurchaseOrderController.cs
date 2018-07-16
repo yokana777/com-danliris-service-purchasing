@@ -176,7 +176,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
             {
                 validateService.Validate(vm);
 
-                int result = await _facade.Create(m, identityService.Username);
+                int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                int result = await _facade.Create(m, identityService.Username, clientTimeZoneOffset);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
