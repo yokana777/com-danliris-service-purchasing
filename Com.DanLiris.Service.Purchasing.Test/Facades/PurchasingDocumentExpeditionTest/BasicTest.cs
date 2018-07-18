@@ -45,7 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         public async void Should_Success_Get_Data_With_Arguments()
         {
             string order = "{\"UnitPaymentOrderNo\":\"desc\"}";
-            string filter = "{\"Position\":2}";
+            string filter = "{\"Position\":2, \"IsPaidPPH\":\"false\"}";
             string keyword = "Supplier";
 
             await DataUtil.GetTestData();

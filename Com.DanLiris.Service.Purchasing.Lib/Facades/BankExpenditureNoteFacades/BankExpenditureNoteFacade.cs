@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     CreatedUtc = s.CreatedUtc,
                     LastModifiedUtc = s.LastModifiedUtc,
                     BankName = s.BankName,
+                    BankAccountName = s.BankAccountName,
+                    BankAccountNumber =s.BankAccountNumber,
                     DocumentNo = s.DocumentNo,
                     SupplierName = s.SupplierName,
                     GrandTotal = s.GrandTotal,
@@ -62,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             List<string> searchAttributes = new List<string>()
             {
-                "DocumentNo", "BankName", "SupplierName","CurrencyCode"
+                "DocumentNo", "BankName", "SupplierName","BankCurrencyCode"
             };
 
             Query = QueryHelper<BankExpenditureNoteModel>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -84,6 +87,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.DocumentNo,
                    s.CreatedUtc,
                    s.BankName,
+                   s.BankAccountName,
+                   s.BankAccountNumber,
                    s.SupplierName,
                    s.GrandTotal,
                    s.BankCurrencyCode,
@@ -333,13 +338,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     VerifyDate = s.VerifyDate,
                     Vat = s.Vat,
                     IsPaid = s.IsPaid,
+                    PaymentMethod = s.PaymentMethod,
                     Items = s.Items.Where(w => w.PurchasingDocumentExpeditionId == s.Id).ToList(),
                     LastModifiedUtc = s.LastModifiedUtc
                 });
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitPaymentOrderNo", "SupplierName", "DivisionName", "SupplierCode"
+                "UnitPaymentOrderNo", "SupplierName", "DivisionName", "SupplierCode", "InvoiceNo"
             };
 
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -377,6 +383,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.IsPaid,
                 s.TotalPaid,
                 s.Currency,
+                s.PaymentMethod,
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
@@ -393,6 +400,79 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             }));
 
             return new ReadResponse(list, TotalData, OrderDictionary);
+        }
+
+        public ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        {
+            IQueryable<BankExpenditureNoteReportViewModel> Query;
+
+            if (DateFrom == null || DateTo == null)
+            {
+                Query = (from a in dbContext.BankExpenditureNotes
+                         join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderId equals c.Id
+                         where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+                            && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+                            && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                            && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+                            && !c.PaymentMethod.ToUpper().Equals("CASH")
+                            && c.IsPaid
+                            && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
+                         where a.DocumentNo == (DocumentNo ?? a.DocumentNo)
+                         orderby a.DocumentNo
+                         select new BankExpenditureNoteReportViewModel
+                         {
+                             DocumentNo = a.DocumentNo,
+                             Currency = a.BankCurrencyCode,
+                             Date = a.Date,
+                             SupplierName = c.SupplierName,
+                             DivisionName = c.DivisionName,
+                             PaymentMethod = c.PaymentMethod,
+                             UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+                             BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+                             DPP = c.TotalPaid - c.Vat,
+                             VAT = c.Vat,
+                             TotalPaid = c.TotalPaid,
+                             InvoiceNumber = c.InvoiceNo
+                         }
+                      );
+            }
+            else
+            {
+                Query = (from a in dbContext.BankExpenditureNotes
+                         join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderId equals c.Id
+                         where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+                            && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+                            && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                            && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+                            && !c.PaymentMethod.ToUpper().Equals("CASH")
+                            && c.IsPaid
+                            && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
+                         where a.DocumentNo == (DocumentNo ?? a.DocumentNo) && a.Date.AddHours(Offset).Date >= DateFrom.Value.Date && a.Date.AddHours(Offset).Date <= DateTo.Value.Date
+                         orderby a.DocumentNo
+                         select new BankExpenditureNoteReportViewModel
+                         {
+                             DocumentNo = a.DocumentNo,
+                             Currency = a.BankCurrencyCode,
+                             Date = a.Date,
+                             SupplierName = c.SupplierName,
+                             DivisionName = c.DivisionName,
+                             PaymentMethod = c.PaymentMethod,
+                             UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+                             BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+                             DPP = c.TotalPaid - c.Vat,
+                             VAT = c.Vat,
+                             TotalPaid = c.TotalPaid,
+                             InvoiceNumber = c.InvoiceNo
+                         }
+                      );
+            }
+
+            Pageable<BankExpenditureNoteReportViewModel> pageable = new Pageable<BankExpenditureNoteReportViewModel>(Query, Page - 1, Size);
+            List<object> data = pageable.Data.ToList<object>();
+
+            return new ReadResponse(data, pageable.TotalCount, new Dictionary<string, string>());
         }
     }
 }

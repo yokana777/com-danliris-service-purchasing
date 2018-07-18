@@ -130,17 +130,21 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         {
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-            if (vm.no == "" || vm.no == null)
+            if (vm.supplier != null)
             {
-                if (vm.supplier.import == true)
+                if (vm.no == "" || vm.no == null)
                 {
-                    vm.no = "BPI";
-                }
-                else
-                {
-                    vm.no = "BPL";
+                    if (vm.supplier.import == true)
+                    {
+                        vm.no = "BPI";
+                    }
+                    else
+                    {
+                        vm.no = "BPL";
+                    }
                 }
             }
+            
             UnitReceiptNote m = _mapper.Map<UnitReceiptNote>(vm);
 
             ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
@@ -177,6 +181,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute]int id, [FromBody]UnitReceiptNoteViewModel vm)
         {
+            identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
             UnitReceiptNote m = _mapper.Map<UnitReceiptNote>(vm);
@@ -212,6 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         [HttpDelete("{id}")]
         public IActionResult Delete([FromRoute]int id)
         {
+            identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
             try

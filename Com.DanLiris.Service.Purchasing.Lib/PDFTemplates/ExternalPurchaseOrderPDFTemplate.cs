@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class ExternalPurchaseOrderPDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(ExternalPurchaseOrderViewModel viewModel)
+        public MemoryStream GeneratePdfTemplate(ExternalPurchaseOrderViewModel viewModel, int clientTimeZoneOffset)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.supplier.name, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.orderDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.orderDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableIdentity.AddCell(cellIdentityContentRight);
             cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
@@ -198,12 +198,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableFooter.AddCell(cellFooterContent);
             cellFooterContent.Phrase = new Phrase("Delivery", normal_font);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + (viewModel.deliveryDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))), normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + (viewModel.deliveryDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))), normal_font);
             tableFooter.AddCell(cellFooterContent);
+
+            string duedays = "";
+            if (Convert.ToInt32( viewModel.paymentDueDays) > 0)
+            {
+                duedays = viewModel.paymentDueDays + " hari setelah terima barang";
+            }
 
             cellFooterContent.Phrase = new Phrase("Pembayaran", normal_font);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + viewModel.paymentMethod + "\n"+ "  "+ viewModel.paymentDueDays + " hari setelah terima barang", normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + viewModel.paymentMethod + "\n"+ "  "+ duedays, normal_font);
             tableFooter.AddCell(cellFooterContent);
 
             cellFooterContent.Phrase = new Phrase("Lain-lain", normal_font);

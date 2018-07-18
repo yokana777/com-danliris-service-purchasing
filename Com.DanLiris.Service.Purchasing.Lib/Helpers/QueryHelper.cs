@@ -50,9 +50,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 {
                     string Key = f.Key;
                     object Value = f.Value;
+                    bool ParsedValueBoolean;
+
                     string filterQuery = string.Concat(string.Empty, Key, " == @0");
 
-                    Query = Query.Where(filterQuery, Value);
+                    if (Boolean.TryParse(Value.ToString(), out ParsedValueBoolean))
+                    {
+                        Query = Query.Where(filterQuery, ParsedValueBoolean);
+                    }
+                    else
+                    {
+                        Query = Query.Where(filterQuery, Value);
+                    }
                 }
             }
             return Query;

@@ -144,11 +144,87 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             {
                 Date = null,
                 Bank = null,
-                BGCheckNumber = null,
                 Details = new List<BankExpenditureNoteDetailViewModel>()
             };
 
             Assert.True(vm.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Date_Greater_Than_Now()
+        {
+            BankExpenditureNoteViewModel vm = new BankExpenditureNoteViewModel()
+            {
+                Date = DateTime.Now.AddDays(2),
+                Bank = null,
+                Details = null
+            };
+
+            Assert.True(vm.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, null, null, 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_With_Params()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, null, null, 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_With_Date()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_With_Date_And_Params()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
+
+            Assert.NotEqual(null, response);
+        }
+
+        [Fact]
+        public void Should_Succes_Create_Report_VM_Instance()
+        {
+            BankExpenditureNoteReportViewModel reportViewModel = new BankExpenditureNoteReportViewModel()
+            {
+                DivisionName = "",
+                Date = new DateTimeOffset(),
+                Currency = "",
+                BankName = "",
+                DocumentNo = "",
+                DPP = 0,
+                InvoiceNumber = "",
+                PaymentMethod = "",
+                SupplierName = "",
+                TotalPaid = 0,
+                UnitPaymentOrderNo = "",
+                VAT = 0
+            };
+
+            Assert.NotEqual(null, reportViewModel);
         }
     }
 }
