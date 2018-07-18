@@ -15,6 +15,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.Moonlay.NetCore.Lib.Service;
 using System.IO;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorrectionNoteController
 {
@@ -25,14 +26,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
     public class UnitPaymentQuantityCorrectionNoteController : Controller
     {
         private string ApiVersion = "1.0.0";
+        public readonly IServiceProvider serviceProvider;
         private readonly IMapper _mapper;
-        private readonly UnitPaymentQuantityCorrectionNoteFacade _facade;
+        private readonly IUnitPaymentQuantityCorrectionNoteFacade _facade;
         private readonly IdentityService identityService;
-        public UnitPaymentQuantityCorrectionNoteController(IMapper mapper, UnitPaymentQuantityCorrectionNoteFacade facade, IdentityService identityService)
+        public UnitPaymentQuantityCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentQuantityCorrectionNoteFacade facade)
         {
+            this.serviceProvider = serviceProvider;
             _mapper = mapper;
             _facade = facade;
-            this.identityService = identityService;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
@@ -51,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     s.uPONo,
                     s.supplier.name,
                     s.invoiceCorrectionNo,
-                    s.duedate,
+                    s.dueDate,
                     s.items
                 }).ToList()
             );
@@ -79,7 +82,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
             UnitPaymentCorrectionNote m = _mapper.Map<UnitPaymentCorrectionNote>(vm);
-            ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+            //ValidateService validateService = (ValidateService)_facade.serviceProvider.GetService(typeof(ValidateService));
+            IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
             try
             {

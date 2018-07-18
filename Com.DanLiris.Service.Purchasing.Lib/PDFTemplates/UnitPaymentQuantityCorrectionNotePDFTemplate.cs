@@ -237,7 +237,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cellIdentityContentLeft.Phrase = new Phrase("Perjanjian Pembayaran ", normal_font);
             tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.duedate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableTotal.AddCell(cellIdentityContentLeft);
             cellIdentityContentRight.Phrase = new Phrase("", normal_font);
             tableTotal.AddCell(cellIdentityContentRight);
@@ -533,7 +533,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cellIdentityContentLeft.Phrase = new Phrase("Perjanjian Pembayaran ", normal_font);
             tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.duedate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableTotal.AddCell(cellIdentityContentLeft);
             cellIdentityContentRight.Phrase = new Phrase("", normal_font);
             tableTotal.AddCell(cellIdentityContentRight);

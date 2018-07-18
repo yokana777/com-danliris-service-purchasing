@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade
 {
-    public class UnitPaymentQuantityCorrectionNoteFacade
+    public class UnitPaymentQuantityCorrectionNoteFacade : IUnitPaymentQuantityCorrectionNoteFacade
     {
         private string USER_AGENT = "Facade";
 
@@ -111,7 +112,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
                     }
-
+                    UnitPaymentOrder unitPaymentOrder = this.dbContext.UnitPaymentOrders.FirstOrDefault(s => s.Id == m.UPOId);
+                    unitPaymentOrder.IsCorrection = true;
+                    
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);

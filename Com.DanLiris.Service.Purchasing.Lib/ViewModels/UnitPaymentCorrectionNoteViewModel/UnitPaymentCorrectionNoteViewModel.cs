@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public string incomeTaxCorrectionNo { get; set; }
         public string incomeTaxCorrectionName { get; set; }
         public string releaseOrderNoteNo { get; set; }
-        public DateTimeOffset duedate { get; set; }
+        public DateTimeOffset dueDate { get; set; }
         public string remark { get; set; }
         public string returNoteNo { get; set; }
         public List<UnitPaymentCorrectionNoteItemViewModel> items { get; set; }
@@ -41,6 +41,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
             if (this.uPONo == null)
             {
                 yield return new ValidationResult("No. Surat Perintah Bayar is required", new List<string> { "uPOId" });
+            }
+            if (this.releaseOrderNoteNo == null)
+            {
+                yield return new ValidationResult("No. Bon Keluar is required", new List<string> { "releaseOrderNoteNo" });
             }
         }
     }

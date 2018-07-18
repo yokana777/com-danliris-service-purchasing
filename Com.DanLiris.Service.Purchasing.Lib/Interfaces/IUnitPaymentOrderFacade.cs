@@ -13,5 +13,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(UnitPaymentOrder model, string username, bool isImport, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, UnitPaymentOrder model, string user);
         Task<int> Delete(int id, string username);
+        Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> ReadSpb(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
     }
 }
