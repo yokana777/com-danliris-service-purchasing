@@ -545,13 +545,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            bool isCancel = false;
-            if (prStatus == "Dibatalkan")
-            {
-                isCancel = true;
-                prStatus = "";
-            }
-
+            
             var Query = (from a in dbContext.PurchaseRequests
                          join b in dbContext.PurchaseRequestItems on a.Id equals b.PurchaseRequestId
                          //PO
