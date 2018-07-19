@@ -139,7 +139,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             viewModel.unit = null;
             viewModel.supplier = null;
             viewModel.items = new List<ExternalPurchaseOrderItemViewModel> { };
-            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -161,7 +163,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         {
             ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
             viewModel.orderDate = DateTimeOffset.MaxValue;
-            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -173,7 +177,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             {
                 item.details = new List<ExternalPurchaseOrderDetailViewModel> { }; ;
             }
-            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 

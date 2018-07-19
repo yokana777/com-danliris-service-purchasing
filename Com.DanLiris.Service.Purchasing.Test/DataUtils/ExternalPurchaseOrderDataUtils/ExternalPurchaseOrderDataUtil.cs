@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
         {
             ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
 
-            await facade.Create(externalPurchaseOrder, user);
+            await facade.Create(externalPurchaseOrder, user,7);
 
             return externalPurchaseOrder;
         }
@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 }
             }
 
-            await facade.Create(externalPurchaseOrder, user);
+            await facade.Create(externalPurchaseOrder, user,7);
 
             return externalPurchaseOrder;
         }

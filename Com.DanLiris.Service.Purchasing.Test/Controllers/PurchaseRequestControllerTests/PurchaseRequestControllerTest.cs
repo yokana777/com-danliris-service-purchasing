@@ -36,6 +36,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             TestFixture = fixture;
         }
 
+        [Fact]
+        public async Task Should_Success_Get_All_Data()
+        {
+            var response = await this.Client.GetAsync(URI);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
+            Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
+        }
+
         //[Fact]
         //public async Task Should_Success_Get_All_Data()
         //{
@@ -76,11 +86,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-        [Fact]
-        public async Task Should_Error_GetDataPosted()
-        {
-            var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
+        //[Fact]
+        //public async Task Should_Error_GetDataPosted()
+        //{
+        //    var response = await this.Client.GetAsync(URI + "?filter={'IsPosted':false}");
+        //    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        //}
     }
 }
