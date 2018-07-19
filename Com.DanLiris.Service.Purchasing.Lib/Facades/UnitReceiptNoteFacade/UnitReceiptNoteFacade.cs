@@ -148,12 +148,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             //prItem.Status = "Barang sudah diterima Unit parsial";
                             poItem.Status = "Barang sudah diterima Unit parsial";
                         }
-                        if (m.IsStorage == true)
-                        {
-                            insertStorage(m, user, "IN");
-                        }
+                        
                     }
-
+                    if (m.IsStorage == true)
+                    {
+                        insertStorage(m, user, "IN");
+                    }
                     this.dbSet.Add(m);
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                     else if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity < epoDetail.DealQuantity)
                                     {
                                         //prItem.Status = "Barang sudah diterima Unit parsial";
-                                        purchaseOrderItem.Status = "Barang sudah datang semua";
+                                        purchaseOrderItem.Status = "Barang sudah datang parsial";
                                     }
                                 }
                                 else if (epoDetail.ReceiptQuantity > 0)
