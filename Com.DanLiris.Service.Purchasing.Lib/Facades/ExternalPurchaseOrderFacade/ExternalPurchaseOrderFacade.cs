@@ -498,7 +498,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             var existPR =( from a in this.dbContext.ExternalPurchaseOrderDetails
                                           join b in dbContext.ExternalPurchaseOrderItems on a.EPOItemId equals b.Id
                                           join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
-                                          where (c.IsPosted==true && a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId) || c.IsCanceled==true
+                                          where ( a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId) && (c.IsPosted == true || c.IsCanceled==true)
                                           select a).FirstOrDefault();
 
                             EntityExtension.FlagForUpdate(detail, user, "Facade");
