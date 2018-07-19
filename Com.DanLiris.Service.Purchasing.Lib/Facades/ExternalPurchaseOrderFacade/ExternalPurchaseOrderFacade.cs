@@ -415,8 +415,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
                             internalPurchaseOrderItem.Status = "Dibatalkan";
 
-                            PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
-                            purchaseRequestItem.Status = "Dibatalkan";
+                            //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                            //purchaseRequestItem.Status = "Dibatalkan";
                         }
                     }
 
@@ -498,7 +498,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             var existPR =( from a in this.dbContext.ExternalPurchaseOrderDetails
                                           join b in dbContext.ExternalPurchaseOrderItems on a.EPOItemId equals b.Id
                                           join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
-                                          where ( a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId) && (c.IsPosted == true || c.IsCanceled==true)
+                                          where  a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId && c.IsPosted == true 
                                           select a).FirstOrDefault();
 
                             EntityExtension.FlagForUpdate(detail, user, "Facade");
