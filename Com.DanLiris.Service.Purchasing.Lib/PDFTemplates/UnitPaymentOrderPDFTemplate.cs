@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase("Barang Datang", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
-            List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>();
+            List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
             foreach (var item in model.Items)
             {
                 var unitReceiptNoteDate = purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
