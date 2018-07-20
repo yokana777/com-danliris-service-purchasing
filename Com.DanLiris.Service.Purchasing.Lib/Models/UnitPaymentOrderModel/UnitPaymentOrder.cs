@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
 {
@@ -25,6 +26,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public string SupplierCode { get; set; }
         [MaxLength(1000)]
         public string SupplierName { get; set; }
+        [MaxLength(1000)]
+        public string SupplierAddress { get; set; }
 
         public DateTimeOffset Date { get; set; }
 
@@ -42,6 +45,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         [MaxLength(255)]
         public string CurrencyCode { get; set; }
         public double CurrencyRate { get; set; }
+        [MaxLength(1000)]
+        public string CurrencyDescription { get; set; }
 
         [MaxLength(255)]
         public string PaymentMethod { get; set; } //
