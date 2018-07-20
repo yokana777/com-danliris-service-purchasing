@@ -456,5 +456,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 
         }
 
+        public Tuple<List<UnitReceiptNote>, int, Dictionary<string, string>> ReadBySupplierUnit(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<UnitReceiptNote> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "URNNo", "DONo",
+            };
+            Query = QueryHelper<UnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            Query = Query
+                .Where(w =>
+                    w.IsDeleted == false &&
+                    w.IsPaid == false &&
+                    dbContext.DeliveryOrderItems.Any(doItem =>
+                        doItem.DOId == w.DOId &&
+                        dbContext.ExternalPurchaseOrders.Any(epo =>
+                            epo.Id == doItem.EPOId &&
+                            epo.DivisionId.Equals(FilterDictionary.GetValueOrDefault("DivisionId") ?? "") &&
+                            epo.SupplierId.Equals(FilterDictionary.GetValueOrDefault("SupplierId") ?? "") &&
+                            epo.PaymentMethod.Equals(FilterDictionary.GetValueOrDefault("PaymentMethod") ?? "") &&
+                            epo.CurrencyCode.Equals(FilterDictionary.GetValueOrDefault("CurrencyCode") ?? "") &&
+                            string.Concat("", epo.IncomeTaxId).Equals(FilterDictionary.GetValueOrDefault("IncomeTaxId") ?? "") &&
+                            epo.UseVat == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseVat") ?? "false") &&
+                            epo.Items.Any(epoItem => 
+                                dbContext.InternalPurchaseOrders.Any(po =>
+                                    po.Id == epoItem.POId &&
+                                    po.CategoryId.Equals(FilterDictionary.GetValueOrDefault("CategoryId") ?? "")
+                                )
+                            )
+                        )
+                    )
+                )
+                .Select(s => new UnitReceiptNote
+                {
+                    Id = s.Id,
+                    UId = s.UId,
+                    URNNo = s.URNNo,
+                    ReceiptDate = s.ReceiptDate,
+                    UnitName = s.UnitName,
+                    DivisionName = s.DivisionName,
+                    SupplierName = s.SupplierName,
+                    DONo = s.DONo,
+                    CreatedBy = s.CreatedBy,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    Items = s.Items.ToList()
+                });
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<UnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<UnitReceiptNote> pageable = new Pageable<UnitReceiptNote>(Query, Page - 1, Size);
+            List<UnitReceiptNote> Data = pageable.Data.ToList<UnitReceiptNote>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
     }
 }
