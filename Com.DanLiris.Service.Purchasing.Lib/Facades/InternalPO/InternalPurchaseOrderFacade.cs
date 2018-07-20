@@ -603,13 +603,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             {
                 Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             }
-            else
-            {
-                string Key = OrderDictionary.Keys.First();
-                string OrderType = OrderDictionary[Key];
-
-                Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
-            }
+            
 
             Pageable<InternalPurchaseOrderReportViewModel> pageable = new Pageable<InternalPurchaseOrderReportViewModel>(Query, page - 1, size);
             List<InternalPurchaseOrderReportViewModel> Data = pageable.Data.ToList<InternalPurchaseOrderReportViewModel>();
