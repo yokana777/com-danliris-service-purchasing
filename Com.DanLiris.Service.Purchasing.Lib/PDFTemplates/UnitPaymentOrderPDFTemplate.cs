@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 tableIncomeTax.AddCell(new PdfPCell(new Phrase(" ", normal_font)) { Border = Rectangle.NO_BORDER, Colspan = 3 });
 
-                cellLeftNoBorder.Phrase = new Phrase($"PPh {model.IncomeTaxName} {model.IncomeTaxRate}%", normal_font);
+                cellLeftNoBorder.Phrase = new Phrase($"PPh {model.IncomeTaxName} {model.IncomeTaxRate} %", normal_font);
                 tableIncomeTax.AddCell(cellLeftNoBorder);
 
                 cellLeftNoBorder.Phrase = new Phrase($":   {model.CurrencyCode}", normal_font);
