@@ -326,6 +326,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        
+        [Fact]
+        public async Task Should_Success_Get_Report_Excel_EmptyData()
+        {
+            var response = await this.Client.GetAsync(URI + "/monitoring/download?unitId=0");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }
