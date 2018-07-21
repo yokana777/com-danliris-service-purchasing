@@ -365,7 +365,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 foreach (var detail in item.Details)
                 {
                     var PaymentDueDays = dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(detail.EPONo)).PaymentDueDays;
-                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays)));
+                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
                 }
             }
             model.DueDate = DueDates.Min();
