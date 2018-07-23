@@ -642,10 +642,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal diminta datang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal diminta datang PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Deal PO Eksternal", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Deal PO Eksternal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Status PR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Status Barang", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", 0, "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "","","", "", "", "", "", 0,"","","", 0, "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -655,7 +657,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     string date = item.date == null ? "-" : item.date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string prDate = item.expectedDeliveryDatePR == new DateTime(1970, 1, 1) ? "-" : item.expectedDeliveryDatePR.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string epoDate = item.expectedDeliveryDatePO == new DateTime(1970, 1, 1) ? "-" : item.expectedDeliveryDatePO.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, item.unit, item.budget, item.category, date, (item.no), item.productCode, item.productName, item.quantity, item.uom, prDate, epoDate, item.prStatus,item.poStatus);
+                    result.Rows.Add(index, item.unit, item.budget, item.category, date, (item.no), item.productCode, item.productName, item.quantity, item.uom, prDate, epoDate,item.dealQuantity,item.dealUom, item.prStatus,item.poStatus);
                 }
             }
                 
