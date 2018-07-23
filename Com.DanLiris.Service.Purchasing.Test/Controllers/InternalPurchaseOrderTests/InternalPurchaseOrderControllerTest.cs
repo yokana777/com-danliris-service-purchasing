@@ -327,10 +327,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         }
 
         [Fact]
-        public async Task Should_Error_Get_Report_Excel_Invalid_Data()
+        public async Task Should_Success_Get_Report_Excel_Empty_Data()
         {
             var response = await this.Client.GetAsync($"{URI}/monitoring/download?unitId=0");
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
 }
