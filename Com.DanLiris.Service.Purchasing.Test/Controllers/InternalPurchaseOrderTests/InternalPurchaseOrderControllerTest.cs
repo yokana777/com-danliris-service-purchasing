@@ -327,9 +327,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         }
 
         [Fact]
-        public async Task Should_Error_Get_Invalid_Data()
+        public async Task Should_Error_Get_Report_Excel_Invalid_Data()
         {
-            var response = await this.Client.DeleteAsync($"{URI}/monitoring?page=1&size=25&unitId=0");
+            var response = await this.Client.DeleteAsync($"{URI}/monitoring/download?unitId=0");
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
     }
