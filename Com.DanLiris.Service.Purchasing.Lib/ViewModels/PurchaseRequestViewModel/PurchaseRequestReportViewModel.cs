@@ -18,6 +18,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewMode
         public string productCode { get; set; }
         public double quantity { get; set; }
         public string uom { get; set; }
+        public double dealQuantity { get; set; }
+        public string dealUom { get; set; }
         public string prStatus { get; set; }
         public string poStatus { get; set; }
         public string remark { get; set; }

@@ -187,6 +187,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             insertStorage(m, user, "OUT");
                         }
+                        if (unitReceiptNote.IsStorage == false)
+                        {
+                            unitReceiptNote.StorageCode = null;
+                            unitReceiptNote.StorageId = null;
+                            unitReceiptNote.StorageName = null;
+                        }
                         EntityExtension.FlagForUpdate(unitReceiptNote, user, USER_AGENT);
 
                         foreach (var item in unitReceiptNote.Items)
@@ -434,7 +440,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         productname = item.ProductName,
                         uomId=item.UomId,
                         uom=item.Uom,
-                        quantity=item.ReceiptQuantity
+                        quantity=item.ReceiptQuantity,
+                        remark=item.ProductRemark
                     });
                 }
                 var data = new
