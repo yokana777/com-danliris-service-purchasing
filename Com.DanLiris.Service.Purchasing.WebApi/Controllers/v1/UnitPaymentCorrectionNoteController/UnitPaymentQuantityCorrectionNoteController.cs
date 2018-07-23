@@ -16,6 +16,8 @@ using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.Moonlay.NetCore.Lib.Service;
 using System.IO;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorrectionNoteController
 {
@@ -29,12 +31,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper _mapper;
         private readonly IUnitPaymentQuantityCorrectionNoteFacade _facade;
+        private readonly IUnitPaymentOrderFacade _spbFacade;
         private readonly IdentityService identityService;
-        public UnitPaymentQuantityCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentQuantityCorrectionNoteFacade facade)
+        public UnitPaymentQuantityCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentQuantityCorrectionNoteFacade facade, IUnitPaymentOrderFacade spbFacade)
         {
             this.serviceProvider = serviceProvider;
             _mapper = mapper;
             _facade = facade;
+            _spbFacade = spbFacade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
@@ -55,6 +59,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     s.supplier.name,
                     s.invoiceCorrectionNo,
                     s.dueDate,
+                    s.LastModifiedUtc,
+                    s.useIncomeTax,
                     s.items
                 }).ToList()
             );
@@ -148,8 +154,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
             try
             {
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
-
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 UnitPaymentCorrectionNote model = _facade.ReadById(id);
+                
                 UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
                 if (viewModel == null)
                 {
@@ -169,9 +176,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 else
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
+                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)viewModel.uPOId);
+                    UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
@@ -217,7 +225,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfNotaReturTemplate(viewModel, clientTimeZoneOffset);
+                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)viewModel.uPOId);
+                    UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
+                    MemoryStream stream = PdfTemplate.GeneratePdfNotaReturTemplate(viewModel, viewModelSpb, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {

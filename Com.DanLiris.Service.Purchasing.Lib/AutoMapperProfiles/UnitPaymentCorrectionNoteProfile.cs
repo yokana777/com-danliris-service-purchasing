@@ -19,8 +19,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))
                 .ForPath(d => d.product.name, opt => opt.MapFrom(s => s.ProductName))
                 /* UOM */
-                .ForPath(d => d.product.uom._id, opt => opt.MapFrom(s => s.UomId))
-                .ForPath(d => d.product.uom.unit, opt => opt.MapFrom(s => s.UomUnit))
+                .ForPath(d => d.uom._id, opt => opt.MapFrom(s => s.UomId))
+                .ForPath(d => d.uom.unit, opt => opt.MapFrom(s => s.UomUnit))
                 /* Currency */
                 .ForPath(d => d.currency._id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.currency.code, opt => opt.MapFrom(s => s.CurrencyCode))

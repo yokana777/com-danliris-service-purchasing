@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -66,12 +67,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                             PRDetailId = q.PRDetailId,
                         }
                     )
-                    .ToList()
-                });
+                    .ToList(),
+                    CreatedBy = s.CreatedBy,
+                    LastModifiedUtc = s.LastModifiedUtc
+                }).OrderByDescending(j => j.LastModifiedUtc);
 
             List<string> searchAttributes = new List<string>()
             {
-                "UPCNo", "CorrectionDate", "UPONo", "SupplierName", "InvoiceCorrectionNo", "DueDate"
+                "UPCNo", "UPONo", "SupplierName"
             };
 
             Query = QueryHelper<UnitPaymentCorrectionNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -106,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 try
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
-                    
+                    var supplier = GetSupplier(m.SupplierId);
                     m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, vm.supplier.import, vm.division.name);
                     if(m.useVat==true)
                     {
@@ -195,6 +198,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 int lastNoNumber = Int32.Parse(lastNo.ReturNoteNo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
+        }
+
+        public SupplierViewModel GetSupplier(string supplierId)
+        {
+            string supplierUri = "master/suppliers";
+            supplierId = "482";
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+            return viewModel;
         }
 
         //public async Task<int> Update(int id, UnitPaymentCorrectionNote unitPaymentCorrectionNote, string user)
