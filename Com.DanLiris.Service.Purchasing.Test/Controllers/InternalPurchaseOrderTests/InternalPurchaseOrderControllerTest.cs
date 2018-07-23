@@ -326,6 +326,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        
+        [Fact]
+        public async Task Should_Error_Get_Invalid_Data()
+        {
+            var response = await this.Client.DeleteAsync($"{URI}/monitoring?page=1&size=25&unitId=0");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
     }
 }
