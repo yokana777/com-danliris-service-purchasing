@@ -85,7 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Result;
         }
 
-        public async Task<int> Create(UnitPaymentOrder model, string username, bool isImport, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(UnitPaymentOrder model, string user, bool isImport, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -93,22 +93,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             {
                 try
                 {
-                    EntityExtension.FlagForCreate(model, username, USER_AGENT);
+                    EntityExtension.FlagForCreate(model, user, USER_AGENT);
                     model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     foreach (var item in model.Items)
                     {
-                        EntityExtension.FlagForCreate(item, username, USER_AGENT);
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
                             SetEPONo(detail);
-                            EntityExtension.FlagForCreate(detail, username, USER_AGENT);
-
-                            SetStatus(detail, username);
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                         }
-                        SetPaid(item, true, username);
+                        SetPaid(item, true, user);
                     }
+
+                    SetDueDate(model);
+
                     this.dbSet.Add(model);
+
                     Created = await dbContext.SaveChangesAsync();
+
+                    foreach (var item in model.Items)
+                    {
+                        foreach (var detail in item.Details)
+                        {
+                            SetStatus(detail, user);
+                        }
+                    }
+
+                    await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -132,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     var existingModel = this.dbSet.AsNoTracking()
                         .Include(d => d.Items)
                             .ThenInclude(d => d.Details)
-                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+                        .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
                     if (existingModel != null && id == model.Id)
                     {
@@ -147,8 +159,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 {
                                     SetEPONo(detail);
                                     EntityExtension.FlagForCreate(detail, user, USER_AGENT);
-
-                                    SetStatus(detail, user);
                                 }
                             }
                             else
@@ -157,13 +167,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 foreach (var detail in item.Details)
                                 {
                                     EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
-
-                                    SetStatus(detail, user);
                                 }
                             }
 
                             SetPaid(item, true, user);
                         }
+
+                        SetDueDate(model);
 
                         this.dbContext.Update(model);
 
@@ -178,8 +188,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 {
                                     EntityExtension.FlagForDelete(existingDetail, user, USER_AGENT);
                                     this.dbContext.UnitPaymentOrderDetails.Update(existingDetail);
-
-                                    SetStatus(existingDetail, user);
                                 }
 
                                 SetPaid(existingItem, false, user);
@@ -187,6 +195,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
+
+                        foreach (var item in model.Items)
+                        {
+                            foreach (var detail in item.Details)
+                            {
+                                SetStatus(detail, user);
+                            }
+                        }
+
+                        await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
                     else
@@ -204,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Updated;
         }
 
-        public async Task<int> Delete(int id, string username)
+        public async Task<int> Delete(int id, string user)
         {
             int Deleted = 0;
 
@@ -215,24 +233,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     var model = this.dbSet
                         .Include(d => d.Items)
                             .ThenInclude(d => d.Details)
-                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+                        .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
-                    EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                    EntityExtension.FlagForDelete(model, user, USER_AGENT);
 
                     foreach (var item in model.Items)
                     {
-                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                        EntityExtension.FlagForDelete(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
-                            EntityExtension.FlagForDelete(detail, username, USER_AGENT);
-
-                            SetStatus(detail, username);
+                            EntityExtension.FlagForDelete(detail, user, USER_AGENT);
                         }
 
-                        SetPaid(item, false, username);
+                        SetPaid(item, false, user);
                     }
 
                     Deleted = await dbContext.SaveChangesAsync();
+
+                    foreach (var item in model.Items)
+                    {
+                        foreach (var detail in item.Details)
+                        {
+                            SetStatus(detail, user);
+                        }
+                    }
+
+                    await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -294,20 +320,56 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         private void SetStatus(UnitPaymentOrderDetail detail, string username)
         {
-            // PurchaseRequestItem purchaseRequestItem = dbContext.PurchaseRequestItems.Single(m => m.Id == detail.PRItemId);
-            // purchaseRequestItem.Status = "";
-            // EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
+            UnitReceiptNoteItem URNItem = dbContext.UnitReceiptNoteItems.Single(m => m.Id == detail.URNItemId);
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == URNItem.EPODetailId);
+            InternalPurchaseOrderItem POItem = dbContext.InternalPurchaseOrderItems.Single(m => m.Id == EPODetail.POItemId);
 
-            // //List<InternalPurchaseOrderItem> internalPurchaseOrderItems = dbContext.InternalPurchaseOrderItems.Where(m => m.PRItemId == detail.PRItemId).ToList();
-            // //foreach (var item in internalPurchaseOrderItems)
-            // //{
-            // //    item.Status = "";
-            // //    EntityExtension.FlagForUpdate(item, username, USER_AGENT);
-            // //}
+            List<long> EPODetailIds = dbContext.ExternalPurchaseOrderDetails.Where(m => m.POItemId == POItem.Id).Select(m => m.Id).ToList();
+            List<long> URNItemIds = dbContext.UnitReceiptNoteItems.Where(m => EPODetailIds.Contains(m.EPODetailId)).Select(m => m.Id).ToList();
 
-            // InternalPurchaseOrderItem internalPurchaseOrderItem = dbContext.InternalPurchaseOrderItems.Single(m => m.PRItemId == detail.PRItemId);
-            // internalPurchaseOrderItem.Status = "";
-            // EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
+            var totalReceiptQuantity = dbContext.UnitPaymentOrderDetails.AsNoTracking().Where(m => m.IsDeleted == false && URNItemIds.Contains(m.URNItemId)).Sum(m => m.ReceiptQuantity);
+            if (totalReceiptQuantity > 0)
+            {
+                if (totalReceiptQuantity < EPODetail.DealQuantity)
+                {
+                    POItem.Status = "Sudah dibuat SPB sebagian";
+                }
+                else
+                {
+                    POItem.Status = "Sudah dibuat SPB semua";
+                }
+            }
+            else if (totalReceiptQuantity == 0)
+            {
+                if (EPODetail.DOQuantity >= EPODetail.DealQuantity)
+                {
+                    if (EPODetail.ReceiptQuantity < EPODetail.DealQuantity)
+                    {
+                        POItem.Status = "Barang sudah diterima Unit parsial";
+                    }
+                    else
+                    {
+                        POItem.Status = "Barang sudah diterima Unit semua";
+                    }
+                }
+            }
+            EntityExtension.FlagForUpdate(POItem, username, USER_AGENT);
         }
+
+        private void SetDueDate(UnitPaymentOrder model)
+        {
+            List<DateTimeOffset> DueDates = new List<DateTimeOffset>();
+            foreach (var item in model.Items)
+            {
+                var unitReceiptNoteDate = dbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
+                foreach (var detail in item.Details)
+                {
+                    var PaymentDueDays = dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(detail.EPONo)).PaymentDueDays;
+                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
+                }
+            }
+            model.DueDate = DueDates.Min();
+        }
+
     }
 }
