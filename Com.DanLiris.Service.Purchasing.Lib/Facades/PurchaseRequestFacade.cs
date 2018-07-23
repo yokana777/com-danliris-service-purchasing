@@ -567,6 +567,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              && po.IsDeleted == false
                              && epoItem.IsDeleted == false
                              && epo.IsDeleted == false
+                             && epoDetail.IsDeleted==false
                              && poItem.Quantity!=0
                              && a.No == (string.IsNullOrWhiteSpace(no) ? a.No : no)
                              && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
@@ -591,8 +592,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              productName=b.ProductName,
                              uom=b.Uom,
                              quantity=b.Quantity,
-                             dealQuantity=epoDetail.DealQuantity,
-                             dealUom=epoDetail.DealUomUnit,
+                             dealQuantity=epoDetail==null ?0: epoDetail.DealQuantity,
+                             dealUom= epoDetail == null? "-":epoDetail.DealUomUnit,
                              LastModifiedUtc=b.LastModifiedUtc
                          });
             return Query;
