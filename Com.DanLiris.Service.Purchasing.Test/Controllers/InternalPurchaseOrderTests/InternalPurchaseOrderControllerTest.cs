@@ -332,5 +332,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             var response = await this.Client.GetAsync($"{URI}/monitoring/download?unitId=0");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+        public async Task Should_Error_Get_Report_Without_Page()
+        {
+            var response = await this.Client.GetAsync(URI + "/monitoring");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
     }
 }
