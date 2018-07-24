@@ -287,63 +287,64 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
                 .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
 
+
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
             var response = controller.Post(null).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
-        [Fact]
-        public void Should_Success_Get_PDF_Nota_Koreksi_By_Id()
-        {
-            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                .Returns(Model);
+        //[Fact]
+        //public void Should_Success_Get_PDF_Nota_Koreksi_By_Id()
+        //{
+        //    var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+        //    mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+        //        .Returns(Model);
 
-            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
-            mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+        //    var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+        //    mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
+        //        .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
 
-            var mockMapper = new Mock<IMapper>();
+        //    var mockMapper = new Mock<IMapper>();
 
-            UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-            };
+        //    UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
+        //    controller.ControllerContext = new ControllerContext()
+        //    {
+        //        HttpContext = new DefaultHttpContext()
+        //    };
 
-            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+        //    controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
-            var response = controller.GetPDF(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
-        }
+        //    var response = controller.GetPDF(It.IsAny<int>());
+        //    Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        //}
 
-        [Fact]
-        public void Should_Success_Get_PDF_Nota_Retur_By_Id()
-        {
-            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                .Returns(Model);
+        //[Fact]
+        //public void Should_Success_Get_PDF_Nota_Retur_By_Id()
+        //{
+        //    var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+        //    mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+        //        .Returns(Model);
 
-            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
-            mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+        //    var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+        //    mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
+        //        .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
 
-            var mockMapper = new Mock<IMapper>();
+        //    var mockMapper = new Mock<IMapper>();
 
-            UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-            };
+        //    UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
+        //    controller.ControllerContext = new ControllerContext()
+        //    {
+        //        HttpContext = new DefaultHttpContext()
+        //    };
 
-            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+        //    controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
-            var response = controller.GetPDFNotaRetur(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
-        }
+        //    var response = controller.GetPDFNotaRetur(It.IsAny<int>());
+        //    Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        //}
 
         //[Fact]
         //public void Should_Success_Update_Data()

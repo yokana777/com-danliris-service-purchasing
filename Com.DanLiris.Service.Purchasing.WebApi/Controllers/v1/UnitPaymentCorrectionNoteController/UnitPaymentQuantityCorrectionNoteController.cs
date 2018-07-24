@@ -45,41 +45,51 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            var Data = _facade.Read(page, size, order, keyword, filter);
-
-            var newData = _mapper.Map<List<UnitPaymentCorrectionNoteViewModel>>(Data.Item1);
-            List<object> listData = new List<object>();
-            listData.AddRange(
-                newData.AsQueryable().Select(s => new
-                {
-                    s._id,
-                    s.uPCNo,
-                    s.correctionDate,
-                    s.uPONo,
-                    s.supplier.name,
-                    s.invoiceCorrectionNo,
-                    s.dueDate,
-                    s.LastModifiedUtc,
-                    s.useIncomeTax,
-                    s.items
-                }).ToList()
-            );
-
-            return Ok(new
+            try
             {
-                apiVersion = ApiVersion,
-                statusCode = General.OK_STATUS_CODE,
-                message = General.OK_MESSAGE,
-                data = listData,
-                info = new Dictionary<string, object>
+                var Data = _facade.Read(page, size, order, keyword, filter);
+
+                var newData = _mapper.Map<List<UnitPaymentCorrectionNoteViewModel>>(Data.Item1);
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    newData.AsQueryable().Select(s => new
+                    {
+                        s._id,
+                        s.uPCNo,
+                        s.correctionDate,
+                        s.uPONo,
+                        s.supplier.name,
+                        s.invoiceCorrectionNo,
+                        s.dueDate,
+                        s.LastModifiedUtc,
+                        s.useIncomeTax,
+                        s.items
+                    }).ToList()
+                );
+
+                return Ok(new
                 {
-                    { "count", listData.Count },
-                    { "total", Data.Item2 },
-                    { "order", Data.Item3 },
-                    { "page", page },
-                    { "size", size }
-                },
-            });
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    },
+                });
+            }
+            catch(Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
 
         [HttpPost]
@@ -97,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                 int result = await _facade.Create(m, identityService.Username, clientTimeZoneOffset);
 
-                if (result.Equals(0))
+                if (result.Equals(0) || vm == null)
                 {
                     return StatusCode(500);
                 }

@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
                 DivisionCode = "DivisionCode",
                 DivisionName = "DivisionName",
 
-                SupplierId = "SupplierId",
+                SupplierId = "1",
                 SupplierCode = "SupplierCode",
                 SupplierName = "SupplierName",
 

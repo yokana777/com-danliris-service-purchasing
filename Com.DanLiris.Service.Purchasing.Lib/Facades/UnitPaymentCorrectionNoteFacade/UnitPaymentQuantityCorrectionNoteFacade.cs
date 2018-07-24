@@ -110,8 +110,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
                     var supplier = GetSupplier(m.SupplierId);
-                    m.SupplierNpwp = supplier.npwp;
-                    m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, supplier.import, m.DivisionName);
+                    var supplierImport = false;
+                    m.SupplierNpwp = null;
+                    if (supplier != null)
+                    {
+                        m.SupplierNpwp = supplier.npwp;
+                        supplierImport = supplier.import;
+                    }
+                    m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, supplierImport, m.DivisionName);
                     if(m.useVat==true)
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
@@ -205,10 +211,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
         {
             string supplierUri = "master/suppliers";
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
-            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-            SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
-            return viewModel;
+            if (httpClient!=null)
+            {
+                var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                return viewModel;
+            }
+            else
+            {
+                SupplierViewModel viewModel = null;
+                return viewModel;
+            }
+            
         }
 
         //public async Task<int> Update(int id, UnitPaymentCorrectionNote unitPaymentCorrectionNote, string user)
