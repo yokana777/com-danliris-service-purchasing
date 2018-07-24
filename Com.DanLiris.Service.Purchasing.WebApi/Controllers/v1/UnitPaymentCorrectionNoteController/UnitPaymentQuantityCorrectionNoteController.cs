@@ -168,10 +168,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 UnitPaymentCorrectionNote model = _facade.ReadById(id);
                 
                 UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
-                if (viewModel == null)
-                {
-                    throw new Exception("Invalid Id");
-                }
 
                 if (indexAcceptPdf < 0)
                 {
@@ -186,14 +182,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 else
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)viewModel.uPOId);
+                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
                     MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{viewModel.uPCNo}.pdf"
+                        FileDownloadName = $"{model.UPCNo}.pdf"
                     };
                 }
             }
@@ -215,10 +211,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
 
                 UnitPaymentCorrectionNote model = _facade.ReadById(id);
                 UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
-                if (viewModel == null)
-                {
-                    throw new Exception("Invalid Id");
-                }
 
                 if (indexAcceptPdf < 0)
                 {
@@ -235,13 +227,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
-                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)viewModel.uPOId);
+                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
                     MemoryStream stream = PdfTemplate.GeneratePdfNotaReturTemplate(viewModel, viewModelSpb, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{viewModel.uPCNo}.pdf"
+                        FileDownloadName = $"{model.UPCNo}.pdf"
                     };
                 }
             }
