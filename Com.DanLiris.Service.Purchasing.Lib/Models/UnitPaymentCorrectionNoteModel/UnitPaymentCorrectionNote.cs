@@ -19,6 +19,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteMo
         public string SupplierCode { get; set; }
         [MaxLength(1000)]
         public string SupplierName { get; set; }
+        [StringLength(100)]
+        public string SupplierNpwp { get; set; }
         [MaxLength(255)]
         public string DivisionId { get; set; }
         [MaxLength(255)]

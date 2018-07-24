@@ -34,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.supplier._id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.supplier.name, opt => opt.MapFrom(s => s.SupplierName))
+                .ForPath(d => d.supplier.npwp, opt => opt.MapFrom(s => s.SupplierNpwp))
                 /* Division */
                 .ForPath(d => d.division._id, opt => opt.MapFrom(s => s.DivisionId))
                 .ForPath(d => d.division.code, opt => opt.MapFrom(s => s.DivisionCode))

@@ -174,13 +174,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
                 tableContent.AddCell(cellLeftMerge);
 
-                cellRightMerge.Phrase = new Phrase($"{item.pricePerDealUnitAfter}", normal_font);
+                cellRightMerge.Phrase = new Phrase($"{item.pricePerDealUnitAfter.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
                 tableContent.AddCell(cellRightMerge);
 
                 cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
                 tableContent.AddCell(cellLeftMerge);
 
-                cellRightMerge.Phrase = new Phrase($"{item.priceTotalAfter}", normal_font);
+                cellRightMerge.Phrase = new Phrase($"{item.priceTotalAfter.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
                 tableContent.AddCell(cellRightMerge);
 
                 cellLeft.Phrase = new Phrase(item.pRNo, normal_font);
@@ -412,18 +412,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         public MemoryStream GeneratePdfNotaReturTemplate(UnitPaymentCorrectionNoteViewModel viewModel, UnitPaymentOrderViewModel viewModelSpb, int clientTimeZoneOffset)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
-            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 11);
             Font smaller_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+            Font smallest_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
             Font smaller_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+            Font smallest_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
             double totalPPn = 0;
             double total = 0;
             string currencyCodePPn = "";
             string currencyCodeTotal = "";
-            DateTime receiptDate = new DateTime();
 
-            Document document = new Document(PageSize.A5, 40, 40, 40, 40);
+            Document document = new Document(PageSize.A5, 20, 20, 17, 20);
             //document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate())
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
@@ -435,17 +436,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Paragraph title = new Paragraph(titleString, normal_font) { Alignment = Element.ALIGN_CENTER };
             document.Add(title);
 
-            Paragraph space = new Paragraph(" ") { Alignment = Element.ALIGN_CENTER };
-            document.Add(space);
+            Paragraph space = new Paragraph(" ", smaller_font) { Alignment = Element.ALIGN_CENTER };
             document.Add(space);
 
             Paragraph nomor = new Paragraph($"Nomor : {viewModel.returNoteNo}", smaller_font) { Alignment = Element.ALIGN_CENTER };
             document.Add(nomor);
 
             Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModelSpb.vatNo} Tanggal : {viewModelSpb.vatDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
-            //string titleString = "NOTA KOREKSI";
-            //Paragraph title = new Paragraph(titleString, bold_font) { Alignment = Element.ALIGN_CENTER };
-            //document.Add(title);
+            document.Add(pajakNomorString);
+            
+            document.Add(space);
             LineSeparator lineSeparator = new LineSeparator(1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, 1);
             document.Add(lineSeparator);
 
@@ -474,90 +474,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Paragraph sellerAddress = new Paragraph($"Alamat     :  {viewModelSpb.supplier.address}", smaller_bold_font) { Alignment = Element.ALIGN_LEFT };
             document.Add(sellerAddress);
 
-            //Paragraph sellerNPWP = new Paragraph($"N P W P  :  {ViewModel}", smaller_font) { Alignment = Element.ALIGN_LEFT };
-            //document.Add(sellerNPWP);
+            Paragraph sellerNPWP = new Paragraph($"N P W P  :  {viewModel.supplier.npwp}", smaller_font) { Alignment = Element.ALIGN_LEFT };
+            document.Add(sellerNPWP);
 
-
-            PdfPTable tableHeader = new PdfPTable(3);
-            tableHeader.SetWidths(new float[] { 4f, 4f, 4f });
-            PdfPCell cellHeaderContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            PdfPCell cellHeaderContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
-            PdfPCell cellHeaderContentCenter = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
-
-            cellHeaderContentLeft.Phrase = new Phrase("BANARAN, GROGOL, SUKOHARJO", header_font);
-            tableHeader.AddCell(cellHeaderContentLeft);
-
-            cellHeaderContentCenter.Phrase = new Phrase("NOTA KOREKSI", header_font);
-            tableHeader.AddCell(cellHeaderContentCenter);
-
-            cellHeaderContentRight.Phrase = new Phrase("");
-            tableHeader.AddCell(cellHeaderContentRight);
-
-            cellHeaderContentLeft.Phrase = new Phrase("BANARAN, GROGOL, SUKOHARJO", normal_font);
-            tableHeader.AddCell(cellHeaderContentLeft);
-
-            cellHeaderContentCenter.Phrase = new Phrase("", header_font);
-            tableHeader.AddCell(cellHeaderContentCenter);
-
-            cellHeaderContentRight.Phrase = new Phrase("FM-PB-00-06-015/R2", bold_font);
-            tableHeader.AddCell(cellHeaderContentRight);
-
-            cellHeaderContentLeft.Phrase = new Phrase("");
-            tableHeader.AddCell(cellHeaderContentLeft);
-
-            cellHeaderContentCenter.Phrase = new Phrase("");
-            tableHeader.AddCell(cellHeaderContentCenter);
-
-            cellHeaderContentRight.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" + "\n" + "(A126) A. SARBINI" + "\n" + "JL.GREMET / JOHO, SOLO");
-            tableHeader.AddCell(cellHeaderContentRight);
-
-
-
-            PdfPCell cellHeader = new PdfPCell(tableHeader);
-            tableHeader.ExtendLastRow = false;
-            tableHeader.SpacingAfter = 20f;
-            document.Add(tableHeader);
-
-            //LineSeparator lineSeparator = new LineSeparator(1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, 1);
-            //document.Add(lineSeparator);
-
-
-            #endregion
-
-            #region Identity
-
-
-            PdfPTable tableIdentity = new PdfPTable(4);
-            tableIdentity.SetWidths(new float[] { 3f, 7f, 1f, 7f });
-            PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            PdfPCell cellIdentityContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
-
-            cellIdentityContentLeft.Phrase = new Phrase("Retur/Potongan", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.division.name, normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("", normal_font);
-            tableIdentity.AddCell(cellIdentityContentRight);
-            cellIdentityContentRight.Phrase = new Phrase(viewModel.uPCNo, bold_font);
-            tableIdentity.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase("Untuk", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.category.name, normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            //cellIdentityContentLeft.Phrase = new Phrase("No.", normal_font);
-            //tableIdentity.AddCell(cellIdentityContentLeft);
-            //cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.no, normal_font);
-            //tableIdentity.AddCell(cellIdentityContentLeft);
-
-            PdfPCell cellIdentity = new PdfPCell(tableIdentity);
-            tableIdentity.ExtendLastRow = false;
-            tableIdentity.SpacingAfter = 10f;
-            tableIdentity.SpacingBefore = 20f;
-            document.Add(tableIdentity);
+            document.Add(space);
 
             #endregion
 
@@ -566,21 +486,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell cellRightBorderless = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.NO_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell cellLeftBorderless = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
-            PdfPTable tableContent = new PdfPTable(6);
-            tableContent.SetWidths(new float[] { 1f, 6f, 3f, 3f, 3f, 3f });
+            PdfPTable tableContent = new PdfPTable(7);
+            tableContent.SetWidths(new float[] { 2f, 6f, 4f, 2f, 3f, 2f, 3f});
 
-            cellCenter.Phrase = new Phrase("No", bold_font);
+            cellCenter.Phrase = new Phrase("No.", smallest_bold_font);
             tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
+            cellCenter.Phrase = new Phrase("Macam dan Jenis BKP", smallest_bold_font);
             tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Jumlah", bold_font);
+            cellCenter.Phrase = new Phrase("Kuantum", smallest_bold_font);
             tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Harga Satuan", bold_font);
+            cellCenter.Phrase = new Phrase("Harga Satuan Menurut Faktur Pajak", smallest_bold_font);
+            cellCenter.Colspan = 2;
             tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Harga Total", bold_font);
-            tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Nomor Order", bold_font);
+            cellCenter.Phrase = new Phrase("Harga Jual BKP", smallest_bold_font);
+            cellCenter.Colspan = 2;
             tableContent.AddCell(cellCenter);
 
             //for (int a = 0; a < 20; a++) // coba kalau banyak baris ^_^
@@ -588,23 +510,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 UnitPaymentCorrectionNoteItemViewModel item = viewModel.items[indexItem];
 
-                cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
+                cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), smallest_font);
+                cellCenter.Colspan = 0;
                 tableContent.AddCell(cellCenter);
 
-                cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
+                cellLeft.Phrase = new Phrase($"{item.product.name}", smallest_font);
                 tableContent.AddCell(cellLeft);
 
-                cellCenter.Phrase = new Phrase($"{item.quantity} {item.uom.unit}", normal_font);
-                tableContent.AddCell(cellCenter);
+                cellRight.Phrase = new Phrase($"{item.quantity} {item.uom.unit}", smallest_font);
+                tableContent.AddCell(cellRight);
 
-                cellLeft.Phrase = new Phrase($"{item.currency.code} {item.pricePerDealUnitAfter}", normal_font);
-                tableContent.AddCell(cellLeft);
+                cellLeftBorderless.Phrase = new Phrase($"{item.currency.code}", smallest_font);
+                tableContent.AddCell(cellLeftBorderless);
 
-                cellCenter.Phrase = new Phrase($"{item.currency.code} {item.priceTotalAfter}", normal_font);
-                tableContent.AddCell(cellCenter);
+                cellRightBorderless.Phrase = new Phrase($"{item.pricePerDealUnitAfter.ToString("N", CultureInfo.InvariantCulture)}", smallest_font);
+                tableContent.AddCell(cellRightBorderless);
 
-                cellCenter.Phrase = new Phrase(item.pRNo, normal_font);
-                tableContent.AddCell(cellCenter);
+                cellLeftBorderless.Phrase = new Phrase($"{item.currency.code}", smallest_font);
+                tableContent.AddCell(cellLeftBorderless);
+
+                cellRightBorderless.Phrase = new Phrase($"{item.priceTotalAfter.ToString("N", CultureInfo.InvariantCulture)}", smallest_font);
+                tableContent.AddCell(cellRightBorderless);
 
                 currencyCodePPn = item.currency.code;
                 currencyCodeTotal = item.currency.code;
@@ -613,6 +539,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             }
 
+            cellLeft.Phrase = new Phrase("Jumlah Harga Jual BKP yang dikembalikan", smallest_font);
+            cellLeft.Colspan = 5;
+            tableContent.AddCell(cellLeft);
+            cellLeftBorderless.Phrase = new Phrase($"{currencyCodeTotal}", smallest_font);
+            cellLeftBorderless.Colspan = 0;
+            tableContent.AddCell(cellLeftBorderless);
+            cellRightBorderless.Phrase = new Phrase($"{total.ToString("N", CultureInfo.InvariantCulture)}", smallest_font);
+            cellRightBorderless.Colspan = 0;
+            tableContent.AddCell(cellRightBorderless);
+
+            cellLeft.Phrase = new Phrase("PPN yang diminta kembali", smallest_font);
+            cellLeft.Colspan = 5;
+            tableContent.AddCell(cellLeft);
+            cellLeftBorderless.Phrase = new Phrase($"{currencyCodeTotal}", smallest_font);
+            cellLeftBorderless.Colspan = 0;
+            tableContent.AddCell(cellLeftBorderless);
+            cellRightBorderless.Phrase = new Phrase($"{totalPPn.ToString("N", CultureInfo.InvariantCulture)}", smallest_font);
+            cellRightBorderless.Colspan = 0;
+            tableContent.AddCell(cellRightBorderless);
+
+            cellRight.Phrase = new Phrase($"\nSukoharjo, {viewModel.correctionDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}\n\n\n\n\n\n_________________________\n\n", smallest_font);
+            cellRight.Colspan = 7;
+            //cellLeft.Rowspan = 8;
+            tableContent.AddCell(cellRight);
+
+            cellLeft.Phrase = new Phrase("Lembar ke-1 : untuk PKP Penjual\nLembar ke-2 : untuk Pembeli\nLembar ke-3 : untuk LPP tempat Pembeli terdaftar (dalam hal Pembeli bukan PKP)", smallest_font);
+            cellLeft.Colspan = 7;
+            //cellLeft.Rowspan = 3;
+            tableContent.AddCell(cellLeft);
+
+            cellLeft.Phrase = new Phrase(" ");
+            cellLeft.Colspan = 7;
+            //cellLeft.Rowspan = 2;
+            tableContent.AddCell(cellLeft);
 
             PdfPCell cellContent = new PdfPCell(tableContent);
             tableContent.ExtendLastRow = false;
@@ -620,124 +580,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(tableContent);
 
             #endregion
-
-            #region TableTotal
-
-            PdfPTable tableTotal = new PdfPTable(4);
-            tableTotal.SetWidths(new float[] { 7f, 2f, 2f, 4f });
-            PdfPCell cellIdentityTotalContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            PdfPCell cellIdentityTotalContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
-
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("Jumlah PPn 10%", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase($" : {currencyCodePPn}", normal_font);
-            tableTotal.AddCell(cellIdentityContentRight);
-            cellIdentityContentRight.Phrase = new Phrase(totalPPn.ToString("N", CultureInfo.InvariantCulture), normal_font);
-            tableTotal.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("Total", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {currencyCodeTotal}", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase(total.ToString("N", CultureInfo.InvariantCulture), normal_font);
-            tableTotal.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total)}", bold_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            //cellIdentityContentLeft.Phrase = new Phrase("No.", normal_font);
-            //tableIdentity.AddCell(cellIdentityContentLeft);
-            //cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.no, normal_font);
-            //tableIdentity.AddCell(cellIdentityContentLeft);
-
-            PdfPCell cellIdentityTotal = new PdfPCell(tableTotal);
-            tableTotal.ExtendLastRow = false;
-            tableTotal.SpacingAfter = 10f;
-            tableTotal.SpacingBefore = 20f;
-            document.Add(tableTotal);
-
-            #endregion
-
-            #region TableKeterangan
-
-            PdfPTable tableKeterangan = new PdfPTable(4);
-            tableTotal.SetWidths(new float[] { 3f, 4f, 3f, 4f });
-            PdfPCell cellIdentityKeteranganContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            PdfPCell cellIdentityKeteranganContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
-
-            cellIdentityContentLeft.Phrase = new Phrase("Perjanjian Pembayaran ", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentRight);
-            cellIdentityContentRight.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase("Nota ", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.uPONo}", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("Barang Datang ", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {receiptDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("Keterangan ", normal_font);
-            tableTotal.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.remark}", bold_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("Nomor Nota Retur ", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase($" : {viewModel.returNoteNo}", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
-            tableTotal.AddCell(cellIdentityContentLeft);
-            //cellIdentityContentLeft.Phrase = new Phrase("No.", normal_font);
-            //tableIdentity.AddCell(cellIdentityContentLeft);
-            //cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.no, normal_font);
-            //tableIdentity.AddCell(cellIdentityContentLeft);
-
-            PdfPCell cellIdentityKeterangan = new PdfPCell(tableKeterangan);
-            tableKeterangan.ExtendLastRow = false;
-            tableKeterangan.SpacingAfter = 10f;
-            tableKeterangan.SpacingBefore = 20f;
-            document.Add(tableKeterangan);
-
-            #endregion
-
-
-            Paragraph date = new Paragraph($"Sukoharjo, {viewModel.correctionDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font) { Alignment = Element.ALIGN_RIGHT };
-            document.Add(date);
-
-            #region TableSignature
-
-            PdfPTable tableSignature = new PdfPTable(4);
-
-            PdfPCell cellSignatureContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
-            cellSignatureContent.Phrase = new Phrase("Diperiksa,\nVerifikasi\n\n\n\n\n\n(                  )", bold_font);
-            tableSignature.AddCell(cellSignatureContent);
-            cellSignatureContent.Phrase = new Phrase("Mengetahui,\nPimpinan Bagian\n\n\n\n\n\n(                  )", bold_font);
-            tableSignature.AddCell(cellSignatureContent);
-            cellSignatureContent.Phrase = new Phrase("Tanda Terima,\nBagian Pembelian\n\n\n\n\n\n(                  )", bold_font);
-            tableSignature.AddCell(cellSignatureContent);
-            cellSignatureContent.Phrase = new Phrase($"Dibuat Oleh,\n\n\n\n\n\n\n(  {viewModel.CreatedBy}  )", bold_font);
-            tableSignature.AddCell(cellSignatureContent);
-
-
-            PdfPCell cellSignature = new PdfPCell(tableSignature); // dont remove
-            tableSignature.ExtendLastRow = false;
-            tableSignature.SpacingBefore = 20f;
-            tableSignature.SpacingAfter = 20f;
-            document.Add(tableSignature);
-
-            #endregion
-
+            
             document.Close();
             byte[] byteInfo = stream.ToArray();
             stream.Write(byteInfo, 0, byteInfo.Length);

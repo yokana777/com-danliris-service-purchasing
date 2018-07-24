@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             return a;
         }
 
-        public async Task<int> Create(UnitPaymentCorrectionNote m, string user, UnitPaymentCorrectionNoteViewModel vm, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(UnitPaymentCorrectionNote m, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -110,7 +110,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
                     var supplier = GetSupplier(m.SupplierId);
-                    m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, vm.supplier.import, vm.division.name);
+                    m.SupplierNpwp = supplier.npwp;
+                    m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, supplier.import, m.DivisionName);
                     if(m.useVat==true)
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
@@ -203,7 +204,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
         public SupplierViewModel GetSupplier(string supplierId)
         {
             string supplierUri = "master/suppliers";
-            supplierId = "482";
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);

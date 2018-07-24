@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     {
         Tuple<List<UnitPaymentCorrectionNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         UnitPaymentCorrectionNote ReadById(int id);
-        Task<int> Create(UnitPaymentCorrectionNote model, string username, UnitPaymentCorrectionNoteViewModel viewmodel, int clientTimeZoneOffset = 7);
+        Task<int> Create(UnitPaymentCorrectionNote model, string username, int clientTimeZoneOffset = 7);
         //Task<int> Update(int id, UnitPaymentCorrectionNote model, string user);
         //Task<int> Delete(int id, string username);
     }
