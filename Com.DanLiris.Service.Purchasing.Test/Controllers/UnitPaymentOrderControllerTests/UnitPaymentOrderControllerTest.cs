@@ -53,6 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     SupplierId = "SupplierId",
                     SupplierCode = "SupplierCode",
                     SupplierName = "SupplierName",
+                    SupplierAddress = "SupplierAddress",
 
                     Date = new DateTimeOffset(),
 
@@ -63,6 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     CurrencyId = "CurrencyId",
                     CurrencyCode = "CurrencyCode",
                     CurrencyRate = 5,
+                    CurrencyDescription = "CurrencyDescription",
 
                     PaymentMethod = "CASH",
 
@@ -70,12 +72,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     InvoiceDate = new DateTimeOffset(),
                     PibNo = null,
 
-                    UseIncomeTax = false,
-                    IncomeTaxId = null,
-                    IncomeTaxName = null,
-                    IncomeTaxRate = 0,
-                    IncomeTaxNo = null,
-                    IncomeTaxDate = null,
+                    UseIncomeTax = true,
+                    IncomeTaxId = "IncomeTaxId",
+                    IncomeTaxName = "IncomeTaxName",
+                    IncomeTaxRate = 1.5,
+                    IncomeTaxNo = "IncomeTaxNo",
+                    IncomeTaxDate = new DateTimeOffset(),
 
                     UseVat = false,
                     VatNo = null,
@@ -190,6 +192,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             var mockMapper = new Mock<IMapper>();
 
             UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -208,6 +217,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_Data_By_Id()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
 
         [Fact]

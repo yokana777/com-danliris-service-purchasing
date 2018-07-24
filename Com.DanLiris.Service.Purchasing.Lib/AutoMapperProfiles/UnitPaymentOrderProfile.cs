@@ -24,7 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.supplier._id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.supplier.name, opt => opt.MapFrom(s => s.SupplierName))
-                
+                .ForPath(d => d.supplier.address, opt => opt.MapFrom(s => s.SupplierAddress))
+
                 /*Category*/
                 .ForPath(d => d.category._id, opt => opt.MapFrom(s => s.CategoryId))
                 .ForPath(d => d.category.code, opt => opt.MapFrom(s => s.CategoryCode))
@@ -34,7 +35,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.currency._id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.currency.code, opt => opt.MapFrom(s => s.CurrencyCode))
                 .ForPath(d => d.currency.rate, opt => opt.MapFrom(s => s.CurrencyRate))
-                
+                .ForPath(d => d.currency.description, opt => opt.MapFrom(s => s.CurrencyDescription))
+
                 /*IncomeTax*/
                 .ForPath(d => d.incomeTax._id, opt => opt.MapFrom(s => s.IncomeTaxId))
                 .ForPath(d => d.incomeTax.name, opt => opt.MapFrom(s => s.IncomeTaxName))

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -87,23 +88,58 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
             }
         }
 
+        [HttpGet("by-user")]
+        public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+            {
+                filter = string.Concat("{", filterUser, "}");
+            }
+            else
+            {
+                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+            }
+
+            return Get(page, size, order, keyword, filter);
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
             try
             {
-                var model = facade.ReadById(id);
-                var viewModel = mapper.Map<UnitPaymentOrderViewModel>(model);
-                //if (model.IncomeTaxDate.Equals(DateTimeOffset.MinValue))
-                //    viewModel.incomeTaxDate = null;
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
-                return Ok(new
+                var model = facade.ReadById(id);
+
+                if (indexAcceptPdf < 0)
                 {
-                    apiVersion = ApiVersion,
-                    statusCode = General.OK_STATUS_CODE,
-                    message = General.OK_MESSAGE,
-                    data = viewModel,
-                });
+                    var viewModel = mapper.Map<UnitPaymentOrderViewModel>(model);
+
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                    UnitPaymentOrderPDFTemplate PdfTemplate = new UnitPaymentOrderPDFTemplate();
+                    var stream = PdfTemplate.Generate(model, serviceProvider, clientTimeZoneOffset, identityService.Username);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.UPONo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
