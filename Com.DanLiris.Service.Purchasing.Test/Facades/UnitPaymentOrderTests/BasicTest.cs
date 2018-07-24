@@ -160,5 +160,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_Spb()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadSpb();
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
     }
 }
