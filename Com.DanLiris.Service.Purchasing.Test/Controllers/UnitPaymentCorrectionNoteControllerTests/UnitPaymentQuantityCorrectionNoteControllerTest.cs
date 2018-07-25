@@ -52,6 +52,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         code = "CategoryCode"
                     },
                     items = new List<UnitPaymentCorrectionNoteItemViewModel>()
+                    {
+                        new UnitPaymentCorrectionNoteItemViewModel()
+                        {
+                            ePONo ="123",
+                            quantity = 1,
+                            product = new ProductViewModel
+                            {
+                                _id = "ProductId",
+                                name = "ProductName",
+                                code = "ProductCode",
+                            },
+                            uom = new UomViewModel
+                            {
+                                _id = "UomId",
+                                unit = "UomUnit"
+                            },
+                            currency = new CurrencyViewModel
+                            {
+                                _id = "CurrencyId",
+                                code = "CurrencyCode",
+                                description = "CurrencyDescription",
+                                rate = "CurrencyRate"
+                            }
+                        }
+                    }
                 };
             }
         }
@@ -455,6 +480,70 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var response = controller.GetPDFNotaRetur(It.IsAny<int>());
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Error_Get_PDF_Nota_Koreksi_By_Id()
+        {
+            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+            mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelSpb);
+
+            var mockMapper = new Mock<IMapper>();
+            var mockMapperSpb = new Mock<IMapper>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.GetPDF(It.IsAny<int>());
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Error_Get_PDF_Nota_Retur_By_Id()
+        {
+            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+            mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelSpb);
+
+            var mockMapper = new Mock<IMapper>();
+            var mockMapperSpb = new Mock<IMapper>();
+
+            UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.GetPDFNotaRetur(It.IsAny<int>());
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
         }
 
         //[Fact]
