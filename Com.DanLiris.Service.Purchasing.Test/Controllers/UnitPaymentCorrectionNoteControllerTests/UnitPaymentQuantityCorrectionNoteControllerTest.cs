@@ -433,10 +433,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                 .Returns(Model);
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
-            mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+            mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelSpb);
 
             var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNoteViewModel>(It.IsAny<UnitPaymentCorrectionNote>()))
+                .Returns(ViewModel);
+
+            var mockMapperSpb = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
+                .Returns(ViewModelSpb);
 
             UnitPaymentQuantityCorrectionNoteController controller = new UnitPaymentQuantityCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
             controller.ControllerContext = new ControllerContext()
