@@ -57,7 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                         {
                             i.unitReceiptNote._id,
                             i.unitReceiptNote.no,
-                            i.unitReceiptNote.deliveryOrder
+                            i.unitReceiptNote.deliveryOrder,
+                            i.unitReceiptNote.items
                         }
                     }),
                     s.LastModifiedUtc,

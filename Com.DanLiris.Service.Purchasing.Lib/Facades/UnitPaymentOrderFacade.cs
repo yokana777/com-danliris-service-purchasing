@@ -57,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 {
                     URNNo = i.URNNo,
                     DONo = i.DONo,
+                    Details=i.Details.ToList()
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
                 LastModifiedUtc = s.LastModifiedUtc,
