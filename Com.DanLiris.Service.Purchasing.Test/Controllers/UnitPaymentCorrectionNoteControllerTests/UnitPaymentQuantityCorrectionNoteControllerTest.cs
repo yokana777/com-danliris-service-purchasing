@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorrectionNoteController;
@@ -32,11 +33,47 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             {
                 return new UnitPaymentCorrectionNoteViewModel
                 {
+                    division = new DivisionViewModel
+                    {
+                        _id = "DivisionId",
+                        name = "DivisionName",
+                        code = "DivisionCode"
+                    },
                     supplier = new SupplierViewModel
                     {
-                        import = false
+                        _id = "SupplierId",
+                        name = "SupplierName",
+                        code = "SupplierCode"
+                    },
+                    category = new CategoryViewModel
+                    {
+                        _id = "CategoryId",
+                        name = "CategoryName",
+                        code = "CategoryCode"
                     },
                     items = new List<UnitPaymentCorrectionNoteItemViewModel>()
+                };
+            }
+        }
+
+        private UnitPaymentOrderViewModel ViewModelSpb
+        {
+            get
+            {
+                return new UnitPaymentOrderViewModel
+                {
+                    supplier = new SupplierViewModel
+                    {
+                        import = false,
+                        address = "SupplierAddress"
+                    },
+                    incomeTax = new IncomeTaxViewModel
+                    {
+                        _id = "1",
+                        name = "incomeTaxName",
+                        rate = "2"
+                    },
+                    items = new List<UnitPaymentOrderItemViewModel>()
                 };
             }
         }
@@ -56,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     SupplierName = "SupplierName",
 
                     UPCNo = "18-06-G-NKI-001",
-                    UPOId = 1,
+                    UPOId = 30,
 
                     UPONo = "18-06-G-NKI-001",
 
@@ -87,6 +124,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     DueDate = new DateTimeOffset(), // ???
 
                     Items = new List<UnitPaymentCorrectionNoteItem> { }
+                };
+            }
+        }
+
+        private UnitPaymentOrder ModelSpb
+        {
+            get
+            {
+                return new UnitPaymentOrder
+                {
+                    DivisionId = "DivisionId",
+                    DivisionCode = "DivisionCode",
+                    DivisionName = "DivisionName",
+
+                    SupplierId = "SupplierId",
+                    SupplierCode = "SupplierCode",
+                    SupplierName = "SupplierName",
+                    SupplierAddress = "SupplierAddress",
+
+                    Date = new DateTimeOffset(),
+
+                    CategoryId = "CategoryId ",
+                    CategoryCode = "CategoryCode",
+                    CategoryName = "CategoryName",
+
+                    CurrencyId = "CurrencyId",
+                    CurrencyCode = "CurrencyCode",
+                    CurrencyRate = 5,
+                    CurrencyDescription = "CurrencyDescription",
+
+                    PaymentMethod = "CASH",
+
+                    InvoiceNo = "INV000111",
+                    InvoiceDate = new DateTimeOffset(),
+                    PibNo = null,
+
+                    UseIncomeTax = true,
+                    IncomeTaxId = "IncomeTaxId",
+                    IncomeTaxName = "IncomeTaxName",
+                    IncomeTaxRate = 1.5,
+                    IncomeTaxNo = "IncomeTaxNo",
+                    IncomeTaxDate = new DateTimeOffset(),
+
+                    UseVat = false,
+                    VatNo = null,
+                    VatDate = new DateTimeOffset(),
+
+                    Remark = null,
+
+                    DueDate = new DateTimeOffset(), // ???
+
+                    Items = new List<UnitPaymentOrderItem> { }
                 };
             }
         }
@@ -302,10 +391,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                 .Returns(Model);
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
-            mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+            mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelSpb);
 
             var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNoteViewModel>(It.IsAny<UnitPaymentCorrectionNote>()))
+                .Returns(ViewModel);
+
+            var mockMapperSpb = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
+                .Returns(ViewModelSpb);
+            //var mockMapper = new Mock<IMapper>();
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
             {

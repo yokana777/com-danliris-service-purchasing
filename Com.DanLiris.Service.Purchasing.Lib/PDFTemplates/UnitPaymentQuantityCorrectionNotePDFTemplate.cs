@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
@@ -36,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Document document = new Document(PageSize.A5.Rotate(), 18, 18, 17, 10);
             //document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate())
             MemoryStream stream = new MemoryStream();
-            if (viewModel != null)
+            try
             {
                 PdfWriter writer = PdfWriter.GetInstance(document, stream);
                 document.Open();
@@ -410,6 +411,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 stream.Write(byteInfo, 0, byteInfo.Length);
                 stream.Position = 0;
             }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
             return stream;
         }
 
@@ -432,7 +437,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate())
             MemoryStream stream = new MemoryStream();
             
-            if (viewModel != null)
+            try
             {
                 PdfWriter writer = PdfWriter.GetInstance(document, stream);
                 document.Open();
@@ -591,6 +596,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 byte[] byteInfo = stream.ToArray();
                 stream.Write(byteInfo, 0, byteInfo.Length);
                 stream.Position = 0;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
             return stream;
         }
