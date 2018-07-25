@@ -7,6 +7,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -15,6 +16,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -72,7 +74,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<UnitReceiptNoteFacade>()
-                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>();
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+                .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -104,6 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             ClassMap<UomViewModel>.Register();
             ClassMap<PurchaseOrderViewModel>.Register();
             ClassMap<SupplierViewModel>.Register();
+            ClassMap<UnitPaymentCorrectionNoteViewModel>.Register();
         }
 
         #endregion Register

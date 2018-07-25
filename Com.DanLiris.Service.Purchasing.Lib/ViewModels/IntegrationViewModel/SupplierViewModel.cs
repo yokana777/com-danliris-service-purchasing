@@ -11,5 +11,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public string name { get; set; }
         public string address { get; set; }
         public bool import { get; set; }
+        public string npwp { get; set; }
     }
 }

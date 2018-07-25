@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180704084635_add_UnitPaymentCorrectionNotes")]
+    partial class add_UnitPaymentCorrectionNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1493,15 +1494,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("CategoryCode")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CategoryId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CategoryName")
-                        .HasMaxLength(1000);
-
                     b.Property<DateTimeOffset>("CorrectionDate");
 
                     b.Property<string>("CorrectionType");
@@ -1525,15 +1517,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DivisionCode")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DivisionId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DivisionName")
-                        .HasMaxLength(1000);
 
                     b.Property<DateTimeOffset>("DueDate");
 
@@ -1563,17 +1546,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("ReturNoteNo");
 
-                    b.Property<string>("SupplierCode")
-                        .HasMaxLength(255);
+                    b.Property<string>("SupplierCode");
 
-                    b.Property<string>("SupplierId")
-                        .HasMaxLength(255);
+                    b.Property<string>("SupplierId");
 
-                    b.Property<string>("SupplierName")
-                        .HasMaxLength(1000);
-
-                    b.Property<string>("SupplierNpwp")
-                        .HasMaxLength(100);
+                    b.Property<string>("SupplierName");
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);
@@ -1658,14 +1635,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("PriceTotalBefore");
 
-                    b.Property<string>("ProductCode")
-                        .HasMaxLength(255);
+                    b.Property<string>("ProductCode");
 
-                    b.Property<string>("ProductId")
-                        .HasMaxLength(255);
+                    b.Property<string>("ProductId");
 
-                    b.Property<string>("ProductName")
-                        .HasMaxLength(1000);
+                    b.Property<string>("ProductName");
 
                     b.Property<long>("Quantity");
 
@@ -1715,15 +1689,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyCode")
                         .HasMaxLength(255);
 
-                    b.Property<string>("CurrencyDescription")
-                        .HasMaxLength(1000);
-
                     b.Property<string>("CurrencyId")
                         .HasMaxLength(255);
 
                     b.Property<double>("CurrencyRate");
 
-                    b.Property<DateTimeOffset>("Date");
+                    b.Property<string>("Date");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -1746,7 +1717,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
-                    b.Property<DateTimeOffset?>("IncomeTaxDate");
+                    b.Property<DateTimeOffset>("IncomeTaxDate");
 
                     b.Property<string>("IncomeTaxId")
                         .HasMaxLength(255);
@@ -1764,11 +1735,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("InvoiceNo")
                         .HasMaxLength(255);
 
-                    b.Property<bool>("IsCorrection");
+                    b.Property<string>("IsCorrection");
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<bool>("IsPaid");
+                    b.Property<string>("IsPaid");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
@@ -1787,9 +1758,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<string>("Remark");
-
-                    b.Property<string>("SupplierAddress")
-                        .HasMaxLength(1000);
 
                     b.Property<string>("SupplierCode")
                         .HasMaxLength(255);
@@ -1892,7 +1860,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("UPOItemId");
 
-                    b.Property<long>("URNItemId");
+                    b.Property<long>("URNDetailId");
 
                     b.Property<string>("UomId")
                         .HasMaxLength(255);

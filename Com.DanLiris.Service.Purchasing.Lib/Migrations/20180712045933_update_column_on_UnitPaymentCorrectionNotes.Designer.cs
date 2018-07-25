@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180712045933_update_column_on_UnitPaymentCorrectionNotes")]
+    partial class update_column_on_UnitPaymentCorrectionNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1572,9 +1573,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("SupplierName")
                         .HasMaxLength(1000);
 
-                    b.Property<string>("SupplierNpwp")
-                        .HasMaxLength(100);
-
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
@@ -1715,9 +1713,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyCode")
                         .HasMaxLength(255);
 
-                    b.Property<string>("CurrencyDescription")
-                        .HasMaxLength(1000);
-
                     b.Property<string>("CurrencyId")
                         .HasMaxLength(255);
 
@@ -1787,9 +1782,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<string>("Remark");
-
-                    b.Property<string>("SupplierAddress")
-                        .HasMaxLength(1000);
 
                     b.Property<string>("SupplierCode")
                         .HasMaxLength(255);
