@@ -51,8 +51,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 SupplierId = s.SupplierId,
                 SupplierCode = s.SupplierCode,
                 SupplierName = s.SupplierName,
+                CategoryCode=s.CategoryCode,
+                CategoryId=s.CategoryId,
+                CategoryName=s.CategoryName,
                 Date = s.Date,
                 UPONo = s.UPONo,
+                DueDate=s.DueDate,
+                UseIncomeTax=s.UseIncomeTax,
+                UseVat=s.UseVat,
+                CurrencyCode=s.CurrencyCode,
+                CurrencyDescription=s.CurrencyDescription,
+                CurrencyId=s.CurrencyId,
+                CurrencyRate=s.CurrencyRate,
                 Items = s.Items.Select(i => new UnitPaymentOrderItem
                 {
                     URNNo = i.URNNo,
