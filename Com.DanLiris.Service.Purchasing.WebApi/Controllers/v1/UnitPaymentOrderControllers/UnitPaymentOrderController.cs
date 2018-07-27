@@ -50,7 +50,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     s.supplier,
                     s.division,
                     s.date,
+                    s.dueDate,
                     s.no,
+                    s.useIncomeTax,
+                    s.useVat,
+                    s.category,
+                    s.currency,
                     items = s.items.Select(i => new
                     {
                         unitReceiptNote = new
