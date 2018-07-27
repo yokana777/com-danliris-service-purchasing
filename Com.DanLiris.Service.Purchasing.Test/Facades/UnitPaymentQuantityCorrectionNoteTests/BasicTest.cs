@@ -155,6 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         public void Should_Success_Validate_Data()
         {
             UnitPaymentCorrectionNoteViewModel nullViewModel = new UnitPaymentCorrectionNoteViewModel();
+            nullViewModel.items = new List<UnitPaymentCorrectionNoteItemViewModel> { };
             Assert.True(nullViewModel.Validate(null).Count() > 0);
 
             UnitPaymentCorrectionNoteViewModel viewModel = new UnitPaymentCorrectionNoteViewModel()
