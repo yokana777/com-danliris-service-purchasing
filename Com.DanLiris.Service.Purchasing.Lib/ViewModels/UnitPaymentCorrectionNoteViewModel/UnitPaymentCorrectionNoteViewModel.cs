@@ -41,9 +41,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
             {
                 yield return new ValidationResult("No. Surat Perintah Bayar is required", new List<string> { "uPOId" });
             }
-            if (this.releaseOrderNoteNo == null)
+            if (this.correctionDate.Equals(DateTimeOffset.MinValue) || this.correctionDate == null)
+            {
+                yield return new ValidationResult("Date is required", new List<string> { "correctionDate" });
+            }
+            if (correctionType==null && this.releaseOrderNoteNo == null)
             {
                 yield return new ValidationResult("No. Bon Keluar is required", new List<string> { "releaseOrderNoteNo" });
+            }
+            if (supplier == null)
+            {
+                yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
+            }
+            int itemErrorCount = 0;
+
+            if (this.items.Count.Equals(0))
+            {
+                yield return new ValidationResult("Items is required", new List<string> { "itemscount" });
+            }
+            else
+            {
+                string itemError = "[";
+
+                foreach (UnitPaymentCorrectionNoteItemViewModel item in items)
+                {
+                    itemError += "{";
+
+                    if (item.product == null || string.IsNullOrWhiteSpace(item.product._id))
+                    {
+                        itemErrorCount++;
+                        itemError += "product: 'Product is required', ";
+                    }
+                    if (correctionType != null)
+                    {
+                        if (item.pricePerDealUnitAfter < 0)
+                        {
+                            itemErrorCount++;
+                            itemError += "pricePerDealUnitAfter: 'Price should not be less than 0'";
+                        }
+                        if (item.priceTotalAfter < 0)
+                        {
+                            itemErrorCount++;
+                            itemError += "priceTotalAfter: 'Price Total should not be less than 0'";
+                        }
+                    }
+                    
+
+                    itemError += "}, ";
+                }
+
+                itemError += "]";
+
+                if (itemErrorCount > 0)
+                    yield return new ValidationResult(itemError, new List<string> { "items" });
             }
         }
     }
