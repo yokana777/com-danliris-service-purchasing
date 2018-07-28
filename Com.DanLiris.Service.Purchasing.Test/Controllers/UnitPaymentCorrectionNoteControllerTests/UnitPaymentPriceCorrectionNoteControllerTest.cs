@@ -392,6 +392,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
         }
 
         [Fact]
+        public void Should_Validate_Create_Data_Item()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNote>(It.IsAny<UnitPaymentCorrectionNoteViewModel>()))
+                .Returns(Model);
+            Model.Items.Add(new UnitPaymentCorrectionNoteItem
+            {
+                PricePerDealUnitAfter=-100,
+                PriceTotalAfter=-200
+            });
+            var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), true, "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+            mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
+                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
+
+            var response = controller.Create(this.ViewModel).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
