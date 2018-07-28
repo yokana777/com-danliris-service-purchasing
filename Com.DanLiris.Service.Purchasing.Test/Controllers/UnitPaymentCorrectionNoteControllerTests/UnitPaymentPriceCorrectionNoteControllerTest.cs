@@ -51,6 +51,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         name = "CategoryName",
                         code = "CategoryCode"
                     },
+                    correctionType="Harga Satuan",
+                    correctionDate= new DateTimeOffset(),
                     items = new List<UnitPaymentCorrectionNoteItemViewModel>()
                     {
                         new UnitPaymentCorrectionNoteItemViewModel()
@@ -354,7 +356,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                 .Returns(Model);
 
             var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(),true, "unittestusername", 7))
+            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(),false, "unittestusername", 7))
                .ReturnsAsync(1);
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
