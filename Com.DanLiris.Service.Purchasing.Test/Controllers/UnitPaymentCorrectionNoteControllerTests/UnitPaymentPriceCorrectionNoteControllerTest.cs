@@ -484,7 +484,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
 
-        
+        [Fact]
+        public void Should_Success_Get_PDF_Nota_Koreksi_PriceTotal_By_Id()
+        {
+            var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+            Model.CorrectionType = "Harga Total";
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+            mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelSpb);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNoteViewModel>(It.IsAny<UnitPaymentCorrectionNote>()))
+                .Returns(ViewModel);
+
+            ViewModel.correctionType = "Harga Total";
+            var mockMapperSpb = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
+                .Returns(ViewModelSpb);
+            //var mockMapper = new Mock<IMapper>();
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            UnitPaymentPriceCorrectionNoteController controller = new UnitPaymentPriceCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeSpb.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.GetPDF(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
         [Fact]
         public void Should_Error_Get_PDF_Nota_Koreksi_By_Id()
         {
