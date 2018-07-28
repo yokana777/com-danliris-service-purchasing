@@ -128,7 +128,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             var ResponseImportSupplier = await facade.Create(modelImportSupplier,true, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
         }
-        
-        
+
+        [Fact]
+        public async void Should_Error_Create_Data_Null_Parameter()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            
+            Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(null, true, USERNAME, 7));
+            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
+        }
+
+        [Fact]
+        public async void Should_Success_Create_Data_garment()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelLocalSupplier.DivisionName = "GARMENT";
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            Assert.NotEqual(ResponseLocalSupplier, 0);
+        }
     }
 }
