@@ -129,6 +129,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             Assert.NotEqual(ResponseImportSupplier, 0);
         }
 
+        [Fact]
+        public async void Should_Success_Create_Data_garment()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelLocalSupplier.DivisionName = "GARMENT";
+            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
+            Assert.NotEqual(ResponseImportSupplier, 0);
+        }
+
+
         //[Fact]
         //public async void Should_Success_Update_Data()
         //{
@@ -169,5 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+
+        
     }
 }
