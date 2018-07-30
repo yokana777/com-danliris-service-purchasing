@@ -134,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     VatTaxCorrectionNo = null,
 
                     useIncomeTax = true,
-                    IncomeTaxCorrectionName = null,
+                    IncomeTaxCorrectionDate = new DateTimeOffset(),
                     IncomeTaxCorrectionNo = null,
 
                     ReleaseOrderNoteNo = "123456",
