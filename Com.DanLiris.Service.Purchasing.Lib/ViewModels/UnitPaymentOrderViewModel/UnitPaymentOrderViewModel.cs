@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel
 {
@@ -102,6 +103,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
                     {
                         itemErrorCount++;
                         itemError += "unitReceiptNote: 'No UnitReceiptNote selected', ";
+                    }
+                    else if(items.Where(i => i.unitReceiptNote != null && item.unitReceiptNote != null && i.unitReceiptNote._id == item.unitReceiptNote._id).Count() > 1)
+                    {
+                        itemErrorCount++;
+                        itemError += "unitReceiptNote: 'UnitReceiptNote is already used', ";
                     }
                     itemError += "}, ";
                 }
