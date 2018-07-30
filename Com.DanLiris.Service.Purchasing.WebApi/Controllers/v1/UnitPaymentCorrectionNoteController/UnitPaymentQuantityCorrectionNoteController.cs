@@ -58,7 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                         s.uPCNo,
                         s.correctionDate,
                         s.uPONo,
-                        s.supplier.name,
+                        supplier = new
+                        {
+                            s.supplier.name
+                        },
                         s.invoiceCorrectionNo,
                         s.dueDate,
                         s.LastModifiedUtc,
