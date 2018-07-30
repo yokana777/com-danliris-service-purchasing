@@ -28,9 +28,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewMode
             {
                 yield return new ValidationResult("Date is required", new List<string> { "date" });
             }
-            else if (this.expectedDeliveryDate != null && this.date > this.expectedDeliveryDate)
+            if (this.expectedDeliveryDate.Equals(DateTimeOffset.MinValue) || this.expectedDeliveryDate == null)
             {
-                yield return new ValidationResult("Date is greater than expected delivery date", new List<string> { "date" });
+                yield return new ValidationResult("ExpectedDeliveryDate is required", new List<string> { "expectedDeliveryDate" });
+            }
+            else if (this.date != null && this.date > this.expectedDeliveryDate)
+            {
+                yield return new ValidationResult("Date is greater than expected delivery date", new List<string> { "expectedDeliveryDate" });
             }
             if (this.budget == null)
             {

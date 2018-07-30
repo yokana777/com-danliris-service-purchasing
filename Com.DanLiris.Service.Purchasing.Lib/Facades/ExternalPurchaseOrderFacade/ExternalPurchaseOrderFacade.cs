@@ -35,6 +35,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
         {
             IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo", "SupplierName", "DivisionName","UnitName","Items.PRNo"
+            };
+
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
             Query = Query
                 .Select(s => new ExternalPurchaseOrder
                 {
@@ -64,12 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     .ToList()
                 });
 
-            List<string> searchAttributes = new List<string>()
-            {
-                "EPONo", "SupplierName", "DivisionName","UnitName"
-            };
 
-            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
