@@ -364,6 +364,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
         }
 
         [Fact]
+        public void Should_Error_Create_Data_when_Correction_Type_Changed()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNote>(It.IsAny<UnitPaymentCorrectionNoteViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+            mockFacadeSpb.Setup(x => x.Read(1, 25, "{}", null, "{}"))
+                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
+            this.ViewModel.correctionType = " ";
+            var response = controller.Post(this.ViewModel).Result;
+            Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();

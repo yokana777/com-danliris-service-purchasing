@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
                         itemErrorCount++;
                         itemError += "product: 'Product is required', ";
                     }
-                    if (correctionType != null)
+                    if (correctionType != "Jumlah")
                     {
                         if (item.pricePerDealUnitAfter < 0)
                         {
