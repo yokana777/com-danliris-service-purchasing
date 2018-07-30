@@ -124,18 +124,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
                     CorrectionDate = new DateTimeOffset(),
 
-                    CorrectionType = null,
+                    CorrectionType = "Jumlah",
 
                     InvoiceCorrectionDate = new DateTimeOffset(),
                     InvoiceCorrectionNo  = "123456",
 
                     useVat = true,
                     VatTaxCorrectionDate = new DateTimeOffset(),
-                    VatTaxCorrectionNo = null,
+                    VatTaxCorrectionNo = "123456",
 
                     useIncomeTax = true,
                     IncomeTaxCorrectionDate = new DateTimeOffset(),
-                    IncomeTaxCorrectionNo = null,
+                    IncomeTaxCorrectionNo = "123456",
 
                     ReleaseOrderNoteNo = "123456",
                     ReturNoteNo = "",

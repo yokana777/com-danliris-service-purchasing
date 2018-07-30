@@ -122,6 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
                     }
+                    m.CorrectionType = "Jumlah";
                     UnitPaymentOrder unitPaymentOrder = this.dbContext.UnitPaymentOrders.FirstOrDefault(s => s.Id == m.UPOId);
                     unitPaymentOrder.IsCorrection = true;
                     
