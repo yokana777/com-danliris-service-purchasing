@@ -111,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
-                            SetEPONo(detail);
+                            SetPOItemIdEPONo(detail);
                             EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                         }
                         SetPaid(item, true, user);
@@ -168,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
                                 foreach (var detail in item.Details)
                                 {
-                                    SetEPONo(detail);
+                                    SetPOItemIdEPONo(detail);
                                     EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                                 }
                             }
@@ -317,9 +317,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
         }
 
-        private void SetEPONo(UnitPaymentOrderDetail detail)
+        private void SetPOItemIdEPONo(UnitPaymentOrderDetail detail)
         {
-            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Details.Any(d => d.Id == detail.EPODetailId))).EPONo;
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
+            detail.POItemId = EPODetail.POItemId;
+
+            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Id == EPODetail.POItemId)).EPONo;
         }
 
         private void SetPaid(UnitPaymentOrderItem item, bool isPaid, string username)
@@ -331,8 +334,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         private void SetStatus(UnitPaymentOrderDetail detail, string username)
         {
-            UnitReceiptNoteItem URNItem = dbContext.UnitReceiptNoteItems.Single(m => m.Id == detail.URNItemId);
-            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == URNItem.EPODetailId);
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
             InternalPurchaseOrderItem POItem = dbContext.InternalPurchaseOrderItems.Single(m => m.Id == EPODetail.POItemId);
 
             List<long> EPODetailIds = dbContext.ExternalPurchaseOrderDetails.Where(m => m.POItemId == POItem.Id).Select(m => m.Id).ToList();
