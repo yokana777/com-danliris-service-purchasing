@@ -322,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
             detail.POItemId = EPODetail.POItemId;
 
-            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Id == EPODetail.POItemId)).EPONo;
+            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Id == EPODetail.EPOItemId)).EPONo;
         }
 
         private void SetPaid(UnitPaymentOrderItem item, bool isPaid, string username)
