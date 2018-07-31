@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
@@ -185,6 +186,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         [Fact]
         public void Should_Success_Get_Data_By_Id()
         {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
@@ -222,9 +234,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         [Fact]
         public void Should_Success_Get_PDF_Data_By_Id()
         {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
+
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
+            mockFacade.Setup(x => x.GetUnitReceiptNote(It.IsAny<long>()))
+                .Returns(new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote { UnitName = "UnitName", ReceiptDate = DateTimeOffset.Now });
+            mockFacade.Setup(x => x.GetExternalPurchaseOrder(It.IsAny<string>()))
+                .Returns(new ExternalPurchaseOrder { PaymentDueDays = "0" });
 
             var mockMapper = new Mock<IMapper>();
 

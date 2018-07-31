@@ -507,6 +507,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     UnitName = s.UnitName,
                     DivisionName = s.DivisionName,
                     SupplierName = s.SupplierName,
+                    DOId = s.DOId,
                     DONo = s.DONo,
                     CreatedBy = s.CreatedBy,
                     LastModifiedUtc = s.LastModifiedUtc,

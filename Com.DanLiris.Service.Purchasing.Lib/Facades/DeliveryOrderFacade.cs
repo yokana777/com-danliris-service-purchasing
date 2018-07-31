@@ -378,35 +378,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         {
             if (externalPurchaseOrderDetail.ReceiptQuantity == 0)
             {
-
-                //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.SingleOrDefault(i => i.Id == detail.PRItemId);
-                InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.SingleOrDefault(i => i.Id == detail.POItemId);
-
-                if (externalPurchaseOrderDetail.DOQuantity == 0)
+                if (dbContext.UnitPaymentOrderDetails.SingleOrDefault(d => d.POItemId == externalPurchaseOrderDetail.POItemId) == null)
                 {
-                    //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
-                    internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
 
-                    //EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
-                    EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
+                    //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.SingleOrDefault(i => i.Id == detail.PRItemId);
+                    InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.SingleOrDefault(i => i.Id == detail.POItemId);
+
+                    if (externalPurchaseOrderDetail.DOQuantity == 0)
+                    {
+                        //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                        internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
+
+                        //EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
+                        EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
+                    }
+                    else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
+                    {
+                        //purchaseRequestItem.Status = "Barang sudah datang parsial";
+                        internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+
+                        //EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
+                        EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
+                    }
+                    else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                    {
+                        //purchaseRequestItem.Status = "Barang sudah datang semua";
+                        internalPurchaseOrderItem.Status = "Barang sudah datang semua";
+
+                        //EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
+                        EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
+                    }
+
                 }
-                else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
-                {
-                    //purchaseRequestItem.Status = "Barang sudah datang parsial";
-                    internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
-
-                    //EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
-                    EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
-                }
-                else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
-                {
-                    //purchaseRequestItem.Status = "Barang sudah datang semua";
-                    internalPurchaseOrderItem.Status = "Barang sudah datang semua";
-
-                    //EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
-                    EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
-                }
-
             }
         }
 

@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180730040006_Add POItemId to UnitPaymentOrderDetail")]
+    partial class AddPOItemIdtoUnitPaymentOrderDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1537,7 +1538,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
-                    b.Property<DateTimeOffset>("IncomeTaxCorrectionDate");
+                    b.Property<string>("IncomeTaxCorrectionName");
 
                     b.Property<string>("IncomeTaxCorrectionNo");
 
