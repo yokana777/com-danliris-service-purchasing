@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public DateTimeOffset? vatTaxCorrectionDate { get; set; }
         public bool useIncomeTax { get; set; }
         public string incomeTaxCorrectionNo { get; set; }
-        public string incomeTaxCorrectionName { get; set; }
+        public DateTimeOffset incomeTaxCorrectionDate { get; set; }
         public string releaseOrderNoteNo { get; set; }
         public DateTimeOffset dueDate { get; set; }
         public string remark { get; set; }
@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
                         itemErrorCount++;
                         itemError += "product: 'Product is required', ";
                     }
-                    if (correctionType != null)
+                    if (correctionType != "Jumlah")
                     {
                         if (item.pricePerDealUnitAfter < 0)
                         {
