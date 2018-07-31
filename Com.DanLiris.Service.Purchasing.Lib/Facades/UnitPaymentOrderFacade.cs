@@ -472,5 +472,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
+
+        #region ForPDF
+
+        public UnitReceiptNote GetUnitReceiptNote(long URNId)
+        {
+            return dbContext.UnitReceiptNotes.Single(m => m.Id == URNId);
+        }
+
+        public ExternalPurchaseOrder GetExternalPurchaseOrder(string EPONo)
+        {
+            return dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(EPONo));
+        }
+
+        #endregion
     }
 }

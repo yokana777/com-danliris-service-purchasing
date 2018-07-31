@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
@@ -225,6 +226,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
+            mockFacade.Setup(x => x.GetUnitReceiptNote(It.IsAny<long>()))
+                .Returns(new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote { UnitName = "UnitName", ReceiptDate = DateTimeOffset.Now });
+            mockFacade.Setup(x => x.GetExternalPurchaseOrder(It.IsAny<string>()))
+                .Returns(new ExternalPurchaseOrder { PaymentDueDays = "0" });
 
             var mockMapper = new Mock<IMapper>();
 

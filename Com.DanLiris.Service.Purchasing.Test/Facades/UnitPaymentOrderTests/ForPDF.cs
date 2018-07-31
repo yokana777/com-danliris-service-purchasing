@@ -5,7 +5,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -17,16 +16,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
 {
-    public class BasicTest
+    public class ForPDF
     {
         private const string ENTITY = "UnitPaymentOrder";
 
@@ -91,97 +87,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async void Should_Success_GetUnitReceiptNote()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
-        }
+            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var Response = await facade.Create(model, USERNAME, true);
+            Assert.NotEqual(Response, 0);
 
-        [Fact]
-        public async void Should_Success_Get_Data_By_Id()
-        {
-            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.ReadById((int)model.Id);
-            Assert.NotNull(Response);
-        }
-
-        [Fact]
-        public async void Should_Success_Create_Data()
-        {
-            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, true);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
-
-            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, true);
-            Assert.NotEqual(ResponseImportSupplier, 0);
-        }
-
-        [Fact]
-        public async void Should_Success_Update_Data()
-        {
-            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-
-            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
-            //model.Items.Clear();
-            model.Items.Add(modelItem);
-            var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAdd, 0);
-        }
-
-        [Fact]
-        public async void Should_Success_Delete_Data()
-        {
-            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            int Deleted = await facade.Delete((int)Data.Id, USERNAME);
-            Assert.True(Deleted > 0);
-        }
-
-        [Fact]
-        public void Should_Success_Validate_Data()
-        {
-            UnitPaymentOrderViewModel nullViewModel = new UnitPaymentOrderViewModel();
-            Assert.True(nullViewModel.Validate(null).Count() > 0);
-
-            UnitPaymentOrderViewModel viewModel = new UnitPaymentOrderViewModel()
+            foreach (var item in model.Items)
             {
-                useIncomeTax = true,
-                useVat = true,
-                items = new List<UnitPaymentOrderItemViewModel>
-                {
-                    new UnitPaymentOrderItemViewModel(),
-                    new UnitPaymentOrderItemViewModel()
-                    {
-                        unitReceiptNote = new UnitReceiptNote
-                        {
-                            _id = 1
-                        }
-                    },
-                    new UnitPaymentOrderItemViewModel()
-                    {
-                        unitReceiptNote = new UnitReceiptNote
-                        {
-                            _id = 1
-                        }
-                    }
-                }
-            };
-            Assert.True(viewModel.Validate(null).Count() > 0);
+                var unitReceiptNote = facade.GetUnitReceiptNote(item.URNId);
+                Assert.NotNull(unitReceiptNote);
+            }
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_Spb()
+        public async void Should_Success_GetExternalPurchaseOrder()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.ReadSpb();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var Response = await facade.Create(model, USERNAME, true);
+            Assert.NotEqual(Response, 0);
+
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var externalPurchaseOrder = facade.GetExternalPurchaseOrder(detail.EPONo);
+                    Assert.NotNull(externalPurchaseOrder);
+                }
+            }
         }
     }
 }

@@ -16,10 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class UnitPaymentOrderPDFTemplate
     {
-        public MemoryStream Generate(UnitPaymentOrder model, IServiceProvider serviceProvider, int clientTimeZoneOffset = 7, string userName = null)
+        public MemoryStream Generate(UnitPaymentOrder model, IUnitPaymentOrderFacade facade, int clientTimeZoneOffset = 7, string userName = null)
         {
-            PurchasingDbContext purchasingDbContext = (PurchasingDbContext)serviceProvider.GetService(typeof(PurchasingDbContext));
-
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
@@ -119,11 +117,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             int no = 0;
             double jumlah = 0;
 
+            List<DateTimeOffset> DueDates = new List<DateTimeOffset>() { model.DueDate };
+            List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
+
             //foreach (var f in new float[15])
             foreach (var item in model.Items)
             {
+                var unitReceiptNote = facade.GetUnitReceiptNote(item.URNId);
+                var unitReceiptNoteDate = unitReceiptNote.ReceiptDate;
+                UnitReceiptNoteDates.Add(unitReceiptNoteDate);
+
+                var UnitName = unitReceiptNote.UnitName;
                 foreach (var detail in item.Details)
                 {
+                    var PaymentDueDays = facade.GetExternalPurchaseOrder(detail.EPONo).PaymentDueDays;
+                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
+
                     cellCenter.Phrase = new Phrase($"{++no}", normal_font);
                     tableContent.AddCell(cellCenter);
 
@@ -145,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellCenter.Phrase = new Phrase($"{item.URNNo}", normal_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase($"{purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).UnitName}", normal_font);
+                    cellCenter.Phrase = new Phrase($"{UnitName}", normal_font);
                     tableContent.AddCell(cellCenter);
 
                     jumlah += detail.PriceTotal;
@@ -257,16 +266,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
-            List<DateTimeOffset> DueDates = new List<DateTimeOffset>() { model.DueDate };
-            foreach (var item in model.Items)
-            {
-                var unitReceiptNoteDate = purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
-                foreach (var detail in item.Details)
-                {
-                    var PaymentDueDays = purchasingDbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(detail.EPONo)).PaymentDueDays;
-                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
-                }
-            }
             cellLeftNoBorder.Phrase = new Phrase($"{DueDates.Max().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
@@ -310,12 +309,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
-            List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
-            foreach (var item in model.Items)
-            {
-                var unitReceiptNoteDate = purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
-                UnitReceiptNoteDates.Add(unitReceiptNoteDate);
-            }
             var maxUnitReceiptNoteDate = UnitReceiptNoteDates.Max();
             cellLeftNoBorder.Phrase = new Phrase($"{maxUnitReceiptNoteDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
