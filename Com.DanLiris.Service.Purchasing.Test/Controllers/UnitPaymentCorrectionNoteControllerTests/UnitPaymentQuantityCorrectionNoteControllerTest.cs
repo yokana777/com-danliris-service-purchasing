@@ -117,10 +117,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     SupplierCode = "SupplierCode",
                     SupplierName = "SupplierName",
 
-                    UPCNo = "18-06-G-NKI-001",
+                    UPCNo = "18-06-G-NKI-000",
                     UPOId = 30,
 
-                    UPONo = "18-06-G-NKI-001",
+                    UPONo = "18-06-G-NKI-000",
 
                     CorrectionDate = new DateTimeOffset(),
 
