@@ -152,6 +152,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_when_Supplier_Is_not_Null()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelLocalSupplier.SupplierId = "670";
+            var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
+            Assert.NotEqual(ResponseImportSupplier, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Create_Data_Null_Parameter()
         {
             var serviceProvider = new Mock<IServiceProvider>();
