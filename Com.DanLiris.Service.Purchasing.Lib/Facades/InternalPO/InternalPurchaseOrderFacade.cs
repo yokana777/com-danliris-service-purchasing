@@ -577,6 +577,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
                              && a.PRDate.AddHours(offset).Date >= DateFrom.Date
                              && a.PRDate.AddHours(offset).Date <= DateTo.Date
+                             && i.Quantity>0
                          select new InternalPurchaseOrderReportViewModel
                          {
                              prNo = a.PRNo,

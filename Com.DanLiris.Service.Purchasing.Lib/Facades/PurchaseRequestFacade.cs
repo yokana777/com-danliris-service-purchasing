@@ -558,7 +558,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                          from epoItem in f.DefaultIfEmpty()
                          join g in dbContext.ExternalPurchaseOrders on epoItem.EPOId equals g.Id into h
                          from epo in h.DefaultIfEmpty()
-                         join k in dbContext.ExternalPurchaseOrderDetails on epoItem.Id equals k.EPOItemId into l
+                         join k in dbContext.ExternalPurchaseOrderDetails on poItem.Id equals k.POItemId into l
                          from epoDetail in l.DefaultIfEmpty()
                              //Conditions
                          where a.IsDeleted == false
@@ -639,8 +639,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Diminta", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Diminta", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal diminta datang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal diminta datang PO Eksternal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Deal PO Eksternal", DataType = typeof(double) });
