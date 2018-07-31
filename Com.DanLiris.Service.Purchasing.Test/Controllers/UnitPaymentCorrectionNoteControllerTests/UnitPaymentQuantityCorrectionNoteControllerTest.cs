@@ -364,15 +364,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
         }
 
         [Fact]
-        public void Should_Error_Create_Data_when_Correction_Type_Changed()
+        public void Should_Validate_Create_Data_Item()
         {
             var validateMock = new Mock<IValidateService>();
-            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
+            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNote>(It.IsAny<UnitPaymentCorrectionNoteViewModel>()))
                 .Returns(Model);
-
+            Model.Items.Add(new UnitPaymentCorrectionNoteItem
+            {
+                PricePerDealUnitAfter = -100,
+                PriceTotalAfter = -200
+            });
             var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
             mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), "unittestusername", 7))
                .ReturnsAsync(1);
@@ -382,9 +386,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                 .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
-            this.ViewModel.correctionType = " ";
+
             var response = controller.Post(this.ViewModel).Result;
-            Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
