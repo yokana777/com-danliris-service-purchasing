@@ -257,7 +257,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
-            List<DateTimeOffset> DueDates = new List<DateTimeOffset>();
+            List<DateTimeOffset> DueDates = new List<DateTimeOffset>() { model.DueDate };
             foreach (var item in model.Items)
             {
                 var unitReceiptNoteDate = purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
