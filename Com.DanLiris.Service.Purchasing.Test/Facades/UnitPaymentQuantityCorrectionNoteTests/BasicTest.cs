@@ -136,9 +136,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
             modelLocalSupplier.DivisionName = "GARMENT";
-            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
+            var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Create_Data_when_Supplier_IsNull()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelLocalSupplier.SupplierId = null;
+            var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
+            Assert.NotEqual(ResponseImportSupplier, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Create_Data_Null_Parameter()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+
+            Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(null, USERNAME, 7));
+            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
         }
 
 
