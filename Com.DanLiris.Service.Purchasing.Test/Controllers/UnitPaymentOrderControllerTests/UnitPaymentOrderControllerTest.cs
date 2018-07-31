@@ -186,6 +186,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         [Fact]
         public void Should_Success_Get_Data_By_Id()
         {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
@@ -223,6 +234,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         [Fact]
         public void Should_Success_Get_PDF_Data_By_Id()
         {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
+
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
