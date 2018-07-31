@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
                 VatTaxCorrectionNo = null,
 
                 useIncomeTax = true,
-                IncomeTaxCorrectionName = null,
+                IncomeTaxCorrectionDate = new DateTimeOffset(),
                 IncomeTaxCorrectionNo = null,
 
                 ReleaseOrderNoteNo = "123456",

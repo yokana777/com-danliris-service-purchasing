@@ -158,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             {
                 supplier_imp = "NRL";
             }
-            if(divisionName=="GARMENT")
+            if (divisionName == "GARMENT")
             {
                 division_name = 'G';
             }
@@ -166,45 +166,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             {
                 division_name = 'T';
             }
-            
+
 
             string no = $"{Year}-{Month}-{supplier_imp}-{division_name}-";
             int Padding = 3;
+            var upcno = "";
 
             var lastNo = await this.dbSet.Where(w => w.UPCNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UPCNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
-                return no + "1".PadLeft(Padding, '0');
+                upcno = no + "1".PadLeft(Padding, '0');
             }
             else
             {
                 int lastNoNumber = Int32.Parse(lastNo.UPCNo.Replace(no, "")) + 1;
-                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+                upcno = no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
+            return upcno;
         }
 
         async Task<string> GeneratePONo(UnitPaymentCorrectionNote model, int clientTimeZoneOffset)
         {
             string Year = model.CorrectionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy");
             string Month = model.CorrectionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
-           
-
 
             string no = $"{Year}-{Month}-NR-";
             int Padding = 3;
+            var pono = "";
 
             var lastNo = await this.dbSet.Where(w => w.ReturNoteNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.ReturNoteNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
-                return no + "1".PadLeft(Padding, '0');
+                pono = no + "1".PadLeft(Padding, '0');
             }
             else
             {
                 int lastNoNumber = Int32.Parse(lastNo.ReturNoteNo.Replace(no, "")) + 1;
-                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+                pono = no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
+            return pono;
         }
 
         public SupplierViewModel GetSupplier(string supplierId)
