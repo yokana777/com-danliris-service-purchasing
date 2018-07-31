@@ -65,6 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                         s.invoiceCorrectionNo,
                         s.dueDate,
                         s.LastModifiedUtc,
+                        s.useVat,
                         s.useIncomeTax,
                         s.items
                     }).ToList()
