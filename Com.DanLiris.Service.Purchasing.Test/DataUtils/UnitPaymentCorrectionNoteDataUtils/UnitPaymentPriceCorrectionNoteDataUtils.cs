@@ -57,9 +57,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
                 SupplierName = "SupplierName",
 
                 UPCNo = "18-06-G-NKI-001",
-                UPOId = 1,
+                UPOId = unitPaymentOrder.Id,
 
-                UPONo = "18-06-G-NKI-001",
+                UPONo = unitPaymentOrder.UPONo,
 
                 CorrectionDate = new DateTimeOffset(),
 

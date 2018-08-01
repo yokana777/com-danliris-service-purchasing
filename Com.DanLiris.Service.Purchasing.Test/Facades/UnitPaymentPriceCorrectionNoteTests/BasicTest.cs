@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
 {
     public class BasicTest
     {
-        private const string ENTITY = "UnitPaymentCorrectionNote";
+        private const string ENTITY = "UnitPaymentPriceCorrectionNote";
 
         private const string USERNAME = "Unit Test";
         private IServiceProvider ServiceProvider { get; set; }

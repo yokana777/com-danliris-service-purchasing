@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
 {
     public class ForPDF
     {
-        private const string ENTITY = "UnitPaymentOrder";
+        private const string ENTITY = "UnitPaymentOrderForPDF";
 
         private const string USERNAME = "Unit Test";
         private IServiceProvider ServiceProvider { get; set; }

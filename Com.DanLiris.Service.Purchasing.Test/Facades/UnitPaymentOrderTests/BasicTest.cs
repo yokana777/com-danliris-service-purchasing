@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, true);
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, false);
             Assert.NotEqual(ResponseLocalSupplier, 0);
 
             var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
