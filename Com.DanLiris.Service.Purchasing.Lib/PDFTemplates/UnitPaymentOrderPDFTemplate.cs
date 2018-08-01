@@ -328,7 +328,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($"s{model.PaymentMethod ?? "-"}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{model.PaymentMethod ?? "-"}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             tableFooter.AddCell(new PdfPCell(tableFooterRight) { Border = Rectangle.NO_BORDER });
