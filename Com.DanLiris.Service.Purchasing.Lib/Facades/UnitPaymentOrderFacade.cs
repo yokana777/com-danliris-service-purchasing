@@ -365,6 +365,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         POItem.Status = "Barang sudah diterima Unit semua";
                     }
                 }
+                else
+                {
+                    POItem.Status = "Barang sudah diterima Unit parsial";
+                }
             }
             EntityExtension.FlagForUpdate(POItem, username, USER_AGENT);
         }

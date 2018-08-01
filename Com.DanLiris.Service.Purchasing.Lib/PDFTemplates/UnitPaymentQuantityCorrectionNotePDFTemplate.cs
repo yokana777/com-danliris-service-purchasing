@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 Paragraph nomor = new Paragraph($"Nomor : {viewModel.returNoteNo}", smaller_font) { Alignment = Element.ALIGN_CENTER };
                 document.Add(nomor);
 
-                Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModelSpb.vatNo} Tanggal : {viewModelSpb.vatDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
+                Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModelSpb.vatNo} Tanggal : {viewModelSpb.vatDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
                 document.Add(pajakNomorString);
             
                 document.Add(space);

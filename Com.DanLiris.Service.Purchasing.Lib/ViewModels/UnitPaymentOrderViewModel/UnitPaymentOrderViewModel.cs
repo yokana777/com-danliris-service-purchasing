@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
 
         public bool useVat { get; set; }
         public string vatNo { get; set; }
-        public DateTimeOffset vatDate { get; set; }
+        public DateTimeOffset? vatDate { get; set; }
 
         public string remark { get; set; }
         public DateTimeOffset dueDate { get; set; }
