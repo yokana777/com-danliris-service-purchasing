@@ -73,6 +73,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
                 {
                     yield return new ValidationResult("IncomeTax is required", new List<string> { "incomeTax" });
                 }
+                if (string.IsNullOrWhiteSpace(incomeTaxNo))
+                {
+                    yield return new ValidationResult("IncomeTaxNo is required", new List<string> { "incomeTaxNo" });
+                }
+                if (incomeTaxDate == null || incomeTaxDate.Equals(DateTimeOffset.MinValue))
+                {
+                    yield return new ValidationResult("IncomeTaxDate is required", new List<string> { "incomeTaxDate" });
+                }
             }
 
             if (useVat)
