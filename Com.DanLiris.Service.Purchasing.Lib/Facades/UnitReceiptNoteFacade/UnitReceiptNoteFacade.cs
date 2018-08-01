@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
@@ -126,27 +127,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
                         InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
                         DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
+                        UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
                         item.PRItemId = doDetail.PRItemId;
                         item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
                         doDetail.ReceiptQuantity += item.ReceiptQuantity;
                         externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                        if(upoDetail == null)
                         {
-                            if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                            if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                            {
+                                if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                {
+                                    //prItem.Status = "Barang sudah diterima Unit parsial";
+                                    poItem.Status = "Barang sudah diterima Unit parsial";
+                                }
+                                else
+                                {
+                                    //prItem.Status = "Barang sudah diterima Unit semua";
+                                    poItem.Status = "Barang sudah diterima Unit semua";
+                                }
+                            }
+                            else
                             {
                                 //prItem.Status = "Barang sudah diterima Unit parsial";
                                 poItem.Status = "Barang sudah diterima Unit parsial";
                             }
-                            else
-                            {
-                                //prItem.Status = "Barang sudah diterima Unit semua";
-                                poItem.Status = "Barang sudah diterima Unit semua";
-                            }
-                        }
-                        else
-                        {
-                            //prItem.Status = "Barang sudah diterima Unit parsial";
-                            poItem.Status = "Barang sudah diterima Unit parsial";
                         }
                         
                     }
@@ -183,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     if (m != null && !id.Equals(unitReceiptNote.Id))
                     {
-                        if (m.IsStorage == true)
+                        if (m.IsStorage == true && unitReceiptNote.IsStorage == false)
                         {
                             insertStorage(m, user, "OUT");
                         }
@@ -194,142 +199,148 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             unitReceiptNote.StorageName = null;
                         }
                         EntityExtension.FlagForUpdate(unitReceiptNote, user, USER_AGENT);
-
                         foreach (var item in unitReceiptNote.Items)
                         {
-                            if (item.Id == 0)
-                            {
-                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
-                                ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
-                                PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
-                                InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
-                                DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
-                                item.PRItemId = doDetail.PRItemId;
-                                item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
-                                doDetail.ReceiptQuantity += item.ReceiptQuantity;
-                                externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
-                                if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
-                                {
-                                    if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
-                                    {
-                                        //prItem.Status = "Barang sudah diterima Unit parsial";
-                                        poItem.Status = "Barang sudah diterima Unit parsial";
-                                    }
-                                    else
-                                    {
-                                        //prItem.Status = "Barang sudah diterima Unit semua";
-                                        poItem.Status = "Barang sudah diterima Unit semua";
-                                    }
-                                }
-                                else
-                                {
-                                    //prItem.Status = "Barang sudah diterima Unit parsial";
-                                    poItem.Status = "Barang sudah diterima Unit parsial";
-                                }
-                            }
-                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
                         }
-
                         this.dbContext.Update(unitReceiptNote);
+                        #region UpdateStatus
+                        //foreach (var item in unitReceiptNote.Items)
+                        //{
+                        //    if (item.Id == 0)
+                        //    {
+                        //        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        //        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
+                        //        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
+                        //        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
+                        //        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
+                        //        item.PRItemId = doDetail.PRItemId;
+                        //        item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
+                        //        doDetail.ReceiptQuantity += item.ReceiptQuantity;
+                        //        externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
+                        //        if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                        //        {
+                        //            if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                        //            {
+                        //                //prItem.Status = "Barang sudah diterima Unit parsial";
+                        //                poItem.Status = "Barang sudah diterima Unit parsial";
+                        //            }
+                        //            else
+                        //            {
+                        //                //prItem.Status = "Barang sudah diterima Unit semua";
+                        //                poItem.Status = "Barang sudah diterima Unit semua";
+                        //            }
+                        //        }
+                        //        else
+                        //        {
+                        //            //prItem.Status = "Barang sudah diterima Unit parsial";
+                        //            poItem.Status = "Barang sudah diterima Unit parsial";
+                        //        }
+                        //    }
+                        //    EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                        //}
 
-                        foreach (var itemExist in m.Items)
-                        {
-                            var a = itemExist;
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == itemExist.EPODetailId);
-                            //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
-                            InternalPurchaseOrderItem purchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == epoDetail.POItemId);
-                            DeliveryOrderDetail sjDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == itemExist.DODetailId);
-                            itemExist.PRItemId = sjDetail.PRItemId;
-                            itemExist.PricePerDealUnit = epoDetail.PricePerDealUnit;
-                            UnitReceiptNoteItem unitReceiptNoteItem = unitReceiptNote.Items.FirstOrDefault(i => i.Id.Equals(itemExist.Id));
-                            if (unitReceiptNoteItem == null)
-                            {
-                                EntityExtension.FlagForDelete(itemExist, user, USER_AGENT);
-                                this.dbContext.UnitReceiptNoteItems.Update(itemExist);
-                                sjDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
-                                epoDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
-                                if (epoDetail.ReceiptQuantity == 0)
-                                {
-                                    if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity >= epoDetail.DealQuantity)
-                                    {
-                                        //prItem.Status = "Barang sudah diterima Unit semua";
-                                        purchaseOrderItem.Status = "Barang sudah datang semua";
-                                    }
-                                    else if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity < epoDetail.DealQuantity)
-                                    {
-                                        //prItem.Status = "Barang sudah diterima Unit parsial";
-                                        purchaseOrderItem.Status = "Barang sudah datang parsial";
-                                    }
-                                }
-                                else if (epoDetail.ReceiptQuantity > 0)
-                                {
-                                    if (epoDetail.DOQuantity >= epoDetail.DealQuantity)
-                                    {
-                                        if (epoDetail.ReceiptQuantity < epoDetail.DealQuantity)
-                                        {
-                                            //prItem.Status = "Barang sudah diterima Unit parsial";
-                                            purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
-                                        }
-                                        else if (epoDetail.ReceiptQuantity >= epoDetail.DealQuantity)
-                                        {
-                                            //prItem.Status = "Barang sudah diterima Unit semua";
-                                            purchaseOrderItem.Status = "Barang sudah diterima Unit semua";
-                                        }
-                                        else if (epoDetail.DOQuantity < epoDetail.DealQuantity)
-                                        {
-                                            purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(itemExist, user, USER_AGENT);
+                        //this.dbContext.Update(unitReceiptNote);
 
-                                sjDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
-                                epoDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
-                                itemExist.PRItemId = sjDetail.PRItemId;
-                                itemExist.PricePerDealUnit = epoDetail.PricePerDealUnit;
-                                sjDetail.ReceiptQuantity += unitReceiptNoteItem.ReceiptQuantity;
-                                epoDetail.ReceiptQuantity += unitReceiptNoteItem.ReceiptQuantity;
-                                if (epoDetail.ReceiptQuantity == 0)
-                                {
-                                    if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity >= epoDetail.DealQuantity)
-                                    {
-                                        //prItem.Status = "Barang sudah diterima Unit semua";
-                                        purchaseOrderItem.Status = "Barang sudah datang semua";
-                                    }
-                                    else if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity < epoDetail.DealQuantity)
-                                    {
-                                        //prItem.Status = "Barang sudah diterima Unit parsial";
-                                        purchaseOrderItem.Status = "Barang sudah datang semua";
-                                    }
-                                }
-                                else if (epoDetail.ReceiptQuantity > 0)
-                                {
-                                    if (epoDetail.DOQuantity >= epoDetail.DealQuantity)
-                                    {
-                                        if (epoDetail.ReceiptQuantity < epoDetail.DealQuantity)
-                                        {
-                                            //prItem.Status = "Barang sudah diterima Unit parsial";
-                                            purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
-                                        }
-                                        else if (epoDetail.ReceiptQuantity >= epoDetail.DealQuantity)
-                                        {
-                                            //prItem.Status = "Barang sudah diterima Unit semua";
-                                            purchaseOrderItem.Status = "Barang sudah diterima Unit semua";
-                                        }
-                                        else if (epoDetail.DOQuantity < epoDetail.DealQuantity)
-                                        {
-                                            purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
-                                        }
-                                    }
-                                }
-                            }
+                        //foreach (var itemExist in m.Items)
+                        //{
+                        //    var a = itemExist;
+                        //    ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == itemExist.EPODetailId);
+                        //    //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
+                        //    InternalPurchaseOrderItem purchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == epoDetail.POItemId);
+                        //    DeliveryOrderDetail sjDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == itemExist.DODetailId);
+                        //    itemExist.PRItemId = sjDetail.PRItemId;
+                        //    itemExist.PricePerDealUnit = epoDetail.PricePerDealUnit;
+                        //    UnitReceiptNoteItem unitReceiptNoteItem = unitReceiptNote.Items.FirstOrDefault(i => i.Id.Equals(itemExist.Id));
+                        //    if (unitReceiptNoteItem == null)
+                        //    {
+                        //        EntityExtension.FlagForDelete(itemExist, user, USER_AGENT);
+                        //        this.dbContext.UnitReceiptNoteItems.Update(itemExist);
+                        //        sjDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
+                        //        epoDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
+                        //        if (epoDetail.ReceiptQuantity == 0)
+                        //        {
+                        //            if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity >= epoDetail.DealQuantity)
+                        //            {
+                        //                //prItem.Status = "Barang sudah diterima Unit semua";
+                        //                purchaseOrderItem.Status = "Barang sudah datang semua";
+                        //            }
+                        //            else if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity < epoDetail.DealQuantity)
+                        //            {
+                        //                //prItem.Status = "Barang sudah diterima Unit parsial";
+                        //                purchaseOrderItem.Status = "Barang sudah datang parsial";
+                        //            }
+                        //        }
+                        //        else if (epoDetail.ReceiptQuantity > 0)
+                        //        {
+                        //            if (epoDetail.DOQuantity >= epoDetail.DealQuantity)
+                        //            {
+                        //                if (epoDetail.ReceiptQuantity < epoDetail.DealQuantity)
+                        //                {
+                        //                    //prItem.Status = "Barang sudah diterima Unit parsial";
+                        //                    purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
+                        //                }
+                        //                else if (epoDetail.ReceiptQuantity >= epoDetail.DealQuantity)
+                        //                {
+                        //                    //prItem.Status = "Barang sudah diterima Unit semua";
+                        //                    purchaseOrderItem.Status = "Barang sudah diterima Unit semua";
+                        //                }
+                        //                else if (epoDetail.DOQuantity < epoDetail.DealQuantity)
+                        //                {
+                        //                    purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        EntityExtension.FlagForUpdate(itemExist, user, USER_AGENT);
 
-                        }
+                        //        sjDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
+                        //        epoDetail.ReceiptQuantity -= itemExist.ReceiptQuantity;
+                        //        itemExist.PRItemId = sjDetail.PRItemId;
+                        //        itemExist.PricePerDealUnit = epoDetail.PricePerDealUnit;
+                        //        sjDetail.ReceiptQuantity += unitReceiptNoteItem.ReceiptQuantity;
+                        //        epoDetail.ReceiptQuantity += unitReceiptNoteItem.ReceiptQuantity;
+                        //        if (epoDetail.ReceiptQuantity == 0)
+                        //        {
+                        //            if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity >= epoDetail.DealQuantity)
+                        //            {
+                        //                //prItem.Status = "Barang sudah diterima Unit semua";
+                        //                purchaseOrderItem.Status = "Barang sudah datang semua";
+                        //            }
+                        //            else if (epoDetail.DOQuantity > 0 && epoDetail.DOQuantity < epoDetail.DealQuantity)
+                        //            {
+                        //                //prItem.Status = "Barang sudah diterima Unit parsial";
+                        //                purchaseOrderItem.Status = "Barang sudah datang semua";
+                        //            }
+                        //        }
+                        //        else if (epoDetail.ReceiptQuantity > 0)
+                        //        {
+                        //            if (epoDetail.DOQuantity >= epoDetail.DealQuantity)
+                        //            {
+                        //                if (epoDetail.ReceiptQuantity < epoDetail.DealQuantity)
+                        //                {
+                        //                    //prItem.Status = "Barang sudah diterima Unit parsial";
+                        //                    purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
+                        //                }
+                        //                else if (epoDetail.ReceiptQuantity >= epoDetail.DealQuantity)
+                        //                {
+                        //                    //prItem.Status = "Barang sudah diterima Unit semua";
+                        //                    purchaseOrderItem.Status = "Barang sudah diterima Unit semua";
+                        //                }
+                        //                else if (epoDetail.DOQuantity < epoDetail.DealQuantity)
+                        //                {
+                        //                    purchaseOrderItem.Status = "Barang sudah diterima Unit parsial";
+                        //                }
+                        //            }
+                        //        }
+                        //    }
 
-                        if (unitReceiptNote.IsStorage == true)
+                        //}
+                        #endregion
+
+                        if (unitReceiptNote.IsStorage == true && m.IsStorage == false)
                         {
                             insertStorage(unitReceiptNote, user, "IN");
                         }
@@ -370,14 +381,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     {
                         EntityExtension.FlagForDelete(item, user, USER_AGENT);
 
-                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
-                        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
-                        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
-                        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
-
+                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.Id == item.EPODetailId);
+                        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.IsDeleted == false && s.Id == externalPurchaseOrderDetail.PRItemId);
+                        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.IsDeleted == false && s.Id == externalPurchaseOrderDetail.POItemId);
+                        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.Id == item.DODetailId);
+                        UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
                         doDetail.ReceiptQuantity -= item.ReceiptQuantity;
                         externalPurchaseOrderDetail.ReceiptQuantity -= item.ReceiptQuantity;
-                        if (externalPurchaseOrderDetail.ReceiptQuantity == 0)
+                        if (externalPurchaseOrderDetail.ReceiptQuantity == 0 && upoDetail==null)
                         {
                             if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                             {
@@ -390,7 +401,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                 poItem.Status = "Barang sudah datang parsial";
                             }
                         }
-                        else if (externalPurchaseOrderDetail.ReceiptQuantity > 0)
+                        else if (externalPurchaseOrderDetail.ReceiptQuantity > 0 && upoDetail == null)
                         {
                             if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                             {
