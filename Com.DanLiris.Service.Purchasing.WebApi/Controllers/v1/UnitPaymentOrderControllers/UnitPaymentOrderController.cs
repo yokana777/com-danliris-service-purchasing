@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                     UnitPaymentOrderPDFTemplate PdfTemplate = new UnitPaymentOrderPDFTemplate();
-                    var stream = PdfTemplate.Generate(model, serviceProvider, clientTimeZoneOffset, identityService.Username);
+                    var stream = PdfTemplate.Generate(model, facade, clientTimeZoneOffset, identityService.Username);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {

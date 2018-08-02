@@ -3,34 +3,28 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectionNoteTests
+namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
 {
-    public class BasicTest
+    public class ForPDF
     {
-        private const string ENTITY = "UnitPaymentPriceCorrectionNote";
+        private const string ENTITY = "UnitPaymentOrderForPDF";
 
         private const string USERNAME = "Unit Test";
         private IServiceProvider ServiceProvider { get; set; }
@@ -56,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             return dbContext;
         }
 
-        private UnitPaymentPriceCorrectionNoteDataUtils _dataUtil(UnitPaymentPriceCorrectionNoteFacade facade, string testName)
+        private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, string testName)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -89,65 +83,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
-            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(_dbContext(testName));
-            UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
-
-            return new UnitPaymentPriceCorrectionNoteDataUtils(unitPaymentOrderDataUtil, facade);
+            return new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, facade);
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async void Should_Success_GetUnitReceiptNote()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var Response = await facade.Create(model, USERNAME, true);
+            Assert.NotEqual(Response, 0);
+
+            foreach (var item in model.Items)
+            {
+                var unitReceiptNote = facade.GetUnitReceiptNote(item.URNId);
+                Assert.NotNull(unitReceiptNote);
+            }
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async void Should_Success_GetExternalPurchaseOrder()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.ReadById((int)model.Id);
-            Assert.NotNull(Response);
-        }
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var Response = await facade.Create(model, USERNAME, true);
+            Assert.NotEqual(Response, 0);
 
-        [Fact]
-        public async void Should_Success_Create_Data()
-        {
-            var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
-
-            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseImportSupplier = await facade.Create(modelImportSupplier,true, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
-        }
-
-        [Fact]
-        public async void Should_Error_Create_Data_Null_Parameter()
-        {
-            var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            
-            Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(null, true, USERNAME, 7));
-            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
-        }
-
-        [Fact]
-        public async void Should_Success_Create_Data_garment()
-        {
-            var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            modelLocalSupplier.DivisionName = "GARMENT";
-            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var externalPurchaseOrder = facade.GetExternalPurchaseOrder(detail.EPONo);
+                    Assert.NotNull(externalPurchaseOrder);
+                }
+            }
         }
     }
 }

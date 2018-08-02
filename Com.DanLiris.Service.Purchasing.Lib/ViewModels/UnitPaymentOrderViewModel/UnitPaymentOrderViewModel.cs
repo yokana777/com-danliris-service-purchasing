@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel
 {
@@ -26,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
 
         public bool useVat { get; set; }
         public string vatNo { get; set; }
-        public DateTimeOffset vatDate { get; set; }
+        public DateTimeOffset? vatDate { get; set; }
 
         public string remark { get; set; }
         public DateTimeOffset dueDate { get; set; }
@@ -72,6 +73,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
                 {
                     yield return new ValidationResult("IncomeTax is required", new List<string> { "incomeTax" });
                 }
+                if (string.IsNullOrWhiteSpace(incomeTaxNo))
+                {
+                    yield return new ValidationResult("IncomeTaxNo is required", new List<string> { "incomeTaxNo" });
+                }
+                if (incomeTaxDate == null || incomeTaxDate.Equals(DateTimeOffset.MinValue))
+                {
+                    yield return new ValidationResult("IncomeTaxDate is required", new List<string> { "incomeTaxDate" });
+                }
             }
 
             if (useVat)
@@ -102,6 +111,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
                     {
                         itemErrorCount++;
                         itemError += "unitReceiptNote: 'No UnitReceiptNote selected', ";
+                    }
+                    else if(items.Where(i => i.unitReceiptNote != null && item.unitReceiptNote != null && i.unitReceiptNote._id == item.unitReceiptNote._id).Count() > 1)
+                    {
+                        itemErrorCount++;
+                        itemError += "unitReceiptNote: 'UnitReceiptNote is already used', ";
                     }
                     itemError += "}, ";
                 }

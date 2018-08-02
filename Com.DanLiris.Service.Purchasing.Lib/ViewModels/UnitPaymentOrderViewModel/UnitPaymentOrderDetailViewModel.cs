@@ -11,6 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public long URNItemId { get; set; }
         public string EPONo { get; set; }
         public long EPODetailId { get; set; }
+        public long POItemId { get; set; }
         public long PRId { get; set; }
         public string PRNo { get; set; }
         public long PRItemId { get; set; }

@@ -16,10 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class UnitPaymentOrderPDFTemplate
     {
-        public MemoryStream Generate(UnitPaymentOrder model, IServiceProvider serviceProvider, int clientTimeZoneOffset = 7, string userName = null)
+        public MemoryStream Generate(UnitPaymentOrder model, IUnitPaymentOrderFacade facade, int clientTimeZoneOffset = 7, string userName = null)
         {
-            PurchasingDbContext purchasingDbContext = (PurchasingDbContext)serviceProvider.GetService(typeof(PurchasingDbContext));
-
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
@@ -58,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellHeaderContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER };
             cellHeaderContentRight.AddElement(new Phrase("FM-PB-00-06-014/R1", normal_font));
             cellHeaderContentRight.AddElement(new Phrase($"SUKOHARJO, {model.Date.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font));
-            cellHeaderContentRight.AddElement(new Phrase(model.SupplierName, normal_font));
+            cellHeaderContentRight.AddElement(new Phrase($"( {model.SupplierCode} ) {model.SupplierName}", normal_font));
             cellHeaderContentRight.AddElement(new Phrase(model.SupplierAddress, normal_font));
             tableHeader.AddCell(cellHeaderContentRight);
 
@@ -117,13 +115,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableContent.AddCell(cellCenter);
 
             int no = 0;
-            double total = 0;
+            double jumlah = 0;
+
+            List<DateTimeOffset> DueDates = new List<DateTimeOffset>() { model.DueDate };
+            List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
 
             //foreach (var f in new float[15])
             foreach (var item in model.Items)
             {
+                var unitReceiptNote = facade.GetUnitReceiptNote(item.URNId);
+                var unitReceiptNoteDate = unitReceiptNote.ReceiptDate;
+                UnitReceiptNoteDates.Add(unitReceiptNoteDate);
+
+                var UnitName = unitReceiptNote.UnitName;
                 foreach (var detail in item.Details)
                 {
+                    var PaymentDueDays = facade.GetExternalPurchaseOrder(detail.EPONo).PaymentDueDays;
+                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
+
                     cellCenter.Phrase = new Phrase($"{++no}", normal_font);
                     tableContent.AddCell(cellCenter);
 
@@ -145,10 +154,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellCenter.Phrase = new Phrase($"{item.URNNo}", normal_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase($"{purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).UnitName}", normal_font);
+                    cellCenter.Phrase = new Phrase($"{UnitName}", normal_font);
                     tableContent.AddCell(cellCenter);
 
-                    total += detail.PriceTotal;
+                    jumlah += detail.PriceTotal;
                 }
             }
 
@@ -164,8 +173,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableTax = new PdfPTable(3);
             tableTax.SetWidths(new float[] { 1f, 0.3f, 1f });
 
-            var pph = total * model.IncomeTaxRate / 100;
-            var pphTotal = total + pph;
+            var ppn = jumlah / 10;
+            var total = jumlah + (model.UseVat ? ppn : 0);
+            var pph = jumlah * model.IncomeTaxRate / 100;
+            var totalWithPph = total - pph;
 
             if (!model.UseIncomeTax)
             {
@@ -193,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftNoBorder.Phrase = new Phrase($":   {model.CurrencyCode}", normal_font);
                 tableIncomeTax.AddCell(cellLeftNoBorder);
 
-                cellRightNoBorder.Phrase = new Phrase($"{pphTotal.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+                cellRightNoBorder.Phrase = new Phrase($"{totalWithPph.ToString("n", new CultureInfo("id-ID"))}", normal_font);
                 tableIncomeTax.AddCell(cellRightNoBorder);
 
                 tableTax.AddCell(new PdfPCell(tableIncomeTax) { Border = Rectangle.NO_BORDER });
@@ -203,25 +214,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPTable tableVat = new PdfPTable(2);
 
-            var ppn = total / 10;
-            var ppnTotal = total + ppn;
-
             cellJustifyAllNoBorder.Phrase = new Phrase($"Jumlah . . . . . . . . . . . . . . .   {model.CurrencyCode}", normal_font);
             tableVat.AddCell(cellJustifyAllNoBorder);
 
-            cellRightNoBorder.Phrase = new Phrase($"{total.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+            cellRightNoBorder.Phrase = new Phrase($"{jumlah.ToString("n", new CultureInfo("id-ID"))}", normal_font);
             tableVat.AddCell(cellRightNoBorder);
 
-            cellJustifyAllNoBorder.Phrase = new Phrase($"PPn 10 % . . . . . . . . . . . . . .   {model.CurrencyCode}", normal_font);
-            tableVat.AddCell(cellJustifyAllNoBorder);
+            if (model.UseVat)
+            {
+                cellJustifyAllNoBorder.Phrase = new Phrase($"PPn 10 % . . . . . . . . . . . . . .   {model.CurrencyCode}", normal_font);
+                tableVat.AddCell(cellJustifyAllNoBorder);
+            }
+            else
+            {
+                cellLeftNoBorder.Phrase = new Phrase(string.Concat("PPn 10 %"), normal_font);
+                tableVat.AddCell(cellLeftNoBorder);
+            }
 
-            cellRightNoBorder.Phrase = new Phrase($"{ppn.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+            cellRightNoBorder.Phrase = new Phrase(model.UseVat ? $"{ppn.ToString("n", new CultureInfo("id-ID"))}" : "-", normal_font);
             tableVat.AddCell(cellRightNoBorder);
 
             cellJustifyAllNoBorder.Phrase = new Phrase($"T O T A L. . . . . . . . . . . . . .   {model.CurrencyCode}", normal_font);
             tableVat.AddCell(cellJustifyAllNoBorder);
 
-            cellRightNoBorder.Phrase = new Phrase($"{ppnTotal.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+            cellRightNoBorder.Phrase = new Phrase($"{total.ToString("n", new CultureInfo("id-ID"))}", normal_font);
             tableVat.AddCell(cellRightNoBorder);
 
             tableTax.AddCell(new PdfPCell(tableVat) { Border = Rectangle.NO_BORDER });
@@ -233,69 +249,86 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #endregion
 
-            Paragraph paragraphTerbilang = new Paragraph($"Terbilang : {NumberToTextIDN.terbilang(model.UseIncomeTax ? pphTotal : ppnTotal)} {model.CurrencyDescription.ToLower()}", bold_font) { SpacingAfter = 15f };
+            Paragraph paragraphTerbilang = new Paragraph($"Terbilang : {NumberToTextIDN.terbilang(model.UseIncomeTax ? totalWithPph : jumlah)} {model.CurrencyDescription.ToLower()}", bold_font) { SpacingAfter = 15f };
             document.Add(paragraphTerbilang);
 
             #region Footer
 
-            PdfPTable tableFooter = new PdfPTable(2);
-            tableFooter.SetWidths(new float[] { 1.3f, 1f });
+            PdfPTable tableFooter = new PdfPTable(3);
+            tableFooter.SetWidths(new float[] { 1f, 0.3f, 1f });
 
-            PdfPTable tableFooterLeft = new PdfPTable(2);
-            tableFooterLeft.SetWidths(new float[] { 5f, 7.7f });
+            PdfPTable tableFooterLeft = new PdfPTable(3);
+            tableFooterLeft.SetWidths(new float[] { 5f, 0.4f, 4.6f });
 
             cellLeftNoBorder.Phrase = new Phrase("Perjanjian Pembayaran", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($":   {model.DueDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterLeft.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($"{DueDates.Max().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Invoice", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($":   {model.InvoiceNo ?? "-"}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterLeft.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($"{model.InvoiceNo ?? "-"}, {model.InvoiceDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("No PIB", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($":   {model.PibNo ?? "-"}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterLeft.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($"{model.PibNo ?? "-"}", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Ket.", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($":   {model.Remark ?? "-"}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterLeft.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($"{model.Remark ?? "-"}", normal_font);
             tableFooterLeft.AddCell(cellLeftNoBorder);
 
             tableFooter.AddCell(new PdfPCell(tableFooterLeft) { Border = Rectangle.NO_BORDER });
 
-            PdfPTable tableFooterRight = new PdfPTable(2);
-            tableFooterRight.SetWidths(new float[] { 5f, 7.3f });
+            tableFooter.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+
+            PdfPTable tableFooterRight = new PdfPTable(3);
+            tableFooterRight.SetWidths(new float[] { 5f, 0.5f, 6.8f });
 
             cellLeftNoBorder.Phrase = new Phrase("Barang Datang", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
-            List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
-            foreach (var item in model.Items)
-            {
-                var unitReceiptNoteDate = purchasingDbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
-                UnitReceiptNoteDates.Add(unitReceiptNoteDate);
-            }
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
             var maxUnitReceiptNoteDate = UnitReceiptNoteDates.Max();
-            cellLeftNoBorder.Phrase = new Phrase($":   {maxUnitReceiptNoteDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{maxUnitReceiptNoteDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Nomor Faktur Pajak PPN", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($":   {model.VatNo ?? "-"}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($"{model.VatNo ?? "-"}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Pembayaran", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase($":   {model.PaymentMethod ?? "-"}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($"{model.PaymentMethod ?? "-"}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             tableFooter.AddCell(new PdfPCell(tableFooterRight) { Border = Rectangle.NO_BORDER });

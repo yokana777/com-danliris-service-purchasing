@@ -49,6 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                     s.no,
                     s.date,
                     s.supplier,
+                    s.doId,
                     s.doNo,
                     unit = new
                     {
