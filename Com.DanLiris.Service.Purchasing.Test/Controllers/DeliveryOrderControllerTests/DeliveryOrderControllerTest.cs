@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         [Fact]
         public async Task Should_Success_Get_Report_Excel_Empty_Data()
         {
-            var response = await this.Client.GetAsync($"{URI}/monitoring/download?unitId=0");
+            var response = await this.Client.GetAsync($"{URI}/monitoring/download?no=0");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
     }
