@@ -11,6 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public long URNItemId { get; set; }
         public string EPONo { get; set; }
         public long EPODetailId { get; set; }
+        public long POItemId { get; set; }
         public long PRId { get; set; }
         public string PRNo { get; set; }
         public long PRItemId { get; set; }
@@ -23,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public double PriceTotal { get; set; }
         public double PricePerDealUnitCorrection { get; set; }
         public double PriceTotalCorrection { get; set; }
+        public double QuantityCorrection { get; set; }
         public string ProductRemark { get; set; }
 
         //public string remark { get; set; }

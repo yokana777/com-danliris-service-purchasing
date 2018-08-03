@@ -51,12 +51,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 SupplierId = s.SupplierId,
                 SupplierCode = s.SupplierCode,
                 SupplierName = s.SupplierName,
+                CategoryCode=s.CategoryCode,
+                CategoryId=s.CategoryId,
+                CategoryName=s.CategoryName,
                 Date = s.Date,
                 UPONo = s.UPONo,
+                DueDate=s.DueDate,
+                UseIncomeTax=s.UseIncomeTax,
+                UseVat=s.UseVat,
+                CurrencyCode=s.CurrencyCode,
+                CurrencyDescription=s.CurrencyDescription,
+                CurrencyId=s.CurrencyId,
+                CurrencyRate=s.CurrencyRate,
                 Items = s.Items.Select(i => new UnitPaymentOrderItem
                 {
                     URNNo = i.URNNo,
                     DONo = i.DONo,
+                    Details=i.Details.ToList()
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
                 LastModifiedUtc = s.LastModifiedUtc,
@@ -85,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Result;
         }
 
-        public async Task<int> Create(UnitPaymentOrder model, string username, bool isImport, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(UnitPaymentOrder model, string user, bool isImport, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -93,22 +104,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             {
                 try
                 {
-                    EntityExtension.FlagForCreate(model, username, USER_AGENT);
+                    EntityExtension.FlagForCreate(model, user, USER_AGENT);
                     model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     foreach (var item in model.Items)
                     {
-                        EntityExtension.FlagForCreate(item, username, USER_AGENT);
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
-                            SetEPONo(detail);
-                            EntityExtension.FlagForCreate(detail, username, USER_AGENT);
-
-                            SetStatus(detail, username);
+                            SetPOItemIdEPONo(detail);
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                         }
-                        SetPaid(item, true, username);
+                        SetPaid(item, true, user);
                     }
+
+                    SetDueDate(model);
+
                     this.dbSet.Add(model);
+
                     Created = await dbContext.SaveChangesAsync();
+
+                    foreach (var item in model.Items)
+                    {
+                        foreach (var detail in item.Details)
+                        {
+                            SetStatus(detail, user);
+                        }
+                    }
+
+                    await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -132,7 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     var existingModel = this.dbSet.AsNoTracking()
                         .Include(d => d.Items)
                             .ThenInclude(d => d.Details)
-                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+                        .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
                     if (existingModel != null && id == model.Id)
                     {
@@ -145,10 +168,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
                                 foreach (var detail in item.Details)
                                 {
-                                    SetEPONo(detail);
+                                    SetPOItemIdEPONo(detail);
                                     EntityExtension.FlagForCreate(detail, user, USER_AGENT);
-
-                                    SetStatus(detail, user);
                                 }
                             }
                             else
@@ -157,13 +178,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 foreach (var detail in item.Details)
                                 {
                                     EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
-
-                                    SetStatus(detail, user);
                                 }
                             }
 
                             SetPaid(item, true, user);
                         }
+
+                        SetDueDate(model);
 
                         this.dbContext.Update(model);
 
@@ -178,8 +199,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 {
                                     EntityExtension.FlagForDelete(existingDetail, user, USER_AGENT);
                                     this.dbContext.UnitPaymentOrderDetails.Update(existingDetail);
-
-                                    SetStatus(existingDetail, user);
                                 }
 
                                 SetPaid(existingItem, false, user);
@@ -187,6 +206,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
+
+                        foreach (var item in model.Items)
+                        {
+                            foreach (var detail in item.Details)
+                            {
+                                SetStatus(detail, user);
+                            }
+                        }
+
+                        await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
                     else
@@ -204,7 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Updated;
         }
 
-        public async Task<int> Delete(int id, string username)
+        public async Task<int> Delete(int id, string user)
         {
             int Deleted = 0;
 
@@ -215,24 +244,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     var model = this.dbSet
                         .Include(d => d.Items)
                             .ThenInclude(d => d.Details)
-                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+                        .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
-                    EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                    EntityExtension.FlagForDelete(model, user, USER_AGENT);
 
                     foreach (var item in model.Items)
                     {
-                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                        EntityExtension.FlagForDelete(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
-                            EntityExtension.FlagForDelete(detail, username, USER_AGENT);
-
-                            SetStatus(detail, username);
+                            EntityExtension.FlagForDelete(detail, user, USER_AGENT);
                         }
 
-                        SetPaid(item, false, username);
+                        SetPaid(item, false, user);
                     }
 
                     Deleted = await dbContext.SaveChangesAsync();
+
+                    foreach (var item in model.Items)
+                    {
+                        foreach (var detail in item.Details)
+                        {
+                            SetStatus(detail, user);
+                        }
+                    }
+
+                    await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -280,9 +317,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
         }
 
-        private void SetEPONo(UnitPaymentOrderDetail detail)
+        private void SetPOItemIdEPONo(UnitPaymentOrderDetail detail)
         {
-            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Details.Any(d => d.Id == detail.EPODetailId))).EPONo;
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
+            detail.POItemId = EPODetail.POItemId;
+
+            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Id == EPODetail.EPOItemId)).EPONo;
         }
 
         private void SetPaid(UnitPaymentOrderItem item, bool isPaid, string username)
@@ -294,20 +334,161 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         private void SetStatus(UnitPaymentOrderDetail detail, string username)
         {
-            // PurchaseRequestItem purchaseRequestItem = dbContext.PurchaseRequestItems.Single(m => m.Id == detail.PRItemId);
-            // purchaseRequestItem.Status = "";
-            // EntityExtension.FlagForUpdate(purchaseRequestItem, username, USER_AGENT);
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
+            InternalPurchaseOrderItem POItem = dbContext.InternalPurchaseOrderItems.Single(m => m.Id == EPODetail.POItemId);
 
-            // //List<InternalPurchaseOrderItem> internalPurchaseOrderItems = dbContext.InternalPurchaseOrderItems.Where(m => m.PRItemId == detail.PRItemId).ToList();
-            // //foreach (var item in internalPurchaseOrderItems)
-            // //{
-            // //    item.Status = "";
-            // //    EntityExtension.FlagForUpdate(item, username, USER_AGENT);
-            // //}
+            List<long> EPODetailIds = dbContext.ExternalPurchaseOrderDetails.Where(m => m.POItemId == POItem.Id).Select(m => m.Id).ToList();
+            List<long> URNItemIds = dbContext.UnitReceiptNoteItems.Where(m => EPODetailIds.Contains(m.EPODetailId)).Select(m => m.Id).ToList();
 
-            // InternalPurchaseOrderItem internalPurchaseOrderItem = dbContext.InternalPurchaseOrderItems.Single(m => m.PRItemId == detail.PRItemId);
-            // internalPurchaseOrderItem.Status = "";
-            // EntityExtension.FlagForUpdate(internalPurchaseOrderItem, username, USER_AGENT);
+            var totalReceiptQuantity = dbContext.UnitPaymentOrderDetails.AsNoTracking().Where(m => m.IsDeleted == false && URNItemIds.Contains(m.URNItemId)).Sum(m => m.ReceiptQuantity);
+            if (totalReceiptQuantity > 0)
+            {
+                if (totalReceiptQuantity < EPODetail.DealQuantity)
+                {
+                    POItem.Status = "Sudah dibuat SPB sebagian";
+                }
+                else
+                {
+                    POItem.Status = "Sudah dibuat SPB semua";
+                }
+            }
+            else if (totalReceiptQuantity == 0)
+            {
+                if (EPODetail.DOQuantity >= EPODetail.DealQuantity)
+                {
+                    if (EPODetail.ReceiptQuantity < EPODetail.DealQuantity)
+                    {
+                        POItem.Status = "Barang sudah diterima Unit parsial";
+                    }
+                    else
+                    {
+                        POItem.Status = "Barang sudah diterima Unit semua";
+                    }
+                }
+                else
+                {
+                    POItem.Status = "Barang sudah diterima Unit parsial";
+                }
+            }
+            EntityExtension.FlagForUpdate(POItem, username, USER_AGENT);
         }
+
+        private void SetDueDate(UnitPaymentOrder model)
+        {
+            List<DateTimeOffset> DueDates = new List<DateTimeOffset>();
+            foreach (var item in model.Items)
+            {
+                var unitReceiptNoteDate = dbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
+                foreach (var detail in item.Details)
+                {
+                    var PaymentDueDays = dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(detail.EPONo)).PaymentDueDays;
+                    DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
+                }
+            }
+            model.DueDate = DueDates.Min();
+        }
+
+        public Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> ReadSpb(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<UnitPaymentOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "UPONo", "DivisionName", "SupplierName", "Items.URNNo", "Items.DONo"
+            };
+
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Select(s => new UnitPaymentOrder
+            {
+                Id = s.Id,
+                DivisionId = s.DivisionId,
+                DivisionCode = s.DivisionCode,
+                DivisionName = s.DivisionName,
+                SupplierId = s.SupplierId,
+                SupplierCode = s.SupplierCode,
+                SupplierName = s.SupplierName,
+                CategoryId = s.CategoryId,
+                CategoryCode = s.CategoryCode,
+                CategoryName = s.CategoryName,
+                CurrencyId = s.CurrencyId,
+                CurrencyCode = s.CurrencyCode,
+                CurrencyRate = s.CurrencyRate,
+                PaymentMethod = s.PaymentMethod,
+                InvoiceNo = s.InvoiceNo,
+                InvoiceDate = s.InvoiceDate,
+                PibNo = s.PibNo,
+                UseIncomeTax = s.UseIncomeTax,
+                IncomeTaxId = s.IncomeTaxId,
+                IncomeTaxName = s.IncomeTaxName,
+                IncomeTaxRate = s.IncomeTaxRate,
+                IncomeTaxNo = s.IncomeTaxNo,
+                IncomeTaxDate = s.IncomeTaxDate,
+                UseVat = s.UseVat,
+                VatNo = s.VatNo,
+                VatDate = s.VatDate,
+                Remark = s.Remark,
+                DueDate = s.DueDate,
+                Date = s.Date,
+                UPONo = s.UPONo,
+                Items = s.Items.Select(i => new UnitPaymentOrderItem
+                {
+                    UPOId = i.UPOId,
+                    URNId = i.URNId,
+                    URNNo = i.URNNo,
+                    DOId = i.DOId,
+                    DONo = i.DONo,
+                    Details = i.Details.Select(j => new UnitPaymentOrderDetail
+                    {
+                        UPOItemId = j.UPOItemId,
+                        URNItemId = j.URNItemId,
+                        EPONo = j.EPONo,
+                        PRId = j.PRId,
+                        PRNo = j.PRNo,
+                        PRItemId = j.PRItemId,
+                        ProductId = j.ProductId,
+                        ProductCode = j.ProductCode,
+                        ProductName = j.ProductName,
+                        ProductRemark = j.ProductRemark,
+                        ReceiptQuantity = j.ReceiptQuantity,
+                        UomId = j.UomId,
+                        UomUnit = j.UomUnit,
+                        PricePerDealUnit = j.PricePerDealUnit,
+                        PriceTotal = j.PriceTotal,
+                        PricePerDealUnitCorrection = j.PricePerDealUnitCorrection,
+                        PriceTotalCorrection = j.PriceTotalCorrection,
+                        //Duedate = s.DueDate,
+                    }).ToList()
+                }).ToList(),
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc,
+            });
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<UnitPaymentOrder> pageable = new Pageable<UnitPaymentOrder>(Query, Page - 1, Size);
+            List<UnitPaymentOrder> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        #region ForPDF
+
+        public UnitReceiptNote GetUnitReceiptNote(long URNId)
+        {
+            return dbContext.UnitReceiptNotes.Single(m => m.Id == URNId);
+        }
+
+        public ExternalPurchaseOrder GetExternalPurchaseOrder(string EPONo)
+        {
+            return dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(EPONo));
+        }
+
+        #endregion
     }
 }

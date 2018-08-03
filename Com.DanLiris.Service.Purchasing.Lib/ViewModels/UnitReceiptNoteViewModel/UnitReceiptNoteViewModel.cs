@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
 
             if (this.isStorage)
             {
-                if (string.IsNullOrWhiteSpace(storage._id) == null || storage==null)
+                if (storage == null||string.IsNullOrWhiteSpace(storage._id) == null)
                 {
                     yield return new ValidationResult("Storage is required", new List<string> { "storage" });
                 }
@@ -68,15 +68,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
                         itemErrorCount++;
                         itemError += "product: 'Product is required', ";
                     }
-                    else
-                    {
-                        var itemsExist = items.Where(i => i.product != null && item.product != null && i.product._id.Equals(item.product._id)).Count();
-                        if (itemsExist > 1)
-                        {
-                            itemErrorCount++;
-                            itemError += "product: 'Product is duplicate', ";
-                        }
-                    }
+                    //else
+                    //{
+                    //    var itemsExist = items.Where(i => i.product != null && item.product != null && i.product._id.Equals(item.product._id)).Count();
+                    //    if (itemsExist > 1)
+                    //    {
+                    //        itemErrorCount++;
+                    //        itemError += "product: 'Product is duplicate', ";
+                    //    }
+                    //}
 
                     if (item.deliveredQuantity <= 0)
                     {

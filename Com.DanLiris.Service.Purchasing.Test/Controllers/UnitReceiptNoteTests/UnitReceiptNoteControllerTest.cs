@@ -1,5 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Newtonsoft.Json;
 using System;
@@ -98,6 +98,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             viewModel.date = DateTimeOffset.MinValue;
             viewModel.unit = null;
             viewModel.items = new List<UnitReceiptNoteItemViewModel> { };
+            viewModel.isStorage = true;
+            viewModel.storage = null;
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }

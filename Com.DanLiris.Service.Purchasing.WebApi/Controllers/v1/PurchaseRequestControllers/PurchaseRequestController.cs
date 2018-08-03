@@ -34,6 +34,60 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             this.identityService = identityService;
         }
 
+        [HttpGet]
+        public IActionResult GetAllData(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                var Data = _facade.Read(page, size, order, keyword, filter);
+
+                var newData = _mapper.Map<List<PurchaseRequestViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    newData.AsQueryable().Select(s => new
+                    {
+                        s._id,
+                        s.no,
+                        s.date,
+                        s.expectedDeliveryDate,
+                        unit = new
+                        {
+                            division = new { s.unit.division.name },
+                            s.unit.name
+                        },
+                        category = new { s.category.name },
+                        s.isPosted,
+                    }).ToList()
+                );
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    },
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         //[HttpGet]
         //public IActionResult Get()
         //{

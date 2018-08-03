@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -49,14 +50,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     s.supplier,
                     s.division,
                     s.date,
+                    s.dueDate,
                     s.no,
+                    s.useIncomeTax,
+                    s.useVat,
+                    s.category,
+                    s.currency,
                     items = s.items.Select(i => new
                     {
                         unitReceiptNote = new
                         {
                             i.unitReceiptNote._id,
                             i.unitReceiptNote.no,
-                            i.unitReceiptNote.deliveryOrder
+                            i.unitReceiptNote.deliveryOrder,
+                            i.unitReceiptNote.items
                         }
                     }),
                     s.LastModifiedUtc,
@@ -87,23 +94,58 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
             }
         }
 
+        [HttpGet("by-user")]
+        public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+            if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+            {
+                filter = string.Concat("{", filterUser, "}");
+            }
+            else
+            {
+                filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+            }
+
+            return Get(page, size, order, keyword, filter);
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
             try
             {
-                var model = facade.ReadById(id);
-                var viewModel = mapper.Map<UnitPaymentOrderViewModel>(model);
-                //if (model.IncomeTaxDate.Equals(DateTimeOffset.MinValue))
-                //    viewModel.incomeTaxDate = null;
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
-                return Ok(new
+                var model = facade.ReadById(id);
+
+                if (indexAcceptPdf < 0)
                 {
-                    apiVersion = ApiVersion,
-                    statusCode = General.OK_STATUS_CODE,
-                    message = General.OK_MESSAGE,
-                    data = viewModel,
-                });
+                    var viewModel = mapper.Map<UnitPaymentOrderViewModel>(model);
+
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                    UnitPaymentOrderPDFTemplate PdfTemplate = new UnitPaymentOrderPDFTemplate();
+                    var stream = PdfTemplate.Generate(model, facade, clientTimeZoneOffset, identityService.Username);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.UPONo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -196,6 +238,72 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
             {
                 await facade.Delete(id, identityService.Username);
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("spb")]
+        public IActionResult GetSpb(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var Data = facade.ReadSpb(page, size, order, keyword, filter);
+                var newData = mapper.Map<List<UnitPaymentOrderViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.supplier,
+                    s.division,
+                    s.category,
+                    s.currency,
+                    s.paymentMethod,
+                    s.invoiceDate,
+                    s.invoiceNo,
+                    s.pibNo,
+                    s.useIncomeTax,
+                    s.useVat,
+                    s.vatNo,
+                    s.vatDate,
+                    s.remark,
+                    s.dueDate,
+                    s.date,
+                    s.no,
+                    items = s.items.Select(i => new
+                    {
+                        unitReceiptNote = new
+                        {
+                            i.unitReceiptNote._id,
+                            i.unitReceiptNote.no,
+                            i.unitReceiptNote.deliveryOrder,
+                            i.unitReceiptNote.items
+                        }
+                    }),
+                    s.LastModifiedUtc,
+                }));
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    },
+                });
             }
             catch (Exception e)
             {

@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +15,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(UnitPaymentOrder model, string username, bool isImport, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, UnitPaymentOrder model, string user);
         Task<int> Delete(int id, string username);
+        Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> ReadSpb(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+
+        UnitReceiptNote GetUnitReceiptNote(long URNId);
+        ExternalPurchaseOrder GetExternalPurchaseOrder(string EPONo);
     }
 }

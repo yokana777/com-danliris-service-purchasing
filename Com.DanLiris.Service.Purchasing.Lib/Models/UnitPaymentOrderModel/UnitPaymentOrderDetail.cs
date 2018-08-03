@@ -12,8 +12,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public long URNItemId { get; set; }
         [MaxLength(255)]
         public string EPONo { get; set; }
-        [NotMapped]
         public long EPODetailId { get; set; }
+        public long POItemId { get; set; }
         public long PRId { get; set; }
         [MaxLength(255)]
         public string PRNo { get; set; }
@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public double PricePerDealUnitCorrection { get; set; }
         public double PriceTotalCorrection { get; set; }
         public string ProductRemark { get; set; }
+        public double QuantityCorrection { get; set; }
 
         public virtual long UPOItemId { get; set; }
         [ForeignKey("UPOItemId")]

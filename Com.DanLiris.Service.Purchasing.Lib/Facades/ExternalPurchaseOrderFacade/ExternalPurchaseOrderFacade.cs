@@ -35,6 +35,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
         {
             IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo", "SupplierName", "DivisionName","UnitName","Items.PRNo"
+            };
+
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
             Query = Query
                 .Select(s => new ExternalPurchaseOrder
                 {
@@ -64,12 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     .ToList()
                 });
 
-            List<string> searchAttributes = new List<string>()
-            {
-                "EPONo", "SupplierName", "DivisionName","UnitName"
-            };
 
-            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
@@ -93,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return a;
         }
 
-        public async Task<int> Create(ExternalPurchaseOrder m, string user)
+        public async Task<int> Create(ExternalPurchaseOrder m, string user, int clientTimeZoneOffset)
         {
             int Created = 0;
 
@@ -103,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
 
-                    m.EPONo = await GenerateNo(m);
+                    m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
 
                     foreach (var item in m.Items)
                     {
@@ -415,8 +417,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);
                             internalPurchaseOrderItem.Status = "Dibatalkan";
 
-                            PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
-                            purchaseRequestItem.Status = "Dibatalkan";
+                            //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
+                            //purchaseRequestItem.Status = "Dibatalkan";
                         }
                     }
 
@@ -497,7 +499,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         {
                             var existPR =( from a in this.dbContext.ExternalPurchaseOrderDetails
                                           join b in dbContext.ExternalPurchaseOrderItems on a.EPOItemId equals b.Id
-                                          where a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId
+                                          join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
+                                          where  a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId && c.IsPosted == true 
                                           select a).FirstOrDefault();
 
                             EntityExtension.FlagForUpdate(detail, user, "Facade");
@@ -527,11 +530,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Updated;
         }
 
-        async Task<string> GenerateNo(ExternalPurchaseOrder model)
+        async Task<string> GenerateNo(ExternalPurchaseOrder model, int clientTimeZoneOffset)
         {
             DateTimeOffset Now = model.OrderDate;
-            string Year = Now.ToString("yy");
-            string Month = Now.ToString("MM");
+            string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); ;
+            string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); ;
 
             string no = $"PE-{model.UnitCode}-{Year}-{Month}-";
             int Padding = 3;

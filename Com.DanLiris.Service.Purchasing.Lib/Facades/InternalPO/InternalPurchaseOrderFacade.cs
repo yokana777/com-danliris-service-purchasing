@@ -14,11 +14,15 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Data;
+using System.Globalization;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 {
     public class InternalPurchaseOrderFacade 
     {
+        #region Dummy Data
         private List<InternalPurchaseOrder> DUMMY_DATA = new List<InternalPurchaseOrder>()
         {
             new InternalPurchaseOrder()
@@ -199,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 }
             }
         };
-
+        #endregion
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<InternalPurchaseOrder> dbSet;
@@ -557,6 +561,89 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 }
             }
             return Splitted;
+        }
+
+        public IQueryable<InternalPurchaseOrderReportViewModel> GetReportQuery(string unitId, string categoryId, string staff, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.InternalPurchaseOrders
+                         join i in dbContext.InternalPurchaseOrderItems on a.Id equals i.POId 
+                         where a.IsDeleted == false
+                             && i.IsDeleted == false
+                             && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
+                             && a.CategoryId == (string.IsNullOrWhiteSpace(categoryId) ? a.CategoryId : categoryId)
+                             && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
+                             && a.PRDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.PRDate.AddHours(offset).Date <= DateTo.Date
+                             && i.Quantity>0
+                         select new InternalPurchaseOrderReportViewModel
+                         {
+                             prNo = a.PRNo,
+                             category = a.CategoryName,
+                             unit = a.DivisionName + " - " + a.UnitName,
+                             prDate = a.PRDate,
+                             expectedDeliveryDatePO = a.ExpectedDeliveryDate == null ? new DateTime(1970, 1, 1) : a.ExpectedDeliveryDate,
+                             poStatus = i.Status,
+                             productName = i.ProductName,
+                             uom = i.UomUnit,
+                             quantity = i.Quantity,
+                             staff=a.CreatedBy,
+                             LastModifiedUtc = i.LastModifiedUtc
+                         });
+            return Query;
+        }
+
+        public Tuple<List<InternalPurchaseOrderReportViewModel>, int> GetReport(string unitId, string categoryId, string staff, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportQuery( unitId, categoryId, staff,  dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            }
+            
+
+            Pageable<InternalPurchaseOrderReportViewModel> pageable = new Pageable<InternalPurchaseOrderReportViewModel>(Query, page - 1, size);
+            List<InternalPurchaseOrderReportViewModel> Data = pageable.Data.ToList<InternalPurchaseOrderReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(string unitId, string categoryId, string staff, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQuery(unitId, categoryId, staff,  dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal diminta datang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add( "", "", "", "", "", 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string date = item.prDate == null ? "-" : item.prDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string poDate = item.expectedDeliveryDatePO == new DateTime(1970, 1, 1) ? "-" : item.expectedDeliveryDatePO.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index,date, item.prNo, item.category, item.productName,item.quantity, item.uom, poDate, item.unit, item.poStatus, item.staff);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
     }
 }
