@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
 
         public bool useVat { get; set; }
         public string vatNo { get; set; }
-        public DateTimeOffset vatDate { get; set; }
+        public DateTimeOffset? vatDate { get; set; }
 
         public string remark { get; set; }
         public DateTimeOffset dueDate { get; set; }
@@ -72,6 +72,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
                 if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax._id))
                 {
                     yield return new ValidationResult("IncomeTax is required", new List<string> { "incomeTax" });
+                }
+                if (string.IsNullOrWhiteSpace(incomeTaxNo))
+                {
+                    yield return new ValidationResult("IncomeTaxNo is required", new List<string> { "incomeTaxNo" });
+                }
+                if (incomeTaxDate == null || incomeTaxDate.Equals(DateTimeOffset.MinValue))
+                {
+                    yield return new ValidationResult("IncomeTaxDate is required", new List<string> { "incomeTaxDate" });
                 }
             }
 

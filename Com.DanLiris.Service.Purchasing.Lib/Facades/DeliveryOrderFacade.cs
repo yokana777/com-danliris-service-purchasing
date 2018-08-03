@@ -4,12 +4,16 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -475,6 +479,97 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             //Query = QueryHelper<DeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
 
             return Query.ToList();
+        }
+
+        public IQueryable<DeliveryOrderReportViewModel> GetReportQuery(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.DeliveryOrders
+                         join i in dbContext.DeliveryOrderItems on a.Id equals i.DOId
+                         join j in dbContext.DeliveryOrderDetails on i.Id equals j.DOItemId
+                         join l in dbContext.ExternalPurchaseOrderDetails on j.EPODetailId equals l.Id
+                         where a.IsDeleted == false
+                             && i.IsDeleted == false
+                             && j.IsDeleted == false
+                             && l.IsDeleted == false
+                             && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
+                             && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
+                             && a.DODate.AddHours(offset).Date >= DateFrom.Date
+                             && a.DODate.AddHours(offset).Date <= DateTo.Date
+                         select new DeliveryOrderReportViewModel
+                         {
+                             no = a.DONo,
+                             supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
+                             date = a.ArrivalDate,
+                             supplierName = a.SupplierName,
+                             supplierCode = a.SupplierCode,
+                             ePONo = i.EPONo,
+                             productCode = j.ProductCode,
+                             productName = j.ProductName,
+                             productRemark = j.ProductRemark,
+                             dealQuantity = j.DealQuantity,
+                             dOQuantity = j.DOQuantity,
+                             remainingQuantity = l.DealQuantity - l.DOQuantity,
+                             uomUnit = j.UomUnit,
+                             LastModifiedUtc = j.LastModifiedUtc
+                         });
+            return Query;
+        }
+
+        public Tuple<List<DeliveryOrderReportViewModel>, int> GetReport(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportQuery(no, supplierId, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            }
+
+
+            Pageable<DeliveryOrderReportViewModel> pageable = new Pageable<DeliveryOrderReportViewModel>(Query, page - 1, size);
+            List<DeliveryOrderReportViewModel> Data = pageable.Data.ToList<DeliveryOrderReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQuery(no, supplierId, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR SURAT JALAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SURAT JALAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL DATANG BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO PO EXTERNAL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DESKRIPSI BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG YANG DIMINTA", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG YANG DATANG", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SISA QTY", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string date = item.date == null ? "-" : item.date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string supplierDoDate = item.supplierDoDate == new DateTime(1970, 1, 1) ? "-" : item.supplierDoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
     }
 }
