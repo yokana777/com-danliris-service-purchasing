@@ -30,16 +30,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         {
             get
             {
+                List<UnitPaymentOrderItemViewModel> items = new List<UnitPaymentOrderItemViewModel>();
+
+                List<UnitPaymentOrderDetailViewModel> details = new List<UnitPaymentOrderDetailViewModel>();
+
+                items.Add(
+                    new UnitPaymentOrderItemViewModel
+                    {
+                        unitReceiptNote=
+                        {
+                            items=details
+                        }
+                    });
+
+                details.Add(
+                    new UnitPaymentOrderDetailViewModel {
+                        pricePerDealUnit=1000,
+                        PricePerDealUnitCorrection=10000,
+                        QuantityCorrection=10,
+                        deliveredQuantity=10,
+                        PriceTotal=10000,
+                        PriceTotalCorrection=10000,
+                        
+                    });
+
                 return new UnitPaymentOrderViewModel
                 {
                     supplier = new SupplierViewModel
                     {
                         import = false
                     },
-                    items = new List<UnitPaymentOrderItemViewModel>()
+                    items = items
                 };
             }
         }
+
 
         private UnitPaymentOrder Model
         {
