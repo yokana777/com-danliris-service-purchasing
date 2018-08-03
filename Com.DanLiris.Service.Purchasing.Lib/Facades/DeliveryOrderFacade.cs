@@ -556,7 +556,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "SISA QTY", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
