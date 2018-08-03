@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public double PricePerDealUnitCorrection { get; set; }
         public double PriceTotalCorrection { get; set; }
         public string ProductRemark { get; set; }
+        public double QuantityCorrection { get; set; }
 
         public virtual long UPOItemId { get; set; }
         [ForeignKey("UPOItemId")]
