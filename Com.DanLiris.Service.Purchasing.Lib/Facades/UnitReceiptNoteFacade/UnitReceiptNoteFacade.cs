@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     if (m != null && !id.Equals(unitReceiptNote.Id))
                     {
-                        if (m.IsStorage == true && unitReceiptNote.IsStorage == false)
+                        if (m.IsStorage == true)
                         {
                             insertStorage(m, user, "OUT");
                         }
@@ -344,7 +344,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         //}
                         #endregion
 
-                        if (unitReceiptNote.IsStorage == true && m.IsStorage == false)
+                        if (unitReceiptNote.IsStorage == true)
                         {
                             insertStorage(unitReceiptNote, user, "IN");
                         }
