@@ -664,5 +664,146 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
-    }
+
+		public IQueryable<PurchaseRequestPurchaseOrderDurationReportViewModel> GetPRDurationReportQuery(string unit, string duration,  DateTime? dateFrom, DateTime? dateTo, int offset)
+		{
+			DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+			DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+			int start = 0;
+			int end = 0;
+			if (duration == "8-14 hari")
+			{
+				start = 8;
+				end = 14;
+			}
+			else if (duration == "15-30 hari")
+			{
+				start = 15;
+				end = 30;
+			}
+			else
+			{
+				start = 31;
+				end = 1000;
+			}
+			List<PurchaseRequestPurchaseOrderDurationReportViewModel> listPRDUration = new List<PurchaseRequestPurchaseOrderDurationReportViewModel>();
+			var Query = (from a in dbContext.PurchaseRequests
+						 join b in dbContext.PurchaseRequestItems on a.Id equals b.PurchaseRequestId
+						 join c in dbContext.InternalPurchaseOrders on a.No equals c.PRNo
+						 //Conditions
+						 where a.IsDeleted == false 
+						 &&  a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
+						  && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+						  && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+						 select new PurchaseRequestPurchaseOrderDurationReportViewModel
+						 {
+							 prNo = a.No,
+							 prDate = a.Date,
+							 prCreatedDate = a.CreatedUtc,
+							 unit = a.UnitName,
+							 category = a.CategoryName,
+							 productUom = b.Uom,
+							 poDate = c.CreatedUtc,
+							 productCode = b.ProductCode,
+							 productName = b.ProductName,
+							 productQuantity = b.Quantity,
+							 staff = c.CreatedBy,
+							 division = a.DivisionName,
+							 budget = a.BudgetName
+						
+
+		});
+			foreach (var item in Query)
+			{
+				var poDate = item.poDate;
+				var prCreatedDate = item.prCreatedDate;
+				var datediff = ((TimeSpan)(poDate - prCreatedDate)).Days;
+				PurchaseRequestPurchaseOrderDurationReportViewModel _new = new PurchaseRequestPurchaseOrderDurationReportViewModel
+				{
+					prNo = item.prNo,
+					prDate = item.prDate,
+					prCreatedDate = item.prCreatedDate,
+					unit = item.unit,
+					category = item.category,
+					productUom = item.productUom,
+					poDate = item.poDate,
+					productCode = item.productCode,
+					productName = item.productName,
+					productQuantity = item.productQuantity,
+					dateDiff = datediff,
+					staff = item.staff,
+					division = item.division,
+					budget = item.budget,
+				};
+				listPRDUration.Add(_new);
+			}
+			return listPRDUration.Where(s=>s.dateDiff >=start && s.dateDiff <=end ).AsQueryable();
+		 
+		}
+ 
+
+		public Tuple<List<PurchaseRequestPurchaseOrderDurationReportViewModel>, int> GetPRDurationReport(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		{
+			var Query = GetPRDurationReportQuery(unit,duration, dateFrom, dateTo, offset);
+
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+			if (OrderDictionary.Count.Equals(0))
+			{
+				Query = Query.OrderByDescending(b => b.prCreatedDate);
+			}
+			else
+			{
+				string Key = OrderDictionary.Keys.First();
+				string OrderType = OrderDictionary[Key];
+
+				Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+			}
+
+			Pageable<PurchaseRequestPurchaseOrderDurationReportViewModel> pageable = new Pageable<PurchaseRequestPurchaseOrderDurationReportViewModel>(Query, page - 1, size);
+			List<PurchaseRequestPurchaseOrderDurationReportViewModel> Data = pageable.Data.ToList<PurchaseRequestPurchaseOrderDurationReportViewModel>();
+			int TotalData = pageable.TotalCount;
+
+			return Tuple.Create(Data, TotalData);
+		}
+		public MemoryStream GenerateExcelPRDuration(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
+		{
+			var Query = GetPRDurationReportQuery(unit, duration, dateFrom, dateTo, offset);
+			Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+			DataTable result = new DataTable();
+			//No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+
+			result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Purchase Request", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Buat Purchase Request", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Divisi", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Budget", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Terima PO Internal", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Selisih Tanggal PR - PO Internal (hari)", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nama Staff Pembelian", DataType = typeof(string) });
+		
+			if (Query.ToArray().Count() == 0)
+				result.Rows.Add("","", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+			else
+			{
+				int index = 0;
+				foreach (var item in Query)
+				{
+					index++;
+					string prDate = item.prDate == null ? "-" : item.prDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+					string prCreatedDate = item.prCreatedDate == new DateTime(1970, 1, 1) ? "-" : item.prCreatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+					string poDate = item.poDate == new DateTime(1970, 1, 1) ? "-" : item.poDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+					result.Rows.Add(index,prDate,prCreatedDate,item.prNo,item.division, item.unit, item.budget, item.category, item.productCode, (item.productName), item.productUom, poDate, item.dateDiff, item.staff);
+				}
+			}
+
+			return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+		}
+	}
 }
