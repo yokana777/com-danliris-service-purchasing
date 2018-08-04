@@ -112,6 +112,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
 			return internalPurchaseOrder;
 		}
+		public async Task<InternalPurchaseOrder> GetTestData3(string user)
+		{
+			InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
+
+			await facade.Create(internalPurchaseOrder, user);
+			internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(16);
+			await facade.Update(Convert.ToInt32(internalPurchaseOrder.Id), internalPurchaseOrder, user);
+
+			return internalPurchaseOrder;
+		}
 		//public PurchaseRequestViewModel GetViewModelTestData()
 		//{
 		//    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(GetNewData());

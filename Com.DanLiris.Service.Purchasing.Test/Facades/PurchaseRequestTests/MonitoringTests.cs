@@ -71,9 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		//Duration PR
 		public async void Should_Success_Get_Report_PRDuration_Data()
 		{
-			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
-			string duration = "8-14 hari";
-			var Response = Facade.GetPRDurationReport( model.UnitId,duration, null, null, 1, 25, "{}", 7);
+			var model = await IPODataUtil.GetTestData2("Unit test");
+			var Response = Facade.GetPRDurationReport( model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
 			Assert.NotEqual(Response.Item2, 0);
 		}
 
@@ -81,7 +80,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		public async void Should_Success_Get_Report_PRDuration_Null_Parameter()
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
-			
 			var Response = Facade.GetPRDurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
 			Assert.NotEqual(Response.Item2, 0);
 		}
@@ -89,18 +87,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		[Fact]
 		public async void Should_Success_Get_Report_PRDuration_Excel()
 		{
-			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
-			
-			string duration = "8-14 hari";
-			var Response = Facade.GenerateExcelPRDuration(model.UnitId,duration, null, null, 7);
+			var model = await IPODataUtil.GetTestData2("Unit test");
+			var Response = Facade.GenerateExcelPRDuration(model.UnitId, "8-14 hari", null, null, 7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 
 		[Fact]
 		public async void Should_Success_Get_Report_PRDuration_Excel_Null_Parameter()
 		{
-			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
-			var Response = Facade.GenerateExcelPRDuration("", "8-14 hari", null, null, 7);
+			var model = await IPODataUtil.GetTestData3("Unit test");
+			var Response = Facade.GenerateExcelPRDuration("", "15-30 hari", null, null, 7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 	}

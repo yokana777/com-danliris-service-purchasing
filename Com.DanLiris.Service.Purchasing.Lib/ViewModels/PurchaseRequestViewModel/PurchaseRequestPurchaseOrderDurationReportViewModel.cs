@@ -21,7 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewMode
 		public string staff { get; set; }
 		public DateTimeOffset prCreatedDate { get; set; }
 		public DateTimeOffset prDate { get; set; }
-		public int index { get; set; }
 
 	}
 }
