@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		public async void Should_Success_Get_Report_PRDuration_Null_Parameter()
 		{
 			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
-			var Response = Facade.GetPRDurationReport("", null, null, null, 1, 25, "{}", 7);
+			var Response = Facade.GetPRDurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
 			Assert.NotEqual(Response.Item2, 0);
 		}
 
@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		public async void Should_Success_Get_Report_PRDuration_Excel_Null_Parameter()
 		{
 			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
-			var Response = Facade.GenerateExcelPRDuration("", null, null, null, 7);
+			var Response = Facade.GenerateExcelPRDuration("", "8-14 hari", null, null, 7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 	}
