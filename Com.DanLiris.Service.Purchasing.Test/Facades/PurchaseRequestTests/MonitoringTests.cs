@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System;
 using System.Collections.Generic;
@@ -26,8 +27,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             get { return (PurchaseRequestDataUtil)ServiceProvider.GetService(typeof(PurchaseRequestDataUtil)); }
         }
-
-        private PurchaseRequestFacade Facade
+		private InternalPurchaseOrderDataUtil IPODataUtil
+		{
+			get { return (InternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(InternalPurchaseOrderDataUtil)); }
+		}
+		private PurchaseRequestFacade Facade
         {
             get { return (PurchaseRequestFacade)ServiceProvider.GetService(typeof(PurchaseRequestFacade)); }
         }
@@ -76,7 +80,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		[Fact]
 		public async void Should_Success_Get_Report_PRDuration_Null_Parameter()
 		{
-			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
+			var model = await IPODataUtil.GetTestData2("Unit test");
+			
 			var Response = Facade.GetPRDurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
 			Assert.NotEqual(Response.Item2, 0);
 		}
@@ -85,6 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		public async void Should_Success_Get_Report_PRDuration_Excel()
 		{
 			PurchaseRequest model = await DataUtil.GetTestData("Unit test");
+			
 			string duration = "8-14 hari";
 			var Response = Facade.GenerateExcelPRDuration(model.UnitId,duration, null, null, 7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
