@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     Id = s.Id,
                     UPCNo = s.UPCNo,
                     CorrectionDate = s.CorrectionDate,
-                    CorrectionType = s.CorrectionType,
+                    CorrectionType = "Jumlah",
                     UPOId = s.UPOId,
                     UPONo = s.UPONo,
                     SupplierCode = s.SupplierCode,
@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
             List<string> searchAttributes = new List<string>()
             {
-                "UPCNo", "UPONo", "SupplierName"
+                "UPCNo", "UPONo", "SupplierName", "InvoiceCorrectionNo"
             };
 
             Query = QueryHelper<UnitPaymentCorrectionNote>.ConfigureSearch(Query, searchAttributes, Keyword);

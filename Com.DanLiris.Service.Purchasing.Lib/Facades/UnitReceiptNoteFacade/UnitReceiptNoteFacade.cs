@@ -534,5 +534,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
+
+        public UnitReceiptNote ReadByURNNo(string uRRNo)
+        {
+            var a = this.dbSet.Where(p => p.URNNo == uRRNo)
+                .Include(p => p.Items)
+                .FirstOrDefault();
+            return a;
+        }
     }
 }
