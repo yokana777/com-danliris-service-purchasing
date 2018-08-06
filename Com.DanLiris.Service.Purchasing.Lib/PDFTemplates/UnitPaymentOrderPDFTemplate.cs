@@ -249,7 +249,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #endregion
 
-            Paragraph paragraphTerbilang = new Paragraph($"Terbilang : {NumberToTextIDN.terbilang(model.UseIncomeTax ? totalWithPph : jumlah)} {model.CurrencyDescription.ToLower()}", bold_font) { SpacingAfter = 15f };
+            Paragraph paragraphTerbilang = new Paragraph($"Terbilang : {NumberToTextIDN.terbilang(model.UseIncomeTax ? totalWithPph : total)} {model.CurrencyDescription.ToLower()}", bold_font) { SpacingAfter = 15f };
             document.Add(paragraphTerbilang);
 
             #region Footer
