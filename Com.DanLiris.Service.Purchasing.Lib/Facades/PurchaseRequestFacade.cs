@@ -690,8 +690,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 			var Query = (from a in dbContext.PurchaseRequests
 						 join b in dbContext.PurchaseRequestItems on a.Id equals b.PurchaseRequestId
 						 join c in dbContext.InternalPurchaseOrders on a.No equals c.PRNo
+						 join d in dbContext.InternalPurchaseOrderItems on c.Id equals d.POId 
 						 //Conditions
-						 where a.IsDeleted == false 
+						 where a.IsDeleted == false  && b.Id == d.PRItemId && b.IsDeleted== false && c.IsDeleted==false && d.IsDeleted == false
 						 &&  a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
 						  && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
 						  && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
@@ -706,7 +707,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 							 poDate = c.CreatedUtc,
 							 productCode = b.ProductCode,
 							 productName = b.ProductName,
-							 productQuantity = b.Quantity,
+							 productQuantity = d.Quantity,
 							 staff = c.CreatedBy,
 							 division = a.DivisionName,
 							 budget = a.BudgetName
@@ -715,9 +716,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 		});
 			foreach (var item in Query)
 			{
-				var poDate = item.poDate;
-				var prCreatedDate = item.prCreatedDate;
-				var datediff = ((TimeSpan)(poDate - prCreatedDate)).Days;
+				var poDate = new DateTimeOffset(item.poDate.Date, TimeSpan.Zero); 
+				var prCreatedDate = new DateTimeOffset(item.prCreatedDate.Date, TimeSpan.Zero); 
+				 
+				var datediff = ((TimeSpan)( poDate - prCreatedDate)).Days;
 				PurchaseRequestPurchaseOrderDurationReportViewModel _new = new PurchaseRequestPurchaseOrderDurationReportViewModel
 				{
 					prNo = item.prNo,
@@ -768,7 +770,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 		public MemoryStream GenerateExcelPRDuration(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 			var Query = GetPRDurationReportQuery(unit, duration, dateFrom, dateTo, offset);
-			Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+			Query = Query.OrderByDescending(b => b.prCreatedDate);
 			DataTable result = new DataTable();
 			//No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
 
@@ -783,13 +785,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 			result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Terima PO Internal", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Selisih Tanggal PR - PO Internal (hari)", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Nama Staff Pembelian", DataType = typeof(string) });
 		
 			if (Query.ToArray().Count() == 0)
-				result.Rows.Add("","", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+				result.Rows.Add("","", "", "", "", "", "", "", "", "", "", "", "", "",""); // to allow column name to be generated properly for empty data as template
 			else
 			{
 				int index = 0;
@@ -799,7 +802,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 					string prDate = item.prDate == null ? "-" : item.prDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 					string prCreatedDate = item.prCreatedDate == new DateTime(1970, 1, 1) ? "-" : item.prCreatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 					string poDate = item.poDate == new DateTime(1970, 1, 1) ? "-" : item.poDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-					result.Rows.Add(index,prDate,prCreatedDate,item.prNo,item.division, item.unit, item.budget, item.category, item.productCode, (item.productName), item.productUom, poDate, item.dateDiff, item.staff);
+					result.Rows.Add(index,prDate,prCreatedDate,item.prNo,item.division, item.unit, item.budget, item.category, item.productCode, (item.productName),item.productQuantity, item.productUom, poDate, item.dateDiff, item.staff);
 				}
 			}
 

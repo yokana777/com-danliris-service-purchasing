@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
 
 				var xls = _facade.GenerateExcelPRDuration(unitId, duration, dateFrom, dateTo, offset);
 
-				string filename = String.Format("Purchase Request - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+				string filename = String.Format("Laporan Durasi PR - PO Internal - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
 				xlsInBytes = xls.ToArray();
 				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
