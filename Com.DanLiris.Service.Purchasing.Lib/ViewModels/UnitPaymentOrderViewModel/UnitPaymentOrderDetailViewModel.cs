@@ -24,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public double PriceTotal { get; set; }
         public double PricePerDealUnitCorrection { get; set; }
         public double PriceTotalCorrection { get; set; }
+        public double QuantityCorrection { get; set; }
         public string ProductRemark { get; set; }
 
         //public string remark { get; set; }

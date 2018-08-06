@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
@@ -7,12 +7,16 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -188,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     if (m != null && !id.Equals(unitReceiptNote.Id))
                     {
-                        if (m.IsStorage == true && unitReceiptNote.IsStorage == false)
+                        if (m.IsStorage == true)
                         {
                             insertStorage(m, user, "OUT");
                         }
@@ -340,7 +344,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         //}
                         #endregion
 
-                        if (unitReceiptNote.IsStorage == true && m.IsStorage == false)
+                        if (unitReceiptNote.IsStorage == true)
                         {
                             insertStorage(unitReceiptNote, user, "IN");
                         }
@@ -498,6 +502,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             epo.SupplierId.Equals(FilterDictionary.GetValueOrDefault("SupplierId") ?? "") &&
                             epo.PaymentMethod.Equals(FilterDictionary.GetValueOrDefault("PaymentMethod") ?? "") &&
                             epo.CurrencyCode.Equals(FilterDictionary.GetValueOrDefault("CurrencyCode") ?? "") &&
+                            epo.UseIncomeTax == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseIncomeTax") ?? "false") &&
                             string.Concat("", epo.IncomeTaxId).Equals(FilterDictionary.GetValueOrDefault("IncomeTaxId") ?? "") &&
                             epo.UseVat == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseVat") ?? "false") &&
                             epo.Items.Any(epoItem => 
@@ -541,6 +546,106 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 .Include(p => p.Items)
                 .FirstOrDefault();
             return a;
+        }
+
+            public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.UnitReceiptNotes
+                         join b in dbContext.UnitReceiptNoteItems on a.Id equals b.URNId
+                         //EPO
+                         join k in dbContext.ExternalPurchaseOrderDetails on b.EPODetailId equals k.Id
+                         //PO
+                         join c in dbContext.InternalPurchaseOrderItems on k.POItemId equals c.Id
+                         join d in dbContext.InternalPurchaseOrders on c.POId equals d.Id
+                         //Conditions
+                         where a.IsDeleted == false
+                             && b.IsDeleted == false
+                             && k.IsDeleted == false
+                             && c.IsDeleted == false
+                             && d.IsDeleted == false
+                             && a.URNNo == (string.IsNullOrWhiteSpace(urnNo) ? a.URNNo : urnNo)
+                             && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
+                             && b.PRNo == (string.IsNullOrWhiteSpace(prNo) ? b.PRNo : prNo)
+                             && d.CategoryId == (string.IsNullOrWhiteSpace(categoryId) ? d.CategoryId : categoryId)
+                             && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
+                             && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                         select new UnitReceiptNoteReportViewModel
+                         {
+                             urnNo = a.URNNo,
+                             prNo = b.PRNo,
+                             category = d.CategoryName,
+                             unit = a.DivisionName + " - " + a.UnitName,
+                             supplier = a.SupplierName,
+                             receiptDate = a.ReceiptDate,
+                             productCode = b.ProductCode,
+                             productName = b.ProductName,
+                             receiptUom = b.Uom,
+                             receiptQuantity=b.ReceiptQuantity,
+                             DealUom = k.DealUomUnit,
+                             dealQuantity = k.DealQuantity,
+                             quantity= k.DealQuantity- b.ReceiptQuantity,
+                             LastModifiedUtc = b.LastModifiedUtc
+                         });
+            return Query;
+        }
+
+        public Tuple<List<UnitReceiptNoteReportViewModel>, int> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId,  dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            }
+
+            Pageable<UnitReceiptNoteReportViewModel> pageable = new Pageable<UnitReceiptNoteReportViewModel>(Query, page - 1, size);
+            List<UnitReceiptNoteReportViewModel> Data = pageable.Data.ToList<UnitReceiptNoteReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            DataTable result = new DataTable();
+            //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Penerimaan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah (+/-/0)", DataType = typeof(double) });
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string date = item.receiptDate == null ? "-" : item.receiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, item.unit, item.category, item.prNo,  item.productName, item.productCode, item.supplier, date,  item.urnNo, item.dealQuantity,item.DealUom,item.receiptQuantity,item.receiptUom,item.quantity );
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
     }
 }
