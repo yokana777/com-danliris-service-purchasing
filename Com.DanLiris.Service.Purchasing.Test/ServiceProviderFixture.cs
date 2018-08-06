@@ -1,4 +1,7 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
@@ -7,8 +10,11 @@ using Com.DanLiris.Service.Purchasing.Lib.Serializers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -19,6 +25,13 @@ using MongoDB.Bson.Serialization;
 using System;
 using System.Collections.Generic;
 using Xunit;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -74,10 +87,37 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<ImportPurchasingBookReportFacade>()
                 .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<SendToVerificationDataUtil>()
+
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
                 .AddTransient<UnitReceiptNoteBsonDataUtil>()
                 .AddTransient<UnitReceiptNoteImportFalseBsonDataUtil>()
+
+                .AddTransient<PurchaseRequestFacade>()
+                .AddTransient<PurchaseRequestDataUtil>()
+                .AddTransient<PurchaseRequestItemDataUtil>()
+
+                .AddTransient<InternalPurchaseOrderFacade>()
+                .AddTransient<InternalPurchaseOrderDataUtil>()
+                .AddTransient<InternalPurchaseOrderItemDataUtil>()
+
+                .AddTransient<ExternalPurchaseOrderFacade>()
+                .AddTransient<ExternalPurchaseOrderDataUtil>()
+                .AddTransient<ExternalPurchaseOrderItemDataUtil>()
+                .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
+
+                .AddTransient<DeliveryOrderFacade>()
+                .AddTransient<DeliveryOrderDataUtil>()
+                .AddTransient<DeliveryOrderItemDataUtil>()
+                .AddTransient<DeliveryOrderDetailDataUtil>()
+
+                .AddTransient<BankExpenditureNoteFacade>()
+                .AddTransient<BankExpenditureNoteDataUtil>()
+
+                .AddTransient<UnitReceiptNoteFacade>()
+                .AddTransient<UnitReceiptNoteDataUtil>()
+                .AddTransient<UnitReceiptNoteItemDataUtil>()
+
                 .AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();

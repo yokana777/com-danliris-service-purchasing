@@ -8,9 +8,9 @@ using System.Text;
 namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 {
     public static class QueryHelper<TModel>
-        where TModel : StandardEntity
+        where TModel : IStandardEntity
     {
-        public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword)
+        public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword, bool ToLowerCase = false)
         {
             /* Search with Keyword */
             if (Keyword != null)
@@ -31,6 +31,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 
                 SearchQuery = SearchQuery.Remove(SearchQuery.Length - 4);
 
+                if (ToLowerCase)
+                {
+                    SearchQuery = SearchQuery.Replace(".Contains(@0)", ".ToLower().Contains(@0)");
+                    Keyword = Keyword.ToLower();
+                }
+
                 Query = Query.Where(SearchQuery, Keyword);
             }
             return Query;
@@ -44,9 +50,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 {
                     string Key = f.Key;
                     object Value = f.Value;
+                    bool ParsedValueBoolean;
+
                     string filterQuery = string.Concat(string.Empty, Key, " == @0");
 
-                    Query = Query.Where(filterQuery, Value);
+                    if (Boolean.TryParse(Value.ToString(), out ParsedValueBoolean))
+                    {
+                        Query = Query.Where(filterQuery, ParsedValueBoolean);
+                    }
+                    else
+                    {
+                        Query = Query.Where(filterQuery, Value);
+                    }
                 }
             }
             return Query;
@@ -59,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             {
                 OrderDictionary.Add("LastModifiedUtc", "desc");
 
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderBy("LastModifiedUtc desc");
             }
             /* Custom Order */
             else
@@ -67,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 string Key = OrderDictionary.Keys.First();
                 string OrderType = OrderDictionary[Key];
 
-                Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+                Query = Query.OrderBy(string.Concat(Key.Replace(".", ""), " ", OrderType));
             }
             return Query;
         }

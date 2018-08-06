@@ -67,19 +67,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 
             foreach (UnitPaymentOrderViewModel unitPaymentOrder in this.UnitPaymentOrders)
             {
+                List<PurchasingDocumentExpeditionItem> Items = new List<PurchasingDocumentExpeditionItem>();
+
+                foreach (UnitPaymentOrderItemViewModel item in unitPaymentOrder.Items)
+                {
+                    Items.Add(new PurchasingDocumentExpeditionItem()
+                    {
+                        ProductId = item.ProductId,
+                        ProductCode = item.ProductCode,
+                        ProductName = item.ProductName,
+                        Quantity = item.Quantity,
+                        Uom = item.Uom,
+                        Price = item.Price,
+                        UnitId = item.UnitId,
+                        UnitCode = item.UnitCode,
+                        UnitName = item.UnitName
+                    });
+                }
+
                 list.Add(new PurchasingDocumentExpedition()
                 {
                     SendToVerificationDivisionDate = DateTimeOffset.UtcNow,
                     UnitPaymentOrderNo = unitPaymentOrder.No,
                     UPODate = unitPaymentOrder.UPODate,
                     InvoiceNo = unitPaymentOrder.InvoiceNo,
+                    PaymentMethod = unitPaymentOrder.PaymentMethod,
                     DueDate = unitPaymentOrder.DueDate,
                     SupplierCode = unitPaymentOrder.SupplierCode,
                     SupplierName = unitPaymentOrder.SupplierName,
                     DivisionCode = unitPaymentOrder.DivisionCode,
                     DivisionName = unitPaymentOrder.DivisionName,
+                    IncomeTax = unitPaymentOrder.IncomeTax,
+                    Vat = unitPaymentOrder.Vat,
+                    IncomeTaxId = unitPaymentOrder.IncomeTaxId,
+                    IncomeTaxName = unitPaymentOrder.IncomeTaxName,
+                    IncomeTaxRate = unitPaymentOrder.IncomeTaxRate,
                     TotalPaid = unitPaymentOrder.TotalPaid,
                     Currency = unitPaymentOrder.Currency,
+                    Items = Items
                 });
             }
 

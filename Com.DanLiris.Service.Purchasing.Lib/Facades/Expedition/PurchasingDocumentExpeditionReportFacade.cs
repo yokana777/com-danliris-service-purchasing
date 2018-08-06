@@ -27,9 +27,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     VerificationDivisionDate = s.VerificationDivisionDate,
                     VerifyDate = s.VerifyDate,
                     SendToCashierDivisionDate = s.SendToCashierDivisionDate,
-                    SendToFinanceDivisionDate = s.SendToFinanceDivisionDate,
+                    SendToAccountingDivisionDate = s.SendToAccountingDivisionDate,
                     SendToPurchasingDivisionDate = s.SendToPurchasingDivisionDate,
                     CashierDivisionDate = s.CashierDivisionDate,
+                    BankExpenditureNoteDate = s.BankExpenditureNoteDate,
+                    BankExpenditureNoteNo = s.BankExpenditureNoteNo,
+                    BankExpenditureNotePPHDate = s.BankExpenditureNotePPHDate,
+                    BankExpenditureNotePPHNo = s.BankExpenditureNotePPHNo,
                     Position = s.Position,
                 })
                 .Where(p => unitPaymentOrders.Contains(p.UnitPaymentOrderNo));
@@ -44,10 +48,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     VerificationDivisionDate = d.VerificationDivisionDate,
                     VerifyDate = d.VerifyDate,
                     SendDate = (d.Position == ExpeditionPosition.CASHIER_DIVISION || d.Position == ExpeditionPosition.SEND_TO_CASHIER_DIVISION) ? d.SendToCashierDivisionDate :
-                    (d.Position == ExpeditionPosition.FINANCE_DIVISION || d.Position == ExpeditionPosition.SEND_TO_FINANCE_DIVISION) ? d.SendToFinanceDivisionDate :
+                    (d.Position == ExpeditionPosition.FINANCE_DIVISION || d.Position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION) ? d.SendToAccountingDivisionDate:
                     (d.Position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION) ? d.SendToPurchasingDivisionDate : null,
                     CashierDivisionDate = d.CashierDivisionDate,
-                    UnitPaymentOrderNo = d.UnitPaymentOrderNo
+                    UnitPaymentOrderNo = d.UnitPaymentOrderNo,
+                    BankExpenditureNoteDate = d.BankExpenditureNoteDate,
+                    BankExpenditureNoteNo = d.BankExpenditureNoteNo,
+                    BankExpenditureNotePPHDate = d.BankExpenditureNotePPHDate,
+                    BankExpenditureNotePPHNo = d.BankExpenditureNotePPHNo
                 };
 
                 list.Add(item);

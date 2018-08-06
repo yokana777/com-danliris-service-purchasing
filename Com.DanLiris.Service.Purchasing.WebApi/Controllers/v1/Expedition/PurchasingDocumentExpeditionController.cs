@@ -84,13 +84,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             }
 
             var model =  await purchasingDocumentExpeditionFacade.ReadModelById(Id);
-
+            
             if (model == null)
             {
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.NOT_FOUND_STATUS_CODE, General.NOT_FOUND_MESSAGE)
                     .Fail();
                 return NotFound(Result);
+            }
+
+            foreach(PurchasingDocumentExpeditionItem item in model.Items)
+            {
+                item.PurchasingDocumentExpedition = null;
             }
 
             try
@@ -111,6 +116,5 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
     }
 }

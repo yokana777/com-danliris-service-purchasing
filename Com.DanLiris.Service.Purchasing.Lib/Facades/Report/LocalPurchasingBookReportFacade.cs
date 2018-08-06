@@ -77,31 +77,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "TGL", DataType = typeof(String) });
-            //result.Merge
             result.Columns.Add(new DataColumn() { ColumnName = "NOMOR NOTA", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NO FAKTUR PAJAK", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TIPE", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "UNIT", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PEMBELIAN", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "TOTAL", DataType = typeof(double) });
 
-            result.Rows.Add("", "", "", "", "", "", "DPP", "PPN", 0);
-
-            ExcelPackage package = new ExcelPackage();
-            foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Report") })
-            {
-                var sheet = package.Workbook.Worksheets.Add(item.Value);
-                sheet.Cells["A1:A2"].Merge = true;
-                sheet.Cells["B1:B2"].Merge = true;
-                sheet.Cells["C1:C2"].Merge = true;
-                sheet.Cells["D1:D2"].Merge = true;
-                sheet.Cells["E1:E2"].Merge = true;
-                sheet.Cells["F1:F2"].Merge = true;
-                sheet.Cells["G1:H1"].Merge = true;
-                sheet.Cells["I1:I2"].Merge = true;
-            }
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
@@ -112,7 +96,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             else
             {
                 Dictionary<string, List<UnitReceiptNoteViewModel>> dataByCategory = new Dictionary<string, List<UnitReceiptNoteViewModel>>();
+                Dictionary<string, double> subTotalDPPCategory = new Dictionary<string, double>();
+                Dictionary<string, double> subTotalPPNCategory = new Dictionary<string, double>();
                 Dictionary<string, double> subTotalCategory = new Dictionary<string, double>();
+                Dictionary<string, double> checkIncomeTax = new Dictionary<string, double>();
 
                 foreach (UnitReceiptNoteViewModel data in Data.Item1)
                 {
@@ -130,13 +117,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             items = new List<UnitReceiptNoteItemViewModel>() { item }
                         });
 
-                        if (!subTotalCategory.ContainsKey(categoryCode)) subTotalCategory.Add(categoryCode, 0);
-                        subTotalCategory[categoryCode] += item.deliveredQuantity;
+                        if (!subTotalCategory.ContainsKey(categoryCode))
+                        {
+                            subTotalCategory.Add(categoryCode, 0);
+                            subTotalDPPCategory.Add(categoryCode, 0);
+                            subTotalPPNCategory.Add(categoryCode, 0);
+                        }
+                        
+                        if (item.purchaseOrder.useIncomeTax == true)
+                        {
+                            checkIncomeTax[categoryCode] = 1;
+                            subTotalCategory[categoryCode] += (item.pricePerDealUnit * item.deliveredQuantity) + (item.pricePerDealUnit * item.deliveredQuantity * 10 / 100);
+                        }
+                        else
+                        {
+                            checkIncomeTax[categoryCode] = 0;
+                            subTotalCategory[categoryCode] += (item.pricePerDealUnit * item.deliveredQuantity);
+                        }
+                        subTotalDPPCategory[categoryCode] += item.pricePerDealUnit * item.deliveredQuantity;
+                        subTotalPPNCategory[categoryCode] += item.pricePerDealUnit * item.deliveredQuantity * 10/100 * checkIncomeTax[categoryCode];
+                        
                     }
                 }
 
+                double totalPPN = 0;
+                double totalDPP = 0;
                 double total = 0;
                 int rowPosition = 1;
+                          
 
                 foreach (KeyValuePair<string, List<UnitReceiptNoteViewModel>> categoryCode in dataByCategory)
                 {
@@ -144,24 +152,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     foreach (UnitReceiptNoteViewModel data in categoryCode.Value)
                     {
                         UnitReceiptNoteItemViewModel item = data.items[0];
-                        result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.code, data.unit.name,  item.pricePerDealUnit * item.deliveredQuantity, (item.pricePerDealUnit * item.deliveredQuantity)*0.1, (item.pricePerDealUnit * item.deliveredQuantity)+((item.pricePerDealUnit * item.deliveredQuantity)*0.1));
+                        if (item.purchaseOrder.useIncomeTax == true)
+                        {
+                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.name, data.unit.name, (item.pricePerDealUnit * item.deliveredQuantity), (item.pricePerDealUnit * item.deliveredQuantity * 0.1), ((item.pricePerDealUnit * item.deliveredQuantity) + ((item.pricePerDealUnit * item.deliveredQuantity) * 0.1)));
+                        }
+                        else
+                        {
+                            result.Rows.Add(data.date.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.no, item.product.name, data.incomeTaxNo, item.purchaseOrder.category.name, data.unit.name, (item.pricePerDealUnit * item.deliveredQuantity), 0,(item.pricePerDealUnit * item.deliveredQuantity));
+                        }                        
                         rowPosition += 1;
-                        catCode = item.purchaseOrder.category.code;
+                        catCode = item.purchaseOrder.category.name;
                     }
-                    result.Rows.Add("", "", "", "SUB TOTAL", catCode, "", subTotalCategory[categoryCode.Key], subTotalCategory[categoryCode.Key]*0.1, subTotalCategory[categoryCode.Key]+(subTotalCategory[categoryCode.Key]*0.1));
+                    if (subTotalPPNCategory[categoryCode.Key] == 0)
+                    {
+                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "",  subTotalDPPCategory[categoryCode.Key], 0,  subTotalCategory[categoryCode.Key]);
+                    } else
+                    {
+                        result.Rows.Add("SUB TOTAL", "", "", "", catCode, "", subTotalDPPCategory[categoryCode.Key], subTotalPPNCategory[categoryCode.Key], subTotalCategory[categoryCode.Key]);
+                    }
                     rowPosition += 1;
+                    
+                    mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
 
-                    mergeCells.Add(($"A{rowPosition}:H{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
-
+                    totalDPP += subTotalDPPCategory[categoryCode.Key];
+                    totalPPN += subTotalPPNCategory[categoryCode.Key];
                     total += subTotalCategory[categoryCode.Key];
                 }
-                result.Rows.Add("", "", "", "TOTAL", "", "", total, total*0.1, total+(total*0.1));
+                if (totalPPN == 0)
+                {
+                    result.Rows.Add("TOTAL", "", "", "", "", "",  totalDPP, 0, total);
+                }
+                else
+                {
+                    result.Rows.Add("TOTAL", "", "", "", "", "",totalDPP, totalPPN, total);
+                }
                 rowPosition += 1;
-
-                mergeCells.Add(($"A{rowPosition}:H{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
+                mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
-
-
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
 

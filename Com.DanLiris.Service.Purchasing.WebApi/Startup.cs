@@ -2,8 +2,13 @@
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
@@ -11,6 +16,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,24 +52,39 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         private void RegisterEndpoints()
         {
             APIEndpoint.Purchasing = Configuration.GetValue<string>(Constant.PURCHASING_ENDPOINT) ?? Configuration[Constant.PURCHASING_ENDPOINT];
+            APIEndpoint.Core = Configuration.GetValue<string>(Constant.CORE_ENDPOINT) ?? Configuration[Constant.CORE_ENDPOINT];
+            APIEndpoint.Inventory = Configuration.GetValue<string>(Constant.INVENTORY_ENDPOINT) ?? Configuration[Constant.INVENTORY_ENDPOINT];
         }
 
         private void RegisterFacades(IServiceCollection services)
         {
             services
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
+                .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
+                .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
+                .AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
+                .AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
+                .AddTransient<DeliveryOrderFacade>()
                 .AddTransient<ImportPurchasingBookReportFacade>()
-                .AddTransient<LocalPurchasingBookReportFacade>();
+                .AddTransient<LocalPurchasingBookReportFacade>()
+                .AddTransient<InternalPurchaseOrderFacade>()
+                .AddTransient<ExternalPurchaseOrderFacade>()
+                .AddTransient<UnitReceiptNoteFacade>()
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+                .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
+                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
         {
             services
                 .AddScoped<IdentityService>()
-                .AddScoped<ValidateService>();
+                .AddScoped<ValidateService>()
+                .AddScoped<IValidateService, ValidateService>();
 
             if (isTest == false)
             {
@@ -87,6 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             ClassMap<UomViewModel>.Register();
             ClassMap<PurchaseOrderViewModel>.Register();
             ClassMap<SupplierViewModel>.Register();
+            ClassMap<UnitPaymentCorrectionNoteViewModel>.Register();
         }
 
         #endregion Register

@@ -45,8 +45,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                         SupplierName = "Supplier",
                         DueDate = DateTimeOffset.UtcNow,
                         InvoiceNo = "Invoice",
+                        IncomeTax = 1,
+                        IncomeTaxId = "IncomeTaxId",
+                        IncomeTaxName = "PPH",
+                        IncomeTaxRate = 1,
+                        Vat = 500,
                         TotalPaid = 1000000,
                         UPODate = DateTimeOffset.UtcNow,
+                        Items = new List<UnitPaymentOrderItemViewModel>()
+                        {
+                            new UnitPaymentOrderItemViewModel()
+                            {
+                                ProductId = "ProductId",
+                                ProductCode = "ProductCode",
+                                ProductName = "ProductName",
+                                Price = 5000,
+                                Quantity = 5,
+                                UnitId = "UnitId",
+                                UnitCode = "UnitCode",
+                                UnitName = "UnitName",
+                                Uom = "MTR"
+                            }
+                        }
                     }
                 }
             };
