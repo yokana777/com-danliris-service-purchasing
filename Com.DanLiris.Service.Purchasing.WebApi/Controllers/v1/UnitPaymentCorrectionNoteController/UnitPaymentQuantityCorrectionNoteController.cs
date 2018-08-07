@@ -193,6 +193,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
                     var supplier = _facade.GetSupplier(model.SupplierId);
+                    var supplier_address = "";
+                    if (supplier != null)
+                        supplier_address = supplier.address;
+                        
+                    
                     var temp_date = new DateTimeOffset();
                     foreach (var item in model.Items)
                     {
@@ -201,7 +206,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                         temp_date = viewModelUrn.date;
                     }
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, temp_date, supplier, identityService.Username, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, temp_date, supplier_address, identityService.Username, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {

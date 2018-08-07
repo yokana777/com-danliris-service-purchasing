@@ -16,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class UnitPaymentQuantityCorrectionNotePDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(UnitPaymentCorrectionNoteViewModel viewModel, UnitPaymentOrderViewModel viewModelSpb, DateTimeOffset receiptDate, SupplierViewModel supplier, string username, int clientTimeZoneOffset = 7)
+        public MemoryStream GeneratePdfTemplate(UnitPaymentCorrectionNoteViewModel viewModel, UnitPaymentOrderViewModel viewModelSpb, DateTimeOffset receiptDate, string supplier_address, string username, int clientTimeZoneOffset = 7)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
             Font small_normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellHeaderContentCenter.Phrase = new Phrase("");
                 tableHeader.AddCell(cellHeaderContentCenter);
-                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" + "\n" + $"({viewModel.supplier.code}) {viewModel.supplier.name}" + "\n" + $"{supplier.address}", normal_font);
+                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" + "\n" + $"({viewModel.supplier.code}) {viewModel.supplier.name}" + "\n" + $"{supplier_address}", normal_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
 
