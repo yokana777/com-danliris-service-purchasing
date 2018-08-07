@@ -116,6 +116,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
+        public async void Should_Error_Get_Null_Data_UnitReceiptNote()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadByURNNo((string)model.UPCNo);
+            Assert.Null(Response);
+        }
+
+        [Fact]
         public async void Should_Success_Create_Data()
         {
             var serviceProvider = new Mock<IServiceProvider>();

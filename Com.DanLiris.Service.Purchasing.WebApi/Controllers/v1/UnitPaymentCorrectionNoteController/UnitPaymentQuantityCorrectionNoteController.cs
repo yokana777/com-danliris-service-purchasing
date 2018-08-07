@@ -197,13 +197,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     if (supplier != null)
                         supplier_address = supplier.address;
                         
-                    
                     var temp_date = new DateTimeOffset();
-                    foreach (var item in model.Items)
+                    foreach (var item in viewModel.items)
                     {
-                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.ReadByURNNo(item.URNNo);
+                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.ReadByURNNo(item.uRNNo);
                         UnitReceiptNoteViewModel viewModelUrn = _mapper.Map<UnitReceiptNoteViewModel>(urnModel);
-                        temp_date = viewModelUrn.date;
+                        if (viewModelUrn != null)
+                            temp_date = viewModelUrn.date;
                     }
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
                     MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, temp_date, supplier_address, identityService.Username, clientTimeZoneOffset);
