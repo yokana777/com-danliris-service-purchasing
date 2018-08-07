@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -70,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
             List<string> searchAttributes = new List<string>()
             {
-                "UPCNo", "UPONo", "SupplierName"
+                "UPCNo", "UPONo", "SupplierName","InvoiceCorrectionNo"
             };
 
             Query = QueryHelper<UnitPaymentCorrectionNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -150,7 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.Id == item.UPODetailId);
                         upoDetail.PricePerDealUnitCorrection = item.PricePerDealUnitAfter;
-                        upoDetail.PriceTotalCorrection = item.PricePerDealUnitAfter;
+                        upoDetail.PriceTotalCorrection = item.PriceTotalAfter;
                         EntityExtension.FlagForCreate(item, username, USER_AGENT);
                     }
 
@@ -188,6 +189,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 int lastNoNumber = Int32.Parse(lastNo.ReturNoteNo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
+        }
+
+        public SupplierViewModel GetSupplier(string supplierId)
+        {
+            string supplierUri = "master/suppliers";
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            if (httpClient != null)
+            {
+                var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                return viewModel;
+            }
+            else
+            {
+                SupplierViewModel viewModel = null;
+                return viewModel;
+            }
+
         }
     }
 }

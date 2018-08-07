@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -30,13 +33,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
         private readonly IUnitPaymentPriceCorrectionNoteFacade _facade;
         private readonly IUnitPaymentOrderFacade _spbFacade;
         private readonly IdentityService identityService;
-        public UnitPaymentPriceCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentPriceCorrectionNoteFacade facade, IUnitPaymentOrderFacade spbFacade)
+        private readonly UnitReceiptNoteFacade _urnFacade;
+        public UnitPaymentPriceCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentPriceCorrectionNoteFacade facade, IUnitPaymentOrderFacade spbFacade, UnitReceiptNoteFacade urnFacade)
         {
             this.serviceProvider = serviceProvider;
             _mapper = mapper;
             _facade = facade;
             _spbFacade = spbFacade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            _urnFacade = urnFacade;
         }
 
         [HttpGet]
@@ -178,11 +183,21 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 }
                 else
                 {
+                    SupplierViewModel supplier = _facade.GetSupplier(viewModel.supplier._id);
+                    viewModel.supplier = supplier;
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                     UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
+                    DateTimeOffset? receiptDate = null;
+                    foreach (var item in spbModel.Items)
+                    {
+                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _urnFacade.ReadById((int)item.URNId);
+                        if(receiptDate==null || urnModel.ReceiptDate> receiptDate)
+                            receiptDate = urnModel.ReceiptDate;
+                    }
+
                     UnitPaymentPriceCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentPriceCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset, receiptDate);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
