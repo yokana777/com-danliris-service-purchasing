@@ -692,7 +692,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 						 join c in dbContext.InternalPurchaseOrders on a.No equals c.PRNo
 						 join d in dbContext.InternalPurchaseOrderItems on c.Id equals d.POId 
 						 //Conditions
-						 where a.IsDeleted == false  && b.Id == d.PRItemId && b.IsDeleted== false && c.IsDeleted==false && d.IsDeleted == false
+						 where d.Quantity>0 && a.IsDeleted == false  && b.Id == d.PRItemId && b.IsDeleted== false && c.IsDeleted==false && d.IsDeleted == false
 						 &&  a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
 						  && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
 						  && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
