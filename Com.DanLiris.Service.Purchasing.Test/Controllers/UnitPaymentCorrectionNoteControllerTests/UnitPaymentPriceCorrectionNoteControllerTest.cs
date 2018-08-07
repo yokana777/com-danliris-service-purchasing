@@ -111,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         rate="1"
                     },
                     items = new List<UnitPaymentOrderItemViewModel>()
+                    
                 };
             }
         }
@@ -160,7 +161,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
                     DueDate = new DateTimeOffset(), // ???
 
-                    Items = new List<UnitPaymentCorrectionNoteItem> { }
+                    Items = new List<UnitPaymentCorrectionNoteItem> {
+                    new UnitPaymentCorrectionNoteItem()
+                        {
+                            ProductCode="code",
+                            PricePerDealUnitAfter=10000
+                        }
+                    }
                 };
             }
         }
