@@ -104,6 +104,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         name = "incomeTaxName",
                         rate = "2"
                     },
+                    currency = new CurrencyViewModel
+                    {
+                        code="cr1",
+                        description="currency",
+                        rate="1"
+                    },
                     items = new List<UnitPaymentOrderItemViewModel>()
                 };
             }
@@ -501,8 +507,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             ViewModel.correctionType = "Harga Total";
             var mockMapperSpb = new Mock<IMapper>();
+            ViewModelSpb.currency = new CurrencyViewModel() { code = "currency", description = "currency", rate = "1" };
             mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
                 .Returns(ViewModelSpb);
+            
+            
             //var mockMapper = new Mock<IMapper>();
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]

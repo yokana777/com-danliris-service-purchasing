@@ -183,7 +183,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 else
                 {
                     SupplierViewModel supplier = _facade.GetSupplier(viewModel.supplier._id);
-                    viewModel.supplier = supplier;
+
+                    viewModel.supplier.address = supplier == null ? "" : supplier.address;
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                     UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
@@ -195,7 +196,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                         if (receiptDate==null || urnModel.ReceiptDate> receiptDate)
                             receiptDate = urnModel.ReceiptDate;
                     }
-
+                    var today = new DateTime(1970, 1, 1);
+                    if(receiptDate == null)
+                    {
+                        receiptDate = today;
+                    }
                     UnitPaymentPriceCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentPriceCorrectionNotePDFTemplate();
                     MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset, receiptDate);
 
