@@ -37,10 +37,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteMo
         public DateTimeOffset InvoiceCorrectionDate { get; set; }
         public bool useVat { get; set; }
         public string VatTaxCorrectionNo { get; set; }
-        public DateTimeOffset VatTaxCorrectionDate { get; set; }
+        public DateTimeOffset? VatTaxCorrectionDate { get; set; }
         public bool useIncomeTax { get; set; }
         public string IncomeTaxCorrectionNo { get; set; }
-        public DateTimeOffset IncomeTaxCorrectionDate { get; set; }
+        public DateTimeOffset? IncomeTaxCorrectionDate { get; set; }
         public string ReleaseOrderNoteNo { get; set; }
         public DateTimeOffset DueDate { get; set; }
         public string Remark { get; set; }
