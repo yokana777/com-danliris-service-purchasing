@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
@@ -33,15 +34,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
         private readonly IUnitPaymentPriceCorrectionNoteFacade _facade;
         private readonly IUnitPaymentOrderFacade _spbFacade;
         private readonly IdentityService identityService;
-        private readonly UnitReceiptNoteFacade _urnFacade;
-        public UnitPaymentPriceCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentPriceCorrectionNoteFacade facade, IUnitPaymentOrderFacade spbFacade, UnitReceiptNoteFacade urnFacade)
+        public UnitPaymentPriceCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentPriceCorrectionNoteFacade facade, IUnitPaymentOrderFacade spbFacade)
         {
             this.serviceProvider = serviceProvider;
             _mapper = mapper;
             _facade = facade;
             _spbFacade = spbFacade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
-            _urnFacade = urnFacade;
         }
 
         [HttpGet]
@@ -191,8 +190,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     DateTimeOffset? receiptDate = null;
                     foreach (var item in spbModel.Items)
                     {
-                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _urnFacade.ReadById((int)item.URNId);
-                        if(receiptDate==null || urnModel.ReceiptDate> receiptDate)
+                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.GetUrn((int)item.URNId);
+
+                        if (receiptDate==null || urnModel.ReceiptDate> receiptDate)
                             receiptDate = urnModel.ReceiptDate;
                     }
 
