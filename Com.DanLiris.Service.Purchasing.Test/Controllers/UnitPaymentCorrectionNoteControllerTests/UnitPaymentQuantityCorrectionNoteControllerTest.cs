@@ -98,6 +98,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         name = "incomeTaxName",
                         rate = "2"
                     },
+                    currency = new CurrencyViewModel
+                    {
+                        _id = "1",
+                        code = "currencyCode",
+                        description = "currencyDescription"
+                    },
                     items = new List<UnitPaymentOrderItemViewModel>()
                 };
             }
