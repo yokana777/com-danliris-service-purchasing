@@ -219,7 +219,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
                     DueDate = new DateTimeOffset(), // ???
 
-                    Items = new List<UnitPaymentOrderItem> { }
+                    Items = new List<UnitPaymentOrderItem> {
+                    new UnitPaymentOrderItem()
+                        {
+                            URNNo="code",
+                            DONo="do"
+                        }
+                    }
                 };
             }
         }
