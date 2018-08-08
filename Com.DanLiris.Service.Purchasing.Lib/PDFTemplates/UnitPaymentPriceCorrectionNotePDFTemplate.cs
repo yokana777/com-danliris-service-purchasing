@@ -82,10 +82,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellHeaderContentCenter.Phrase = new Phrase("");
                 tableHeader.AddCell(cellHeaderContentCenter);
 
-                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" + "\n" + viewModel.supplier.code+" - " + viewModel.supplier.name + "\n" + viewModel.supplier.address, normal_font);
+                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" , normal_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
+                cellHeaderContentLeft.Phrase = new Phrase("");
+                tableHeader.AddCell(cellHeaderContentLeft);
 
+                cellHeaderContentCenter.Phrase = new Phrase("");
+                tableHeader.AddCell(cellHeaderContentCenter);
+
+                cellHeaderContentLeft.Phrase = new Phrase("(" + viewModel.supplier.code + ") " + viewModel.supplier.name + "\n" + viewModel.supplier.address, normal_font);
+                tableHeader.AddCell(cellHeaderContentLeft);
 
                 PdfPCell cellHeader = new PdfPCell(tableHeader);
                 tableHeader.ExtendLastRow = false;
@@ -217,6 +224,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 totalPPh = (pph * total) / 100;
                 totalDibayar = total - totalPPh;
 
+
                 PdfPCell cellContent = new PdfPCell(tableContent);
                 tableContent.ExtendLastRow = false;
                 tableContent.SpacingAfter = 5f;
@@ -249,6 +257,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 if (viewModel.useIncomeTax == false)
                 {
+                    totalPPh = 0;
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -301,7 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                    cellIdentityTotalContentRight.Phrase = new Phrase(totalDibayar.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                    cellIdentityTotalContentRight.Phrase = new Phrase((total + totalPPn- totalPPh).ToString("N", CultureInfo.InvariantCulture), normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentRight);
                 }
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -313,10 +322,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellIdentityTotalContentRight.Phrase = new Phrase((total+ totalPPn).ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
-                cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(totalDibayar)} {currencyDesc.ToLower()}", terbilang_bold_font);
+                cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn - totalPPh)} {currencyDesc.ToLower()}", terbilang_bold_font);
 
                 if (viewModel.useIncomeTax == false)
-                    cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total)} {currencyDesc.ToLower()}", terbilang_bold_font);
+                    cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn)} {currencyDesc.ToLower()}", terbilang_bold_font);
 
                 cellIdentityTotalContentLeft.Colspan = 3;
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
@@ -358,26 +367,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {(viewModel.dueDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")))}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentRight.Phrase = new Phrase(" ", normal_font);
-                tableKeterangan.AddCell(cellIdentityKeteranganContentRight);
-                cellIdentityKeteranganContentRight.Phrase = new Phrase(" ", normal_font);
-                tableKeterangan.AddCell(cellIdentityKeteranganContentRight);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Barang Datang ", normal_font);
+                tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
+                DateTimeOffset date = receiptDate != null ? (DateTimeOffset)receiptDate : new DateTime();
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {(date.ToString("dd MMMM yyyy", new CultureInfo("id-ID")))} ", normal_font);
+                tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Nota ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.uPONo}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Barang Datang ", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Nomor Nota Retur ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                DateTimeOffset date= receiptDate != null ? (DateTimeOffset)receiptDate: new DateTime();
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {(date.ToString("dd MMMM yyyy", new CultureInfo("id-ID")))} ", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.returNoteNo}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Keterangan ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.remark}", small_bold_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Nomor Nota Retur ", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase(" ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.returNoteNo}", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase(" ", small_bold_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);

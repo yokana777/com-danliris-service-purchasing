@@ -565,6 +565,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
                              && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
                              && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                             orderby b.PRNo,b.ProductCode, a.ReceiptDate descending 
                          select new UnitReceiptNoteReportViewModel
                          {
                              urnNo = a.URNNo,
@@ -579,10 +580,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              receiptQuantity=b.ReceiptQuantity,
                              DealUom = k.DealUomUnit,
                              dealQuantity = k.DealQuantity,
-                             quantity= k.DealQuantity- b.ReceiptQuantity,
+                             quantity= k.DealQuantity,
                              LastModifiedUtc = b.LastModifiedUtc
                          });
-            return Query;
+            Dictionary<string, double> q = new Dictionary<string, double>();
+            List<UnitReceiptNoteReportViewModel> urn = new List<UnitReceiptNoteReportViewModel>();
+            foreach (UnitReceiptNoteReportViewModel data in Query.ToList())
+            {
+                double value;
+                if(q.TryGetValue(data.productCode + data.prNo, out value))
+                {
+                    q[data.productCode + data.prNo] -= data.receiptQuantity;
+                    data.quantity = q[data.productCode + data.prNo];
+                    urn.Add(data);
+                }
+                else
+                {
+                    q[data.productCode + data.prNo] = data.quantity- data.receiptQuantity;
+                    data.quantity = q[data.productCode + data.prNo];
+                    urn.Add(data);
+                }
+                    
+                    
+                    
+                
+            }
+            return Query=urn.AsQueryable();
         }
 
         public Tuple<List<UnitReceiptNoteReportViewModel>, int> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
