@@ -542,14 +542,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public UnitReceiptNote ReadByURNNo(string uRRNo)
-        {
-            var a = this.dbSet.Where(p => p.URNNo == uRRNo)
-                .Include(p => p.Items)
-                .FirstOrDefault();
-            return a;
-        }
-
             public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
