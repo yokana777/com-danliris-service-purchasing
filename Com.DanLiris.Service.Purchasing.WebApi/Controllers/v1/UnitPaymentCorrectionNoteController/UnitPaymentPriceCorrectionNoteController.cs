@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -178,11 +182,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                 }
                 else
                 {
+                    SupplierViewModel supplier = _facade.GetSupplier(viewModel.supplier._id);
+
+                    viewModel.supplier.address = supplier == null ? "" : supplier.address;
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                     UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
+                    DateTimeOffset? receiptDate = null;
+                    var today = new DateTime(1970, 1, 1);
+                    foreach (var item in spbModel.Items)
+                    {
+                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.GetUrn((int)item.URNId);
+
+                        if (receiptDate==null || urnModel.ReceiptDate> receiptDate)
+                            receiptDate =urnModel==null ?today:  urnModel.ReceiptDate;
+                    }
                     UnitPaymentPriceCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentPriceCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset, receiptDate);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
