@@ -104,7 +104,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         name = "incomeTaxName",
                         rate = "2"
                     },
+                    currency = new CurrencyViewModel
+                    {
+                        code="cr1",
+                        description="currency",
+                        rate="1"
+                    },
                     items = new List<UnitPaymentOrderItemViewModel>()
+                    
                 };
             }
         }
@@ -154,7 +161,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
                     DueDate = new DateTimeOffset(), // ???
 
-                    Items = new List<UnitPaymentCorrectionNoteItem> { }
+                    Items = new List<UnitPaymentCorrectionNoteItem> {
+                    
+                    }
                 };
             }
         }
@@ -206,7 +215,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
                     DueDate = new DateTimeOffset(), // ???
 
-                    Items = new List<UnitPaymentOrderItem> { }
+                    Items = new List<UnitPaymentOrderItem> {
+                    new UnitPaymentOrderItem()
+                        {
+                            URNNo="code",
+                            DONo="do",
+                        }
+                    }
                 };
             }
         }
@@ -501,8 +516,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             ViewModel.correctionType = "Harga Total";
             var mockMapperSpb = new Mock<IMapper>();
+            ViewModelSpb.currency = new CurrencyViewModel() { code = "currency", description = "currency", rate = "1" };
             mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
                 .Returns(ViewModelSpb);
+            
+            
             //var mockMapper = new Mock<IMapper>();
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]

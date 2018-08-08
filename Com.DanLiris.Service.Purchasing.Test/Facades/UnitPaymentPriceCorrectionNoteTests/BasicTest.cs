@@ -149,5 +149,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             Assert.NotEqual(ResponseLocalSupplier, 0);
         }
+
+        [Fact]
+        public async void Should_Error_Get_Data_Supplier()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            var Response = facade.GetSupplier(modelLocalSupplier.SupplierId);
+            Assert.Null(Response);
+        }
+
+        [Fact]
+        public async void Should_Error_Get_Data_URN()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            var id = 0;
+            
+            var Response = facade.GetUrn(id);
+            Assert.Null(Response);
+        }
     }
 }
