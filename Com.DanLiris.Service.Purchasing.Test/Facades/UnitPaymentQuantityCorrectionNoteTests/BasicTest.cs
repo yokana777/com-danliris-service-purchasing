@@ -234,6 +234,52 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
 
-        
+        [Fact]
+        public void Should_Success_Validate_Data_2()
+        {
+            UnitPaymentCorrectionNoteViewModel nullViewModel = new UnitPaymentCorrectionNoteViewModel();
+            nullViewModel.items = new List<UnitPaymentCorrectionNoteItemViewModel> { };
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            UnitPaymentCorrectionNoteViewModel viewModel = new UnitPaymentCorrectionNoteViewModel()
+            {
+                correctionType = "Jumlah",
+                useIncomeTax = true,
+                useVat = true,
+                items = new List<UnitPaymentCorrectionNoteItemViewModel>
+                {
+                    new UnitPaymentCorrectionNoteItemViewModel()
+                    {
+                        quantity = 1,
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_3()
+        {
+            UnitPaymentCorrectionNoteViewModel nullViewModel = new UnitPaymentCorrectionNoteViewModel();
+            nullViewModel.items = new List<UnitPaymentCorrectionNoteItemViewModel> { };
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            UnitPaymentCorrectionNoteViewModel viewModel = new UnitPaymentCorrectionNoteViewModel()
+            {
+                correctionType = "Jumlah",
+                useIncomeTax = true,
+                useVat = true,
+                items = new List<UnitPaymentCorrectionNoteItemViewModel>
+                {
+                    new UnitPaymentCorrectionNoteItemViewModel()
+                    {
+                        quantity = -1,
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+
     }
 }
