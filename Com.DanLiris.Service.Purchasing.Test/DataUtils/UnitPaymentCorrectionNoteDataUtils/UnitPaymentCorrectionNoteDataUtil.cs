@@ -117,7 +117,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
                 StorageCode = "StorageCode",
                 StorageName = "StorageName",
                 Remark = "Remark",
-                Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { GetNewDataUrnItem() }
             };
             return unitReceiptNote;
         }

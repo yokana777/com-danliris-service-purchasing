@@ -122,42 +122,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     EntityExtension.FlagForCreate(m, user, "Facade");
 
                     m.URNNo = await GenerateNo(m);
-
-                    foreach (var item in m.Items)
+                    if (m.Items != null)
                     {
-
-                        EntityExtension.FlagForCreate(item, user, "Facade");
-                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
-                        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
-                        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
-                        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
-                        UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
-                        item.PRItemId = doDetail.PRItemId;
-                        item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
-                        doDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        if(upoDetail == null)
+                        foreach (var item in m.Items)
                         {
-                            if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+
+                            EntityExtension.FlagForCreate(item, user, "Facade");
+                            ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
+                            PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
+                            InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
+                            DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
+                            UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
+                            item.PRItemId = doDetail.PRItemId;
+                            item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
+                            doDetail.ReceiptQuantity += item.ReceiptQuantity;
+                            externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
+                            if (upoDetail == null)
                             {
-                                if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                                {
+                                    if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
+                                        poItem.Status = "Barang sudah diterima Unit parsial";
+                                    }
+                                    else
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
+                                        poItem.Status = "Barang sudah diterima Unit semua";
+                                    }
+                                }
+                                else
                                 {
                                     //prItem.Status = "Barang sudah diterima Unit parsial";
                                     poItem.Status = "Barang sudah diterima Unit parsial";
                                 }
-                                else
-                                {
-                                    //prItem.Status = "Barang sudah diterima Unit semua";
-                                    poItem.Status = "Barang sudah diterima Unit semua";
-                                }
                             }
-                            else
-                            {
-                                //prItem.Status = "Barang sudah diterima Unit parsial";
-                                poItem.Status = "Barang sudah diterima Unit parsial";
-                            }
+
                         }
-                        
                     }
                     if (m.IsStorage == true)
                     {
