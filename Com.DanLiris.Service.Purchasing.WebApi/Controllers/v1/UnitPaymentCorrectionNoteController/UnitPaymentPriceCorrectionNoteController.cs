@@ -197,10 +197,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                         if (receiptDate==null || urnModel.ReceiptDate> receiptDate)
                             receiptDate =urnModel==null ?today:  urnModel.ReceiptDate;
                     }
-                    if(receiptDate == null)
-                    {
-                        receiptDate = today;
-                    }
                     UnitPaymentPriceCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentPriceCorrectionNotePDFTemplate();
                     MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset, receiptDate);
 
