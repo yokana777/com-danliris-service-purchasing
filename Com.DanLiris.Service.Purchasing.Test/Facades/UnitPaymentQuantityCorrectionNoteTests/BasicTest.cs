@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(_dbContext(testName));
             UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
 
-            return new UnitPaymentCorrectionNoteDataUtil(unitPaymentOrderDataUtil, facade);
+            return new UnitPaymentCorrectionNoteDataUtil(unitPaymentOrderDataUtil, facade, unitReceiptNoteFacade);
         }
 
         [Fact]
@@ -123,6 +123,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadByURNNo((string)model.UPCNo);
             Assert.Null(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Null_Data_UnitReceiptNote()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestDataUrn();
+            var Response = facade.ReadByURNNo((string)model.URNNo);
+            Assert.NotNull(Response);
         }
 
         [Fact]
