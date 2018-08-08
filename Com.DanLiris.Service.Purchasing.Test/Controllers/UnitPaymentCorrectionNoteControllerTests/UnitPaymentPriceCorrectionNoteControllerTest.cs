@@ -162,11 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     DueDate = new DateTimeOffset(), // ???
 
                     Items = new List<UnitPaymentCorrectionNoteItem> {
-                    new UnitPaymentCorrectionNoteItem()
-                        {
-                            ProductCode="code",
-                            PricePerDealUnitAfter=10000
-                        }
+                    
                     }
                 };
             }
@@ -223,7 +219,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     new UnitPaymentOrderItem()
                         {
                             URNNo="code",
-                            DONo="do"
+                            DONo="do",
                         }
                     }
                 };
