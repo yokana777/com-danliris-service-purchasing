@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public DateTimeOffset? vatTaxCorrectionDate { get; set; }
         public bool useIncomeTax { get; set; }
         public string incomeTaxCorrectionNo { get; set; }
-        public DateTimeOffset incomeTaxCorrectionDate { get; set; }
+        public DateTimeOffset? incomeTaxCorrectionDate { get; set; }
         public string releaseOrderNoteNo { get; set; }
         public DateTimeOffset dueDate { get; set; }
         public string remark { get; set; }
@@ -45,7 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
             {
                 yield return new ValidationResult("Date is required", new List<string> { "correctionDate" });
             }
-            if (correctionType==null && this.releaseOrderNoteNo == null)
+            if ((correctionType==null || correctionType=="Jumlah") && this.releaseOrderNoteNo == null)
             {
                 yield return new ValidationResult("No. Bon Keluar is required", new List<string> { "releaseOrderNoteNo" });
             }
@@ -83,6 +83,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
                         {
                             itemErrorCount++;
                             itemError += "priceTotalAfter: 'Price Total should not be less than 0'";
+                        }
+                    }
+                    else
+                    {
+                        if (item.quantity > item.quantityCheck)
+                        {
+                            itemErrorCount++;
+                            itemError += "quantity: 'Quantity should not be more than UnitPaymentOrderQuantity'";
+                        }
+                        if (item.quantity <= 0)
+                        {
+                            itemErrorCount++;
+                            itemError += "quantity: 'quantity should not be less than or equal 0'";
                         }
                     }
                     

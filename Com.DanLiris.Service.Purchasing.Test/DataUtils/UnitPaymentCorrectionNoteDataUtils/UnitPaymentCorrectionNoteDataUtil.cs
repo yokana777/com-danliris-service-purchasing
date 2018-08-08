@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 using System;
@@ -11,11 +12,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
     {
         private UnitPaymentOrderDataUtil unitPaymentOrderDataUtil;
         private readonly UnitPaymentQuantityCorrectionNoteFacade facade;
+        private readonly UnitReceiptNoteFacade UrnFacade;
 
-        public UnitPaymentCorrectionNoteDataUtil(UnitPaymentOrderDataUtil unitPaymentOrderDataUtil, UnitPaymentQuantityCorrectionNoteFacade facade)
+        public UnitPaymentCorrectionNoteDataUtil(UnitPaymentOrderDataUtil unitPaymentOrderDataUtil, UnitPaymentQuantityCorrectionNoteFacade facade, UnitReceiptNoteFacade UrnFacade)
         {
             this.unitPaymentOrderDataUtil = unitPaymentOrderDataUtil;
             this.facade = facade;
+            this.UrnFacade = UrnFacade;
         }
 
         public UnitPaymentCorrectionNote GetNewData()
@@ -59,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
                 UPCNo = "18-06-G-NKI-001",
                 UPOId = unitPaymentOrder.Id,
 
-                UPONo = unitPaymentOrder.UPONo,
+                UPONo = "18-08-BPL-P1A-003",
 
                 CorrectionDate = new DateTimeOffset(),
 
@@ -92,10 +95,63 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
             return unitPaymentCorrectionNote;
         }
 
+        public Lib.Models.UnitReceiptNoteModel.UnitReceiptNote GetNewDataUrn()
+        {
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote
+            {
+                URNNo = "18-08-BPL-P1A-003",
+                DivisionId = "DivisionId",
+                DivisionCode = "DivisionCode",
+                DivisionName = "DivisionName",
+                UnitId = "UnitId",
+                UnitCode = "UnitCode",
+                UnitName = "UnitName",
+                SupplierId = "SupplierId",
+                SupplierCode = "SupplierCode",
+                SupplierName = "SupplierName",
+                DOId = 1,
+                DONo = "SJTURI-2",
+                ReceiptDate = new DateTimeOffset(),
+                IsStorage = false,
+                StorageId = "SotrageId",
+                StorageCode = "StorageCode",
+                StorageName = "StorageName",
+                Remark = "Remark",
+            };
+            return unitReceiptNote;
+        }
+        public Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem GetNewDataUrnItem() => new Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem
+        {
+            EPODetailId = 1,
+            DODetailId = 1,
+            PRNo = "PRNo",
+            PRId = 1,
+            PRItemId = 1,
+            ProductId = "ProductId",
+            ProductCode = "ProductCode",
+            ProductName = "ProductName",
+            ReceiptQuantity = 10,
+            PricePerDealUnit = 10,
+            IsCorrection = true,
+            UomId = "UomId",
+            Uom = "Uom",
+            URNId = 1,
+            ProductRemark = "Remark"
+        };
+
+
+
         public async Task<UnitPaymentCorrectionNote> GetTestData()
         {
             var data = GetNewData();
             await facade.Create(data, "Unit Test", 7);
+            return data;
+        }
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestDataUrn()
+        {
+            var data = GetNewDataUrn();
+            await UrnFacade.Create(data, "Unit Test");
             return data;
         }
     }

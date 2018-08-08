@@ -18,6 +18,9 @@ using System.IO;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorrectionNoteController
 {
@@ -33,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
         private readonly IUnitPaymentQuantityCorrectionNoteFacade _facade;
         private readonly IUnitPaymentOrderFacade _spbFacade;
         private readonly IdentityService identityService;
+        public static readonly DateTimeOffset MinValue;
         public UnitPaymentQuantityCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IUnitPaymentQuantityCorrectionNoteFacade facade, IUnitPaymentOrderFacade spbFacade)
         {
             this.serviceProvider = serviceProvider;
@@ -188,8 +192,21 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                     UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
+                    var supplier = _facade.GetSupplier(model.SupplierId);
+                    var supplier_address = "";
+                    if (supplier != null)
+                        supplier_address = supplier.address;
+                        
+                    var temp_date = new DateTimeOffset();
+                    foreach (var item in viewModel.items)
+                    {
+                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.ReadByURNNo(item.uRNNo);
+                        UnitReceiptNoteViewModel viewModelUrn = _mapper.Map<UnitReceiptNoteViewModel>(urnModel);
+                        if (viewModelUrn != null)
+                            temp_date = viewModelUrn.date;
+                    }
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, temp_date, supplier_address, identityService.Username, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
