@@ -48,6 +48,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
+        public async void Should_Success_Get_Report_Data_Null_Parameter_Using_Two_Test_Data()
+        {
+            DeliveryOrder model_1 = await DataUtil.GetTestData("Unit test");
+            DeliveryOrder model_2 = await DataUtil.GetTestData("Unit test");
+            var Response = Facade.GetReport("", null, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
         public async void Should_Success_Get_Report_Data_Excel()
         {
             DeliveryOrder model = await DataUtil.GetTestData("Unit test");
