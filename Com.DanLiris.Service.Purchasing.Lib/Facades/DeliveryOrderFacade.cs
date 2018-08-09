@@ -511,11 +511,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              productRemark = j.ProductRemark,
                              dealQuantity = l.DealQuantity,
                              dOQuantity = j.DOQuantity,
-                             remainingQuantity = l.DealQuantity - j.DOQuantity,
+                             remainingQuantity = l.DealQuantity,
                              uomUnit = j.UomUnit,
                              LastModifiedUtc = j.LastModifiedUtc
                          });
-            return Query;
+            Dictionary<string, double> q = new Dictionary<string, double>();
+            List<DeliveryOrderReportViewModel> urn = new List<DeliveryOrderReportViewModel>();
+            foreach (DeliveryOrderReportViewModel data in Query.ToList())
+            {
+                double value;
+                if (q.TryGetValue(data.productCode + data.ePONo, out value))
+                {
+                    q[data.productCode + data.ePONo] -= data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo];
+                    urn.Add(data);
+                }
+                else
+                {
+                    q[data.productCode + data.ePONo] = data.remainingQuantity - data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo];
+                    urn.Add(data);
+                }
+            }
+            return Query = urn.AsQueryable();
         }
 
         public Tuple<List<DeliveryOrderReportViewModel>, int> GetReport(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
