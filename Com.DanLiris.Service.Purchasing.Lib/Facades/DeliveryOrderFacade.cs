@@ -509,9 +509,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              productCode = j.ProductCode,
                              productName = j.ProductName,
                              productRemark = j.ProductRemark,
-                             dealQuantity = j.DealQuantity,
+                             dealQuantity = l.DealQuantity,
                              dOQuantity = j.DOQuantity,
-                             remainingQuantity = l.DealQuantity - l.DOQuantity,
+                             remainingQuantity = l.DealQuantity - j.DOQuantity,
                              uomUnit = j.UomUnit,
                              LastModifiedUtc = j.LastModifiedUtc
                          });
@@ -525,7 +525,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.LastModifiedUtc);
             }
 
 
