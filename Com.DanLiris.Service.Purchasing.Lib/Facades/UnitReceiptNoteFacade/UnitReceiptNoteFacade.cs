@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
@@ -122,42 +122,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     EntityExtension.FlagForCreate(m, user, "Facade");
 
                     m.URNNo = await GenerateNo(m);
-
-                    foreach (var item in m.Items)
+                    if (m.Items != null)
                     {
-
-                        EntityExtension.FlagForCreate(item, user, "Facade");
-                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
-                        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
-                        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
-                        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
-                        UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
-                        item.PRItemId = doDetail.PRItemId;
-                        item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
-                        doDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        if(upoDetail == null)
+                        foreach (var item in m.Items)
                         {
-                            if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+
+                            EntityExtension.FlagForCreate(item, user, "Facade");
+                            ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
+                            PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
+                            InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
+                            DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
+                            UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
+                            item.PRItemId = doDetail.PRItemId;
+                            item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
+                            doDetail.ReceiptQuantity += item.ReceiptQuantity;
+                            externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
+                            if (upoDetail == null)
                             {
-                                if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                                {
+                                    if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
+                                        poItem.Status = "Barang sudah diterima Unit parsial";
+                                    }
+                                    else
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
+                                        poItem.Status = "Barang sudah diterima Unit semua";
+                                    }
+                                }
+                                else
                                 {
                                     //prItem.Status = "Barang sudah diterima Unit parsial";
                                     poItem.Status = "Barang sudah diterima Unit parsial";
                                 }
-                                else
-                                {
-                                    //prItem.Status = "Barang sudah diterima Unit semua";
-                                    poItem.Status = "Barang sudah diterima Unit semua";
-                                }
                             }
-                            else
-                            {
-                                //prItem.Status = "Barang sudah diterima Unit parsial";
-                                poItem.Status = "Barang sudah diterima Unit parsial";
-                            }
+
                         }
-                        
                     }
                     if (m.IsStorage == true)
                     {
@@ -502,6 +504,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             epo.SupplierId.Equals(FilterDictionary.GetValueOrDefault("SupplierId") ?? "") &&
                             epo.PaymentMethod.Equals(FilterDictionary.GetValueOrDefault("PaymentMethod") ?? "") &&
                             epo.CurrencyCode.Equals(FilterDictionary.GetValueOrDefault("CurrencyCode") ?? "") &&
+                            epo.UseIncomeTax == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseIncomeTax") ?? "false") &&
                             string.Concat("", epo.IncomeTaxId).Equals(FilterDictionary.GetValueOrDefault("IncomeTaxId") ?? "") &&
                             epo.UseVat == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseVat") ?? "false") &&
                             epo.Items.Any(epoItem => 
@@ -539,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+            public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
