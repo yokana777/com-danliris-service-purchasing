@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string DocumentNo { get; set; }
         public DateTimeOffset Date { get; set; }
         public string SupplierName { get; set; }
+        public string CategoryName { get; set; }
         public string DivisionName { get; set; }
         public string PaymentMethod { get; set; }
         public double DPP { get; set; }

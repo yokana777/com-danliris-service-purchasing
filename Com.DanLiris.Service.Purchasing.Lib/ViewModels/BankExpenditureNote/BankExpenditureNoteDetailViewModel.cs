@@ -9,6 +9,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
     {
         public long UnitPaymentOrderId { get; set; }
         public string Currency { get; set; }
+        public string CategoryCode { get; set; }
+        public string CategoryName { get; set; }
         public string DivisionCode { get; set; }
         public string DivisionName { get; set; }
         public DateTimeOffset DueDate { get; set; }

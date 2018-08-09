@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180808103504_add_column_category_finance_pph_laporan")]
+    partial class add_column_category_finance_pph_laporan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1547,7 +1548,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
-                    b.Property<DateTimeOffset?>("IncomeTaxCorrectionDate");
+                    b.Property<DateTimeOffset>("IncomeTaxCorrectionDate");
 
                     b.Property<string>("IncomeTaxCorrectionNo");
 
@@ -1594,7 +1595,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UPONo");
 
-                    b.Property<DateTimeOffset?>("VatTaxCorrectionDate");
+                    b.Property<DateTimeOffset>("VatTaxCorrectionDate");
 
                     b.Property<string>("VatTaxCorrectionNo");
 
@@ -1901,8 +1902,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("ProductRemark");
-
-                    b.Property<double>("QuantityCorrection");
 
                     b.Property<double>("ReceiptQuantity");
 

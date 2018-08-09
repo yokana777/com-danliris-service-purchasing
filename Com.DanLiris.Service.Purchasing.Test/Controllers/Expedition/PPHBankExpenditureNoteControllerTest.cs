@@ -136,6 +136,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                         InvoiceNo = "InvoiceNo",
                         SupplierCode = "SupplierCode",
                         SupplierName = "SupplierName",
+                        CategoryCode = "CategoryCode",
+                        CategoryName = "CategoryName",
                         DivisionCode = "DivisionCode",
                         DivisionName = "DivisionName",
                         IncomeTax = 2000,
