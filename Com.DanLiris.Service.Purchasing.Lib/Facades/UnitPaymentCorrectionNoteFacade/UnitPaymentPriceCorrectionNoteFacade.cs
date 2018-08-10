@@ -210,9 +210,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
 
         }
-        public UnitReceiptNote GetUrn(int urnId)
+        public UnitReceiptNote GetUrn(string urnNo)
         {
-            var urnModel = dbContext.UnitReceiptNotes.SingleOrDefault(s => s.IsDeleted == false && s.Id == urnId);//_urnFacade.ReadById((int)item.URNId);
+            var urnModel = dbContext.UnitReceiptNotes.SingleOrDefault(s => s.IsDeleted == false && s.URNNo == urnNo);//_urnFacade.ReadById((int)item.URNId);
             return urnModel;
         }
     }

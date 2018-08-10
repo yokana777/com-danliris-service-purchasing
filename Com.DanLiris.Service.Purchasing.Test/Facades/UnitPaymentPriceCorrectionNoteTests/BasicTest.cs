@@ -169,9 +169,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             var id = 0;
-            
-            var Response = facade.GetUrn(id);
-            Assert.Null(Response);
+            var items=modelLocalSupplier.Items.ToList();
+            var Response = facade.GetUrn(items[0].URNNo);
+            Assert.NotNull(Response);
         }
     }
 }
