@@ -190,9 +190,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
                     DateTimeOffset? receiptDate = null;
                     var today = new DateTime(1970, 1, 1);
-                    foreach (var item in spbModel.Items)
+                    foreach (var item in model.Items)
                     {
-                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.GetUrn((int)item.URNId);
+                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.GetUrn(item.URNNo);
 
                         if (receiptDate==null || urnModel.ReceiptDate> receiptDate)
                             receiptDate =urnModel==null ?today:  urnModel.ReceiptDate;
