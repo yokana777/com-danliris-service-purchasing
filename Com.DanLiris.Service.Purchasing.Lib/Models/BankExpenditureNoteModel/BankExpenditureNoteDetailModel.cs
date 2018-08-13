@@ -12,6 +12,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         [MaxLength(255)]
         public string Currency { get; set; }
         [MaxLength(255)]
+        public string CategoryCode { get; set; }
+        [MaxLength(255)]
+        public string CategoryName { get; set; }
+        [MaxLength(255)]
         public string DivisionCode { get; set; }
         [MaxLength(255)]
         public string DivisionName { get; set; }

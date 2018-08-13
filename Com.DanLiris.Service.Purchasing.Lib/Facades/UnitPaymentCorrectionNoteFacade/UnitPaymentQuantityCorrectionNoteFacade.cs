@@ -44,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     Id = s.Id,
                     UPCNo = s.UPCNo,
                     CorrectionDate = s.CorrectionDate,
-                    CorrectionType = "Jumlah",
+                    CorrectionType = s.CorrectionType,
                     UPOId = s.UPOId,
                     UPONo = s.UPONo,
                     SupplierCode = s.SupplierCode,
@@ -71,7 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     .ToList(),
                     CreatedBy = s.CreatedBy,
                     LastModifiedUtc = s.LastModifiedUtc
-                }).OrderByDescending(j => j.LastModifiedUtc);
+                }).Where(k => k.CorrectionType == "Jumlah")
+                .OrderByDescending(j => j.LastModifiedUtc);
 
             List<string> searchAttributes = new List<string>()
             {

@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
 
                 CorrectionDate = new DateTimeOffset(),
 
-                CorrectionType = null,
+                CorrectionType = "Jumlah",
 
                 InvoiceCorrectionDate = new DateTimeOffset(),
                 InvoiceCorrectionNo = "123456",

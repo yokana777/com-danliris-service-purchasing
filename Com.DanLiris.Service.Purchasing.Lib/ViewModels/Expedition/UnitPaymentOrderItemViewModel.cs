@@ -15,6 +15,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public double Price { get; set; }
         public string UnitId { get; set; }
         public string UnitCode { get; set; }
-        public string UnitName { get; set; }
+        public string UnitName { get; set; }       
     }
 }

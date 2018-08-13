@@ -25,99 +25,115 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
 
+            Dictionary<string, double> units = new Dictionary<string, double>();
+            model.Details = model.Details.OrderBy(o => o.SupplierName).ToList();
+
             #region Header
 
-            PdfPTable headerTable = new PdfPTable(3);
-            PdfPCell cellHeader = new PdfPCell() { Border = Rectangle.NO_BORDER };
-            PdfPCell cellHeaderCS3 = new PdfPCell() { Border = Rectangle.NO_BORDER, Colspan = 3 };
-            float[] widths = new float[] { 10f, 10f, 10f };
-            headerTable.SetWidths(widths);
+            PdfPTable headerTable = new PdfPTable(2);
+            headerTable.SetWidths(new float[] { 10f, 10f });
             headerTable.WidthPercentage = 100;
+            PdfPTable headerTable1 = new PdfPTable(1);
+            PdfPTable headerTable2 = new PdfPTable(2);
+            headerTable2.SetWidths(new float[] { 15f, 40f });
+            headerTable2.WidthPercentage = 100;
 
-            cellHeaderCS3.Phrase = new Phrase("DANLIRIS", normal_font);
-            headerTable.AddCell(cellHeaderCS3);
+            PdfPCell cellHeader1 = new PdfPCell() { Border = Rectangle.NO_BORDER };
+            PdfPCell cellHeader2 = new PdfPCell() { Border = Rectangle.NO_BORDER };
+            PdfPCell cellHeaderBody = new PdfPCell() { Border = Rectangle.NO_BORDER };
 
-            cellHeader.Phrase = new Phrase("INDUSTRIAL & TRADING CO.LTD.", normal_font);
-            headerTable.AddCell(cellHeader);
+            PdfPCell cellHeaderCS2 = new PdfPCell() { Border = Rectangle.NO_BORDER, Colspan = 2 };
+            
 
-            cellHeader.Phrase = new Phrase("BUKTI PENGELUARAN BANK", bold_font);
-            cellHeader.HorizontalAlignment = Element.ALIGN_CENTER;
-            headerTable.AddCell(cellHeader);
+            cellHeaderCS2.Phrase = new Phrase("BUKTI PENGELUARAN BANK", bold_font);
+            cellHeaderCS2.HorizontalAlignment = Element.ALIGN_CENTER;
+            headerTable.AddCell(cellHeaderCS2);
 
-            cellHeader.Phrase = new Phrase("", normal_font);
-            headerTable.AddCell(cellHeader);
+            cellHeaderBody.Phrase = new Phrase("PT. DANLIRIS", normal_font);
+            headerTable1.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase("Kel. Banaran, Kec. Grogol", normal_font);
+            headerTable1.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase("Sukoharjo - 57100", normal_font);
+            headerTable1.AddCell(cellHeaderBody);
 
-            cellHeaderCS3.Phrase = new Phrase("Kel. Banaran (Selatan Laweyan)", normal_font);
-            headerTable.AddCell(cellHeaderCS3);
+            cellHeader1.AddElement(headerTable1);
+            headerTable.AddCell(cellHeader1);
 
-            cellHeader.Phrase = new Phrase("Telp. 714400, 719113", normal_font);
-            cellHeader.HorizontalAlignment = Element.ALIGN_LEFT;
-            headerTable.AddCell(cellHeader);
+            cellHeaderCS2.Phrase = new Phrase("", bold_font);
+            headerTable2.AddCell(cellHeaderCS2);
 
-            cellHeader.Phrase = new Phrase("", normal_font);
-            headerTable.AddCell(cellHeader);
+            cellHeaderBody.Phrase = new Phrase("Tanggal", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + DateTimeOffset.UtcNow.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy"), normal_font);
+            headerTable2.AddCell(cellHeaderBody);
 
-            cellHeader.Phrase = new Phrase("No Dokumen : " + model.DocumentNo, normal_font);
-            headerTable.AddCell(cellHeader);
+            cellHeaderBody.Phrase = new Phrase("NO", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + model.DocumentNo, normal_font);
+            headerTable2.AddCell(cellHeaderBody);
 
-            cellHeaderCS3.Phrase = new Phrase("SOLO - INDONESIA 57100", normal_font);
-            headerTable.AddCell(cellHeaderCS3);
+            List<string> supplier = model.Details.Select(m => m.SupplierName).Distinct().ToList();
+            cellHeaderBody.Phrase = new Phrase("Dibayarkan ke", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + (supplier.Count > 0 ? supplier[0] : "-"), normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+
+            for(int i = 1; i < supplier.Count; i++)
+            {
+                cellHeaderBody.Phrase = new Phrase("", normal_font);
+                headerTable2.AddCell(cellHeaderBody);
+                cellHeaderBody.Phrase = new Phrase(": " + supplier[i], normal_font);
+                headerTable2.AddCell(cellHeaderBody);
+            }
+
+            cellHeaderBody.Phrase = new Phrase("Bank", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + model.BankAccountName + " - A/C : " + model.BankAccountNumber, normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+
+            cellHeader2.AddElement(headerTable2);
+            headerTable.AddCell(cellHeader2);
+
+            cellHeaderCS2.Phrase = new Phrase("", normal_font);
+            headerTable.AddCell(cellHeaderCS2);
+
             document.Add(headerTable);
 
             #endregion Header
 
             #region Body
 
-            PdfPTable bodyTable = new PdfPTable(6);
+            PdfPTable bodyTable = new PdfPTable(7);
             PdfPCell bodyCell = new PdfPCell();
 
-            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 10f, 15f };
+            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f };
             bodyTable.SetWidths(widthsBody);
             bodyTable.WidthPercentage = 100;
 
-            bodyCell.Colspan = 6;
-            bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
-            bodyCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-            bodyCell.Phrase = new Phrase("Bank : " + model.BankName + " " + model.BankAccountName + " " + model.BankAccountNumber + " " + model.BankCurrencyCode, normal_font);
-            bodyTable.AddCell(bodyCell);
-
             bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
-            bodyCell.Colspan = 1;
-            bodyCell.Rowspan = 2;
-            bodyCell.Phrase = new Phrase("No.", normal_font);
+            bodyCell.Phrase = new Phrase("No.", bold_font);
             bodyTable.AddCell(bodyCell);
 
-            bodyCell.Colspan = 4;
-            bodyCell.Rowspan = 1;
-            bodyCell.Phrase = new Phrase("Uraian", normal_font);
+            bodyCell.Phrase = new Phrase("No. SPB", bold_font);
             bodyTable.AddCell(bodyCell);
 
-            bodyCell.Colspan = 1;
-            bodyCell.Rowspan = 2;
-            bodyCell.Phrase = new Phrase("Jumlah", normal_font);
+            bodyCell.Phrase = new Phrase("Kategori Barang", bold_font);
             bodyTable.AddCell(bodyCell);
 
-            bodyCell.Colspan = 1;
-            bodyCell.Rowspan = 1;
-            bodyCell.Phrase = new Phrase("No. SPB", normal_font);
+            bodyCell.Phrase = new Phrase("Divisi", bold_font);
             bodyTable.AddCell(bodyCell);
 
-            bodyCell.Phrase = new Phrase("Supplier", normal_font);
+            bodyCell.Phrase = new Phrase("Unit", bold_font);
             bodyTable.AddCell(bodyCell);
 
-            bodyCell.Phrase = new Phrase("Unit", normal_font);
+            bodyCell.Phrase = new Phrase("Mata Uang", bold_font);
             bodyTable.AddCell(bodyCell);
-
-            bodyCell.Phrase = new Phrase("Mata Uang", normal_font);
+            
+            bodyCell.Phrase = new Phrase("Jumlah", bold_font);
             bodyTable.AddCell(bodyCell);
-
+            
             int index = 1;
             double total = 0;
-
-            Dictionary<string, double> units = new Dictionary<string, double>();
-
-            model.Details = model.Details.OrderBy(o => o.SupplierName).ToList();
-
             foreach (BankExpenditureNoteDetailModel detail in model.Details)
             {
                 var items = detail.Items
@@ -128,7 +144,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         s.First().UnitName,
                         Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
                     });
-
                 foreach (var item in items)
                 {
                     bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -140,9 +155,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
                     bodyTable.AddCell(bodyCell);
 
-                    bodyCell.Phrase = new Phrase(detail.SupplierName, normal_font);
+                    bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
                     bodyTable.AddCell(bodyCell);
 
+                    bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                    bodyTable.AddCell(bodyCell);
+
+                    bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                     bodyCell.Phrase = new Phrase(item.UnitCode, normal_font);
                     bodyTable.AddCell(bodyCell);
 
@@ -167,17 +186,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             }
 
             bodyCell.Colspan = 4;
-            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            bodyCell.Phrase = new Phrase("Total", normal_font);
+            bodyCell.Border = Rectangle.NO_BORDER;
+            bodyCell.Phrase = new Phrase("", normal_font);
             bodyTable.AddCell(bodyCell);
 
             bodyCell.Colspan = 1;
+            bodyCell.Border = Rectangle.BOX;
             bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
-            bodyCell.Phrase = new Phrase(model.BankCurrencyCode, normal_font);
+            bodyCell.Phrase = new Phrase("Total", bold_font);
+            bodyTable.AddCell(bodyCell);
+
+            bodyCell.Colspan = 1;
+            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            bodyCell.Phrase = new Phrase(model.BankCurrencyCode, bold_font);
             bodyTable.AddCell(bodyCell);
 
             bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), normal_font);
+            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), bold_font);
             bodyTable.AddCell(bodyCell);
 
             document.Add(bodyTable);
@@ -187,37 +212,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #region BodyFooter
 
             PdfPTable bodyFooterTable = new PdfPTable(6);
-            PdfPCell bodyFooterCell = new PdfPCell() { Border = Rectangle.NO_BORDER };
+            bodyFooterTable.SetWidths(new float[] { 3f, 6f, 2f, 6f , 10f, 10f });
             bodyFooterTable.WidthPercentage = 100;
 
-            bodyFooterCell.Colspan = 6;
-            bodyFooterCell.Phrase = new Phrase("Rincian per bagian:", normal_font);
+            PdfPCell bodyFooterCell = new PdfPCell() { Border = Rectangle.NO_BORDER };
+
+            bodyFooterCell.Colspan = 1;
+            bodyFooterCell.Phrase = new Phrase("");
             bodyFooterTable.AddCell(bodyFooterCell);
 
             bodyFooterCell.Colspan = 1;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
+            bodyFooterCell.Phrase = new Phrase("Rincian per bagian:", normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
 
+            bodyFooterCell.Colspan = 4;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            bodyFooterCell.Phrase = new Phrase("");
+            bodyFooterTable.AddCell(bodyFooterCell);
 
             foreach (var unit in units)
             {
                 bodyFooterCell.Colspan = 1;
-
+                bodyFooterCell.Phrase = new Phrase("");
+                bodyFooterTable.AddCell(bodyFooterCell);
+                
                 bodyFooterCell.Phrase = new Phrase(unit.Key, normal_font);
                 bodyFooterTable.AddCell(bodyFooterCell);
-
-                bodyFooterCell.Phrase = new Phrase("= " + string.Format("{0:n4}", unit.Value), normal_font);
+                
+                bodyFooterCell.Phrase = new Phrase(model.BankCurrencyCode, normal_font);
+                bodyFooterTable.AddCell(bodyFooterCell);
+                
+                bodyFooterCell.Phrase = new Phrase(string.Format("{0:n4}", unit.Value), normal_font);
                 bodyFooterTable.AddCell(bodyFooterCell);
 
-                bodyFooterCell.Colspan = 4;
+                bodyFooterCell.Colspan = 2;
                 bodyFooterCell.Phrase = new Phrase("");
                 bodyFooterTable.AddCell(bodyFooterCell);
             }
 
+            bodyFooterCell.Colspan = 1;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
+            bodyFooterCell.Phrase = new Phrase("");
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.Phrase = new Phrase("Terbilang", normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            bodyFooterCell.Phrase = new Phrase(": " + model.BankCurrencyCode, normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.Colspan = 3;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
+            bodyFooterCell.Phrase = new Phrase(NumberToTextIDN.terbilang(total), normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+            
+
             document.Add(bodyFooterTable);
             document.Add(new Paragraph("\n"));
-
-            document.Add(new Phrase(model.BankCurrencyCode + " " + NumberToTextIDN.terbilang(total), normal_font));
-            document.Add(new Paragraph("\n"));
-
+            
             #endregion BodyFooter
 
             #region Footer
@@ -225,46 +279,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable footerTable = new PdfPTable(2);
             PdfPCell cellFooter = new PdfPCell() { Border = Rectangle.NO_BORDER };
 
-            float[] widthsFooter = new float[] { 10f, 10f };
+            float[] widthsFooter = new float[] { 10f, 5f };
             footerTable.SetWidths(widthsFooter);
             footerTable.WidthPercentage = 100;
 
             cellFooter.Phrase = new Phrase("Dikeluarkan dengan cek/BG No. : " + model.BGCheckNumber, normal_font);
             footerTable.AddCell(cellFooter);
 
-            PdfPTable receiverTable = new PdfPTable(1);
-            PdfPCell cellReceiver = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
-
-            cellReceiver.Phrase = new Phrase("Sukoharjo, " + DateTimeOffset.UtcNow.AddHours(clientTimeZoneOffset).ToString("dd MMM yyyy"), normal_font);
-            receiverTable.AddCell(cellReceiver);
-
-            cellReceiver.FixedHeight = 60;
-            cellReceiver.Phrase = new Phrase("Penerima", normal_font);
-            receiverTable.AddCell(cellReceiver);
-
-            cellReceiver.FixedHeight = 20;
-            cellReceiver.Phrase = new Phrase("(__________________________)");
-            receiverTable.AddCell(cellReceiver);
-
-            cellReceiver.Phrase = new Phrase("Nama terang", normal_font);
-            receiverTable.AddCell(cellReceiver);
-
-            footerTable.AddCell(new PdfPCell(receiverTable) { Rowspan = 3, Border = Rectangle.NO_BORDER });
+            cellFooter.Phrase = new Phrase("", normal_font);
+            footerTable.AddCell(cellFooter);
 
             PdfPTable signatureTable = new PdfPTable(3);
             PdfPCell signatureCell = new PdfPCell() { HorizontalAlignment = Element.ALIGN_CENTER };
             signatureCell.Phrase = new Phrase("Bag. Keuangan", normal_font);
             signatureTable.AddCell(signatureCell);
-
-            signatureCell.Phrase = new Phrase("Bag. Akuntansi", normal_font);
-            signatureTable.AddCell(signatureCell);
-
+            
+            signatureCell.Colspan = 2;
+            signatureCell.HorizontalAlignment = Element.ALIGN_CENTER;
             signatureCell.Phrase = new Phrase("Direksi", normal_font);
             signatureTable.AddCell(signatureCell);
 
-            signatureTable.AddCell(new PdfPCell() { FixedHeight = 40 });
-            signatureTable.AddCell(new PdfPCell() { FixedHeight = 40 });
-            signatureTable.AddCell(new PdfPCell() { FixedHeight = 40 });
+            signatureTable.AddCell(new PdfPCell()
+            {
+                Phrase = new Phrase("---------------------------", normal_font),
+                FixedHeight = 40,
+                VerticalAlignment = Element.ALIGN_BOTTOM,
+                HorizontalAlignment = Element.ALIGN_CENTER
+            });
+            signatureTable.AddCell(new PdfPCell()
+            {
+                Phrase = new Phrase("---------------------------", normal_font),
+                FixedHeight = 40,
+                Border = Rectangle.NO_BORDER,
+                VerticalAlignment = Element.ALIGN_BOTTOM,
+                HorizontalAlignment = Element.ALIGN_CENTER
+            });
+            signatureTable.AddCell(new PdfPCell()
+            {
+                Phrase = new Phrase("---------------------------", normal_font),
+                FixedHeight = 40,
+                Border = Rectangle.NO_BORDER,
+                VerticalAlignment = Element.ALIGN_BOTTOM,
+                HorizontalAlignment = Element.ALIGN_CENTER
+            });
 
             footerTable.AddCell(new PdfPCell(signatureTable));
 
