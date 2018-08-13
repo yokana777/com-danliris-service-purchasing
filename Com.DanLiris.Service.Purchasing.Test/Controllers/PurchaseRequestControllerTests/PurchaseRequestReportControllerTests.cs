@@ -54,5 +54,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             var response = await this.Client.GetAsync(URI + "/download");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_byUser()
+        {
+            var response = await this.Client.GetAsync(URI + "by-user?page=1&size=25");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var json = response.Content.ReadAsStringAsync().Result;
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Excel_byUser()
+        {
+            var response = await this.Client.GetAsync(URI + "by-user/download");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
     }
 }
