@@ -515,22 +515,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              uomUnit = j.UomUnit,
                              LastModifiedUtc = j.LastModifiedUtc,
                              CreatedUtc = j.CreatedUtc,
+                             ePODetailId = j.EPODetailId
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<DeliveryOrderReportViewModel> urn = new List<DeliveryOrderReportViewModel>();
             foreach (DeliveryOrderReportViewModel data in Query.ToList())
             {
                 double value;
-                if (q.TryGetValue(data.productCode + data.ePONo, out value))
+                if (q.TryGetValue(data.productCode + data.ePONo + data.ePODetailId, out value))
                 {
-                    q[data.productCode + data.ePONo] -= data.dOQuantity;
-                    data.remainingQuantity = q[data.productCode + data.ePONo];
+                    q[data.productCode + data.ePONo + data.ePODetailId] -= data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
                     urn.Add(data);
                 }
                 else
                 {
-                    q[data.productCode + data.ePONo] = data.remainingQuantity - data.dOQuantity;
-                    data.remainingQuantity = q[data.productCode + data.ePONo];
+                    q[data.productCode + data.ePONo + data.ePODetailId] = data.remainingQuantity - data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
                     urn.Add(data);
                 }
             }

@@ -20,5 +20,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel
         public double dOQuantity { get; set; }
         public double remainingQuantity { get; set; }
         public string uomUnit { get; set; }
+        public long ePODetailId { get; set; }
     }
 }
