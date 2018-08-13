@@ -4,6 +4,8 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,5 +19,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         UnitReceiptNote GetUrn(string urnNo);
         SupplierViewModel GetSupplier(string supplierId);
         Task<int> Create(UnitPaymentCorrectionNote model, bool supplierImport, string username, int clientTimeZoneOffset = 7);
+        IQueryable<UnitPaymentPriceCorrectionNoteReportViewModel> GetReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset);
+        Tuple<List<UnitPaymentPriceCorrectionNoteReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
+
     }
 }
