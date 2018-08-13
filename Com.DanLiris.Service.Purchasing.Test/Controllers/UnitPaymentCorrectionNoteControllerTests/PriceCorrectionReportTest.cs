@@ -16,6 +16,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -172,34 +173,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
-        //[Fact]
-        //public void Should_Success_Get_Report_Xls_Data()
-        //{
-        //    var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
-        //    mockFacade.Setup(x => x.GenerateExcel(null, null, It.IsAny<int>())
-        //        .Returns(Tuple.Create(new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel }, 25));
+        [Fact]
+        public void Should_Success_Get_Report_Xls_Data()
+        {
+            var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.GenerateExcel(null, null, It.IsAny<int>()))
+                .Returns(new MemoryStream());
 
-        //    var mockMapper = new Mock<IMapper>();
-        //    mockMapper.Setup(x => x.Map<List<UnitPaymentPriceCorrectionNoteReportViewModel>>(It.IsAny<List<UnitPaymentCorrectionNote>>()))
-        //        .Returns(new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel });
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<UnitPaymentPriceCorrectionNoteReportViewModel>>(It.IsAny<List<UnitPaymentCorrectionNote>>()))
+                .Returns(new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel });
 
-        //    var user = new Mock<ClaimsPrincipal>();
-        //    var claims = new Claim[]
-        //    {
-        //        new Claim("username", "unittestusername")
-        //    };
-        //    user.Setup(u => u.Claims).Returns(claims);
-        //    UnitPaymentPriceCorrectionNoteReportController controller = new UnitPaymentPriceCorrectionNoteReportController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-        //    controller.ControllerContext = new ControllerContext()
-        //    {
-        //        HttpContext = new DefaultHttpContext()
-        //        {
-        //            User = user.Object
-        //        }
-        //    };
-        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-        //    var response = controller.GetXls(null, null);
-        //    Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-        //}
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            UnitPaymentPriceCorrectionNoteReportController controller = new UnitPaymentPriceCorrectionNoteReportController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(null, null);
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+        }
     }
 }
