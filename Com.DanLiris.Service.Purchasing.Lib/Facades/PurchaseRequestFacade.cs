@@ -541,7 +541,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public IQueryable<PurchaseRequestReportViewModel> GetReportQuery(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int offset)
+        #region Monitoring By User
+        public IQueryable<PurchaseRequestReportViewModel> GetReportQuery(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int offset, string username)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -568,6 +569,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              && epoItem.IsDeleted == false
                              && epo.IsDeleted == false
                              && epoDetail.IsDeleted==false
+                             && a.CreatedBy== (string.IsNullOrWhiteSpace(username) ? a.CreatedBy : username)
                              && poItem.Quantity!=0
                              && a.No == (string.IsNullOrWhiteSpace(no) ? a.No : no)
                              && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
@@ -599,9 +601,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Query;
         }
 
-        public Tuple<List<PurchaseRequestReportViewModel>, int> GetReport(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo , int page, int size, string Order,int offset)
+        public Tuple<List<PurchaseRequestReportViewModel>, int> GetReport(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo , int page, int size, string Order,int offset, string username)
         {
-            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset);
+            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset, username);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -623,9 +625,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcel(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int offset, string username)
         {
-            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset);
+            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset, username);
             Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
@@ -664,8 +666,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+        #endregion
 
-		public IQueryable<PurchaseRequestPurchaseOrderDurationReportViewModel> GetPRDurationReportQuery(string unit, string duration,  DateTime? dateFrom, DateTime? dateTo, int offset)
+        #region Duration PR-POInt
+        public IQueryable<PurchaseRequestPurchaseOrderDurationReportViewModel> GetPRDurationReportQuery(string unit, string duration,  DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 			DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -808,5 +812,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
 			return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 		}
-	}
+        #endregion
+    }
 }
