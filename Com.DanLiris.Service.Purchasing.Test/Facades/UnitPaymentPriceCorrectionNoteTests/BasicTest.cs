@@ -173,5 +173,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             var Response = facade.GetUrn(items[0].URNNo);
             Assert.NotNull(Response);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReport(null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcel(null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
     }
 }

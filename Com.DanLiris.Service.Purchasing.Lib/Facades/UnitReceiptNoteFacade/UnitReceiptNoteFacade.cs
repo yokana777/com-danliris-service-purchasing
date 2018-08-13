@@ -567,7 +567,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
                              && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
                              && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
-                             orderby b.PRNo,b.ProductCode, a.ReceiptDate ascending 
+                         orderby  a.ReceiptDate,a.CreatedUtc ascending 
                          select new UnitReceiptNoteReportViewModel
                          {
                              urnNo = a.URNNo,
@@ -584,7 +584,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              DealUom = k.DealUomUnit,
                              dealQuantity = k.DealQuantity,
                              quantity= k.DealQuantity,
-                             LastModifiedUtc = b.LastModifiedUtc
+                             CreatedUtc = b.CreatedUtc
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<UnitReceiptNoteReportViewModel> urn = new List<UnitReceiptNoteReportViewModel>();
@@ -615,7 +615,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a=>a.LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a=>a.CreatedUtc);
             }
 
             Pageable<UnitReceiptNoteReportViewModel> pageable = new Pageable<UnitReceiptNoteReportViewModel>(Query, page - 1, size);
@@ -628,7 +628,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         public MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.LastModifiedUtc);
+            Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
 
