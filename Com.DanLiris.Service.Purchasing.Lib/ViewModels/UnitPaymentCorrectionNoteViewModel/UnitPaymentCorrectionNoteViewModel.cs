@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public string incomeTaxCorrectionNo { get; set; }
         public DateTimeOffset? incomeTaxCorrectionDate { get; set; }
         public string releaseOrderNoteNo { get; set; }
-        public DateTimeOffset dueDate { get; set; }
+        public DateTimeOffset? dueDate { get; set; }
         public string remark { get; set; }
         public string returNoteNo { get; set; }
         public List<UnitPaymentCorrectionNoteItemViewModel> items { get; set; }
