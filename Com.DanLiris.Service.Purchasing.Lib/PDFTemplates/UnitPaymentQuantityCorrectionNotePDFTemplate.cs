@@ -227,7 +227,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentRight.Phrase = new Phrase(totalPPn.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                cellIdentityTotalContentRight.Phrase = new Phrase(total.ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
                 if (viewModel.useIncomeTax == false)
@@ -256,8 +256,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 {
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                    cellIdentityTotalContentLeft.Phrase = new Phrase("-");
-                    tableTotal.AddCell(cellIdentityTotalContentLeft);
+                    cellIdentityTotalContentRight.Phrase = new Phrase("-");
+                    tableTotal.AddCell(cellIdentityTotalContentRight);
+                    totalPPn = 0;
                 }
                 else
                 {

@@ -513,7 +513,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              dOQuantity = j.DOQuantity,
                              remainingQuantity = l.DealQuantity,
                              uomUnit = j.UomUnit,
-                             LastModifiedUtc = j.LastModifiedUtc
+                             LastModifiedUtc = j.LastModifiedUtc,
+                             CreatedUtc = j.CreatedUtc,
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<DeliveryOrderReportViewModel> urn = new List<DeliveryOrderReportViewModel>();
@@ -543,7 +544,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.CreatedUtc);
             }
 
 
