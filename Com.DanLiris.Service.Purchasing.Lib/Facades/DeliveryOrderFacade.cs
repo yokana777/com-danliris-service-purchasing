@@ -559,7 +559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         public MemoryStream GenerateExcel(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetReportQuery(no, supplierId, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });
