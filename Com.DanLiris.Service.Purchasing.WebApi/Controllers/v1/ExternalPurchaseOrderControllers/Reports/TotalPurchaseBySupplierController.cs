@@ -33,8 +33,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
 			int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
 			string accept = Request.Headers["Accept"];
 
-			try
-			{
+			//try
+			//{
 
 				var data = _facade.GetTotalPurchaseBySupplierReport(unit, category, dateFrom, dateTo, offset);
 
@@ -45,22 +45,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
 					message = General.OK_MESSAGE,
 					statusCode = General.OK_STATUS_CODE
 				});
-			}
-			catch (Exception e)
-			{
-				Dictionary<string, object> Result =
-					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-					.Fail();
-				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-			}
+			//}
+			//catch (Exception e)
+			//{
+			//	Dictionary<string, object> Result =
+			//		new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+			//		.Fail();
+			//	return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			//}
 		}
 
 		[HttpGet("download")]
 		public IActionResult GetXls(string unit, string category, DateTime? dateFrom, DateTime? dateTo)
 		{
 
-			try
-			{
+			//try
+			//{
 				byte[] xlsInBytes;
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
 				DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
@@ -74,14 +74,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
 				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
 				return file;
 
-			}
-			catch (Exception e)
-			{
-				Dictionary<string, object> Result =
-					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-					.Fail();
-				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-			}
+			//}
+			//catch (Exception e)
+			//{
+			//	Dictionary<string, object> Result =
+			//		new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+			//		.Fail();
+			//	return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			//}
 		}
 	}
 }
