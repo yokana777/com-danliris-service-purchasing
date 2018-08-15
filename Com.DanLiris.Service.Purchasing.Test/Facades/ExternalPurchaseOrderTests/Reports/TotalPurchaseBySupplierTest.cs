@@ -54,6 +54,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, null, null,  7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
-		
+		[Fact]
+		public async void Should_Success_Get_Report_Total_Purchase_By_Supplier_null_Data_Excel()
+		{
+			DateTime DateFrom = new DateTime(2018, 1, 1);
+			DateTime DateTo = new DateTime(2018, 1, 1);
+			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, null, null, 7);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+		}
+
 	}
 }

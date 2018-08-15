@@ -26,69 +26,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 			this.dbContext = dbContext;
 			this.dbSet = dbContext.Set<ExternalPurchaseOrder>();
 		}
-		public Tuple<List<ExternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
-		{
-			IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
-
-			List<string> searchAttributes = new List<string>()
-			{
-				"EPONo", "SupplierName", "DivisionName","UnitName","Items.PRNo"
-			};
-
-			Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-			Query = Query
-				.Select(s => new ExternalPurchaseOrder
-				{
-					Id = s.Id,
-					EPONo = s.EPONo,
-					CurrencyCode = s.CurrencyCode,
-					CurrencyRate = s.CurrencyRate,
-					OrderDate = s.OrderDate,
-					DeliveryDate = s.DeliveryDate,
-					SupplierCode = s.SupplierCode,
-					SupplierName = s.SupplierName,
-					DivisionCode = s.DivisionCode,
-					DivisionName = s.DivisionName,
-					LastModifiedUtc = s.LastModifiedUtc,
-					UnitName = s.UnitName,
-					UnitCode = s.UnitCode,
-					CreatedBy = s.CreatedBy,
-					IsPosted = s.IsPosted,
-					Items = s.Items.Select(
-						q => new ExternalPurchaseOrderItem
-						{
-							Id = q.Id,
-							POId = q.POId,
-							PRNo = q.PRNo
-						}
-					)
-					.ToList()
-				});
-
-
-
-			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-			Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
-
-			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-			Query = QueryHelper<ExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
-
-			Pageable<ExternalPurchaseOrder> pageable = new Pageable<ExternalPurchaseOrder>(Query, Page - 1, Size);
-			List<ExternalPurchaseOrder> Data = pageable.Data.ToList<ExternalPurchaseOrder>();
-			int TotalData = pageable.TotalCount;
-
-			return Tuple.Create(Data, TotalData, OrderDictionary);
-		}
-
-		public ExternalPurchaseOrder ReadModelById(int id)
-		{
-			var a = this.dbSet.Where(d => d.Id.Equals(id) && d.IsDeleted.Equals(false))
-				.Include(p => p.Items)
-				.ThenInclude(p => p.Details)
-				.FirstOrDefault();
-			return a;
-		}
 		public IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReportQuery(string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 			DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
