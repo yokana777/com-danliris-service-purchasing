@@ -124,17 +124,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 			return Query;
 		}
 
-		public   IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReport(string unit, string category, DateTime? dateFrom, DateTime? dateTo, string Order, int offset)
+		public   IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReport(string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 			var Query = GetTotalPurchaseBySupplierReportQuery(unit, category , dateFrom, dateTo, offset);
-
-			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-			if (OrderDictionary.Count.Equals(0))
-			{
-				Query = Query.OrderBy(b => b.supplierName).ThenBy(b=>b.unitName).ThenBy(b=>b.categoryName);
-			}
-
-
+			Query = Query.OrderBy(b => b.supplierName).ThenBy(b=>b.unitName).ThenBy(b=>b.categoryName);
 			return Query;
 		}
 

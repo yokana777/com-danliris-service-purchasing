@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
 			try
 			{
 
-				var data = _facade.GetTotalPurchaseBySupplierReport(unit, category, dateFrom, dateTo, Order, offset);
+				var data = _facade.GetTotalPurchaseBySupplierReport(unit, category, dateFrom, dateTo, offset);
 
 				return Ok(new
 				{
