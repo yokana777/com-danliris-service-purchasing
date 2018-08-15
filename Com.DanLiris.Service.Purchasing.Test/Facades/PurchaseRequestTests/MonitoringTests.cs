@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System;
@@ -31,6 +32,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		{
 			get { return (InternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(InternalPurchaseOrderDataUtil)); }
 		}
+        private ExternalPurchaseOrderDataUtil EPODataUtil
+        {
+            get { return (ExternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(ExternalPurchaseOrderDataUtil));  }
+        }
 		private PurchaseRequestFacade Facade
         {
             get { return (PurchaseRequestFacade)ServiceProvider.GetService(typeof(PurchaseRequestFacade)); }
@@ -105,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         [Fact]
         public async void Should_Success_Get_Report_PRPOExDuration_Data()
         {
-            var model = await IPODataUtil.GetTestData2("Unit test");
+            var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetPREPODurationReport(model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item2, 0);
         }
@@ -113,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         [Fact]
         public async void Should_Success_Get_Report_PRPOExDuration_Data_2()
         {
-            var model = await IPODataUtil.GetTestData3("Unit test");
+            var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GetPREPODurationReport(model.UnitId, "15-30 hari", null, null, 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item2, 0);
         }
@@ -121,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         [Fact]
         public async void Should_Success_Get_Report_PRPOEDuration_Excel()
         {
-            var model = await IPODataUtil.GetTestData2("Unit test");
+            var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GenerateExcelPREPODuration("7", "8-14 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
@@ -129,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         [Fact]
         public async void Should_Success_Get_Report_PRPOEDuration_Excel_Null_Parameter()
         {
-            var model = await IPODataUtil.GetTestData3("Unit test");
+            var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GenerateExcelPRDuration("", "15-30 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
