@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         public async void Should_Success_Get_Report_PRPOEDuration_Excel()
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
-            var Response = Facade.GenerateExcelPREPODuration("7", "8-14 hari", null, null, 7);
+            var Response = Facade.GenerateExcelPREPODuration(model.UnitId, "8-14 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
@@ -135,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         public async void Should_Success_Get_Report_PRPOEDuration_Excel_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
-            var Response = Facade.GenerateExcelPRDuration("", "15-30 hari", null, null, 7);
+            var Response = Facade.GenerateExcelPREPODuration("", "8-14 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
