@@ -1,4 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -20,9 +22,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			IdentityService identityService = (IdentityService)ServiceProvider.GetService(typeof(IdentityService));
 			identityService.Username = "Unit Test";
 		}
-		private ExternalPurchaseOrderDataUtil DataUtil
+		private ExternalPurchaseOrderItemDataUtil DataUtil
 		{
-			get { return (ExternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(ExternalPurchaseOrderDataUtil)); }
+			get { return (ExternalPurchaseOrderItemDataUtil)ServiceProvider.GetService(typeof(ExternalPurchaseOrderItemDataUtil)); }
 		}
 		private InternalPurchaseOrderDataUtil IPODataUtil
 		{
@@ -32,17 +34,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 		{
 			get { return (TotalPurchaseFacade)ServiceProvider.GetService(typeof(TotalPurchaseFacade)); }
 		}
+		private InternalPurchaseOrderFacade FacadeIPO
+		{
+			get { return (InternalPurchaseOrderFacade)ServiceProvider.GetService(typeof(InternalPurchaseOrderFacade)); }
+		}
 		[Fact]
 		public async void Should_Success_Get_Report_Total_Purchase_By_Supplier_Data_Null_Parameter()
 		{
-			var model = await DataUtil.GetTestData("Unit test");
+			InternalPurchaseOrder internalPurchaseOrder = await IPODataUtil.GetTestData2("Unit test");
+			var model =  DataUtil.GetNewDataViewModel(internalPurchaseOrder);
 			var Response = Facade.GetTotalPurchaseBySupplierReport(null, null,null,null,"{}",7 );
 			Assert.NotEqual(1, 0);
 		}
 		[Fact]
 		public async void Should_Success_Get_Report_Total_Purchase_By_Supplier_Data_Excel_Null_Parameter()
 		{
-			var model = await DataUtil.GetTestData("Unit test");
+			InternalPurchaseOrder internalPurchaseOrder = await IPODataUtil.GetTestData2("Unit test");
+			var model = DataUtil.GetNewDataViewModel(internalPurchaseOrder);
 			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, null, null,  7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
