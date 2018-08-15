@@ -922,13 +922,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             {
                 Query = Query.OrderByDescending(b => b.prCreatedDate);
             }
-            else
-            {
-                string Key = OrderDictionary.Keys.First();
-                string OrderType = OrderDictionary[Key];
+            //else
+            //{
+            //    string Key = OrderDictionary.Keys.First();
+            //    string OrderType = OrderDictionary[Key];
 
-                Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
-            }
+            //    Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+            //}
 
             Pageable<PurchaseRequestPurchaseOrderDurationReportViewModel> pageable = new Pageable<PurchaseRequestPurchaseOrderDurationReportViewModel>(Query, page - 1, size);
             List<PurchaseRequestPurchaseOrderDurationReportViewModel> Data = pageable.Data.ToList<PurchaseRequestPurchaseOrderDurationReportViewModel>();
