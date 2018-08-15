@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 		{
 			DateTime DateFrom = new DateTime(2018, 1, 1);
 			DateTime DateTo = new DateTime(2018, 1, 1);
-			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, null, null, 7);
+			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, DateFrom, DateTo, 7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 
