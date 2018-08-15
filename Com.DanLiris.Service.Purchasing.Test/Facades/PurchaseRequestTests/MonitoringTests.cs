@@ -109,14 +109,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_PRPOEDuration_Null_Parameter()
-        {
-            var model = await IPODataUtil.GetTestData2("Unit test");
-            var Response = Facade.GetPREPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
-        }
-
-        [Fact]
         public async void Should_Success_Get_Report_PRPOEDuration_Excel()
         {
             var model = await IPODataUtil.GetTestData2("Unit test");
