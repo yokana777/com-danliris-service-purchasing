@@ -123,14 +123,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
             var Response = Facade.GenerateExcelPREPODuration(model.UnitId, "8-14 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
-
-        [Fact]
-        public async void Should_Success_Get_Report_PRPOEDuration_Excel_Null_Parameter()
-        {
-            var model = await IPODataUtil.GetTestData3("Unit test");
-            var Response = Facade.GenerateExcelPREPODuration("", "15-30 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
-        }
-
     }
 }
