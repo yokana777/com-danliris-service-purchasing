@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
                     {
                         Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.ReadByURNNo(item.uRNNo);
                         UnitReceiptNoteViewModel viewModelUrn = _mapper.Map<UnitReceiptNoteViewModel>(urnModel);
-                        if (viewModelUrn != null)
+                        if (viewModelUrn != null && temp_date < viewModelUrn.date)
                             temp_date = viewModelUrn.date;
                     }
                     UnitPaymentQuantityCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentQuantityCorrectionNotePDFTemplate();

@@ -21,6 +21,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewMode
 		public string staff { get; set; }
 		public DateTimeOffset prCreatedDate { get; set; }
 		public DateTimeOffset prDate { get; set; }
+        public double dealQuantity { get; set; }
+        public string dealUomUnit { get; set; }
+        public double pricePerDealUnit { get; set; }
+        public string supplierCode { get; set; }
+        public string supplierName { get; set; }
+        public DateTimeOffset orderDate { get; set; }
+        public DateTimeOffset ePOCreatedDate { get; set; }
+        public DateTimeOffset deliveryDate { get; set; }
+        public string ePONo { get; set; }
 
-	}
+
+    }
 }

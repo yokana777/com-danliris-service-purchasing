@@ -513,23 +513,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              dOQuantity = j.DOQuantity,
                              remainingQuantity = l.DealQuantity,
                              uomUnit = j.UomUnit,
-                             LastModifiedUtc = j.LastModifiedUtc
+                             LastModifiedUtc = j.LastModifiedUtc,
+                             CreatedUtc = j.CreatedUtc,
+                             ePODetailId = j.EPODetailId
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<DeliveryOrderReportViewModel> urn = new List<DeliveryOrderReportViewModel>();
             foreach (DeliveryOrderReportViewModel data in Query.ToList())
             {
                 double value;
-                if (q.TryGetValue(data.productCode + data.ePONo, out value))
+                if (q.TryGetValue(data.productCode + data.ePONo + data.ePODetailId, out value))
                 {
-                    q[data.productCode + data.ePONo] -= data.dOQuantity;
-                    data.remainingQuantity = q[data.productCode + data.ePONo];
+                    q[data.productCode + data.ePONo + data.ePODetailId] -= data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
                     urn.Add(data);
                 }
                 else
                 {
-                    q[data.productCode + data.ePONo] = data.remainingQuantity - data.dOQuantity;
-                    data.remainingQuantity = q[data.productCode + data.ePONo];
+                    q[data.productCode + data.ePONo + data.ePODetailId] = data.remainingQuantity - data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
                     urn.Add(data);
                 }
             }
@@ -543,7 +545,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.CreatedUtc);
             }
 
 
@@ -557,7 +559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         public MemoryStream GenerateExcel(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetReportQuery(no, supplierId, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });

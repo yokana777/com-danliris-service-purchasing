@@ -198,7 +198,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 totalPPn = (0.1 * total);
                 double pph = double.Parse(viewModelSpb.incomeTax.rate);
                 totalPPh = (pph * total) / 100;
-                totalDibayar = (total + totalPPn) - totalPPh;
 
                 PdfPCell cellContent = new PdfPCell(tableContent);
                 tableContent.ExtendLastRow = false;
@@ -227,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentRight.Phrase = new Phrase(totalPPn.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                cellIdentityTotalContentRight.Phrase = new Phrase(total.ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
                 if (viewModel.useIncomeTax == false)
@@ -256,8 +255,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 {
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                    cellIdentityTotalContentLeft.Phrase = new Phrase("-");
-                    tableTotal.AddCell(cellIdentityTotalContentLeft);
+                    cellIdentityTotalContentRight.Phrase = new Phrase("-");
+                    tableTotal.AddCell(cellIdentityTotalContentRight);
+                    totalPPn = 0;
                 }
                 else
                 {
@@ -281,6 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
+                    totalDibayar = (total + totalPPn) - totalPPh;
                     cellIdentityTotalContentRight.Phrase = new Phrase(totalDibayar.ToString("N", CultureInfo.InvariantCulture), normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentRight);
                 }
@@ -296,23 +297,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 if (viewModel.useIncomeTax == true)
                 {
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(totalDibayar)} {currencyDesc.ToLower()}", terbilang_bold_font);
-                    cellIdentityTotalContentLeft.Colspan = 3;
+                    cellIdentityTotalContentLeft.Colspan = 7;
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                 } else
                 {
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total)} {currencyDesc.ToLower()}", terbilang_bold_font);
-                    cellIdentityTotalContentLeft.Colspan = 3;
+                    cellIdentityTotalContentLeft.Colspan = 7;
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                 }
                 
-                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
-                tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
-                tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
-                tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
-                tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -339,7 +332,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Perjanjian Pembayaran ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentRight.Phrase = new Phrase(" ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentRight);

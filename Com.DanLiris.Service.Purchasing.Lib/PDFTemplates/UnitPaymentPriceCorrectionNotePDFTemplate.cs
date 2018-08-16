@@ -365,7 +365,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Perjanjian Pembayaran ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {(viewModel.dueDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")))}", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Barang Datang ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
