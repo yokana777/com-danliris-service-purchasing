@@ -97,6 +97,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<PurchaseRequestDataUtil>()
                 .AddTransient<PurchaseRequestItemDataUtil>()
 
+
+                .AddTransient<PurchaseOrderMonitoringAllFacade>()
+
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<InternalPurchaseOrderDataUtil>()
                 .AddTransient<InternalPurchaseOrderItemDataUtil>()
