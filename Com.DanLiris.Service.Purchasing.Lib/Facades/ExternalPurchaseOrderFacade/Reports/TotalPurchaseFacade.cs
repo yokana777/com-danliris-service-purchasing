@@ -35,27 +35,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 						 join c in dbContext.ExternalPurchaseOrderDetails on b.Id equals c.EPOItemId
 						 join d in dbContext.InternalPurchaseOrders on b.POId equals d.Id
 						 //Conditions
-						 where  a.IsDeleted==false && a.IsCanceled ==false &&
+						 where  a.IsDeleted==false && b.IsDeleted == false && c.IsDeleted == false & d.IsDeleted == false && a.IsCanceled ==false && a.IsPosted== true &&
 						  a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit) && d.CategoryId == (string.IsNullOrWhiteSpace(category) ? d.CategoryId : category)
-						 && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-						 && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+						 && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
+						 && a.OrderDate.AddHours(offset).Date <= DateTo.Date
 						 select c.DealQuantity * c.PricePerDealUnit).Sum();
 			var Query = (from a in dbContext.ExternalPurchaseOrders
 						 join b in dbContext.ExternalPurchaseOrderItems on a.Id equals b.EPOId
 						 join c in dbContext.ExternalPurchaseOrderDetails on b.Id equals c.EPOItemId
 						 join d in dbContext.InternalPurchaseOrders on b.POId equals d.Id
 						 //Conditions
-						 where  a.IsDeleted==false && a.IsCanceled == false &&
+						 where  a.IsDeleted==false && b.IsDeleted == false && c.IsDeleted ==false & d.IsDeleted==false && a.IsCanceled == false &&  a.IsPosted == true &&
 						 c.DealQuantity !=0 && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit) && d.CategoryId == (string.IsNullOrWhiteSpace(category) ? d.CategoryId : category)
-						 && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-						 && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+						 && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
+						 && a.OrderDate.AddHours(offset).Date <= DateTo.Date
 						 group new { DealQuantity = c.DealQuantity , PricePerDealUnit = c.PricePerDealUnit} by new { a.SupplierName, a.UnitName, d.CategoryName } into G
 						 select new TotalPurchaseBySupplierViewModel
 						 {
 							 supplierName =G.Key.SupplierName,
 							 unitName = G.Key.UnitName,
 							 categoryName = G.Key.CategoryName,
-							 amount = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit), 2)*100,
+							 amount = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit), 2),
 							 total =  (Decimal)Math.Round(Total,2)
 						 });
 			return Query;
