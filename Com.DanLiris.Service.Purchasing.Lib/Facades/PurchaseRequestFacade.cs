@@ -842,10 +842,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                          join c in dbContext.ExternalPurchaseOrderItems on a.Id equals c.PRId
                          join d in dbContext.ExternalPurchaseOrders on c.EPOId equals d.Id
                          join e in dbContext.ExternalPurchaseOrderDetails on c.Id equals e.EPOItemId
-                         join f in dbContext.InternalPurchaseOrderItems on b.Id equals f.PRItemId into g
-                         from poItem in g.DefaultIfEmpty()
-                         join h in dbContext.InternalPurchaseOrders on poItem.POId equals h.Id into i
+                         join h in dbContext.InternalPurchaseOrders on c.POId equals h.Id into i
                          from po in i.DefaultIfEmpty()
+                         join f in dbContext.InternalPurchaseOrderItems on po.Id equals f.POId into g
+                         from poItem in g.DefaultIfEmpty()
                              //Conditions
                          where a.IsDeleted == false 
                             && b.Id == e.PRItemId 
@@ -878,7 +878,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              deliveryDate = d.DeliveryDate,
                              ePONo = d.EPONo,
                              staff = d.CreatedBy,
-                         });
+                         }).Distinct();
             foreach (var item in Query)
             {
                 var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
