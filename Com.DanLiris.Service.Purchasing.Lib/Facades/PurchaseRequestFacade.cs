@@ -839,11 +839,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             List<PurchaseRequestPurchaseOrderDurationReportViewModel> listPRDUration = new List<PurchaseRequestPurchaseOrderDurationReportViewModel>();
             var Query = (from a in dbContext.PurchaseRequests
                          join b in dbContext.PurchaseRequestItems on a.Id equals b.PurchaseRequestId
-                         join c in dbContext.ExternalPurchaseOrderItems on a.No equals c.PRNo
-                         join d in dbContext.ExternalPurchaseOrders on c.POId equals d.Id
+                         join c in dbContext.ExternalPurchaseOrderItems on a.Id equals c.PRId
+                         join d in dbContext.ExternalPurchaseOrders on c.EPOId equals d.Id
                          join e in dbContext.ExternalPurchaseOrderDetails on c.Id equals e.EPOItemId
-                         join f in dbContext.InternalPurchaseOrders on a.No equals f.PRNo
-                         //Conditions
+                         join f in dbContext.InternalPurchaseOrderItems on b.Id equals f.PRItemId into g
+                         from poItem in g.DefaultIfEmpty()
+                         join h in dbContext.InternalPurchaseOrders on poItem.POId equals h.Id into i
+                         from po in i.DefaultIfEmpty()
+                             //Conditions
                          where a.IsDeleted == false 
                             && b.Id == e.PRItemId 
                             && b.IsDeleted == false 
@@ -869,7 +872,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              pricePerDealUnit = e.PricePerDealUnit,
                              supplierCode = d.SupplierCode,
                              supplierName = d.SupplierName,
-                             poDate = f.CreatedUtc,
+                             poDate = po.CreatedUtc,
                              orderDate = d.OrderDate,
                              ePOCreatedDate = d.CreatedUtc,
                              deliveryDate = d.DeliveryDate,
