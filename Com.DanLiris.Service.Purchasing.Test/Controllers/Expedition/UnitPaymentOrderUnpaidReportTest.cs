@@ -1,7 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
-using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +7,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
