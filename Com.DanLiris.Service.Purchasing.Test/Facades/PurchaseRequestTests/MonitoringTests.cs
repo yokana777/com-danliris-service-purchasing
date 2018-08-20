@@ -116,10 +116,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_PRPOExDuration_Data_2()
+        public async void Should_Success_Get_Report_PRPOExDuration_Null_Parameter()
         {
-            var model = await EPODataUtil.GetTestData3("Unit test");
-            var Response = Facade.GetPREPODurationReport(model.UnitId, "15-30 hari", null, null, 1, 25, "{}", 7);
+            var model = await IPODataUtil.GetTestData2("Unit test");
+            var Response = Facade.GetPREPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item2, 0);
         }
 
@@ -135,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         public async void Should_Success_Get_Report_PRPOEDuration_Excel_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
-            var Response = Facade.GenerateExcelPREPODuration("", "8-14 hari", null, null, 7);
+            var Response = Facade.GenerateExcelPREPODuration("", "15-30 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }

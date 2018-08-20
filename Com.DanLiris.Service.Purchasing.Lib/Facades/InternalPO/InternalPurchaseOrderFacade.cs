@@ -645,5 +645,182 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        #region Duration InternalPO-POEks
+        public IQueryable<InternalPurchaseExternalPurchaseDurationReportViewModel> GetIPOEPODurationReportQuery(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            int start = 0;
+            int end = 0;
+            if (duration == "8-14 hari")
+            {
+                start = 8;
+                end = 14;
+            }
+            else if (duration == "15-30 hari")
+            {
+                start = 15;
+                end = 30;
+            }
+            else
+            {
+                start = 31;
+                end = 1000;
+            }
+            List<InternalPurchaseExternalPurchaseDurationReportViewModel> listIPODUration = new List<InternalPurchaseExternalPurchaseDurationReportViewModel>();
+            var Query = (from a in dbContext.InternalPurchaseOrders
+                         join b in dbContext.InternalPurchaseOrderItems on a.Id equals b.POId
+                         join c in dbContext.PurchaseRequestItems on b.PRItemId equals c.Id
+                         join d in dbContext.PurchaseRequests on c.PurchaseRequestId equals d.Id
+                         join e in dbContext.ExternalPurchaseOrderItems on a.Id equals e.POId
+                         join f in dbContext.ExternalPurchaseOrders on e.EPOId equals f.Id
+                         join g in dbContext.ExternalPurchaseOrderDetails on f.Id equals g.EPOItemId
+                         //Conditions
+                         where a.IsDeleted == false
+                            //&& b.Id == e.PRItemId
+                            && b.IsDeleted == false
+                            && c.IsDeleted == false
+                            && d.IsDeleted == false
+                            && e.IsDeleted == false
+                            && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
+                            && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                         select new InternalPurchaseExternalPurchaseDurationReportViewModel
+                         {
+                             prNo = a.PRNo,
+                             prDate = a.PRDate,
+                             prCreatedDate = d.CreatedUtc,
+                             unit = a.UnitName,
+                             category = a.CategoryName,
+                             division = a.DivisionName,
+                             budget = a.BudgetName,
+                             productCode = g.ProductCode,
+                             productName = g.ProductName,
+                             dealQuantity = g.DealQuantity,
+                             dealUomUnit = g.DealUomUnit,
+                             pricePerDealUnit = g.PricePerDealUnit,
+                             supplierCode = f.SupplierCode,
+                             supplierName = f.SupplierName,
+                             poDate = a.CreatedUtc,
+                             orderDate = f.OrderDate,
+                             ePOCreatedDate = f.CreatedUtc,
+                             deliveryDate = f.DeliveryDate,
+                             ePONo = f.EPONo,
+                             staff = f.CreatedBy,
+                         });//.Distinct();
+            foreach (var item in Query)
+            {
+                var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
+                var prCreatedDate = new DateTimeOffset(item.prCreatedDate.Date, TimeSpan.Zero);
+
+                var datediff = ((TimeSpan)(ePODate - prCreatedDate)).Days;
+                InternalPurchaseExternalPurchaseDurationReportViewModel _new = new InternalPurchaseExternalPurchaseDurationReportViewModel
+                {
+                    prNo = item.prNo,
+                    prDate = item.prDate,
+                    prCreatedDate = item.prCreatedDate,
+                    unit = item.unit,
+                    category = item.category,
+                    division = item.division,
+                    budget = item.budget,
+                    productCode = item.productCode,
+                    productName = item.productName,
+                    dealQuantity = item.dealQuantity,
+                    dealUomUnit = item.dealUomUnit,
+                    pricePerDealUnit = item.pricePerDealUnit,
+                    supplierCode = item.supplierCode,
+                    supplierName = item.supplierName,
+                    poDate = item.poDate,
+                    orderDate = item.orderDate,
+                    ePOCreatedDate = item.ePOCreatedDate,
+                    deliveryDate = item.deliveryDate,
+                    ePONo = item.ePONo,
+                    dateDiff = datediff,
+                    staff = item.staff,
+                };
+                listIPODUration.Add(_new);
+            }
+            return listIPODUration.Where(s => s.dateDiff >= start && s.dateDiff <= end).AsQueryable();
+
+        }
+
+
+        public Tuple<List<InternalPurchaseExternalPurchaseDurationReportViewModel>, int> GetIPOEPODurationReport(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetIPOEPODurationReportQuery(unit, duration, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.prCreatedDate);
+            }
+            //else
+            //{
+            //    string Key = OrderDictionary.Keys.First();
+            //    string OrderType = OrderDictionary[Key];
+
+            //    Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+            //}
+
+            Pageable<InternalPurchaseExternalPurchaseDurationReportViewModel> pageable = new Pageable<InternalPurchaseExternalPurchaseDurationReportViewModel>(Query, page - 1, size);
+            List<InternalPurchaseExternalPurchaseDurationReportViewModel> Data = pageable.Data.ToList<InternalPurchaseExternalPurchaseDurationReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+        public MemoryStream GenerateExcelIPOEPODuration(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetIPOEPODurationReportQuery(unit, duration, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.prCreatedDate);
+            DataTable result = new DataTable();
+            //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Purchase Request", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Buat Purchase Request", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Purchase Request", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Divisi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Budget", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Terima PO Internal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Buat PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Target Datang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih Tanggal PO Internal - PO Eksternal (hari)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Staff Pembelian", DataType = typeof(string) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string prDate = item.prDate == null ? "-" : item.prDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string prCreatedDate = item.prCreatedDate == new DateTime(1970, 1, 1) ? "-" : item.prCreatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string poDate = item.poDate == new DateTime(1970, 1, 1) ? "-" : item.poDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string orderDate = item.orderDate == new DateTime(1970, 1, 1) ? "-" : item.orderDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string ePOCreatedDate = item.ePOCreatedDate == new DateTime(1970, 1, 1) ? "-" : item.ePOCreatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string deliveryDate = item.deliveryDate == new DateTime(1970, 1, 1) ? "-" : item.deliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, prDate, prCreatedDate, item.prNo, item.division, item.unit, item.budget, item.category, item.productCode, item.productName, item.dealQuantity, item.dealUomUnit, item.pricePerDealUnit, item.supplierCode, item.supplierName, poDate, orderDate, ePOCreatedDate, deliveryDate, item.ePONo, item.dateDiff, item.staff);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        #endregion
+
     }
 }
