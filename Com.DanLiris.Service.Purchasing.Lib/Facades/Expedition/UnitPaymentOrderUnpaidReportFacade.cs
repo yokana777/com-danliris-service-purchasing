@@ -24,9 +24,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly DbSet<PurchasingDocumentExpedition> dbSet;
 
         IMongoCollection<BsonDocument> collection;
-        IMongoCollection<BsonDocument> collectionUnitPaymentOrder;
-
-        FilterDefinitionBuilder<BsonDocument> filterBuilder;
 
         public UnitPaymentOrderUnpaidReportFacade(PurchasingDbContext dbContext)
         {
@@ -34,10 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
 
             MongoDbContext mongoDbContext = new MongoDbContext();
-            this.collection = mongoDbContext.UnitReceiptNote;
-            this.collectionUnitPaymentOrder = mongoDbContext.UnitPaymentOrder;
-
-            this.filterBuilder = Builders<BsonDocument>.Filter;
+            this.collection = mongoDbContext.UnitPaymentOrder;
         }
 
         public List<UnitPaymentOrderUnpaidViewModel> GetReportMongo(string no, string supplierCode, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
@@ -56,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 query += ",{'$and' : [{ date : {'$gte' : new Date('" + dateFrom.ToString() + "')}}, " + "{date : {'$lte' : new Date('" + dateTo.ToString() + "')}}]}";
             }
             query += "]}";
-            IMongoCollection<BsonDocument> collection = new MongoDbContext().UnitPaymentOrder;
+            
             List<BsonDocument> bsonData = collection.Find(query).Project(Builders<BsonDocument>.Projection
                 .Include("no").Include("date").Include("currency").Include("supplier").Include("invoceNo").Include("dueDate").Include("items")).ToList();
             List<UnitPaymentOrderUnpaidViewModel> listData = new List<UnitPaymentOrderUnpaidViewModel>();
