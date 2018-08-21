@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                                 _id = "CurrencyId",
                                 code = "CurrencyCode",
                                 description = "CurrencyDescription",
-                                rate = "CurrencyRate"
+                                rate = 0.1
                             },
                             pricePerDealUnitAfter=2000,
                             pricePerDealUnitBefore=3000,
@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     {
                         code="cr1",
                         description="currency",
-                        rate="1"
+                        rate=1
                     },
                     items = new List<UnitPaymentOrderItemViewModel>()
                     
@@ -516,7 +516,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             ViewModel.correctionType = "Harga Total";
             var mockMapperSpb = new Mock<IMapper>();
-            ViewModelSpb.currency = new CurrencyViewModel() { code = "currency", description = "currency", rate = "1" };
+            ViewModelSpb.currency = new CurrencyViewModel() { code = "currency", description = "currency", rate = 1 };
             mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
                 .Returns(ViewModelSpb);
             

@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                                 _id = "CurrencyId",
                                 code = "CurrencyCode",
                                 description = "CurrencyDescription",
-                                rate = "CurrencyRate"
+                                rate = 1
                             }
                         }
                     }
@@ -134,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                                 _id = "CurrencyId",
                                 code = "CurrencyCode",
                                 description = "CurrencyDescription",
-                                rate = "CurrencyRate"
+                                rate = 1
                             }
                         }
                     }
