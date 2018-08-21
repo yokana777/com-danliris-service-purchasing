@@ -91,6 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<UnitPaymentOrderUnpaidReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
+                .AddTransient<UnitReceiptNoteBsonDataUtil>()
                 .AddTransient<UnitPaymentOrderUnpaidReportDataUtil>()
                 .AddTransient<UnitReceiptNoteImportFalseBsonDataUtil>()
 
