@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib;
+﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
@@ -10,7 +9,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Serializers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
@@ -32,6 +30,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -60,6 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
             ClassMap<UomViewModel>.Register();
             ClassMap<PurchaseOrderViewModel>.Register();
             ClassMap<SupplierViewModel>.Register();
+            ClassMap<UnitPaymentOrderUnpaidViewModel>.Register();
         }
 
         public ServiceProviderFixture()
@@ -88,9 +88,10 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<SendToVerificationDataUtil>()
 
+                .AddTransient<UnitPaymentOrderUnpaidReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
-                .AddTransient<UnitReceiptNoteBsonDataUtil>()
+                .AddTransient<UnitPaymentOrderUnpaidReportDataUtil>()
                 .AddTransient<UnitReceiptNoteImportFalseBsonDataUtil>()
 
                 .AddTransient<PurchaseRequestFacade>()

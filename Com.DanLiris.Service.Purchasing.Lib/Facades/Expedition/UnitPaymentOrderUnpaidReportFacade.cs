@@ -33,13 +33,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public List<UnitPaymentOrderUnpaidViewModel> GetReportMongo(string no, string supplierCode, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
         {
             string query = "{'$and' : [{_deleted : false}";
-            if (no != null)
+            if (!string.IsNullOrEmpty(no))
             {
                 query += ",{ no : '" + no + "'}";
             }
-            if (supplierCode != null)
+            if (!string.IsNullOrEmpty(supplierCode))
             {
-                query += ",{ supplier.code : '" + supplierCode + "'}";
+                query += ",{ 'supplier.code' : '" + supplierCode + "'}";
             }
             if (dateFrom != null && dateTo != null)
             {
@@ -80,15 +80,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return listData;
         }
 
-        public ReadResponse GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public Tuple<IQueryable<UnitPaymentOrderUnpaidViewModel>, Dictionary<string, string>> GetPurchasingDocumentExpedition(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
         {
-
             IQueryable<PurchasingDocumentExpedition> Query = this.dbContext.PurchasingDocumentExpeditions;
-            if(DateFrom == null || DateTo == null)
-            {
-                DateTo = DateTimeOffset.Now.AddHours(Offset);
-                DateFrom = DateTimeOffset.Now.AddHours(Offset).AddMonths(-1);
-            }
 
             Query = Query
                    .Where(p => p.IsDeleted == false &&
@@ -116,29 +110,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Currency = s.Currency,
                     LastModifiedUtc = s.LastModifiedUtc
                 });
-            
+
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureOrder(Query, OrderDictionary);
-            List<UnitPaymentOrderUnpaidViewModel> list = new List<UnitPaymentOrderUnpaidViewModel>();
 
-            list = (from datum in Query
-                   select new UnitPaymentOrderUnpaidViewModel
-                   {
-                       UnitPaymentOrderNo = datum.UnitPaymentOrderNo,
-                       UPODate = datum.UPODate,
-                       InvoiceNo = datum.InvoiceNo,
-                       SupplierName = datum.SupplierName,
-                       Currency = datum.Currency,
-                       IncomeTax = datum.IncomeTax,
-                       DueDate = datum.DueDate,
-                       DPPVat = datum.TotalPaid,
-                       TotalPaid = datum.TotalPaid + datum.Vat
-                   }).ToList();
+            var list = (from datum in Query
+                        select new UnitPaymentOrderUnpaidViewModel
+                        {
+                            UnitPaymentOrderNo = datum.UnitPaymentOrderNo,
+                            UPODate = datum.UPODate,
+                            InvoiceNo = datum.InvoiceNo,
+                            SupplierName = datum.SupplierName,
+                            Currency = datum.Currency,
+                            IncomeTax = datum.IncomeTax,
+                            DueDate = datum.DueDate,
+                            DPPVat = datum.TotalPaid,
+                            TotalPaid = datum.TotalPaid + datum.Vat
+                        });
+            return Tuple.Create(list, OrderDictionary);
+        }
+
+        public ReadResponse GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        {
+            if (!DateFrom.HasValue || !DateTo.HasValue)
+            {
+                DateFrom = DateTimeOffset.Now.AddHours(Offset).AddMonths(-1);
+                DateTo = DateTimeOffset.Now.AddHours(Offset);
+            }
+
+            var purchasingDocumentData = GetPurchasingDocumentExpedition(Size,Page,Order,UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
 
             List<UnitPaymentOrderUnpaidViewModel> dataMongo = GetReportMongo(UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
 
             var resultQuery = (from a in dataMongo
-                                join b in list on a.UnitPaymentOrderNo equals b.UnitPaymentOrderNo into ab
+                                join b in purchasingDocumentData.Item1 on a.UnitPaymentOrderNo equals b.UnitPaymentOrderNo into ab
                                 from b in ab.DefaultIfEmpty()
                                 select new UnitPaymentOrderUnpaidViewModel
                                 {
@@ -160,7 +165,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             List<UnitPaymentOrderUnpaidViewModel> Data = pageable.Data.ToList<UnitPaymentOrderUnpaidViewModel>();
             int TotalData = pageable.TotalCount;
 
-            return new ReadResponse(Data.ToList<object>(), TotalData, OrderDictionary);
+            return new ReadResponse(Data.ToList<object>(), TotalData, purchasingDocumentData.Item2);
+        }
+
+        public void InsertToMongo(BsonDocument document)
+        {
+            collection.InsertOne(document);
+        }
+        public void DeleteDataMongoByNo(string no)
+        {
+            collection.DeleteOne("{ no : '" + no + "'}");
         }
     }
 }
