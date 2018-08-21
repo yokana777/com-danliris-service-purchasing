@@ -10,11 +10,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
 	{
 		public string supplierName { get; set; }
 		public string unitName { get; set; }
+		public string categoryId { get; set; }
 		public string categoryName { get; set; }
 		public string divisionId { get; set; }
 		public string divisionName { get; set; }
 		public decimal amount { get; set; }
+		public decimal amountIDR { get; set; }
 		public decimal total { get; set; }
+		public string currencyCode { get; set; }
 	
 	}
 }
