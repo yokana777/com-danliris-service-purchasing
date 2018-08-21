@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(_dbContext(testName), serviceProvider.Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
-            DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
+            DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
 
             UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(serviceProvider.Object, _dbContext(testName));
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(_dbContext(testName));
             UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
 
-            return new UnitPaymentCorrectionNoteDataUtil(unitPaymentOrderDataUtil, facade);
+            return new UnitPaymentCorrectionNoteDataUtil(unitPaymentOrderDataUtil, facade, unitReceiptNoteFacade);
         }
 
         [Fact]
@@ -112,6 +112,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int)model.Id);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Error_Get_Null_Data_UnitReceiptNote()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadByURNNo((string)model.UPCNo);
+            Assert.Null(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Null_Data_UnitReceiptNote()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestDataUrn();
+            var Response = facade.ReadByURNNo((string)model.URNNo);
             Assert.NotNull(Response);
         }
 
@@ -214,6 +234,52 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
 
-        
+        [Fact]
+        public void Should_Success_Validate_Data_2()
+        {
+            UnitPaymentCorrectionNoteViewModel nullViewModel = new UnitPaymentCorrectionNoteViewModel();
+            nullViewModel.items = new List<UnitPaymentCorrectionNoteItemViewModel> { };
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            UnitPaymentCorrectionNoteViewModel viewModel = new UnitPaymentCorrectionNoteViewModel()
+            {
+                correctionType = "Jumlah",
+                useIncomeTax = true,
+                useVat = true,
+                items = new List<UnitPaymentCorrectionNoteItemViewModel>
+                {
+                    new UnitPaymentCorrectionNoteItemViewModel()
+                    {
+                        quantity = 1,
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_3()
+        {
+            UnitPaymentCorrectionNoteViewModel nullViewModel = new UnitPaymentCorrectionNoteViewModel();
+            nullViewModel.items = new List<UnitPaymentCorrectionNoteItemViewModel> { };
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            UnitPaymentCorrectionNoteViewModel viewModel = new UnitPaymentCorrectionNoteViewModel()
+            {
+                correctionType = "Jumlah",
+                useIncomeTax = true,
+                useVat = true,
+                items = new List<UnitPaymentCorrectionNoteItemViewModel>
+                {
+                    new UnitPaymentCorrectionNoteItemViewModel()
+                    {
+                        quantity = -1,
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+
     }
 }

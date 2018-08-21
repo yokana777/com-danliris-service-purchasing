@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.Moonlay.Models;
@@ -70,11 +71,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     .ToList(),
                     CreatedBy = s.CreatedBy,
                     LastModifiedUtc = s.LastModifiedUtc
-                }).OrderByDescending(j => j.LastModifiedUtc);
+                }).Where(k => k.CorrectionType == "Jumlah")
+                .OrderByDescending(j => j.LastModifiedUtc);
 
             List<string> searchAttributes = new List<string>()
             {
-                "UPCNo", "UPONo", "SupplierName"
+                "UPCNo", "UPONo", "SupplierName", "InvoiceCorrectionNo"
             };
 
             Query = QueryHelper<UnitPaymentCorrectionNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -122,12 +124,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
                     }
-                    UnitPaymentOrder unitPaymentOrder = this.dbContext.UnitPaymentOrders.FirstOrDefault(s => s.Id == m.UPOId);
+                    UnitPaymentOrder unitPaymentOrder = this.dbContext.UnitPaymentOrders.Where(s => s.Id == m.UPOId).Include(p => p.Items).ThenInclude(i => i.Details).FirstOrDefault();
                     unitPaymentOrder.IsCorrection = true;
-                    
+
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        foreach (var itemSpb in unitPaymentOrder.Items)
+                        {
+                            foreach(var detailSpb in itemSpb.Details)
+                            {
+                                if (item.UPODetailId == detailSpb.Id)
+                                    detailSpb.QuantityCorrection = detailSpb.QuantityCorrection - item.Quantity;
+                            }
+                        }
                     }
 
                     this.dbSet.Add(m);
@@ -227,6 +237,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
             
         }
+
+        public UnitReceiptNote ReadByURNNo(string uRNNo)
+        {
+            var a = dbContext.UnitReceiptNotes.Where(p => p.URNNo == uRNNo)
+                .Include(p => p.Items)
+                .FirstOrDefault();
+            return a;
+        }
+        //public UnitReceiptNote ReadByURNNo(string uRNNo)
+        //{
+        //    return dbContext.UnitReceiptNotes.Where(m => m.URNNo == uRNNo)
+        //        .Include(p => p.Items)
+        //        .FirstOrDefault();
+        //}
 
         //public async Task<int> Update(int id, UnitPaymentCorrectionNote unitPaymentCorrectionNote, string user)
         //{
