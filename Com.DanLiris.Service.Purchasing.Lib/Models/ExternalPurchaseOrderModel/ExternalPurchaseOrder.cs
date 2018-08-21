@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
         [MaxLength(255)]
         public string CurrencyCode { get; set; }
         [MaxLength(1000)]
-        public string CurrencyRate { get; set; }
+        public double CurrencyRate { get; set; }
 
         public string PaymentMethod { get; set; }
         public string PaymentDueDays { get; set; }
