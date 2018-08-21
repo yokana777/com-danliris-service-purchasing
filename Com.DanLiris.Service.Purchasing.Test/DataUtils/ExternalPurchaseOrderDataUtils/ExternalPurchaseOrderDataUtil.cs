@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             {
                 CurrencyCode = "CurrencyCode",
                 CurrencyId = "CurrencyId",
-                CurrencyRate = "CurrencyRate",
+                CurrencyRate = 0.5,
                 UnitId = "UnitId",
                 UnitCode = "UnitCode",
                 UnitName = "UnitName",
@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 {
                     code = "CurrencyCode",
                     _id = "CurrencyId",
-                    rate = "CurrencyRate",
+                    rate = 0.5,
                 },
                 freightCostBy = "test",
                 deliveryDate = DateTime.Now.AddDays(1),
