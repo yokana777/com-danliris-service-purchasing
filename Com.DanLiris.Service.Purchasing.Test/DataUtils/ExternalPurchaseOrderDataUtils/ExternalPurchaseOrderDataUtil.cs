@@ -154,6 +154,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             return externalPurchaseOrder;
         }
 
+        public async Task<ExternalPurchaseOrder> GetTestData4(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+            externalPurchaseOrder.CreatedUtc = externalPurchaseOrder.CreatedUtc.AddDays(-40);
+            await facade.Update(Convert.ToInt32(externalPurchaseOrder.Id), externalPurchaseOrder, user);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestData5(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+            externalPurchaseOrder.CreatedUtc = externalPurchaseOrder.CreatedUtc.AddDays(-70);
+            await facade.Update(Convert.ToInt32(externalPurchaseOrder.Id), externalPurchaseOrder, user);
+
+            return externalPurchaseOrder;
+        }
+
         public async Task<ExternalPurchaseOrder> GetTestDataUnused(string user)
         {
             ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);

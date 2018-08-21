@@ -712,9 +712,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             foreach (var item in Query)
             {
                 var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
-                var prCreatedDate = new DateTimeOffset(item.prCreatedDate.Date, TimeSpan.Zero);
+                var poCreatedDate = new DateTimeOffset(item.poDate.Date, TimeSpan.Zero);
 
-                var datediff = ((TimeSpan)(ePODate - prCreatedDate)).Days;
+                var datediff = ((TimeSpan)(ePODate - poCreatedDate)).Days;
                 InternalPurchaseExternalPurchaseDurationReportViewModel _new = new InternalPurchaseExternalPurchaseDurationReportViewModel
                 {
                     prNo = item.prNo,
