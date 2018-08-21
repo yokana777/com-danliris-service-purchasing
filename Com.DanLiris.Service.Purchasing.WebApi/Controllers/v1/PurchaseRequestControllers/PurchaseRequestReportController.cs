@@ -29,8 +29,71 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             this.identityService = identityService;
         }
 
-        [HttpGet]
+        #region By User
+        [HttpGet("by-user")]
         public IActionResult GetReport(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            string accept = Request.Headers["Accept"];
+
+            try
+            {
+
+                var data = facade.GetReport(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, page, size, Order, offset, identityService.Username);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("by-user/download")]
+        public IActionResult GetXls(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = facade.GenerateExcel(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset, identityService.Username);
+
+                string filename = String.Format("Purchase Request - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        #endregion
+
+        #region All
+        [HttpGet]
+        public IActionResult GetReportAll(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -38,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
             try
             {
 
-                var data = facade.GetReport(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReport(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, page, size, Order, offset, "");
 
                 return Ok(new
                 {
@@ -59,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXlsAll(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try
@@ -69,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcel(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcel(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset, "");
 
                 string filename = String.Format("Purchase Request - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
@@ -86,5 +149,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchaseRequestC
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+        #endregion
     }
 }

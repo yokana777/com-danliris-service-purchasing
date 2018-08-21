@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public long pRDetailId { get; set; }
         public ProductViewModel product { get; set; }
         public long quantity { get; set; }
+        public long quantityCheck { get; set; }
         public UomViewModel uom { get; set; }
         public long pricePerDealUnitBefore { get; set; }
         public long pricePerDealUnitAfter { get; set; }

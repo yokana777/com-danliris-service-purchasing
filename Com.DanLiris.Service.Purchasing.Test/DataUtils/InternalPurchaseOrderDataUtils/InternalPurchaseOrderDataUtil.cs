@@ -102,18 +102,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
             return internalPurchaseOrder;
         }
+		public async Task<InternalPurchaseOrder> GetTestData2(string user)
+		{
+			InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
+			
+			await facade.Create(internalPurchaseOrder, user);
+			internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(10);
+			await facade.Update(Convert.ToInt32( internalPurchaseOrder.Id),internalPurchaseOrder, user);
 
-        //public PurchaseRequestViewModel GetViewModelTestData()
-        //{
-        //    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(GetNewData());
+			return internalPurchaseOrder;
+		}
+		public async Task<InternalPurchaseOrder> GetTestData3(string user)
+		{
+			InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
 
-        //    return viewModel;
-        //}
-        //public PurchaseRequestViewModel GetViewModelFromModelTestData(PurchaseRequest model)
-        //{
-        //    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
+			await facade.Create(internalPurchaseOrder, user);
+			internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(16);
+			await facade.Update(Convert.ToInt32(internalPurchaseOrder.Id), internalPurchaseOrder, user);
 
-        //    return viewModel;
-        //}
-    }
+			return internalPurchaseOrder;
+		}
+		//public PurchaseRequestViewModel GetViewModelTestData()
+		//{
+		//    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(GetNewData());
+
+		//    return viewModel;
+		//}
+		//public PurchaseRequestViewModel GetViewModelFromModelTestData(PurchaseRequest model)
+		//{
+		//    PurchaseRequestViewModel viewModel = mapper.Map<PurchaseRequestViewModel>(model);
+
+		//    return viewModel;
+		//}
+	}
 }

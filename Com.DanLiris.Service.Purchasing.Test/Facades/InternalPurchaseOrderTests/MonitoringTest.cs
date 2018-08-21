@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         private InternalPurchaseOrderDataUtil DataUtil
         {
             get { return (InternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(InternalPurchaseOrderDataUtil)); }
+        }
+
+        private ExternalPurchaseOrderDataUtil EPODataUtil
+        {
+            get { return (ExternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(ExternalPurchaseOrderDataUtil)); }
         }
 
         private InternalPurchaseOrderFacade Facade
@@ -60,6 +66,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel("", "", "", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        //Duration PO In-PO Ex
+        [Fact]
+        public async void Should_Success_Get_Report_POIPOExDuration_Data()
+        {
+            var model = await EPODataUtil.GetTestData2("Unit test");
+            var Response = Facade.GetIPOEPODurationReport(model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_POIPOExDuration_Null_Parameter()
+        {
+            var model = await EPODataUtil.GetTestData3("Unit test");
+            var Response = Facade.GetIPOEPODurationReport("", "15-30 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_POIPOEDuration_Excel()
+        {
+            var model = await EPODataUtil.GetTestData2("Unit test");
+            var Response = Facade.GenerateExcelIPOEPODuration(model.UnitId, "8-14 hari", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_POIPOEDuration_Excel_Null_Parameter()
+        {
+            var model = await EPODataUtil.GetTestData3("Unit test");
+            var Response = Facade.GenerateExcelIPOEPODuration("", "15-30 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }

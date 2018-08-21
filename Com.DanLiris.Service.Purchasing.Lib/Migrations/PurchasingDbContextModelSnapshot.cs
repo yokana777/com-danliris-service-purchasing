@@ -897,7 +897,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyId")
                         .HasMaxLength(255);
 
-                    b.Property<string>("CurrencyRate")
+                    b.Property<double>("CurrencyRate")
                         .HasMaxLength(1000);
 
                     b.Property<string>("DeletedAgent")
@@ -1545,13 +1545,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DivisionName")
                         .HasMaxLength(1000);
 
-                    b.Property<DateTimeOffset>("DueDate");
+                    b.Property<DateTimeOffset?>("DueDate");
 
-                    b.Property<DateTimeOffset>("IncomeTaxCorrectionDate");
+                    b.Property<DateTimeOffset?>("IncomeTaxCorrectionDate");
 
                     b.Property<string>("IncomeTaxCorrectionNo");
 
-                    b.Property<DateTimeOffset>("InvoiceCorrectionDate");
+                    b.Property<DateTimeOffset?>("InvoiceCorrectionDate");
 
                     b.Property<string>("InvoiceCorrectionNo");
 
@@ -1594,7 +1594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UPONo");
 
-                    b.Property<DateTimeOffset>("VatTaxCorrectionDate");
+                    b.Property<DateTimeOffset?>("VatTaxCorrectionDate");
 
                     b.Property<string>("VatTaxCorrectionNo");
 
@@ -1901,6 +1901,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("ProductRemark");
+
+                    b.Property<double>("QuantityCorrection");
 
                     b.Property<double>("ReceiptQuantity");
 
