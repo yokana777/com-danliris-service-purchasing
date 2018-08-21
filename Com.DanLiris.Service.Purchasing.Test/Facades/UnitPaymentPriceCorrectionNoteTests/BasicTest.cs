@@ -181,7 +181,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReport(null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotNull(Response);
         }
 
         [Fact]
