@@ -708,7 +708,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              deliveryDate = f.DeliveryDate,
                              ePONo = f.EPONo,
                              staff = f.CreatedBy,
-                         });//.Distinct();
+                         }).Distinct();
             foreach (var item in Query)
             {
                 var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
