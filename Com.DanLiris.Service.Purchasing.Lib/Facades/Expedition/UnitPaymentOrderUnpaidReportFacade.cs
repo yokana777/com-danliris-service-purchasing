@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return listData;
         }
 
-        public IQueryable<UnitPaymentOrderUnpaidViewModel> GetPurchasingDocumentExpedition(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public IQueryable<UnitPaymentOrderUnpaidViewModel> GetPurchasingDocumentExpedition(int Size, int Page, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbContext.PurchasingDocumentExpeditions;
 
@@ -136,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 DateFrom = DateTimeOffset.Now.AddHours(Offset).AddMonths(-1);
                 DateTo = DateTimeOffset.Now.AddHours(Offset);
             }
-            var listData = GetPurchasingDocumentExpedition(Size,Page,Order,UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
+            var listData = GetPurchasingDocumentExpedition(Size,Page,UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
 
             List<UnitPaymentOrderUnpaidViewModel> dataMongo = GetReportMongo(UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
             
