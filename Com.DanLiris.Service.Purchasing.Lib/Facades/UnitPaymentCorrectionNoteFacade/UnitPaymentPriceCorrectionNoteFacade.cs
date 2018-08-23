@@ -230,6 +230,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                          where a.IsDeleted == false
                              && i.IsDeleted == false
                              && (a.CorrectionType=="Harga Total" || a.CorrectionType == "Harga Satuan")
+                             && a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                          select new UnitPaymentPriceCorrectionNoteReportViewModel
                          {
                              upcNo=a.UPCNo,

@@ -28,18 +28,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_SQL_Data()
+        public void Should_Success_Get_SQL_Data()
         {
-            var response = this.Facade.GetPurchasingDocumentExpedition(25, 1, "{}", null, null, DateTimeOffset.Now, DateTimeOffset.Now.AddMonths(-1));
-
-            Assert.NotNull(response.Item1);
-            Assert.NotNull(response.Item2);
+            var result = this.Facade.GetPurchasingDocumentExpedition(25, 1, null, null, DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
+            Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_Mongo_Data()
         {
-            var result = this.Facade.GetReportMongo( "", "", DateTimeOffset.Now, DateTimeOffset.Now.AddMonths(-1));
+            var result = this.Facade.GetReportMongo( "", "", DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
             Assert.NotNull(result);
         }
 
@@ -64,6 +62,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         {
             BsonDocument data = DataUtil.GetTestData();
             var result = this.Facade.GetReport(25, 1, "{}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, null, 0);
+            Assert.NotNull(result);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Parm_Order()
+        {
+            BsonDocument data = DataUtil.GetTestData();
+            var result = this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, null, 0);
             Assert.NotNull(result);
             this.Facade.DeleteDataMongoByNo(data["no"].AsString);
         }
