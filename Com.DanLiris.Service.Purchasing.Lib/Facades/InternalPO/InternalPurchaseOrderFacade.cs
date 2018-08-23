@@ -675,7 +675,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          join d in dbContext.PurchaseRequests on c.PurchaseRequestId equals d.Id
                          join e in dbContext.ExternalPurchaseOrderItems on a.Id equals e.POId
                          join f in dbContext.ExternalPurchaseOrders on e.EPOId equals f.Id
-                         join g in dbContext.ExternalPurchaseOrderDetails on f.Id equals g.EPOItemId
+                         join g in dbContext.ExternalPurchaseOrderDetails on e.Id equals g.EPOItemId
                          //Conditions
                          where a.IsDeleted == false
                             //&& b.Id == e.PRItemId

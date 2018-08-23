@@ -16,6 +16,7 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -713,7 +714,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
                 var doDate = new DateTimeOffset(item.dODate.Date, TimeSpan.Zero);
 
-                var datediff = ((TimeSpan)(doDate - ePODate)).Days;
+                var datediff = (((TimeSpan)(doDate - ePODate)).Days)+1;
                 ExternalPurchaseDeliveryOrderDurationReportViewModel _new = new ExternalPurchaseDeliveryOrderDurationReportViewModel
                 {
                     prNo = item.prNo,
