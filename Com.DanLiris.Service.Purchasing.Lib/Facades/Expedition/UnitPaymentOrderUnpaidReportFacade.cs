@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -46,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 query += ",{'$and' : [{ date : {'$gte' : new Date('" + dateFrom.ToString() + "')}}, " + "{date : {'$lte' : new Date('" + dateTo.ToString() + "')}}]}";
             }
             query += "]}";
-            
+
             List<BsonDocument> bsonData = collection.Find(query).Project(Builders<BsonDocument>.Projection
                 .Include("no").Include("date").Include("currency").Include("supplier").Include("invoceNo").Include("dueDate").Include("items")).ToList();
             List<UnitPaymentOrderUnpaidViewModel> listData = new List<UnitPaymentOrderUnpaidViewModel>();
@@ -80,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return listData;
         }
 
-        public Tuple<IQueryable<UnitPaymentOrderUnpaidViewModel>, Dictionary<string, string>> GetPurchasingDocumentExpedition(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public IQueryable<UnitPaymentOrderUnpaidViewModel> GetPurchasingDocumentExpedition(int Size, int Page, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbContext.PurchasingDocumentExpeditions;
 
@@ -111,10 +112,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     LastModifiedUtc = s.LastModifiedUtc
                 });
 
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureOrder(Query, OrderDictionary);
-
             var list = (from datum in Query
+                        orderby datum.LastModifiedUtc descending
                         select new UnitPaymentOrderUnpaidViewModel
                         {
                             UnitPaymentOrderNo = datum.UnitPaymentOrderNo,
@@ -127,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             DPPVat = datum.TotalPaid,
                             TotalPaid = datum.TotalPaid + datum.Vat
                         });
-            return Tuple.Create(list, OrderDictionary);
+            return list;
         }
 
         public ReadResponse GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
@@ -137,35 +136,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 DateFrom = DateTimeOffset.Now.AddHours(Offset).AddMonths(-1);
                 DateTo = DateTimeOffset.Now.AddHours(Offset);
             }
-
-            var purchasingDocumentData = GetPurchasingDocumentExpedition(Size,Page,Order,UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
+            var listData = GetPurchasingDocumentExpedition(Size,Page,UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
 
             List<UnitPaymentOrderUnpaidViewModel> dataMongo = GetReportMongo(UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
-
-            var resultQuery = (from a in dataMongo
-                                join b in purchasingDocumentData.Item1 on a.UnitPaymentOrderNo equals b.UnitPaymentOrderNo into ab
-                                from b in ab.DefaultIfEmpty()
-                                select new UnitPaymentOrderUnpaidViewModel
-                                {
-                                    UnitPaymentOrderNo = a.UnitPaymentOrderNo,
-                                    UPODate = a.UPODate,
-                                    InvoiceNo = a.InvoiceNo,
-                                    SupplierName = a.SupplierName,
-                                    Currency = a.Currency,
-                                    IncomeTax = b == null ? 0 : b.IncomeTax,
-                                    DPPVat = b == null ? 0 : b.DPPVat,
-                                    DueDate = a.DueDate,
-                                    ProductName = a.ProductName,
-                                    Quantity = a.Quantity,
-                                    UnitName = a.UnitName,
-                                    TotalPaid = 0
-                                }).AsQueryable();
             
+            IQueryable<UnitPaymentOrderUnpaidViewModel> resultQuery = 
+                (from a in dataMongo
+                join b in listData on a.UnitPaymentOrderNo equals b.UnitPaymentOrderNo into ab
+                from b in ab.DefaultIfEmpty()
+                select new UnitPaymentOrderUnpaidViewModel
+                {
+                    UnitPaymentOrderNo = a.UnitPaymentOrderNo,
+                    UPODate = a.UPODate,
+                    InvoiceNo = a.InvoiceNo,
+                    SupplierName = a.SupplierName,
+                    Currency = a.Currency,
+                    IncomeTax = b == null ? 0 : b.IncomeTax,
+                    DPPVat = b == null ? 0 : b.DPPVat,
+                    DueDate = a.DueDate,
+                    ProductName = a.ProductName,
+                    Quantity = a.Quantity,
+                    UnitName = a.UnitName,
+                    TotalPaid = 0
+                }).AsQueryable();
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count > 0)
+            {
+                string Key = OrderDictionary.Keys.First();
+                string OrderType = OrderDictionary[Key];
+                string orderField = string.Concat(Key.Replace(".", ""), " ", OrderType);
+                resultQuery = resultQuery.OrderBy(orderField);
+            }
+
             Pageable<UnitPaymentOrderUnpaidViewModel> pageable = new Pageable<UnitPaymentOrderUnpaidViewModel>(resultQuery, Page - 1, Size);
             List<UnitPaymentOrderUnpaidViewModel> Data = pageable.Data.ToList<UnitPaymentOrderUnpaidViewModel>();
             int TotalData = pageable.TotalCount;
 
-            return new ReadResponse(Data.ToList<object>(), TotalData, purchasingDocumentData.Item2);
+            return new ReadResponse(Data.ToList<object>(), TotalData, OrderDictionary);
         }
 
         public void InsertToMongo(BsonDocument document)
