@@ -13,7 +13,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             this.Facade = Facade;
         }
 
-        BsonDocument GetNewData()
+        BsonDocument GetNewDataURN(ObjectId URNID)
+        {
+            return new BsonDocument
+            {
+                { "_id", URNID },
+                { "_deleted", false },
+                { "no", "123456" },
+                { "unit", new BsonDocument
+                    {
+                        { "code", "U1" },
+                        { "name", "Unit1" }
+                    }
+                },
+                { "items", new BsonArray
+                    {
+                        new BsonDocument
+                        {
+                            { "product", new BsonDocument
+                                {
+                                    { "code", "P1" },
+                                    { "name", "Produk1" }
+                                }
+                            },
+                            { "currencyRate", 3 },
+                            { "deliveredQuantity", 200 },
+                            { "pricePerDealUnit", 1000 },
+                        }
+                    }
+                }
+            };
+        }
+
+        BsonDocument GetNewDataUPO(ObjectId URNID)
         {
             return new BsonDocument
             {
@@ -38,6 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                     {
                         new BsonDocument
                         {
+                            { "unitReceiptNoteId", URNID },
                             { "unitReceiptNote", new BsonDocument
                                 {
                                     { "unit", new BsonDocument
@@ -68,13 +101,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             };
         }
 
-        public BsonDocument GetTestData()
+        public Tuple<BsonDocument, BsonDocument> GetTestData()
         {
-            BsonDocument data = GetNewData();
-            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
-            this.Facade.InsertToMongo(data);
-
-            return data;
+            var URNID = ObjectId.GenerateNewId();
+            BsonDocument dataUPO = GetNewDataUPO(URNID);
+            BsonDocument dataURN = GetNewDataUPO(URNID);
+            this.Facade.DeleteDataMongoByNoUPO(dataUPO["no"].AsString);
+            this.Facade.InsertToMongoUPO(dataUPO);
+            this.Facade.DeleteDataMongoByNoURN(dataURN["no"].AsString);
+            this.Facade.InsertToMongoURN(dataURN);
+            return Tuple.Create(dataUPO,dataURN);
         }
     }
 }

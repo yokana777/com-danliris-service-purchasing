@@ -87,7 +87,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     
                 }
             }
-
             return listData;
         }
 
@@ -199,13 +198,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return new ReadResponse(Data.ToList<object>(), TotalData, OrderDictionary);
         }
 
-        public void InsertToMongo(BsonDocument document)
+        public void InsertToMongoUPO(BsonDocument document)
         {
             collectionUPO.InsertOne(document);
         }
-        public void DeleteDataMongoByNo(string no)
+        public void DeleteDataMongoByNoUPO(string no)
         {
             collectionUPO.DeleteOne("{ no : '" + no + "'}");
+        }
+
+        public void InsertToMongoURN(BsonDocument document)
+        {
+            collectionURN.InsertOne(document);
+        }
+        public void DeleteDataMongoByNoURN(string no)
+        {
+            collectionURN.DeleteOne("{ no : '" + no + "'}");
         }
     }
 }
