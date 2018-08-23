@@ -35,42 +35,69 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public void Should_Success_Get_Mongo_Data()
+        public async void Should_Success_Get_Mongo_Data()
         {
-            var result = this.Facade.GetReportMongo( "", "", DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
+            var result = await this.Facade.GetReportMongo( "", "", DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
             Assert.NotNull(result);
         }
 
         [Fact]
-        public void Should_Success_Get_Report_Data()
+        public async void Should_Success_Get_Report_Data()
         {
-            var result = this.Facade.GetReport(25, 1, "{}", null, null, null, null,0);
+            var result = await this.Facade.GetReport(25, 1, "{}", null, null, null, null,0);
             Assert.NotNull(result);
         }
 
         [Fact]
-        public void Should_Success_Get_Mongo_Data_Parm()
+        public async void Should_Success_Get_Mongo_Data_Parm()
         {
             BsonDocument data = DataUtil.GetTestData();
-            var result = this.Facade.GetReportMongo(GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
+            var result = await this.Facade.GetReportMongo(GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
             Assert.NotEmpty(result);
             this.Facade.DeleteDataMongoByNo(data["no"].AsString);
         }
 
         [Fact]
-        public void Should_Success_Get_Report_Data_Parm()
+        public async void Should_Success_Get_Report_Data_Parm()
         {
             BsonDocument data = DataUtil.GetTestData();
-            var result = this.Facade.GetReport(25, 1, "{}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, null, 0);
+            var result = await this.Facade.GetReport(25, 1, "{}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, null, 0);
             Assert.NotNull(result);
             this.Facade.DeleteDataMongoByNo(data["no"].AsString);
         }
 
         [Fact]
-        public void Should_Success_Get_Report_Data_Parm_Order()
+        public async void Should_Success_Get_Report_Data_Parm_Order()
         {
             BsonDocument data = DataUtil.GetTestData();
-            var result = this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, null, 0);
+            var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, null, 0);
+            Assert.NotNull(result);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Parm_Order_From()
+        {
+            BsonDocument data = DataUtil.GetTestData();
+            var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), DateTimeOffset.Now.AddMonths(-1), null, 0);
+            Assert.NotNull(result);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Parm_Order_To()
+        {
+            BsonDocument data = DataUtil.GetTestData();
+            var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), null, DateTimeOffset.Now, 0);
+            Assert.NotNull(result);
+            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Parm_All()
+        {
+            BsonDocument data = DataUtil.GetTestData();
+            var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data, "no"), GetBsonValue.ToString(data, "supplier.code"), DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now, 0);
             Assert.NotNull(result);
             this.Facade.DeleteDataMongoByNo(data["no"].AsString);
         }
