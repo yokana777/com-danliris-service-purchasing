@@ -147,11 +147,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
             else if (!DateFrom.HasValue && DateTo.HasValue)
             {
-                DateFrom = DateTo.Value.AddHours(Offset).AddMonths(-1);
+                DateTo = DateTo.Value.AddHours(Offset);
+                DateFrom = DateTo.Value.AddMonths(-1);
             }
             else if (DateFrom.HasValue && !DateTo.HasValue)
             {
-                DateTo = DateFrom.Value.AddHours(Offset).AddMonths(-1);
+                DateFrom = DateFrom.Value.AddHours(Offset);
+                DateTo = DateFrom.Value.AddMonths(1);
             }
             else
             {
@@ -206,7 +208,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             collectionUPO.DeleteOne("{ no : '" + no + "'}");
         }
-
+        public ObjectId FindToMongoURN(string no)
+        {
+            var result = collectionURN.Find("{ no : '" + no + "'}").ToList().Select(m => m["_id"]).FirstOrDefault().AsObjectId;
+            return result;
+        }
         public void InsertToMongoURN(BsonDocument document)
         {
             collectionURN.InsertOne(document);

@@ -13,13 +13,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             this.Facade = Facade;
         }
 
-        BsonDocument GetNewDataURN(ObjectId URNID)
+        BsonDocument GetNewDataURN()
         {
             return new BsonDocument
             {
-                { "_id", URNID },
+                { "_id", ObjectId.GenerateNewId() },
                 { "_deleted", false },
-                { "no", "123456" },
+                { "no", "123456789" },
                 { "unit", new BsonDocument
                     {
                         { "code", "U1" },
@@ -103,13 +103,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
 
         public Tuple<BsonDocument, BsonDocument> GetTestData()
         {
-            var URNID = ObjectId.GenerateNewId();
-            BsonDocument dataUPO = GetNewDataUPO(URNID);
-            BsonDocument dataURN = GetNewDataUPO(URNID);
-            this.Facade.DeleteDataMongoByNoUPO(dataUPO["no"].AsString);
-            this.Facade.InsertToMongoUPO(dataUPO);
+            BsonDocument dataURN = GetNewDataURN();
             this.Facade.DeleteDataMongoByNoURN(dataURN["no"].AsString);
             this.Facade.InsertToMongoURN(dataURN);
+            var URNID = this.Facade.FindToMongoURN(dataURN["no"].AsString);
+            BsonDocument dataUPO = GetNewDataUPO(URNID);
+            this.Facade.DeleteDataMongoByNoUPO(dataUPO["no"].AsString);
+            this.Facade.InsertToMongoUPO(dataUPO);
             return Tuple.Create(dataUPO,dataURN);
         }
     }
