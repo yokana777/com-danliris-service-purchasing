@@ -5,6 +5,7 @@ using MongoDB.Bson;
 using System;
 using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 {
     [Collection("ServiceProviderFixture Collection")]
@@ -55,8 +56,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReportMongo(GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), date.AddDays(-15), date.AddDays(15));
             Assert.NotEmpty(result);
-            this.Facade.DeleteDataMongoByNoUPO(data.Item1["no"].AsString);
-            this.Facade.DeleteDataMongoByNoURN(data.Item2["no"].AsString);
+            
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
@@ -66,8 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReport(25, 1, "{}", "", "", date.AddDays(-15), date.AddDays(15), 0);
             Assert.NotNull(result);
-            this.Facade.DeleteDataMongoByNoUPO(data.Item1["no"].AsString);
-            this.Facade.DeleteDataMongoByNoURN(data.Item2["no"].AsString);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
@@ -77,8 +79,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", "", "", date.AddDays(-15), date.AddDays(15), 0);
             Assert.NotNull(result);
-            this.Facade.DeleteDataMongoByNoUPO(data.Item1["no"].AsString);
-            this.Facade.DeleteDataMongoByNoURN(data.Item2["no"].AsString);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
@@ -88,8 +90,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), date.AddDays(-15), null, 0);
             Assert.NotNull(result);
-            this.Facade.DeleteDataMongoByNoUPO(data.Item1["no"].AsString);
-            this.Facade.DeleteDataMongoByNoURN(data.Item2["no"].AsString);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
@@ -99,8 +101,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), null,date.AddDays(15), 0);
             Assert.NotNull(result);
-            this.Facade.DeleteDataMongoByNoUPO(data.Item1["no"].AsString);
-            this.Facade.DeleteDataMongoByNoURN(data.Item2["no"].AsString);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
@@ -110,8 +112,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReport(25, 1, "{\"UnitPaymentOrderNo\":\"asc\"}", GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), date.AddDays(-15), date.AddDays(15), 0);
             Assert.NotNull(result);
-            this.Facade.DeleteDataMongoByNoUPO(data.Item1["no"].AsString);
-            this.Facade.DeleteDataMongoByNoURN(data.Item2["no"].AsString);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
     }
 }

@@ -104,11 +104,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
         public Tuple<BsonDocument, BsonDocument> GetTestData()
         {
             BsonDocument dataURN = GetNewDataURN();
-            this.Facade.DeleteDataMongoByNoURN(dataURN["no"].AsString);
+            this.Facade.DeleteDataMongoURN("{ no : '" + dataURN["no"].AsString + " '}");
             this.Facade.InsertToMongoURN(dataURN);
-            var URNID = this.Facade.FindToMongoURN(dataURN["no"].AsString);
-            BsonDocument dataUPO = GetNewDataUPO(URNID);
-            this.Facade.DeleteDataMongoByNoUPO(dataUPO["no"].AsString);
+            BsonDocument dataUPO = GetNewDataUPO(dataURN["_id"].AsObjectId);
+            this.Facade.DeleteDataMongoUPO("{ no : '" + dataURN["no"].AsString + " '}");
             this.Facade.InsertToMongoUPO(dataUPO);
             return Tuple.Create(dataUPO,dataURN);
         }

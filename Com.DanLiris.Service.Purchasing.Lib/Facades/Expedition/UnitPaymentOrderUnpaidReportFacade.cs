@@ -204,22 +204,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             collectionUPO.InsertOne(document);
         }
-        public void DeleteDataMongoByNoUPO(string no)
+        public void DeleteDataMongoUPO(string query)
         {
-            collectionUPO.DeleteOne("{ no : '" + no + "'}");
-        }
-        public ObjectId FindToMongoURN(string no)
-        {
-            var result = collectionURN.Find("{ no : '" + no + "'}").ToList().Select(m => m["_id"]).FirstOrDefault().AsObjectId;
-            return result;
+            collectionUPO.DeleteOne(query);
         }
         public void InsertToMongoURN(BsonDocument document)
         {
             collectionURN.InsertOne(document);
         }
-        public void DeleteDataMongoByNoURN(string no)
+        public void DeleteDataMongoURN(string query)
         {
-            collectionURN.DeleteOne("{ no : '" + no + "'}");
+            collectionURN.DeleteOne(query);
         }
     }
 }
