@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 		{
 			ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetNewData("unit-test");
 			await FacadeEPO.Create(externalPurchaseOrder, "unit-test", 7);
-			var Response = Facade.GetTotalPurchaseBySupplierReport("", "",null,null,7 );
+			var Response = Facade.GetTotalPurchaseBySupplierReport("", "","",null,null,7 );
 			Assert.NotEqual(1, 0);
 		}
 		[Fact]
