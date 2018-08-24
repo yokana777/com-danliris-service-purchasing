@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
             DeliveryOrder deliveryOrder = await GetNewDataDummy(user);
 
             await facade.Create(deliveryOrder, user);
-            deliveryOrder.DODate = deliveryOrder.DODate.AddDays(-40);
+            deliveryOrder.DODate = deliveryOrder.DODate.AddDays(40);
             await facade.Update(Convert.ToInt32(deliveryOrder.Id), deliveryOrder, user);
 
             return deliveryOrder;
@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
             DeliveryOrder deliveryOrder = await GetNewDataDummy(user);
 
             await facade.Create(deliveryOrder, user);
-            deliveryOrder.DODate = deliveryOrder.DODate.AddDays(-70);
+            deliveryOrder.DODate = deliveryOrder.DODate.AddDays(70);
             await facade.Update(Convert.ToInt32(deliveryOrder.Id), deliveryOrder, user);
 
             return deliveryOrder;

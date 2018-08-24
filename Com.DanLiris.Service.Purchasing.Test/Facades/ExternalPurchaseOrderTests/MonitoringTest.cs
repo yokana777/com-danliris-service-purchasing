@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests
 {
@@ -37,9 +38,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             get { return (DeliveryOrderDataUtil)ServiceProvider.GetService(typeof(DeliveryOrderDataUtil)); }
         }
-        private InternalPurchaseOrderDataUtil IPODataUtil
+        private PurchaseRequestDataUtil PRDataUtil
         {
-            get { return (InternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(InternalPurchaseOrderDataUtil)); }
+            get { return (PurchaseRequestDataUtil)ServiceProvider.GetService(typeof(PurchaseRequestDataUtil)); }
         }
 
         private ExternalPurchaseOrderFacade Facade
@@ -51,11 +52,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_POExDODuration_Data()
         {
-            //var model = await DODataUtil.GetTestData2("Unit test");
-            //var model2 = await EPODataUtil.GetTestData3("Unit test");
-            //var Response = Facade.GetEPODODurationReport(model2.UnitId, "31-60 hari", null, null, 1, 25, "{}", 7);
-            //Assert.Equal(Response.Item2, 0);
-            var model = await IPODataUtil.GetTestData4("Unit test");
+            var model = await EPODataUtil.GetTestData("Unit test");
+            var model2 = await DataUtil.GetTestData("Unit test");
+            var model3 = await DODataUtil.GetTestData2("Unit test");
+            var model4 = await PRDataUtil.GetTestData("Unit test");
             var Response = Facade.GetEPODODurationReport(model.UnitId, "31-60 hari", null, null, 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item2, 0);
         }
@@ -63,8 +63,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_POExDODuration_Null_Parameter()
         {
-            var model = await IPODataUtil.GetTestData5("Unit test");
-            //var model3 = await EPODataUtil.GetTestData3("Unit test");
+            var model = await EPODataUtil.GetTestData("Unit test");
+            var model2 = await DataUtil.GetTestData("Unit test");
+            var model3 = await DODataUtil.GetTestData3("Unit test");
+            var model4 = await PRDataUtil.GetTestData("Unit test");
             var Response = Facade.GetEPODODurationReport("", "61-90 hari", null, null, 1, 25, "{}", 7);
             Assert.Equal(Response.Item2, 0);
         }
@@ -72,8 +74,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_POEDODuration_Excel()
         {
-            var model = await IPODataUtil.GetTestData4("Unit test");
-            //var model2 = await EPODataUtil.GetTestData2("Unit test");
+            var model = await EPODataUtil.GetTestData("Unit test");
+            var model2 = await DataUtil.GetTestData("Unit test");
+            var model3 = await DODataUtil.GetTestData2("Unit test");
+            var model4 = await PRDataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcelEPODODuration(model.UnitId, "31-60 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
@@ -81,8 +85,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_POEDODuration_Excel_Null_Parameter()
         {
-            var model = await IPODataUtil.GetTestData5("Unit test");
-            //var model3 = await EPODataUtil.GetTestData3("Unit test");
+            var model = await EPODataUtil.GetTestData("Unit test");
+            var model2 = await DataUtil.GetTestData("Unit test");
+            var model3 = await DODataUtil.GetTestData3("Unit test");
+            var model4 = await PRDataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcelEPODODuration("", "61-90 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
