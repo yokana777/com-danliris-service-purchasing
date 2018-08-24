@@ -758,14 +758,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             {
                 Query = Query.OrderByDescending(b => b.prCreatedDate);
             }
-            //else
-            //{
-            //    string Key = OrderDictionary.Keys.First();
-            //    string OrderType = OrderDictionary[Key];
-
-            //    Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
-            //}
-
+          
             Pageable<ExternalPurchaseDeliveryOrderDurationReportViewModel> pageable = new Pageable<ExternalPurchaseDeliveryOrderDurationReportViewModel>(Query, page - 1, size);
             List<ExternalPurchaseDeliveryOrderDurationReportViewModel> Data = pageable.Data.ToList<ExternalPurchaseDeliveryOrderDurationReportViewModel>();
             int TotalData = pageable.TotalCount;

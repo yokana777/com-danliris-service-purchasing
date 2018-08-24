@@ -114,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
 
         public async Task<DeliveryOrder> GetTestData2(string user)
         {
-            DeliveryOrder deliveryOrder = await GetNewData(user);
+            DeliveryOrder deliveryOrder = await GetNewDataDummy(user);
 
             await facade.Create(deliveryOrder, user);
             deliveryOrder.DODate = deliveryOrder.DODate.AddDays(-40);
@@ -125,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
 
         public async Task<DeliveryOrder> GetTestData3(string user)
         {
-            DeliveryOrder deliveryOrder = await GetNewData(user);
+            DeliveryOrder deliveryOrder = await GetNewDataDummy(user);
 
             await facade.Create(deliveryOrder, user);
             deliveryOrder.DODate = deliveryOrder.DODate.AddDays(-70);

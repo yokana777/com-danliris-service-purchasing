@@ -43,14 +43,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             get { return (ExternalPurchaseOrderFacade)ServiceProvider.GetService(typeof(ExternalPurchaseOrderFacade)); }
         }
 
-        //Duration PO In-PO Ex
+        //Duration PO EX-DO
         [Fact]
         public async void Should_Success_Get_Report_POExDODuration_Data()
         {
             var model = await DODataUtil.GetTestData2("Unit test");
             var model2 = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GetEPODODurationReport(model2.UnitId, "31-60 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.Equal(Response.Item2, 0);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var model = await EPODataUtil.GetTestData3("Unit test");
             var model3 = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GetEPODODurationReport("", "61-90 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.Equal(Response.Item2, 0);
         }
 
         [Fact]
