@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                 { "_id", ObjectId.GenerateNewId() },
                 { "_deleted", false },
                 { "no", "123456789" },
-                { "date", new BsonDateTime (new DateTime(2018, 8, 1)) },
+                { "date", new BsonDateTime (DateTime.Now) },
                 { "currency", new BsonDocument
                     {
                         { "code", "IDR" }
@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
                     }
                 },
                 { "invoceNo", "123456" },
-                { "dueDate", new BsonDateTime (new DateTime(2018, 8, 1)) },
+                { "dueDate", new BsonDateTime (DateTime.Now) },
                 { "items", new BsonArray
                     {
                         new BsonDocument

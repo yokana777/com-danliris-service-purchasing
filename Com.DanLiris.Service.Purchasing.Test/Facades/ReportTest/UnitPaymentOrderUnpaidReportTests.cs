@@ -37,15 +37,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         [Fact]
         public async void Should_Success_Get_Mongo_Data()
         {
-            var result = await this.Facade.GetReportMongo( "", "", DateTimeOffset.Now.AddMonths(-1), DateTimeOffset.Now);
+            var data = DataUtil.GetTestData();
+            var date = data.Item1["dueDate"].ToUniversalTime();
+            var result = await this.Facade.GetReportMongo( "", "", date.AddDays(-15), date.AddDays(15));
             Assert.NotNull(result);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
         public async void Should_Success_Get_Report_Data()
         {
+            var data = DataUtil.GetTestData();
             var result = await this.Facade.GetReport(25, 1, "{}", null, null, null, null,0);
             Assert.NotNull(result);
+            this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
+            this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
 
         [Fact]
@@ -55,7 +62,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var date = data.Item1["dueDate"].ToUniversalTime();
             var result = await this.Facade.GetReportMongo(GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), date.AddDays(-15), date.AddDays(15));
             Assert.NotEmpty(result);
-            
             this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
             this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
         }
