@@ -112,6 +112,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
             return model;
         }
 
+        public async Task<DeliveryOrder> GetTestData2(string user)
+        {
+            DeliveryOrder deliveryOrder = await GetNewData(user);
+
+            await facade.Create(deliveryOrder, user);
+            deliveryOrder.DODate = deliveryOrder.DODate.AddDays(-40);
+            await facade.Update(Convert.ToInt32(deliveryOrder.Id), deliveryOrder, user);
+
+            return deliveryOrder;
+        }
+
+        public async Task<DeliveryOrder> GetTestData3(string user)
+        {
+            DeliveryOrder deliveryOrder = await GetNewData(user);
+
+            await facade.Create(deliveryOrder, user);
+            deliveryOrder.DODate = deliveryOrder.DODate.AddDays(-70);
+            await facade.Update(Convert.ToInt32(deliveryOrder.Id), deliveryOrder, user);
+
+            return deliveryOrder;
+        }
+
         public async Task<DeliveryOrder> GetTestDataDummy(string user)
         {
             DeliveryOrder model = await GetNewDataDummy(user);
