@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 			this.dbSet = dbContext.Set<ExternalPurchaseOrder>();
 		}
 		#region BySupplier
-		public IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReportQuery(string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+		public IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReportQuery(string division, string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 			DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -38,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 						 //Conditions
 						 where  a.IsDeleted==false && b.IsDeleted == false && c.IsDeleted == false & d.IsDeleted == false && a.IsCanceled ==false && a.IsPosted== true &&
 						  a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit) && d.CategoryId == (string.IsNullOrWhiteSpace(category) ? d.CategoryId : category)
+						 && a.DivisionId == (string.IsNullOrWhiteSpace(division) ? a.DivisionId : division)
 						 && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
 						 && a.OrderDate.AddHours(offset).Date <= DateTo.Date
 						 select c.DealQuantity * c.PricePerDealUnit * a.CurrencyRate).Sum();
@@ -48,34 +49,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 						 //Conditions
 						 where  a.IsDeleted==false && b.IsDeleted == false && c.IsDeleted ==false & d.IsDeleted==false && a.IsCanceled == false &&  a.IsPosted == true &&
 						 c.DealQuantity !=0 && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit) && d.CategoryId == (string.IsNullOrWhiteSpace(category) ? d.CategoryId : category)
+						 && a.DivisionId == (string.IsNullOrWhiteSpace(division) ? a.DivisionId : division) 
 						 && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
 						 && a.OrderDate.AddHours(offset).Date <= DateTo.Date
-						 group new { DealQuantity = c.DealQuantity , PricePerDealUnit = c.PricePerDealUnit,Rate=a.CurrencyRate} by new { a.SupplierName, a.UnitName, d.CategoryName } into G
+						 group new { DealQuantity = c.DealQuantity , PricePerDealUnit = c.PricePerDealUnit,Rate=a.CurrencyRate} by new { a.SupplierName, a.UnitName, d.CategoryName ,a.DivisionName} into G
 						 select new TotalPurchaseBySupplierViewModel
 						 {
 							 supplierName =G.Key.SupplierName,
 							 unitName = G.Key.UnitName,
 							 categoryName = G.Key.CategoryName,
+							 divisionName=G.Key.DivisionName,
 							 amount = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit * c.Rate), 2),
 							 total =  (Decimal)Math.Round(Total,2)
 						 });
 			return Query;
 		}
 
-		public   IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReport(string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+		public   IQueryable<TotalPurchaseBySupplierViewModel> GetTotalPurchaseBySupplierReport(string division, string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
-			var Query = GetTotalPurchaseBySupplierReportQuery(unit, category , dateFrom, dateTo, offset);
+			var Query = GetTotalPurchaseBySupplierReportQuery(division,unit, category , dateFrom, dateTo, offset);
 			Query = Query.OrderBy(b => b.supplierName).ThenBy(b=>b.unitName).ThenBy(b=>b.categoryName);
 			return Query;
 		}
 
-		public MemoryStream GenerateExcelTotalPurchaseBySupplier(string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+		public MemoryStream GenerateExcelTotalPurchaseBySupplier(string division, string unit, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
-			var Query = GetTotalPurchaseBySupplierReportQuery(unit, category , dateFrom, dateTo, offset);
+			var Query = GetTotalPurchaseBySupplierReportQuery(division,unit, category , dateFrom, dateTo, offset);
 			DataTable result = new DataTable();
 		
 			result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Divisi", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Jumlah(Rp)", DataType = typeof(Decimal) });
@@ -83,7 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
 			decimal Total = 0;
 			if (Query.ToArray().Count() == 0)
-				result.Rows.Add("", "", "", "",0 ,0); // to allow column name to be generated properly for empty data as template
+				result.Rows.Add("", "","", "", "",0 ,0); // to allow column name to be generated properly for empty data as template
 			else
 			{
 				int index = 0;
@@ -91,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 				{
 					index++;
 					Total = item.total;
-						result.Rows.Add(index, item.supplierName, item.unitName,item.categoryName, (Decimal)Math.Round((item.amount), 2), (Decimal)Math.Round((item.amount / item.total),2));
+						result.Rows.Add(index, item.supplierName, item.divisionName,item.unitName,item.categoryName, (Decimal)Math.Round((item.amount), 2), (Decimal)Math.Round((item.amount / item.total),2));
 				}
 				result.Rows.Add("", "Total Pembelian", "", "", Total, 100);
 			}
