@@ -37,11 +37,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public async Task<List<UnitPaymentOrderUnpaidViewModel>> GetReportMongo(string no, string supplierCode, DateTimeOffset dateFrom, DateTimeOffset dateTo)
         {
             string query = "{'$and' : [{_deleted : false}";
-            if (!string.IsNullOrEmpty(no))
+            if (!string.IsNullOrWhiteSpace(no))
             {
                 query += ",{ no : '" + no + "'}";
             }
-            if (!string.IsNullOrEmpty(supplierCode))
+            if (!string.IsNullOrWhiteSpace(supplierCode))
             {
                 query += ",{ 'supplier.code' : '" + supplierCode + "'}";
             }
