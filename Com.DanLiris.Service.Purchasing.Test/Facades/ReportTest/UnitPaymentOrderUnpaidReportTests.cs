@@ -1,22 +1,15 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
-using MongoDB.Bson;
 using System;
 using Xunit;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 {
     [Collection("ServiceProviderFixture Collection")]
     public class UnitPaymentOrderUnpaidReportTests
     {
         private IServiceProvider ServiceProvider { get; set; }
-
-        public UnitPaymentOrderUnpaidReportTests(ServiceProviderFixture fixture)
-        {
-            ServiceProvider = fixture.ServiceProvider;
-        }
 
         private UnitPaymentOrderUnpaidReportDataUtil DataUtil
         {
@@ -26,6 +19,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         private UnitPaymentOrderUnpaidReportFacade Facade
         {
             get { return (UnitPaymentOrderUnpaidReportFacade)ServiceProvider.GetService(typeof(UnitPaymentOrderUnpaidReportFacade)); }
+        }
+
+        public UnitPaymentOrderUnpaidReportTests(ServiceProviderFixture fixture)
+        {
+            ServiceProvider = fixture.ServiceProvider;
+            this.DataUtil.CleanOldData();
         }
 
         [Fact]
