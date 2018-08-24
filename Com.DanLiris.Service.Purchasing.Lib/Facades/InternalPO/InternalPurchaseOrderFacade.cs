@@ -675,7 +675,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          join d in dbContext.PurchaseRequests on c.PurchaseRequestId equals d.Id
                          join e in dbContext.ExternalPurchaseOrderItems on a.Id equals e.POId
                          join f in dbContext.ExternalPurchaseOrders on e.EPOId equals f.Id
-                         join g in dbContext.ExternalPurchaseOrderDetails on f.Id equals g.EPOItemId
+                         join g in dbContext.ExternalPurchaseOrderDetails on e.Id equals g.EPOItemId
                          //Conditions
                          where a.IsDeleted == false
                             //&& b.Id == e.PRItemId
@@ -712,9 +712,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             foreach (var item in Query)
             {
                 var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
-                var prCreatedDate = new DateTimeOffset(item.prCreatedDate.Date, TimeSpan.Zero);
+                var poCreatedDate = new DateTimeOffset(item.poDate.Date, TimeSpan.Zero);
 
-                var datediff = ((TimeSpan)(ePODate - prCreatedDate)).Days;
+                var datediff = ((TimeSpan)(ePODate - poCreatedDate)).Days;
                 InternalPurchaseExternalPurchaseDurationReportViewModel _new = new InternalPurchaseExternalPurchaseDurationReportViewModel
                 {
                     prNo = item.prNo,
