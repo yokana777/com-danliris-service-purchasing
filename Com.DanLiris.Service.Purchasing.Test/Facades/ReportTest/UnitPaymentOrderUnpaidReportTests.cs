@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         public async void Should_Success_Get_Report_Data()
         {
             var data = DataUtil.GetTestData();
-            var result = await this.Facade.GetReport(25, 1, "{}", GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), null, null,100);
+            var result = await this.Facade.GetReport(25, 1, "{}", GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), null, null,7);
             Assert.NotNull(result);
             this.Facade.DeleteDataMongoUPO("{ _id : ObjectId('" + data.Item1["_id"].AsObjectId.ToString() + "') }");
             this.Facade.DeleteDataMongoURN("{ _id : ObjectId('" + data.Item2["_id"].AsObjectId.ToString() + "') }");
