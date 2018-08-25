@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             UnitPaymentCorrectionNote model = await DataCorrectionUtil.GetTestData();
             var Response = Facade.GetReport("", null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotNull(Response);
         }
 
         [Fact]
