@@ -29,10 +29,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             get { return (InternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(InternalPurchaseOrderDataUtil)); }
         }
 
-        private UnitPaymentCorrectionNoteDataUtil DataCorrectionUtil
-        {
-            get { return (UnitPaymentCorrectionNoteDataUtil)ServiceProvider.GetService(typeof(UnitPaymentCorrectionNoteDataUtil)); }
-        }
+        //private UnitPaymentCorrectionNoteDataUtil DataCorrectionUtil
+        //{
+        //    get { return (UnitPaymentCorrectionNoteDataUtil)ServiceProvider.GetService(typeof(UnitPaymentCorrectionNoteDataUtil)); }
+        //}
 
         private PurchaseOrderMonitoringAllFacade Facade
         {
@@ -47,13 +47,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             Assert.NotNull(Response);
         }
 
-        [Fact]
-        public async void Should_Success_Get_Report_Data_All_Null_Parameter()
-        {
-            UnitPaymentCorrectionNote model = await DataCorrectionUtil.GetTestData();
-            var Response = Facade.GetReport("", null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
-            Assert.NotNull(Response);
-        }
+        //[Fact]
+        //public async void Should_Success_Get_Report_Data_All_Null_Parameter()
+        //{
+        //    UnitPaymentCorrectionNote model = await DataCorrectionUtil.GetTestData();
+        //    var Response = Facade.GetReport("", null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
+        //    Assert.NotNull(Response);
+        //}
 
         [Fact]
         public async void Should_Success_Get_Report_Data_Null_Parameter()
