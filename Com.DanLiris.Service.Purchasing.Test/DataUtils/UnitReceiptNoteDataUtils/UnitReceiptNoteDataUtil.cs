@@ -47,8 +47,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                 Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
             };
         }
+		public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewDatas(string user)
+		{
+			DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestData(user);
+			List<DeliveryOrderItem> doItem = new List<DeliveryOrderItem>(deliveryOrder.Items);
+			List<DeliveryOrderDetail> doDetail = new List<DeliveryOrderDetail>(doItem[0].Details);
 
-        public async Task<UnitReceiptNoteViewModel> GetNewDataViewModel(string user)
+
+			doItem[0].Details = doDetail;
+			return new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote
+			{
+				UnitId = doDetail[0].UnitId,
+				UnitCode = doDetail[0].UnitCode,
+				UnitName = "UnitName",
+				Remark = "Test URN",
+				URNNo= "BPI-001",
+				SupplierCode = deliveryOrder.SupplierCode,
+				SupplierId = deliveryOrder.SupplierId,
+				SupplierName = deliveryOrder.SupplierName,
+				ReceiptDate = new DateTimeOffset(new DateTime(2018, 8, 27), TimeSpan.Zero), 
+				DOId = deliveryOrder.Id,
+				DONo = deliveryOrder.DONo,
+				Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
+			};
+		}
+
+		public async Task<UnitReceiptNoteViewModel> GetNewDataViewModel(string user)
         {
             DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestData(user);
             List<DeliveryOrderItem> doItem = new List<DeliveryOrderItem>(deliveryOrder.Items);

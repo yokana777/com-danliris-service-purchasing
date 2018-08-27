@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 		{
 			ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetNewData("unit-test");
 			await FacadeEPO.Create(externalPurchaseOrder, "unit-test", 7);
-			var Response = Facade.GetTotalPurchaseBySupplierReport("", "",null,null,7 );
+			var Response = Facade.GetTotalPurchaseBySupplierReport("", "","",null,null,7 );
 			Assert.NotEqual(1, 0);
 		}
 		[Fact]
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 		{
 			ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetNewData("unit-test");
 			await FacadeEPO.Create(externalPurchaseOrder, "unit-test", 7);
-			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, null, null,  7);
+			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null,null, null, null, null,  7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 		[Fact]
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 		{
 			DateTime DateFrom = new DateTime(2018, 1, 1);
 			DateTime DateTo = new DateTime(2018, 1, 1);
-			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null, null, DateFrom, DateTo, 7);
+			var Response = Facade.GenerateExcelTotalPurchaseBySupplier(null,null, null, DateFrom, DateTo, 7);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 
