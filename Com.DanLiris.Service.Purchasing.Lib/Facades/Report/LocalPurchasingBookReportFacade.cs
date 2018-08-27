@@ -65,9 +65,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 using (SqlCommand cmd = new SqlCommand(
                     "declare @EndDate datetime = '" + DateTo + "' " +
                     "declare @StartDate datetime = '" + DateFrom + "' " +
-                    "select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,VatNo,sum(dpp)Dpp,sum(ppn) Ppn,useVat  from(select  g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName, " +
-                    " case when ispaid = 0 then '-' else (select top(1)VatNo from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as VatNo, " +
-                    " h.priceperdealunit* h.receiptquantity as dpp,h.priceperdealunit * h.receiptquantity* 10/100 as ppn, c.UseVat)" +
+                    "select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,useVat,VatNo,sum(dpp)Dpp,sum(ppn) Ppn  from(select  g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName,c.UseVat, " +
+                    " case when ispaid = 0 then '-' else (select top(1)VatNo from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as VatNo," +
+                    " h.priceperdealunit* h.receiptquantity as dpp,h.priceperdealunit * h.receiptquantity* 10/100 as ppn" +
                     " from " +
                     " internalpurchaseorders a " +
                     " join ExternalPurchaseOrderItems b on a.id = b.POId " +
@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     " where g.IsDeleted = 0 and i.Import = 0  and  receiptdate between @StartDate and @EndDate " + _cat + _no + _unit +
                     " ) as data " +
 
-                    " group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, VatNo, DPP, PPN, useVat", conn))
+                    " group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, useVat, VatNo, DPP, PPN", conn))
                 {
                     SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
                     DataSet dSet = new DataSet();
@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         LocalPurchasingBookReportViewModel view = new LocalPurchasingBookReportViewModel
                         {
                             uRNNo = data["URNNo"].ToString(),
-                            receiptDate = data["ReceiptDate"].ToString(),
+                            receiptDate = (DateTimeOffset)data["ReceiptDate"],
                             productName = data["ProductName"].ToString(),
                             unitName = data["UnitName"].ToString(),
                             categoryName = data["CategoryName"].ToString(),
@@ -276,11 +276,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     {
                         if (data.useVat == true)
                         {
-                            result.Rows.Add(Convert.ToDateTime(data.receiptDate).ToShortDateString(), data.uRNNo, data.productName, data.invoiceNo, data.categoryName, data.unitName, Math.Round(data.dpp,2), Math.Round(data.ppn,2), Math.Round(data.dpp+data.ppn,2));
+                            result.Rows.Add(data.receiptDate.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.uRNNo, data.productName, data.invoiceNo, data.categoryName, data.unitName, Math.Round(data.dpp,2), Math.Round(data.ppn,2), Math.Round(data.dpp+data.ppn,2));
                         }
                         else
                         {
-                            result.Rows.Add(Convert.ToDateTime(data.receiptDate).ToShortDateString(), data.uRNNo, data.productName, data.invoiceNo, data.categoryName, data.unitName, data.dpp, 0, data.dpp);
+                            result.Rows.Add(data.receiptDate.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.uRNNo, data.productName, data.invoiceNo, data.categoryName, data.unitName, data.dpp, 0, data.dpp);
                         }
                         rowPosition += 1;
                         catCode = data.categoryName;

@@ -7,7 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
 {
     public class LocalPurchasingBookReportViewModel : BaseViewModel
     {
-        public string receiptDate { get; set; }
+        public DateTimeOffset receiptDate { get; set; }
         public string uRNNo { get; set; }
         public string productName { get; set; }
         public string invoiceNo { get; set; }
