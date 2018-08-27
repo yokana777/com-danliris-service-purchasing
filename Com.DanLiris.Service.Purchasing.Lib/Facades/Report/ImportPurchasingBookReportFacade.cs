@@ -77,8 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 					" join deliveryorders f on f.id = e.DOId " +
 					" join UnitReceiptNotes g on  f.id = g.DOId " +
 					" join UnitReceiptNoteItems h on g.id = h.urnid " +
-					" join Suppliers i on i.Id = g.SupplierId " +
-					" where g.IsDeleted = 0 and i.Import = 1  and  receiptdate between @StartDate and @EndDate " +_cat + _no +_cat +_unit+
+					" where g.IsDeleted = 0 and URNNo like '%BPI%'  and  receiptdate between @StartDate and @EndDate " + _cat + _no +_cat +_unit+
 					" ) as data " +
 
 					" group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, PIBNo, CurrencyRate", conn))

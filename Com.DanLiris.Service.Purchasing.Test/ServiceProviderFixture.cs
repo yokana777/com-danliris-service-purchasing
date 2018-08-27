@@ -77,8 +77,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
             RegisterEndpoints(configuration);
             string connectionString = configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? configuration[Constant.DEFAULT_CONNECTION];
+			APIEndpoint.ConnectionString = configuration.GetConnectionString("DefaultConnection") ?? configuration["DefaultConnection"];
 
-            this.ServiceProvider = new ServiceCollection()
+			this.ServiceProvider = new ServiceCollection()
                 .AddDbContext<PurchasingDbContext>((serviceProvider, options) =>
                 {
                     options.UseSqlServer(connectionString);
@@ -122,6 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<UnitReceiptNoteDataUtil>()
                 .AddTransient<UnitReceiptNoteItemDataUtil>()
 				.AddTransient<TotalPurchaseFacade>()
+				.AddTransient<ImportPurchasingBookReportFacade>()
 				.AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
