@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              correctionDate = corr == null ? new DateTime(1970, 1, 1) : corr.CorrectionDate,
                              correctionNo = corr.UPCNo ?? null,
                              correctionType = corr.CorrectionType ?? null,
-                             valueCorrection = corrItem == null ? 0 : corr.CorrectionType == "Harga Total" ? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : corr.CorrectionType == "Harga Satuan" ? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity : corr.CorrectionType == null ? corrItem.PriceTotalAfter * -1 : 0,
+                             valueCorrection = corrItem == null ? 0 : corr.CorrectionType == "Harga Total" ? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : corr.CorrectionType == "Harga Satuan" ? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity : corr.CorrectionType == "Jumlah" ? corrItem.PriceTotalAfter * -1 : 0,
                              priceAfter = corrItem == null ? 0 : corrItem.PricePerDealUnitAfter,
                              priceBefore = corrItem == null ? 0 : corrItem.PricePerDealUnitBefore,
                              priceTotalAfter = corrItem == null ? 0 : corrItem.PriceTotalAfter,
