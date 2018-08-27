@@ -129,8 +129,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var serviceProvider = new Mock<IServiceProvider>();
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = Facade.GetReport("", null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            var today = DateTime.Now;
+            var tomorrow = today.AddDays(1);
+            var Response = Facade.GetReport(null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
 
             Assert.NotNull(Response);
         }
@@ -139,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Get_Report_Data_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReport("", null, null, null, null,null,null,null,null,null, 1, 25, "{}", 7,"");
+            var Response = Facade.GetReport(null, null, null, null, null,null,null,null,null,null, 1, 25, "{}", 7,"");
             Assert.NotEqual(Response.Item2, 0);
         }
 
