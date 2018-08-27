@@ -41,41 +41,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var Query = (from a in dbContext.InternalPurchaseOrders
                          join b in dbContext.InternalPurchaseOrderItems on a.Id equals b.POId
                          //PR
-                         join c in dbContext.PurchaseRequests on a.PRId equals c.Id.ToString()
-                         join d in dbContext.PurchaseRequestItems on c.Id equals d.PurchaseRequestId
+                         join d in dbContext.PurchaseRequestItems on b.PRItemId equals d.Id
+                         join c in dbContext.PurchaseRequests on d.PurchaseRequestId equals c.Id
                          //EPO
                          join e in dbContext.ExternalPurchaseOrderItems on b.POId equals e.POId into f
                          from epoItem in f.DefaultIfEmpty()
-                         join g in dbContext.ExternalPurchaseOrders on epoItem.EPOId equals g.Id into h
-                         from epo in h.DefaultIfEmpty()
                          join k in dbContext.ExternalPurchaseOrderDetails on b.Id equals k.POItemId into l
                          from epoDetail in l.DefaultIfEmpty()
+                         join g in dbContext.ExternalPurchaseOrders on epoItem.EPOId equals g.Id into h
+                         from epo in h.DefaultIfEmpty()
                              //DO
-                         join m in dbContext.DeliveryOrderItems on epo.Id equals m.EPOId into n
+                         join yy in dbContext.DeliveryOrderDetails on epoDetail.Id equals yy.EPODetailId into zz
+                         from doDetail in zz.DefaultIfEmpty()
+                         join m in dbContext.DeliveryOrderItems on doDetail.DOItemId equals m.Id into n
                          from doItem in n.DefaultIfEmpty()
                          join o in dbContext.DeliveryOrders on doItem.DOId equals o.Id into p
                          from DO in p.DefaultIfEmpty()
                              //URN
                          join q in dbContext.UnitReceiptNotes on DO.Id equals q.DOId into r
                          from urn in r.DefaultIfEmpty()
-                         join s in dbContext.UnitReceiptNoteItems on urn.Id equals s.URNId into t
+                         join s in dbContext.UnitReceiptNoteItems on doDetail.Id equals s.DODetailId into t
                          from urnItem in t.DefaultIfEmpty()
                              //UPO
                          join u in dbContext.UnitPaymentOrderItems on urn.Id equals u.URNId into v
                          from upoItem in v.DefaultIfEmpty()
                          join w in dbContext.UnitPaymentOrders on upoItem.UPOId equals w.Id into x
                          from upo in x.DefaultIfEmpty()
-                         join y in dbContext.UnitPaymentOrderDetails on upoItem.Id equals y.UPOItemId into z
+                         join y in dbContext.UnitPaymentOrderDetails on urnItem.Id equals y.URNItemId into z
                          from upoDetail in z.DefaultIfEmpty()
                              //Correction
-                         join aa in dbContext.UnitPaymentCorrectionNotes on upo.Id equals aa.UPOId into bb
-                         from corr in bb.DefaultIfEmpty()
-                         join cc in dbContext.UnitPaymentCorrectionNoteItems on corr.Id equals cc.UPCId into dd
+                         join cc in dbContext.UnitPaymentCorrectionNoteItems on upoDetail.Id equals cc.UPODetailId into dd
                          from corrItem in dd.DefaultIfEmpty()
+                         join aa in dbContext.UnitPaymentCorrectionNotes on corrItem.UPCId equals aa.Id into bb
+                         from corr in bb.DefaultIfEmpty()
                          where a.IsDeleted == false && b.IsDeleted == false
-                             && c.IsDeleted == false && d.IsDeleted == false
-                             && epo.IsDeleted == false && epoDetail.IsDeleted == false && epoItem.IsDeleted == false
-                             && DO.IsDeleted == false && doItem.IsDeleted == false
+                             && c.IsDeleted == false
+                             && d.IsDeleted == false
+                             && epo.IsPosted == true && epo.IsDeleted == false && epoDetail.IsDeleted == false && epoItem.IsDeleted == false
+                             && DO.IsDeleted == false && doItem.IsDeleted == false && doDetail.IsDeleted == false
                              && urn.IsDeleted == false && urnItem.IsDeleted == false
                              && upo.IsDeleted == false && upoItem.IsDeleted == false && upoDetail.IsDeleted == false
                              && corr.IsDeleted == false && corrItem.IsDeleted == false
@@ -91,6 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              && a.PRDate.AddHours(offset).Date <= DateTo.Date
                              && b.Quantity > 0
                              && a.CreatedBy == (string.IsNullOrWhiteSpace(user) ? a.CreatedBy : user)
+                             
                          select new PurchaseOrderMonitoringAllViewModel
                          {
                              createdDatePR = c.CreatedUtc,
@@ -115,6 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              doDate = DO == null ? new DateTime(1970, 1, 1) : DO.DODate,
                              doDeliveryDate = DO == null ? new DateTime(1970, 1, 1) : DO.ArrivalDate,
                              doNo = DO.DONo ?? "-",
+                             doDetailId = corrItem == null ? 0 : upoDetail.Id,
                              urnDate = urn == null ? new DateTime(1970, 1, 1) : urn.ReceiptDate,
                              urnNo = urn.URNNo ?? "-",
                              urnQuantity = urnItem == null ? 0 : urnItem.ReceiptQuantity,
@@ -126,16 +131,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              upoNo = upo.UPONo ?? "-",
                              upoPriceTotal = upoDetail == null ? 0 : upoDetail.PriceTotal,
                              dueDate = upo == null ? new DateTime(1970, 1, 1) : upo.DueDate,
-                             vatDate = upo != null  ? upo.UseVat ? upo.VatDate : new DateTime(1970, 1, 1) : new DateTime(1970, 1, 1),
+                             vatDate = upo != null ? upo.UseVat ? upo.VatDate : new DateTime(1970, 1, 1) : new DateTime(1970, 1, 1),
                              vatNo = upo.VatNo ?? "-",
-                             vatValue = upo != null ? upo.UseVat ? 0.1 * upoDetail.PriceTotal : 0:0,
+                             vatValue = upoDetail != null && upo!=null ? upo.UseVat ? 0.1 * upoDetail.PriceTotal : 0 : 0,
                              incomeTaxDate = upo == null && !upo.UseIncomeTax ? null : upo.IncomeTaxDate,
                              incomeTaxNo = upo.IncomeTaxNo ?? null,
-                             incomeTaxValue = upo != null ? upo.UseIncomeTax ? upo.IncomeTaxRate * upoDetail.PriceTotal : 0 : 0,
+                             incomeTaxValue = upoDetail != null && upo != null ? upo.UseIncomeTax ? (upo.IncomeTaxRate * upoDetail.PriceTotal / 100) : 0 : 0,
                              correctionDate = corr == null ? new DateTime(1970, 1, 1) : corr.CorrectionDate,
                              correctionNo = corr.UPCNo ?? null,
                              correctionType = corr.CorrectionType ?? null,
-                             valueCorrection = corrItem == null ? 0 : corr.CorrectionType=="Harga Total"? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : corr.CorrectionType == "Harga Satuan"? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity: corr.CorrectionType == null? corrItem.PriceTotalAfter * -1 : 0,
+                             valueCorrection = corrItem == null ? 0 : corr.CorrectionType == "Harga Total" ? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : corr.CorrectionType == "Harga Satuan" ? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity : corr.CorrectionType == null ? corrItem.PriceTotalAfter * -1 : 0,
                              priceAfter = corrItem == null ? 0 : corrItem.PricePerDealUnitAfter,
                              priceBefore = corrItem == null ? 0 : corrItem.PricePerDealUnitBefore,
                              priceTotalAfter = corrItem == null ? 0 : corrItem.PriceTotalAfter,
@@ -144,11 +149,98 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              remark = epoDetail.ProductRemark ?? "",
                              status = b.Status,
                              staff = a.CreatedBy,
-                             LastModifiedUtc= a.LastModifiedUtc,
-                         }).Distinct();
-            
+                             LastModifiedUtc = a.LastModifiedUtc,
+                         });
+            //var result = Query.GroupBy(cc => cc.doDetailId==0 ? -1 : cc.doDetailId ).Select(dd => new
+            //{
+            //    noUPO = dd.Key,
+            //    no = string.Join("\n", dd.Select(ee => ee.correctionNo).ToList()),
+            //    date = string.Join("\n", dd.Select(ee => ee.correctionDate).ToList()),
+            //    type = string.Join("\n", dd.Select(ee => ee.correctionType).ToList()),
+            //    value = string.Join("\n", dd.Select(ee => ee.valueCorrection).ToList())
+            //});
 
-            return Query;
+            //Dictionary<string, double> qry = new Dictionary<string, double>();
+            //List<PurchaseOrderMonitoringAllViewModel> listData = new List<PurchaseOrderMonitoringAllViewModel>();
+            //foreach (var data in result.ToList())
+            //{
+            //    foreach (var qData in Query.ToList())
+            //    {
+            //        if (data.noUPO == qData.upoNo && data.product == qData.urnProductCode)
+            //        {
+            //            qData.correctionNo = data.no;
+            //            //qData.correctionDate = data.date;
+            //            listData.Add(qData);
+            //            break;
+            //        }
+            //    }
+            //}
+
+            Dictionary<long, string> qry = new Dictionary<long, string>();
+            Dictionary<long, string> qryDate = new Dictionary<long, string>();
+            Dictionary<long, string> qryQty = new Dictionary<long, string>();
+            Dictionary<long, string> qryType = new Dictionary<long, string>();
+            List<PurchaseOrderMonitoringAllViewModel> listData = new List<PurchaseOrderMonitoringAllViewModel>();
+
+            var index = 0;
+            foreach (PurchaseOrderMonitoringAllViewModel data in Query.ToList())
+            {
+                string value;
+                if (data.doDetailId != 0)
+                {
+                    string correctionDate = data.correctionDate == new DateTime(1970, 1, 1) ? "-" : data.correctionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    if (qry.TryGetValue(data.doDetailId, out value))
+                    {
+                        if (data.correctionNo != null)
+                        {
+                            qry[data.doDetailId] += (index).ToString() + ". " + data.correctionNo + "\n";
+                            qryType[data.doDetailId] += (index).ToString() + ". " + data.correctionType + "\n";
+                            qryDate[data.doDetailId] += (index).ToString() + ". " + correctionDate + "\n";
+                            qryQty[data.doDetailId] += (index).ToString() + ". " + String.Format("{0:N0}", data.valueCorrection) + "\n";
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        if (data.correctionNo != null)
+                        {
+                            index = 1;
+                            qry[data.doDetailId] = (index).ToString() + ". " + data.correctionNo + "\n";
+                            qryType[data.doDetailId] = (index).ToString() + ". " + data.correctionType + "\n";
+                            qryDate[data.doDetailId] = (index).ToString() + ". " + correctionDate + "\n";
+                            qryQty[data.doDetailId] = (index).ToString() + ". " + String.Format("{0:N0}", data.valueCorrection) + "\n";
+                            index++;
+                        }
+                            
+                        
+                    }
+                }
+                else
+                {
+                    listData.Add(data);
+                }
+
+            }
+            foreach(var corrections in qry)
+            {
+                foreach(PurchaseOrderMonitoringAllViewModel data in Query.ToList())
+                {
+                    if( corrections.Key==data.doDetailId)
+                    {
+                        data.correctionNo = qry[data.doDetailId];
+                        data.correctionType= qryType[data.doDetailId];
+                        data.correctionQtys = qryQty[data.doDetailId];
+                        data.correctionDates = qryDate[data.doDetailId];
+                        listData.Add(data);
+                        break;
+                    }
+                }
+            }
+
+            var op = qry;
+            return Query=listData.AsQueryable();
+            //return Query;
+
         }
 
         public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order, int offset, string user)
@@ -220,13 +312,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Koreksi", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "No Koreksi", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nilai Koreksi", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nilai Koreksi", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Koreksi", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "","", "", "", "", "", "", 0, "",     0, 0, "", "","", "", "", "", "", "", "",     "", "", "", "", 0, "", "", "", "", "",     "", 0, "", "", "", 0, "", "", 0, "",     "",0,"","","","" ); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "","", "", "", "", "", "", 0, "",     0, 0, "", "","", "", "", "", "", "", "",     "", "", "", "", 0, "", "", "", "", "",     "", 0, "", "", "", 0, "", "", 0, "",     "","","","","","" ); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -258,8 +350,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     result.Rows.Add(index, prDate, prCreatedDate, item.prNo, item.category, item.budget, item.productName,item.productCode, item.quantity,item.uom, 
                         item.pricePerDealUnit, item.priceTotal, item.supplierCode, item.supplierName, receiptDatePO, epoDate, epoCreatedDate, epoExpectedDeliveryDate, epoDeliveryDate,item.epoNo, doDate, 
                         doDeliveryDate,item.doNo, urnDate, item.urnNo, item.urnQuantity, item.urnUom, item.paymentDueDays, invoiceDate, item.invoiceNo, upoDate, 
-                        item.upoNo, item.upoPriceTotal, dueDate , vatDate , item.vatNo, item.vatValue , incomeTaxDate,item.incomeTaxNo , item.incomeTaxValue, correctionDate, 
-                        item.correctionNo, item.valueCorrection, item.correctionType, item.remark, item.status,item.staff);
+                        item.upoNo, item.upoPriceTotal, dueDate , vatDate , item.vatNo, item.vatValue , incomeTaxDate,item.incomeTaxNo , item.incomeTaxValue, item.correctionDates, 
+                        item.correctionNo, item.correctionQtys, item.correctionType, item.remark, item.status,item.staff);
                 }
             }
 

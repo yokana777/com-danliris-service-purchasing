@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -20,7 +21,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<PurchasingDocumentExpedition> dbSet;
 
-        IMongoCollection<BsonDocument> collection;
+        IMongoCollection<BsonDocument> collectionUPO;
+        IMongoCollection<BsonDocument> collectionURN;
 
         public UnitPaymentOrderUnpaidReportFacade(PurchasingDbContext dbContext)
         {
@@ -28,33 +30,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
 
             MongoDbContext mongoDbContext = new MongoDbContext();
-            this.collection = mongoDbContext.UnitPaymentOrder;
+            this.collectionUPO = mongoDbContext.UnitPaymentOrder;
+            this.collectionURN = mongoDbContext.UnitReceiptNote;
         }
 
-        public List<UnitPaymentOrderUnpaidViewModel> GetReportMongo(string no, string supplierCode, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
+        public async Task<List<UnitPaymentOrderUnpaidViewModel>> GetReportMongo(string no, string supplierCode, DateTimeOffset dateFrom, DateTimeOffset dateTo)
         {
             string query = "{'$and' : [{_deleted : false}";
-            if (!string.IsNullOrEmpty(no))
+            if (!string.IsNullOrWhiteSpace(no))
             {
                 query += ",{ no : '" + no + "'}";
             }
-            if (!string.IsNullOrEmpty(supplierCode))
+            if (!string.IsNullOrWhiteSpace(supplierCode))
             {
                 query += ",{ 'supplier.code' : '" + supplierCode + "'}";
             }
             if (dateFrom != null && dateTo != null)
             {
-                query += ",{'$and' : [{ date : {'$gte' : new Date('" + dateFrom.ToString() + "')}}, " + "{date : {'$lte' : new Date('" + dateTo.ToString() + "')}}]}";
+                query += ",{'$and' : [{ dueDate : {'$gte' : new Date('" + dateFrom.ToString() + "')}}, " + "{dueDate : {'$lte' : new Date('" + dateTo.ToString() + "')}}]}";
             }
             query += "]}";
-
-            List<BsonDocument> bsonData = collection.Find(query).Project(Builders<BsonDocument>.Projection
+            
+            var bsonDataUPO = collectionUPO.Find(query).Project(Builders<BsonDocument>.Projection
                 .Include("no").Include("date").Include("currency").Include("supplier").Include("invoceNo").Include("dueDate").Include("items")).ToList();
+            var listURNId = await bsonDataUPO.SelectMany(m => m["items"].AsBsonArray.AsQueryable().Select(n => n["unitReceiptNoteId"].AsBsonValue.AsObjectId.ToString())).ToDynamicListAsync();
+            var aggregateURNId = listURNId.Aggregate((i, j) => i + "'),ObjectId('" + j);
+            string queryURN = "{ _id: { $in: [ ObjectId('" + aggregateURNId + "')]}}";
+            var bsonDataURN = await collectionURN.Find(queryURN).Project(Builders<BsonDocument>.Projection
+                .Include("_id").Include("unit").Include("items")).ToListAsync();
+
             List<UnitPaymentOrderUnpaidViewModel> listData = new List<UnitPaymentOrderUnpaidViewModel>();
-            foreach( var data in bsonData)
+            foreach ( var data in bsonDataUPO)
             {
-                var unitReceiptNotes = data["items"].AsBsonArray.AsQueryable().Select(m => m["unitReceiptNote"].AsBsonValue).ToList();
-                foreach(var unitReceiptNote in unitReceiptNotes)
+                var unitReceiptNoteIds = data["items"].AsBsonArray.AsQueryable().Select(m => m["unitReceiptNoteId"].AsBsonValue.AsObjectId).ToList();
+                var unitReceiptNotes = bsonDataURN.Where(m => unitReceiptNoteIds.Contains(m["_id"].AsObjectId)).ToList();
+                foreach (var unitReceiptNote in unitReceiptNotes)
                 {
                     var itemsCount = unitReceiptNote["items"].AsBsonArray.Count;
                     var product = unitReceiptNote["items"].AsBsonArray.AsQueryable().Select(x => x["product"].AsBsonValue["name"].ToString()).ToList();
@@ -68,20 +78,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             Currency = data["currency"].AsBsonValue["code"].ToString(),
                             SupplierName = data["supplier"].AsBsonValue["name"].ToString(),
                             InvoiceNo = data["invoceNo"].ToString(),
-                            DueDate = data["dueDate"].ToUniversalTime(),
+                            DueDate = data.Contains("dueDate") ? data["dueDate"].ToUniversalTime() : DateTimeOffset.MinValue,
                             ProductName = product[i],
                             Quantity = qty[i],
-                            UnitName = unitReceiptNote.AsBsonDocument.Contains("unitId") ? unitReceiptNote["unit"].AsBsonValue["name"].ToString() : "Not Exist",
+                            UnitName = unitReceiptNote["unit"].AsBsonValue["name"].ToString(),
                         });
                     }       
                     
                 }
             }
-
             return listData;
         }
 
-        public IQueryable<UnitPaymentOrderUnpaidViewModel> GetPurchasingDocumentExpedition(int Size, int Page, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public IQueryable<UnitPaymentOrderUnpaidViewModel> GetPurchasingDocumentExpedition(int Size, int Page, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset DateFrom, DateTimeOffset DateTo)
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbContext.PurchasingDocumentExpeditions;
 
@@ -89,8 +98,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    .Where(p => p.IsDeleted == false &&
                           p.UnitPaymentOrderNo == (UnitPaymentOrderNo == null ? p.UnitPaymentOrderNo : UnitPaymentOrderNo) &&
                           p.SupplierCode == (SupplierCode == null ? p.SupplierCode : SupplierCode) &&
-                          p.DueDate.Date >= DateFrom.Value.Date &&
-                          p.DueDate.Date <= DateTo.Value.Date
+                          p.DueDate.Date >= DateFrom &&
+                          p.DueDate.Date <= DateTo
                    );
 
             Query = Query
@@ -129,16 +138,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return list;
         }
 
-        public ReadResponse GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public async Task<ReadResponse> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
-            if (!DateFrom.HasValue || !DateTo.HasValue)
+            if (!DateFrom.HasValue && !DateTo.HasValue)
             {
                 DateFrom = DateTimeOffset.Now.AddHours(Offset).AddMonths(-1);
                 DateTo = DateTimeOffset.Now.AddHours(Offset);
             }
-            var listData = GetPurchasingDocumentExpedition(Size,Page,UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
+            else if (!DateFrom.HasValue && DateTo.HasValue)
+            {
+                DateTo = DateTo.Value.AddHours(Offset);
+                DateFrom = DateTo.Value.AddMonths(-1);
+            }
+            else if (DateFrom.HasValue && !DateTo.HasValue)
+            {
+                DateFrom = DateFrom.Value.AddHours(Offset);
+                DateTo = DateFrom.Value.AddMonths(1);
+            }
+            else
+            {
+                DateFrom = DateFrom.Value.AddHours(Offset);
+                DateTo = DateTo.Value.AddHours(Offset);
+            }
+            var listData = GetPurchasingDocumentExpedition(Size,Page,UnitPaymentOrderNo, SupplierCode, DateFrom.Value, DateTo.Value);
 
-            List<UnitPaymentOrderUnpaidViewModel> dataMongo = GetReportMongo(UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo);
+            List<UnitPaymentOrderUnpaidViewModel> dataMongo = await GetReportMongo(UnitPaymentOrderNo, SupplierCode, DateFrom.Value, DateTo.Value);
             
             IQueryable<UnitPaymentOrderUnpaidViewModel> resultQuery = 
                 (from a in dataMongo
@@ -170,19 +194,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             Pageable<UnitPaymentOrderUnpaidViewModel> pageable = new Pageable<UnitPaymentOrderUnpaidViewModel>(resultQuery, Page - 1, Size);
-            List<UnitPaymentOrderUnpaidViewModel> Data = pageable.Data.ToList<UnitPaymentOrderUnpaidViewModel>();
+            List<UnitPaymentOrderUnpaidViewModel> Data = await pageable.Data.ToDynamicListAsync<UnitPaymentOrderUnpaidViewModel>();
             int TotalData = pageable.TotalCount;
 
             return new ReadResponse(Data.ToList<object>(), TotalData, OrderDictionary);
         }
 
-        public void InsertToMongo(BsonDocument document)
+        public void InsertToMongoUPO(BsonDocument document)
         {
-            collection.InsertOne(document);
+            collectionUPO.InsertOne(document);
         }
-        public void DeleteDataMongoByNo(string no)
+        public void DeleteDataMongoUPO(string query)
         {
-            collection.DeleteOne("{ no : '" + no + "'}");
+            collectionUPO.DeleteOne(query);
+        }
+        public void InsertToMongoURN(BsonDocument document)
+        {
+            collectionURN.InsertOne(document);
+        }
+        public void DeleteDataMongoURN(string query)
+        {
+            collectionURN.DeleteOne(query);
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 {
@@ -24,11 +25,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         }
 
         [HttpGet]
-        public ActionResult Get(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public async Task<ActionResult> Get(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
         {
             int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-            ReadResponse response = this.unitPaymentOrderUnpaidReportFacade.GetReport(Size, Page, Order, UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
+            ReadResponse response = await this.unitPaymentOrderUnpaidReportFacade.GetReport(Size, Page, Order, UnitPaymentOrderNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

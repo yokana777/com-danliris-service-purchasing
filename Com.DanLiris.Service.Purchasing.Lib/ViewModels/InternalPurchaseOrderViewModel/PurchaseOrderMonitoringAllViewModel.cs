@@ -33,12 +33,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public DateTimeOffset doDate { get; set; }
         public DateTimeOffset doDeliveryDate { get; set; }
         public string doNo { get; set; }
+        public long doDetailId { get; set; }
 
         //URN
         public DateTimeOffset urnDate { get; set; }
         public string urnNo { get; set; }
         public double urnQuantity { get; set; }
         public string urnUom { get; set; }
+        public string urnProductCode { get; set; }
 
         public string paymentDueDays { get; set; }
         public DateTimeOffset invoiceDate { get; set; }
@@ -71,6 +73,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public double qtyCorrection { get; set; }
         public double valueCorrection { get; set; }
         public string correctionRemark { get; set; }
+        public string correctionDates { get; set; }
+        public string correctionQtys { get; set; }
 
         public string remark { get; set; }
         public string status { get; set; }

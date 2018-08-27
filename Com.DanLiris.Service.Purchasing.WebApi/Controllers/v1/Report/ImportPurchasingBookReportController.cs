@@ -48,33 +48,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             }
         }
 
-        [HttpGet("download")]
-        public IActionResult GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
-        {
-            try
-            {
-                byte[] xlsInBytes;
+		[HttpGet("download")]
+		public IActionResult GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+		{
+			try
+			{
+				byte[] xlsInBytes;
 
-                var xls = importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
+				var xls = importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
 
-                string filename = "Laporan Buku Pembelian Impor";
-       
-                if (dateFrom != null) filename += " " + ((DateTime) dateFrom).ToString("dd-MM-yyyy");
+				string filename = "Laporan Buku Pembelian Impor";
 
-                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
-                filename += ".xlsx";
+				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
 
-                xlsInBytes = xls.ToArray();
-                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
-                return file;
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-    }
+				if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+				filename += ".xlsx";
+
+				xlsInBytes = xls.ToArray();
+				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+				return file;
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+	}
 }
