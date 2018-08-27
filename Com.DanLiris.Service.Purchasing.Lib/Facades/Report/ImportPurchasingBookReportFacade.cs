@@ -43,7 +43,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 			string DateFrom = d1.ToString("yyyy-MM-dd");
 			string DateTo = d2.ToString("yyyy-MM-dd");
-			string _cat,_no,_unit = "";
+			string _cat,_no,_unit,_date = "";
+			if (d1 != new DateTime(1970, 1, 1))
+				_date = " and receiptdate between '" + DateFrom + "' and  '" + DateTo + "' ";
+			else
+				_date = "";
 			if (category != null )
 				_cat = " and a.categorycode= '" + category + "'";
 			else
@@ -65,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 				using (SqlCommand cmd = new SqlCommand(
 					"declare @EndDate datetime = '" + DateTo + "' " +
 					"declare @StartDate datetime = '" + DateFrom + "' " +
-					"select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,CurrencyRate,PIBNo,sum(amount)Amount,sum(amountIDR) AmountIDR  from(select  g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName, " +
+					"select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,CurrencyRate,PIBNo,sum(amount)Amount,sum(amountIDR) AmountIDR  from(select   distinct g.Id,g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName, " +
 					" case when ispaid = 0 then '-' else (select top(1)PIBNO from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as PIBNo, " +
 					" h.priceperdealunit* h.receiptquantity as amount,h.priceperdealunit * h.receiptquantity* c.CurrencyRate as amountIDR,c.currencyrate " +
 					" from " +
@@ -77,11 +81,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 					" join deliveryorders f on f.id = e.DOId " +
 					" join UnitReceiptNotes g on  f.id = g.DOId " +
 					" join UnitReceiptNoteItems h on g.id = h.urnid " +
-					" where g.IsDeleted = 0 and URNNo like '%BPI%'  and  receiptdate between @StartDate and @EndDate " + _cat + _no +_cat +_unit+
+					" where g.IsDeleted = 0 and URNNo like '%BPI%' " +_date+ _cat + _no +_cat +_unit+
 					" ) as data " +
 
 					" group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, PIBNo, CurrencyRate", conn))
-				{
+				{ 
 					SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
 					DataSet dSet = new DataSet();
 					dataAdapter.Fill(dSet);
@@ -91,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 						ImportPurchasingBookViewModel view = new ImportPurchasingBookViewModel
 						{
 							urnNo = data["URNNo"].ToString(),
-							receiptDate = data["ReceiptDate"].ToString(),
+							receiptDate = Convert.ToDateTime( data["ReceiptDate"].ToString()),
 							productName = data["ProductName"].ToString(),
 							unitName = data["UnitName"].ToString(),
 							categoryName = data["CategoryName"].ToString(),

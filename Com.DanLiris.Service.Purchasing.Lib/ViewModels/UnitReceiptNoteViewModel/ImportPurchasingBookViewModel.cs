@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
 	public class ImportPurchasingBookViewModel : BaseViewModel
 	{
 		public string urnNo { get; set; }
-		public string receiptDate { get; set; }
+		public DateTime receiptDate { get; set; }
 		public string productName { get; set; }
 		public string unitName { get; set; }
 		public string categoryName { get; set; }
