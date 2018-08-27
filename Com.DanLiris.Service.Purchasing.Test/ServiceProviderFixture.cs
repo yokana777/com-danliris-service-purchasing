@@ -33,6 +33,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteDataUtil
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -121,7 +122,10 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitReceiptNoteDataUtil>()
                 .AddTransient<UnitReceiptNoteItemDataUtil>()
-				.AddTransient<TotalPurchaseFacade>()
+
+
+                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+                .AddTransient<TotalPurchaseFacade>()
 				.AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
