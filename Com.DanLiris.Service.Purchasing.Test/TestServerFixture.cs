@@ -68,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                        .AddTransient<UnitReceiptNoteItemDataUtil>()
                        .AddTransient<UnitPaymentCorrectionNoteDataUtil>()
                        .AddTransient<UnitPaymentPriceCorrectionNoteDataUtils>()
-                       
+                       .AddTransient<UnitPaymentOrderUnpaidReportDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })
