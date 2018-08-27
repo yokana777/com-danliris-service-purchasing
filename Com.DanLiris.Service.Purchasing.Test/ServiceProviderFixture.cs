@@ -32,6 +32,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -121,7 +124,16 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitReceiptNoteDataUtil>()
                 .AddTransient<UnitReceiptNoteItemDataUtil>()
-				.AddTransient<TotalPurchaseFacade>()
+
+
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+                .AddTransient<UnitPaymentOrderDataUtil>()
+
+                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+                .AddTransient<UnitPaymentPriceCorrectionNoteDataUtils>()
+                .AddTransient<UnitPaymentCorrectionNoteDataUtil>()
+
+                .AddTransient<TotalPurchaseFacade>()
 				.AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
