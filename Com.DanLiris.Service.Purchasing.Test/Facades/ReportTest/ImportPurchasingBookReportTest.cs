@@ -66,8 +66,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 			await DOFacade.Create(deliveryOrder, "unit-test");
 			UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
 			await Facade.Create(urn, "unit-test");
-			DateTime DateFrom = new DateTime(2018,8, 27);
-			DateTime DateTo = new DateTime(2018, 8, 27);
+			DateTime DateFrom = DateTime.Now;
+			DateTime DateTo = DateTime.Now;
 			var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
 			Assert.NotEqual(Response.Item2, 0);
 		}
