@@ -70,10 +70,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
             DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
             await DOFacade.Create(deliveryOrder, "unit-test");
-            UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
+            UnitReceiptNote urn = await DataUtil.GetNewDataLocalSupplier("unit-test");
             await URNFacade.Create(urn, "unit-test");
-            DateTime DateFrom = new DateTime(2018, 8, 27);
-            DateTime DateTo = new DateTime(2018, 8, 27);
+            var DateFrom = DateTime.Now;
+            DateFrom = DateFrom.Date;
+            var DateTo = DateTime.Now;
+            DateTo = DateTo.Date;
             var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
             Assert.NotEqual(Response.Item2, 0);
         }
@@ -129,8 +131,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             await DOFacade.Create(deliveryOrder, "unit-test");
             UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
             await URNFacade.Create(urn, "unit-test");
-            DateTime DateFrom = new DateTime(2018, 8, 27);
-            DateTime DateTo = new DateTime(2018, 8, 27);
+            var DateFrom = DateTime.Now;
+            DateFrom = DateFrom.Date;
+            var DateTo = DateTime.Now;
+            DateTo = DateTo.Date;
             var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
@@ -143,8 +147,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             await DOFacade.Create(deliveryOrder, "unit-test");
             UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
             await URNFacade.Create(urn, "unit-test");
-            DateTime DateFrom = new DateTime(2018, 8, 28);
-            DateTime DateTo = new DateTime(2018, 8, 28);
+            var DateFrom = DateTime.Now;
+            DateFrom = DateFrom.Date;
+            var DateTo = DateTime.Now;
+            DateTo = DateTo.Date;
             var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }

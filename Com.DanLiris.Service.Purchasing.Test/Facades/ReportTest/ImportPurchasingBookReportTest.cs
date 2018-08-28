@@ -66,9 +66,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 			await DOFacade.Create(deliveryOrder, "unit-test");
 			UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
 			await Facade.Create(urn, "unit-test");
-			DateTime DateFrom = new DateTime(2018,8, 27);
-			DateTime DateTo = new DateTime(2018, 8, 27);
-			var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
+            var DateFrom = DateTime.Now;
+            DateFrom = DateFrom.Date;
+            var DateTo = DateTime.Now;
+            DateTo = DateTo.Date;
+            var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
 			Assert.NotEqual(Response.Item2, 0);
 		}
 		//[Fact]
@@ -123,9 +125,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 			await DOFacade.Create(deliveryOrder, "unit-test");
 			UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
 			await Facade.Create(urn, "unit-test");
-			DateTime DateFrom = new DateTime(2018, 8, 27);
-			DateTime DateTo = new DateTime(2018, 8, 27);
-			var Response = IPRFacade.GenerateExcel(null,null,null,DateFrom,DateTo);
+            var DateFrom = DateTime.Now;
+            DateFrom = DateFrom.Date;
+            var DateTo = DateTime.Now;
+            DateTo = DateTo.Date;
+            var Response = IPRFacade.GenerateExcel(null,null,null,DateFrom,DateTo);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 		[Fact]
@@ -137,9 +141,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 			await DOFacade.Create(deliveryOrder, "unit-test");
 			UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
 			await Facade.Create(urn, "unit-test");
-			DateTime DateFrom = new DateTime(2018, 8, 28);
-			DateTime DateTo = new DateTime(2018, 8, 28);
-			var Response = IPRFacade.GenerateExcel(null, null, null, DateFrom, DateTo);
+            var DateFrom = DateTime.Now;
+            DateFrom = DateFrom.Date;
+            var DateTo = DateTime.Now;
+            DateTo = DateTo.Date;
+            var Response = IPRFacade.GenerateExcel(null, null, null, DateFrom, DateTo);
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 	}
