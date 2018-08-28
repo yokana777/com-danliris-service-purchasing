@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
             var dt = DateTime.Now;
             dt = dt.Date;
 
-            doItem[0].Details = doDetail;
+			doItem[0].Details = doDetail;
 			return new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote
 			{
 				UnitId = doDetail[0].UnitId,
