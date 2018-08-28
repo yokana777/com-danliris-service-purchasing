@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
 				SupplierCode = deliveryOrder.SupplierCode,
 				SupplierId = deliveryOrder.SupplierId,
 				SupplierName = deliveryOrder.SupplierName,
-				ReceiptDate = new DateTimeOffset(new DateTime(2018, 8, 27), TimeSpan.Zero), 
+				ReceiptDate = new DateTimeOffset(DateTime.Now, TimeSpan.Zero), 
 				DOId = deliveryOrder.Id,
 				DONo = deliveryOrder.DONo,
 				Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }

@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          where a.IsDeleted == false && b.IsDeleted == false
                              && c.IsDeleted == false
                              && d.IsDeleted == false
-                             && epo.IsPosted == true && epo.IsDeleted == false && epoDetail.IsDeleted == false && epoItem.IsDeleted == false
+                             && epo.IsDeleted == false && epoDetail.IsDeleted == false && epoItem.IsDeleted == false
                              && DO.IsDeleted == false && doItem.IsDeleted == false && doDetail.IsDeleted == false
                              && urn.IsDeleted == false && urnItem.IsDeleted == false
                              && upo.IsDeleted == false && upoItem.IsDeleted == false && upoDetail.IsDeleted == false
@@ -104,18 +104,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              budget = a.BudgetName,
                              productName = b.ProductName,
                              productCode = b.ProductCode,
-                             quantity = b.Quantity,
-                             uom = b.UomUnit,
-                             pricePerDealUnit = epoDetail != null ? epoDetail.PricePerDealUnit : 0,
-                             priceTotal = epoDetail != null ? epoDetail.DealQuantity * epoDetail.PricePerDealUnit : 0,
-                             supplierCode = epo.SupplierCode ?? "-",
-                             supplierName = epo.SupplierName ?? "-",
+                             quantity = epoDetail != null ? epoDetail.DealQuantity : 0 ,
+                             uom = epoDetail != null  ? epoDetail.DealUomUnit : "-" ,
+                             pricePerDealUnit = epoDetail != null ? epo.IsPosted==true? epoDetail.PricePerDealUnit : 0 : 0,
+                             priceTotal = epoDetail != null ? epo.IsPosted == true ? epoDetail.DealQuantity * epoDetail.PricePerDealUnit : 0 :0,
+                             supplierCode = epo!=null ? epo.IsPosted == true?epo.SupplierCode : "-" : "-",
+                             supplierName = epo != null ? epo.IsPosted == true ? epo.SupplierName : "-" : "-",
                              receivedDatePO = a.CreatedUtc,
-                             epoDate = epo == null ? new DateTime(1970, 1, 1) : epo.OrderDate,
-                             epoCreatedDate = epo == null ? new DateTime(1970, 1, 1) : epo.CreatedUtc,
+                             epoDate = epo != null ? epo.IsPosted == true ? epo.OrderDate : new DateTime(1970, 1, 1) : new DateTime(1970, 1, 1) ,
+                             epoCreatedDate = epo != null ? epo.IsPosted == true ?  epo.CreatedUtc : new DateTime(1970, 1, 1) : new DateTime(1970, 1, 1) ,
                              epoExpectedDeliveryDate = a.ExpectedDeliveryDate,
-                             epoDeliveryDate = epo == null ? new DateTime(1970, 1, 1) : epo.DeliveryDate,
-                             epoNo = epo.EPONo ?? "-",
+                             epoDeliveryDate = epo != null ? epo.IsPosted == true ?  epo.DeliveryDate : new DateTime(1970, 1, 1) : new DateTime(1970, 1, 1) ,
+                             epoNo = epo != null ? epo.IsPosted == true?epo.EPONo : "-" : "-",
                              doDate = DO == null ? new DateTime(1970, 1, 1) : DO.DODate,
                              doDeliveryDate = DO == null ? new DateTime(1970, 1, 1) : DO.ArrivalDate,
                              doNo = DO.DONo ?? "-",
@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              urnNo = urn.URNNo ?? "-",
                              urnQuantity = urnItem == null ? 0 : urnItem.ReceiptQuantity,
                              urnUom = urnItem.Uom ?? "-",
-                             paymentDueDays = epo.PaymentDueDays ?? "-",
+                             paymentDueDays = epo != null && epo.IsPosted == true?epo.PaymentDueDays : "-",
                              invoiceDate = upo == null ? new DateTime(1970, 1, 1) : upo.InvoiceDate,
                              invoiceNo = upo.InvoiceNo ?? "-",
                              upoDate = upo == null ? new DateTime(1970, 1, 1) : upo.Date,
@@ -140,41 +140,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              correctionDate = corr == null ? new DateTime(1970, 1, 1) : corr.CorrectionDate,
                              correctionNo = corr.UPCNo ?? null,
                              correctionType = corr.CorrectionType ?? null,
-                             valueCorrection = corrItem == null ? 0 : corr.CorrectionType == "Harga Total" ? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : corr.CorrectionType == "Harga Satuan" ? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity : corr.CorrectionType == null ? corrItem.PriceTotalAfter * -1 : 0,
+                             valueCorrection = corrItem == null ? 0 : corr.CorrectionType == "Harga Total" ? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : corr.CorrectionType == "Harga Satuan" ? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity : corr.CorrectionType == "Jumlah" ? corrItem.PriceTotalAfter * -1 : 0,
                              priceAfter = corrItem == null ? 0 : corrItem.PricePerDealUnitAfter,
                              priceBefore = corrItem == null ? 0 : corrItem.PricePerDealUnitBefore,
                              priceTotalAfter = corrItem == null ? 0 : corrItem.PriceTotalAfter,
                              priceTotalBefore = corrItem == null ? 0 : corrItem.PricePerDealUnitBefore,
                              qtyCorrection = corrItem == null ? 0 : corrItem.Quantity,
-                             remark = epoDetail.ProductRemark ?? "",
+                             remark = epoDetail != null ? epo.IsPosted == true?epoDetail.ProductRemark : "" : "",
                              status = b.Status,
                              staff = a.CreatedBy,
                              LastModifiedUtc = a.LastModifiedUtc,
                          });
-            //var result = Query.GroupBy(cc => cc.doDetailId==0 ? -1 : cc.doDetailId ).Select(dd => new
-            //{
-            //    noUPO = dd.Key,
-            //    no = string.Join("\n", dd.Select(ee => ee.correctionNo).ToList()),
-            //    date = string.Join("\n", dd.Select(ee => ee.correctionDate).ToList()),
-            //    type = string.Join("\n", dd.Select(ee => ee.correctionType).ToList()),
-            //    value = string.Join("\n", dd.Select(ee => ee.valueCorrection).ToList())
-            //});
-
-            //Dictionary<string, double> qry = new Dictionary<string, double>();
-            //List<PurchaseOrderMonitoringAllViewModel> listData = new List<PurchaseOrderMonitoringAllViewModel>();
-            //foreach (var data in result.ToList())
-            //{
-            //    foreach (var qData in Query.ToList())
-            //    {
-            //        if (data.noUPO == qData.upoNo && data.product == qData.urnProductCode)
-            //        {
-            //            qData.correctionNo = data.no;
-            //            //qData.correctionDate = data.date;
-            //            listData.Add(qData);
-            //            break;
-            //        }
-            //    }
-            //}
+            
 
             Dictionary<long, string> qry = new Dictionary<long, string>();
             Dictionary<long, string> qryDate = new Dictionary<long, string>();
