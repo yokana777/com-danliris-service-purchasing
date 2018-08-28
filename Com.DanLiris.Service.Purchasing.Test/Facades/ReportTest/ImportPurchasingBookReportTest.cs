@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 			DateTime DateFrom = DateTime.Now;
 			DateTime DateTo = DateTime.Now;
 			var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
-			Assert.NotEqual(Response.Item2, 0);
+			Assert.NotNull(Response);
 		}
 		//[Fact]
 		//public async void Should_Success_Get_Report_Data_No_Parameter()
