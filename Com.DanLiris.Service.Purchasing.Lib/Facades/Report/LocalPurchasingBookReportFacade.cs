@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     "declare @StartDate datetime = '" + DateFrom + "' " +
                     "select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,useVat,VatNo,sum(dpp)Dpp,sum(ppn) Ppn  from(select  g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName,c.UseVat, " +
                     " case when ispaid = 0 then '-' else (select top(1)VatNo from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as VatNo," +
-                    " h.priceperdealunit* h.receiptquantity as dpp,h.priceperdealunit * h.receiptquantity* 10/100 as ppn" +
+                    " h.priceperdealunit* h.receiptquantity* c.CurrencyRate as dpp,h.priceperdealunit * h.receiptquantity* c.CurrencyRate* 10/100 as ppn" +
                     " from " +
                     " internalpurchaseorders a " +
                     " join ExternalPurchaseOrderItems b on a.id = b.POId " +
@@ -76,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     " join deliveryorderitems e on c.id = e.epoid " +
                     " join deliveryorders f on f.id = e.DOId " +
                     " join UnitReceiptNotes g on  f.id = g.DOId " +
-                    " join UnitReceiptNoteItems h on g.id = h.urnid " +
+                    " join UnitReceiptNoteItems h on g.id = h.urnid and h.EPODetailId=d.Id " +
                     " where g.IsDeleted = 0 and URNNo like '%BPL%'  and  receiptdate between @StartDate and @EndDate " + _cat + _no + _unit +
                     " ) as data " +
 
