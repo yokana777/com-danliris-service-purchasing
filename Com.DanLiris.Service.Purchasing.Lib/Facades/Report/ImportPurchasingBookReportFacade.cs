@@ -80,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 					" join deliveryorderitems e on c.id = e.epoid " +
 					" join deliveryorders f on f.id = e.DOId " +
 					" join UnitReceiptNotes g on  f.id = g.DOId " +
-					" join UnitReceiptNoteItems h on g.id = h.urnid " +
+                    " join UnitReceiptNoteItems h on g.id = h.urnid and h.EPODetailId=d.Id " +
 					" where g.IsDeleted = 0 and URNNo like '%BPI%' " +_date+ _cat + _no +_cat +_unit+
 					" ) as data " +
 
