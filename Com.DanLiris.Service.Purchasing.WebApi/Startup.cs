@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
@@ -66,6 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
                 .AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
                 .AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
+                .AddTransient<IUnitPaymentOrderUnpaidReportFacade, UnitPaymentOrderUnpaidReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
@@ -74,9 +76,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<UnitReceiptNoteFacade>()
-                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+				.AddTransient<TotalPurchaseFacade>()
+				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
-                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>();
+                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+                .AddTransient<PurchaseOrderMonitoringAllFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -117,9 +121,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
             string env = Configuration.GetValue<string>(Constant.ASPNETCORE_ENVIRONMENT);
+			APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
 
-            /* Register */
-            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+			/* Register */
+			services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));

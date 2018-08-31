@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             {
                 CurrencyCode = "CurrencyCode",
                 CurrencyId = "CurrencyId",
-                CurrencyRate = "CurrencyRate",
+                CurrencyRate = 0.5,
                 UnitId = "UnitId",
                 UnitCode = "UnitCode",
                 UnitName = "UnitName",
@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 {
                     code = "CurrencyCode",
                     _id = "CurrencyId",
-                    rate = "CurrencyRate",
+                    rate = 0.5,
                 },
                 freightCostBy = "test",
                 deliveryDate = DateTime.Now.AddDays(1),
@@ -128,6 +128,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
 
             await facade.Create(externalPurchaseOrder, user,7);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestData2(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+            externalPurchaseOrder.CreatedUtc = externalPurchaseOrder.CreatedUtc.AddDays(10);
+            await facade.Update(Convert.ToInt32(externalPurchaseOrder.Id), externalPurchaseOrder, user);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestData3(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+            externalPurchaseOrder.CreatedUtc = externalPurchaseOrder.CreatedUtc.AddDays(16);
+            await facade.Update(Convert.ToInt32(externalPurchaseOrder.Id), externalPurchaseOrder, user);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestData4(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+            externalPurchaseOrder.CreatedUtc = externalPurchaseOrder.CreatedUtc.AddDays(-40);
+            await facade.Update(Convert.ToInt32(externalPurchaseOrder.Id), externalPurchaseOrder, user);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestData5(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+            externalPurchaseOrder.CreatedUtc = externalPurchaseOrder.CreatedUtc.AddDays(-70);
+            await facade.Update(Convert.ToInt32(externalPurchaseOrder.Id), externalPurchaseOrder, user);
 
             return externalPurchaseOrder;
         }

@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class UnitPaymentPriceCorrectionNotePDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(UnitPaymentCorrectionNoteViewModel viewModel, UnitPaymentOrderViewModel viewModelSpb, string username, int clientTimeZoneOffset)
+        public MemoryStream GeneratePdfTemplate(UnitPaymentCorrectionNoteViewModel viewModel, UnitPaymentOrderViewModel viewModelSpb, string username, int clientTimeZoneOffset, DateTimeOffset? receiptDate)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
             Font small_normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string currencyCodePPn = "";
             string currencyCodeTotal = "";
             string currencyDesc = "";
-            DateTime receiptDate = new DateTime();
+            //DateTime receiptDate = new DateTime();
 
             Document document = new Document(PageSize.A5.Rotate(), 18, 18, 17, 10);
             //document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate())
@@ -82,10 +82,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellHeaderContentCenter.Phrase = new Phrase("");
                 tableHeader.AddCell(cellHeaderContentCenter);
 
-                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" + "\n" + "(A126) A. SARBINI" + "\n" + "JL.GREMET / JOHO, SOLO", normal_font);
+                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" , normal_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
+                cellHeaderContentLeft.Phrase = new Phrase("");
+                tableHeader.AddCell(cellHeaderContentLeft);
 
+                cellHeaderContentCenter.Phrase = new Phrase("");
+                tableHeader.AddCell(cellHeaderContentCenter);
+
+                cellHeaderContentLeft.Phrase = new Phrase("(" + viewModel.supplier.code + ") " + viewModel.supplier.name + "\n" + viewModel.supplier.address, normal_font);
+                tableHeader.AddCell(cellHeaderContentLeft);
 
                 PdfPCell cellHeader = new PdfPCell(tableHeader);
                 tableHeader.ExtendLastRow = false;
@@ -142,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
 
                 PdfPTable tableContent = new PdfPTable(8);
-                tableContent.SetWidths(new float[] { 1f, 6f, 3f, 1.5f, 1.5f, 1.5f, 1.5f, 3f });
+                tableContent.SetWidths(new float[] { 1f, 6f, 2f, 1.5f, 2f, 1.5f, 2f, 3f });
 
                 cellCenter.Phrase = new Phrase("No", small_bold_font);
                 tableContent.AddCell(cellCenter);
@@ -206,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellLeft);
 
                     currencyCodePPn = item.currency.code;
-                    currencyDesc = item.currency.description;
+                    currencyDesc = viewModelSpb.currency.description;
                     currencyCodeTotal = item.currency.code;
 
                     total += priceCorrectionTotal;
@@ -216,6 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 double pph = double.Parse(viewModelSpb.incomeTax.rate);
                 totalPPh = (pph * total) / 100;
                 totalDibayar = total - totalPPh;
+
 
                 PdfPCell cellContent = new PdfPCell(tableContent);
                 tableContent.ExtendLastRow = false;
@@ -244,11 +252,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentRight.Phrase = new Phrase(totalPPn.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                cellIdentityTotalContentRight.Phrase = new Phrase(total.ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
                 if (viewModel.useIncomeTax == false)
                 {
+                    totalPPh = 0;
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -269,12 +278,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 if (viewModel.useVat == false)
                 {
-                    cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
+                    totalPPn = 0;
+                    cellIdentityTotalContentLeft.Phrase = new Phrase("PPn 10%", normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                    cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
-                    tableTotal.AddCell(cellIdentityTotalContentLeft);
+                    cellIdentityTotalContentRight.Phrase = new Phrase(" - ");
+                    tableTotal.AddCell(cellIdentityTotalContentRight);
                 }
                 else
                 {
@@ -300,7 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                    cellIdentityTotalContentRight.Phrase = new Phrase(totalDibayar.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                    cellIdentityTotalContentRight.Phrase = new Phrase((total + totalPPn- totalPPh).ToString("N", CultureInfo.InvariantCulture), normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentRight);
                 }
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -309,12 +319,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodeTotal}", normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentRight.Phrase = new Phrase(total.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                cellIdentityTotalContentRight.Phrase = new Phrase((total+ totalPPn).ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
-                cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total)} {currencyDesc}", terbilang_bold_font);
+                cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn - totalPPh)} {currencyDesc.ToLower()}", terbilang_bold_font);
+
+                if (viewModel.useIncomeTax == false)
+                    cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn)} {currencyDesc.ToLower()}", terbilang_bold_font);
+
                 cellIdentityTotalContentLeft.Colspan = 3;
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
+                
+
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -349,27 +365,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Perjanjian Pembayaran ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.dueDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentRight.Phrase = new Phrase(" ", normal_font);
-                tableKeterangan.AddCell(cellIdentityKeteranganContentRight);
-                cellIdentityKeteranganContentRight.Phrase = new Phrase(" ", normal_font);
-                tableKeterangan.AddCell(cellIdentityKeteranganContentRight);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Barang Datang ", normal_font);
+                tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
+                DateTimeOffset date = receiptDate != null ? (DateTimeOffset)receiptDate : new DateTime();
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {(date.ToString("dd MMMM yyyy", new CultureInfo("id-ID")))} ", normal_font);
+                tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Nota ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.uPONo}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Barang Datang ", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Nomor Nota Retur ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {receiptDate.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.returNoteNo}", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("Keterangan ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.remark}", small_bold_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase("Nomor Nota Retur ", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase(" ", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
-                cellIdentityKeteranganContentLeft.Phrase = new Phrase($" : {viewModel.returNoteNo}", normal_font);
+                cellIdentityKeteranganContentLeft.Phrase = new Phrase(" ", small_bold_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);
                 cellIdentityKeteranganContentLeft.Phrase = new Phrase("", normal_font);
                 tableKeterangan.AddCell(cellIdentityKeteranganContentLeft);

@@ -41,6 +41,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                         Currency = "IDR",
                         DivisionCode = "Division",
                         DivisionName = "Division",
+                        CategoryCode = "Category",
+                        CategoryName = "Category",
                         SupplierCode = "Supplier",
                         SupplierName = "Supplier",
                         DueDate = DateTimeOffset.UtcNow,

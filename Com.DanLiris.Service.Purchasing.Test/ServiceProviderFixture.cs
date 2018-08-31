@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib;
+﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
@@ -10,7 +9,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Serializers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
@@ -32,6 +30,11 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -60,6 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
             ClassMap<UomViewModel>.Register();
             ClassMap<PurchaseOrderViewModel>.Register();
             ClassMap<SupplierViewModel>.Register();
+            ClassMap<UnitPaymentOrderUnpaidViewModel>.Register();
         }
 
         public ServiceProviderFixture()
@@ -76,8 +80,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
             RegisterEndpoints(configuration);
             string connectionString = configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? configuration[Constant.DEFAULT_CONNECTION];
+			APIEndpoint.ConnectionString = configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? configuration[Constant.DEFAULT_CONNECTION];
 
-            this.ServiceProvider = new ServiceCollection()
+			this.ServiceProvider = new ServiceCollection()
                 .AddDbContext<PurchasingDbContext>((serviceProvider, options) =>
                 {
                     options.UseSqlServer(connectionString);
@@ -88,14 +93,17 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<SendToVerificationDataUtil>()
 
+                .AddTransient<UnitPaymentOrderUnpaidReportFacade>()
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchasingDocumentAcceptanceDataUtil>()
                 .AddTransient<UnitReceiptNoteBsonDataUtil>()
+                .AddTransient<UnitPaymentOrderUnpaidReportDataUtil>()
                 .AddTransient<UnitReceiptNoteImportFalseBsonDataUtil>()
 
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<PurchaseRequestDataUtil>()
                 .AddTransient<PurchaseRequestItemDataUtil>()
+                .AddTransient<PurchaseOrderMonitoringAllFacade>()
 
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<InternalPurchaseOrderDataUtil>()
@@ -117,8 +125,15 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitReceiptNoteDataUtil>()
                 .AddTransient<UnitReceiptNoteItemDataUtil>()
+				.AddTransient<TotalPurchaseFacade>()
+				.AddTransient<ImportPurchasingBookReportFacade>()
 
-                .AddSingleton<IHttpClientService, HttpClientTestService>()
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+                .AddTransient<UnitPaymentOrderDataUtil>()
+                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+                .AddTransient<UnitPaymentPriceCorrectionNoteDataUtils>()
+                .AddTransient<UnitPaymentCorrectionNoteDataUtil>()
+				.AddSingleton<IHttpClientService, HttpClientTestService>()
                 .AddSingleton<IdentityService>()
                 .BuildServiceProvider();
 

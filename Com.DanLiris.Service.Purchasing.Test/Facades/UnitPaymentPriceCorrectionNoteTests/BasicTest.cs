@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(_dbContext(testName), serviceProvider.Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
-            DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
+            DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
 
             UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(serviceProvider.Object, _dbContext(testName));
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
@@ -148,6 +148,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             modelLocalSupplier.DivisionName = "GARMENT";
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             Assert.NotEqual(ResponseLocalSupplier, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Get_Data_Supplier()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            var Response = facade.GetSupplier(modelLocalSupplier.SupplierId);
+            Assert.Null(Response);
+        }
+
+        [Fact]
+        public async void Should_Error_Get_Data_URN()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            var id = 0;
+            var items=modelLocalSupplier.Items.ToList();
+            var Response = facade.GetUrn(items[0].URNNo);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReport(null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcel(null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
 }
