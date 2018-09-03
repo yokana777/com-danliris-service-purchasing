@@ -33,11 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         {
             get { return (UnitReceiptNoteDataUtil)this.TestFixture.Service.GetService(typeof(UnitReceiptNoteDataUtil)); }
         }
-        protected DeliveryOrderDataUtil DataUtilDO
-        {
-            get { return (DeliveryOrderDataUtil)this.TestFixture.Service.GetService(typeof(DeliveryOrderDataUtil)); }
-        }
-
+       
         public UnitReceiptNoteControllerTest(TestServerFixture fixture)
         {
             TestFixture = fixture;
@@ -113,11 +109,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         [Fact]
         public async Task Should_Error_Create_Invalid_Date_Data()
         {
-            DeliveryOrderViewModel viewModelDO = await DataUtilDO.GetNewDataViewModel("dev2");
             UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
-            viewModel.doId = viewModelDO._id.ToString();
-            viewModel.doNo = viewModelDO.no;
-            viewModel.date = viewModelDO.supplierDoDate.Value.AddMonths(-1);
+            viewModel.date = viewModel.date.AddYears(-1);
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
