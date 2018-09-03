@@ -105,6 +105,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         }
 
         [Fact]
+        public async Task Should_Error_Create_Invalid_Date_Data()
+        {
+            UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.date = DateTimeOffset.Now.AddMonths(-1);
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Invalid_Data_Item()
         {
             UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
