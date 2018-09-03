@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         public async Task Should_Error_Create_Invalid_Date_Data()
         {
             UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
-            viewModel.date = viewModel.date.AddYears(-1);
+            viewModel.date = viewModel.date.AddDays(-90);
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
