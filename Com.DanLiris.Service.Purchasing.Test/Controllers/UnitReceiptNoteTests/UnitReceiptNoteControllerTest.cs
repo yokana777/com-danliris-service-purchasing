@@ -1,5 +1,8 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Newtonsoft.Json;
 using System;
@@ -30,6 +33,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         protected UnitReceiptNoteDataUtil DataUtil
         {
             get { return (UnitReceiptNoteDataUtil)this.TestFixture.Service.GetService(typeof(UnitReceiptNoteDataUtil)); }
+        }
+
+        protected DeliveryOrderDataUtil DataUtilDO
+        {
+            get { return (DeliveryOrderDataUtil)this.TestFixture.Service.GetService(typeof(DeliveryOrderDataUtil)); }
         }
 
         public UnitReceiptNoteControllerTest(TestServerFixture fixture)
@@ -100,6 +108,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             viewModel.items = new List<UnitReceiptNoteItemViewModel> { };
             viewModel.isStorage = true;
             viewModel.storage = null;
+            var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_Date_Data()
+        {
+            DeliveryOrder ModelDO = await DataUtilDO.GetTestData("dev2");
+            //var response1 = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModelDO).ToString(), Encoding.UTF8, MediaType));
+
+            UnitReceiptNoteViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.doId = ModelDO.Id.ToString();
+            viewModel.date = ModelDO.DODate.AddDays(-90);
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }

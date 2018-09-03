@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
@@ -32,10 +34,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
             {
                 yield return new ValidationResult("Date is required", new List<string> { "date" });
             }
-
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(doId))
+                {
+                    DeliveryOrderFacade Service = (DeliveryOrderFacade)validationContext.GetService(typeof(DeliveryOrderFacade));
+                    DeliveryOrder sj = Service.ReadById(Convert.ToInt32(doId)).Item1;
+                    if (this.date < sj.DODate.ToOffset((new TimeSpan(7, 0, 0))).Date)
+                    {
+                        yield return new ValidationResult("Date should not be less than delivery order date", new List<string> { "date" });
+                    }
+                }
+                
+            }
+            
             if (this.isStorage)
             {
-                if (storage == null||string.IsNullOrWhiteSpace(storage._id) == null)
+                if (storage == null||string.IsNullOrWhiteSpace(storage._id))
                 {
                     yield return new ValidationResult("Storage is required", new List<string> { "storage" });
                 }
