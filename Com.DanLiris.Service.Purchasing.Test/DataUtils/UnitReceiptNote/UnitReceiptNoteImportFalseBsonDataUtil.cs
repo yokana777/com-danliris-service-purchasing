@@ -118,22 +118,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNote
             };
         }
 
-        public BsonDocument GetTestData()
-        {
-            BsonDocument data = GetNewData();
-            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
-            this.Facade.InsertToMongo(data);
+        //public BsonDocument GetTestData()
+        //{
+        //    BsonDocument data = GetNewData();
+        //    this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        //    this.Facade.InsertToMongo(data);
 
-            return data;
-        }
+        //    return data;
+        //}
 
-        public BsonDocument GetTestData2()
-        {
-            BsonDocument data = GetNewData2();
-            this.Facade.DeleteDataMongoByNo(data["no"].AsString);
-            this.Facade.InsertToMongo(data);
+        //public BsonDocument GetTestData2()
+        //{
+        //    BsonDocument data = GetNewData2();
+        //    this.Facade.DeleteDataMongoByNo(data["no"].AsString);
+        //    this.Facade.InsertToMongo(data);
 
-            return data;
-        }
+        //    return data;
+        //}
     }
 }
