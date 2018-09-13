@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 {
-    public class UnitPaymentOrderNotVerifiedReportViewModel
+    public class UnitPaymentOrderNotVerifiedReportViewModel : BaseViewModel
     {
         public string UnitPaymentOrderNo { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }

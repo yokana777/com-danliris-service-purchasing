@@ -95,6 +95,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
+        public async Task Should_Error_Create_Data_same_number()
+        {
+            DeliveryOrderViewModel viewModel = await DataUtil.GetNewDataViewModel(USERNAME);
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            var response = await this.Client.PostAsync(URI, httpContent);
+
+            DeliveryOrderViewModel viewModel1 = viewModel;
+            HttpContent httpContent1 = new StringContent(JsonConvert.SerializeObject(viewModel1).ToString(), Encoding.UTF8, MediaType);
+            var response1 = await this.Client.PostAsync(URI, httpContent);
+            Assert.Equal(HttpStatusCode.BadRequest, response1.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Invalid_Data()
         {
             DeliveryOrderViewModel viewModel = await DataUtil.GetNewDataViewModel(USERNAME);

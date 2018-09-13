@@ -44,5 +44,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             Assert.True(result.ContainsKey("data"));
             Assert.True(result["data"].GetType().Name.Equals("JArray"));
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Excel()
+        {
+            var response = await this.Client.GetAsync(URI + "/download");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        
     }
 }

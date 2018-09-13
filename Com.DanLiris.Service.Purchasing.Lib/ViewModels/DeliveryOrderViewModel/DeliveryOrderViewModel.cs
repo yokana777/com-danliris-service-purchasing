@@ -29,11 +29,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel
             }
             else
             {
-                PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                if (purchasingDbContext.DeliveryOrders.Count(DO => DO.DONo.Equals(no) && DO.Id != this._id) > 0)
+                if(supplier != null)
                 {
-                    yield return new ValidationResult("No is already exist", new List<string> { "no" });
+                    PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+                    if (purchasingDbContext.DeliveryOrders.Where(DO => DO.DONo.Equals(no) && DO.Id != this._id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == supplierDoDate && DO.SupplierId == supplier._id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == date).Count() > 0)
+                    {
+                        yield return new ValidationResult("No is already exist", new List<string> { "no" });
+                    }
                 }
+               
             }
             if (date.Equals(DateTimeOffset.MinValue) || date == null)
             {
