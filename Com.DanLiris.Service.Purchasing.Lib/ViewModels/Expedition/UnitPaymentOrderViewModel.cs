@@ -15,6 +15,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public string PaymentMethod { get; set; }
         public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
+        public string CategoryCode { get; set; }
+        public string CategoryName { get; set; }
         public string DivisionCode { get; set; }
         public string DivisionName { get; set; }
         public double IncomeTax { get; set; }

@@ -122,42 +122,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     EntityExtension.FlagForCreate(m, user, "Facade");
 
                     m.URNNo = await GenerateNo(m);
-
-                    foreach (var item in m.Items)
+                    if (m.Items != null)
                     {
-
-                        EntityExtension.FlagForCreate(item, user, "Facade");
-                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
-                        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
-                        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
-                        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
-                        UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
-                        item.PRItemId = doDetail.PRItemId;
-                        item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
-                        doDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
-                        if(upoDetail == null)
+                        foreach (var item in m.Items)
                         {
-                            if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+
+                            EntityExtension.FlagForCreate(item, user, "Facade");
+                            ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
+                            PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.PRItemId);
+                            InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
+                            DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
+                            UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
+                            item.PRItemId = doDetail.PRItemId;
+                            item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
+                            doDetail.ReceiptQuantity += item.ReceiptQuantity;
+                            externalPurchaseOrderDetail.ReceiptQuantity += item.ReceiptQuantity;
+                            if (upoDetail == null)
                             {
-                                if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                                {
+                                    if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
+                                        poItem.Status = "Barang sudah diterima Unit parsial";
+                                    }
+                                    else
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
+                                        poItem.Status = "Barang sudah diterima Unit semua";
+                                    }
+                                }
+                                else
                                 {
                                     //prItem.Status = "Barang sudah diterima Unit parsial";
                                     poItem.Status = "Barang sudah diterima Unit parsial";
                                 }
-                                else
-                                {
-                                    //prItem.Status = "Barang sudah diterima Unit semua";
-                                    poItem.Status = "Barang sudah diterima Unit semua";
-                                }
                             }
-                            else
-                            {
-                                //prItem.Status = "Barang sudah diterima Unit parsial";
-                                poItem.Status = "Barang sudah diterima Unit parsial";
-                            }
+
                         }
-                        
                     }
                     if (m.IsStorage == true)
                     {
@@ -540,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+            public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -565,10 +567,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
                              && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
                              && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                         orderby  a.ReceiptDate,a.CreatedUtc ascending 
                          select new UnitReceiptNoteReportViewModel
                          {
                              urnNo = a.URNNo,
                              prNo = b.PRNo,
+                             epoDetailId=b.EPODetailId,
                              category = d.CategoryName,
                              unit = a.DivisionName + " - " + a.UnitName,
                              supplier = a.SupplierName,
@@ -579,10 +583,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              receiptQuantity=b.ReceiptQuantity,
                              DealUom = k.DealUomUnit,
                              dealQuantity = k.DealQuantity,
-                             quantity= k.DealQuantity- b.ReceiptQuantity,
-                             LastModifiedUtc = b.LastModifiedUtc
+                             quantity= k.DealQuantity,
+                             CreatedUtc = b.CreatedUtc
                          });
-            return Query;
+            Dictionary<string, double> q = new Dictionary<string, double>();
+            List<UnitReceiptNoteReportViewModel> urn = new List<UnitReceiptNoteReportViewModel>();
+            foreach (UnitReceiptNoteReportViewModel data in Query.ToList())
+            {
+                double value;
+                if(q.TryGetValue(data.productCode + data.prNo+data.epoDetailId.ToString(), out value))
+                {
+                    q[data.productCode + data.prNo + data.epoDetailId.ToString()] -= data.receiptQuantity;
+                    data.quantity = q[data.productCode + data.prNo + data.epoDetailId.ToString()];
+                    urn.Add(data);
+                }
+                else
+                {
+                    q[data.productCode + data.prNo + data.epoDetailId.ToString()] = data.quantity- data.receiptQuantity;
+                    data.quantity = q[data.productCode + data.prNo + data.epoDetailId.ToString()];
+                    urn.Add(data);
+                }
+                
+            }
+            return Query=urn.AsQueryable();
         }
 
         public Tuple<List<UnitReceiptNoteReportViewModel>, int> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
@@ -592,7 +615,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a=>a.CreatedUtc);
             }
 
             Pageable<UnitReceiptNoteReportViewModel> pageable = new Pageable<UnitReceiptNoteReportViewModel>(Query, page - 1, size);
@@ -605,7 +628,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         public MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
 

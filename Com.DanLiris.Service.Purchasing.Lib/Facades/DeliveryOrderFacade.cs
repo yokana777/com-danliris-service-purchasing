@@ -509,13 +509,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              productCode = j.ProductCode,
                              productName = j.ProductName,
                              productRemark = j.ProductRemark,
-                             dealQuantity = j.DealQuantity,
+                             dealQuantity = l.DealQuantity,
                              dOQuantity = j.DOQuantity,
-                             remainingQuantity = l.DealQuantity - l.DOQuantity,
+                             remainingQuantity = l.DealQuantity,
                              uomUnit = j.UomUnit,
-                             LastModifiedUtc = j.LastModifiedUtc
+                             LastModifiedUtc = j.LastModifiedUtc,
+                             CreatedUtc = j.CreatedUtc,
+                             ePODetailId = j.EPODetailId
                          });
-            return Query;
+            Dictionary<string, double> q = new Dictionary<string, double>();
+            List<DeliveryOrderReportViewModel> urn = new List<DeliveryOrderReportViewModel>();
+            foreach (DeliveryOrderReportViewModel data in Query.ToList())
+            {
+                double value;
+                if (q.TryGetValue(data.productCode + data.ePONo + data.ePODetailId, out value))
+                {
+                    q[data.productCode + data.ePONo + data.ePODetailId] -= data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
+                    urn.Add(data);
+                }
+                else
+                {
+                    q[data.productCode + data.ePONo + data.ePODetailId] = data.remainingQuantity - data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
+                    urn.Add(data);
+                }
+            }
+            return Query = urn.AsQueryable();
         }
 
         public Tuple<List<DeliveryOrderReportViewModel>, int> GetReport(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
@@ -525,7 +545,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.CreatedUtc);
             }
 
 
@@ -539,7 +559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         public MemoryStream GenerateExcel(string no, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetReportQuery(no, supplierId, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });

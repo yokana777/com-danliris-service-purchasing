@@ -82,6 +82,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("BankExpenditureNoteId");
 
+                    b.Property<string>("CategoryCode")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CategoryName")
+                        .HasMaxLength(255);
+
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -686,6 +692,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset?>("CashierDivisionDate");
 
+                    b.Property<string>("CategoryCode");
+
+                    b.Property<string>("CategoryName");
+
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -887,7 +897,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyId")
                         .HasMaxLength(255);
 
-                    b.Property<string>("CurrencyRate")
+                    b.Property<double>("CurrencyRate")
                         .HasMaxLength(1000);
 
                     b.Property<string>("DeletedAgent")
@@ -1535,13 +1545,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DivisionName")
                         .HasMaxLength(1000);
 
-                    b.Property<DateTimeOffset>("DueDate");
+                    b.Property<DateTimeOffset?>("DueDate");
 
-                    b.Property<DateTimeOffset>("IncomeTaxCorrectionDate");
+                    b.Property<DateTimeOffset?>("IncomeTaxCorrectionDate");
 
                     b.Property<string>("IncomeTaxCorrectionNo");
 
-                    b.Property<DateTimeOffset>("InvoiceCorrectionDate");
+                    b.Property<DateTimeOffset?>("InvoiceCorrectionDate");
 
                     b.Property<string>("InvoiceCorrectionNo");
 
@@ -1584,7 +1594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UPONo");
 
-                    b.Property<DateTimeOffset>("VatTaxCorrectionDate");
+                    b.Property<DateTimeOffset?>("VatTaxCorrectionDate");
 
                     b.Property<string>("VatTaxCorrectionNo");
 

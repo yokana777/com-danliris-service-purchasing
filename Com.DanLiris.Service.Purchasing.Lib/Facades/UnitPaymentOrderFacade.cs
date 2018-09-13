@@ -414,6 +414,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 CurrencyId = s.CurrencyId,
                 CurrencyCode = s.CurrencyCode,
                 CurrencyRate = s.CurrencyRate,
+                CurrencyDescription = s.CurrencyDescription,
                 PaymentMethod = s.PaymentMethod,
                 InvoiceNo = s.InvoiceNo,
                 InvoiceDate = s.InvoiceDate,
@@ -440,6 +441,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     DONo = i.DONo,
                     Details = i.Details.Select(j => new UnitPaymentOrderDetail
                     {
+                        Id = j.Id,
                         UPOItemId = j.UPOItemId,
                         URNItemId = j.URNItemId,
                         EPONo = j.EPONo,
@@ -457,6 +459,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         PriceTotal = j.PriceTotal,
                         PricePerDealUnitCorrection = j.PricePerDealUnitCorrection,
                         PriceTotalCorrection = j.PriceTotalCorrection,
+                        QuantityCorrection = j.QuantityCorrection,
                         //Duedate = s.DueDate,
                     }).ToList()
                 }).ToList(),

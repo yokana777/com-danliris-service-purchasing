@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 
                 var xls = facade.GenerateExcel(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, offset);
 
-                string filename = String.Format("Purchase Request - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.Format("Bon Terima Unit - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);

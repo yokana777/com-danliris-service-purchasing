@@ -210,6 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         {
             BankExpenditureNoteReportViewModel reportViewModel = new BankExpenditureNoteReportViewModel()
             {
+                CategoryName = "",
                 DivisionName = "",
                 Date = new DateTimeOffset(),
                 Currency = "",

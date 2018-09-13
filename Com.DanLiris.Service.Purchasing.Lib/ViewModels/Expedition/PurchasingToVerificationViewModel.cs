@@ -95,6 +95,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     DueDate = unitPaymentOrder.DueDate,
                     SupplierCode = unitPaymentOrder.SupplierCode,
                     SupplierName = unitPaymentOrder.SupplierName,
+                    CategoryCode = unitPaymentOrder.CategoryCode,
+                    CategoryName = unitPaymentOrder.CategoryName,
                     DivisionCode = unitPaymentOrder.DivisionCode,
                     DivisionName = unitPaymentOrder.DivisionName,
                     IncomeTax = unitPaymentOrder.IncomeTax,

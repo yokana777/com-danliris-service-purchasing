@@ -34,15 +34,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteMo
         [MaxLength(1000)]
         public string CategoryName { get; set; }
         public string InvoiceCorrectionNo { get; set; }
-        public DateTimeOffset InvoiceCorrectionDate { get; set; }
+        public DateTimeOffset? InvoiceCorrectionDate { get; set; }
         public bool useVat { get; set; }
         public string VatTaxCorrectionNo { get; set; }
-        public DateTimeOffset VatTaxCorrectionDate { get; set; }
+        public DateTimeOffset? VatTaxCorrectionDate { get; set; }
         public bool useIncomeTax { get; set; }
         public string IncomeTaxCorrectionNo { get; set; }
-        public DateTimeOffset IncomeTaxCorrectionDate { get; set; }
+        public DateTimeOffset? IncomeTaxCorrectionDate { get; set; }
         public string ReleaseOrderNoteNo { get; set; }
-        public DateTimeOffset DueDate { get; set; }
+        public DateTimeOffset? DueDate { get; set; }
         public string Remark { get; set; }
         public string ReturNoteNo { get; set; }
         public virtual ICollection<UnitPaymentCorrectionNoteItem> Items { get; set; }
