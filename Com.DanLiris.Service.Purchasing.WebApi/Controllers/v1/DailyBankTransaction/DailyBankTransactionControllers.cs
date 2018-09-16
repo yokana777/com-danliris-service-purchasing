@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
         [HttpGet]
         public ActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            ReadResponse Response = this.DailyBankTransactionFacade.Read(page, size, order, keyword, filter);
+            ReadResponse Response = DailyBankTransactionFacade.Read(page, size, order, keyword, filter);
 
             return Ok(new
             {
@@ -125,6 +125,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
+        }
+
+        [HttpGet("mutation/report")]
+        public ActionResult GetReport(string BankId, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        {
+            ReadResponse Result = DailyBankTransactionFacade.GetReport(BankId, DateFrom, DateTo);
+
+            return Ok(new
+            {
+                apiVersion = "1.0.0",
+                data = Result.Data,
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
         }
     }
 }

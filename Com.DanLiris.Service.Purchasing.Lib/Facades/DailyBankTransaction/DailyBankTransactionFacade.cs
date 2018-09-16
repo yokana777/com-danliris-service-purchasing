@@ -81,6 +81,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
             return Created;
         }
 
+        public ReadResponse GetReport(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
+        {
+            IQueryable<object> Query;
+
+            DateTimeOffset DateFrom = dateFrom == null ? dateTo == null ? DateTimeOffset.Now.AddDays(-30) : dateTo.Value.AddDays(-30) : dateFrom.Value;
+            DateTimeOffset DateTo = dateTo == null ? dateFrom == null ? DateTimeOffset.Now : dateFrom.Value.AddDays(DateTimeOffset.Now.Subtract(dateFrom.Value).TotalDays) : dateTo.Value;
+
+            Query = (from transaction in _DbContext.DailyBankTransactions
+                      where
+                      transaction.IsDeleted == false
+                      && string.IsNullOrWhiteSpace(bankId) ? true : bankId.Equals(transaction.AccountBankId)
+                      && transaction.Date >= DateFrom
+                      && transaction.Date <= DateTo
+                      orderby transaction.Date, transaction.CreatedUtc
+                      select new DailyBankTransactionModel
+                      {
+                          Id = transaction.Id,
+                          Date = transaction.Date,
+                          Remark = $"{transaction.BuyerName}\n{transaction.Remark}",
+                          ReferenceNo = transaction.ReferenceNo,
+                          ReferenceType = transaction.ReferenceType,
+                          AccountBankCurrencyCode = transaction.AccountBankCurrencyCode,
+                          BeforeNominal = transaction.BeforeNominal,
+                          AfterNominal = transaction.AfterNominal,
+                          Nominal = transaction.Nominal,
+                          Status = transaction.Status,
+                      });
+
+            List<object> Result = Query.ToList();
+
+            Dictionary<string, string> order = new Dictionary<string, string>();
+
+            return new ReadResponse(Result, Result.Count, order);
+        }
+
         public ReadResponse Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<DailyBankTransactionModel> Query = _DbSet;
