@@ -5,8 +5,10 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Moq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -58,6 +60,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async void Should_Error_Create_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.Items = null;
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
         public async void Should_Success_Get_All_Data()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
@@ -97,6 +109,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 }
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Validate_Data_Duplicate_RONo()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            GarmentPurchaseRequestViewModel viewModel = new GarmentPurchaseRequestViewModel();
+            viewModel.RONo = model.RONo;
+
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider.
+                Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
+
+            ValidationContext validationContext = new ValidationContext(viewModel, serviceProvider.Object, null);
+            var validationResult = viewModel.Validate(validationContext).FirstOrDefault(x => x.ErrorMessage.Equals("RONo is already exist"));
+
+            Assert.NotNull(validationResult);
         }
     }
 }
