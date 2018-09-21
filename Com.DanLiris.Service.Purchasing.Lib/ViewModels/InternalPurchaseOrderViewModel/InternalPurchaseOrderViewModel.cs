@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public bool isPosted { get; set; }
         public bool isClosed { get; set; }
         public string status { get; set; }
+        public int countPRNo { get; set; }
         public List<InternalPurchaseOrderItemViewModel> items { get; set; }
 
         
