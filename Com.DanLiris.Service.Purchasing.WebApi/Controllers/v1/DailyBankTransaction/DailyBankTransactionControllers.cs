@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
         }
 
         [HttpGet]
-        public ActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             ReadResponse Response = DailyBankTransactionFacade.Read(page, size, order, keyword, filter);
 
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] DailyBankTransactionViewModel viewModel)
+        public async Task<IActionResult> Post([FromBody] DailyBankTransactionViewModel viewModel)
         {
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
@@ -128,9 +128,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
         }
 
         [HttpGet("mutation/report")]
-        public ActionResult GetReport(string BankId, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public IActionResult GetReport(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
         {
-            ReadResponse Result = DailyBankTransactionFacade.GetReport(BankId, DateFrom, DateTo);
+            ReadResponse Result = DailyBankTransactionFacade.GetReport(bankId, dateFrom, dateTo);
 
             return Ok(new
             {
@@ -139,6 +139,32 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });
+        }
+
+        [HttpGet("mutation/report/download")]
+        public IActionResult GetReportXls(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
+        {
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+
+                var xls = DailyBankTransactionFacade.GenerateExcel(bankId, dateFrom, dateTo, offset);
+
+                string filename = String.Format("Mutasi Bank Harian - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
     }
 }

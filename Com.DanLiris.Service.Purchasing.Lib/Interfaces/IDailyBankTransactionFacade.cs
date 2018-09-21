@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Models.DailyBankTransaction;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
@@ -12,5 +13,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(DailyBankTransactionModel model, string username);
         Task<DailyBankTransactionModel> ReadById(int Id);
         ReadResponse GetReport(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo);
+        MemoryStream GenerateExcel(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset);
     }
 }
