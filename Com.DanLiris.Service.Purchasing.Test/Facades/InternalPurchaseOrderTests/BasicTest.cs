@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Get_Data_CountPRNo()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.ReadByPRNo((model.PRNo);
+            var Response = Facade.ReadByPRNo(model.PRNo);
             Assert.NotEqual(Response, 0);
         }
     }
