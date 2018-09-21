@@ -70,5 +70,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var Response = Facade.Delete((int)model.Id, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_CountPRNo()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var Response = Facade.ReadByPRNo((model.PRNo);
+            Assert.NotEqual(Response, 0);
+        }
     }
 }
