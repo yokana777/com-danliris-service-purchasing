@@ -148,5 +148,63 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DailyBankTransactionTest
 
             Assert.True(vm.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Report_All_Null()
+        {
+            DailyBankTransactionFacade facade = new DailyBankTransactionFacade(_dbContext(GetCurrentMethod()));
+            DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
+            var Response = await facade.Create(model, "Unit Test");
+
+            ReadResponse Result = facade.GetReport(null, null, null);
+            Assert.NotEqual(Result.Data.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Null_Date()
+        {
+            DailyBankTransactionFacade facade = new DailyBankTransactionFacade(_dbContext(GetCurrentMethod()));
+            DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
+            var Response = await facade.Create(model, "Unit Test");
+
+            ReadResponse Result = facade.GetReport(model.AccountBankId, null, null);
+            Assert.NotEqual(Result.Data.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Null_DateTo()
+        {
+            DailyBankTransactionFacade facade = new DailyBankTransactionFacade(_dbContext(GetCurrentMethod()));
+            DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
+            model.Date = model.Date.AddDays(-3);
+            var Response = await facade.Create(model, "Unit Test");
+
+            ReadResponse Result = facade.GetReport(model.AccountBankId, model.Date.AddDays(-10), null);
+            Assert.NotEqual(Result.Data.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Null_DateFrom()
+        {
+            DailyBankTransactionFacade facade = new DailyBankTransactionFacade(_dbContext(GetCurrentMethod()));
+            DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
+            model.Date = model.Date.AddDays(-3);
+            var Response = await facade.Create(model, "Unit Test");
+
+            ReadResponse Result = facade.GetReport(model.AccountBankId, null, DateTimeOffset.Now);
+            Assert.NotEqual(Result.Data.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_NotNull_Date_Param()
+        {
+            DailyBankTransactionFacade facade = new DailyBankTransactionFacade(_dbContext(GetCurrentMethod()));
+            DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
+            model.Date = model.Date.AddDays(-3);
+            var Response = await facade.Create(model, "Unit Test");
+
+            ReadResponse Result = facade.GetReport(model.AccountBankId, model.Date.AddDays(-10), DateTimeOffset.Now);
+            Assert.NotEqual(Result.Data.Count, 0);
+        }
     }
 }

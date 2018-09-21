@@ -204,5 +204,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DailyBankTransactionC
             var response = controller.Post(this.ViewModel).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Get_Report()
+        {
+            var mockFacade = new Mock<IDailyBankTransactionFacade>();
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+                .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
+            var mockMapper = new Mock<IMapper>();
+
+            DailyBankTransactionControllers controller = new DailyBankTransactionControllers(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            var response = controller.GetReport("", DateTimeOffset.Now, DateTimeOffset.Now);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        //[Fact]
+        //public void Should_Success_Get_Report_Excel()
+        //{
+        //    Mock<IDailyBankTransactionFacade> mockFacade = new Mock<IDailyBankTransactionFacade>();
+        //    mockFacade.Setup(p => p.GenerateExcel(It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>()))
+        //        .Returns(new System.IO.MemoryStream());
+
+        //    var mockMapper = new Mock<IMapper>();
+
+        //    DailyBankTransactionControllers controller = new DailyBankTransactionControllers(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+        //    controller.ControllerContext = new ControllerContext()
+        //    {
+        //        HttpContext = new DefaultHttpContext()
+        //    };
+
+        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
+
+        //    var response = controller.GetReportXls("", null, null);
+        //    Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        //}
     }
 }
