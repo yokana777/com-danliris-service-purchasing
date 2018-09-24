@@ -9,7 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewMode
     public class PurchaseRequestItemViewModel : BaseViewModel
     {
         public ProductViewModel product { get; set; }
-        public long quantity { get; set; }
+        public double quantity { get; set; }
         public string remark { get; set; }
         public string status { get; set; }
     }
