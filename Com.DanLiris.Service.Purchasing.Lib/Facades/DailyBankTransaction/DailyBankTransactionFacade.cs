@@ -106,8 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
                 var previous = new DailyBankTransactionModel();
                 foreach (var item in Query)
                 {
-                    result.Rows.Add(item.Date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")), item.Remark, item.ReferenceNo,
-                        item.SupplierName, item.ReferenceType, item.AccountBankCurrencyCode, item.Status.ToUpper().Equals("IN") ? item.Nominal : 0, item.Status.ToUpper().Equals("OUT") ? item.Nominal : 0, item.AfterNominal);
+                    result.Rows.Add(item.Date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")), item.Remark, item.ReferenceNo, item.ReferenceType, item.AccountBankCurrencyCode, item.Status.ToUpper().Equals("IN") ? item.Nominal : 0, item.Status.ToUpper().Equals("OUT") ? item.Nominal : 0, item.AfterNominal);
                     previous = item;
                 }
             }
@@ -119,6 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
         {
             IQueryable<DailyBankTransactionModel> Query = GetQuery(bankId, dateFrom, dateTo);
 
+            var Test = Query.ToList();
             List<object> Result = Query.Cast<object>().ToList();
 
             Dictionary<string, string> order = new Dictionary<string, string>();
