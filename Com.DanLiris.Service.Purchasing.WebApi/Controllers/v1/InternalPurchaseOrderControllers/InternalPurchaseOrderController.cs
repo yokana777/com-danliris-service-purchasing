@@ -104,6 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             {
                 InternalPurchaseOrder model = _facade.ReadById(id);
                 InternalPurchaseOrderViewModel viewModel = _mapper.Map<InternalPurchaseOrderViewModel>(model);
+                viewModel.countPRNo = _facade.ReadByPRNo(viewModel.prNo);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,

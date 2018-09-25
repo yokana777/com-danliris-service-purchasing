@@ -23,6 +23,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
             return Result;
         }
 
+        public Dictionary<string, object> Ok(object Data)
+        {
+            Result.Add("data", Data);
+            return Result;
+        }
+
+        public Dictionary<string, object> Ok(object Data, object Info)
+        {
+            Result.Add("data", Data);
+            Result.Add("info", Info);
+            return Result;
+        }
+
         public Dictionary<string, object> Fail(string Error)
         {
             Result.Add("error", Error);

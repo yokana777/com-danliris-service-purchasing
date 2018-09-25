@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180919072219_GarmentPurchaseRequest")]
+    partial class GarmentPurchaseRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1587,7 +1588,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ProductRemark")
                         .HasMaxLength(1000);
 
-                    b.Property<double>("Quantity");
+                    b.Property<long>("Quantity");
 
                     b.Property<string>("Status")
                         .HasMaxLength(255);
@@ -1755,7 +1756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("PurchaseRequestId");
 
-                    b.Property<double>("Quantity");
+                    b.Property<long>("Quantity");
 
                     b.Property<string>("Remark");
 
@@ -1937,13 +1938,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PRNo");
 
-                    b.Property<double>("PricePerDealUnitAfter");
+                    b.Property<long>("PricePerDealUnitAfter");
 
-                    b.Property<double>("PricePerDealUnitBefore");
+                    b.Property<long>("PricePerDealUnitBefore");
 
-                    b.Property<double>("PriceTotalAfter");
+                    b.Property<long>("PriceTotalAfter");
 
-                    b.Property<double>("PriceTotalBefore");
+                    b.Property<long>("PriceTotalBefore");
 
                     b.Property<string>("ProductCode")
                         .HasMaxLength(255);
@@ -1954,7 +1955,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ProductName")
                         .HasMaxLength(1000);
 
-                    b.Property<double>("Quantity");
+                    b.Property<long>("Quantity");
 
                     b.Property<long>("UPCId");
 
