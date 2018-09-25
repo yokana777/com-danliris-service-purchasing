@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public string UomUnit { get; set; }
 
 
-        public long Quantity { get; set; }
+        public Double Quantity { get; set; }
         [MaxLength(1000)]
         public string ProductRemark { get; set; }
         [MaxLength(255)]
