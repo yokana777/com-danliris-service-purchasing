@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
     {
         public string prItemId { get; set; }
         public ProductViewModel product { get; set; }
-        public long quantity { get; set; }
+        public double quantity { get; set; }
         public string productRemark { get; set; }
         public string status { get; set; }
         public long poId { get; set; }

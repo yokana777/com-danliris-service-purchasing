@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel
         public string UomId { get; set; }
         public string Status { get; set; }
 
-        public long Quantity { get; set; }
+        public double Quantity { get; set; }
         public string Remark { get; set; }
 
         public virtual long PurchaseRequestId { get; set; }

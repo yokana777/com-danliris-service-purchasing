@@ -15,13 +15,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public string pRNo { get; set; }
         public long pRDetailId { get; set; }
         public ProductViewModel product { get; set; }
-        public long quantity { get; set; }
-        public long quantityCheck { get; set; }
+        public double quantity { get; set; }
+        public double quantityCheck { get; set; }
         public UomViewModel uom { get; set; }
-        public long pricePerDealUnitBefore { get; set; }
-        public long pricePerDealUnitAfter { get; set; }
-        public long priceTotalBefore { get; set; }
-        public long priceTotalAfter { get; set; }
+        public double pricePerDealUnitBefore { get; set; }
+        public double pricePerDealUnitAfter { get; set; }
+        public double priceTotalBefore { get; set; }
+        public double priceTotalAfter { get; set; }
         public CurrencyViewModel currency { get; set; }
         public virtual long uPCId { get; set; }
     }

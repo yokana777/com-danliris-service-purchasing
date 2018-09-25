@@ -40,8 +40,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNo
                         ProductName = detail.ProductName,
                         UomId = detail.UomId,
                         UomUnit = detail.UomUnit,
-                        PricePerDealUnitBefore = (long)detail.PricePerDealUnitCorrection,
-                        PriceTotalBefore = (long)detail.PriceTotalCorrection
+                        PricePerDealUnitBefore = (double)detail.PricePerDealUnitCorrection,
+                        PriceTotalBefore = (double)detail.PriceTotalCorrection
                     });
                 }
             }
