@@ -12,8 +12,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
         public ProductViewModel Product { get; set; }
 
-        public long Quantity { get; set; }
-        public long BudgetPrice { get; set; }
+        public double Quantity { get; set; }
+        public double BudgetPrice { get; set; }
 
         public UomViewModel Uom { get; set; }
 
