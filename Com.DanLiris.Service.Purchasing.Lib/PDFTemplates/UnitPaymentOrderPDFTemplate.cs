@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellRight.Phrase = new Phrase($"{model.CurrencyCode} " + string.Format("{0:n4}", detail.PricePerDealUnit), normal_font);
                     tableContent.AddCell(cellRight);
 
-                    cellRight.Phrase = new Phrase($"{model.CurrencyCode} " + string.Format("{0:n4}", detail.PriceTotal), normal_font);
+                    cellRight.Phrase = new Phrase($"{model.CurrencyCode} " + string.Format("{0:n2}", detail.PriceTotal), normal_font);
                     tableContent.AddCell(cellRight);
 
                     cellCenter.Phrase = new Phrase($"{detail.PRNo}", normal_font);
