@@ -126,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 .Returns(_dbContext(GetCurrentMethod()));
 
             ValidationContext validationContext = new ValidationContext(viewModel, serviceProvider.Object, null);
-            var validationResult = viewModel.Validate(validationContext).FirstOrDefault(x => x.ErrorMessage.Equals("RONo is already exist"));
+            var validationResult = viewModel.Validate(validationContext).FirstOrDefault(x => x.ErrorMessage.Equals("RONo sudah ada"));
 
             Assert.NotNull(validationResult);
         }

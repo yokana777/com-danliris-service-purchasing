@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+            PurchasingDbContext dbContext = validationContext == null ? null : (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
 
             if (String.IsNullOrWhiteSpace(RONo))
             {
