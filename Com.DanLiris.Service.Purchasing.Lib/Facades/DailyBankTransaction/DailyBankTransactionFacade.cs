@@ -84,9 +84,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
             return Created;
         }
 
-        public MemoryStream GenerateExcel(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcel(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int clientTimeZoneOffset)
         {
-            var Query = GetQuery(bankId, dateFrom, dateTo);
+            var Query = GetQuery(bankId, dateFrom, dateTo, clientTimeZoneOffset);
 
             DataTable result = new DataTable();
 
@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
                 var previous = new DailyBankTransactionModel();
                 foreach (var item in Query)
                 {
-                    result.Rows.Add(item.Date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")), item.Remark, item.ReferenceNo, item.ReferenceType, item.AccountBankCurrencyCode, item.Status.ToUpper().Equals("IN") ? item.Nominal : 0, item.Status.ToUpper().Equals("OUT") ? item.Nominal : 0, item.AfterNominal);
+                    result.Rows.Add(item.Date.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")), item.Remark, item.ReferenceNo, item.ReferenceType, item.AccountBankCurrencyCode, item.Status.ToUpper().Equals("IN") ? item.Nominal : 0, item.Status.ToUpper().Equals("OUT") ? item.Nominal : 0, item.AfterNominal);
                     previous = item;
                 }
             }
@@ -114,9 +114,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Mutasi") }, true);
         }
 
-        public ReadResponse GetReport(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
+        public ReadResponse GetReport(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int clientTimeZoneOffset)
         {
-            IQueryable<DailyBankTransactionModel> Query = GetQuery(bankId, dateFrom, dateTo);
+            IQueryable<DailyBankTransactionModel> Query = GetQuery(bankId, dateFrom, dateTo, clientTimeZoneOffset);
 
             var Test = Query.ToList();
             List<object> Result = Query.Cast<object>().ToList();
@@ -126,31 +126,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction
             return new ReadResponse(Result, Result.Count, order);
         }
 
-        private IQueryable<DailyBankTransactionModel> GetQuery(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
+        private IQueryable<DailyBankTransactionModel> GetQuery(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int clientTimeZoneOffset)
         {
-            DateTimeOffset DateFrom = dateFrom == null ? dateTo == null ? DateTimeOffset.Now.AddDays(-30) : dateTo.Value.AddDays(-30) : dateFrom.Value;
-            DateTimeOffset DateTo = dateTo == null ? dateFrom == null ? DateTimeOffset.Now : dateFrom.Value.AddDays(DateTimeOffset.Now.Subtract(dateFrom.Value).TotalDays) : dateTo.Value;
+            DateTimeOffset DateFrom = dateFrom == null ? dateTo == null ? DateTimeOffset.Now.AddDays(-30) : dateTo.Value.AddHours(clientTimeZoneOffset * -1).AddDays(-30) : dateFrom.Value.AddHours(clientTimeZoneOffset * -1);
+            DateTimeOffset DateTo = dateTo == null ? dateFrom == null ? DateTimeOffset.Now : dateFrom.Value.AddHours(clientTimeZoneOffset * -1).AddDays(DateTimeOffset.Now.Subtract(dateFrom.Value.AddHours(clientTimeZoneOffset * -1)).TotalDays) : dateTo.Value.AddHours(clientTimeZoneOffset * -1);
 
             var Query = (from transaction in _DbContext.DailyBankTransactions
-                     where
-                     transaction.IsDeleted == false
-                     && string.IsNullOrWhiteSpace(bankId) ? true : bankId.Equals(transaction.AccountBankId)
-                     && transaction.Date >= DateFrom
-                     && transaction.Date <= DateTo
-                     orderby transaction.Date, transaction.CreatedUtc
-                     select new DailyBankTransactionModel
-                     {
-                         Id = transaction.Id,
-                         Date = transaction.Date,
-                         Remark = $"{transaction.BuyerName}\n{transaction.Remark}",
-                         ReferenceNo = transaction.ReferenceNo,
-                         ReferenceType = transaction.ReferenceType,
-                         AccountBankCurrencyCode = transaction.AccountBankCurrencyCode,
-                         BeforeNominal = transaction.BeforeNominal,
-                         AfterNominal = transaction.AfterNominal,
-                         Nominal = transaction.Nominal,
-                         Status = transaction.Status,
-                     });
+                         where
+                         transaction.IsDeleted == false
+                         && string.IsNullOrWhiteSpace(bankId) ? true : bankId.Equals(transaction.AccountBankId)
+                         && transaction.Date >= DateFrom
+                         && transaction.Date <= DateTo
+                         orderby transaction.Date, transaction.CreatedUtc
+                         select new DailyBankTransactionModel
+                         {
+                             Id = transaction.Id,
+                             Date = transaction.Date,
+                             Remark = $"{transaction.SupplierName ?? transaction.BuyerName}\n{transaction.Remark}",
+                             ReferenceNo = transaction.ReferenceNo,
+                             ReferenceType = transaction.ReferenceType,
+                             AccountBankCurrencyCode = transaction.AccountBankCurrencyCode,
+                             BeforeNominal = transaction.BeforeNominal,
+                             AfterNominal = transaction.AfterNominal,
+                             Nominal = transaction.Nominal,
+                             Status = transaction.Status,
+                         });
 
             return Query;
         }

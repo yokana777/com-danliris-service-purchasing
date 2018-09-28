@@ -209,7 +209,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DailyBankTransactionC
         public void Should_Success_Get_Report()
         {
             var mockFacade = new Mock<IDailyBankTransactionFacade>();
-            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>()))
                 .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
             var mockMapper = new Mock<IMapper>();
 

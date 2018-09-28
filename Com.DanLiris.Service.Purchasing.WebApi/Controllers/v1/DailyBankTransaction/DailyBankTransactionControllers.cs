@@ -130,7 +130,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
         [HttpGet("mutation/report")]
         public IActionResult GetReport(string bankId, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
         {
-            ReadResponse Result = DailyBankTransactionFacade.GetReport(bankId, dateFrom, dateTo);
+            int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+            ReadResponse Result = DailyBankTransactionFacade.GetReport(bankId, dateFrom, dateTo, clientTimeZoneOffset);
 
             return Ok(new
             {
@@ -147,9 +148,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DailyBankTransac
             try
             {
                 byte[] xlsInBytes;
-                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                int clientTimeZoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
 
-                var xls = DailyBankTransactionFacade.GenerateExcel(bankId, dateFrom, dateTo, offset);
+                var xls = DailyBankTransactionFacade.GenerateExcel(bankId, dateFrom, dateTo, clientTimeZoneOffset);
 
                 string filename = String.Format("Mutasi Bank Harian - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
