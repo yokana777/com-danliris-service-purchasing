@@ -170,13 +170,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase($" {item.quantity * -1}   {item.uom.unit}", normal_font);
+                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", (item.quantity * -1)) + $" {item.uom.unit}", normal_font);
                     tableContent.AddCell(cellRight);
 
                     cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
                     tableContent.AddCell(cellLeftMerge);
-
-                    cellRightMerge.Phrase = new Phrase($"{item.pricePerDealUnitAfter.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
+                    
+                    cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", item.pricePerDealUnitAfter), normal_font);
                     tableContent.AddCell(cellRightMerge);
 
                     cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
@@ -527,13 +527,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase($"{item.product.name}", smallest_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase($"{item.quantity} {item.uom.unit}", smallest_font);
+                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", item.quantity) + $" {item.uom.unit}", smallest_font);
                     tableContent.AddCell(cellRight);
 
                     cellLeftBorderless.Phrase = new Phrase($"{item.currency.code}", smallest_font);
                     tableContent.AddCell(cellLeftBorderless);
 
-                    cellRightBorderless.Phrase = new Phrase($"{item.pricePerDealUnitAfter.ToString("N", CultureInfo.InvariantCulture)}", smallest_font);
+                    cellRightBorderless.Phrase = new Phrase(string.Format("{0:n4}", item.pricePerDealUnitAfter), smallest_font);
                     tableContent.AddCell(cellRightBorderless);
 
                     cellLeftBorderless.Phrase = new Phrase($"{item.currency.code}", smallest_font);
