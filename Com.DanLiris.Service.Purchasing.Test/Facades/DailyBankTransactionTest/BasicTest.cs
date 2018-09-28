@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DailyBankTransactionTest
             DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
             var Response = await facade.Create(model, "Unit Test");
 
-            ReadResponse Result = facade.GetReport(null, null, null);
+            ReadResponse Result = facade.GetReport(null, null, null, 7);
             Assert.NotEqual(Result.Data.Count, 0);
         }
 
@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DailyBankTransactionTest
             DailyBankTransactionModel model = _dataUtil(facade).GetNewData();
             var Response = await facade.Create(model, "Unit Test");
 
-            ReadResponse Result = facade.GetReport(model.AccountBankId, null, null);
+            ReadResponse Result = facade.GetReport(model.AccountBankId, null, null, 7);
             Assert.NotEqual(Result.Data.Count, 0);
         }
 
@@ -179,7 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DailyBankTransactionTest
             model.Date = model.Date.AddDays(-3);
             var Response = await facade.Create(model, "Unit Test");
 
-            ReadResponse Result = facade.GetReport(model.AccountBankId, model.Date.AddDays(-10), null);
+            ReadResponse Result = facade.GetReport(model.AccountBankId, model.Date.AddDays(-10), null, 7);
             Assert.NotEqual(Result.Data.Count, 0);
         }
 
@@ -191,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DailyBankTransactionTest
             model.Date = model.Date.AddDays(-3);
             var Response = await facade.Create(model, "Unit Test");
 
-            ReadResponse Result = facade.GetReport(model.AccountBankId, null, DateTimeOffset.Now);
+            ReadResponse Result = facade.GetReport(model.AccountBankId, null, DateTimeOffset.Now, 7);
             Assert.NotEqual(Result.Data.Count, 0);
         }
 
@@ -203,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DailyBankTransactionTest
             model.Date = model.Date.AddDays(-3);
             var Response = await facade.Create(model, "Unit Test");
 
-            ReadResponse Result = facade.GetReport(model.AccountBankId, model.Date.AddDays(-10), DateTimeOffset.Now);
+            ReadResponse Result = facade.GetReport(model.AccountBankId, model.Date.AddDays(-10), DateTimeOffset.Now, 7);
             Assert.NotEqual(Result.Data.Count, 0);
         }
     }
