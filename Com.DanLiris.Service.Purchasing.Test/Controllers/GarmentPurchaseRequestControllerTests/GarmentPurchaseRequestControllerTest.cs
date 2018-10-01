@@ -258,5 +258,93 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Get_Data_By_RONo()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentPurchaseRequest());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentPurchaseRequestViewModel>(It.IsAny<GarmentPurchaseRequest>()))
+                .Returns(ViewModel);
+
+            GarmentPurchaseRequestController controller = new GarmentPurchaseRequestController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.Get(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_By_RONo()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentPurchaseRequest());
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentPurchaseRequestController controller = new GarmentPurchaseRequestController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.Get(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentPurchaseRequestViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentPurchaseRequest>(It.IsAny<GarmentPurchaseRequestViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentPurchaseRequest>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentPurchaseRequestViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentPurchaseRequestViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentPurchaseRequestViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentPurchaseRequestViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentPurchaseRequest>(It.IsAny<GarmentPurchaseRequestViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<GarmentPurchaseRequest>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var controller = new GarmentPurchaseRequestController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentPurchaseRequestViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }

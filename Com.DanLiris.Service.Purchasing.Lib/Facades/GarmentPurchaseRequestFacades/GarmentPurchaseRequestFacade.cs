@@ -79,6 +79,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return a;
         }
 
+        public GarmentPurchaseRequest ReadByRONo(string rono)
+        {
+            var a = this.dbSet.Where(p => p.RONo.Equals(rono))
+                .Include(p => p.Items)
+                .FirstOrDefault();
+            return a;
+        }
+
         public async Task<int> Create(GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
@@ -113,6 +121,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             }
 
             return Created;
+        }
+
+        public async Task<int> Update(int id, GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var oldM = this.dbSet.AsNoTracking()
+                        .Include(d => d.Items)
+                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+
+                    if (oldM != null && oldM.Id == id)
+                    {
+                        EntityExtension.FlagForUpdate(m, user, USER_AGENT);
+
+                        foreach (var item in m.Items)
+                        {
+                            if (item.Id == 0)
+                            {
+                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                            }
+                        }
+
+                        dbSet.Update(m);
+
+                        foreach (var oldItem in oldM.Items)
+                        {
+                            var newItem = oldM.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            if (newItem == null)
+                            {
+                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
+                                dbContext.GarmentPurchaseRequestItems.Update(oldItem);
+                            }
+                        }
+
+                        Updated = await dbContext.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Id");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
         }
     }
 }
