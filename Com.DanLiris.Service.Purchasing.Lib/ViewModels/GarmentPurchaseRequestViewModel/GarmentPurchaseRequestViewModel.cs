@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                 yield return new ValidationResult("Data Unit tidak benar", new List<string> { "Unit" });
             }
 
-            if(Items == null || Items.Count < 1)
+            if(Items == null || Items.Count <= 0)
             {
                 yield return new ValidationResult("Items tidak boleh kosong", new List<string> { "ItemsCount" });
             }
@@ -117,13 +117,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                         itemError += "Product: 'Data Product tidak benar', ";
                     }
 
-                    if(item.Quantity < 1)
+                    if(item.Quantity <= 0)
                     {
                         itemErrorCount++;
                         itemError += "Quantity: 'Quantity harus lebih dari 0', ";
                     }
 
-                    //if (item.BudgetPrice < 1)
+                    //if (item.BudgetPrice <= 0)
                     //{
                     //    itemErrorCount++;
                     //    itemError += "BudgetPrice: 'BudgetPrice harus lebih dari 0', ";
