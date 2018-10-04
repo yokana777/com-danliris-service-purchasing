@@ -182,7 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Updated;
         }
 
-        public List<GarmentInternalPurchaseOrder> GetByTags(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
+        public List<GarmentInternalPurchaseOrder> ReadByTags(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
         {
             IQueryable<GarmentPurchaseRequest> Models = this.dbSet.AsQueryable();
 

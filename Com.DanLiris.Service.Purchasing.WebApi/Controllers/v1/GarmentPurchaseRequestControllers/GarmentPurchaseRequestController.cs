@@ -259,7 +259,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 
                 DateTimeOffset shipmentFrom;
                 DateTimeOffset shipmentTo;
-                if (shipmentDateFrom != null && shipmentDateTo != null)
+                if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
                 {
                     if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentFrom) ||
                         !DateTimeOffset.TryParseExact(shipmentDateTo, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentTo))
@@ -269,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     }
                 }
 
-                var data = facade.GetByTags(tags, shipmentFrom, shipmentTo);
+                var data = facade.ReadByTags(tags, shipmentFrom, shipmentTo);
                 var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
 
                 var info = new Dictionary<string, object>

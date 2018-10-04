@@ -14,6 +14,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentPurchaseRequest ReadByRONo(string rono);
         Task<int> Create(GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7);
-        List<GarmentInternalPurchaseOrder> GetByTags(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo);
+        List<GarmentInternalPurchaseOrder> ReadByTags(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo);
     }
 }
