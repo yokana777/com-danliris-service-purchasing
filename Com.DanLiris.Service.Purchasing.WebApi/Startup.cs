@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
@@ -82,7 +83,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
                 .AddTransient<IDailyBankTransactionFacade, DailyBankTransactionFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
-                .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>();
+                .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
+                .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

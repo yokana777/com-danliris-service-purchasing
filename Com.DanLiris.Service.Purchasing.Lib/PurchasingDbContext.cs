@@ -15,6 +15,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DailyBankTransaction;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -64,6 +65,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<GarmentPurchaseRequest> GarmentPurchaseRequests { get; set; }
         public DbSet<GarmentPurchaseRequestItem> GarmentPurchaseRequestItems { get; set; }
+
+        public DbSet<GarmentInternalPurchaseOrder> GarmentInternalPurchaseOrders { get; set; }
+        public DbSet<GarmentInternalPurchaseOrderItem> GarmentInternalPurchaseOrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
