@@ -125,11 +125,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
             try
             {
                 var model = facade.ReadById(id);
-                if (model == null)
+                var viewModel = mapper.Map<GarmentInternalPurchaseOrderViewModel>(model);
+                if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
                 }
-                var viewModel = mapper.Map<GarmentInternalPurchaseOrderViewModel>(model);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)

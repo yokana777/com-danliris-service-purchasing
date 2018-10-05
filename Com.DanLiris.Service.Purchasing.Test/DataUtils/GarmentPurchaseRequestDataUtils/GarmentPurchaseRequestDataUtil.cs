@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using System;
 using System.Collections.Generic;
@@ -86,6 +87,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
             var data = GetNewData();
             await facade.Create(data, "Unit Test");
             return data;
+        }
+
+        public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags()
+        {
+            var testData = await GetTestData();
+            return facade.ReadByTags(null, DateTimeOffset.MinValue, DateTimeOffset.MinValue);
         }
 
     }

@@ -31,7 +31,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchase
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            return new List<ValidationResult>();
+            if (Items == null || Items.Count < 1)
+            {
+                yield return new ValidationResult("Items tidak boleh kosong", new List<string> { "ItemsCount" });
+            }
         }
     }
 }
