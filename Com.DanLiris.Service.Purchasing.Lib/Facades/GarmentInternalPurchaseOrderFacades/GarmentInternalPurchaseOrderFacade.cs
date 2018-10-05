@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -80,6 +81,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                     {
                         EntityExtension.FlagForCreate(model, user, USER_AGENT);
 
+                        do
+                        {
+                            model.PONo = CodeGenerator.Generate();
+                        }
+                        while (ListModel.Count(m => m.PONo == model.PONo) > 1 || dbSet.Any(m => m.PONo.Equals(model.PONo)));
                         model.IsPosted = false;
                         model.IsClosed = false;
 
@@ -88,6 +94,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                             EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                             item.Status = "PO Internal belum diorder";
+
+                            var garmentPurchaseRequestItem = dbContext.GarmentPurchaseRequestItems.FirstOrDefault(i => i.Id == item.GPRItemId);
+                            garmentPurchaseRequestItem.Status = "Sudah diterima Pembelian";
+                            EntityExtension.FlagForUpdate(garmentPurchaseRequestItem, user, USER_AGENT);
                         }
 
                         dbSet.Add(model);
