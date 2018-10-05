@@ -2,11 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
+namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel
 {
-    public class GarmentPurchaseRequestItem : StandardEntity<long>
+    public class GarmentInternalPurchaseOrderItem : StandardEntity<long>
     {
-        [MaxLength(255)]
+        public long GPRItemId { get; set; }
+        [MaxLength(1000)]
         public string PO_SerialNumber { get; set; }
 
         [MaxLength(255)]
@@ -21,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 
         [MaxLength(255)]
         public string UomId { get; set; }
-        [MaxLength(255)]
+        [MaxLength(1000)]
         public string UomUnit { get; set; }
 
         [MaxLength(255)]
@@ -30,11 +31,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public string CategoryName { get; set; }
 
         public string ProductRemark { get; set; }
-
+        [MaxLength(255)]
         public string Status { get; set; }
 
-        public virtual long GarmentPRId { get; set; }
-        [ForeignKey("GarmentPRId")]
-        public virtual GarmentPurchaseRequest GarmentPurchaseRequest { get; set; }
+        public virtual long GPOId { get; set; }
+        [ForeignKey("GPOId")]
+        public virtual GarmentInternalPurchaseOrder GarmentInternalPurchaseOrder { get; set; }
+
     }
 }

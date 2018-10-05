@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -238,6 +240,48 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
                     .Fail(e);
                 return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("by-tags")]
+        public IActionResult GetByTags(string tags, string shipmentDateFrom, string shipmentDateTo)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                DateTimeOffset shipmentFrom;
+                DateTimeOffset shipmentTo;
+                if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
+                {
+                    if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentFrom) ||
+                        !DateTimeOffset.TryParseExact(shipmentDateTo, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentTo))
+                    {
+                        shipmentFrom = DateTimeOffset.MinValue;
+                        shipmentTo = DateTimeOffset.MinValue;
+                    }
+                }
+
+                var data = facade.ReadByTags(tags, shipmentFrom, shipmentTo);
+                var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", newData.Count },
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(newData, info);
+                return Ok(Result);
+
             }
             catch (Exception e)
             {
