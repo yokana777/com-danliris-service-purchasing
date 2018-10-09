@@ -94,6 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                             EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                             item.Status = "PO Internal belum diorder";
+                            item.RemainingBudget = item.BudgetPrice * item.Quantity;
 
                             var garmentPurchaseRequestItem = dbContext.GarmentPurchaseRequestItems.FirstOrDefault(i => i.Id == item.GPRItemId);
                             garmentPurchaseRequestItem.Status = "Sudah diterima Pembelian";

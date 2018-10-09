@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrde
         [MaxLength(1000)]
         public string Article { get; set; }
 
-        public DateTimeOffset ExpectedDeliveryDate { get; set; }
+        public DateTimeOffset? ExpectedDeliveryDate { get; set; }
         public DateTimeOffset ShipmentDate { get; set; }
 
         [MaxLength(255)]
