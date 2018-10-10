@@ -223,6 +223,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     foreach (PurchasingDocumentExpedition purchasingDocumentExpedition in (List<PurchasingDocumentExpedition>)list)
                     {
+                        bool notExisting = this.dbContext.PurchasingDocumentExpeditions.Count(p => p.UnitPaymentOrderNo == purchasingDocumentExpedition.UnitPaymentOrderNo && p.IsDeleted == false).Equals(0);
+
                         unitPaymentOrders.Add(purchasingDocumentExpedition.UnitPaymentOrderNo);
                         purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
                         purchasingDocumentExpedition.Active = true;
@@ -230,10 +232,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                         foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
                         {
-                            EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+                            if(!notExisting)
+                            {
+                                EntityExtension.FlagForUpdate(purchasingDocumentExpeditionItem, username, "Facade");
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+                            }
+
+                        }
+                        if (!notExisting)
+                        {
+                            EntityExtension.FlagForUpdate(purchasingDocumentExpedition, username, "Facade");
+                        }
+                        else
+                        {
+                            EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
                         }
 
-                        EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
                         this.dbSet.Add(purchasingDocumentExpedition);
                     }
 
