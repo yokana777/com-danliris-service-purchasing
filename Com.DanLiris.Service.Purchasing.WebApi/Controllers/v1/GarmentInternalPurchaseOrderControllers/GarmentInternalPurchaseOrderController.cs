@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                             i.Product,
                             i.Quantity,
                             i.Uom
-                        }),
+                        }).ToList(),
                         s.CreatedBy,
                         s.IsPosted,
                         s.LastModifiedUtc

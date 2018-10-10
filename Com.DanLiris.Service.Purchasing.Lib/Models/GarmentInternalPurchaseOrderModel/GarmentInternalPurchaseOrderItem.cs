@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrde
 
         public double Quantity { get; set; }
         public double BudgetPrice { get; set; }
+        public double RemainingBudget { get; set; }
 
         [MaxLength(255)]
         public string UomId { get; set; }
