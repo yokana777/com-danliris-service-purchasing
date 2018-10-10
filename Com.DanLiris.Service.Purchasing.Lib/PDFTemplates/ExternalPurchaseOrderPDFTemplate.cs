@@ -15,10 +15,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         public MemoryStream GeneratePdfTemplate(ExternalPurchaseOrderViewModel viewModel, int clientTimeZoneOffset)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
-            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            Document document = new Document(PageSize.A4, 40, 40, 40, 40);
+            Document document = new Document(PageSize.A5, 40, 40, 40, 40);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #region Identity
 
             PdfPTable tableIdentity = new PdfPTable(3);
-            tableIdentity.SetWidths(new float[] { 1f, 4.5f, 2.5f });
+            tableIdentity.SetWidths(new float[] { 1.2f, 2.5f, 2.9f });
             PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             PdfPCell cellIdentityContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
             cellIdentityContentLeft.Phrase = new Phrase("Kepada Yth", normal_font);
@@ -63,24 +63,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellIdentityContentRight);
             cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(" " + "Attn.", normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase("  " + "Attn. \n  Telp.", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("Mohon di-fax kembali setelah", normal_font);
+            cellIdentityContentRight.Phrase = new Phrase("Mohon di-fax kembali setelah ditandatangani dan distempel perusahaan. Terima Kasih.", normal_font);
             tableIdentity.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(" " + "Telp.", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("ditandatangani dan distempel", normal_font);
-            tableIdentity.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(" " + " ", normal_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("perusahaan. Terima Kasih.", normal_font);
-            tableIdentity.AddCell(cellIdentityContentRight);
+            //cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
+            //tableIdentity.AddCell(cellIdentityContentLeft);
+            //cellIdentityContentLeft.Phrase = new Phrase(" " + "Telp.", normal_font);
+            //tableIdentity.AddCell(cellIdentityContentLeft);
+            //cellIdentityContentRight.Phrase = new Phrase("ditandatangani dan distempel", normal_font);
+            //tableIdentity.AddCell(cellIdentityContentRight);
+            //cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
+            //tableIdentity.AddCell(cellIdentityContentLeft);
+            //cellIdentityContentLeft.Phrase = new Phrase(" " + " ", normal_font);
+            //tableIdentity.AddCell(cellIdentityContentLeft);
+            //cellIdentityContentRight.Phrase = new Phrase("perusahaan. Terima Kasih.", normal_font);
+            //tableIdentity.AddCell(cellIdentityContentRight);
             PdfPCell cellIdentity = new PdfPCell(tableIdentity); // dont remove
             tableIdentity.ExtendLastRow = false;
+            tableIdentity.SpacingBefore = 5f;
             document.Add(tableIdentity);
 
             #endregion
@@ -88,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(new Paragraph("Dengan Hormat,", normal_font) { Alignment = Element.ALIGN_LEFT });
             string firstParagraphString = "Yang bertanda tangan di bawah ini, PT. DAN LIRIS, SOLO (selanjutnya disebut sebagai pihak Pembeli) dan " + viewModel.supplier.name + "(selanjutnya disebut sebagai pihak Penjual) saling menyetujui untuk mengadaan kontrak jual beli dengan ketentuan sebagai berikut : ";
             Paragraph firstParagraph = new Paragraph(firstParagraphString, normal_font) { Alignment = Element.ALIGN_LEFT };
-            firstParagraph.SpacingBefore = 10f;
+            
             firstParagraph.SpacingAfter = 10f;
             document.Add(firstParagraph);
 
@@ -99,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             PdfPTable tableContent = new PdfPTable(4);
-            tableContent.SetWidths(new float[] { 7f, 4f, 4f, 4f });
+            tableContent.SetWidths(new float[] { 7f, 3.5f, 4f, 4.5f });
 
             cellCenter.Phrase = new Phrase("NAMA DAN JENIS BARANG", bold_font);
             tableContent.AddCell(cellCenter);
@@ -133,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     tableContent.AddCell(p1);
 
-                    cellLeft.Phrase = new Phrase($"{detail.dealQuantity} {detail.dealUom.unit}", normal_font);
+                    cellLeft.Phrase = new Phrase(string.Format("{0:n2}", detail.dealQuantity) +$"{detail.dealUom.unit}", normal_font);
                     tableContent.AddCell(cellLeft);
 
                     cellCenter.Phrase = new Phrase($"{viewModel.currency.code} {detail.pricePerDealUnit.ToString("N", new CultureInfo("id-ID"))}", normal_font);
@@ -158,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellRight.Colspan = 3;
             cellRight.Phrase = new Phrase("PPN 10%", bold_font);
             tableContent.AddCell(cellRight);
-            string ppn = "";
+            string ppn = "IDR   0.00";
             double ppnNominal = 0;
             if (viewModel.useVat)
             {
@@ -184,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #region Footer
 
             PdfPTable tableFooter = new PdfPTable(4);
-            tableFooter.SetWidths(new float[] { 3f, 7f, 3f, 4f });
+            tableFooter.SetWidths(new float[] { 3.3f, 5.5f, 2f, 4.8f });
 
             //PdfPCell cellFooterContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             //PdfPCell cellFooterContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };

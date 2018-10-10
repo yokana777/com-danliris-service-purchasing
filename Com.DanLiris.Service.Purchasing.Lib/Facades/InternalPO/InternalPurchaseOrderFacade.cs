@@ -822,5 +822,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         }
         #endregion
 
+
+        public int ReadByPRNo(string prno)
+        {
+            var Query = (from a in dbContext.InternalPurchaseOrders
+                         where a.IsDeleted == false
+                             && a.PRNo == prno
+                         select new InternalPurchaseOrderReportViewModel
+                         {
+                             prNo = a.PRNo
+                         });
+            return Query.ToArray().Count();
+        }
     }
 }
