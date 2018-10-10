@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchase
     public class GarmentInternalPurchaseOrderViewModel : BaseViewModel, IValidatableObject
     {
         public string PONo { get; set; }
+        public long PRId { get; set; }
         public DateTimeOffset? PRDate { get; set; }
         public string PRNo { get; set; }
         public string RONo { get; set; }
