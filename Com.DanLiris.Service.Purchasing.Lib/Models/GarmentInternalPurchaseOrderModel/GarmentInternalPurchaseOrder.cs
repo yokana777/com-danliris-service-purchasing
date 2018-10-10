@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrde
     {
         [MaxLength(255)]
         public string PONo { get; set; }
+        public long PRId { get; set; }
         public DateTimeOffset PRDate { get; set; }
         [MaxLength(255)]
         public string PRNo { get; set; }

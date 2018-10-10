@@ -33,6 +33,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 
         public string Status { get; set; }
 
+        public bool IsUsed { get; set; }
+
         public virtual long GarmentPRId { get; set; }
         [ForeignKey("GarmentPRId")]
         public virtual GarmentPurchaseRequest GarmentPurchaseRequest { get; set; }
