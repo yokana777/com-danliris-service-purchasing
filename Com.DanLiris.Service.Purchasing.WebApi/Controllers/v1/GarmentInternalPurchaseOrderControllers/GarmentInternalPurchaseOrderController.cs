@@ -130,6 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                 {
                     throw new Exception("Invalid Id");
                 }
+                viewModel.HasDuplicate = facade.CheckDuplicate(model);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -184,5 +185,56 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
             }
         }
 
+        [HttpPut("split/{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody]GarmentInternalPurchaseOrderViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                validateService.Validate(ViewModel);
+
+                var model = mapper.Map<GarmentInternalPurchaseOrder>(ViewModel);
+
+                await facade.Split(id, model, identityService.Username);
+
+                return NoContent();
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute]int id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.Delete(id, identityService.Username);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }

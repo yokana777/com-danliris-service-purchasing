@@ -47,6 +47,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
         {
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             List<ValidationResult> validationResults = new List<ValidationResult>();
+
+            ViewModel.PONo = ViewModel.PONo;
+            ViewModel.PRId = ViewModel.PRId;
+            ViewModel.PRDate = ViewModel.PRDate;
             foreach (var item in ViewModel.Items)
             {
                 item.BudgetPrice = item.BudgetPrice;
@@ -231,6 +235,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
 
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentInternalPurchaseOrder());
+            mockFacade.Setup(x => x.CheckDuplicate(It.IsAny<GarmentInternalPurchaseOrder>()))
+                .Returns(true);
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentInternalPurchaseOrderViewModel>(It.IsAny<GarmentInternalPurchaseOrder>()))
@@ -253,6 +259,81 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
 
             GarmentInternalPurchaseOrderController controller = new GarmentInternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Split_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentInternalPurchaseOrder>(It.IsAny<GarmentInternalPurchaseOrderViewModel>()))
+                .Returns(new GarmentInternalPurchaseOrder());
+
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Split(It.IsAny<int>(), It.IsAny<GarmentInternalPurchaseOrder>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternalPurchaseOrderViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Split_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternalPurchaseOrderViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Split_Data()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var controller = new GarmentInternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternalPurchaseOrderViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Delete_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Delete(It.IsAny<int>()).Result;
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Delete_Data()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var controller = new GarmentInternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.Delete(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }

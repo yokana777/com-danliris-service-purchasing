@@ -69,6 +69,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             return model;
         }
 
+        public bool CheckDuplicate(GarmentInternalPurchaseOrder model)
+        {
+            var countPOIntByPRAndRefNo = dbSet.Count(m => m.PRNo == model.PRNo && m.Items.Any(i => i.PO_SerialNumber == model.Items.Single().PO_SerialNumber));
+            return countPOIntByPRAndRefNo > 1;
+        }
+
         public async Task<int> CreateMultiple(List<GarmentInternalPurchaseOrder> ListModel, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
@@ -96,9 +102,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                             item.Status = "PO Internal belum diorder";
                             item.RemainingBudget = item.BudgetPrice * item.Quantity;
 
-                            var garmentPurchaseRequestItem = dbContext.GarmentPurchaseRequestItems.FirstOrDefault(i => i.Id == item.GPRItemId);
+                            var garmentPurchaseRequestItem = dbContext.GarmentPurchaseRequestItems.Single(i => i.Id == item.GPRItemId);
+                            garmentPurchaseRequestItem.IsUsed = true;
                             garmentPurchaseRequestItem.Status = "Sudah diterima Pembelian";
                             EntityExtension.FlagForUpdate(garmentPurchaseRequestItem, user, USER_AGENT);
+
+                            var garmentPurchaseRequest = dbContext.GarmentPurchaseRequests.Include(m => m.Items).Single(i => i.Id == model.PRId);
+                            garmentPurchaseRequest.IsUsed = garmentPurchaseRequest.Items.All(i => i.IsUsed == true);
+                            EntityExtension.FlagForUpdate(garmentPurchaseRequest, user, USER_AGENT);
                         }
 
                         dbSet.Add(model);
@@ -115,6 +126,102 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             }
 
             return Created;
+        }
+
+        public async Task<int> Split(int id, GarmentInternalPurchaseOrder model, string user, int clientTimeZoneOffset = 7)
+        {
+            int Splited = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var oldModel = dbSet.SingleOrDefault(m => m.Id == id);
+
+                    EntityExtension.FlagForUpdate(oldModel, user, USER_AGENT);
+                    foreach (var oldItem in oldModel.Items)
+                    {
+                        EntityExtension.FlagForUpdate(oldItem, user, USER_AGENT);
+                        var newQuantity = model.Items.Single(i => i.Id == oldItem.Id).Quantity;
+                        oldItem.Quantity -= newQuantity;
+                    }
+
+                    model.Id = 0;
+                    foreach (var item in model.Items)
+                    {
+                        item.Id = 0;
+                    }
+
+                    EntityExtension.FlagForCreate(model, user, USER_AGENT);
+                    do
+                    {
+                        model.PONo = CodeGenerator.Generate();
+                    }
+                    while (dbSet.Any(m => m.PONo.Equals(model.PONo)));
+
+                    foreach (var item in model.Items)
+                    {
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                    }
+
+                    dbSet.Add(model);
+
+                    Splited = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Splited;
+        }
+
+        public async Task<int> Delete(int id, string username)
+        {
+            int Deleted = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var model = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
+
+                    EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                    foreach (var item in model.Items)
+                    {
+                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
+
+                        if (!CheckDuplicate(model))
+                        {
+                            var garmentPurchaseRequestItem = dbContext.GarmentPurchaseRequestItems.Single(i => i.Id == item.GPRItemId);
+                            garmentPurchaseRequestItem.IsUsed = false;
+                            garmentPurchaseRequestItem.Status = "Belum diterima Pembelian";
+                            EntityExtension.FlagForUpdate(garmentPurchaseRequestItem, username, USER_AGENT);
+
+                            var garmentPurchaseRequest = dbContext.GarmentPurchaseRequests.Single(i => i.Id == model.PRId);
+                            garmentPurchaseRequest.IsUsed = false;
+                            EntityExtension.FlagForUpdate(garmentPurchaseRequest, username, USER_AGENT);
+                        }
+                    }
+
+                    Deleted = await dbContext.SaveChangesAsync();
+
+                    await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
         }
     }
 }
