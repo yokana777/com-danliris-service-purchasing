@@ -19,64 +19,69 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
 
         public GarmentPurchaseRequest GetNewData()
         {
+            Random rnd = new Random();
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+            string nowTicksB = $"{nowTicks}b";
+
             return new GarmentPurchaseRequest
             {
-                RONo = "RODA881",
+                RONo = $"RO{nowTicksA}",
 
-                BuyerId = "1",
-                BuyerCode = "BuyerCode1",
-                BuyerName = "BuyerName1",
+                BuyerId = $"{nowTicksA}",
+                BuyerCode = $"BuyerCode{nowTicksA}",
+                BuyerName = $"BuyerName{nowTicksA}",
 
-                Article = "Article1",
+                Article = $"Article{nowTicksA}",
 
                 Date = DateTimeOffset.Now,
                 ShipmentDate = DateTimeOffset.Now,
 
-                UnitId = "1",
-                UnitCode = "UnitCode1",
-                UnitName = "UnitName1",
+                UnitId = $"{nowTicksA}",
+                UnitCode = $"UnitCode{nowTicksA}",
+                UnitName = $"UnitName{nowTicksA}",
 
-                Remark = "Remark1",
+                Remark = $"Remark{nowTicksA}",
 
                 Items = new List<GarmentPurchaseRequestItem>
                 {
                     new GarmentPurchaseRequestItem
                     {
-                        PO_SerialNumber = "PO_SerialNumber1",
+                        PO_SerialNumber = $"PO_SerialNumber{nowTicksA}",
 
-                        ProductId = "1",
-                        ProductCode = "ProductCode1",
-                        ProductName = "ProductName1",
+                        ProductId = $"{nowTicksA}",
+                        ProductCode = $"ProductCode{nowTicksA}",
+                        ProductName = $"ProductName{nowTicksA}",
 
-                        Quantity = 5,
-                        BudgetPrice = 5,
+                        Quantity = rnd.Next(2, 100),
+                        BudgetPrice = rnd.Next(2, 100),
 
-                        UomId = "1",
-                        UomUnit = "UomUnit1",
+                        UomId = $"{nowTicksA}",
+                        UomUnit = $"UomUnit{nowTicksA}",
 
-                        CategoryId = "1",
-                        CategoryName = "CategoryName1",
+                        CategoryId = $"{nowTicksA}",
+                        CategoryName = $"CategoryName{nowTicksA}",
 
-                        ProductRemark = "ProductRemark"
+                        ProductRemark = $"ProductRemark{nowTicksA}"
                     },
                     new GarmentPurchaseRequestItem
                     {
-                        PO_SerialNumber = "PO_SerialNumber2",
+                        PO_SerialNumber = $"PO_SerialNumber{nowTicksB}",
 
-                        ProductId = "2",
-                        ProductCode = "ProductCode2",
-                        ProductName = "ProductName2",
+                        ProductId = $"{nowTicksB}",
+                        ProductCode = $"ProductCode{nowTicksB}",
+                        ProductName = $"ProductName{nowTicksB}",
 
-                        Quantity = 5,
-                        BudgetPrice = 5,
+                        Quantity = rnd.Next(2, 100),
+                        BudgetPrice = rnd.Next(2, 100),
 
-                        UomId = "2",
-                        UomUnit = "UomUnit2",
+                        UomId = $"{nowTicksB}",
+                        UomUnit = $"UomUnit{nowTicksB}",
 
-                        CategoryId = "2",
-                        CategoryName = "CategoryName2",
+                        CategoryId = $"{nowTicksB}",
+                        CategoryName = $"CategoryName{nowTicksB}",
 
-                        ProductRemark = "ProductRemark"
+                        ProductRemark = $"ProductRemark{nowTicksB}"
                     }
                 }
             };
@@ -92,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
         public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags()
         {
             var testData = await GetTestData();
-            return facade.ReadByTags(null, DateTimeOffset.MinValue, DateTimeOffset.MinValue);
+            return facade.ReadByTags($"#{testData.UnitName}#{testData.BuyerName}", DateTimeOffset.MinValue, DateTimeOffset.MinValue);
         }
 
     }

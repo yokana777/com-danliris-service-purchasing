@@ -15,6 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchase
 
         public double Quantity { get; set; }
         public double BudgetPrice { get; set; }
+        public double RemainingBudget { get; set; }
 
         public UomViewModel Uom { get; set; }
 
