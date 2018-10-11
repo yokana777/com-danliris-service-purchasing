@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel
@@ -26,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchase
 
         public bool IsPosted { get; set; }
         public bool IsClosed { get; set; }
+        public bool HasDuplicate { get; set; } // PR sama lebih dari 1
         public string Remark { get; set; }
 
         public List<GarmentInternalPurchaseOrderItemViewModel> Items { get; set; }
@@ -35,6 +37,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchase
             if (Items == null || Items.Count < 1)
             {
                 yield return new ValidationResult("Items tidak boleh kosong", new List<string> { "ItemsCount" });
+            }
+            else
+            {
+                string itemError = "[";
+                int itemErrorCount = 0;
+
+                foreach (var item in Items)
+                {
+                    itemError += "{";
+
+                    if (item.Quantity <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
+                    }
+                    else if (Id != 0)
+                    {
+                        PurchasingDbContext dbContext = validationContext == null ? null : (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+                        var oldItem = dbContext.GarmentInternalPurchaseOrderItems.SingleOrDefault(i => i.Id == item.Id);
+                        if (oldItem != null)
+                        {
+                            if (item.Quantity >= oldItem.Quantity)
+                            {
+                                itemErrorCount++;
+                                itemError += $"Quantity: 'Jumlah harus kurang dari jumlah sebelumnya ({oldItem.Quantity})', ";
+                            }
+                        }
+                        else
+                        {
+                            itemErrorCount++;
+                            itemError += "Quantity: 'Jumlah sebelumnya tidak diketahui', ";
+                        }
+                    }
+
+                    itemError += "}, ";
+                }
+
+                itemError += "]";
+
+                if (itemErrorCount > 0)
+                    yield return new ValidationResult(itemError, new List<string> { "Items" });
             }
         }
     }

@@ -22,5 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public string ProductRemark { get; set; }
 
         public string Status { get; set; }
+
+        public bool IsUsed { get; set; }
     }
 }

@@ -218,11 +218,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 .Where(m =>
                     (string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
                     (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
-                    //m.Items.Any(i => i.IsUsed == false) &&
+                    m.Items.Any(i => i.IsUsed == false) &&
                     m.IsUsed == false
                     )
                 .Select(m => new GarmentPurchaseRequest
                 {
+                    Id = m.Id,
                     Date = m.Date,
                     PRNo = m.PRNo,
                     RONo = m.RONo,
@@ -237,7 +238,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     UnitName = m.UnitName,
                     Items = m.Items
                         .Where(i =>
-                            //i.IsPosted == false &&
+                            i.IsUsed == false &&
                             (string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2]))
                             )
                         .ToList()
@@ -252,6 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     var IPOModel = new GarmentInternalPurchaseOrder
                     {
+                        PRId = model.Id,
                         PRDate = model.Date,
                         PRNo = model.PRNo,
                         RONo = model.RONo,

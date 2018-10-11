@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
@@ -96,13 +97,116 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         }
 
         [Fact]
-        public void Should_Success_Validate_Data()
+        public async void Should_Success_Check_Cuplicate_Data()
         {
-            var viewModel = new GarmentInternalPurchaseOrderViewModel
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.CheckDuplicate(listData.First());
+            Assert.Equal(Response, false);
+        }
+
+        [Fact]
+        public async void Should_Success_Split_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var data = dbContext.GarmentInternalPurchaseOrders.AsNoTracking().Include(m => m.Items).Single(m => m.Id == listData.First().Id);
+
+            var Response = await facade.Split((int)data.Id, data, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Split_Data()
+        {
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var data = listData.First();
+            data.Items = null;
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Split((int)data.Id, data, USERNAME));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async void Should_Success_Delete_Data()
+        {
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var data = listData.First();
+            var Response = await facade.Delete((int)data.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Delete_Data()
+        {
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0, USERNAME));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async void Should_Success_Validate_Data()
+        {
+            var viewModelNullItems = new GarmentInternalPurchaseOrderViewModel
             {
                 Items = null
             };
-            Assert.True(viewModel.Validate(null).Count() > 0);
+            Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+
+            var viewModelZeroQuantity = new GarmentInternalPurchaseOrderViewModel
+            {
+                Items = new List<GarmentInternalPurchaseOrderItemViewModel>
+                {
+                    new GarmentInternalPurchaseOrderItemViewModel
+                    {
+                        Quantity = 0
+                    }
+                }
+            };
+            Assert.True(viewModelZeroQuantity.Validate(null).Count() > 0);
+
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var data = listData.First();
+            var item = data.Items.First();
+
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider.
+                Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
+
+            var viewModelDuplicate = new GarmentInternalPurchaseOrderViewModel
+            {
+                Id = data.Id,
+                Items = new List<GarmentInternalPurchaseOrderItemViewModel>
+                {
+                    new GarmentInternalPurchaseOrderItemViewModel
+                    {
+                        Id = item.Id,
+                        Quantity = item.Quantity
+                    }
+                }
+            };
+            ValidationContext validationDuplicateContext = new ValidationContext(viewModelDuplicate, serviceProvider.Object, null);
+            Assert.True(viewModelDuplicate.Validate(validationDuplicateContext).Count() > 0);
+
+            var viewModelNotFoundDuplicate = new GarmentInternalPurchaseOrderViewModel
+            {
+                Id = 1,
+                Items = new List<GarmentInternalPurchaseOrderItemViewModel>
+                {
+                    new GarmentInternalPurchaseOrderItemViewModel
+                    {
+                        Id = 0,
+                        Quantity = 1
+                    }
+                }
+            };
+            ValidationContext validationNotFoundDuplicateContext = new ValidationContext(viewModelNotFoundDuplicate, serviceProvider.Object, null);
+            Assert.True(viewModelNotFoundDuplicate.Validate(validationNotFoundDuplicateContext).Count() > 0);
         }
     }
 }
