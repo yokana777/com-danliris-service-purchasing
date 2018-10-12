@@ -5,8 +5,13 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
@@ -44,6 +49,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         private InternalPurchaseOrderDataUtil DataUtil
         {
             get { return (InternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(InternalPurchaseOrderDataUtil)); }
+        }
+        private PurchaseRequestDataUtil DataUtilPR
+        {
+            get { return (PurchaseRequestDataUtil)ServiceProvider.GetService(typeof(PurchaseRequestDataUtil)); }
+        }
+        private ExternalPurchaseOrderDataUtil DataUtilEPO
+        {
+            get { return (ExternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(ExternalPurchaseOrderDataUtil)); }
+        }
+        private DeliveryOrderDataUtil DataUtilDO
+        {
+            get { return (DeliveryOrderDataUtil)ServiceProvider.GetService(typeof(DeliveryOrderDataUtil)); }
+        }
+        private UnitReceiptNoteDataUtil DataUtilURN
+        {
+            get { return (UnitReceiptNoteDataUtil)ServiceProvider.GetService(typeof(UnitReceiptNoteDataUtil)); }
+        }
+        private UnitPaymentOrderDataUtil DataUtilUPO
+        {
+            get { return (UnitPaymentOrderDataUtil)ServiceProvider.GetService(typeof(UnitPaymentOrderDataUtil)); }
+        }
+        private UnitPaymentCorrectionNoteDataUtil DataUtilCorr
+        {
+            get { return (UnitPaymentCorrectionNoteDataUtil)ServiceProvider.GetService(typeof(UnitPaymentCorrectionNoteDataUtil)); }
         }
 
         private const string ENTITY = "UnitPaymentPriceCorrectionNote";
@@ -120,6 +149,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Get_Report_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            PurchaseRequest prModel = await DataUtilPR.GetTestData("Unit test");
+            ExternalPurchaseOrder epoModel = await DataUtilEPO.GetTestData("Unit test");
+            DeliveryOrder doModel = await DataUtilDO.GetTestData("Unit test");
+            UnitReceiptNote urnModel = await DataUtilURN.GetTestData("Unit test");
+            UnitPaymentOrder upoModel = await DataUtilUPO.GetTestData();
+            UnitPaymentCorrectionNote corrModel = await DataUtilCorr.GetTestData();
+
             var Response = Facade.GetReport(model.PRNo, null, model.UnitId, model.CategoryId, null , null ,model.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
             Assert.NotNull(Response);
         }
