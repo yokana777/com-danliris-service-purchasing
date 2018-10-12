@@ -54,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             List<string> searchAttributes = new List<string>()
             {
-                "PRNo", "RONo", "BuyerName", "UnitName"
+                "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
             };
 
             Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -145,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             if (item.Id == 0)
                             {
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                item.Status = "Belum diterima Pembelian";
                             }
                             else
                             {
