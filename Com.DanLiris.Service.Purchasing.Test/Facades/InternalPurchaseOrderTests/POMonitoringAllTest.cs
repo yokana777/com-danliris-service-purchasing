@@ -153,8 +153,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             ExternalPurchaseOrder epoModel = await DataUtilEPO.GetTestData("Unit test");
             DeliveryOrder doModel = await DataUtilDO.GetTestData("Unit test");
             UnitReceiptNote urnModel = await DataUtilURN.GetTestData("Unit test");
-            UnitPaymentOrder upoModel = await DataUtilUPO.GetTestData();
-            UnitPaymentCorrectionNote corrModel = await DataUtilCorr.GetTestData();
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
 
             var Response = Facade.GetReport(model.PRNo, null, model.UnitId, model.CategoryId, null , null ,model.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
             Assert.NotNull(Response);
