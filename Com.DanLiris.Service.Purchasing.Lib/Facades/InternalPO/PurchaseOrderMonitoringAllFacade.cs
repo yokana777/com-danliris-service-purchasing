@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                             qry[data.doDetailId] += (index).ToString() + ". " + data.correctionNo + "\n";
                             qryType[data.doDetailId] += (index).ToString() + ". " + data.correctionType + "\n";
                             qryDate[data.doDetailId] += (index).ToString() + ". " + correctionDate + "\n";
-                            qryQty[data.doDetailId] += (index).ToString() + ". " + String.Format("{0:N0}", data.valueCorrection) + "\n";
+                            qryQty[data.doDetailId] += (index).ToString() + ". " + String.Format("{0:N2}", data.valueCorrection) + "\n";
                             index++;
                         }
                     }
@@ -185,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                             qry[data.doDetailId] = (index).ToString() + ". " + data.correctionNo + "\n";
                             qryType[data.doDetailId] = (index).ToString() + ". " + data.correctionType + "\n";
                             qryDate[data.doDetailId] = (index).ToString() + ". " + correctionDate + "\n";
-                            qryQty[data.doDetailId] = (index).ToString() + ". " + String.Format("{0:N0}", data.valueCorrection) + "\n";
+                            qryQty[data.doDetailId] = (index).ToString() + ". " + String.Format("{0:N2}", data.valueCorrection) + "\n";
                             index++;
                         }
                             
