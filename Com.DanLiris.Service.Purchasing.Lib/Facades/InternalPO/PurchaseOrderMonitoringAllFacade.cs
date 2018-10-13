@@ -166,9 +166,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 if (data.doDetailId != 0)
                 {
                     string correctionDate = data.correctionDate == new DateTime(1970, 1, 1) ? "-" : data.correctionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    if (qry.TryGetValue(data.doDetailId, out value))
+                    if (data.correctionNo != null)
                     {
-                        if (data.correctionNo != null)
+                        if (qry.TryGetValue(data.doDetailId, out value))
                         {
                             qry[data.doDetailId] += (index).ToString() + ". " + data.correctionNo + "\n";
                             qryType[data.doDetailId] += (index).ToString() + ". " + data.correctionType + "\n";
@@ -176,10 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                             qryQty[data.doDetailId] += (index).ToString() + ". " + String.Format("{0:N2}", data.valueCorrection) + "\n";
                             index++;
                         }
-                    }
-                    else
-                    {
-                        if (data.correctionNo != null)
+                        else
                         {
                             index = 1;
                             qry[data.doDetailId] = (index).ToString() + ". " + data.correctionNo + "\n";
@@ -188,8 +185,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                             qryQty[data.doDetailId] = (index).ToString() + ". " + String.Format("{0:N2}", data.valueCorrection) + "\n";
                             index++;
                         }
-                            
-                        
                     }
                 }
                 else
@@ -225,7 +220,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var Query = GetReportQuery(prNo, supplierId, unitId, categoryId,budgetId,epoNo,  staff, dateFrom, dateTo,status, offset,user);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            }
 
 
             Pageable<PurchaseOrderMonitoringAllViewModel> pageable = new Pageable<PurchaseOrderMonitoringAllViewModel>(Query, page - 1, size);
