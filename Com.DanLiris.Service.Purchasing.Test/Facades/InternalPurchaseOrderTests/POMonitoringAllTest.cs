@@ -185,25 +185,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Get_Report_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            PurchaseRequest prModel = await DataUtilPR.GetTestData("Unit test");
-            ExternalPurchaseOrder epoModel = await DataUtilEPO.GetTestData("Unit test");
-            DeliveryOrder doModel = await DataUtilDO.GetTestData("Unit test");
-            UnitReceiptNote urnModel = await DataUtilURN.GetTestData("Unit test");
+            var Response = Facade.GetReport(model.PRNo, null, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
+            Assert.NotNull(Response);
+        }
 
+        [Fact]
+        public async void Should_Success_Get_Report_Data2()
+        {
             var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentOrderFacade facade2 = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var modelLocalSupplier2 = _dataUtil2(facade2, GetCurrentMethod()).GetNewData();
-            var ResponseLocalSupplier2 = await facade2.Create(modelLocalSupplier2, USERNAME, false);
-
-            var modelImportSupplier = _dataUtil2(facade2, GetCurrentMethod()).GetNewData();
-            var ResponseImportSupplier = await facade2.Create(modelImportSupplier, USERNAME, true);
-
+            
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
+            var prNo = "";
+            foreach(var item in modelLocalSupplier.Items)
+            {
+                prNo = item.PRNo;
+            }
 
-
-            var Response = Facade.GetReport(model.PRNo, null, model.UnitId, model.CategoryId, null , null ,model.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
+            var Response = Facade.GetReport(prNo, null, null, null, null , null , modelLocalSupplier.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
             Assert.NotNull(Response);
         }
 
