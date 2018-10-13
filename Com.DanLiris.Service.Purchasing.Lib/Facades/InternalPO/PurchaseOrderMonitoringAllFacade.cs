@@ -225,10 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var Query = GetReportQuery(prNo, supplierId, unitId, categoryId,budgetId,epoNo,  staff, dateFrom, dateTo,status, offset,user);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            if (OrderDictionary.Count.Equals(0))
-            {
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
-            }
+            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
 
 
             Pageable<PurchaseOrderMonitoringAllViewModel> pageable = new Pageable<PurchaseOrderMonitoringAllViewModel>(Query, page - 1, size);
