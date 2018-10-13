@@ -88,6 +88,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         }
 
         [Fact]
+        public async void Should_Success_Get_All_Data_With_Items_Order()
+        {
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Items.ProductName\" : \"desc\"}");
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
         public async void Should_Success_Get_Data_By_Id()
         {
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
