@@ -232,7 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     BuyerCode = m.BuyerCode,
                     BuyerName = m.BuyerName,
                     Article = m.Article,
-                    ExpectedDeliveryDate = m.ExpectedDeliveryDate.GetValueOrDefault(),
+                    ExpectedDeliveryDate = m.ExpectedDeliveryDate,
                     ShipmentDate = m.ShipmentDate,
                     UnitId = m.UnitId,
                     UnitCode = m.UnitCode,
