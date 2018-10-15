@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,17 +43,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
-            //Query = Query
-            //    .Select(m => new
-            //    {
-            //        Data = m,
-            //        ProductName = m.Items.Select(i => i.ProductName).FirstOrDefault()
-            //    })
-            //    .OrderByDescending(m => m.ProductName)
-            //    .AsEnumerable()
-            //    .Select(m => m.Data)
-            //    .AsQueryable();
+            if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+            {
+                string Key = OrderDictionary.Keys.First();
+                string SubKey = Key.Split(".")[1];
+                string OrderType = OrderDictionary[Key];
+
+                Query = Query
+                    .Select(m => new
+                    {
+                        Data = m,
+                        ProductName = m.Items.Select(i => i.ProductName).OrderBy(o => o).FirstOrDefault(),
+                        Quantity = m.Items.Select(i => i.Quantity).OrderBy(o => o).FirstOrDefault(),
+                        UomUnit = m.Items.Select(i => i.UomUnit).OrderBy(o => o).FirstOrDefault(),
+                    })
+                    .OrderBy(string.Concat(SubKey, " ", OrderType))
+                    .Select(m => m.Data);
+            }
+            else
+            {
+                Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
+            }
 
             Pageable<GarmentInternalPurchaseOrder> pageable = new Pageable<GarmentInternalPurchaseOrder>(Query, Page - 1, Size);
             List<GarmentInternalPurchaseOrder> Data = pageable.Data.ToList();

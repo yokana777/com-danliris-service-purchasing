@@ -256,16 +256,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 DateTimeOffset shipmentFrom;
                 DateTimeOffset shipmentTo;
                 if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
                 {
-                    if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentFrom) ||
-                        !DateTimeOffset.TryParseExact(shipmentDateTo, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentTo))
+                    if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out shipmentFrom) ||
+                        !DateTimeOffset.TryParseExact(shipmentDateTo, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out shipmentTo))
                     {
                         shipmentFrom = DateTimeOffset.MinValue;
                         shipmentTo = DateTimeOffset.MinValue;
+                    }
+                    else
+                    {
+                        shipmentFrom = new DateTimeOffset(shipmentFrom.DateTime, new TimeSpan(clientTimeZoneOffset, 0, 0));
+                        shipmentTo = new DateTimeOffset(shipmentTo.DateTime, new TimeSpan(clientTimeZoneOffset, 0, 0));
                     }
                 }
 
