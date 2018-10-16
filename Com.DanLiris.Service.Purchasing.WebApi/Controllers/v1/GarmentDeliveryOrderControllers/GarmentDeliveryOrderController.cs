@@ -86,7 +86,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                         items = s.items.Select(i => new { i.purchaseOrderExternal, i.fulfillments }),
                         s.CreatedBy,
                         s.isClosed,
-                        s.isCostum,
+                        s.isCustoms,
+                        s.isInvoice,
                         s.LastModifiedUtc
                     }).ToList()
                 );

@@ -25,7 +25,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
         public string Remark { get; set; }
         public bool IsClosed { get; set; }
-        public bool IsCostum { get; set; }
+        public bool IsCustoms { get; set; }
+        public bool IsInvoice { get; set; }
+        public long CustomsId { get; set; }
+        [MaxLength(50)]
+        public string BillNo { get; set; }
+        [MaxLength(50)]
+        public string PaymentBill { get; set; }
 
         public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }
     }
