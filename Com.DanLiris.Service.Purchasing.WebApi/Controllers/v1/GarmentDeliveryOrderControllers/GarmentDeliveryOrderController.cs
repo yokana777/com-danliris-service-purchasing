@@ -1,35 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseRequestControllers
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryOrderControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/garment-purchase-requests")]
+    [Route("v{version:apiVersion}/garment-delivery-orders")]
     [Authorize]
-    public class GarmentPurchaseRequestController : Controller
+    public class GarmentDeliveryOrderController : Controller
     {
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
-        private readonly IGarmentPurchaseRequestFacade facade;
+        private readonly IGarmentDeliveryOrderFacade facade;
         private readonly IdentityService identityService;
 
-        public GarmentPurchaseRequestController(IServiceProvider serviceProvider, IMapper mapper, IGarmentPurchaseRequestFacade facade)
+        public GarmentDeliveryOrderController(IServiceProvider serviceProvider, IMapper mapper, IGarmentDeliveryOrderFacade facade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
@@ -74,31 +72,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 
                 var Data = facade.Read(page, size, order, keyword, filter);
 
-                var newData = mapper.Map<List<GarmentPurchaseRequestViewModel>>(Data.Item1);
+                var viewModel = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data.Item1);
 
                 List<object> listData = new List<object>();
                 listData.AddRange(
-                    newData.AsQueryable().Select(s => new
+                    viewModel.AsQueryable().Select(s => new
                     {
                         s.Id,
-                        s.PRNo,
-                        s.RONo,
-                        s.Article,
-                        s.Date,
-                        s.ExpectedDeliveryDate,
-                        s.ShipmentDate,
-                        Buyer = new {
-                            s.Buyer.Id,
-                            s.Buyer.Code,
-                            s.Buyer.Name
-                        },
-                        Unit = new {
-                            s.Unit.Id,
-                            s.Unit.Code,
-                            s.Unit.Name
-                        },
-                        s.IsPosted,
-                        s.CreatedBy, 
+                        s.doNo,
+                        s.doDate,
+                        s.arrivalDate,
+                        supplier = new { s.supplier.name },
+                        items = s.items.Select(i => new { i.purchaseOrderExternal, i.fulfillments }),
+                        s.CreatedBy,
+                        s.isClosed,
+                        s.isCustoms,
+                        s.isInvoice,
                         s.LastModifiedUtc
                     }).ToList()
                 );
@@ -131,8 +120,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         {
             try
             {
-                var result = facade.ReadById(id);
-                GarmentPurchaseRequestViewModel viewModel = mapper.Map<GarmentPurchaseRequestViewModel>(result);
+                var model = facade.ReadById(id);
+                var viewModel = mapper.Map<GarmentDeliveryOrderViewModel>(model);
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
@@ -152,34 +141,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
             }
         }
 
-        [HttpGet("by-rono/{rono}")]
-        public IActionResult Get(string rono)
-        {
-            try
-            {
-                var result = facade.ReadByRONo(rono);
-                GarmentPurchaseRequestViewModel viewModel = mapper.Map<GarmentPurchaseRequestViewModel>(result);
-                if (viewModel == null)
-                {
-                    throw new Exception("Invalid rono");
-                }
-
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]GarmentPurchaseRequestViewModel ViewModel)
+        public async Task<IActionResult> Post([FromBody]GarmentDeliveryOrderViewModel ViewModel)
         {
             try
             {
@@ -189,7 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 
                 validateService.Validate(ViewModel);
 
-                var model = mapper.Map<GarmentPurchaseRequest>(ViewModel);
+                var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 
                 await facade.Create(model, identityService.Username);
 
@@ -215,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]GarmentPurchaseRequestViewModel ViewModel)
+        public async Task<IActionResult> Put(int id, [FromBody]GarmentDeliveryOrderViewModel ViewModel)
         {
             try
             {
@@ -225,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 
                 validateService.Validate(ViewModel);
 
-                var model = mapper.Map<GarmentPurchaseRequest>(ViewModel);
+                var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 
                 await facade.Update(id, model, identityService.Username);
 
@@ -250,44 +213,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
             }
         }
 
-        [HttpGet("by-tags")]
-        public IActionResult GetByTags(string tags, string shipmentDateFrom, string shipmentDateTo)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute]int id)
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
-                DateTimeOffset shipmentFrom;
-                DateTimeOffset shipmentTo;
-                if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
-                {
-                    if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out shipmentFrom) ||
-                        !DateTimeOffset.TryParseExact(shipmentDateTo, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out shipmentTo))
-                    {
-                        shipmentFrom = DateTimeOffset.MinValue;
-                        shipmentTo = DateTimeOffset.MinValue;
-                    }
-                    else
-                    {
-                        shipmentFrom = new DateTimeOffset(shipmentFrom.DateTime, new TimeSpan(clientTimeZoneOffset, 0, 0));
-                        shipmentTo = new DateTimeOffset(shipmentTo.DateTime, new TimeSpan(clientTimeZoneOffset, 0, 0));
-                    }
-                }
-
-                var data = facade.ReadByTags(tags, shipmentFrom, shipmentTo);
-                var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
-
-                var info = new Dictionary<string, object>
-                    {
-                        { "count", newData.Count },
-                    };
-
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(newData, info);
-                return Ok(Result);
-
+                await facade.Delete(id, identityService.Username);
+                return NoContent();
             }
             catch (Exception e)
             {

@@ -54,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             List<string> searchAttributes = new List<string>()
             {
-                "PRNo", "RONo", "BuyerName", "UnitName"
+                "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
             };
 
             Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -145,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             if (item.Id == 0)
                             {
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                item.Status = "Belum diterima Pembelian";
                             }
                             else
                             {
@@ -231,7 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     BuyerCode = m.BuyerCode,
                     BuyerName = m.BuyerName,
                     Article = m.Article,
-                    ExpectedDeliveryDate = m.ExpectedDeliveryDate.GetValueOrDefault(),
+                    ExpectedDeliveryDate = m.ExpectedDeliveryDate,
                     ShipmentDate = m.ShipmentDate,
                     UnitId = m.UnitId,
                     UnitCode = m.UnitCode,
@@ -261,7 +262,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         BuyerCode = model.BuyerCode,
                         BuyerName = model.BuyerName,
                         Article = model.Article,
-                        ExpectedDeliveryDate = model.ExpectedDeliveryDate.GetValueOrDefault(),
+                        ExpectedDeliveryDate = model.ExpectedDeliveryDate,
                         ShipmentDate = model.ShipmentDate,
                         UnitId = model.UnitId,
                         UnitCode = model.UnitCode,
