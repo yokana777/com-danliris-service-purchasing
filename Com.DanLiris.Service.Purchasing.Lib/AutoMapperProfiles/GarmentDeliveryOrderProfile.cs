@@ -31,6 +31,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.billNo, opt => opt.MapFrom(s => s.BillNo))
                 .ForPath(d => d.paymentBill, opt => opt.MapFrom(s => s.PaymentBill))
 
+                .ForPath(d => d.totalQuantity, opt => opt.MapFrom(s => s.TotalQuantity))
+                .ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+
                 .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))
                 .ReverseMap();
 

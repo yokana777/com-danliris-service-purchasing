@@ -44,8 +44,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 IsInvoice = false,
 
                 CustomsId= nowTicks,
-                PaymentBill = $"{nowTicksA}",
-                BillNo = $"{nowTicksA}"
+                PaymentBill = $"{nowTicksB}",
+                BillNo = $"{nowTicksB}",
+
+                TotalAmount = nowTicks,
+                TotalQuantity = nowTicks
             };
         }
 

@@ -89,10 +89,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
             Assert.NotNull(errorInvalidId.Message);
-
-            model.Items = null;
-            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)model.Id, model, USERNAME));
-            Assert.NotNull(errorNullItems.Message);
         }
 
         [Fact]
@@ -133,8 +129,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel();
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel(),
+            };
+            viewModel.Id = model.Id+1;
             viewModel.doNo = model.DONo;
+            viewModel.supplier._id = model.SupplierId;
+            viewModel.doDate = model.DODate;
+            viewModel.arrivalDate = model.ArrivalDate;
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.
@@ -145,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var validationResultCreate = viewModel.Validate(validationContext).ToList();
 
-            var errorDuplicateDONo = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("DONo sudah ada"));
+            var errorDuplicateDONo = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("No is already exist"));
             Assert.NotNull(errorDuplicateDONo);
         }
     }

@@ -25,6 +25,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string customsId { get; set; }
         public string billNo { get; set; }
         public string paymentBill { get; set; }
+        public double totalQuantity { get; set; }
+        public double totalAmount { get; set; }
         public List<GarmentDeliveryOrderItemViewModel> items { get; set; }
 
         //public List<long> unitReceiptNoteIds { get; set; }
@@ -37,14 +39,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
             }
             else
             {
-                if (supplier != null)
-                {
+                //if (supplier != null)
+                //{
                     PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                    if (purchasingDbContext.DeliveryOrders.Where(DO => DO.DONo.Equals(doNo) && DO.Id != this._id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == doDate && DO.SupplierId == supplier._id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == arrivalDate).Count() > 0)
+                    if (purchasingDbContext.GarmentDeliveryOrders.Where(DO => DO.DONo.Equals(doNo) && DO.Id != Id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == doDate && DO.SupplierId == supplier._id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == arrivalDate).Count() > 0)
                     {
                         yield return new ValidationResult("No is already exist", new List<string> { "no" });
                     }
-                }
+                //}
 
             }
             if (arrivalDate.Equals(DateTimeOffset.MinValue) || arrivalDate == null)
@@ -62,6 +64,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
             if (shipmentNo == null)
             {
                 yield return new ValidationResult("ShipmentNo is required", new List<string> { "shipmentNo" });
+            }
+            if (totalQuantity == 0)
+            {
+                yield return new ValidationResult("TotalQuantity can not 0", new List<string> { "totalQuantity" });
+            }
+            if (totalAmount == 0)
+            {
+                yield return new ValidationResult("TotalAmount can not 0", new List<string> { "totalAmount" });
             }
 
             //int itemErrorCount = 0;

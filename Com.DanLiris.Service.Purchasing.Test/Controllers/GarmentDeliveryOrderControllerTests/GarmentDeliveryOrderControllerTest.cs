@@ -31,7 +31,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             {
                 return new GarmentDeliveryOrderViewModel
                 {
-                    supplier = new SupplierViewModel()
+                    supplier = new SupplierViewModel(),
+                    items = new List<GarmentDeliveryOrderItemViewModel>
+                    {
+                        new GarmentDeliveryOrderItemViewModel()
+                    }
                 };
             }
         }
