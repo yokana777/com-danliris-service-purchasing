@@ -4,7 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    class BankExpenditureProfile : BaseAutoMapperProfile
+    public class BankExpenditureProfile : BaseAutoMapperProfile
     {
         public BankExpenditureProfile()
         {

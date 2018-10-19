@@ -24,13 +24,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteMo
         public string ProductCode { get; set; }
         [MaxLength(1000)]
         public string ProductName { get; set; }
-        public long Quantity { get; set; }
+        public double Quantity { get; set; }
         public string UomId { get; set; }
         public string UomUnit { get; set; }
-        public long PricePerDealUnitBefore { get; set; }
-        public long PricePerDealUnitAfter { get; set; }
-        public long PriceTotalBefore { get; set; }
-        public long PriceTotalAfter { get; set; }
+        public double PricePerDealUnitBefore { get; set; }
+        public double PricePerDealUnitAfter { get; set; }
+        public double PriceTotalBefore { get; set; }
+        public double PriceTotalAfter { get; set; }
         public string CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
         public string CurrencyRate { get; set; }

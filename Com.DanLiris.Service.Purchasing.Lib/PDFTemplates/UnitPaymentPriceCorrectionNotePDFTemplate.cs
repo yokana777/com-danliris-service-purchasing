@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase($"{item.quantity}   {item.uom.unit}", normal_font);
+                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", item.quantity) +  $" {item.uom.unit}", normal_font);
                     tableContent.AddCell(cellRight);
 
                     cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
@@ -189,8 +189,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     {
                         priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
                     }
-
-                    cellRightMerge.Phrase = new Phrase($"{priceCorrectionUnit.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
+                    
+                    cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", priceCorrectionUnit), normal_font);
                     tableContent.AddCell(cellRightMerge);
 
                     cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
