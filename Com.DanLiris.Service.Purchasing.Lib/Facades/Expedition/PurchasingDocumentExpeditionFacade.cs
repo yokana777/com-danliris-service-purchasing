@@ -238,7 +238,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             existing.SendToVerificationDivisionBy = username;
                             EntityExtension.FlagForUpdate(existing, username, "Facade");
                             this.dbSet.Update(existing);
-                            continue;
                         }
                         else if (existing == null)
                         {
