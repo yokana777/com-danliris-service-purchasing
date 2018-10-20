@@ -236,5 +236,45 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("by-tags")]
+        public IActionResult GetByTags(string category, string tags, string shipmentDateFrom, string shipmentDateTo)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                DateTimeOffset shipmentFrom;
+                DateTimeOffset shipmentTo;
+                if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
+                {
+                    if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentFrom) ||
+                        !DateTimeOffset.TryParseExact(shipmentDateTo, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentTo))
+                    {
+                        shipmentFrom = DateTimeOffset.MinValue;
+                        shipmentTo = DateTimeOffset.MinValue;
+                    }
+                }
+
+                var data = facade.ReadByTags(category, tags, shipmentFrom, shipmentTo);
+                var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", newData.Count },
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(newData, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
