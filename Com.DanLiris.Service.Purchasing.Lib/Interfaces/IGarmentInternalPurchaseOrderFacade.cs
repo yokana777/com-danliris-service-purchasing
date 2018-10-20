@@ -13,5 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> CreateMultiple(List<GarmentInternalPurchaseOrder> listModel, string user, int clientTimeZoneOffset = 7);
         Task<int> Split(int id, GarmentInternalPurchaseOrder model, string user, int clientTimeZoneOffset = 7);
         Task<int> Delete(int id, string username);
+
+        List<GarmentInternalPurchaseOrder> ReadByTags(string category, string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo);
     }
 }
