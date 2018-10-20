@@ -266,10 +266,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
         }
 
         [Fact]
-        public void Should_Validate_Create_Data_Item()
+        public void Should_Validate_Create_Data_Empty()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrder>(It.IsAny<GarmentExternalPurchaseOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<GarmentExternalPurchaseOrder>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+
+            var response = controller.Post(this.ViewModel).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Create_Data_Fabric()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
+
+            var Model = this.Model;
+            Model.Category = "FABRIC";
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrder>(It.IsAny<GarmentExternalPurchaseOrderViewModel>()))
