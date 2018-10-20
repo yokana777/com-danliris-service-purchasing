@@ -253,10 +253,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         [HttpDelete("{id}")]
         public IActionResult Delete([FromRoute]int id)
         {
-            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            
                 facade.Delete(id, identityService.Username);
 
                 return NoContent();

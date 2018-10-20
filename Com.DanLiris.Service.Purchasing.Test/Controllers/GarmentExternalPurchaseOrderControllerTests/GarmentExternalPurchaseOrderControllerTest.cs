@@ -702,5 +702,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal(null, response.GetType().GetProperty("FileStream"));
         }
+
+        [Fact]
+        public void Should_Success_Delete_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+                .Returns(1);
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+
+            var response = controller.Delete(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Delete_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+                .Returns(1);
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            var controller = new GarmentExternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object);
+
+            var response = controller.Delete(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
