@@ -46,6 +46,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                 OrderDate=s.OrderDate,
                 EPONo=s.EPONo,
                 SupplierImport=s.SupplierImport,
+                IsOverBudget=s.IsOverBudget,
+                IsApproved=s.IsApproved,
                 Items=s.Items.Select(a=> new GarmentExternalPurchaseOrderItem
                 {
                     PRNo=a.PRNo,

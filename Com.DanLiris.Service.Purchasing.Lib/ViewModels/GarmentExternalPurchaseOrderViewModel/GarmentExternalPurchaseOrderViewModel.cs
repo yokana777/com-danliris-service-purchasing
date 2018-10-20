@@ -56,13 +56,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                 yield return new ValidationResult("Currency is required", new List<string> { "Currency" });
             }
 
-            if (this.OrderDate.Equals(DateTimeOffset.MinValue) || this.OrderDate == null)
+            if (this.DeliveryDate.Equals(DateTimeOffset.MinValue) || this.DeliveryDate == null)
             {
-                yield return new ValidationResult("OrderDate is required", new List<string> { "OrderDate" });
+                yield return new ValidationResult("DeliveryDate is required", new List<string> { "DeliveryDate" });
             }
-            else if (this.DeliveryDate != null && this.OrderDate > this.DeliveryDate)
+            else if (this.OrderDate != null && this.OrderDate > this.DeliveryDate)
             {
-                yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "orderDate" });
+                yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "DeliveryDate" });
             }
 
             if (Category == "FABRIC")
