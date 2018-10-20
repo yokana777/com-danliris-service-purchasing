@@ -138,13 +138,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             Assert.NotEqual(Response, 0);
         }
 
-        //[Fact]
-        //public async void Should_Error_Get_Data_Supplier()
-        //{
-        //    GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-        //    GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
-        //    var Response = facade.GetSupplier(model.SupplierId);
-        //    Assert.Null(Response);
-        //}
+        [Fact]
+        public async void Should_Success_Delete_Data()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var Response = facade.Delete((int)data.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Delete_Data()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+            Assert.NotNull(e.Message);
+        }
     }
 }
