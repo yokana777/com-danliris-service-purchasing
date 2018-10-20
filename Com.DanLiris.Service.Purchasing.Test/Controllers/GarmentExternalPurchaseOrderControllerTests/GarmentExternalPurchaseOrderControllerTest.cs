@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalPurchaseOrderControllers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -32,6 +33,106 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                     Items = new List<GarmentExternalPurchaseOrderItemViewModel>
                     {
                         new GarmentExternalPurchaseOrderItemViewModel()
+                    }
+                };
+            }
+        }
+
+        private GarmentExternalPurchaseOrderViewModel ViewModelFabric
+        {
+            get
+            {
+                return new GarmentExternalPurchaseOrderViewModel
+                {
+                    Category = "FABRIC",
+                    Supplier = new SupplierViewModel
+                    {
+                        Import = true,
+                        Id = 1,
+                        PIC = "importTest",
+                        Contact = "0987654",
+                        Code = "SupplierImport",
+                        Name = "SupplierImport"
+                    },
+                    Currency= new CurrencyViewModel
+                    {
+                        Code="TEST",
+                        Rate=1,
+                        Symbol="tst"
+                    },
+                    Items = new List<GarmentExternalPurchaseOrderItemViewModel>
+                    {
+                        new GarmentExternalPurchaseOrderItemViewModel
+                        {
+                            Product = new GarmentProductViewModel
+                            {
+                                Name = "product",
+                                Code = "codeProd",
+                                Id = 1,
+                                Remark = "kjsh",
+                                Composition = "aa",
+                                Const = "aa",
+                                ProductType = "FABRIC",
+                                Width = "aak",
+                                Yarn = "asn"
+                            },
+                            ShipmentDate = It.IsAny<DateTimeOffset>(),
+                            DealUom=new UomViewModel
+                            {
+                                Unit="TEST",
+                            }
+                            
+                        }
+                    }
+                };
+            }
+        }
+
+        private GarmentExternalPurchaseOrderViewModel ViewModelAcc
+        {
+            get
+            {
+                return new GarmentExternalPurchaseOrderViewModel
+                {
+                    Category = "Accessories",
+                    Supplier = new SupplierViewModel
+                    {
+                        Import = true,
+                        Id = 1,
+                        PIC = "importTest",
+                        Contact = "0987654",
+                        Code = "SupplierImport",
+                        Name = "SupplierImport"
+                    },
+                    Currency = new CurrencyViewModel
+                    {
+                        Code = "TEST",
+                        Rate = 1,
+                        Symbol = "tst"
+                    },
+                    Items = new List<GarmentExternalPurchaseOrderItemViewModel>
+                    {
+                        new GarmentExternalPurchaseOrderItemViewModel
+                        {
+                            Product = new GarmentProductViewModel
+                            {
+                                Name = "product",
+                                Code = "codeProd",
+                                Id = 1,
+                                Remark = "kjsh",
+                                Composition = "aa",
+                                Const = "aa",
+                                ProductType = "FABRIC",
+                                Width = "aak",
+                                Yarn = "asn"
+                            },
+                            ShipmentDate = It.IsAny<DateTimeOffset>(),
+                            DealUom=new UomViewModel
+                            {
+                                Unit="TEST",
+                            }
+
+                        }
                     }
                 };
             }
@@ -382,7 +483,189 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
         }
 
         [Fact]
-        public void Should_Error_Get_PDF_Nota_Koreksi_By_Id()
+        public void Should_Success_Get_PDF_Garment_EPO_Import_Fabric()
+        {
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
+            
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))
+                .Returns(ViewModelFabric);
+
+            
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_Garment_EPO_Local_Fabric()
+        {
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
+            var ViewModelFabric = this.ViewModelFabric;
+            ViewModelFabric.Supplier.Import = false;
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))
+                .Returns(ViewModelFabric);
+
+
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_Garment_EPO_Import_Acc()
+        {
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
+
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))
+                .Returns(ViewModelAcc);
+
+
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_Garment_EPO_Local_Acc()
+        {
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
+            var ViewModelAcc = this.ViewModelAcc;
+            ViewModelAcc.Supplier.Import = false;
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))
+                .Returns(ViewModelAcc);
+
+
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Error_Get_PDF_Garment_EPO_By_Id()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();

@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class GarmentExternalPurchaseOrderPDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(GarmentExternalPurchaseOrderViewModel viewModel, SupplierViewModel supplier, int clientTimeZoneOffset)
+        public MemoryStream GeneratePdfTemplate(GarmentExternalPurchaseOrderViewModel viewModel, int clientTimeZoneOffset)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellSupplierLeft.Phrase = new Phrase("", normal_font);
                 tableSupplier.AddCell(cellSupplierLeft);
 
-                cellSupplierLeft.Phrase = new Phrase("Attn. " + supplier.PIC, normal_font);
+                cellSupplierLeft.Phrase = new Phrase("Attn. " + viewModel.Supplier.PIC, normal_font);
                 tableSupplier.AddCell(cellSupplierLeft);
 
                 cellSupplierLeft.Phrase = new Phrase("", normal_font);
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellSupplierLeft.Phrase = new Phrase("", normal_font);
                 tableSupplier.AddCell(cellSupplierLeft);
 
-                cellSupplierLeft.Phrase = new Phrase("Attn. " + supplier.PIC, normal_font);
+                cellSupplierLeft.Phrase = new Phrase("Attn. " + viewModel.Supplier.PIC, normal_font);
                 tableSupplier.AddCell(cellSupplierLeft);
 
                 cellSupplierLeft.Phrase = new Phrase("", normal_font);
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellSupplierLeft.Phrase = new Phrase("", normal_font);
                 tableSupplier.AddCell(cellSupplierLeft);
 
-                cellSupplierLeft.Phrase = new Phrase("Telp. " + supplier.Contact, normal_font);
+                cellSupplierLeft.Phrase = new Phrase("Telp. " + viewModel.Supplier.Contact, normal_font);
                 tableSupplier.AddCell(cellSupplierLeft);
 
                 cellSupplierLeft.Phrase = new Phrase("", normal_font);

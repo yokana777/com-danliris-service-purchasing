@@ -150,17 +150,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                     SupplierViewModel supplier = facade.GetSupplier(viewModel.Supplier.Id);
 
-
-                    foreach(var item in viewModel.Items)
+                    viewModel.Supplier = supplier==null? viewModel.Supplier : supplier;
+                    foreach (var item in viewModel.Items)
                     {
                         GarmentInternalPurchaseOrder ipo = IPOfacade.ReadById(item.POId);
-                        item.ShipmentDate = ipo.ShipmentDate;
+                        item.ShipmentDate = ipo==null ? item.ShipmentDate : ipo.ShipmentDate;
                         GarmentProductViewModel product = facade.GetProduct(item.Product.Id);
-                        item.Product = product;
+                        item.Product = product == null ? item.Product : product;
                     }
 
                     GarmentExternalPurchaseOrderPDFTemplate PdfTemplateLocal = new GarmentExternalPurchaseOrderPDFTemplate();
-                    MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, supplier, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
