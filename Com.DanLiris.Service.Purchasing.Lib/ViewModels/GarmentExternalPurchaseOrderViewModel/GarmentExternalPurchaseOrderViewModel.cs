@@ -100,6 +100,65 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                     yield return new ValidationResult("Shrinkage is required", new List<string> { "Shrinkage" });
                 }
             }
+
+            if (Items == null || Items.Count <= 0)
+            {
+                yield return new ValidationResult("Items tidak boleh kosong", new List<string> { "ItemsCount" });
+            }
+            else
+            {
+                string itemError = "[";
+                int itemErrorCount = 0;
+
+                foreach (var item in Items)
+                {
+                    itemError += "{";
+
+                    if (String.IsNullOrWhiteSpace(item.PO_SerialNumber))
+                    {
+                        itemErrorCount++;
+                        itemError += "PO_SerialNumber: 'PO_SerialNumber tidak boleh kosong', ";
+                    }
+                   
+                    if (item.Product == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "Product: 'Product tidak boleh kosong', ";
+                    }
+
+                    if (item.DealQuantity <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "DealQuantity: 'Quantity harus lebih dari 0', ";
+                    }
+
+                    //if (item.BudgetPrice <= 0)
+                    //{
+                    //    itemErrorCount++;
+                    //    itemError += "BudgetPrice: 'BudgetPrice harus lebih dari 0', ";
+                    //}
+
+                    if (item.DealUom == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "DealUom: 'UOM tidak boleh kosong', ";
+                    }
+                    else if (String.IsNullOrWhiteSpace(item.DealUom.Id) || item.DealUom.Id.Equals("0") || String.IsNullOrWhiteSpace(item.DealUom.Unit))
+                    {
+                        itemErrorCount++;
+                        itemError += "UOM: 'Data UOM tidak benar', ";
+                    }
+
+
+                    itemError += "}, ";
+                }
+
+                itemError += "]";
+
+                if (itemErrorCount > 0)
+                    yield return new ValidationResult(itemError, new List<string> { "Items" });
+            }
+
         }
     }
 }
