@@ -24,36 +24,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             var datas= Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags()).Result;
             return new GarmentExternalPurchaseOrder
             {
-                SupplierId=1,
-                SupplierCode="Supplier1",
-                SupplierImport=true,
-                SupplierName="supplier1",
+                SupplierId = 1,
+                SupplierCode = "Supplier1",
+                SupplierImport = true,
+                SupplierName = "supplier1",
 
-                Category="FABRIC",
-                DarkPerspiration="dark",
-                WetRubbing="wet",
-                DryRubbing="dry",
-                LightMedPerspiration="light",
-                Washing="wash",
-                Shrinkage="shrink",
-                QualityStandardType="quality",
-                PieceLength="piece",
+                Category = "FABRIC",
+                DarkPerspiration = "dark",
+                WetRubbing = "wet",
+                DryRubbing = "dry",
+                LightMedPerspiration = "light",
+                Washing = "wash",
+                Shrinkage = "shrink",
+                QualityStandardType = "quality",
+                PieceLength = "piece",
 
-                IncomeTaxId="1",
-                IncomeTaxName="income1",
-                IncomeTaxRate="1",
+                IncomeTaxId = "1",
+                IncomeTaxName = "income1",
+                IncomeTaxRate = "1",
 
-                DeliveryDate=new DateTimeOffset(),
-                OrderDate=new DateTimeOffset(),
+                DeliveryDate = new DateTimeOffset(),
+                OrderDate = new DateTimeOffset(),
 
-                CurrencyId=1,
-                CurrencyCode="currency1",
-                CurrencyRate=1,
+                CurrencyId = 1,
+                CurrencyCode = "currency1",
+                CurrencyRate = 1,
 
-                IsApproved=false,
-                IsOverBudget=false,
-                IsPosted=false,
-                
+                IsApproved = false,
+                IsOverBudget = false,
+                IsPosted = false,
+
 
                 Remark = "Remark1",
 
@@ -86,7 +86,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         Conversion=1,
                         RONo=datas[0].RONo,
 
-                        Remark = "ProductRemark"
+                        Remark = "ProductRemark",
+                        IsOverBudget=true,
+                        OverBudgetRemark="TestRemarkOB"
                     }
                 }
             };

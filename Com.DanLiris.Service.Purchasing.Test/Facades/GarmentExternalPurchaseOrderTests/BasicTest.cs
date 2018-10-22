@@ -67,6 +67,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_Fabric_OB()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            
+            var Response = await facade.Create(data, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Success_Create_Data_Acc()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
@@ -105,6 +115,56 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataFabric();
+            List<GarmentExternalPurchaseOrderItem> item = new List<GarmentExternalPurchaseOrderItem>(data.Items);
+
+            data.Items.Add(new GarmentExternalPurchaseOrderItem
+            {
+                PO_SerialNumber = "PO_SerialNumber",
+                ProductId = item[0].ProductId,
+                PRId=item[0].PRId,
+                POId= item[0].POId,
+                ProductCode = "item.ProductCode",
+                ProductName = "item.ProductName",
+                DealQuantity = 2,
+                BudgetPrice = 100,
+                DealUomId = 1,
+                DealUomUnit = "unit",
+                Remark = "item.ProductRemark",
+                IsOverBudget=true,
+                OverBudgetRemark="OB"
+            });
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+            var newItem= new GarmentExternalPurchaseOrderItem
+            {
+                PO_SerialNumber = "PO_SerialNumber",
+                ProductId = item[0].ProductId,
+                PRId = item[0].PRId,
+                POId = item[0].POId,
+                ProductCode = "ProductCode",
+                ProductName = "ProductName",
+                DealQuantity = 2,
+                BudgetPrice = 100,
+                DealUomId = 1,
+                DealUomUnit = "unit",
+                Remark = "ProductRemark",
+                IsOverBudget = true,
+                OverBudgetRemark = "OB"
+            };
+            List<GarmentExternalPurchaseOrderItem> Newitems = new List<GarmentExternalPurchaseOrderItem>(data.Items);
+            Newitems.Add(newItem);
+            data.Items = Newitems;
+
+            var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Update_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
@@ -136,6 +196,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.EPOUnpost((int)model.Id, "Unit Test");
             Assert.NotEqual(Response, 0);
+        }
+
+       
+
+        [Fact]
+        public async void Should_Error_EPOUnpost()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => facade.EPOUnpost(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
         }
 
         [Fact]

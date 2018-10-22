@@ -42,6 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         public double PricePerDealUnit { get; set; }
         public double DOQuantity { get; set; }
         public string Remark { get; set; }
+        public string OverBudgetRemark { get; set; }
         public bool IsOverBudget { get; set; }
         public long GarmentEPOId { get; set; }
         [ForeignKey("GarmentEPOId")]

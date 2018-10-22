@@ -45,10 +45,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                 return new GarmentExternalPurchaseOrderViewModel
                 {
                     Category = "FABRIC",
+                    IncomeTax= new IncomeTaxViewModel
+                    {
+                        Id= It.IsAny<int>(),
+                        Name="tax",
+                        Rate=1
+                    },
                     Supplier = new SupplierViewModel
                     {
                         Import = true,
-                        Id = 1,
+                        Id = It.IsAny<int>(),
                         PIC = "importTest",
                         Contact = "0987654",
                         Code = "SupplierImport",
@@ -56,9 +62,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                     },
                     Currency= new CurrencyViewModel
                     {
-                        Code="TEST",
+                        Id= It.IsAny<int>(),
+                        Code ="TEST",
                         Rate=1,
-                        Symbol="tst"
+                        Symbol="tst",
+                        Description="CurrencyTest"
                     },
                     Items = new List<GarmentExternalPurchaseOrderItemViewModel>
                     {
@@ -68,17 +76,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                             {
                                 Name = "product",
                                 Code = "codeProd",
-                                Id = 1,
+                                Id = It.IsAny<int>(),
                                 Remark = "kjsh",
                                 Composition = "aa",
                                 Const = "aa",
                                 ProductType = "FABRIC",
                                 Width = "aak",
-                                Yarn = "asn"
+                                Yarn = "asn",
+                                Tags="test",
+                                UOM=new UomViewModel
+                                {
+                                    Id=It.IsAny<string>(),
+                                    Unit="TEST",
+                                }
                             },
                             ShipmentDate = It.IsAny<DateTimeOffset>(),
                             DealUom=new UomViewModel
                             {
+                                Id=It.IsAny<string>(),
                                 Unit="TEST",
                             }
                             
