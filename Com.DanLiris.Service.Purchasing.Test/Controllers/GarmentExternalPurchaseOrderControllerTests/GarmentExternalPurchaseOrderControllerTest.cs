@@ -834,6 +834,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
         }
 
         [Fact]
+        public void Should_Success_Approve_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrder>(It.IsAny<GarmentExternalPurchaseOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<GarmentExternalPurchaseOrder>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var IPOvalidateMock = new Mock<IValidateService>();
+            IPOvalidateMock.Setup(s => s.Validate(It.IsAny<GarmentInternalPurchaseOrderViewModel>())).Verifiable();
+
+            var IPOmockMapper = new Mock<IMapper>();
+            IPOmockMapper.Setup(x => x.Map<List<GarmentInternalPurchaseOrder>>(It.IsAny<List<GarmentInternalPurchaseOrderViewModel>>()))
+                .Returns(new List<GarmentInternalPurchaseOrder>());
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            IPOmockFacade.Setup(x => x.CreateMultiple(It.IsAny<List<GarmentInternalPurchaseOrder>>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+
+            var response = controller.EPOApprove(new List<GarmentExternalPurchaseOrderViewModel> { ViewModel });
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_UNPOST_Data()
         {
             var validateMock = new Mock<IValidateService>();

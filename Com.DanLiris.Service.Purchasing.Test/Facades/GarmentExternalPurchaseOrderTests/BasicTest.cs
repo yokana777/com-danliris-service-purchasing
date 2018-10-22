@@ -192,6 +192,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
+        public async void Should_Success_EPOApprove()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            List<GarmentExternalPurchaseOrder> modelList = new List<GarmentExternalPurchaseOrder>();
+            GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            modelList.Add(model);
+            var Response = facade.EPOApprove(modelList, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Success_EPOUnpost()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));

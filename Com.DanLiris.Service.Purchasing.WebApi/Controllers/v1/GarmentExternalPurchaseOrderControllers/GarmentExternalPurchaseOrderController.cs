@@ -338,5 +338,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
         //    }
         //}
+
+        [HttpPost("approve")]
+        public IActionResult EPOApprove([FromBody]List<GarmentExternalPurchaseOrderViewModel> ListExternalPurchaseOrderViewModel)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            try
+            {
+                facade.EPOApprove(
+                    ListExternalPurchaseOrderViewModel.Select(vm => mapper.Map<GarmentExternalPurchaseOrder>(vm)).ToList(), identityService.Username
+                );
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
     }
 }

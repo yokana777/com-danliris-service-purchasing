@@ -20,5 +20,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         //int EPOCancel(int id, string user);
         SupplierViewModel GetSupplier(long supplierId);
         GarmentProductViewModel GetProduct(long productId);
+        int EPOApprove(List<GarmentExternalPurchaseOrder> ListEPO, string user);
     }
 }

@@ -36,6 +36,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
         {
             IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo", "Items.PRNo", "SupplierName"
+            };
+
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
             Query = Query.Select(s => new GarmentExternalPurchaseOrder
             {
                 Id = s.Id,
@@ -57,13 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                 LastModifiedUtc = s.LastModifiedUtc
             });
 
-            List<string> searchAttributes = new List<string>()
-            {
-                "EPONo", "Items.PRNo", "SupplierName", "UnitName"
-            };
-
-            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
-
+            
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
 
@@ -537,6 +538,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                 return viewModel;
             }
 
+        }
+
+        public int EPOApprove(List<GarmentExternalPurchaseOrder> ListEPO, string user)
+        {
+            int Updated = 0;
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var Ids = ListEPO.Select(d => d.Id).ToList();
+                    var listData = this.dbSet
+                        .Where(m => Ids.Contains(m.Id) && !m.IsDeleted)
+                        .Include(d => d.Items)
+                        .ToList();
+                    listData.ForEach(m =>
+                    {
+                        EntityExtension.FlagForUpdate(m, user, "Facade");
+                        m.IsApproved = true;
+
+                        foreach (var item in m.Items)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                        }
+                    });
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
         }
     }
 }
