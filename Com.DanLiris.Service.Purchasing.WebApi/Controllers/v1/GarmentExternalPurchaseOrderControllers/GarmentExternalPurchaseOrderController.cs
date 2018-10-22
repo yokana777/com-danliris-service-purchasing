@@ -89,6 +89,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                         s.OrderDate,
                         s.EPONo,
                         s.Supplier,
+                        s.IsOverBudget,
+                        s.IsApproved,
                         Items = s.Items.Select(i => new
                         {
                             i.PRNo,
