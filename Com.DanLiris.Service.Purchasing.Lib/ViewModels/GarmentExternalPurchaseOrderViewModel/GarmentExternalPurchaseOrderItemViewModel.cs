@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
         public double UsedBudget { get; set; }
         public double DOQuantity { get; set; }
         public string Remark { get; set; }
+        public string OverBudgetRemark { get; set; }
 
         public DateTimeOffset ShipmentDate { get; set; }
         public bool IsOverBudget { get; set; }

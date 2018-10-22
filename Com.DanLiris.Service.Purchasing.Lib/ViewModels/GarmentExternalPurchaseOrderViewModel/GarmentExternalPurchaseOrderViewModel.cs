@@ -114,12 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                 {
                     itemError += "{";
 
-                    if (String.IsNullOrWhiteSpace(item.PO_SerialNumber))
-                    {
-                        itemErrorCount++;
-                        itemError += "PO_SerialNumber: 'PO_SerialNumber tidak boleh kosong', ";
-                    }
-                   
+
                     if (item.Product == null)
                     {
                         itemErrorCount++;
@@ -141,14 +136,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                     if (item.DealUom == null)
                     {
                         itemErrorCount++;
-                        itemError += "DealUom: 'UOM tidak boleh kosong', ";
+                        itemError += "DealUom: 'Satuan tidak boleh kosong', ";
                     }
                     else if (String.IsNullOrWhiteSpace(item.DealUom.Id) || item.DealUom.Id.Equals("0") || String.IsNullOrWhiteSpace(item.DealUom.Unit))
                     {
                         itemErrorCount++;
-                        itemError += "UOM: 'Data UOM tidak benar', ";
+                        itemError += "DealUom: 'Data Satuan tidak benar', ";
                     }
-
+                    if (item.IsOverBudget)
+                    {
+                        if (string.IsNullOrWhiteSpace(item.OverBudgetRemark))
+                        {
+                            itemErrorCount++;
+                            itemError += "OverBudgetRemark: 'Keterangan OverBudget Harus Diisi', ";
+                        }
+                    }
 
                     itemError += "}, ";
                 }
