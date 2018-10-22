@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -226,6 +228,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
             Assert.NotNull(e.Message);
+        }
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            GarmentExternalPurchaseOrderViewModel nullViewModel = new GarmentExternalPurchaseOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentExternalPurchaseOrderViewModel viewModel = new GarmentExternalPurchaseOrderViewModel
+            {
+                Category="FABRIC",
+                Supplier = new SupplierViewModel(),
+                Items = new List<GarmentExternalPurchaseOrderItemViewModel>
+                {
+                    new GarmentExternalPurchaseOrderItemViewModel(),
+                    new GarmentExternalPurchaseOrderItemViewModel
+                    {
+                        Product = new GarmentProductViewModel(),
+                        DealUom = new UomViewModel(),
+
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
         }
     }
 }
