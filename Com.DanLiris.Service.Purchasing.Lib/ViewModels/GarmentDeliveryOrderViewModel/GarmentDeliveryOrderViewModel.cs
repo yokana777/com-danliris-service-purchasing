@@ -81,8 +81,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
             int itemErrorCount = 0;
             int detailErrorCount = 0;
 
-            if (this.items.Count.Equals(0))
-            {
+            if (this.items==null||items.Count<=0)
+                {
                 yield return new ValidationResult("PurchaseOrderExternal is required", new List<string> { "itemscount" });
             }
             else

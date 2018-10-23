@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var validationResultCreate = viewModel.Validate(validationContext).ToList();
 
-            var errorDuplicateDONo = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("No is already exist"));
+            var errorDuplicateDONo = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("DoNo is already exist"));
             Assert.NotNull(errorDuplicateDONo);
         }
     }
