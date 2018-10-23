@@ -150,11 +150,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 		public async void Should_Success_Get_Report_Data()
 		{
 			ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-			await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
+            var externalPurchaseOrderData = await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
 			DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-			await DOFacade.Create(deliveryOrder, "unit-test");
+            var deliveryOrderData = await DOFacade.Create(deliveryOrder, "unit-test");
 			UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
-			await Facade.Create(urn, "unit-test");
+            var urnData=await Facade.Create(urn, "unit-test");
             //UnitPaymentOrder upo = await UPODataUtil.GetTestData();
             //await UPOFacade.Create(upo, "unit-test", false, 7);
             
@@ -162,7 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             DateFrom = DateFrom.Date;
             var DateTo = DateTime.Now;
             DateTo = DateTo.Date;
-            if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
+            if (externalPurchaseOrderData != 0 && deliveryOrderData != 0 && urnData != 0)
             {
                 var Response = IPRFacade.GetReport(null, null, null, DateFrom, DateTo);
                 Assert.NotEqual(Response.Item2, 0);
