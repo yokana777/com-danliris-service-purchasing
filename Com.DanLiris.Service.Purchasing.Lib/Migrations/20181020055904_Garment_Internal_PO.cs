@@ -5,24 +5,10 @@ using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
-    public partial class Add_GarmentInternalPurhaseOrder : Migration
+    public partial class Garment_Internal_PO : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<double>(
-                name: "Quantity",
-                table: "GarmentPurchaseRequestItems",
-                type: "float",
-                nullable: false,
-                oldClrType: typeof(long));
-
-            migrationBuilder.AlterColumn<double>(
-                name: "BudgetPrice",
-                table: "GarmentPurchaseRequestItems",
-                type: "float",
-                nullable: false,
-                oldClrType: typeof(long));
-
             migrationBuilder.CreateTable(
                 name: "GarmentInternalPurchaseOrders",
                 columns: table => new
@@ -40,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     DeletedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     DeletedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     DeletedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpectedDeliveryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ExpectedDeliveryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     IsClosed = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     IsPosted = table.Column<bool>(type: "bit", nullable: false),
@@ -49,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     LastModifiedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PONo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     PRDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    PRId = table.Column<long>(type: "bigint", nullable: false),
                     PRNo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     RONo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Remark = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -91,6 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     ProductName = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ProductRemark = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<double>(type: "float", nullable: false),
+                    RemainingBudget = table.Column<double>(type: "float", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     UomId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     UomUnit = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
@@ -119,20 +107,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
             migrationBuilder.DropTable(
                 name: "GarmentInternalPurchaseOrders");
-
-            migrationBuilder.AlterColumn<long>(
-                name: "Quantity",
-                table: "GarmentPurchaseRequestItems",
-                nullable: false,
-                oldClrType: typeof(double),
-                oldType: "float");
-
-            migrationBuilder.AlterColumn<long>(
-                name: "BudgetPrice",
-                table: "GarmentPurchaseRequestItems",
-                nullable: false,
-                oldClrType: typeof(double),
-                oldType: "float");
         }
     }
 }
