@@ -18,12 +18,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            //Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
             Document document = new Document(PageSize.A4, 40, 40, 40, 40);
+            document.AddHeader("Header", viewModel.EPONo);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             writer.PageEvent = new PDFPages();
             document.Open();
+
+            string EPONo = viewModel.IsOverBudget ? viewModel.EPONo + "-OB" : viewModel.EPONo;
+
+
+            Chunk chkHeader = new Chunk("PO: " + EPONo, bold_font);
+            Phrase pheader = new Phrase(chkHeader);
+            HeaderFooter header = new HeaderFooter(pheader, false);
+            header.Border = Rectangle.NO_BORDER;
+            header.Alignment = Element.ALIGN_RIGHT;
+            document.Header = header;
 
             #region Header
 
@@ -35,9 +47,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderContentLeft.Phrase = new Phrase("PT DAN LIRIS" + "\n" + "Head Office: Kelurahan Banaran" + "\n" + "Kecamatan Grogol" + "\n" + "Sukoharjo 57193 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777", bold_font);
             tableHeader.AddCell(cellHeaderContentLeft);
 
-            string EPONo = viewModel.IsOverBudget ? viewModel.EPONo + "-OB" : viewModel.EPONo;
+            string noPO = "PO: " + EPONo;
 
-            string noPO = viewModel.Supplier.Import ? "FM-PB-00-06-009/R1" + "\n" + "PO#: " + EPONo  : "Nomor PO: " + EPONo;
+            //string noPO = viewModel.Supplier.Import ? "FM-PB-00-06-009/R1" + "\n" + "PO: " + EPONo  : "PO: " + EPONo;
 
             cellHeaderContentRight.Phrase = new Phrase(noPO, bold_font);
             tableHeader.AddCell(cellHeaderContentRight);
@@ -140,7 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             PdfPTable tableContent = new PdfPTable(6);
-            tableContent.SetWidths(new float[] { 1f,7f, 3.5f, 4f, 4.5f, 4f });
+            tableContent.SetWidths(new float[] { 1.2f,7f, 3.5f, 4f, 4.5f, 4f });
             if (viewModel.Supplier.Import)
             {
                 cellCenter.Phrase = new Phrase("NO", bold_font);
@@ -301,7 +313,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableFooter.AddCell(cellFooterContent);
                 cellFooterContent.Phrase = new Phrase(": ", normal_font);
                 tableFooter.AddCell(cellFooterContent);
-                cellFooterContent.Phrase = new Phrase(viewModel.FreightCostBy, normal_font);
+
+                string freightCost = "Buyer";
+
+                if (viewModel.FreightCostBy.ToLower() == "penjual")
+                {
+                    freightCost = "Seller";
+                }
+
+                cellFooterContent.Phrase = new Phrase(freightCost, normal_font);
                 tableFooter.AddCell(cellFooterContent);
                 cellFooterContent.Phrase = new Phrase("Delivery date", normal_font);
                 tableFooter.AddCell(cellFooterContent);
