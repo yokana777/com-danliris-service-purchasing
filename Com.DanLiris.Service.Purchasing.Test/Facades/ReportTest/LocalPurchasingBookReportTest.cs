@@ -171,8 +171,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             DateFrom = DateFrom.Date;
             var DateTo = DateTime.Now;
             DateTo = DateTo.Date;
-            var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
-            Assert.NotEqual(Response.Item2, 0);
+            if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
+            {
+                var Response = IPRFacade.GetReport(null, null, null, DateFrom, DateTo);
+                Assert.NotEqual(Response.Item2, 0);
+            }
+            //var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
+            //Assert.NotEqual(Response.Item2, 0);
         }
         //[Fact]
         //public async void Should_Success_Get_Report_Data_No_Parameter()
