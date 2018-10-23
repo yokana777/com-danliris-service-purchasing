@@ -1537,6 +1537,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
+                        .HasMaxLength(255);
 
                     b.Property<string>("DeletedBy")
                         .IsRequired()
