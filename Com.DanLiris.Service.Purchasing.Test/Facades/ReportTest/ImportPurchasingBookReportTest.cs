@@ -157,18 +157,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 			await Facade.Create(urn, "unit-test");
             //UnitPaymentOrder upo = await UPODataUtil.GetTestData();
             //await UPOFacade.Create(upo, "unit-test", false, 7);
-            
             var DateFrom = DateTime.Now;
             DateFrom = DateFrom.Date;
             var DateTo = DateTime.Now;
             DateTo = DateTo.Date;
-            if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
-            {
-                var Response = IPRFacade.GetReport(null, null, null, DateFrom, DateTo);
-                Assert.NotEqual(Response.Item2, 0);
-            }
-   //         var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
-			//Assert.NotEqual(Response.Item2, 0);
+            var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
+			Assert.NotEqual(Response.Item2, 0);
 		}
 		//[Fact]
 		//public async void Should_Success_Get_Report_Data_No_Parameter()
