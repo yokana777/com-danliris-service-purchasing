@@ -62,6 +62,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+        [HttpGet("by-supplier")]
+        public IActionResult GetBySupplier(string Keyword = "", string Filter = "{}")
+        {
+
+             var Data = facade.ReadBySupplier( Keyword, Filter);
+             var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+
+            return Ok(Result);
+        }
 
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")

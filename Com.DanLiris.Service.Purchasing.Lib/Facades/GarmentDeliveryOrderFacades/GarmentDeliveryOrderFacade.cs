@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
-            
+
             Pageable<GarmentDeliveryOrder> pageable = new Pageable<GarmentDeliveryOrder>(Query, Page - 1, Size);
             List<GarmentDeliveryOrder> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
 
                         dbSet.Update(m);
-                      
+
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
@@ -162,5 +162,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Deleted;
         }
 
+        public IQueryable<GarmentDeliveryOrder> ReadBySupplier(string Keyword, string Filter)
+        {
+            IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DONo"
+            };
+
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+            if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+            {
+                string Key = OrderDictionary.Keys.First();
+                string SubKey = Key.Split(".")[1];
+                string OrderType = OrderDictionary[Key];
+
+                Query = Query.Include(m => m.Items)
+                    .ThenInclude(i => i.Details);
+            }
+            else
+            {
+                Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                    .ThenInclude(i => i.Details);
+            }
+
+            return Query;
+        }
     }
 }
