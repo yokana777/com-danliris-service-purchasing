@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public string ProductName { get; set; }
         public string UomId { get; set; }
         public string UomUnit { get; set; }
+        public string RONo { get; set; }
         public double DOQuantity { get; set; }
         public double PricePerDealUnit { get; set; }
         public virtual long InvoiceItemId { get; set; }

@@ -8,14 +8,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 {
     public class GarmentInvoiceDetailViewModel
     {
-        public long EPOId { get; set; }
-        public string EPONo { get; set; }
-        public long IPOId { get; set; }
-        public string IPONo { get; set; }
-        public ProductViewModel Products{ get; set; }
-        public UomViewModel Uoms { get; set; }
-        public double DOQuantity { get; set; }
-        public double PricePerDealUnit { get; set; }
-        
+        public long ePOId { get; set; }
+        public string ePONo { get; set; }
+        public long iPOId { get; set; }
+        public string iPONo { get; set; }
+        public ProductViewModel product{ get; set; }
+        public UomViewModel uoms { get; set; }
+        public double dOQuantity { get; set; }
+        public double pricePerDealUnit { get; set; }
+        public string paymentType { get; set; }
+        public string paymentMethod { get; set; }
+        public int paymentDueDays { get; set; }
     }
 }

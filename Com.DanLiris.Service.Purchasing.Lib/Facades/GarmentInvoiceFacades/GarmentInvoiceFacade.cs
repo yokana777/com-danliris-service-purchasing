@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -8,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 {
@@ -55,6 +58,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                      .ThenInclude(i => i.Details)
                  .FirstOrDefault();
             return model;
+        }
+
+        public async Task<int> Create(GarmentInvoice model, string username, int clientTimeZoneOffset = 7)
+        {
+            int Created = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    EntityExtension.FlagForCreate(model, username, USER_AGENT);
+
+                    foreach (var item in model.Items)
+                    {
+                        EntityExtension.FlagForCreate(item, username, USER_AGENT);
+
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForCreate(detail, username, USER_AGENT);
+                        }
+                    }
+
+                    this.dbSet.Add(model);
+                    Created = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Created;
         }
     }
 }

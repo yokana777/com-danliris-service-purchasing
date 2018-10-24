@@ -9,10 +9,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
     public class GarmentInvoice : BaseModel
     {
         public string InvoiceNo { get; set; }
-        public string SupplierId { get; set; }
+        public long SupplierId { get; set; }
         public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
-      
+        public long CurrencyId { get; set; }
+        public string CurrencyCode { get; set; }
+        public string CurrencyName { get; set; }
         public DateTimeOffset InvoiceDate { get; set; }
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }
