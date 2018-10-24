@@ -85,9 +85,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                 {
                 yield return new ValidationResult("PurchaseOrderExternal is required", new List<string> { "itemscount" });
             }
-            else
-            {
-                string itemError = "[";
+            //else
+            //{
+            //    string itemError = "[";
 
                 //foreach (var item in items)
                 //{
@@ -145,11 +145,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                 //    itemError += "}, ";
                 //}
 
-                itemError += "]";
+                //itemError += "]";
 
                 //if (itemErrorCount > 0)
                 //    yield return new ValidationResult(itemError, new List<string> { "items" });
-            }
+            //}
         }
     }
 }
