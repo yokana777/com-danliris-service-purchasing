@@ -299,7 +299,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                     UnitId = m.UnitId,
                     UnitCode = m.UnitCode,
                     UnitName = m.UnitName,
-
+                    PRId=m.PRId,
                     Items = m.Items
                         .Where(i =>
                                 category.ToLower() == "fabric" ? i.CategoryName.ToLower().Contains("fabric") : ((string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2])) && i.CategoryName.ToLower() != "fabric")
