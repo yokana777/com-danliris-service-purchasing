@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             {
                 DONo = $"{nowTicksA}",
 
-                SupplierId = $"{nowTicksA}",
+                SupplierId = nowTicks,
                 SupplierCode = $"BuyerCode{nowTicksA}",
                 SupplierName = $"BuyerName{nowTicksA}",
 
@@ -43,12 +43,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 IsCustoms = false,
                 IsInvoice = false,
 
-                CustomsId= nowTicks,
+                CustomsId = nowTicks,
                 PaymentBill = $"{nowTicksB}",
                 BillNo = $"{nowTicksB}",
 
                 TotalAmount = nowTicks,
-                TotalQuantity = nowTicks
+                TotalQuantity = nowTicks,
+
+                Items = new List<GarmentDeliveryOrderItem>
+                {
+                    new GarmentDeliveryOrderItem
+                    {
+                        EPOId = nowTicks,
+                        EPONo = $"{nowTicksA}",
+                        PaymentType = $"{nowTicksA}",
+                        PaymentDueDays = (int)nowTicks,
+                        PaymentMethod = $"{nowTicksA}",
+                    }
+                }
             };
         }
 

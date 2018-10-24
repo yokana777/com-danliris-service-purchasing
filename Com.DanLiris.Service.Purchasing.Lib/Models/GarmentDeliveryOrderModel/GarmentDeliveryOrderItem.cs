@@ -11,10 +11,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         [MaxLength(255)]
         public string EPONo { get; set; }
 
+        public string PaymentType { get; set; }
+        public string PaymentMethod { get; set; }
+        public int PaymentDueDays { get; set; }
+
+        [MaxLength(255)]
+        public string PONo { get; set; }
+        public int POId { get; set; }
+
         public virtual ICollection<GarmentDeliveryOrderDetail> Details { get; set; }
 
         public virtual long GarmentDOId { get; set; }
-        [ForeignKey("DOId")]
+        [ForeignKey("GarmentDOId")]
         public virtual GarmentDeliveryOrder GarmentDeliveryOrder { get; set; }
     }
 }
