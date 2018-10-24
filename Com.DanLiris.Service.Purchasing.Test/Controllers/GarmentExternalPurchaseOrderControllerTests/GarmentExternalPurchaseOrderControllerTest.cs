@@ -45,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                 return new GarmentExternalPurchaseOrderViewModel
                 {
                     Category = "FABRIC",
+                    FreightCostBy = "penjual",
                     IncomeTax= new IncomeTaxViewModel
                     {
                         Id= It.IsAny<int>(),
@@ -110,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                 return new GarmentExternalPurchaseOrderViewModel
                 {
                     Category = "Accessories",
+                    FreightCostBy = "pembeli",
                     Supplier = new SupplierViewModel
                     {
                         Import = true,

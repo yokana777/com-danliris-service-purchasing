@@ -2,7 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -123,6 +123,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         }
 
         [Fact]
+        public void Should_Success_Validate_Data_Where_DoDate_GreaterThan_ArrivalDate()
+        {
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                doDate = new DateTimeOffset(DateTime.Today).AddDays(7),
+                arrivalDate = new DateTimeOffset(DateTime.Today).AddDays(1),
+                supplier = new SupplierViewModel(),
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Item()
+        {
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalQuantity = 1,
+                totalAmount = 1,
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        purchaseOrderExternal = null,
+                        pOId = 1,
+                        pONo = "test"
+                    }
+                }
+
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
         public async void Should_Success_Validate_Data_Duplicate()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
@@ -132,9 +175,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             {
                 supplier = new SupplierViewModel(),
             };
-            viewModel.Id = model.Id+1;
+            viewModel.Id = model.Id + 1;
             viewModel.doNo = model.DONo;
-            viewModel.supplier._id = model.SupplierId;
+            viewModel.supplier.Id = model.SupplierId;
             viewModel.doDate = model.DODate;
             viewModel.arrivalDate = model.ArrivalDate;
 
@@ -147,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var validationResultCreate = viewModel.Validate(validationContext).ToList();
 
-            var errorDuplicateDONo = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("No is already exist"));
+            var errorDuplicateDONo = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("DoNo is already exist"));
             Assert.NotNull(errorDuplicateDONo);
         }
     }

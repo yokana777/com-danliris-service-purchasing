@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             List<string> searchAttributes = new List<string>()
             {
-                "DONo", "DODate", "SupplierName", "Items.EPONo", "CreatedBy"
+                "DONo", "SupplierName", "Items.EPONo"
             };
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -59,18 +59,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 .FirstOrDefault();
             return model;
         }
-
-        //public Tuple<GarmentDeliveryOrder, List<long>> ReadById(int id)
-        //{
-        //    var Result = dbSet.Where(m => m.Id == id)
-        //        .Include(m => m.Items)
-        //            .ThenInclude(i => i.Details)
-        //        .FirstOrDefault();
-
-        //    List<long> unitReceiptNoteIds = dbContext.UnitReceiptNotes.Where(m => (m.DOId == id || m.DONo.Equals(Result.DONo)) && m.IsDeleted == false).Select(m => m.Id).ToList();
-
-        //    return Tuple.Create(Result, unitReceiptNoteIds);
-        //}
 
         public async Task<int> Create(GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7)
         {

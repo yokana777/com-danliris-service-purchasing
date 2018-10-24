@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
-    public partial class Add_GarmentDeliveryOrder : Migration
+    public partial class add_Table_GarmentDeliveryOrder : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -17,10 +17,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Active = table.Column<bool>(type: "bit", nullable: false),
                     ArrivalDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    BillNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     CreatedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CreatedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CustomsId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomsId = table.Column<long>(type: "bigint", nullable: false),
                     DODate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DONo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     DeletedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
@@ -33,12 +34,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     LastModifiedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     LastModifiedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaymentBill = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Remark = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ShipmentNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ShipmentType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SupplierCode = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    SupplierId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    SupplierId = table.Column<long>(type: "bigint", maxLength: 255, nullable: false),
                     SupplierName = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    TotalAmount = table.Column<double>(type: "float", nullable: false),
+                    TotalQuantity = table.Column<double>(type: "float", nullable: false),
                     UId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
@@ -56,7 +60,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     CreatedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CreatedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DOId = table.Column<long>(type: "bigint", nullable: true),
                     DeletedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     DeletedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     DeletedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -66,14 +69,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     LastModifiedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    LastModifiedUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    LastModifiedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    POId = table.Column<int>(type: "int", nullable: false),
+                    PONo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    PaymentDueDays = table.Column<int>(type: "int", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PaymentType = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GarmentDeliveryOrderItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GarmentDeliveryOrderItems_GarmentDeliveryOrders_DOId",
-                        column: x => x.DOId,
+                        name: "FK_GarmentDeliveryOrderItems_GarmentDeliveryOrders_GarmentDOId",
+                        column: x => x.GarmentDOId,
                         principalTable: "GarmentDeliveryOrders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -92,13 +100,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     CreatedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CurrencyCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CurrencyId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DOItemId = table.Column<long>(type: "bigint", nullable: true),
                     DOQuantity = table.Column<double>(type: "float", nullable: false),
                     DealQuantity = table.Column<double>(type: "float", nullable: false),
                     DeletedAgent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     DeletedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     DeletedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EPODetailId = table.Column<long>(type: "bigint", nullable: false),
+                    EPOItemId = table.Column<long>(type: "bigint", nullable: false),
                     GarmentDOItemId = table.Column<long>(type: "bigint", nullable: false),
                     IsClosed = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -116,6 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     ProductId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     ProductName = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ProductRemark = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RONo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SmallQuantity = table.Column<double>(type: "float", nullable: false),
                     SmallUomId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SmallUomUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -128,22 +136,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                 {
                     table.PrimaryKey("PK_GarmentDeliveryOrderDetails", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GarmentDeliveryOrderDetails_GarmentDeliveryOrderItems_DOItemId",
-                        column: x => x.DOItemId,
+                        name: "FK_GarmentDeliveryOrderDetails_GarmentDeliveryOrderItems_GarmentDOItemId",
+                        column: x => x.GarmentDOItemId,
                         principalTable: "GarmentDeliveryOrderItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GarmentDeliveryOrderDetails_DOItemId",
+                name: "IX_GarmentDeliveryOrderDetails_GarmentDOItemId",
                 table: "GarmentDeliveryOrderDetails",
-                column: "DOItemId");
+                column: "GarmentDOItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GarmentDeliveryOrderItems_DOId",
+                name: "IX_GarmentDeliveryOrderItems_GarmentDOId",
                 table: "GarmentDeliveryOrderItems",
-                column: "DOId");
+                column: "GarmentDOId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

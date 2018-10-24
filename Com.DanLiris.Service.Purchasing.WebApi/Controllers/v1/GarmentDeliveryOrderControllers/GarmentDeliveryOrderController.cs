@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                         s.doNo,
                         s.doDate,
                         s.arrivalDate,
-                        supplier = new { s.supplier.name },
+                        supplier = new { s.supplier.Name },
                         items = s.items.Select(i => new { i.purchaseOrderExternal, i.fulfillments }),
                         s.CreatedBy,
                         s.isClosed,
