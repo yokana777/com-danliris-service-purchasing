@@ -146,6 +146,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalQuantity = 1,
+                totalAmount = 1,
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
