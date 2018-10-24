@@ -89,66 +89,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
             {
                 string itemError = "[";
 
-                foreach (var item in items)
-                {
-                    itemError += "{";
+                //foreach (var item in items)
+                //{
+                //    itemError += "{";
 
-                    if (item.purchaseOrderExternal == null || item.purchaseOrderExternal.Id == 0)
-                    {
-                        itemErrorCount++;
-                        itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
-                    }
-                    else if (items.Count(i => i.purchaseOrderExternal.Id == item.purchaseOrderExternal.Id) > 1 && Id == 0)
-                    {
-                        itemErrorCount++;
-                        itemError += "purchaseOrderExternal: 'Data sudah ada', ";
-                    }
-                    else if (item.fulfillments == null || item.fulfillments.Count.Equals(0))
-                    {
-                        itemErrorCount++;
-                        itemError += "fulfillmentscount: 'PurchaseRequest is required', ";
-                    }
-                    else
-                    {
-                        string detailError = "[";
+                //    if (item.purchaseOrderExternal == null || item.purchaseOrderExternal.Id == 0)
+                //    {
+                //        itemErrorCount++;
+                //        itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
+                //    }
+                //    else if (items.Count(i => i.purchaseOrderExternal.Id == item.purchaseOrderExternal.Id) > 1 && Id == 0)
+                //    {
+                //        itemErrorCount++;
+                //        itemError += "purchaseOrderExternal: 'Data sudah ada', ";
+                //    }
+                //    else if (item.fulfillments == null || item.fulfillments.Count.Equals(0))
+                //    {
+                //        itemErrorCount++;
+                //        itemError += "fulfillmentscount: 'PurchaseRequest is required', ";
+                //    }
+                //    else
+                //    {
+                //        string detailError = "[";
 
-                        foreach (var detail in item.fulfillments)
-                        {
-                            detailError += "{";
+                //        foreach (var detail in item.fulfillments)
+                //        {
+                //            detailError += "{";
 
-                            //var duplicateItems = items.Where(i => i.purchaseOrderExternal._id == item.purchaseOrderExternal._id && i._id != item._id).ToList();
-                            //var duplicateDetails = duplicateItems.Where(i => i.fulfillments.Any(f => f.purchaseOrder.purchaseRequest._id == detail.purchaseOrder.purchaseRequest._id && f.product._id == detail.product._id)).ToList();
-                            //if (duplicateDetails.Count > 0)
-                            //{
-                            //    detailErrorCount++;
-                            //    detailError += "product: 'Data sudah ada', ";
-                            //}
+                //            //var duplicateItems = items.Where(i => i.purchaseOrderExternal._id == item.purchaseOrderExternal._id && i._id != item._id).ToList();
+                //            //var duplicateDetails = duplicateItems.Where(i => i.fulfillments.Any(f => f.purchaseOrder.purchaseRequest._id == detail.purchaseOrder.purchaseRequest._id && f.product._id == detail.product._id)).ToList();
+                //            //if (duplicateDetails.Count > 0)
+                //            //{
+                //            //    detailErrorCount++;
+                //            //    detailError += "product: 'Data sudah ada', ";
+                //            //}
 
-                            if (detail.doQuantity == 0)
-                            {
-                                detailErrorCount++;
-                                detailError += "deliveredQuantity: 'DeliveredQuantity can not 0', ";
-                            }
+                //            if (detail.doQuantity == 0)
+                //            {
+                //                detailErrorCount++;
+                //                detailError += "deliveredQuantity: 'DeliveredQuantity can not 0', ";
+                //            }
 
-                            detailError += "}, ";
-                        }
+                //            detailError += "}, ";
+                //        }
 
-                        detailError += "]";
+                //        detailError += "]";
 
-                        if (detailErrorCount > 0)
-                        {
-                            itemErrorCount++;
-                            itemError += $"fulfillments: {detailError}, ";
-                        }
-                    }
+                //        if (detailErrorCount > 0)
+                //        {
+                //            itemErrorCount++;
+                //            itemError += $"fulfillments: {detailError}, ";
+                //        }
+                //    }
 
-                    itemError += "}, ";
-                }
+                //    itemError += "}, ";
+                //}
 
                 itemError += "]";
 
-                if (itemErrorCount > 0)
-                    yield return new ValidationResult(itemError, new List<string> { "items" });
+                //if (itemErrorCount > 0)
+                //    yield return new ValidationResult(itemError, new List<string> { "items" });
             }
         }
     }

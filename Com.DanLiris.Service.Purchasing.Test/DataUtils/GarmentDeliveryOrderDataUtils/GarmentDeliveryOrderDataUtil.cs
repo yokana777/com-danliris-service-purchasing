@@ -48,7 +48,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 BillNo = $"{nowTicksB}",
 
                 TotalAmount = nowTicks,
-                TotalQuantity = nowTicks
+                TotalQuantity = nowTicks,
+
+                Items = new List<GarmentDeliveryOrderItem>
+                {
+                    new GarmentDeliveryOrderItem
+                    {
+
+                    }
+                }
             };
         }
 

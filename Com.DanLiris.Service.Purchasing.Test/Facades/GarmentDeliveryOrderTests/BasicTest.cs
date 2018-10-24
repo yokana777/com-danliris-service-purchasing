@@ -123,6 +123,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         }
 
         [Fact]
+        public void Should_Success_Validate_Data_Where_DoDate_GreaterThan_ArrivalDate()
+        {
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                doDate = new DateTimeOffset(DateTime.Today).AddDays(7),
+                arrivalDate = new DateTimeOffset(DateTime.Today).AddDays(1),
+                supplier = new SupplierViewModel(),
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
         public async void Should_Success_Validate_Data_Duplicate()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
