@@ -18,6 +18,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -77,6 +78,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentDeliveryOrder> GarmentDeliveryOrders { get; set; }
         public DbSet<GarmentDeliveryOrderItem> GarmentDeliveryOrderItems { get; set; }
         public DbSet<GarmentDeliveryOrderDetail> GarmentDeliveryOrderDetails { get; set; }
+
+        public DbSet<InternNote> InternNote { get; set; }
+        public DbSet<InternNoteItem> InternNoteItem { get; set; }
+        public DbSet<InternNoteDetail> InternNoteDetail { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
