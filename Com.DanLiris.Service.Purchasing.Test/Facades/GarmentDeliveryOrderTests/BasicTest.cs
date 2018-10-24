@@ -138,6 +138,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         }
 
         [Fact]
+        public void Should_Success_Validate_Data_Item()
+        {
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel(),
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        purchaseOrderExternal = null,
+                        pOId = 1,
+                        pONo = "test"
+                    }
+                }
+
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
         public async void Should_Success_Validate_Data_Duplicate()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));

@@ -54,7 +54,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 {
                     new GarmentDeliveryOrderItem
                     {
-
+                        EPOId = nowTicks,
+                        EPONo = $"{nowTicksA}",
+                        PaymentType = $"{nowTicksA}",
+                        PaymentDueDays = (int)nowTicks,
+                        PaymentMethod = $"{nowTicksA}",
                     }
                 }
             };

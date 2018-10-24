@@ -29,6 +29,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public double totalAmount { get; set; }
         public List<GarmentDeliveryOrderItemViewModel> items { get; set; }
 
+        //public List<long> unitReceiptNoteIds { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (string.IsNullOrWhiteSpace(doNo))
@@ -72,7 +74,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                 {
                 yield return new ValidationResult("PurchaseOrderExternal is required", new List<string> { "itemscount" });
             }
-            
+            else
+            {
+                string itemError = "[";
+
+                foreach (var item in items)
+                {
+                    itemError += "{";
+
+                    if (item.purchaseOrderExternal == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
+                    }
+                   
+                }
+
+                itemError += "]";
+
+                if (itemErrorCount > 0)
+                    yield return new ValidationResult(itemError, new List<string> { "items" });
+            }
         }
     }
 }
