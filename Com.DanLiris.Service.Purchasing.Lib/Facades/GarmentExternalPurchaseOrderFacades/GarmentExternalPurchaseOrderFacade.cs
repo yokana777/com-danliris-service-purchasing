@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         if (item.ProductId.ToString() == IPOItem.ProductId)
                         {
 
-                            IPOItem.Status = "Sudah dibuat PO";
+                            IPOItem.Status = "Sudah dibuat PO Eksternal";
                         }
 
                         if((m.PaymentMethod!= "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType!= "FREE")
@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                 if (item.ProductId.ToString() == IPOItem.ProductId)
                                 {
                                     
-                                    IPOItem.Status = "Sudah dibuat PO";
+                                    IPOItem.Status = "Sudah dibuat PO Eksternal";
                                 }
 
                                 if ((m.PaymentMethod != "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType != "FREE")
@@ -440,72 +440,83 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Updated;
         }
 
-        //public int EPOCancel(int id, string user)
-        //{
-        //    int Updated = 0;
+        public int EPOCancel(int id, string user)
+        {
+            int Updated = 0;
 
-        //    using (var transaction = this.dbContext.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var m = this.dbSet
-        //                .Include(d => d.Items)
-        //                .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
-        //            EntityExtension.FlagForUpdate(m, user, "Facade");
-        //            m.IsCanceled = true;
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsCanceled = true;
 
-        //            foreach (var item in m.Items)
-        //            {
-        //                EntityExtension.FlagForUpdate(item, user, "Facade");
+                    foreach (var item in m.Items)
+                    {
+                        GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
 
-        //            }
+                        if (item.ProductId.ToString() == IPOItems.ProductId)
+                        {
+                            IPOItems.Status = "Dibatalkan";
+                        }
 
-        //            Updated = dbContext.SaveChanges();
-        //            transaction.Commit();
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            transaction.Rollback();
-        //            throw new Exception(e.Message);
-        //        }
-        //    }
+                        EntityExtension.FlagForUpdate(item, user, "Facade");
 
-        //    return Updated;
-        //}
+                    }
 
-        //public int EPOClose(int id, string user)
-        //{
-        //    int Updated = 0;
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
 
-        //    using (var transaction = this.dbContext.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var m = this.dbSet
-        //                .Include(d => d.Items)
-        //                .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
+            return Updated;
+        }
 
-        //            EntityExtension.FlagForUpdate(m, user, "Facade");
-        //            m.IsClosed = true;
+        public int EPOClose(int id, string user)
+        {
+            int Updated = 0;
 
-        //            foreach (var item in m.Items)
-        //            {
-        //                EntityExtension.FlagForUpdate(item, user, "Facade");
-        //            }
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
-        //            Updated = dbContext.SaveChanges();
-        //            transaction.Commit();
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            transaction.Rollback();
-        //            throw new Exception(e.Message);
-        //        }
-        //    }
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsClosed = true;
 
-        //    return Updated;
-        //}
+                    foreach (var item in m.Items)
+                    {
+                        GarmentInternalPurchaseOrder IPO = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id.Equals(item.POId));
+
+                        IPO.IsClosed = true;
+
+                        EntityExtension.FlagForUpdate(item, user, "Facade");
+                    }
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
 
 
 
