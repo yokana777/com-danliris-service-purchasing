@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
 {
-    public class InternNote : BaseModel
+    public class GarmentInternNote : BaseModel
     {
         public string INNo { get; set; }
         public string Remark { get; set; }
@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
         public string SupplierCode { get; set; }
         [MaxLength(1000)]
         public string SupplierName { get; set; }
-        public virtual ICollection<InternNoteItem> Items { get; set; }
+        public virtual ICollection<GarmentInternNoteItem> Items { get; set; }
 
     }
 }

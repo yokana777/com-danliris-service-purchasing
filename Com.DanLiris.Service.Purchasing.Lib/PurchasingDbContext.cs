@@ -79,9 +79,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentDeliveryOrderItem> GarmentDeliveryOrderItems { get; set; }
         public DbSet<GarmentDeliveryOrderDetail> GarmentDeliveryOrderDetails { get; set; }
 
-        public DbSet<InternNote> InternNote { get; set; }
-        public DbSet<InternNoteItem> InternNoteItem { get; set; }
-        public DbSet<InternNoteDetail> InternNoteDetail { get; set; }
+        public DbSet<GarmentInternNote> GarmentInternNotes { get; set; }
+        public DbSet<GarmentInternNoteItem> GarmentInternNoteItems { get; set; }
+        public DbSet<GarmentInternNoteDetail> GarmentInternNoteDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

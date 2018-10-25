@@ -14,20 +14,20 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
 {
-    public class InternNoteFacades : IInternNoteFacade
+    public class GarmentInternNoteFacades : IInternNoteFacade
     {
         private string USER_AGENT = "Facade";
 
         private readonly PurchasingDbContext dbContext;
-        private readonly DbSet<InternNote> dbSet;
+        private readonly DbSet<GarmentInternNote> dbSet;
 
-        public InternNoteFacades(PurchasingDbContext dbContext)
+        public GarmentInternNoteFacades(PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
-            dbSet = dbContext.Set<InternNote>();
+            dbSet = dbContext.Set<GarmentInternNote>();
         }
 
-        public async Task<int> Create(InternNote m, string user, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(GarmentInternNote m, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -82,31 +82,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
             return Deleted;
         }
 
-        public Tuple<List<InternNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public Tuple<List<GarmentInternNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<InternNote> Query = this.dbSet.Include(m => m.Items);
+            IQueryable<GarmentInternNote> Query = this.dbSet.Include(m => m.Items);
 
             List<string> searchAttributes = new List<string>()
             {
                 "DONo", "DODate", "SupplierName", "Items.EPONo", "CreatedBy"
             };
 
-            Query = QueryHelper<InternNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+            Query = QueryHelper<GarmentInternNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<InternNote>.ConfigureFilter(Query, FilterDictionary);
+            Query = QueryHelper<GarmentInternNote>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<InternNote>.ConfigureOrder(Query, OrderDictionary);
+            Query = QueryHelper<GarmentInternNote>.ConfigureOrder(Query, OrderDictionary);
 
-            Pageable<InternNote> pageable = new Pageable<InternNote>(Query, Page - 1, Size);
-            List<InternNote> Data = pageable.Data.ToList();
+            Pageable<GarmentInternNote> pageable = new Pageable<GarmentInternNote>(Query, Page - 1, Size);
+            List<GarmentInternNote> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public InternNote ReadById(int id)
+        public GarmentInternNote ReadById(int id)
         {
             var model = dbSet.Where(m => m.Id == id)
                 .Include(m => m.Items)
@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
             return model;
         }
 
-        public async Task<int> Update(int id, InternNote m, string user, int clientTimeZoneOffset = 7)
+        public async Task<int> Update(int id, GarmentInternNote m, string user, int clientTimeZoneOffset = 7)
         {
             int Updated = 0;
 

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
 {
-    public class InternNoteDetail : StandardEntity<long>
+    public class GarmentInternNoteDetail : StandardEntity<long>
     {
         public long INDetailId { get; set; }
         public string DONo { get; set; }
@@ -35,8 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
         public string UnitCode { get; set; }
         [MaxLength(255)]
         public string UnitName { get; set; }
-
-
+        
         public double PricePerDealUnit { get; set; }
         public double PriceTotal { get; set; }
 
@@ -44,6 +43,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
 
         public virtual long GarmentINDetailId { get; set; }
         [ForeignKey("INItemId")]
-        public virtual InternNoteItem InternNoteItem { get; set; }
+        public virtual GarmentInternNoteItem InternNoteItem { get; set; }
     }
 }

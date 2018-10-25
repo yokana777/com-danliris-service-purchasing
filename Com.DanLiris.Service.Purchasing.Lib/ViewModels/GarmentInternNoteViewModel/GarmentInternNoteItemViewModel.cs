@@ -5,17 +5,16 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternNoteViewModel
 {
-    public class InternNoteItemViewModel : BaseViewModel
+    public class GarmentInternNoteItemViewModel : BaseViewModel
     {
         public Invoice Invoice { get; set; }
-        public List<InternNoteFulfillmentViewModel> fulfillments { get; set; }
+        public List<GarmentInternNoteFulfillmentViewModel> fulfillments { get; set; }
     }
     public class Invoice
     {
         public long Id { get; set; }
-        public string name { get; set; }
+        public string no { get; set; }
         public DateTimeOffset invoiceDate { get; set; }
         public double totalAmount { get; set; }
-
     }
 }

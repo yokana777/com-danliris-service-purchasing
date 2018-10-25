@@ -6,17 +6,17 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
 {
-    public class InternNoteItem : StandardEntity<long>
+    public class GarmentInternNoteItem : StandardEntity<long>
     {
-        public string INVNOId { get; set; }
-        public string INVName { get; set; }
-        public DateTimeOffset INVDate { get; set; }
+        public string InvoiceId { get; set; }
+        public string InvoiceNo { get; set; }
+        public DateTimeOffset InvoiceDate { get; set; }
         public double TotalAmount { get; set; }
         public virtual long INNo { get; set; }
-        public virtual ICollection<InternNoteDetail> Details { get; set; }
+        public virtual ICollection<GarmentInternNoteDetail> Details { get; set; }
 
         public virtual long GarmentINId { get; set; }
         [ForeignKey("INNo")]
-        public virtual InternNote InternNote { get; set; }
+        public virtual GarmentInternNote InternNote { get; set; }
     }
 }
