@@ -23,9 +23,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d.incomeTaxNo, opt => opt.MapFrom(s => s.IncomeTaxNo))
                 .ForMember(d => d.incomeTaxDate, opt => opt.MapFrom(s => s.IncomeTaxDate))
                 /*Supplier*/
-                .ForPath(d => d.supplier._id, opt => opt.MapFrom(s => s.SupplierId))
-                .ForPath(d => d.supplier.code, opt => opt.MapFrom(s => s.SupplierCode))
-                .ForPath(d => d.supplier.name, opt => opt.MapFrom(s => s.SupplierName))
+                .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
+                .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
+                .ForPath(d => d.supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
                 .ReverseMap();
 
             CreateMap<GarmentInvoiceItem, GarmentInvoiceItemViewModel>()
