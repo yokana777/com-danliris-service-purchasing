@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 
             EPOId = item[0].Id,
             EPONo = item[0].EPONo,
-            ProductId = "ProductId",
+           
             ProductCode = "ProductCode",
             ProductName = "ProductName",
             PricePerDealUnit=500,

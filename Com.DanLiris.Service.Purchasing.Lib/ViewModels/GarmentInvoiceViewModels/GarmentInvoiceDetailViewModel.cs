@@ -10,12 +10,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
     {
         public long ePOId { get; set; }
         public string ePONo { get; set; }
-        public long iPOId { get; set; }
-        public string iPONo { get; set; }
+        public long pOId { get; set; }
         public long pRItemId { get; set; }
         public string pRNo { get; set; }
         public string roNo { get; set; }
-        public ProductViewModel product{ get; set; }
+        public GarmentProductViewModel product{ get; set; }
         public UomViewModel uoms { get; set; }
         public double dOQuantity { get; set; }
         public double pricePerDealUnit { get; set; }
