@@ -138,5 +138,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
 
             return unitReceiptNote;
         }
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestData2(string user)
+        {
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDatas(user);
+
+            await facade.Create(unitReceiptNote, user);
+
+            return unitReceiptNote;
+        }
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestData3(string user)
+        {
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDataLocalSupplier(user);
+
+            await facade.Create(unitReceiptNote, user);
+
+            return unitReceiptNote;
+        }
     }
 }
