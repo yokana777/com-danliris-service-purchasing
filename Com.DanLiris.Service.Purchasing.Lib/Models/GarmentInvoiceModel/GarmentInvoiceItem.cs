@@ -16,9 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public DateTimeOffset DODate { get; set; }
         public DateTimeOffset ArrivalDate { get; set; }
         public double TotalAmount { get; set; }
-        public string PaymentType { get; set; }
-        public string PaymentMethod { get; set; }
-        public int PaymentDueDays { get; set; }
+      
         public virtual ICollection<GarmentInvoiceDetail> Details { get; set; }
         public virtual long InvoiceId { get; set; }
         [ForeignKey("InvoiceId")]

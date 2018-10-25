@@ -23,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public string IncomeTaxNo { get; set; }
         public DateTimeOffset IncomeTaxDate { get; set; }
         public DateTimeOffset VatDate { get; set; }
+        public bool HasInternNote { get; set; }
         public virtual ICollection<GarmentInvoiceItem> Items { get; set; }
     }
 }

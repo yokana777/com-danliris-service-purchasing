@@ -9,8 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
     public class GarmentInvoiceItemViewModel : BaseViewModel
     {
         public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
-        public string roNo{ get; set; }
-      
-        public GarmentInvoiceDetailViewModel details { get; set; }
+        public GarmentInvoiceDetailViewModel items { get; set; }
     }
 }

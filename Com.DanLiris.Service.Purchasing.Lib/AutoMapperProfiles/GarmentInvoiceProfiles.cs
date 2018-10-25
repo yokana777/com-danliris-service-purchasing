@@ -38,14 +38,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                .ReverseMap();
 
             CreateMap<GarmentInvoiceDetail, GarmentInvoiceDetailViewModel>()
-              .ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
-              .ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
-              .ForPath(d => d.iPOId, opt => opt.MapFrom(s => s.IPOId))
-              .ForPath(d => d.iPONo, opt => opt.MapFrom(s => s.IPONo))
-              .ForPath(d => d.product._id, opt => opt.MapFrom(s => s.ProductId))
-              .ForPath(d => d.product.code, opt => opt.MapFrom(s => s.ProductCode))
-              .ForPath(d => d.uoms._id, opt => opt.MapFrom(s => s.UomId))
-              .ForPath(d => d.uoms.unit, opt => opt.MapFrom(s => s.UomUnit))
+              //.ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
+              //.ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
+              //.ForPath(d => d.iPOId, opt => opt.MapFrom(s => s.IPOId))
+              //.ForPath(d => d.iPONo, opt => opt.MapFrom(s => s.IPONo))
+              .ForPath(d => d.product.Id, opt => opt.MapFrom(s => s.ProductId))
+              .ForPath(d => d.product.Code, opt => opt.MapFrom(s => s.ProductCode))
+              .ForPath(d => d.uoms.Id, opt => opt.MapFrom(s => s.UomId))
+              .ForPath(d => d.uoms.Unit, opt => opt.MapFrom(s => s.UomUnit))
               .ForPath(d => d.dOQuantity, opt => opt.MapFrom(s => s.DOQuantity))
               .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
               .ReverseMap();
