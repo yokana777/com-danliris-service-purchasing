@@ -120,13 +120,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                             IPOItem.Status = "Sudah dibuat PO";
                         }
 
-                        var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
-
-                        foreach (var a in ipoItems)
+                        if((m.PaymentMethod!= "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType!= "FREE")
                         {
-                            a.RemainingBudget -= item.UsedBudget;
-                        }
+                            var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
 
+                            foreach (var a in ipoItems)
+                            {
+                                a.RemainingBudget -= item.UsedBudget;
+                            }
+                        }
 
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                     }
@@ -201,11 +203,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                     IPOItem.Status = "Sudah dibuat PO";
                                 }
 
-                                var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
-
-                                foreach(var a in ipoItems)
+                                if ((m.PaymentMethod != "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType != "FREE")
                                 {
-                                    a.RemainingBudget -= item.UsedBudget;
+                                    var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
+
+                                    foreach (var a in ipoItems)
+                                    {
+                                        a.RemainingBudget -= item.UsedBudget;
+                                    }
                                 }
 
 
@@ -219,10 +224,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                 GarmentInternalPurchaseOrderItem IPOItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
 
                                 var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
-
-                                foreach (var a in ipoItems)
+                                if ((m.PaymentMethod != "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType != "FREE")
                                 {
-                                    a.RemainingBudget -= item.UsedBudget;
+                                    foreach (var a in ipoItems)
+                                    {
+                                        a.RemainingBudget -= item.UsedBudget;
+                                    }
                                 }
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             }
