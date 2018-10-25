@@ -416,7 +416,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                         if (item.ProductId.ToString() == IPOItems.ProductId)
                         {
-                            IPOItems.RemainingBudget += item.UsedBudget;
+                            //IPOItems.RemainingBudget += item.UsedBudget;
                             IPOItems.Status = "Sudah dibuat PO Eksternal";
                         }
 
@@ -457,11 +457,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                     foreach (var item in m.Items)
                     {
-                        GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
+                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == item.POId);
+                        internalPurchaseOrder.IsPosted = false;
 
-                        if (item.ProductId.ToString() == IPOItems.ProductId)
+                        GarmentInternalPurchaseOrderItem IPOItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
+
+                        if (item.ProductId.ToString() == IPOItem.ProductId)
                         {
-                            IPOItems.Status = "Dibatalkan";
+                            IPOItem.Status = "Dibatalkan";
+                        }
+
+                        var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
+                        //returning Values
+                        foreach (var a in ipoItems)
+                        {
+                            a.RemainingBudget += item.UsedBudget;
                         }
 
                         EntityExtension.FlagForUpdate(item, user, "Facade");
