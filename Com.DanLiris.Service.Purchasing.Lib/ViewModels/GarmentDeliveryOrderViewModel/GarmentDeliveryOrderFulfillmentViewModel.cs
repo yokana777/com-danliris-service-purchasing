@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public PurchaseOrder purchaseOrder { get; set; }
         public long pRItemId { get; set; }
         public string poSerialNumber { get; set; }
-
+        public string pRNo { get; set; }
         public ProductViewModel product { get; set; }
         public double doQuantity { get; set; }
         public double dealQuantity { get; set; }
