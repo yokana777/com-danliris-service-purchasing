@@ -241,7 +241,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
             if (shipmentDateFrom != DateTimeOffset.MinValue && shipmentDateTo != DateTimeOffset.MinValue)
             {
-                Models = Models.Where(m => m.ShipmentDate >= shipmentDateFrom && m.ShipmentDate <= shipmentDateTo);
+                Models = Models.Where(m => m.ShipmentDate.AddHours(7).Date >= shipmentDateFrom.Date && m.ShipmentDate.AddHours(7).Date <= shipmentDateTo.Date);
             }
 
             string[] stringKeywords = new string[3];
@@ -299,7 +299,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                     UnitId = m.UnitId,
                     UnitCode = m.UnitCode,
                     UnitName = m.UnitName,
-
+                    PRId=m.PRId,
                     Items = m.Items
                         .Where(i =>
                                 category.ToLower() == "fabric" ? i.CategoryName.ToLower().Contains("fabric") : ((string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2])) && i.CategoryName.ToLower() != "fabric")
