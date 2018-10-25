@@ -38,13 +38,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
             };
         }
 
-        public async Task<GarmentInvoice> GetTestData(string user)
-        {
-            GarmentInvoice model = await GetNewData(user);
+        //public async Task<GarmentInvoice> GetTestData(string user)
+        //{
+        //    GarmentInvoice model = await GetNewData(user);
 
-            await facade.Create(model, user);
+        //    await facade.Create(model, user);
 
-            return model;
-        }
+        //    return model;
+        //}
     }
 }

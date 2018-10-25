@@ -78,20 +78,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
             get { return (GarmentInvoiceFacade)ServiceProvider.GetService(typeof(GarmentInvoiceFacade)); }
         }
 
-        [Fact]
-        public async void Should_Success_Create_Data()
-        {
-            GarmentInvoice model = await DataUtil.GetNewData(USERNAME);
-            var Response = await Facade.Create(model, USERNAME);
-            Assert.NotEqual(Response, 0);
-        }
+        //[Fact]
+        //public async void Should_Success_Create_Data()
+        //{
+        //    GarmentInvoice model = await DataUtil.GetNewData(USERNAME);
+        //    var Response = await Facade.Create(model, USERNAME);
+        //    Assert.NotEqual(Response, 0);
+        //}
 
-        [Fact]
-        public async void Should_Success_Get_Data_By_Id()
-        {
-            GarmentInvoice model = await DataUtil.GetTestData(USERNAME);
-            var Response = Facade.ReadById((int)model.Id);
-            Assert.NotNull(Response);
-        }
+        //[Fact]
+        //public async void Should_Success_Get_Data_By_Id()
+        //{
+        //    GarmentInvoice model = await DataUtil.GetTestData(USERNAME);
+        //    var Response = Facade.ReadById((int)model.Id);
+        //    Assert.NotNull(Response);
+        //}
     }
 }
