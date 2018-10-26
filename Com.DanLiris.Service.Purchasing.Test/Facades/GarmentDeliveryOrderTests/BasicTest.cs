@@ -91,6 +91,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         }
 
         [Fact]
+        public async void Should_Success_Delete_Data()
+        {
+            var facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = await facade.Delete((int)model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Delete_Data()
+        {
+            var facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0, USERNAME));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
         public async void Should_Success_Get_All_Data()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
