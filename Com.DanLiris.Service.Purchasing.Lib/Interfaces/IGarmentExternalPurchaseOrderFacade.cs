@@ -16,8 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         int Delete(int id, string user);
         int EPOPost(List<GarmentExternalPurchaseOrder> ListEPO, string user);
         int EPOUnpost(int id, string user);
-        //int EPOClose(int id, string user);
-        //int EPOCancel(int id, string user);
+        int EPOClose(int id, string user);
+        int EPOCancel(int id, string user);
         SupplierViewModel GetSupplier(long supplierId);
         GarmentProductViewModel GetProduct(long productId);
         int EPOApprove(List<GarmentExternalPurchaseOrder> ListEPO, string user);

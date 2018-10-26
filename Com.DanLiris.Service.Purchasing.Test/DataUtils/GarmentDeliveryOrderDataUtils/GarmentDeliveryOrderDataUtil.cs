@@ -48,7 +48,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 BillNo = $"{nowTicksB}",
 
                 TotalAmount = nowTicks,
-                TotalQuantity = nowTicks,
 
                 Items = new List<GarmentDeliveryOrderItem>
                 {
@@ -57,8 +56,46 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                         EPOId = nowTicks,
                         EPONo = $"{nowTicksA}",
                         PaymentType = $"{nowTicksA}",
-                        PaymentDueDays = (int)nowTicks,
                         PaymentMethod = $"{nowTicksA}",
+                        PaymentDueDays = (int)nowTicks,
+                        CurrencyId = nowTicks,
+                        CurrencyCode = $"{nowTicksA}",
+                        UseVat = false,
+                        UseIncomeTax = false,
+                        IncomeTaxId = (int)nowTicks,
+                        IncomeTaxName = $"{nowTicksA}",
+                        IncomeTaxRate = nowTicks,
+                        Details = new List<GarmentDeliveryOrderDetail>
+                        {
+                            new GarmentDeliveryOrderDetail
+                            {
+                                EPOItemId = nowTicks,
+                                POId = (int)nowTicks,
+                                POItemId = (int)nowTicks,
+                                PRId = nowTicks,
+                                PRNo = $"{nowTicksA}",
+                                PRItemId = nowTicks,
+                                POSerialNumber = $"{nowTicksA}",
+                                UnitId = $"{nowTicksA}",
+                                UnitCode = $"{nowTicksA}",
+                                ProductId = nowTicks,
+                                ProductCode = $"{nowTicksA}",
+                                ProductName = $"{nowTicksA}",
+                                ProductRemark = $"{nowTicksA}",
+                                DOQuantity = nowTicks,
+                                DealQuantity = nowTicks,
+                                Conversion = nowTicks,
+                                UomId = $"{nowTicksA}",
+                                UomUnit = $"{nowTicksA}",
+                                SmallQuantity = nowTicks,
+                                SmallUomId = $"{nowTicksA}",
+                                SmallUomUnit = $"{nowTicksA}",
+                                PricePerDealUnit = nowTicks,
+                                PriceTotal = nowTicks,
+                                RONo = $"{nowTicksA}",
+                                ReceiptQuantity = nowTicks
+                            }
+                        }
                     }
                 }
             };
