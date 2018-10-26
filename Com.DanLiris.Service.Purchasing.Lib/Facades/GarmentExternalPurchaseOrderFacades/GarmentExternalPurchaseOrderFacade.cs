@@ -117,16 +117,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         if (item.ProductId.ToString() == IPOItem.ProductId)
                         {
 
-                            IPOItem.Status = "Sudah dibuat PO";
+                            IPOItem.Status = "Sudah dibuat PO Eksternal";
                         }
 
-                        var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
-
-                        foreach (var a in ipoItems)
+                        if((m.PaymentMethod!= "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType!= "FREE")
                         {
-                            a.RemainingBudget -= item.UsedBudget;
-                        }
+                            var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
 
+                            foreach (var a in ipoItems)
+                            {
+                                a.RemainingBudget -= item.UsedBudget;
+                            }
+                        }
 
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                     }
@@ -198,14 +200,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                 if (item.ProductId.ToString() == IPOItem.ProductId)
                                 {
                                     
-                                    IPOItem.Status = "Sudah dibuat PO";
+                                    IPOItem.Status = "Sudah dibuat PO Eksternal";
                                 }
 
-                                var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
-
-                                foreach(var a in ipoItems)
+                                if ((m.PaymentMethod != "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType != "FREE")
                                 {
-                                    a.RemainingBudget -= item.UsedBudget;
+                                    var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
+
+                                    foreach (var a in ipoItems)
+                                    {
+                                        a.RemainingBudget -= item.UsedBudget;
+                                    }
                                 }
 
 
@@ -219,10 +224,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                 GarmentInternalPurchaseOrderItem IPOItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
 
                                 var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
-
-                                foreach (var a in ipoItems)
+                                if ((m.PaymentMethod != "CMT" || m.PaymentMethod != "FREE FROM BUYER") && m.PaymentType != "FREE")
                                 {
-                                    a.RemainingBudget -= item.UsedBudget;
+                                    foreach (var a in ipoItems)
+                                    {
+                                        a.RemainingBudget -= item.UsedBudget;
+                                    }
                                 }
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             }
@@ -409,7 +416,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                         if (item.ProductId.ToString() == IPOItems.ProductId)
                         {
-                            IPOItems.RemainingBudget += item.UsedBudget;
+                            //IPOItems.RemainingBudget += item.UsedBudget;
                             IPOItems.Status = "Sudah dibuat PO Eksternal";
                         }
 
@@ -433,72 +440,93 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Updated;
         }
 
-        //public int EPOCancel(int id, string user)
-        //{
-        //    int Updated = 0;
+        public int EPOCancel(int id, string user)
+        {
+            int Updated = 0;
 
-        //    using (var transaction = this.dbContext.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var m = this.dbSet
-        //                .Include(d => d.Items)
-        //                .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
-        //            EntityExtension.FlagForUpdate(m, user, "Facade");
-        //            m.IsCanceled = true;
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsCanceled = true;
 
-        //            foreach (var item in m.Items)
-        //            {
-        //                EntityExtension.FlagForUpdate(item, user, "Facade");
+                    foreach (var item in m.Items)
+                    {
+                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == item.POId);
+                        internalPurchaseOrder.IsPosted = false;
 
-        //            }
+                        GarmentInternalPurchaseOrderItem IPOItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
 
-        //            Updated = dbContext.SaveChanges();
-        //            transaction.Commit();
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            transaction.Rollback();
-        //            throw new Exception(e.Message);
-        //        }
-        //    }
+                        if (item.ProductId.ToString() == IPOItem.ProductId)
+                        {
+                            IPOItem.Status = "Dibatalkan";
+                        }
 
-        //    return Updated;
-        //}
+                        var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
+                        //returning Values
+                        foreach (var a in ipoItems)
+                        {
+                            a.RemainingBudget += item.UsedBudget;
+                        }
 
-        //public int EPOClose(int id, string user)
-        //{
-        //    int Updated = 0;
+                        EntityExtension.FlagForUpdate(item, user, "Facade");
 
-        //    using (var transaction = this.dbContext.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var m = this.dbSet
-        //                .Include(d => d.Items)
-        //                .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
+                    }
 
-        //            EntityExtension.FlagForUpdate(m, user, "Facade");
-        //            m.IsClosed = true;
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
 
-        //            foreach (var item in m.Items)
-        //            {
-        //                EntityExtension.FlagForUpdate(item, user, "Facade");
-        //            }
+            return Updated;
+        }
 
-        //            Updated = dbContext.SaveChanges();
-        //            transaction.Commit();
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            transaction.Rollback();
-        //            throw new Exception(e.Message);
-        //        }
-        //    }
+        public int EPOClose(int id, string user)
+        {
+            int Updated = 0;
 
-        //    return Updated;
-        //}
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet
+                        .Include(d => d.Items)
+                        .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
+
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsClosed = true;
+
+                    foreach (var item in m.Items)
+                    {
+                        GarmentInternalPurchaseOrder IPO = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id.Equals(item.POId));
+
+                        IPO.IsClosed = true;
+
+                        EntityExtension.FlagForUpdate(item, user, "Facade");
+                    }
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
 
 
 

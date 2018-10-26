@@ -211,7 +211,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             Assert.NotEqual(Response, 0);
         }
 
-       
+        [Fact]
+        public async void Should_Success_EPOCancel()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var Response = facade.EPOCancel((int)model.Id, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_EPOClose()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var Response = facade.EPOClose((int)model.Id, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
+
 
         [Fact]
         public async void Should_Error_EPOUnpost()
@@ -220,6 +237,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
 
             Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => facade.EPOUnpost(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+        }
+
+        [Fact]
+        public async void Should_Error_EPOCancel()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => facade.EPOCancel(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+        }
+
+        [Fact]
+        public async void Should_Error_EPOClose()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => facade.EPOClose(0, USERNAME));
             Assert.NotNull(errorInvalidId.Message);
         }
 

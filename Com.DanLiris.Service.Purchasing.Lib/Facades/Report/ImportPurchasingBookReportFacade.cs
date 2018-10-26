@@ -37,78 +37,86 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 			this.dbSet = dbContext.Set<UnitReceiptNote>();
 		}
 
-		public Tuple<List<ImportPurchasingBookViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public IQueryable<ImportPurchasingBookViewModel> GetReportQuery(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
-			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
-			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-			string DateFrom = d1.ToString("yyyy-MM-dd");
-			string DateTo = d2.ToString("yyyy-MM-dd");
-			string _cat,_no,_unit,_date = "";
-			if (d1 != new DateTime(1970, 1, 1))
-				_date = " and receiptdate between '" + DateFrom + "' and  '" + DateTo + "' ";
-			else
-				_date = "";
-			if (category != null )
-				_cat = " and a.categorycode= '" + category + "'";
-			else
-				_cat = "";
-			if (unit != null )
-				_unit = " and g.unitcode= '" + unit + "'";
-			else
-				_unit = "";
-			if (no != null )
-				_no = " and URNNo= '" + no + "'";
-			else
-				_no = "";
-			List<ImportPurchasingBookViewModel> reportData = new List<ImportPurchasingBookViewModel>();
-			string connectionString = APIEndpoint.ConnectionString;
-			using (SqlConnection conn =
-				new SqlConnection(connectionString))
-			{
-				conn.Open();
-				using (SqlCommand cmd = new SqlCommand(
-				
-					"select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,CurrencyRate,PIBNo,sum(amount)Amount,sum(amountIDR) AmountIDR  from(select   distinct g.Id,g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName, " +
-					" case when ispaid = 0 then '-' else (select top(1)PIBNO from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as PIBNo, " +
-					" h.priceperdealunit* h.receiptquantity as amount,h.priceperdealunit * h.receiptquantity* c.CurrencyRate as amountIDR,c.currencyrate " +
-					" from " +
-					" internalpurchaseorders a " +
-					" join ExternalPurchaseOrderItems b on a.id = b.POId " +
-					" join ExternalPurchaseOrders c on c.Id = b.EPOId " +
-					" join Externalpurchaseorderdetails d on  b.id = d.epoitemid " +
-					" join deliveryorderitems e on c.id = e.epoid " +
-					" join deliveryorders f on f.id = e.DOId " +
-					" join UnitReceiptNotes g on  f.id = g.DOId " +
-					" join UnitReceiptNoteItems h on g.id = h.urnid and h.EPODetailId=d.Id " +
-					" where g.IsDeleted = 0 and URNNo like '%BPI%' " +_date+ _cat + _no +_cat +_unit+
-					" ) as data " +
+            DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            string DateFrom = d1.ToString("yyyy-MM-dd");
+            string DateTo = d2.ToString("yyyy-MM-dd");
+            string _cat, _no, _unit, _date = "";
+            if (d1 != new DateTime(1970, 1, 1))
+                _date = " and receiptdate between '" + DateFrom + "' and  '" + DateTo + "' ";
+            else
+                _date = "";
+            if (category != null)
+                _cat = " and a.categorycode= '" + category + "'";
+            else
+                _cat = "";
+            if (unit != null)
+                _unit = " and g.unitcode= '" + unit + "'";
+            else
+                _unit = "";
+            if (no != null)
+                _no = " and URNNo= '" + no + "'";
+            else
+                _no = "";
+            List<ImportPurchasingBookViewModel> reportData = new List<ImportPurchasingBookViewModel>();
+            string connectionString = APIEndpoint.ConnectionString;
+            using (SqlConnection conn =
+                new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
 
-					" group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, PIBNo, CurrencyRate", conn))
-				{ 
-					SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
-					DataSet dSet = new DataSet();
-					dataAdapter.Fill(dSet);
-					foreach (DataRow data in dSet.Tables[0].Rows)
-					{
+                    "select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,CurrencyRate,PIBNo,sum(amount)Amount,sum(amountIDR) AmountIDR  from(select   distinct g.Id,g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName, " +
+                    " case when ispaid = 0 then '-' else (select top(1)PIBNO from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as PIBNo, " +
+                    " h.priceperdealunit* h.receiptquantity as amount,h.priceperdealunit * h.receiptquantity* c.CurrencyRate as amountIDR,c.currencyrate " +
+                    " from " +
+                    " internalpurchaseorders a " +
+                    " join ExternalPurchaseOrderItems b on a.id = b.POId " +
+                    " join ExternalPurchaseOrders c on c.Id = b.EPOId " +
+                    " join Externalpurchaseorderdetails d on  b.id = d.epoitemid " +
+                    " join deliveryorderitems e on c.id = e.epoid " +
+                    " join deliveryorders f on f.id = e.DOId " +
+                    " join UnitReceiptNotes g on  f.id = g.DOId " +
+                    " join UnitReceiptNoteItems h on g.id = h.urnid and h.EPODetailId=d.Id " +
+                    " where g.IsDeleted = 0 and URNNo like '%BPI%' " + _date + _cat + _no + _cat + _unit +
+                    " ) as data " +
 
-						ImportPurchasingBookViewModel view = new ImportPurchasingBookViewModel
-						{
-							urnNo = data["URNNo"].ToString(),
-							receiptDate = Convert.ToDateTime( data["ReceiptDate"].ToString()),
-							productName = data["ProductName"].ToString(),
-							unitName = data["UnitName"].ToString(),
-							categoryName = data["CategoryName"].ToString(),
-							PIBNo = data["PIBNo"].ToString(),
-							amount = Convert.ToDecimal(data["Amount"].ToString()),
-							amountIDR = Convert.ToDecimal(data["AmountIDR"].ToString()),
-							rate = Convert.ToDecimal(data["CurrencyRate"].ToString()),
-						};
-						reportData.Add(view);
-					}
-				}
-				conn.Close();
-			}
-			return Tuple.Create(reportData, reportData.Count);
+                    " group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, PIBNo, CurrencyRate", conn))
+                {
+                    SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
+                    DataSet dSet = new DataSet();
+                    dataAdapter.Fill(dSet);
+                    foreach (DataRow data in dSet.Tables[0].Rows)
+                    {
+
+                        ImportPurchasingBookViewModel view = new ImportPurchasingBookViewModel
+                        {
+                            urnNo = data["URNNo"].ToString(),
+                            receiptDate = Convert.ToDateTime(data["ReceiptDate"].ToString()),
+                            productName = data["ProductName"].ToString(),
+                            unitName = data["UnitName"].ToString(),
+                            categoryName = data["CategoryName"].ToString(),
+                            PIBNo = data["PIBNo"].ToString(),
+                            amount = Convert.ToDecimal(data["Amount"].ToString()),
+                            amountIDR = Convert.ToDecimal(data["AmountIDR"].ToString()),
+                            rate = Convert.ToDecimal(data["CurrencyRate"].ToString()),
+                        };
+                        reportData.Add(view);
+                    }
+                }
+                conn.Close();
+            }
+            return reportData.AsQueryable();
+        }
+
+        public Tuple<List<ImportPurchasingBookViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        {
+
+             List < ImportPurchasingBookViewModel > reportData = GetReportQuery( no,  unit,  category,  dateFrom,  dateTo).ToList();
+
+            return Tuple.Create(reportData, reportData.Count);
 		}
 
 
