@@ -66,8 +66,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         public IActionResult GetBySupplier(string Keyword = "", string Filter = "{}")
         {
 
-             var Data = facade.ReadBySupplier( Keyword, Filter);
-             var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
+            var Data = facade.ReadBySupplier(Keyword, Filter);
+            var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
             Dictionary<string, object> Result =
                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                    .Ok(newData);

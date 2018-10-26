@@ -25,7 +25,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public long customsId { get; set; }
         public string billNo { get; set; }
         public string paymentBill { get; set; }
-        public double totalQuantity { get; set; }
         public double totalAmount { get; set; }
         public List<GarmentDeliveryOrderItemViewModel> items { get; set; }
 
@@ -65,13 +64,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
             {
                 yield return new ValidationResult("ShipmentNo is required", new List<string> { "shipmentNo" });
             }
-            
+
 
             int itemErrorCount = 0;
             int detailErrorCount = 0;
 
-            if (this.items==null||items.Count<=0)
-                {
+            if (this.items == null || items.Count <= 0)
+            {
                 yield return new ValidationResult("PurchaseOrderExternal is required", new List<string> { "itemscount" });
             }
             else
@@ -87,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                         itemErrorCount++;
                         itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
                     }
-                   
+
                 }
 
                 itemError += "]";

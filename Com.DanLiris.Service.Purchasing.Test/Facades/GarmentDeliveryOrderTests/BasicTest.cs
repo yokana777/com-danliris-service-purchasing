@@ -149,15 +149,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 customsId = 1,
                 billNo = "test",
                 paymentBill = "test",
-                totalQuantity = 1,
                 totalAmount = 1,
+                shipmentType = "test",
+                shipmentNo = "test",
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = null,
-                        pOId = 1,
-                        pONo = "test"
+                        paymentDueDays = 1,
+                        paymentMethod = "test",
+                        paymentType = "test",
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                pOId = 1,
+                                pOItemId = 1,
+                            }
+                        }
                     }
                 }
 
