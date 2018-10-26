@@ -305,39 +305,39 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
             }
         }
 
-        //[HttpPut("cancel/{id}")]
-        //public IActionResult EPOCancel([FromRoute]int id)
-        //{
-        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        [HttpPut("cancel/{id}")]
+        public IActionResult EPOCancel([FromRoute]int id)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-        //    try
-        //    {
-        //        facade.EPOCancel(id, identityService.Username);
+            try
+            {
+                facade.EPOCancel(id, identityService.Username);
 
-        //        return NoContent();
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
-        //    }
-        //}
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
 
-        //[HttpPut("close/{id}")]
-        //public IActionResult EPOClose([FromRoute]int id)
-        //{
-        //    identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        [HttpPut("close/{id}")]
+        public IActionResult EPOClose([FromRoute]int id)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-        //    try
-        //    {
-        //        facade.EPOClose(id, identityService.Username);
+            try
+            {
+                facade.EPOClose(id, identityService.Username);
 
-        //        return NoContent();
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
-        //    }
-        //}
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
 
         [HttpPost("approve")]
         public IActionResult EPOApprove([FromBody]List<GarmentExternalPurchaseOrderViewModel> ListExternalPurchaseOrderViewModel)

@@ -887,5 +887,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             var response = controller.EPOUnpost(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Cancel_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrder>(It.IsAny<GarmentExternalPurchaseOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrder>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+
+            var response = controller.EPOCancel(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Close_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrder>(It.IsAny<GarmentExternalPurchaseOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrder>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+
+            var response = controller.EPOClose(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
     }
 }

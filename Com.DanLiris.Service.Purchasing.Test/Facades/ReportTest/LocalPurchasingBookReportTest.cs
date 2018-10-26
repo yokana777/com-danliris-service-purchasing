@@ -157,12 +157,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         public async void Should_Success_Get_Report_Data()
         {
             var serviceProvider = new Mock<IServiceProvider>();
-            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-            await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
-            DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-            await DOFacade.Create(deliveryOrder, "unit-test");
-            UnitReceiptNote urn = await DataUtil.GetNewDataLocalSupplier("unit-test");
-            await URNFacade.Create(urn, "unit-test");
+            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
+            DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
+            UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData("unit-test");
             //UnitPaymentOrder upo = await UPODataUtil.GetTestData();
@@ -223,12 +220,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         [Fact]
         public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
-            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-            await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
-            DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-            await DOFacade.Create(deliveryOrder, "unit-test");
-            UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
-            await URNFacade.Create(urn, "unit-test");
+            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
+            DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
+            UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
             var DateFrom = DateTime.Now;
             DateFrom = DateFrom.Date;
             var DateTo = DateTime.Now;
@@ -239,12 +233,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         [Fact]
         public async void Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
         {
-            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-            await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
-            DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-            await DOFacade.Create(deliveryOrder, "unit-test");
-            UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
-            await URNFacade.Create(urn, "unit-test");
+            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
+            DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
+            UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
             var DateFrom = DateTime.Now;
             DateFrom = DateFrom.Date;
             var DateTo = DateTime.Now;
