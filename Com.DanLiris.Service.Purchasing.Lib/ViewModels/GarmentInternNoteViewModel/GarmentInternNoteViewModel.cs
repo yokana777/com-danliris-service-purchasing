@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternNoteViewModel
     public class GarmentInternNoteViewModel : BaseViewModel, IValidatableObject
     {
         public string inNo { get; set; }
+        public DateTimeOffset inDate { get; set; }
         public string remark { get; set; }
         public CurrencyViewModel currency { get; set; }
         public SupplierViewModel supplier { get; set; }

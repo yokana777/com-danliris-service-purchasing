@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
     {
         public string INNo { get; set; }
         public string Remark { get; set; }
+        public DateTimeOffset INDate { get; set; }
 
         /*Currency*/
         [MaxLength(255)]

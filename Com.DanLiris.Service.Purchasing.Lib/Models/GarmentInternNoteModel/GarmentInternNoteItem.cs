@@ -12,11 +12,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
         public string InvoiceNo { get; set; }
         public DateTimeOffset InvoiceDate { get; set; }
         public double TotalAmount { get; set; }
+        public bool IsPayTax { get; set; }
         public virtual long INNo { get; set; }
         public virtual ICollection<GarmentInternNoteDetail> Details { get; set; }
 
         public virtual long GarmentINId { get; set; }
-        [ForeignKey("INNo")]
+        [ForeignKey("GarmentINId")]
         public virtual GarmentInternNote InternNote { get; set; }
     }
 }

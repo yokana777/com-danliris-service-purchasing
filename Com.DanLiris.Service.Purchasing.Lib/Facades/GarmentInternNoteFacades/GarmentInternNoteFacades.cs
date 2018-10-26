@@ -14,17 +14,19 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
 {
-    public class GarmentInternNoteFacades : IInternNoteFacade
+    public class GarmentInternNoteFacades : IGarmentInternNoteFacade
     {
         private string USER_AGENT = "Facade";
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentInternNote> dbSet;
+        public readonly IServiceProvider serviceProvider;
 
-        public GarmentInternNoteFacades(PurchasingDbContext dbContext)
+        public GarmentInternNoteFacades(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentInternNote>();
+            this.serviceProvider = serviceProvider;
         }
 
         public async Task<int> Create(GarmentInternNote m, string user, int clientTimeZoneOffset = 7)
@@ -88,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
 
             List<string> searchAttributes = new List<string>()
             {
-                "DONo", "DODate", "SupplierName", "Items.EPONo", "CreatedBy"
+                "INNo", "INDate", "SupplierName", "Items.InvoiceNo", "CreatedBy"
             };
 
             Query = QueryHelper<GarmentInternNote>.ConfigureSearch(Query, searchAttributes, Keyword);

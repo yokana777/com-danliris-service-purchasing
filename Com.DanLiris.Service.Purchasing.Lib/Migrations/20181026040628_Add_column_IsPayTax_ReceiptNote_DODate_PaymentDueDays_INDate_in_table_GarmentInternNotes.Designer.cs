@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181026040628_Add_column_IsPayTax_ReceiptNote_DODate_PaymentDueDays_INDate_in_table_GarmentInternNotes")]
+    partial class Add_column_IsPayTax_ReceiptNote_DODate_PaymentDueDays_INDate_in_table_GarmentInternNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -23,10 +23,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternNoteContro
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
-        private readonly IInternNoteFacade facade;
+        private readonly IGarmentInternNoteFacade facade;
         private readonly IdentityService identityService;
 
-        public GarmentInternNoteController(string apiVersion, IServiceProvider serviceProvider, IMapper mapper, IInternNoteFacade facade)
+        public GarmentInternNoteController(string apiVersion, IServiceProvider serviceProvider, IMapper mapper, IGarmentInternNoteFacade facade)
         {
             ApiVersion = apiVersion;
             this.serviceProvider = serviceProvider;
@@ -80,10 +80,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternNoteContro
                     {
                         s.Id,
                         s.inNo,
-                        currency = new  {s.currency.Code },
-                        s.remark,
+                        s.inDate,
                         supplier = new { s.supplier.Name },
-                        items = s.items.Select(i => new { i.Invoice, i.fulfillments }),
+                        items = s.items.Select(i => new { i.garmentInvoice, i.detail }),
                         s.CreatedBy,
                         s.LastModifiedUtc
                     }).ToList()
