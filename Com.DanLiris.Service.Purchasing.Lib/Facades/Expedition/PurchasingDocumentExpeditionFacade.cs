@@ -221,23 +221,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 {
                     List<string> unitPaymentOrders = new List<string>();
 
+
                     foreach (PurchasingDocumentExpedition purchasingDocumentExpedition in (List<PurchasingDocumentExpedition>)list)
                     {
+
                         unitPaymentOrders.Add(purchasingDocumentExpedition.UnitPaymentOrderNo);
-                        purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
-                        purchasingDocumentExpedition.Active = true;
-                        purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
 
-                        foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
+                        var existing = this.dbContext.PurchasingDocumentExpeditions
+                                                                .Include(d => d.Items)
+                                                                .FirstOrDefault(p => p.UnitPaymentOrderNo == purchasingDocumentExpedition.UnitPaymentOrderNo && p.IsDeleted == false);
+
+                        if (existing != null)
                         {
-                            EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+                            existing.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                            existing.Active = true;
+                            existing.SendToVerificationDivisionBy = username;
+                            EntityExtension.FlagForUpdate(existing, username, "Facade");
+                            this.dbSet.Update(existing);
                         }
+                        else if (existing == null)
+                        {
+                            purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                            purchasingDocumentExpedition.Active = true;
+                            purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
 
-                        EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
-                        this.dbSet.Add(purchasingDocumentExpedition);
+                            foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
+                            {
+
+                                EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+
+                            }
+
+                            EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
+
+
+                            this.dbSet.Add(purchasingDocumentExpedition);
+                        }
+                        Created = await dbContext.SaveChangesAsync();
+
                     }
 
-                    Created = await dbContext.SaveChangesAsync();
+
 
                     UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
 

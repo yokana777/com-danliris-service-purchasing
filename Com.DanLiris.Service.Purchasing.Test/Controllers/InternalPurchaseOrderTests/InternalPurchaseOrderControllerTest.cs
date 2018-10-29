@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
         public async Task Should_Error_Get_Invalid_Id()
         {
             var response = await this.Client.GetAsync($"{URI}/0");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
         //[Fact]
