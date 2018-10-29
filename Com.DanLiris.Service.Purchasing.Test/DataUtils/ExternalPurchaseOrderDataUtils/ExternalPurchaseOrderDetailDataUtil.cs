@@ -28,8 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             PriceBeforeTax = 1000,
             PricePerDealUnit = 200,
             DealQuantity = internalPurchaseOrderItem[0].Quantity,
-            Conversion=1,
-            DispositionQuantity=0
+            Conversion=1
         };
 
         public ExternalPurchaseOrderDetailViewModel GetNewDataViewModel(List<InternalPurchaseOrderItem> internalPurchaseOrderItem) => new ExternalPurchaseOrderDetailViewModel
@@ -63,8 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             pricePerDealUnit = 200,
             conversion=1,
             dealQuantity = 100,
-            productPrice=10000,
-            dispositionQuantity=0
+            productPrice=10000
         };
     }
 }

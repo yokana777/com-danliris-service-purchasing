@@ -26,6 +26,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public bool includePpn { get; set; }
         public string productRemark { get; set; }
         public double? doQuantity { get; set; }
-        public double dispositionQuantity { get; set; }
     }
 }
