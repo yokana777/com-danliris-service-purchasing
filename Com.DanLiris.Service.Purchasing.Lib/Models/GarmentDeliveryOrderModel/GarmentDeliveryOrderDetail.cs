@@ -9,8 +9,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 {
     public class GarmentDeliveryOrderDetail : StandardEntity<long>
     {
-        public long EPODetailId { get; set; }
-        public long POItemId { get; set; }
+        public long EPOItemId { get; set; }
+        [MaxLength(255)]
+        public int POId { get; set; }
+        public int POItemId { get; set; }
         public long PRId { get; set; }
         [MaxLength(255)]
         public string PRNo { get; set; }
@@ -25,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
         /* Product */
         [MaxLength(255)]
-        public string ProductId { get; set; }
+        public long ProductId { get; set; }
         [MaxLength(255)]
         public string ProductCode { get; set; }
         [MaxLength(1000)]
@@ -50,14 +52,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public double PricePerDealUnit { get; set; }
         public double PriceTotal { get; set; }
 
-        public string CurrencyId { get; set; }
-        public string CurrencyCode { get; set; }
-
-        //public double ReceiptQuantity { get; set; }
-        public bool IsClosed { get; set; }
-
+        public string RONo { get; set; }
+        public double ReceiptQuantity { get; set; }
         public virtual long GarmentDOItemId { get; set; }
-        [ForeignKey("DOItemId")]
+        [ForeignKey("GarmentDOItemId")]
         public virtual GarmentDeliveryOrderItem GarmentDeliveryOrderItem { get; set; }
     }
 }

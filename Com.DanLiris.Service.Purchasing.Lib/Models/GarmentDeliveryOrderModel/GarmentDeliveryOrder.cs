@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
         /* Supplier */
         [MaxLength(255)]
-        public string SupplierId { get; set; }
+        public long SupplierId { get; set; }
         [MaxLength(255)]
         public string SupplierCode { get; set; }
         [MaxLength(1000)]
@@ -32,7 +32,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public string BillNo { get; set; }
         [MaxLength(50)]
         public string PaymentBill { get; set; }
-        public double TotalQuantity { get; set; }
         public double TotalAmount { get; set; }
 
         public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }

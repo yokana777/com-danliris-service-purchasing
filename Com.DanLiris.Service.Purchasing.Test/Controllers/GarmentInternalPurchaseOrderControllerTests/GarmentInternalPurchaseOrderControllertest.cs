@@ -336,5 +336,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
             var response = controller.Delete(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_By_Tags()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            GarmentInternalPurchaseOrderController controller = new GarmentInternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetByTags(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_All_Data_By_Tags_With_ShipmentDate()
+        {
+            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadByTags(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+                .Returns(new List<GarmentInternalPurchaseOrder>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentInternalPurchaseOrderViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
+                .Returns(new List<GarmentInternalPurchaseOrderViewModel>());
+
+            GarmentInternalPurchaseOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetByTags(null, null, "2018-10-31", "2018-10-31");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
     }
 }

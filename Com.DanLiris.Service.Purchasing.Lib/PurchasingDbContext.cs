@@ -17,6 +17,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.DailyBankTransaction;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -70,9 +72,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentInternalPurchaseOrder> GarmentInternalPurchaseOrders { get; set; }
         public DbSet<GarmentInternalPurchaseOrderItem> GarmentInternalPurchaseOrderItems { get; set; }
 
+        public DbSet<GarmentExternalPurchaseOrder> GarmentExternalPurchaseOrders { get; set; }
+        public DbSet<GarmentExternalPurchaseOrderItem> GarmentExternalPurchaseOrderItems { get; set; }
+
         public DbSet<GarmentDeliveryOrder> GarmentDeliveryOrders { get; set; }
         public DbSet<GarmentDeliveryOrderItem> GarmentDeliveryOrderItems { get; set; }
         public DbSet<GarmentDeliveryOrderDetail> GarmentDeliveryOrderDetails { get; set; }
+        public DbSet<GarmentInvoice> GarmentInvoices { get; set; }
+        public DbSet<GarmentInvoiceItem> GarmentInvoiceItems { get; set; }
+        public DbSet<GarmentInvoiceDetail> GarmentInvoiceDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

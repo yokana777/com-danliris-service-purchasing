@@ -217,5 +217,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             ValidationContext validationNotFoundDuplicateContext = new ValidationContext(viewModelNotFoundDuplicate, serviceProvider.Object, null);
             Assert.True(viewModelNotFoundDuplicate.Validate(validationNotFoundDuplicateContext).Count() > 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_By_Tags()
+        {
+            GarmentInternalPurchaseOrderFacade facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            GarmentInternalPurchaseOrder data = model.FirstOrDefault();
+            var Response = facade.ReadByTags("Accessories",$"#{data.UnitName} #{data.BuyerName}", data.ShipmentDate.AddDays(-1), data.ShipmentDate.AddDays(1));
+            Assert.NotNull(Response);
+
+            var ResponseWhiteSpace = facade.ReadByTags("Accessories", "", DateTimeOffset.MinValue, DateTimeOffset.MinValue);
+            Assert.NotNull(ResponseWhiteSpace);
+        }
     }
 }

@@ -234,5 +234,84 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
             return Deleted;
         }
+
+        public List<GarmentInternalPurchaseOrder> ReadByTags(string category, string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
+        {
+            IQueryable<GarmentInternalPurchaseOrder> Models = this.dbSet.AsQueryable();
+
+            if (shipmentDateFrom != DateTimeOffset.MinValue && shipmentDateTo != DateTimeOffset.MinValue)
+            {
+                Models = Models.Where(m => m.ShipmentDate.AddHours(7).Date >= shipmentDateFrom.Date && m.ShipmentDate.AddHours(7).Date <= shipmentDateTo.Date);
+            }
+
+            string[] stringKeywords = new string[3];
+
+            if (tags != null)
+            {
+                List<string> Keywords = new List<string>();
+
+                if (tags.Contains("#"))
+                {
+                    Keywords = tags.Split("#").ToList();
+                    Keywords.RemoveAt(0);
+                    Keywords = Keywords.Take(stringKeywords.Length).ToList();
+                }
+                else
+                {
+                    Keywords.Add(tags);
+                }
+
+                for (int n = 0; n < Keywords.Count; n++)
+                {
+                    stringKeywords[n] = Keywords[n].Trim().ToLower();
+                }
+            }
+            string filterCategory = "";
+            if (category.ToLower() == "fabric")
+            {
+                filterCategory = category.ToLower();
+            }
+            else
+            {
+                filterCategory = stringKeywords[2];
+            }
+
+            Models = Models
+                .Where(m =>
+                    (string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
+                    (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
+                    //m.Items.Any(i => i.IsUsed == false) &&
+                    m.IsPosted == false
+                    )
+                .Select(m => new GarmentInternalPurchaseOrder
+                {
+                    Id = m.Id,
+                    PONo = m.PONo,
+                    PRDate = m.PRDate,
+                    PRNo = m.PRNo,
+                    RONo = m.RONo,
+                    BuyerId = m.BuyerId,
+                    BuyerCode = m.BuyerCode,
+                    BuyerName = m.BuyerName,
+                    Article = m.Article,
+                    ExpectedDeliveryDate = m.ExpectedDeliveryDate,
+                    ShipmentDate = m.ShipmentDate,
+                    UnitId = m.UnitId,
+                    UnitCode = m.UnitCode,
+                    UnitName = m.UnitName,
+                    PRId=m.PRId,
+                    Items = m.Items
+                        .Where(i =>
+                                category.ToLower() == "fabric" ? i.CategoryName.ToLower().Contains("fabric") : ((string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2])) && i.CategoryName.ToLower() != "fabric")
+                            //(string.IsNullOrWhiteSpace(filterCategory) || i.CategoryName.ToLower().Contains(filterCategory) 
+                            //|| string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2])) 
+                            )
+                        .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
+
+
+            return Models.ToList();
+        }
     }
 }
