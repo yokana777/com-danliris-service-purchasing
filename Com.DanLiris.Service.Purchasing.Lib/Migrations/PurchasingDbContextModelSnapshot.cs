@@ -1146,8 +1146,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<double>("DispositionQuantity");
-
                     b.Property<long>("EPOItemId");
 
                     b.Property<bool>("IncludePpn");

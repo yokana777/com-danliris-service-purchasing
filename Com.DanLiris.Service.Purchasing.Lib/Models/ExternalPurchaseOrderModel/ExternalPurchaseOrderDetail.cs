@@ -37,8 +37,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
         public double DOQuantity { get; set; }
         public double ReceiptQuantity { get; set; }
 
-        public double DispositionQuantity { get; set; }
-
         public virtual long EPOItemId { get; set; }
         [ForeignKey("EPOItemId")]
         public virtual ExternalPurchaseOrderItem ExternalPurchaseOrderItem { get; set; }
