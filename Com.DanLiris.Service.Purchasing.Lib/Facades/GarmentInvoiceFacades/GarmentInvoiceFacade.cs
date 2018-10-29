@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
         private string USER_AGENT = "Facade";
         public GarmentInvoiceFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
-       {
+        {
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentInvoice>();
             this.serviceProvider = serviceProvider;
@@ -74,10 +74,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
         //            {
         //                EntityExtension.FlagForCreate(item, username, USER_AGENT);
 
-        //                //foreach (var detail in item.Details)
-        //                //{
-        //                //    EntityExtension.FlagForCreate(detail, username, USER_AGENT);
-        //                //}
+        //                foreach (var detail in item.Details)
+        //                {
+        //                    EntityExtension.FlagForCreate(detail, username, USER_AGENT);
+        //                }
         //            }
 
         //            this.dbSet.Add(model);
