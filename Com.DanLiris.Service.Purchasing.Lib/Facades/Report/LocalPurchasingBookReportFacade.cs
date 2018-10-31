@@ -37,78 +37,69 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             this.dbSet = dbContext.Set<UnitReceiptNote>();
         }
 
-        public Tuple<List<LocalPurchasingBookReportViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public IEnumerable<LocalPurchasingBookReportViewModel> GetReportQuery(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
             DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            string DateFrom = d1.ToString("yyyy-MM-dd");
-            string DateTo = d2.ToString("yyyy-MM-dd");
-            string _cat, _no, _unit = "";
-            if (category != null)
-                _cat = " and a.categorycode= '" + category + "'";
-            else
-                _cat = "";
-            if (unit != null)
-                _unit = " and g.unitcode= '" + unit + "'";
-            else
-                _unit = "";
-            if (no != null)
-                _no = " and URNNo= '" + no + "'";
-            else
-                _no = "";
-            List<LocalPurchasingBookReportViewModel> reportData = new List<LocalPurchasingBookReportViewModel>();
-            string connectionString = APIEndpoint.ConnectionString;
-            using (SqlConnection conn =
-                new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(
-                    "declare @EndDate datetime = '" + DateTo + "' " +
-                    "declare @StartDate datetime = '" + DateFrom + "' " +
-                    "select URNNo,ReceiptDate,ProductName,UnitName,CategoryName,useVat,VatNo,sum(dpp)Dpp,sum(ppn) Ppn  from(select  g.URNNo,g.ReceiptDate,h.productname,g.unitname,a.CategoryName,c.UseVat, " +
-                    " case when ispaid = 0 then '-' else (select top(1)VatNo from UnitPaymentOrders o join unitpaymentorderItems uo on o.id = uo.UPOId where uo.urnid = g.Id) end as VatNo," +
-                    " h.priceperdealunit* h.receiptquantity* c.CurrencyRate as dpp,h.priceperdealunit * h.receiptquantity* c.CurrencyRate* 10/100 as ppn" +
-                    " from " +
-                    " internalpurchaseorders a " +
-                    " join ExternalPurchaseOrderItems b on a.id = b.POId " +
-                    " join ExternalPurchaseOrders c on c.Id = b.EPOId " +
-                    " join Externalpurchaseorderdetails d on  b.id = d.epoitemid " +
-                    " join deliveryorderitems e on c.id = e.epoid " +
-                    " join deliveryorders f on f.id = e.DOId " +
-                    " join UnitReceiptNotes g on  f.id = g.DOId " +
-                    " join UnitReceiptNoteItems h on g.id = h.urnid and h.EPODetailId=d.Id " +
-                    " where g.IsDeleted = 0 and URNNo like '%BPL%'  and  receiptdate between @StartDate and @EndDate " + _cat + _no + _unit +
-                    " ) as data " +
 
-                    " group by URNNo, ReceiptDate, ProductName, UnitName, CategoryName, useVat, VatNo, DPP, PPN", conn))
-                {
-                    SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
-                    DataSet dSet = new DataSet();
-                    dataAdapter.Fill(dSet);
-                    foreach (DataRow data in dSet.Tables[0].Rows)
-                    {
-
-                        LocalPurchasingBookReportViewModel view = new LocalPurchasingBookReportViewModel
+            var Data = (from a in dbContext.InternalPurchaseOrders
+                        join b in dbContext.ExternalPurchaseOrderItems on a.Id equals b.POId
+                        join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
+                        join d in dbContext.ExternalPurchaseOrderDetails on b.Id equals d.EPOItemId
+                        join e in dbContext.DeliveryOrderItems on c.Id equals e.EPOId
+                        join f in dbContext.DeliveryOrders on e.DOId equals f.Id
+                        join g in dbContext.UnitReceiptNotes on f.Id equals g.DOId
+                        join h in dbContext.UnitReceiptNoteItems on new { gId = g.Id, dId = d.Id } equals new { gId = h.URNId, dId = h.EPODetailId }
+                        where g.IsDeleted == false && g.URNNo.Contains("BPL")
+                            && ((d1 != new DateTime(1970, 1, 1)) ? (g.ReceiptDate.Date >= d1 && g.ReceiptDate.Date <= d2) : true)
+                            && ((category != null) ? (a.CategoryCode == category) : true)
+                            && ((unit != null) ? (g.UnitCode == unit) : true)
+                            && ((no != null) ? (g.URNNo == no) : true)
+                        select new
                         {
-                            uRNNo = data["URNNo"].ToString(),
-                            receiptDate = (DateTimeOffset)data["ReceiptDate"],
-                            productName = data["ProductName"].ToString(),
-                            unitName = data["UnitName"].ToString(),
-                            categoryName = data["CategoryName"].ToString(),
-                            invoiceNo = data["VatNo"].ToString(),
-                            dpp = Convert.ToDecimal(data["DPP"].ToString()),
-                            ppn = Convert.ToDecimal(data["PPN"].ToString()),
-                            useVat = (bool)data["useVat"],
+                            //g.Id,
+                            g.URNNo,
+                            g.ReceiptDate,
+                            h.ProductName,
+                            g.UnitName,
+                            a.CategoryName,
+                            c.UseVat,
+                            VatNo = g.IsPaid == false ? "-" : (
+                                    from o in dbContext.UnitPaymentOrders
+                                    join uo in dbContext.UnitPaymentOrderItems on o.Id equals uo.UPOId
+                                    where uo.URNId == g.Id
+                                    select o.VatNo
+                                )
+                                .FirstOrDefault() ?? "-",
+                            dpp = h.PricePerDealUnit * h.ReceiptQuantity * c.CurrencyRate,
+                            ppn = h.PricePerDealUnit * h.ReceiptQuantity * c.CurrencyRate * 10 / 100
+                        })
+                        .Distinct()
+                        .ToList();
+
+            var Query = from data in Data
+                        group data by new { data.URNNo, data.ReceiptDate, data.ProductName, data.UnitName, data.CategoryName, data.UseVat, data.VatNo, data.dpp, data.ppn } into groupData
+                        select new LocalPurchasingBookReportViewModel
+                        {
+                            uRNNo = groupData.Key.URNNo,
+                            receiptDate = groupData.Key.ReceiptDate.DateTime,
+                            productName = groupData.Key.ProductName,
+                            unitName = groupData.Key.UnitName,
+                            categoryName = groupData.Key.CategoryName,
+                            invoiceNo = groupData.Key.VatNo,
+                            dpp = (decimal)groupData.Sum(s => s.dpp),
+                            ppn = (decimal)groupData.Sum(s => s.ppn),
+                            useVat = groupData.Key.UseVat,
                         };
-                        reportData.Add(view);
-                    }
-                }
-                conn.Close();
-            }
-            return Tuple.Create(reportData, reportData.Count);
+
+            return Query;
         }
 
-
+        public Tuple<List<LocalPurchasingBookReportViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        {
+            List<LocalPurchasingBookReportViewModel> reportData = GetReportQuery(no, unit, category, dateFrom, dateTo).ToList();
+            return Tuple.Create(reportData, reportData.Count);
+        }
 
         #region Ra sido dinggo
 

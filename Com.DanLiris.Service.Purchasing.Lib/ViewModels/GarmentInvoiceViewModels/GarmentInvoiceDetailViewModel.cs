@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
@@ -6,16 +7,15 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels
 {
-    public class GarmentInvoiceDetailViewModel
-    {
+    public class GarmentInvoiceDetailViewModel : BaseViewModel
+	{
         public long ePOId { get; set; }
         public string ePONo { get; set; }
-        public long iPOId { get; set; }
-        public string iPONo { get; set; }
+        public long pOId { get; set; }
         public long pRItemId { get; set; }
         public string pRNo { get; set; }
         public string roNo { get; set; }
-        public ProductViewModel product{ get; set; }
+        public GarmentProductViewModel product{ get; set; }
         public UomViewModel uoms { get; set; }
         public double dOQuantity { get; set; }
         public double pricePerDealUnit { get; set; }
