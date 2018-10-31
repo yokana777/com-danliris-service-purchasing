@@ -14,7 +14,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public string SupplierName { get; set; }
         public long CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
-        public string CurrencyName { get; set; }
         public DateTimeOffset InvoiceDate { get; set; }
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }

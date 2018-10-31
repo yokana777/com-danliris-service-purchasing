@@ -21,34 +21,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d.vatNo, opt => opt.MapFrom(s => s.VatNo))
                 .ForMember(d => d.vatDate, opt => opt.MapFrom(s => s.VatDate))
                 .ForMember(d => d.incomeTaxNo, opt => opt.MapFrom(s => s.IncomeTaxNo))
-                .ForMember(d => d.incomeTaxDate, opt => opt.MapFrom(s => s.IncomeTaxDate))
-                /*Supplier*/
-                .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
+				 .ForMember(d => d.hasInternNote, opt => opt.MapFrom(s => s.HasInternNote))
+				.ForMember(d => d.incomeTaxDate, opt => opt.MapFrom(s => s.IncomeTaxDate))
+				.ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
+				.ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
+				/*Supplier*/
+				.ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
                 .ReverseMap();
 
             CreateMap<GarmentInvoiceItem, GarmentInvoiceItemViewModel>()
                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
-               .ForPath(d => d.deliveryOrder.Id, opt => opt.MapFrom(s => s.DeliveryOrderId))
-               .ForPath(d => d.deliveryOrder.doNo, opt => opt.MapFrom(s => s.DeliveryOrderNo))
-               .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
-               .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
-               .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
-               .ReverseMap();
+			   .ForPath(d => d.deliveryOrder.Id, opt => opt.MapFrom(s => s.DeliveryOrderId))
+			   .ForPath(d => d.deliveryOrder.doNo, opt => opt.MapFrom(s => s.DeliveryOrderNo))
+			   .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
+			   .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
+			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+			   .ForPath(d => d.currency, opt => opt.MapFrom(s => s.CurrencyCode))
+			   .ReverseMap();
 
             CreateMap<GarmentInvoiceDetail, GarmentInvoiceDetailViewModel>()
-              //.ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
-              //.ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
-              //.ForPath(d => d.iPOId, opt => opt.MapFrom(s => s.IPOId))
-              //.ForPath(d => d.iPONo, opt => opt.MapFrom(s => s.IPONo))
-              .ForPath(d => d.product.Id, opt => opt.MapFrom(s => s.ProductId))
-              .ForPath(d => d.product.Code, opt => opt.MapFrom(s => s.ProductCode))
-              .ForPath(d => d.uoms.Id, opt => opt.MapFrom(s => s.UomId))
-              .ForPath(d => d.uoms.Unit, opt => opt.MapFrom(s => s.UomUnit))
-              .ForPath(d => d.dOQuantity, opt => opt.MapFrom(s => s.DOQuantity))
-              .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
-              .ReverseMap();
+			  .ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
+			  .ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
+			  .ForPath(d => d.pOId, opt => opt.MapFrom(s => s.IPOId))
+			  .ForPath(d => d.product.Id, opt => opt.MapFrom(s => s.ProductId))
+			  .ForPath(d => d.product.Code, opt => opt.MapFrom(s => s.ProductCode))
+			  .ForPath(d => d.product.Name, opt => opt.MapFrom(s => s.ProductName))
+			  .ForPath(d => d.pRItemId, opt => opt.MapFrom(s => s.PRItemId))
+			  .ForPath(d => d.pRNo, opt => opt.MapFrom(s => s.PRNo))
+			  .ForPath(d => d.uoms.Id, opt => opt.MapFrom(s => s.UomId))
+			  .ForPath(d => d.uoms.Unit, opt => opt.MapFrom(s => s.UomUnit))
+			  .ForPath(d => d.doQuantity, opt => opt.MapFrom(s => s.DOQuantity))
+			  .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
+			  .ForPath(d => d.roNo, opt => opt.MapFrom(s => s.RONo))
+			  .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
+			  .ForPath(d => d.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
+			  .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
+			  .ForPath(d => d.pOSerialNumber, opt => opt.MapFrom(s => s.POSerialNumber))
+			  .ReverseMap();
         }
     }
 }
