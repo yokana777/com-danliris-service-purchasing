@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
+namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
 {
     public class GarmentInternNoteDetail : StandardEntity<long>
     {

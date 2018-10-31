@@ -19,7 +19,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {

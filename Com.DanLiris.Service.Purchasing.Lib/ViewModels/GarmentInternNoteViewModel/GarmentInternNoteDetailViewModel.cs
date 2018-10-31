@@ -3,7 +3,7 @@ using Com.Moonlay.Models;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternNoteViewModel
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel
 {
     public class GarmentInternNoteDetailViewModel : BaseViewModel
     {
@@ -19,11 +19,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternNoteViewModel
         public string paymentType { get; set; }
         public double pricePerDealUnit { get; set; }
         public double priceTotal { get; set; }
-        
+        public double receiptQuantity { get; set; }
+        public double paymentDueDays { get; set; }
+        public long Quantity { get; set; }
+
         /*Product*/
         public ProductViewModel product { get; set; }
-
-        public long Quantity { get; set; }
 
         public UnitViewModel unit { get; set; }
     }

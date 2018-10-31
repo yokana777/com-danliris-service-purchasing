@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +12,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternNoteControllers
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNoteControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/garment-intern-note")]
+    [Route("v{version:apiVersion}/garment-intern-notes")]
     [Authorize]
     public class GarmentInternNoteController : Controller
     {
@@ -26,9 +26,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternNoteContro
         private readonly IGarmentInternNoteFacade facade;
         private readonly IdentityService identityService;
 
-        public GarmentInternNoteController(string apiVersion, IServiceProvider serviceProvider, IMapper mapper, IGarmentInternNoteFacade facade)
+        public GarmentInternNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInternNoteFacade facade)
         {
-            ApiVersion = apiVersion;
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
             this.facade = facade;

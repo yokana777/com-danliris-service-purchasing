@@ -1,7 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
+namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 {
     public class GarmentInternNoteFacades : IGarmentInternNoteFacade
     {
@@ -39,7 +40,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    m.IsDeleted = false;
+                    m.INNo = await GenerateNo(m, clientTimeZoneOffset);
+
+                    foreach (var item in m.Items)
+                    {
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                    }
 
                     this.dbSet.Add(m);
 
@@ -150,6 +156,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternNoteFacades
             }
 
             return Updated;
+        }
+        async Task<string> GenerateNo(GarmentInternNote model, int clientTimeZoneOffset)
+        {
+            var viewmodel = new GarmentInternNoteViewModel();
+            DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
+            string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
+            string Year = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("YY");
+            
+
+            string no = $"NI{Year}{Month}";
+            int Padding = 4;
+
+            var lastNo = await this.dbSet.Where(w => w.INNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.INNo).FirstOrDefaultAsync();
+
+            if (lastNo == null)
+            {
+                return no + "1".PadLeft(Padding, '0');
+            }
+            else
+            {
+                int lastNoNumber = Int32.Parse(lastNo.INNo.Replace(no, "")) + 1;
+                if (viewmodel.supplier.Import==true)
+                {
+                    string imports = "I";
+                    return no + lastNoNumber.ToString().PadLeft(Padding, '0') + imports;
+                }
+                else
+                {
+                    string imports = "L";
+                    return no + lastNoNumber.ToString().PadLeft(Padding, '0') + imports;
+                }
+                
+            }
         }
     }
 }

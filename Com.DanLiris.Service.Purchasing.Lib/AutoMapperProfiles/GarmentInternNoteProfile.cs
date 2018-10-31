@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,7 +16,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d.inNo, opt => opt.MapFrom(s => s.INNo))
                 .ForMember(d => d.inDate, opt => opt.MapFrom(s => s.INDate))
                 .ForMember(d => d.remark, opt => opt.MapFrom(s => s.Remark))
-
+                .ForMember(d => d.invoiceNoteNo, opt => opt.MapFrom(s => s.InvoiceNoteNo))
+                .ForMember(d => d.hasUnitReceiptNote, opt => opt.MapFrom(s => s.HasUnitReceiptNote))
+                
                 /*Supplier*/
                 .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
@@ -52,6 +54,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
                 .ForPath(d => d.priceTotal, opt => opt.MapFrom(s => s.PriceTotal))
                 .ForPath(d => d.poSerialNumber, opt => opt.MapFrom(s => s.POSerialNumber))
+                .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
+                .ForPath(d => d.termOfPayment, opt => opt.MapFrom(s => s.TermOfPayment))
+                .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
 
                 /*Unit*/
                 .ForPath(d => d.unit.Id, opt => opt.MapFrom(s => s.UnitId))

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel
+namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
 {
     public class GarmentInternNoteItem : StandardEntity<long>
     {

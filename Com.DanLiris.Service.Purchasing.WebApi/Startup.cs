@@ -35,6 +35,7 @@ using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -90,7 +91,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
-                .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>();
+                .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
+                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

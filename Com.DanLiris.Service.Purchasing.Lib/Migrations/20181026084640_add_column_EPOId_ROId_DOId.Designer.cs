@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181026084640_add_column_EPOId_ROId_DOId")]
+    partial class add_column_EPOId_ROId_DOId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2548,13 +2549,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("HasUnitReceiptNote");
-
                     b.Property<DateTimeOffset>("INDate");
 
                     b.Property<string>("INNo");
-
-                    b.Property<string>("InvoiceNoteNo");
 
                     b.Property<bool>("IsDeleted");
 

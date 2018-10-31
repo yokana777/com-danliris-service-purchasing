@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.InternNoteModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
