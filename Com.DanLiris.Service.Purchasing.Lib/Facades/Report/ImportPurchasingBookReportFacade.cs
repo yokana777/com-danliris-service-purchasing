@@ -37,45 +37,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 			this.dbSet = dbContext.Set<UnitReceiptNote>();
 		}
 
-        public IQueryable<ImportPurchasingBookViewModel> GetReportQuery(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public IEnumerable<ImportPurchasingBookViewModel> GetReportQuery(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
             DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
-            var Query = from data in (
-                            from a in dbContext.InternalPurchaseOrders
-                            join b in dbContext.ExternalPurchaseOrderItems on a.Id equals b.POId
-                            join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
-                            join d in dbContext.ExternalPurchaseOrderDetails on b.Id equals d.EPOItemId
-                            join e in dbContext.DeliveryOrderItems on c.Id equals e.EPOId
-                            join f in dbContext.DeliveryOrders on e.DOId equals f.Id
-                            join g in dbContext.UnitReceiptNotes on f.Id equals g.DOId
-                            join h in dbContext.UnitReceiptNoteItems on new { gId = g.Id, dId = d.Id } equals new { gId = h.URNId, dId = h.EPODetailId }
-                            where g.IsDeleted == false && g.URNNo.Contains("BPI")
-                                && ((d1 != new DateTime(1970, 1, 1)) ? (g.ReceiptDate.Date >= d1 && g.ReceiptDate.Date <= d2) : true)
-                                && ((category != null) ? (a.CategoryCode == category) : true)
-                                && ((unit != null) ? (g.UnitCode == unit) : true)
-                                && ((no != null) ? (g.URNNo == no) : true)
-                            select new
-                            {
-                                //g.Id,
-                                g.URNNo,
-                                g.ReceiptDate,
-                                h.ProductName,
-                                g.UnitName,
-                                a.CategoryName,
-                                PIBNo = g.IsPaid == false ? "-" : (
-                                        from o in dbContext.UnitPaymentOrders
-                                        join uo in dbContext.UnitPaymentOrderItems on o.Id equals uo.UPOId
-                                        where uo.URNId == g.Id
-                                        select o.PibNo
-                                    )
-                                    .First(),
-                                amount = h.PricePerDealUnit * h.ReceiptQuantity,
-                                amountIDR = h.PricePerDealUnit * h.ReceiptQuantity * c.CurrencyRate,
-                                c.CurrencyRate
-                            })
-                           .Distinct()
+            var Data = (from a in dbContext.InternalPurchaseOrders
+                        join b in dbContext.ExternalPurchaseOrderItems on a.Id equals b.POId
+                        join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
+                        join d in dbContext.ExternalPurchaseOrderDetails on b.Id equals d.EPOItemId
+                        join e in dbContext.DeliveryOrderItems on c.Id equals e.EPOId
+                        join f in dbContext.DeliveryOrders on e.DOId equals f.Id
+                        join g in dbContext.UnitReceiptNotes on f.Id equals g.DOId
+                        join h in dbContext.UnitReceiptNoteItems on new { gId = g.Id, dId = d.Id } equals new { gId = h.URNId, dId = h.EPODetailId }
+                        where g.IsDeleted == false && g.URNNo.Contains("BPI")
+                            && ((d1 != new DateTime(1970, 1, 1)) ? (g.ReceiptDate.Date >= d1 && g.ReceiptDate.Date <= d2) : true)
+                            && ((category != null) ? (a.CategoryCode == category) : true)
+                            && ((unit != null) ? (g.UnitCode == unit) : true)
+                            && ((no != null) ? (g.URNNo == no) : true)
+                        select new
+                        {
+                            //g.Id,
+                            g.URNNo,
+                            g.ReceiptDate,
+                            h.ProductName,
+                            g.UnitName,
+                            a.CategoryName,
+                            PIBNo = g.IsPaid == false ? "-" : (
+                                    from o in dbContext.UnitPaymentOrders
+                                    join uo in dbContext.UnitPaymentOrderItems on o.Id equals uo.UPOId
+                                    where uo.URNId == g.Id
+                                    select o.PibNo
+                                )
+                                .FirstOrDefault() ?? "-",
+                            amount = h.PricePerDealUnit * h.ReceiptQuantity,
+                            amountIDR = h.PricePerDealUnit * h.ReceiptQuantity * c.CurrencyRate,
+                            c.CurrencyRate
+                        })
+                        .Distinct()
+                        .ToList();
+
+            var Query = from data in Data
                         group data by new { data.URNNo, data.ReceiptDate, data.ProductName, data.UnitName, data.CategoryName, data.PIBNo, data.CurrencyRate } into groupData
                         select new ImportPurchasingBookViewModel
                         {
@@ -95,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public Tuple<List<ImportPurchasingBookViewModel>, int> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
-            List < ImportPurchasingBookViewModel > reportData = GetReportQuery( no,  unit,  category,  dateFrom,  dateTo).ToList();
+            List<ImportPurchasingBookViewModel> reportData = GetReportQuery(no, unit, category, dateFrom, dateTo).ToList();
 
             return Tuple.Create(reportData, reportData.Count);
 		}
