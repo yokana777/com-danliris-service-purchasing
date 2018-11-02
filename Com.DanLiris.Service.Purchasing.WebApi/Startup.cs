@@ -2,7 +2,6 @@
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
@@ -36,6 +35,8 @@ using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
+
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -85,14 +86,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
-                .AddTransient<IDailyBankTransactionFacade, DailyBankTransactionFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
-                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>();
+                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
+                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>();
+
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
