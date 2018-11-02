@@ -34,6 +34,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                     items = new List<GarmentDeliveryOrderItemViewModel>
                     {
                         new GarmentDeliveryOrderItemViewModel()
+                        {
+                            fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                            {
+                                new GarmentDeliveryOrderFulfillmentViewModel()
+                            }
+                        }
                     }
                 };
             }
