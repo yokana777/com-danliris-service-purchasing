@@ -13,18 +13,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public string dONo { get; set; }
         public DateTimeOffset dODate { get; set; }
         public string poSerialNumber { get; set; }
-        public long rOId { get; set; }
         public string rONo { get; set; }
         public string termOfPayment { get; set; }
         public string paymentType { get; set; }
         public double pricePerDealUnit { get; set; }
         public double priceTotal { get; set; }
-        public double receiptQuantity { get; set; }
         public double paymentDueDays { get; set; }
-        public long Quantity { get; set; }
+        public DateTimeOffset paymentDueDate { get; set; }
 
         /*Product*/
         public ProductViewModel product { get; set; }
+
+        public UomViewModel uomUnit { get; set; }
 
         public UnitViewModel unit { get; set; }
     }

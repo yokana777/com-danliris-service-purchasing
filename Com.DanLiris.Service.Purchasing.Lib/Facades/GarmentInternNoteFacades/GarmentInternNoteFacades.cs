@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -42,8 +43,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                     m.INNo = await GenerateNo(m, clientTimeZoneOffset);
 
+                    
+
                     foreach (var item in m.Items)
                     {
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForCreate(detail, user, "Facade");
+                        }
+                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                        garmentInvoice.HasInternNote = true;
+
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                     }
 
@@ -132,11 +142,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 try
                 {
                     var oldM = this.dbSet.AsNoTracking()
-                               .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+                               .SingleOrDefault(gi => gi.Id == id && !gi.IsDeleted);
 
                     if (oldM != null && oldM.Id == id)
                     {
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
+                        foreach (var item in m.Items)
+                        {
+                            foreach (var detail in item.Details)
+                            {
+                                EntityExtension.FlagForCreate(detail, user, "Facade");
+                            }
+                            GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                            garmentInvoice.HasInternNote = true;
+
+                            EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        }
 
                         dbSet.Update(m);
 

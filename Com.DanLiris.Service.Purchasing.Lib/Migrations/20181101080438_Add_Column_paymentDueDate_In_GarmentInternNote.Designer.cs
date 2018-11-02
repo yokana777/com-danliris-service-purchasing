@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181101080438_Add_Column_paymentDueDate_In_GarmentInternNote")]
+    partial class Add_Column_paymentDueDate_In_GarmentInternNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2143,7 +2144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("InvoiceDate");
 
-                    b.Property<long>("InvoiceId");
+                    b.Property<string>("InvoiceId");
 
                     b.Property<string>("InvoiceNo");
 

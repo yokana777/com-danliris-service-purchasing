@@ -11,8 +11,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public string INNo { get; set; }
         public string Remark { get; set; }
         public DateTimeOffset INDate { get; set; }
-        public string InvoiceNoteNo { get; set; }
-        public string HasUnitReceiptNote { get; set; }
 
         /*Currency*/
         [MaxLength(255)]

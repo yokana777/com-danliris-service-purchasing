@@ -12,12 +12,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public long EPOId { get; set; }
         public string EPONo { get; set; }
         public string POSerialNumber { get; set; }
-        public long ROId { get; set; }
         public string RONo { get; set; }
         public string TermOfPayment { get; set; }
         public string PaymentType { get; set; }
-        public double ReceiptQuantity { get; set; }
-        public double PaymentDueDays { get; set; }
+        public int PaymentDueDays { get; set; }
+        public DateTimeOffset PaymentDueDate { get; set; }
         public DateTimeOffset DODate { get; set; }
 
         /*Product*/
@@ -37,6 +36,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public string UnitCode { get; set; }
         [MaxLength(255)]
         public string UnitName { get; set; }
+
+        /*UOM*/
+        public string UOMId { get; set; }
+        public string UOMUnit { get; set; }
         
         public double PricePerDealUnit { get; set; }
         public double PriceTotal { get; set; }

@@ -16,8 +16,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d.inNo, opt => opt.MapFrom(s => s.INNo))
                 .ForMember(d => d.inDate, opt => opt.MapFrom(s => s.INDate))
                 .ForMember(d => d.remark, opt => opt.MapFrom(s => s.Remark))
-                .ForMember(d => d.invoiceNoteNo, opt => opt.MapFrom(s => s.InvoiceNoteNo))
-                .ForMember(d => d.hasUnitReceiptNote, opt => opt.MapFrom(s => s.HasUnitReceiptNote))
                 
                 /*Supplier*/
                 .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
@@ -37,8 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.garmentInvoice.Id, opt => opt.MapFrom(s => s.InvoiceId))
                 .ForPath(d => d.garmentInvoice.invoiceNo, opt => opt.MapFrom(s => s.InvoiceNo))
                 .ForPath(d => d.garmentInvoice.invoiceDate, opt => opt.MapFrom(s => s.InvoiceDate))
-                .ForPath(d => d.garmentInvoice.isPayTax, opt => opt.MapFrom(s => s.IsPayTax))
-                .ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+                .ForPath(d => d.garmentInvoice.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
 
                 .ForMember(d => d.detail, opt => opt.MapFrom(s => s.Details))
                 .ReverseMap();
@@ -57,16 +54,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
                 .ForPath(d => d.termOfPayment, opt => opt.MapFrom(s => s.TermOfPayment))
                 .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
+                .ForPath(d => d.paymentDueDate, opt => opt.MapFrom(s => s.PaymentDueDate))
 
-                /*Unit*/
-                .ForPath(d => d.unit.Id, opt => opt.MapFrom(s => s.UnitId))
-                .ForPath(d => d.unit.Code, opt => opt.MapFrom(s => s.UnitCode))
+                /*UOM*/
+                .ForPath(d => d.uomUnit.Id, opt => opt.MapFrom(s => s.UOMId))
+                .ForPath(d => d.uomUnit.Unit, opt => opt.MapFrom(s => s.UOMUnit))
 
                 /*Product*/
                 .ForPath(d => d.product.Id, opt => opt.MapFrom(s => s.ProductId))
                 .ForPath(d => d.product.Code, opt => opt.MapFrom(s => s.ProductCode))
                 .ForPath(d => d.product.Name, opt => opt.MapFrom(s => s.ProductName))
-                
+                /*Unit*/
+                .ForPath(d => d.unit.Id, opt => opt.MapFrom(s => s.UnitId))
+                .ForPath(d => d.unit.Code, opt => opt.MapFrom(s => s.UnitCode))
+                .ForPath(d => d.unit.Name, opt => opt.MapFrom(s => s.UnitName))
+
                 .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
                 .ForPath(d => d.priceTotal, opt => opt.MapFrom(s => s.PriceTotal))
                 .ReverseMap();
