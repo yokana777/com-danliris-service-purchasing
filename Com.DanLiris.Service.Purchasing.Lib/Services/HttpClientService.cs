@@ -29,5 +29,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services
         {
             return await _client.PostAsync(url, content);
         }
+
+        public async Task<HttpResponseMessage> DeleteAsync(string url)
+        {
+            return await _client.DeleteAsync(url);
+        }
     }
 }
