@@ -2,7 +2,6 @@
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
@@ -85,7 +84,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
-                .AddTransient<IDailyBankTransactionFacade, DailyBankTransactionFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
