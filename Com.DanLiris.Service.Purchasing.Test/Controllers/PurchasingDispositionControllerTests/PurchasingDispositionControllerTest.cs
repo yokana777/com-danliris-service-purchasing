@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             var mockFacade = new Mock<IPurchasingDispositionFacade>();
 
-            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
                 .Returns(new PurchasingDisposition());
 
             var mockMapper = new Mock<IMapper>();
@@ -268,7 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
         public void Should_Error_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IPurchasingDispositionFacade>();
-            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
