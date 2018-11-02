@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                         itemErrorCount++;
                         itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
                     }
-                    else if (item.fulfillments == null || item.fulfillments.Count.Equals(0))
+                    if (item.fulfillments == null || item.fulfillments.Count.Equals(0))
                     {
                         itemErrorCount++;
                         itemError += "fulfillmentscount: 'PurchaseRequest is required', ";

@@ -359,67 +359,77 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         [HttpGet("by-supplier")]
         public IActionResult BySupplier(string keyword = null, string Filter = "{}")
         {
-            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
-            var Data = facade.ReadBySupplier(keyword, Filter);
-
-            var newData = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data);
-
-            List<object> listData = new List<object>();
-            listData.AddRange(
-                newData.AsQueryable().Select(s => new
-                {
-                    s.Id,
-                    s.EPONo,
-                    s.OrderDate,
-                    s.DeliveryDate,
-                    s.Supplier,
-                    s.PaymentType,
-                    s.PaymentMethod,
-                    s.Currency,
-                    s.IncomeTax,
-                    s.IsIncomeTax,
-                    s.IsUseVat,
-                    s.Category,
-                    s.Remark,
-                    s.IsPosted,
-                    s.IsOverBudget,
-                    s.IsApproved,
-                    s.IsCanceled,
-                    s.IsClosed,
-                    s.LastModifiedUtc,
-                    Items = s.Items.Select(i => new
-                    {
-                        i.Id,
-                        i.PRNo,
-                        i.PRId,
-                        i.PONo,
-                        i.POId,
-                        i.RONo,
-                        i.PO_SerialNumber,
-                        i.Product,
-                        i.DealQuantity,
-                        i.DOQuantity,
-                        i.DealUom,
-                        i.Conversion,
-                        i.SmallQuantity,
-                        i.SmallUom,
-                        i.PricePerDealUnit,
-                    })
-                }).ToList()
-            );
-
-            return Ok(new
+            try
             {
-                apiVersion = ApiVersion,
-                statusCode = General.OK_STATUS_CODE,
-                message = General.OK_MESSAGE,
-                data = listData,
-                info = new Dictionary<string, object>
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var Data = facade.ReadBySupplier(keyword, Filter);
+
+                var newData = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    newData.AsQueryable().Select(s => new
+                    {
+                        s.Id,
+                        s.EPONo,
+                        s.OrderDate,
+                        s.DeliveryDate,
+                        s.Supplier,
+                        s.PaymentType,
+                        s.PaymentMethod,
+                        s.Currency,
+                        s.IncomeTax,
+                        s.IsIncomeTax,
+                        s.IsUseVat,
+                        s.Category,
+                        s.Remark,
+                        s.IsPosted,
+                        s.IsOverBudget,
+                        s.IsApproved,
+                        s.IsCanceled,
+                        s.IsClosed,
+                        s.LastModifiedUtc,
+                        Items = s.Items.Select(i => new
+                        {
+                            i.Id,
+                            i.PRNo,
+                            i.PRId,
+                            i.PONo,
+                            i.POId,
+                            i.RONo,
+                            i.PO_SerialNumber,
+                            i.Product,
+                            i.DealQuantity,
+                            i.DOQuantity,
+                            i.DealUom,
+                            i.Conversion,
+                            i.SmallQuantity,
+                            i.SmallUom,
+                            i.PricePerDealUnit,
+                        })
+                    }).ToList()
+                );
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
                 {
                     { "count", listData.Count },
                 },
-            });
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
     }
 }
