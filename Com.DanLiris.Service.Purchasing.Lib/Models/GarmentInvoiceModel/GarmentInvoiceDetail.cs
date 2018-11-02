@@ -12,13 +12,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public long EPOId { get; set; }
         public string EPONo { get; set; }
         public long IPOId { get; set; }
-        public string IPONo { get; set; }
         public long PRItemId { get; set; }
         public string PRNo { get; set; }
-        public string ProductId { get; set; }
+        public long ProductId { get; set; }
         public string ProductCode { get; set; }
         public string ProductName { get; set; }
-        public string UomId { get; set; }
+        public long UomId { get; set; }
         public string UomUnit { get; set; }
         public string RONo { get; set; }
         public double DOQuantity { get; set; }

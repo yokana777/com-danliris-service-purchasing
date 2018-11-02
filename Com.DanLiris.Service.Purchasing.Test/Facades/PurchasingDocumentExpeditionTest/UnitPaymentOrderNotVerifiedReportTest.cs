@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             model.VerifyDate = DateTimeOffset.UtcNow;
             DateTimeOffset tomorrow = DateTimeOffset.UtcNow.AddDays(1);
             var Response = this.FacadeExpedition.Read();
-            this.FacadeExpedition.UnitPaymentOrderVerification(model, "Unit Test");
+            await this.FacadeExpedition.UnitPaymentOrderVerification(model, "Unit Test");
             var Report = this.Facade.GetReport("", "", "", model.VerifyDate, tomorrow, 1,25, "{}", 7);
             Assert.NotEqual(Report.Item1.Count, 0);
         }
