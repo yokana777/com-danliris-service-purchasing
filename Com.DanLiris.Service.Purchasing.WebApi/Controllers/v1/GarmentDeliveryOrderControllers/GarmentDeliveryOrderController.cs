@@ -62,6 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
 		//[HttpGet("by-supplier")]
 		//public IActionResult GetBySupplier(string Keyword = "", string Filter = "{}")
 		//{
@@ -158,6 +159,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
+                foreach (var item in ViewModel.items)
+                {
+                    item.fulfillments = item.fulfillments.Where(s => s.isSave).ToList();
+                }
+
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
                 validateService.Validate(ViewModel);
@@ -179,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return BadRequest(Result);
             }
             catch (Exception e)
-            {
+                {
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
                     .Fail();
