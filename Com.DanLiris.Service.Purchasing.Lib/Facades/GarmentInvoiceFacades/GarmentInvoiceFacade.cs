@@ -120,6 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 					foreach (var item in model.Items)
 					{
 						GarmentDeliveryOrder garmentDeliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+						if(garmentDeliveryOrder !=null)
 						garmentDeliveryOrder.IsInvoice = false;
 						EntityExtension.FlagForDelete(item, username, USER_AGENT);
 						foreach (var detail in item.Details)
