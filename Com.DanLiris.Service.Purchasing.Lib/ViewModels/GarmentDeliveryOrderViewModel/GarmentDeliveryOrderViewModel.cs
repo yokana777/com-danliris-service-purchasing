@@ -86,6 +86,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                         itemErrorCount++;
                         itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
                     }
+                    if (item.fulfillments == null || item.fulfillments.Count.Equals(0))
+                    {
+                        itemErrorCount++;
+                        itemError += "fulfillmentscount: 'PurchaseRequest is required', ";
+                    }
+                    else
+                    {
+                        string detailError = "[";
+
+                        foreach (var detail in item.fulfillments)
+                        {
+                            detailError += "{";
+
+                            if (detail.conversion == 0)
+                            {
+                                detailErrorCount++;
+                                detailError += "conversion: 'Conversion can not 0', ";
+                            }
+
+                            detailError += "}, ";
+                        }
+
+                        detailError += "]";
+
+                        if (detailErrorCount > 0)
+                        {
+                            itemErrorCount++;
+                            itemError += $"fulfillments: {detailError}, ";
+                        }
+                    }
+
 
                 }
 
