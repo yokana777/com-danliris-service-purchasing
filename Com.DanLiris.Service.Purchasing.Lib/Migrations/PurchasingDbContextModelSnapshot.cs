@@ -1866,7 +1866,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("IncomeTaxDate");
 
+                    b.Property<long>("IncomeTaxId");
+
+                    b.Property<string>("IncomeTaxName");
+
                     b.Property<string>("IncomeTaxNo");
+
+                    b.Property<double>("IncomeTaxRate");
 
                     b.Property<DateTimeOffset>("InvoiceDate");
 
