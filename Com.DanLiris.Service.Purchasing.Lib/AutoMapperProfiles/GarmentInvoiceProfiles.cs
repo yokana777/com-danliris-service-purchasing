@@ -21,8 +21,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d.vatNo, opt => opt.MapFrom(s => s.VatNo))
                 .ForMember(d => d.vatDate, opt => opt.MapFrom(s => s.VatDate))
                 .ForMember(d => d.incomeTaxNo, opt => opt.MapFrom(s => s.IncomeTaxNo))
-				 .ForMember(d => d.hasInternNote, opt => opt.MapFrom(s => s.HasInternNote))
+				.ForMember(d => d.hasInternNote, opt => opt.MapFrom(s => s.HasInternNote))
 				.ForMember(d => d.incomeTaxDate, opt => opt.MapFrom(s => s.IncomeTaxDate))
+				.ForPath(d => d.incomeTaxRate, opt => opt.MapFrom(s => s.IncomeTaxRate))
+				.ForPath(d => d.incomeTaxName , opt => opt.MapFrom(s => s.IncomeTaxName))
+				.ForPath(d => d.incomeTaxId, opt => opt.MapFrom(s => s.IncomeTaxId))
 				.ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
 				.ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
 				/*Supplier*/

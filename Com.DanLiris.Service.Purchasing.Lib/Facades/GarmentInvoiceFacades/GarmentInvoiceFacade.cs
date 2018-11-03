@@ -78,6 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 					{
 						_total += item.TotalAmount;
 						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId );
+						if(deliveryOrder!=null)
 						deliveryOrder.IsInvoice = true;
 						EntityExtension.FlagForCreate(item, username, USER_AGENT);
 
@@ -101,67 +102,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
 			return Created;
 		}
-
-		public async Task<int> Update(int id, GarmentInvoice model, string user)
-		{
-			int Updated = 0;
-
-			using (var transaction = this.dbContext.Database.BeginTransaction())
-			{
-				try
-				{
-					var oldM = this.dbSet.AsNoTracking()
-						  .Include(d => d.Items)
-						  .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
-
-					var existingModel = this.dbSet.AsNoTracking()
-						.Include(d => d.Items)
-							.ThenInclude(d => d.Details)
-						.SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
-
-					if (existingModel != null && id == model.Id)
-					{
-						EntityExtension.FlagForUpdate(model, user, USER_AGENT);
-
-						foreach (var item in model.Items.ToList())
-						{
-							var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
-							EntityExtension.FlagForCreate(item, user, USER_AGENT); 
-						}
-						foreach (var oldItem in oldM.Items)
-						{
-							var newItem = model.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
-							if (newItem == null)
-							{
-								//GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(oldItem.POId));
-								//internalPurchaseOrder.IsPosted = false;
-
-								GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(a => a.Id.Equals(oldItem.DeliveryOrderId));
-								garmentDeliveryOrder.IsInvoice = false;
-								EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
-								dbContext.GarmentInvoiceItems.Update(oldItem);
-							}
-						}
-
-						this.dbContext.Update(model);
-						Updated = await dbContext.SaveChangesAsync();
-						transaction.Commit();
-					}
-					else
-					{
-						throw new Exception("Invalid Id");
-					}
-				}
-				catch (Exception e)
-				{
-					transaction.Rollback();
-					throw new Exception(e.Message);
-				}
-			}
-
-			return Updated;
-		}
-
 		public int Delete(int id, string username)
 		{
 			int Deleted = 0;
@@ -174,11 +114,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 						.Include(d => d.Items)
 							.ThenInclude(d => d.Details)
 						.SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
-
+					
 					EntityExtension.FlagForDelete(model, username, USER_AGENT);
 
 					foreach (var item in model.Items)
 					{
+						GarmentDeliveryOrder garmentDeliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+						garmentDeliveryOrder.IsInvoice = false;
 						EntityExtension.FlagForDelete(item, username, USER_AGENT);
 						foreach (var detail in item.Details)
 						{
@@ -199,11 +141,75 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			return Deleted;
 		}
 
-		public Task<int> Update(int id, GarmentInvoice m, string user, int clientTimeZoneOffset = 7)
+		public HashSet<long> GetGarmentInvoiceId(long id)
 		{
-			throw new NotImplementedException();
+			return new HashSet<long>(dbContext.GarmentInvoiceItems.Where(d => d.GarmentInvoice.Id == id).Select(d => d.Id));
 		}
+		public async Task<int> Update(int id, GarmentInvoice model, string user, int clientTimeZoneOffset = 7)
+		{
+			int Updated = 0;
 
-	
+			using (var transaction = this.dbContext.Database.BeginTransaction())
+			{
+				try
+				{
+					if (model.Items != null)
+					{
+						double total = 0;
+						HashSet<long> detailIds = GetGarmentInvoiceId(id);
+						foreach (var itemId in detailIds)
+						{
+							GarmentInvoiceItem data = model.Items.FirstOrDefault(prop => prop.Id.Equals(itemId));
+							if (data == null)
+							{
+								GarmentInvoiceItem dataItem = dbContext.GarmentInvoiceItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
+								EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
+							 
+							}
+							else
+							{
+								EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+							}
+
+							foreach (GarmentInvoiceItem item in model.Items)
+							{
+								total += item.TotalAmount;
+								if (item.Id <= 0)
+								{
+									GarmentDeliveryOrder garmentDeliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+									if(garmentDeliveryOrder!=null)
+									garmentDeliveryOrder.IsInvoice = true ;
+									EntityExtension.FlagForCreate(item, user, USER_AGENT);
+								}
+								else
+									EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+
+								foreach (GarmentInvoiceDetail detail in item.Details)
+								{
+									if (item.Id <= 0)
+									{
+									EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+									}
+									else
+										EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+								}
+							}
+						}
+					}
+					EntityExtension.FlagForUpdate(model, user, USER_AGENT);
+					this.dbSet.Update(model);
+					Updated = await dbContext.SaveChangesAsync();
+					transaction.Commit();
+					 
+				}
+				catch (Exception e)
+				{
+					transaction.Rollback();
+					throw new Exception(e.Message);
+				}
+			}
+
+			return Updated;
+		}
 	}
 }
