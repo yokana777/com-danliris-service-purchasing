@@ -107,5 +107,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             await facade.Create(data, "Unit Test");
             return data;
         }
-    }
+
+		public async Task<GarmentDeliveryOrder> GetNewData(string user)
+		{
+			var data = GetNewData();
+			await facade.Create(data, "Unit Test");
+			return data;
+		}
+		public async Task<GarmentDeliveryOrder> GetTestDataUnused(string user)
+		{
+			GarmentDeliveryOrder garmentDeliveryOrder = await  GetNewData(user);
+			garmentDeliveryOrder.IsInvoice = false;
+			foreach (var item in garmentDeliveryOrder.Items)
+			{
+				foreach (var detail in item.Details)
+				{
+					detail.DOQuantity = 0;
+					detail.DealQuantity = 2;
+				}
+			}
+
+			await facade.Create(garmentDeliveryOrder, user, 7);
+
+			return garmentDeliveryOrder;
+		}
+	}
 }
