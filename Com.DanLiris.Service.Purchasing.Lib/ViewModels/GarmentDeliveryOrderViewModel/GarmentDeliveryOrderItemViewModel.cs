@@ -12,8 +12,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string paymentMethod { get; set; }
         public int paymentDueDays { get; set; }
         public CurrencyViewModel currency { get; set; }
-
-        public bool useVat { get; set; }
+		public double incomeTaxRate { get; set; }
+		public bool useVat { get; set; }
         public bool useIncomeTax { get; set; }
 
         public IncomeTaxViewModel incomeTax { get; set; }

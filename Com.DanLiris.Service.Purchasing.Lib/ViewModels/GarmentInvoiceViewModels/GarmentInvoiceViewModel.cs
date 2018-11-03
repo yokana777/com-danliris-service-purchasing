@@ -20,6 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public bool useIncomeTax { get; set; }
         public bool isPayTax { get; set; }
         public DateTimeOffset incomeTaxDate { get; set; }
+		public long incomeTaxId { get; set; }
+		public string incomeTaxName { get; set; }
+		public double incomeTaxRate { get; set; }
 		public bool hasInternNote { get; set; }
         public DateTimeOffset vatDate { get; set; }
         public List<GarmentInvoiceItemViewModel> items { get; set; }
@@ -28,6 +31,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			if (string.IsNullOrWhiteSpace(invoiceNo))
 			{
 				yield return new ValidationResult("No is required", new List<string> { "invoiceNo" });
+			}else
+			{
+				PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+				if (purchasingDbContext.GarmentInvoices.Where(DO => DO.InvoiceNo.Equals(invoiceNo) && DO.Id != this._id && DO.InvoiceDate.ToOffset((new TimeSpan(7, 0, 0))) == invoiceDate && DO.SupplierId == supplier.Id).Count() > 0)
+				{
+					yield return new ValidationResult("No is already exist", new List<string> { "no" });
+				}
 			}
 
 			if (invoiceDate.Equals(DateTimeOffset.MinValue) || invoiceDate == null)
@@ -67,15 +77,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			int itemErrorCount = 0;
 			int detailErrorCount = 0;
 
-			if (this.items.Count.Equals(0))
+ 
+			if (this.items == null || this.items.Count==0)
 			{
 				yield return new ValidationResult("DeliveryOrder is required", new List<string> { "itemscount" });
 			}
 			else
 			{
 				string itemError = "[";
-				var pphError = 0;
-				var ppnError=0;
 				foreach (var item in items)
 				{
 					itemError += "{";
@@ -117,20 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 								detailErrorCount++;
 								detailError += "doQuantity: 'DOQuantity can not 0', ";
 							}
-							if (detail.useIncomeTax == true)
-							{
-								if (useIncomeTax != detail.useIncomeTax)
-								{
-									pphError += 1;
-								}
-							}
-							 if (detail.useVat == true)
-							{
-								if (useVat != detail.useVat)
-								{
-									ppnError += 1;
-								}
-							}
+							
 							detailError += "}, ";
 						}
 
@@ -147,11 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 				}
 
 				itemError += "]";
-				if(pphError >0)
-					yield return new ValidationResult("Using PPh is different with purchase order external", new List<string> { "useIncomeTax" });
-				if (ppnError > 0)
-					yield return new ValidationResult("Using PPn is different with purchase order external", new List<string> { "useIncomeTax" });
-
+				
 				if (itemErrorCount > 0)
 					yield return new ValidationResult(itemError, new List<string> { "items" });
 			}
