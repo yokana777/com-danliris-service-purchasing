@@ -501,7 +501,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     accountName = model.BankAccountName,
                     accountNumber = model.BankAccountNumber,
                     bankCode = model.BankCode,
-                    bankName = model.BankName
+                    bankName = model.BankName,
+                    currency = new CurrencyViewModel()
+                    {
+                        code = model.BankCurrencyCode,
+                        _id = model.BankCurrencyId,
+                    }
                 },
                 Date = model.Date,
                 Nominal = model.GrandTotal,
@@ -512,8 +517,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 Supplier = new SupplierViewModel()
                 {
                     _id = model.SupplierId,
-                    code = model.BankCode,
-                    name = model.BankName
+                    code = model.SupplierCode,
+                    name = model.SupplierName
                 }
             };
 
