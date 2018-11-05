@@ -161,16 +161,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 						foreach (var itemId in detailIds)
 						{
 							GarmentInvoiceItem data = model.Items.FirstOrDefault(prop => prop.Id.Equals(itemId));
-							if (data == null)
-							{
-								GarmentInvoiceItem dataItem = dbContext.GarmentInvoiceItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
-								EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
+							//if (data == null)
+							//{
+							//	GarmentInvoiceItem dataItem = dbContext.GarmentInvoiceItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
+							//	EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
 							 
-							}
-							else
-							{
+							//}
+							//else
+							//{
 								EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-							}
+							//}
 
 							foreach (GarmentInvoiceItem item in model.Items)
 							{
