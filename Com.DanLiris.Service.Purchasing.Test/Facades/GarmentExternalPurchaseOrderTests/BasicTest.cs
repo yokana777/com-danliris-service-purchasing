@@ -180,6 +180,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             data.PaymentType = "FREE";
             var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
             Assert.NotEqual(ResponseUpdate2, 0);
+
+            List<GarmentExternalPurchaseOrderItem> Newitems1 = new List<GarmentExternalPurchaseOrderItem>(data.Items);
+            Newitems1.Add(newItem);
+            data.Items = Newitems;
+            data.PaymentMethod = "CMT";
+            data.PaymentType = "FREE";
+            var ResponseUpdate3 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate3, 0);
         }
 
         [Fact]
