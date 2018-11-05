@@ -18,17 +18,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
             this.garmentInvoiceDetailDataUtil = garmentInvoiceDetailDataUtil;
         }
 
-		public GarmentInvoiceItemViewModel GetNewDataViewModel(GarmentDeliveryOrder garmentDeliveryOrder)
+		public GarmentInvoiceItem GetNewDataViewModel(GarmentDeliveryOrder garmentDeliveryOrder)
 		{
-			return new GarmentInvoiceItemViewModel
+			return new GarmentInvoiceItem
 			{
-				deliveryOrder = new GarmentDeliveryOrderViewModel
-				{
-					Id = garmentDeliveryOrder.Id,
-					doNo = garmentDeliveryOrder.DONo,
-					doDate=garmentDeliveryOrder.DODate
-				},
-				details = garmentInvoiceDetailDataUtil.GetNewDataViewModel(garmentDeliveryOrder.Items.ToList())
+				DeliveryOrderId = garmentDeliveryOrder.Id,
+			    DeliveryOrderNo = garmentDeliveryOrder.DONo,
+				DODate=garmentDeliveryOrder.DODate,
+				
+				Details = garmentInvoiceDetailDataUtil.GetNewDataViewModel(garmentDeliveryOrder.Items.ToList())
 			};
 		}
 	}

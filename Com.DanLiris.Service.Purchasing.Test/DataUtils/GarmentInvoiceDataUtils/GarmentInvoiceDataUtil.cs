@@ -97,22 +97,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 
 			return model;
 		}
-		public async Task<GarmentInvoiceViewModel> GetNewDataViewModel(string user)
+		public async Task<GarmentInvoice> GetNewDataViewModel(string user)
 		{
 			var garmentDeliveryOrder = await garmentDeliveryOrderDataUtil.GetNewData(user);
 
-			return new GarmentInvoiceViewModel
+			return new GarmentInvoice 
 			{
-				invoiceNo = DateTime.UtcNow.Ticks.ToString(),
-				invoiceDate = DateTimeOffset.Now,
-				supplier = new SupplierViewModel
-				{
-					Id = garmentDeliveryOrder.SupplierId,
-					Code = garmentDeliveryOrder.SupplierCode,
-					Name = garmentDeliveryOrder.SupplierName,
-				},
-				 
-				items = new List<GarmentInvoiceItemViewModel> { garmentInvoiceItemDataUtil.GetNewDataViewModel(garmentDeliveryOrder) }
+				InvoiceNo = "InvoiceNo",
+				InvoiceDate = DateTimeOffset.Now,
+				SupplierId = It.IsAny<int>(),
+				SupplierCode = "codeS",
+				SupplierName = "nameS",
+				IncomeTaxId = It.IsAny<int>(),
+				IncomeTaxName = "name",
+				IncomeTaxNo = "Inc",
+				IncomeTaxDate = DateTimeOffset.Now,
+				IncomeTaxRate = 2,
+				VatNo = "vat",
+				VatDate = DateTimeOffset.Now,
+				UseIncomeTax = true,
+				UseVat = true,
+				IsPayTax = true,
+				HasInternNote = false,
+				CurrencyId = It.IsAny<int>(),
+				CurrencyCode = "TEST",
+				Items = new List<GarmentInvoiceItem> { garmentInvoiceItemDataUtil.GetNewDataViewModel(garmentDeliveryOrder) }
 			};
 		}
 	}

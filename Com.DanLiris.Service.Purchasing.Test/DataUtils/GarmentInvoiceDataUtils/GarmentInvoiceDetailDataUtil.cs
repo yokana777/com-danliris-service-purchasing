@@ -32,30 +32,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 			return deliveryOrderDetails;
 		}
 
-		public List<GarmentInvoiceDetailViewModel> GetNewDataViewModel(List<GarmentDeliveryOrderItem> garmentDeliveryOrderItems)
+		public List<GarmentInvoiceDetail> GetNewDataViewModel(List<GarmentDeliveryOrderItem> garmentDeliveryOrderItems)
 		{
-			List<GarmentInvoiceDetailViewModel> garmentInvoiceDetailViewModels = new List<GarmentInvoiceDetailViewModel>();
+			List<GarmentInvoiceDetail> garmentInvoiceDetailViewModels = new List<GarmentInvoiceDetail>();
 			foreach (var item in garmentDeliveryOrderItems)
 			{
 				foreach (var detail in item.Details)
 				{
-					garmentInvoiceDetailViewModels.Add(new GarmentInvoiceDetailViewModel
+					garmentInvoiceDetailViewModels.Add(new GarmentInvoiceDetail
 					{
-						pOId = detail.POId,
-						pOSerialNumber = detail.POSerialNumber,
-						pRItemId = detail.PRItemId,
-						product = new GarmentProductViewModel
-						{
-							Id = detail.ProductId,
-							Code = detail.ProductCode,
-							Name = detail.ProductName,
-						},
-						doQuantity = detail.DOQuantity,
-						uoms = new UomViewModel
-						{
-							Id = detail.UomId,
-							Unit = detail.UomUnit,
-						}
+						IPOId = detail.POId,
+						POSerialNumber = detail.POSerialNumber,
+						PRItemId = detail.PRItemId,
+						ProductId = detail.ProductId,
+						ProductCode = detail.ProductCode,
+						ProductName = detail.ProductName,
+						DOQuantity = detail.DOQuantity,
+						UomId =Convert.ToInt64( detail.UomId),
+						UomUnit = detail.UomUnit
 					});
 				}
 			}

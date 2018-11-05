@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
@@ -44,7 +45,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			return string.Concat(sf.GetMethod().Name, "_", ENTITY);
 
 		}
+		public string GetDOMethod()
+		{
+			StackTrace st = new StackTrace();
+			StackFrame sf = st.GetFrame(1);
 
+			return string.Concat(sf.GetMethod().Name, "_", "GarmentDeliveryOrder");
+
+		}
 		private PurchasingDbContext _dbContext(string testName)
 		{
 			DbContextOptionsBuilder<PurchasingDbContext> optionsBuilder = new DbContextOptionsBuilder<PurchasingDbContext>();
@@ -56,7 +64,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 			return dbContext;
 		}
+		private GarmentDeliveryOrderDataUtil doDataUtil(GarmentDeliveryOrderFacade facade, string testName)
+		{
+			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+			var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
+			var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+			var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+			var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+			var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+		}
 		private GarmentInvoiceDataUtil dataUtil(GarmentInvoiceFacade facade, string testName)
 		{
 			var garmentInvoiceFacade = new GarmentInvoiceFacade(_dbContext(testName), ServiceProvider);
@@ -119,52 +139,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		public async void Should_Success_Update_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-			List<GarmentInvoiceItem> item = new List<GarmentInvoiceItem>(data.Items);
-
-			data.Items.Add(new GarmentInvoiceItem
-			{
-				DeliveryOrderId = It.IsAny<int>(),
-				DODate = DateTimeOffset.Now,
-				DeliveryOrderNo = "donos",
-				ArrivalDate = DateTimeOffset.Now,
-				TotalAmount = 2000,
-				CurrencyId = It.IsAny<int>(),
-				Details = new List<GarmentInvoiceDetail>
-							{
-								new GarmentInvoiceDetail
-								{
-									EPOId=It.IsAny<int>(),
-									EPONo="epono",
-									IPOId=It.IsAny<int>(),
-									PRItemId=It.IsAny<int>(),
-									PRNo="prno",
-									RONo="12343",
-									ProductId= It.IsAny<int>(),
-									ProductCode="code",
-									ProductName="name",
-									UomId=It.IsAny<int>(),
-									UomUnit="ROLL",
-									DOQuantity=40,
-									PricePerDealUnit=5000,
-									PaymentType="type",
-									PaymentDueDays=2,
-									PaymentMethod="method",
-									POSerialNumber="PM132434"
-
-								}
-							}
-			});
+			var facadeDO = new GarmentDeliveryOrderFacade(_dbContext(USERNAME));
+			
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+			GarmentDeliveryOrder dataDO= doDataUtil(facadeDO, GetDOMethod()).GetNewData();
+			 
+			var Response = await facadeDO.Create(dataDO, USERNAME);
+			Assert.NotEqual(Response, 0);
 
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 			var newItem = new GarmentInvoiceItem
 			{
-				DeliveryOrderId = It.IsAny<int>(),
-				DODate = DateTimeOffset.Now,
-				DeliveryOrderNo = "dono",
-				ArrivalDate = DateTimeOffset.Now,
-				TotalAmount = 2000,
+				DeliveryOrderId = dataDO.Id,
+				DODate =dataDO.DODate,
+				DeliveryOrderNo =dataDO.DONo,
+				ArrivalDate =dataDO.ArrivalDate,
+				TotalAmount = dataDO.TotalAmount,
 				CurrencyId = It.IsAny<int>(),
 				Details = new List<GarmentInvoiceDetail>
 							{
