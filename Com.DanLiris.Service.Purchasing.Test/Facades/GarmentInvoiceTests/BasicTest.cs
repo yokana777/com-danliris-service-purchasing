@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -100,11 +101,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		public async void Should_Success_Create_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			var Response = await facade.Create(data, USERNAME);
 			Assert.NotEqual(Response, 0);
 		}
 
+		[Fact]
+		public async void Should_Validate_Double_Data()
+		{
+			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			GarmentInvoice model = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
+
+			GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
+			{
+				supplier = new SupplierViewModel(),
+			};
+			viewModel.Id = model.Id + 1;
+			viewModel.invoiceNo = model.InvoiceNo;
+			viewModel.supplier.Id = model.SupplierId;
+			viewModel.invoiceDate = model.InvoiceDate;
+		 
+
+			Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+			serviceProvider.
+				Setup(x => x.GetService(typeof(PurchasingDbContext)))
+				.Returns(_dbContext(GetCurrentMethod()));
+
+			ValidationContext validationContext = new ValidationContext(viewModel, serviceProvider.Object, null);
+
+			var validationResultCreate = viewModel.Validate(validationContext).ToList();
+
+			var errorDuplicate = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("No is already exist"));
+			Assert.NotNull(errorDuplicate);
+		}
 		[Fact]
 		public async void Should_Error_Create_Data()
 		{
@@ -144,9 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			GarmentDeliveryOrder dataDO= doDataUtil(facadeDO, GetDOMethod()).GetNewData();
 			 
-			var Response = await facadeDO.Create(dataDO, USERNAME);
-			Assert.NotEqual(Response, 0);
-
+			
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 			var newItem = new GarmentInvoiceItem
@@ -231,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		public async void Should_Success_Delete_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			await facade.Create(data, USERNAME); 
 			var Response = facade.Delete((int)data.Id, USERNAME);
 			Assert.NotEqual(Response, 0);
@@ -312,6 +339,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 					}
 			};
 			Assert.True(viewModels.Validate(null).Count() > 0);
+
 		}
 	}
 }

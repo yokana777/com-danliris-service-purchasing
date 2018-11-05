@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			}else
 			{
 				PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-				if (purchasingDbContext.GarmentInvoices.Where(DO => DO.InvoiceNo.Equals(invoiceNo) && DO.Id != this._id && DO.InvoiceDate.ToOffset((new TimeSpan(7, 0, 0))) == invoiceDate && DO.SupplierId == supplier.Id).Count() > 0)
+				if (purchasingDbContext.GarmentInvoices.Where(DO => DO.InvoiceNo.Equals(invoiceNo) && DO.Id != Id && DO.InvoiceDate.ToOffset((new TimeSpan(7, 0, 0))) == invoiceDate && DO.SupplierId == supplier.Id).Count() > 0)
 				{
 					yield return new ValidationResult("No is already exist", new List<string> { "no" });
 				}

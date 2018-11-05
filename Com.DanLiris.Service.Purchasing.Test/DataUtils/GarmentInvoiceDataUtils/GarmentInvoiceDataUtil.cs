@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 		}
 		public async Task<GarmentInvoice> GetTestData(string user)
 		{
-			GarmentInvoice model = await GetNewData(user);
+			GarmentInvoice model = await GetNewDataViewModel(user);
 
 			await facade.Create(model, user);
 
@@ -100,11 +100,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 		public async Task<GarmentInvoice> GetNewDataViewModel(string user)
 		{
 			var garmentDeliveryOrder = await garmentDeliveryOrderDataUtil.GetNewData(user);
-
+			DateTime dateWithoutOffset = new DateTime(2010, 7, 16, 13, 32, 00);
 			return new GarmentInvoice 
 			{
 				InvoiceNo = "InvoiceNo",
-				InvoiceDate = DateTimeOffset.Now,
+				InvoiceDate = dateWithoutOffset,
 				SupplierId = It.IsAny<int>(),
 				SupplierCode = "codeS",
 				SupplierName = "nameS",
