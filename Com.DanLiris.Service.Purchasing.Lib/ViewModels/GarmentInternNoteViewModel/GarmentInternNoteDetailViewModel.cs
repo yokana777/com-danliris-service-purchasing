@@ -9,9 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
     {
         public long ePOId { get; set; }
         public string ePONo { get; set; }
-        public long dOId { get; set; }
-        public string dONo { get; set; }
-        public DateTimeOffset dODate { get; set; }
         public string poSerialNumber { get; set; }
         public string rONo { get; set; }
         public string termOfPayment { get; set; }
@@ -20,6 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public double priceTotal { get; set; }
         public double paymentDueDays { get; set; }
         public DateTimeOffset paymentDueDate { get; set; }
+
+        public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
 
         /*Product*/
         public ProductViewModel product { get; set; }

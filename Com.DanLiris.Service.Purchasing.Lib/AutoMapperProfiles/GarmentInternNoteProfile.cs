@@ -45,9 +45,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
                 .ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
                 
-                .ForPath(d => d.dOId, opt => opt.MapFrom(s => s.DOId))
-                .ForPath(d => d.dONo, opt => opt.MapFrom(s => s.DONo))
-                .ForPath(d => d.dODate, opt => opt.MapFrom(s => s.DODate))
+                .ForPath(d => d.deliveryOrder.Id, opt => opt.MapFrom(s => s.DOId))
+                .ForPath(d => d.deliveryOrder.doNo, opt => opt.MapFrom(s => s.DONo))
+                .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
                 .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
                 .ForPath(d => d.priceTotal, opt => opt.MapFrom(s => s.PriceTotal))
                 .ForPath(d => d.poSerialNumber, opt => opt.MapFrom(s => s.POSerialNumber))
