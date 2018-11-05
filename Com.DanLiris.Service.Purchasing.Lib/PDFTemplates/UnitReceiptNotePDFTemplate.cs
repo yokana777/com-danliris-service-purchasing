@@ -59,12 +59,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
 
             PdfPTable tableIdentity = new PdfPTable(4);
-            tableIdentity.SetWidths(new float[] { 3f, 7f, 3f, 4f });
+            tableIdentity.SetWidths(new float[] { 3f, 7f, 2f, 5f });
             PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
 
             cellIdentityContentLeft.Phrase = new Phrase("Tanggal", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.date, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.date.ToString("dd/MM/yyyy", new CultureInfo("id-ID")), normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);

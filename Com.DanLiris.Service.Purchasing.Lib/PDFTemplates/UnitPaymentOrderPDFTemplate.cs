@@ -18,11 +18,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
     {
         public MemoryStream Generate(UnitPaymentOrder model, IUnitPaymentOrderFacade facade, int clientTimeZoneOffset = 7, string userName = null)
         {
-            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
-            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 12);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-            Document document = new Document(PageSize.A4.Rotate(), 40, 40, 40, 40);
+            Document document = new Document(PageSize.A5.Rotate(), 15, 15, 15, 15);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -37,6 +37,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+
+            PdfPCell cellRightMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.NO_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
+            PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
             #region Header
 
@@ -94,8 +97,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region TableContent
 
-            PdfPTable tableContent = new PdfPTable(8);
-            tableContent.SetWidths(new float[] { 1.5f, 6f, 3f, 5f, 5f, 5f, 5f, 3f });
+            PdfPTable tableContent = new PdfPTable(10);
+            tableContent.SetWidths(new float[] { 1.3f, 5f, 3f, 1.5f, 3.5f, 1.5f, 3.5f, 4f, 4f, 3f });
 
             cellCenter.Phrase = new Phrase("No.", bold_font);
             tableContent.AddCell(cellCenter);
@@ -104,10 +107,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellCenter.Phrase = new Phrase("Jumlah", bold_font);
             tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Harga Satuan", bold_font);
+            cellCenter.Colspan = 2;
             tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Harga Total", bold_font);
+            cellCenter.Colspan = 2;
             tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Nomor Order", bold_font);
+            cellCenter.Colspan = 0;
             tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Nomor Bon Unit", bold_font);
             tableContent.AddCell(cellCenter);
@@ -139,14 +145,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase(detail.ProductName, normal_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", detail.ReceiptQuantity) +$" {detail.UomUnit}", normal_font);
-                    tableContent.AddCell(cellRight);
+                    cellCenter.Phrase = new Phrase(string.Format("{0:n2}", detail.ReceiptQuantity) +$" {detail.UomUnit}", normal_font);
+                    tableContent.AddCell(cellCenter);
 
-                    cellRight.Phrase = new Phrase($"{model.CurrencyCode} " + string.Format("{0:n4}", detail.PricePerDealUnit), normal_font);
-                    tableContent.AddCell(cellRight);
+                    cellLeftMerge.Phrase = new Phrase($"{model.CurrencyCode}", normal_font);
+                    tableContent.AddCell(cellLeftMerge);
 
-                    cellRight.Phrase = new Phrase($"{model.CurrencyCode} " + string.Format("{0:n2}", detail.PriceTotal), normal_font);
-                    tableContent.AddCell(cellRight);
+                    cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", detail.PricePerDealUnit), normal_font);
+                    tableContent.AddCell(cellRightMerge);
+
+                    cellLeftMerge.Phrase = new Phrase($"{model.CurrencyCode}", normal_font);
+                    tableContent.AddCell(cellLeftMerge);
+
+                    cellRightMerge.Phrase = new Phrase(string.Format("{0:n2}", detail.PriceTotal), normal_font);
+                    tableContent.AddCell(cellRightMerge);
 
                     cellCenter.Phrase = new Phrase($"{detail.PRNo}", normal_font);
                     tableContent.AddCell(cellCenter);
