@@ -198,6 +198,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 		}
+		[Fact]
+		public async void Should_Error_Update_Data()
+		{
+			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+			List<GarmentInvoiceItem> item = new List<GarmentInvoiceItem>(data.Items);
+
+			data.Items.Add(new GarmentInvoiceItem
+			{
+				DeliveryOrderId = It.IsAny<int>(),
+				DODate = DateTimeOffset.Now,
+				DeliveryOrderNo = "donos",
+				ArrivalDate = DateTimeOffset.Now,
+				TotalAmount = 2000,
+				CurrencyId = It.IsAny<int>(),
+				Details = null
+			});
+
+			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+			Assert.NotEqual(ResponseUpdate, 0);
+			var newItem = new GarmentInvoiceItem
+			{
+				DeliveryOrderId = It.IsAny<int>(),
+				DODate = DateTimeOffset.Now,
+				DeliveryOrderNo = "dono",
+				ArrivalDate = DateTimeOffset.Now,
+				TotalAmount = 2000,
+				CurrencyId = It.IsAny<int>(),
+				Details =null
+			};
+			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
+			Newitems.Add(newItem);
+			data.Items = Newitems;
+
+			Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
+			Assert.NotNull(errorNullItems.Message);
+		}
 
 		[Fact]
 		public async void Should_Success_Delete_Data()
