@@ -103,12 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 						itemErrorCount++;
 						itemError += "deliveryOrder: 'No deliveryOrder selected', ";
 					}
-					else if (items.Count(i => i.deliveryOrder._id == item.deliveryOrder._id) > 1 && _id == 0)
-					{
-						itemErrorCount++;
-						itemError += "deliveryOrder: 'Data sudah ada', ";
-					}
-
+					
 					if (item.details == null || item.details.Count.Equals(0))
 					{
 						itemErrorCount++;

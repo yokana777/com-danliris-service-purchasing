@@ -315,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 						new GarmentInvoiceItemViewModel
 						{
 							deliveryOrder =null,
-							currency="USD",
+							currency="IDR",
 							details= null
 						}
 					}
