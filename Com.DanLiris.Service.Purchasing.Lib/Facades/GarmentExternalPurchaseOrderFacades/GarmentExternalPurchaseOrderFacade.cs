@@ -129,6 +129,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                 a.RemainingBudget -= item.UsedBudget;
                             }
                         }
+                        else
+                        {
+                            item.UsedBudget = 0;
+                        }
 
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                     }
@@ -212,6 +216,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                         a.RemainingBudget -= item.UsedBudget;
                                     }
                                 }
+                                else
+                                {
+                                    item.UsedBudget = 0;
+                                }
 
 
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
@@ -230,6 +238,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                     {
                                         a.RemainingBudget -= item.UsedBudget;
                                     }
+                                }
+                                else
+                                {
+                                    item.UsedBudget = 0;
                                 }
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             }
