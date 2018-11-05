@@ -221,7 +221,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		{
 			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
 			Assert.True(nullViewModel.Validate(null).Count() > 0);
-
 			GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
@@ -230,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 				incomeTaxId = It.IsAny<int>(),
 				incomeTaxName = "name",
 				incomeTaxNo = "",
-				incomeTaxDate = DateTimeOffset.Now,
+				incomeTaxDate = DateTimeOffset.MinValue,
 				incomeTaxRate = 2,
 				vatNo = "",
 				vatDate = DateTimeOffset.MinValue,
@@ -243,14 +242,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 					{
 						new GarmentInvoiceItemViewModel
 						{
-							deliveryOrder = new GarmentDeliveryOrderViewModel
-							{
-								Id =It.IsAny<int>(),
-								doNo = "",
-								doDate =  DateTimeOffset.Now,
-								arrivalDate  =  DateTimeOffset.Now,
-								totalAmount=2000
-							},
+							deliveryOrder =null,
 							currency="IDR",
 							details= new List<GarmentInvoiceDetailViewModel>
 							{
@@ -263,6 +255,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 					}
 			};
 			Assert.True(viewModel.Validate(null).Count() > 0);
+
+			GarmentInvoiceViewModel viewModels = new GarmentInvoiceViewModel
+			{
+				invoiceNo = "",
+				invoiceDate = DateTimeOffset.MinValue,
+				supplier = { },
+				incomeTaxId = It.IsAny<int>(),
+				incomeTaxName = "name",
+				incomeTaxNo = "",
+				incomeTaxDate = DateTimeOffset.MinValue,
+				incomeTaxRate = 2,
+				vatNo = "",
+				vatDate = DateTimeOffset.MinValue,
+				useIncomeTax = true,
+				useVat = true,
+				isPayTax = true,
+				hasInternNote = false,
+				currency = {Code="IDR" },
+				items = new List<GarmentInvoiceItemViewModel>
+					{
+						new GarmentInvoiceItemViewModel
+						{
+							deliveryOrder =null,
+							currency="USD",
+							details= null
+						}
+					}
+			};
+			Assert.True(viewModels.Validate(null).Count() > 0);
 		}
 	}
 }

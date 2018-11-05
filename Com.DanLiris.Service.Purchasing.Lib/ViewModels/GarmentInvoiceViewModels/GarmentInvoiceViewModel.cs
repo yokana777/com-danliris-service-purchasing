@@ -108,7 +108,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 						itemErrorCount++;
 						itemError += "deliveryOrder: 'Data sudah ada', ";
 					}
-					else if (item.details == null || item.details.Count.Equals(0))
+
+					if (item.details == null || item.details.Count.Equals(0))
 					{
 						itemErrorCount++;
 						itemError += "detailscount: 'Details is required', ";
