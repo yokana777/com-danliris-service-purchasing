@@ -88,6 +88,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_Acc_FREE()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            data.PaymentMethod = "CMT";
+            data.PaymentType = "FREE";
+            var Response = await facade.Create(data, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Create_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
@@ -163,7 +174,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             data.Items = Newitems;
 
             var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(ResponseUpdate1, 0);
+
+            data.PaymentMethod = "CMT";
+            data.PaymentType = "FREE";
+            var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate2, 0);
         }
 
         [Fact]
