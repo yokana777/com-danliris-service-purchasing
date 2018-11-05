@@ -272,7 +272,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 				useVat = true,
 				isPayTax = true,
 				hasInternNote = false,
-				currency = {Code="IDR" },
+				currency =new CurrencyViewModel{ Id = It.IsAny<int>(), Code = "USD", Symbol = "$", Rate = 13000, Description = "" },
 				items = new List<GarmentInvoiceItemViewModel>
 					{
 						new GarmentInvoiceItemViewModel
