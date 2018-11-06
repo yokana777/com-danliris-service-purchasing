@@ -123,6 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
 			Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
 		}
+
 		[Fact]
 		public void Should_Success_Get_All_Data_By_User()
 		{
@@ -144,7 +145,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var response = controller.GetByUser();
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
-
 		[Fact]
 		public async Task Should_Error_Get_Invalid_Id()
 		{
