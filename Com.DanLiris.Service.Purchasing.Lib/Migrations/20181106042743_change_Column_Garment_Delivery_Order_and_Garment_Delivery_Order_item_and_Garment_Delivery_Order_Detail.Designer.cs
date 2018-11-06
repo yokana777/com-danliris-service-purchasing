@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181106042743_change_Column_Garment_Delivery_Order_and_Garment_Delivery_Order_item_and_Garment_Delivery_Order_Detail")]
+    partial class change_Column_Garment_Delivery_Order_and_Garment_Delivery_Order_item_and_Garment_Delivery_Order_Detail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
