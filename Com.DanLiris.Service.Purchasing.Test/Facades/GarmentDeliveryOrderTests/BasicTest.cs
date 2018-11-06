@@ -188,6 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 shipmentNo = "test",
                 paymentMethod = "test",
                 paymentType = "test",
+                currency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
@@ -228,6 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 shipmentNo = "test",
                 paymentMethod = "test",
                 paymentType = "test",
+                currency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
@@ -260,6 +262,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 shipmentNo = "test",
                 paymentMethod = "test",
                 paymentType = "test",
+                currency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
@@ -273,7 +276,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                             {
                                 pOId = 1,
                                 pOItemId = 1,
-                                conversion = 0
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
                             }
                         }
                     }
@@ -298,6 +304,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             viewModel.supplier.Id = model.SupplierId;
             viewModel.doDate = model.DODate;
             viewModel.arrivalDate = model.ArrivalDate;
+            viewModel.currency.Id = (long)model.CurrencyId;
+            viewModel.currency.Code = model.CurrencyCode;
+            viewModel.incomeTax.Id = (int)model.IncomeTaxId;
+            viewModel.incomeTax.Name = model.IncomeTaxName;
+            viewModel.incomeTax.Rate = (double)model.IncomeTaxRate;
+            viewModel.remark = model.Remark;
+            viewModel.isCorrection = (bool)model.IsCorrection;
+            viewModel.useVat = (bool)model.UseVat;
+            viewModel.useIncomeTax = (bool)model.UseIncomeTax;
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.
