@@ -14,11 +14,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
     {
         public MemoryStream GeneratePdfTemplate(PurchaseRequestViewModel viewModel, int clientTimeZoneOffset)
         {
-            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
-            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 11);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+            Font normal_font2 = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-            Document document = new Document(PageSize.A4, 40, 40, 40, 40);
+            Document document = new Document(PageSize.A5, 15, 15, 15, 15);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -56,21 +57,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.SetWidths(new float[] { 1f, 4.5f, 2.5f });
             PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             PdfPCell cellIdentityContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
-            cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.unit.name, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.unit.name, normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.date.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.date.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font2);
             tableIdentity.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase("Budget", normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase("Budget", normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.budget.name, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.budget.name, normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentRight.Phrase = new Phrase("");
             tableIdentity.AddCell(cellIdentityContentRight);
-            cellIdentityContentLeft.Phrase = new Phrase("Nomor", normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase("Nomor", normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.no, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.no, normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentRight.Phrase = new Phrase("");
             tableIdentity.AddCell(cellIdentityContentRight);
@@ -81,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #endregion
 
             string firstParagraphString = "Mohon dibelikan/diusahakan barang tersebut dibawah ini :";
-            Paragraph firstParagraph = new Paragraph(firstParagraphString, normal_font) { Alignment = Element.ALIGN_LEFT };
+            Paragraph firstParagraph = new Paragraph(firstParagraphString, normal_font2) { Alignment = Element.ALIGN_LEFT };
             firstParagraph.SpacingBefore = 10f;
             firstParagraph.SpacingAfter = 10f;
             document.Add(firstParagraph);
@@ -111,19 +112,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 PurchaseRequestItemViewModel item = viewModel.items[indexItem];
 
-                cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
+                cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font2);
                 tableContent.AddCell(cellCenter);
 
-                cellLeft.Phrase = new Phrase(item.product.code, normal_font);
+                cellLeft.Phrase = new Phrase(item.product.code, normal_font2);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase(item.product.name, normal_font);
+                cellLeft.Phrase = new Phrase(item.product.name, normal_font2);
                 tableContent.AddCell(cellLeft);
 
-                cellCenter.Phrase = new Phrase(string.Format("{0:n2}",item.quantity) + $" {item.product.uom.unit}", normal_font);
+                cellCenter.Phrase = new Phrase(string.Format("{0:n2}",item.quantity) + $" {item.product.uom.unit}", normal_font2);
                 tableContent.AddCell(cellCenter);
 
-                cellCenter.Phrase = new Phrase(" ", normal_font);
+                cellCenter.Phrase = new Phrase(" ", normal_font2);
                 tableContent.AddCell(cellCenter);
             }
 
@@ -144,17 +145,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableFooter = new PdfPTable(2);
             tableFooter.SetWidths(new float[] { 2f, 8f });
             PdfPCell cellFooterContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            cellFooterContent.Phrase = new Phrase("Kategori", normal_font);
+            cellFooterContent.Phrase = new Phrase("Kategori", normal_font2);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + viewModel.category.name, normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + viewModel.category.name, normal_font2);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase("Diminta Datang", normal_font);
+            cellFooterContent.Phrase = new Phrase("Diminta Datang", normal_font2);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + (viewModel.expectedDeliveryDate != null && viewModel.expectedDeliveryDate != DateTimeOffset.MinValue ? viewModel.expectedDeliveryDate.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")) : "-"), normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + (viewModel.expectedDeliveryDate != null && viewModel.expectedDeliveryDate != DateTimeOffset.MinValue ? viewModel.expectedDeliveryDate.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")) : "-"), normal_font2);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase("Keterangan", normal_font);
+            cellFooterContent.Phrase = new Phrase("Keterangan", normal_font2);
             tableFooter.AddCell(cellFooterContent);
-            cellFooterContent.Phrase = new Phrase(": " + viewModel.remark, normal_font);
+            cellFooterContent.Phrase = new Phrase(": " + viewModel.remark, normal_font2);
             tableFooter.AddCell(cellFooterContent);
             PdfPCell cellFooter = new PdfPCell(tableFooter); // dont remove
             tableFooter.ExtendLastRow = false;
