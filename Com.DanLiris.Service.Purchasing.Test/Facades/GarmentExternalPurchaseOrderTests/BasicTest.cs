@@ -182,8 +182,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             Assert.NotEqual(ResponseUpdate2, 0);
 
             List<GarmentExternalPurchaseOrderItem> Newitems1 = new List<GarmentExternalPurchaseOrderItem>(data.Items);
-            Newitems1.Add(newItem);
-            data.Items = Newitems;
+            var newItem2 = new GarmentExternalPurchaseOrderItem
+            {
+                PO_SerialNumber = "PO_SerialNumber2",
+                ProductId = item[0].ProductId,
+                PRId = item[0].PRId,
+                POId = item[0].POId,
+                ProductCode = "ProductCode",
+                ProductName = "ProductName",
+                DealQuantity = 2,
+                BudgetPrice = 100,
+                DealUomId = 1,
+                DealUomUnit = "unit",
+                Remark = "ProductRemark",
+                IsOverBudget = true,
+                OverBudgetRemark = "OB"
+            };
+
+            Newitems1.Add(newItem2);
+            data.Items = Newitems1;
             data.PaymentMethod = "CMT";
             data.PaymentType = "FREE";
             var ResponseUpdate3 = await facade.Update((int)data.Id, data, USERNAME);
