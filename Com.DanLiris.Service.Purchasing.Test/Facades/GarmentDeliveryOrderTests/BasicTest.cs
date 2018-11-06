@@ -1,9 +1,16 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -49,7 +56,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
         private GarmentDeliveryOrderDataUtil dataUtil(GarmentDeliveryOrderFacade facade, string testName)
         {
-            return new GarmentDeliveryOrderDataUtil(facade);
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
         }
 
         [Fact]
@@ -125,8 +141,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
         }
-
-        [Fact]
+		[Fact]
+		public async void Should_Success_Get_Data_By_Supplier()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			var Response = facade.ReadBySupplier("code","{}");
+			Assert.NotNull(Response);
+		}
+		[Fact]
         public void Should_Success_Validate_Data()
         {
             GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
@@ -170,20 +193,100 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 totalAmount = 1,
                 shipmentType = "test",
                 shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
+                currency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = null,
                         paymentDueDays = 1,
-                        paymentMethod = "test",
-                        paymentType = "test",
+                        
                         fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel
                             {
                                 pOId = 1,
                                 pOItemId = 1,
+                                conversion = 1
+                            }
+                        }
+                    }
+                }
+
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Fulfillment_Null()
+        {
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalAmount = 1,
+                shipmentType = "test",
+                shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
+                currency = new CurrencyViewModel(),
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                        
+                        fulfillments = null
+                    }
+                }
+
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Fulfillment_With_Conversion_0()
+        {
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalAmount = 1,
+                shipmentType = "test",
+                shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
+                currency = new CurrencyViewModel(),
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                       
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                pOId = 1,
+                                pOItemId = 1,
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
                             }
                         }
                     }
@@ -202,12 +305,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 supplier = new SupplierViewModel(),
+                incomeTax = new IncomeTaxViewModel(),
+                currency = new CurrencyViewModel(),
             };
             viewModel.Id = model.Id + 1;
             viewModel.doNo = model.DONo;
             viewModel.supplier.Id = model.SupplierId;
             viewModel.doDate = model.DODate;
             viewModel.arrivalDate = model.ArrivalDate;
+            viewModel.currency.Id = (long)model.CurrencyId;
+            viewModel.currency.Code = model.CurrencyCode;
+            viewModel.incomeTax.Id = (int)model.IncomeTaxId;
+            viewModel.incomeTax.Name = model.IncomeTaxName;
+            viewModel.incomeTax.Rate = (double)model.IncomeTaxRate;
+            viewModel.remark = model.Remark;
+            viewModel.isCorrection = (bool)model.IsCorrection;
+            viewModel.useVat = (bool)model.UseVat;
+            viewModel.useIncomeTax = (bool)model.UseIncomeTax;
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.

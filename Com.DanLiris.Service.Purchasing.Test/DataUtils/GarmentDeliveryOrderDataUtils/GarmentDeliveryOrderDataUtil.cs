@@ -1,5 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,14 +12,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
     public class GarmentDeliveryOrderDataUtil
     {
         private readonly GarmentDeliveryOrderFacade facade;
+        private readonly GarmentExternalPurchaseOrderDataUtil garmentExternalPurchaseOrderDataUtil;
 
-        public GarmentDeliveryOrderDataUtil(GarmentDeliveryOrderFacade facade)
+        public GarmentDeliveryOrderDataUtil(GarmentDeliveryOrderFacade facade, GarmentExternalPurchaseOrderDataUtil garmentExternalPurchaseOrderDataUtil)
         {
             this.facade = facade;
+            this.garmentExternalPurchaseOrderDataUtil = garmentExternalPurchaseOrderDataUtil;
         }
 
         public GarmentDeliveryOrder GetNewData()
         {
+            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataFabric()).Result;
+            List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
@@ -43,9 +49,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 IsCustoms = false,
                 IsInvoice = false,
 
+                UseVat = datas.IsUseVat,
+                UseIncomeTax = datas.IsIncomeTax,
+                IncomeTaxId = Convert.ToInt32(datas.IncomeTaxId),
+                IncomeTaxName = datas.IncomeTaxName,
+                IncomeTaxRate = Convert.ToDouble(datas.IncomeTaxRate),
+
+                IsCorrection = false,
+
                 CustomsId = nowTicks,
                 PaymentBill = $"{nowTicksB}",
                 BillNo = $"{nowTicksB}",
+                PaymentType = datas.PaymentType,
+                PaymentMethod = datas.PaymentMethod,
+                CurrencyId = datas.CurrencyId,
+                CurrencyCode = datas.CurrencyCode,
 
                 TotalAmount = nowTicks,
 
@@ -53,47 +71,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 {
                     new GarmentDeliveryOrderItem
                     {
-                        EPOId = nowTicks,
-                        EPONo = $"{nowTicksA}",
-                        PaymentType = $"{nowTicksA}",
-                        PaymentMethod = $"{nowTicksA}",
-                        PaymentDueDays = (int)nowTicks,
-                        CurrencyId = nowTicks,
-                        CurrencyCode = $"{nowTicksA}",
-                        UseVat = false,
-                        UseIncomeTax = false,
-                        IncomeTaxId = (int)nowTicks,
-                        IncomeTaxName = $"{nowTicksA}",
-                        IncomeTaxRate = nowTicks,
+                        EPOId = datas.Id,
+                        EPONo = datas.EPONo,
+                        PaymentDueDays = datas.PaymentDueDays,
+
                         Details = new List<GarmentDeliveryOrderDetail>
                         {
                             new GarmentDeliveryOrderDetail
                             {
-                                EPOItemId = nowTicks,
-                                POId = (int)nowTicks,
+                                EPOItemId = EPOItem[0].Id,
+                                POId = EPOItem[0].POId,
                                 POItemId = (int)nowTicks,
-                                PRId = nowTicks,
-                                PRNo = $"{nowTicksA}",
+                                PRId = EPOItem[0].PRId,
+                                PRNo = EPOItem[0].PRNo,
                                 PRItemId = nowTicks,
-                                POSerialNumber = $"{nowTicksA}",
-                                UnitId = $"{nowTicksA}",
+                                POSerialNumber = EPOItem[0].PO_SerialNumber,
+                                UnitId =  $"{nowTicksA}",
                                 UnitCode = $"{nowTicksA}",
-                                ProductId = nowTicks,
-                                ProductCode = $"{nowTicksA}",
-                                ProductName = $"{nowTicksA}",
-                                ProductRemark = $"{nowTicksA}",
-                                DOQuantity = nowTicks,
-                                DealQuantity = nowTicks,
-                                Conversion = nowTicks,
-                                UomId = $"{nowTicksA}",
-                                UomUnit = $"{nowTicksA}",
-                                SmallQuantity = nowTicks,
-                                SmallUomId = $"{nowTicksA}",
-                                SmallUomUnit = $"{nowTicksA}",
-                                PricePerDealUnit = nowTicks,
-                                PriceTotal = nowTicks,
-                                RONo = $"{nowTicksA}",
-                                ReceiptQuantity = nowTicks
+                                ProductId = EPOItem[0].ProductId,
+                                ProductCode = EPOItem[0].ProductCode,
+                                ProductName = EPOItem[0].ProductName,
+                                ProductRemark = EPOItem[0].Remark,
+                                DOQuantity = EPOItem[0].DOQuantity,
+                                DealQuantity = EPOItem[0].DealQuantity,
+                                Conversion = EPOItem[0].Conversion,
+                                UomId = EPOItem[0].DealUomId.ToString(),
+                                UomUnit = EPOItem[0].DealUomUnit,
+                                SmallQuantity = EPOItem[0].SmallQuantity,
+                                SmallUomId = EPOItem[0].SmallUomId.ToString(),
+                                SmallUomUnit = EPOItem[0].SmallUomUnit,
+                                PricePerDealUnit = EPOItem[0].PricePerDealUnit,
+                                PriceTotal = EPOItem[0].PricePerDealUnit,
+                                RONo = EPOItem[0].RONo,
+                                ReceiptQuantity = 0,
+                                QuantityCorrection = EPOItem[0].DOQuantity,
+                                PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
+                                PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                             }
                         }
                     }
@@ -107,5 +120,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             await facade.Create(data, "Unit Test");
             return data;
         }
-    }
+
+		public async Task<GarmentDeliveryOrder> GetNewData(string user)
+		{
+			var data = GetNewData();
+			await facade.Create(data, "Unit Test");
+			return data;
+		}
+		public async Task<GarmentDeliveryOrder> GetDatas(string user)
+		{
+			GarmentDeliveryOrder garmentDeliveryOrder =  GetNewData();
+			garmentDeliveryOrder.IsInvoice = false;
+			foreach (var item in garmentDeliveryOrder.Items)
+			{
+				foreach (var detail in item.Details)
+				{
+					detail.DOQuantity = 0;
+					detail.DealQuantity = 2;
+				}
+			}
+
+			await facade.Create(garmentDeliveryOrder, user, 7);
+
+			return garmentDeliveryOrder;
+		}
+	}
 }

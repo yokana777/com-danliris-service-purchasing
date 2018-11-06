@@ -2,7 +2,6 @@
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.DailyBankTransaction;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade.Reports;
@@ -35,6 +34,7 @@ using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -59,6 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.Purchasing = Configuration.GetValue<string>(Constant.PURCHASING_ENDPOINT) ?? Configuration[Constant.PURCHASING_ENDPOINT];
             APIEndpoint.Core = Configuration.GetValue<string>(Constant.CORE_ENDPOINT) ?? Configuration[Constant.CORE_ENDPOINT];
             APIEndpoint.Inventory = Configuration.GetValue<string>(Constant.INVENTORY_ENDPOINT) ?? Configuration[Constant.INVENTORY_ENDPOINT];
+            APIEndpoint.Finance = Configuration.GetValue<string>(Constant.FINANCE_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
         }
 
         private void RegisterFacades(IServiceCollection services)
@@ -84,13 +85,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
-                .AddTransient<IDailyBankTransactionFacade, DailyBankTransactionFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
-                .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>();
+                .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
+                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

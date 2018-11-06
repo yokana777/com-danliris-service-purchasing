@@ -11,5 +11,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<HttpResponseMessage> PutAsync(string url, HttpContent content);
         Task<HttpResponseMessage> GetAsync(string url);
         Task<HttpResponseMessage> PostAsync(string url, HttpContent content);
+        Task<HttpResponseMessage> DeleteAsync(string url);
     }
 }

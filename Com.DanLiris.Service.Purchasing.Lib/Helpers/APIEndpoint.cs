@@ -10,5 +10,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
         public static string Core { get; set; }
         public static string Inventory { get; set; }
 		public static string ConnectionString { get; set; }
-	}
+        public static string Finance { get; set; }
+    }
 }

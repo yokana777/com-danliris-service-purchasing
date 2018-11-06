@@ -88,6 +88,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_Acc_FREE()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            data.PaymentMethod = "CMT";
+            data.PaymentType = "FREE";
+            var Response = await facade.Create(data, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Create_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
@@ -163,7 +174,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             data.Items = Newitems;
 
             var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(ResponseUpdate1, 0);
+
+            data.PaymentMethod = "CMT";
+            data.PaymentType = "FREE";
+            var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate2, 0);
+
+            List<GarmentExternalPurchaseOrderItem> Newitems1 = new List<GarmentExternalPurchaseOrderItem>(data.Items);
+            var newItem2 = new GarmentExternalPurchaseOrderItem
+            {
+                PO_SerialNumber = "PO_SerialNumber2",
+                ProductId = item[0].ProductId,
+                PRId = item[0].PRId,
+                POId = item[0].POId,
+                ProductCode = "ProductCode",
+                ProductName = "ProductName",
+                DealQuantity = 2,
+                BudgetPrice = 100,
+                DealUomId = 1,
+                DealUomUnit = "unit",
+                Remark = "ProductRemark",
+                IsOverBudget = true,
+                OverBudgetRemark = "OB"
+            };
+
+            Newitems1.Add(newItem2);
+            data.Items = Newitems1;
+            data.PaymentMethod = "CMT";
+            data.PaymentType = "FREE";
+            var ResponseUpdate3 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate3, 0);
         }
 
         [Fact]
@@ -299,6 +340,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
                 }
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data_By_Supplier()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var Responses = await facade.Create(data, USERNAME);
+            var Response = facade.ReadBySupplier(data.SupplierCode);
+            Assert.NotNull(Response);
         }
     }
 }

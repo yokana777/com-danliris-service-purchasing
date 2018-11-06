@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -20,8 +22,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
+		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem; 
 
-        public GarmentDeliveryOrderFacade(PurchasingDbContext dbContext)
+		public GarmentDeliveryOrderFacade(PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentDeliveryOrder>();
@@ -69,8 +72,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 try
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
-
+                    
                     m.IsClosed = false;
+                    m.IsCorrection = false;
+
+                    foreach (var item in m.Items)
+                    {
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        foreach (var detail in item.Details)
+                        {
+                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
+                            GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
+
+                            detail.POItemId = (int)internalPurchaseOrderItem.Id;
+                            detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                            detail.UnitId = internalPurchaseOrder.UnitId;
+                            detail.UnitCode = internalPurchaseOrder.UnitCode;
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+
+                            GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
+                            externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + detail.DOQuantity;
+                            EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
+
+                            detail.QuantityCorrection = detail.DOQuantity;
+                            detail.PricePerDealUnitCorrection = detail.PricePerDealUnitCorrection;
+                            detail.PriceTotalCorrection = detail.PriceTotalCorrection;
+
+                            
+                        }
+                    }
 
                     this.dbSet.Add(m);
 
@@ -102,6 +132,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     {
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
 
+                        foreach(var item in m.Items){
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                            foreach (var detail in item.Details)
+                            {
+                                GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
+                                GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
+                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
+                                GarmentDeliveryOrderDetail deliveryOrderDetail = this.dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(s => s.Id.Equals(detail.Id));
+                                externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - deliveryOrderDetail.DOQuantity + detail.DOQuantity;
+                                detail.POItemId = (int)internalPurchaseOrderItem.Id;
+                                detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                                detail.UnitId = internalPurchaseOrder.UnitId;
+                                detail.UnitCode = internalPurchaseOrder.UnitCode;
+
+                                EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+                            }
+                        }
+
                         dbSet.Update(m);
 
                         Updated = await dbContext.SaveChangesAsync();
@@ -131,10 +179,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 try
                 {
                     var model = this.dbSet
+                                .Include(m => m.Items)
+                                .ThenInclude(i => i.Details)
                                 .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
                     EntityExtension.FlagForDelete(model, user, USER_AGENT);
+                    foreach(var item in model.Items)
+                    {
+                        EntityExtension.FlagForDelete(item, user, USER_AGENT);
 
+                        foreach(var detail in item.Details)
+                        {
+                            GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
+                            GarmentDeliveryOrderDetail deliveryOrderDetail = this.dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(s => s.Id.Equals(detail.Id));
+                            externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
+
+                            EntityExtension.FlagForDelete(detail, user, USER_AGENT);
+                        }
+                    }
                     Deleted = await dbContext.SaveChangesAsync();
 
                     await dbContext.SaveChangesAsync();
@@ -154,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         {
             IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
-            List<string> searchAttributes = new List<string>()
+			List<string> searchAttributes = new List<string>()
             {
                 "DONo"
             };
@@ -175,8 +237,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
             else
             {
+				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details);
+                    .ThenInclude(i => i.Details).Where(s=>s.IsInvoice==false);
             }
 
             return Query;

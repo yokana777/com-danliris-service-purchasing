@@ -84,6 +84,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             return dbContext;
         }
 
+        private Mock<IServiceProvider> GetServiceProviderMock()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
+
+            return serviceProvider;
+        }
+
         [Fact]
         public async void Should_Success_Get_Data()
         {
@@ -91,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             numberGeneratorMock.Setup(p => p.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("TEST");
 
-            BankExpenditureNoteFacade facadeBEN = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            BankExpenditureNoteFacade facadeBEN = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
             await _dataUtilBEN(facadeBEN, GetCurrentMethod()).GetTestData();
 
             PPHBankExpenditureNoteFacade facadeBENPPH = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
