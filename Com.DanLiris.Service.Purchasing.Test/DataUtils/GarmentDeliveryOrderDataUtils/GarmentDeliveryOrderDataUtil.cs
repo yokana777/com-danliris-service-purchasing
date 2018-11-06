@@ -120,9 +120,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 			await facade.Create(data, "Unit Test");
 			return data;
 		}
-		public async Task<GarmentDeliveryOrder> GetTestDataUnused(string user)
+		public async Task<GarmentDeliveryOrder> GetDatas(string user)
 		{
-			GarmentDeliveryOrder garmentDeliveryOrder = await  GetNewData(user);
+			GarmentDeliveryOrder garmentDeliveryOrder =  GetNewData();
 			garmentDeliveryOrder.IsInvoice = false;
 			foreach (var item in garmentDeliveryOrder.Items)
 			{

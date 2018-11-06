@@ -28,7 +28,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
         }
 		public async Task<GarmentInvoice> GetNewData(string user)
 		{
-			//var gDeliveryOrder = GarmentDeliveryOrderDataUtil.GetNewData();
 			long nowTicks = DateTimeOffset.Now.Ticks;
 			return new GarmentInvoice
 			{

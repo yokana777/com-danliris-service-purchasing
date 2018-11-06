@@ -46,14 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			return string.Concat(sf.GetMethod().Name, "_", ENTITY);
 
 		}
-		public string GetDOMethod()
-		{
-			StackTrace st = new StackTrace();
-			StackFrame sf = st.GetFrame(1);
-
-			return string.Concat(sf.GetMethod().Name, "_", "GarmentDeliveryOrder");
-
-		}
+	
 		private PurchasingDbContext _dbContext(string testName)
 		{
 			DbContextOptionsBuilder<PurchasingDbContext> optionsBuilder = new DbContextOptionsBuilder<PurchasingDbContext>();
@@ -65,19 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 			return dbContext;
 		}
-		private GarmentDeliveryOrderDataUtil doDataUtil(GarmentDeliveryOrderFacade facade, string testName)
-		{
-			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
-			var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
-
-			var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
-			var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
-
-			var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
-			var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
-
-			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
-		}
+		
 		private GarmentInvoiceDataUtil dataUtil(GarmentInvoiceFacade facade, string testName)
 		{
 			var garmentInvoiceFacade = new GarmentInvoiceFacade(_dbContext(testName), ServiceProvider);
@@ -100,8 +81,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Success_Create_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			 
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+		
 			var Response = await facade.Create(data, USERNAME);
 			Assert.NotEqual(Response, 0);
 		}
@@ -109,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Validate_Double_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice model = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
 
 			GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
@@ -137,8 +120,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Error_Create_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			GarmentInvoice model =await  dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+			GarmentInvoice model =await  dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			model.Items = null;
 			Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
 			Assert.NotNull(e.Message);
@@ -148,8 +131,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Success_Get_All_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			var Responses = await facade.Create(data, USERNAME);
 			var Response = facade.Read();
 			Assert.NotNull(Response);
@@ -158,8 +141,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Success_Get_Data_By_Id()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			var Responses = await facade.Create(data, USERNAME);
 			var Response = facade.ReadById((int)data.Id);
 			Assert.NotNull(Response);
@@ -167,22 +150,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Success_Update_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
-			var facadeDO = new GarmentDeliveryOrderFacade(_dbContext(USERNAME));
-			
-			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
-			GarmentDeliveryOrder dataDO= doDataUtil(facadeDO, GetDOMethod()).GetNewData();
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			 
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 			var newItem = new GarmentInvoiceItem
 			{
-				DeliveryOrderId = dataDO.Id,
-				DODate =dataDO.DODate,
-				DeliveryOrderNo =dataDO.DONo,
-				ArrivalDate =dataDO.ArrivalDate,
-				TotalAmount = dataDO.TotalAmount,
+				DeliveryOrderId = It.IsAny<int>(),
+				DODate = DateTimeOffset.Now,
+				DeliveryOrderNo = "donos",
+				ArrivalDate = DateTimeOffset.Now,
+				TotalAmount = 2000,
 				CurrencyId = It.IsAny<int>(),
 				Details = new List<GarmentInvoiceDetail>
 							{
@@ -219,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Error_Update_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
 			List<GarmentInvoiceItem> item = new List<GarmentInvoiceItem>(data.Items);
 
@@ -257,7 +237,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Success_Delete_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			await facade.Create(data, USERNAME); 
 			var Response = facade.Delete((int)data.Id, USERNAME);
@@ -267,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		[Fact]
 		public async void Should_Error_Delete_Data()
 		{
-			var facade = new GarmentInvoiceFacade(_dbContext(USERNAME), ServiceProvider);
+			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
 			Assert.NotNull(e.Message);
 		}

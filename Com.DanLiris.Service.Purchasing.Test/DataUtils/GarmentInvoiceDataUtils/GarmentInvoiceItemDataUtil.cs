@@ -25,7 +25,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 				DeliveryOrderId = garmentDeliveryOrder.Id,
 			    DeliveryOrderNo = garmentDeliveryOrder.DONo,
 				DODate=garmentDeliveryOrder.DODate,
-				
 				Details = garmentInvoiceDetailDataUtil.GetNewDataViewModel(garmentDeliveryOrder.Items.ToList())
 			};
 		}
