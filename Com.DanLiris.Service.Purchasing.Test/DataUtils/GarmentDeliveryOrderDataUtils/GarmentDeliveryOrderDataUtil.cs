@@ -60,6 +60,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 CustomsId = nowTicks,
                 PaymentBill = $"{nowTicksB}",
                 BillNo = $"{nowTicksB}",
+                PaymentType = datas.PaymentType,
+                PaymentMethod = datas.PaymentMethod,
+                CurrencyId = datas.CurrencyId,
+                CurrencyCode = datas.CurrencyCode,
 
                 TotalAmount = nowTicks,
 
@@ -69,12 +73,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                     {
                         EPOId = datas.Id,
                         EPONo = datas.EPONo,
-                        PaymentType = datas.PaymentType,
-                        PaymentMethod = datas.PaymentMethod,
                         PaymentDueDays = datas.PaymentDueDays,
-                        CurrencyId = datas.CurrencyId,
-                        CurrencyCode = datas.CurrencyCode,
-                       
+
                         Details = new List<GarmentDeliveryOrderDetail>
                         {
                             new GarmentDeliveryOrderDetail

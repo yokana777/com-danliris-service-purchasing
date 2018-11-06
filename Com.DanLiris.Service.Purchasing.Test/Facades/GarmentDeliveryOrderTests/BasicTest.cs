@@ -186,14 +186,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 totalAmount = 1,
                 shipmentType = "test",
                 shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = null,
                         paymentDueDays = 1,
-                        paymentMethod = "test",
-                        paymentType = "test",
+                        
                         fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel
@@ -225,14 +226,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 totalAmount = 1,
                 shipmentType = "test",
                 shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
-                        paymentMethod = "test",
-                        paymentType = "test",
+                        
                         fulfillments = null
                     }
                 }
@@ -256,14 +258,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 totalAmount = 1,
                 shipmentType = "test",
                 shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
-                        paymentMethod = "test",
-                        paymentType = "test",
+                       
                         fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel

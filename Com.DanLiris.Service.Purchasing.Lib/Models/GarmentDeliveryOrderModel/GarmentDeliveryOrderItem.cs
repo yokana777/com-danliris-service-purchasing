@@ -10,14 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public long EPOId { get; set; }
         [MaxLength(255)]
         public string EPONo { get; set; }
-
-        public string PaymentType { get; set; }
-        public string PaymentMethod { get; set; }
         public int PaymentDueDays { get; set; }
-
-        public long CurrencyId { get; set; }
-        public string CurrencyCode { get; set; }
-        
         public virtual ICollection<GarmentDeliveryOrderDetail> Details { get; set; }
 
         public virtual long GarmentDOId { get; set; }

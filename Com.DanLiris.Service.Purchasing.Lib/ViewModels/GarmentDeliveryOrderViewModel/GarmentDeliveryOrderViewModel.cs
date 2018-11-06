@@ -33,6 +33,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public bool useIncomeTax { get; set; }
 
         public IncomeTaxViewModel incomeTax { get; set; }
+
+        public string paymentType { get; set; }
+        public string paymentMethod { get; set; }
+        public CurrencyViewModel currency { get; set; }
         public List<GarmentDeliveryOrderItemViewModel> items { get; set; }
 
         //public List<long> unitReceiptNoteIds { get; set; }
