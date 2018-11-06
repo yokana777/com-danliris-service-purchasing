@@ -17,16 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
         public long CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
-
-        public bool UseVat { get; set; }
-        public bool UseIncomeTax { get; set; }
-
-        [MaxLength(255)]
-        public int IncomeTaxId { get; set; }
-        [MaxLength(255)]
-        public string IncomeTaxName { get; set; }
-        public double IncomeTaxRate { get; set; }
-
+        
         public virtual ICollection<GarmentDeliveryOrderDetail> Details { get; set; }
 
         public virtual long GarmentDOId { get; set; }

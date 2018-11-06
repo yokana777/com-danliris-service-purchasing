@@ -33,7 +33,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
 
+                .ForMember(d => d.isCorrection, opt => opt.MapFrom(s => s.IsCorrection))
+
+                .ForPath(d => d.incomeTax.Id, opt => opt.MapFrom(s => s.IncomeTaxId))
+                .ForPath(d => d.incomeTax.Name, opt => opt.MapFrom(s => s.IncomeTaxName))
+                .ForPath(d => d.incomeTax.Rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
+
                 .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))
+                
                 .ReverseMap();
 
             CreateMap<GarmentDeliveryOrderItem, GarmentDeliveryOrderItemViewModel>()
@@ -48,10 +55,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 /*Currency*/
                 .ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
-
-                .ForPath(d => d.incomeTax.Id, opt => opt.MapFrom(s => s.IncomeTaxId))
-                .ForPath(d => d.incomeTax.Name, opt => opt.MapFrom(s => s.IncomeTaxName))
-                .ForPath(d => d.incomeTax.Rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
 
                 .ForMember(d => d.fulfillments, opt => opt.MapFrom(s => s.Details))
 
@@ -94,6 +97,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.receiptQuantity, opt => opt.MapFrom(s => s.ReceiptQuantity))
 
                 .ForPath(d => d.rONo, opt => opt.MapFrom(s => s.RONo))
+
+                .ForPath(d => d.quantityCorrection, opt => opt.MapFrom(s => s.QuantityCorrection))
+                .ForPath(d => d.pricePerDealUnitCorrection, opt => opt.MapFrom(s => s.PricePerDealUnitCorrection))
+                .ForPath(d => d.priceTotalCorrection, opt => opt.MapFrom(s => s.PriceTotalCorrection))
                 .ReverseMap();
         }
     }
