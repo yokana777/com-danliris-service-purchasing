@@ -9,7 +9,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
     public class GarmentInvoiceItemViewModel : BaseViewModel
     {
         public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
-		public string currency { get; set; }
         public List<GarmentInvoiceDetailViewModel> details { get; set; }
-    }
+		public string paymentType { get; set; }
+		public string paymentMethod { get; set; }
+	}
 }

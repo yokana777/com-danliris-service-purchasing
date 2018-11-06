@@ -41,7 +41,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			   .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
 			   .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
 			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
-			   .ForPath(d => d.currency, opt => opt.MapFrom(s => s.CurrencyCode))
+			   .ForPath(d => d.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
+			  .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
 			   .ReverseMap();
 
             CreateMap<GarmentInvoiceDetail, GarmentInvoiceDetailViewModel>()
@@ -59,8 +60,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			  .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
 			  .ForPath(d => d.roNo, opt => opt.MapFrom(s => s.RONo))
 			  .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
-			  .ForPath(d => d.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
-			  .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
 			  .ForPath(d => d.pOSerialNumber, opt => opt.MapFrom(s => s.POSerialNumber))
 			  .ReverseMap();
         }

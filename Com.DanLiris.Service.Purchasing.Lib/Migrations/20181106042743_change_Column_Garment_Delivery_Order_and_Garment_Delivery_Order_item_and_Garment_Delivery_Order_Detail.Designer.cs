@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181106042743_change_Column_Garment_Delivery_Order_and_Garment_Delivery_Order_item_and_Garment_Delivery_Order_Detail")]
+    partial class change_Column_Garment_Delivery_Order_and_Garment_Delivery_Order_item_and_Garment_Delivery_Order_Detail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1169,10 +1170,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<long?>("CurrencyId");
-
                     b.Property<long>("CustomsId");
 
                     b.Property<DateTimeOffset>("DODate");
@@ -1220,10 +1217,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PaymentBill")
                         .HasMaxLength(50);
-
-                    b.Property<string>("PaymentMethod");
-
-                    b.Property<string>("PaymentType");
 
                     b.Property<string>("Remark");
 
@@ -1384,6 +1377,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
+                    b.Property<string>("CurrencyCode");
+
+                    b.Property<long>("CurrencyId");
+
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -1414,6 +1411,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<int>("PaymentDueDays");
+
+                    b.Property<string>("PaymentMethod");
+
+                    b.Property<string>("PaymentType");
 
                     b.HasKey("Id");
 
@@ -1862,6 +1863,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("CurrencyId");
 
+                    b.Property<string>("CurrencyName");
+
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -1876,13 +1879,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("IncomeTaxDate");
 
-                    b.Property<long>("IncomeTaxId");
-
-                    b.Property<string>("IncomeTaxName");
-
                     b.Property<string>("IncomeTaxNo");
-
-                    b.Property<double>("IncomeTaxRate");
 
                     b.Property<DateTimeOffset>("InvoiceDate");
 
@@ -1943,8 +1940,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<long>("DODetailDOId");
-
                     b.Property<double>("DOQuantity");
 
                     b.Property<string>("DeletedAgent")
@@ -1977,13 +1972,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("POSerialNumber");
-
                     b.Property<long>("PRItemId");
 
                     b.Property<string>("PRNo");
 
                     b.Property<int>("PaymentDueDays");
+
+                    b.Property<string>("PaymentMethod");
+
+                    b.Property<string>("PaymentType");
 
                     b.Property<double>("PricePerDealUnit");
 
@@ -2054,10 +2051,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<string>("PaymentMethod");
-
-                    b.Property<string>("PaymentType");
 
                     b.Property<double>("TotalAmount");
 

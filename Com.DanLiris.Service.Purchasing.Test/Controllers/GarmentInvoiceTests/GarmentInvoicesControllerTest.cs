@@ -170,7 +170,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			foreach (var item in ViewModel.items)
 			{
 				item.deliveryOrder = item.deliveryOrder;
-				item.currency = item.currency;
+				item.paymentType = "type";
+				item.paymentMethod = "method";
 			}
 			System.ComponentModel.DataAnnotations.ValidationContext validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(ViewModel, serviceProvider.Object, null);
 			return new ServiceValidationExeption(validationContext, validationResults);
@@ -354,7 +355,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 								arrivalDate  =  DateTimeOffset.Now,
 								totalAmount=2000
 							},
-							currency="IDR",
+								paymentType = "type",
+								paymentMethod = "method",
 							details= new List<GarmentInvoiceDetailViewModel>
 							{
 								new GarmentInvoiceDetailViewModel
@@ -377,9 +379,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 									},
 									doQuantity=40,
 									pricePerDealUnit=5000,
-									paymentType="type",
 									paymentDueDays=2,
-									paymentMethod="method",
 									useVat=true,
 									useIncomeTax=true,
 									pOSerialNumber="PM132434"

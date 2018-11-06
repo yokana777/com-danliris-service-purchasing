@@ -88,16 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 				foreach (var item in items)
 				{
 					itemError += "{";
-					 if(currency !=null)
-					{
-						if(currency.Code != item.currency)
-						{
-							itemErrorCount++;
-							itemError += "deliveryOrder: 'DO Currency "+ item.currency +" different from selected currency', ";
-							 
-						}
-
-					}
+					
 					if (item.deliveryOrder == null)
 					{
 						itemErrorCount++;

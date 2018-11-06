@@ -74,6 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
                     
                     m.IsClosed = false;
+                    m.IsCorrection = false;
 
                     foreach (var item in m.Items)
                     {
@@ -82,22 +83,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         {
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
                             GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
-							if (internalPurchaseOrder != null && internalPurchaseOrderItem != null)
-							{
-								detail.POItemId = (int)internalPurchaseOrderItem.Id;
-								detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
-								detail.UnitId = internalPurchaseOrder.UnitId;
-								detail.UnitCode = internalPurchaseOrder.UnitCode;
-								EntityExtension.FlagForCreate(detail, user, USER_AGENT);
 
-							}
+                            detail.POItemId = (int)internalPurchaseOrderItem.Id;
+                            detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                            detail.UnitId = internalPurchaseOrder.UnitId;
+                            detail.UnitCode = internalPurchaseOrder.UnitCode;
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
 
-							GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
-							if (externalPurchaseOrderItem != null)
-							{
-								externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + detail.DOQuantity;
-								EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
-							}
+                            GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
+                            externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + detail.DOQuantity;
+                            EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
+
+                            detail.QuantityCorrection = detail.DOQuantity;
+                            detail.PricePerDealUnitCorrection = detail.PricePerDealUnitCorrection;
+                            detail.PriceTotalCorrection = detail.PriceTotalCorrection;
+
                             
                         }
                     }

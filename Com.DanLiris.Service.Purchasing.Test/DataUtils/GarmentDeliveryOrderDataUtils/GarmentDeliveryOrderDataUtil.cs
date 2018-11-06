@@ -49,9 +49,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 IsCustoms = false,
                 IsInvoice = false,
 
+                UseVat = datas.IsUseVat,
+                UseIncomeTax = datas.IsIncomeTax,
+                IncomeTaxId = Convert.ToInt32(datas.IncomeTaxId),
+                IncomeTaxName = datas.IncomeTaxName,
+                IncomeTaxRate = Convert.ToDouble(datas.IncomeTaxRate),
+
+                IsCorrection = false,
+
                 CustomsId = nowTicks,
                 PaymentBill = $"{nowTicksB}",
                 BillNo = $"{nowTicksB}",
+                PaymentType = datas.PaymentType,
+                PaymentMethod = datas.PaymentMethod,
+                CurrencyId = datas.CurrencyId,
+                CurrencyCode = datas.CurrencyCode,
 
                 TotalAmount = nowTicks,
 
@@ -61,16 +73,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                     {
                         EPOId = datas.Id,
                         EPONo = datas.EPONo,
-                        PaymentType = datas.PaymentType,
-                        PaymentMethod = datas.PaymentMethod,
                         PaymentDueDays = datas.PaymentDueDays,
-                        CurrencyId = datas.CurrencyId,
-                        CurrencyCode = datas.CurrencyCode,
-                        UseVat = datas.IsUseVat,
-                        UseIncomeTax = datas.IsIncomeTax,
-                        IncomeTaxId = Convert.ToInt32(datas.IncomeTaxId),
-                        IncomeTaxName = datas.IncomeTaxName,
-                        IncomeTaxRate = Convert.ToDouble(datas.IncomeTaxRate),
+
                         Details = new List<GarmentDeliveryOrderDetail>
                         {
                             new GarmentDeliveryOrderDetail
@@ -99,7 +103,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 PricePerDealUnit = EPOItem[0].PricePerDealUnit,
                                 PriceTotal = EPOItem[0].PricePerDealUnit,
                                 RONo = EPOItem[0].RONo,
-                                ReceiptQuantity = 0
+                                ReceiptQuantity = 0,
+                                QuantityCorrection = EPOItem[0].DOQuantity,
+                                PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
+                                PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                             }
                         }
                     }

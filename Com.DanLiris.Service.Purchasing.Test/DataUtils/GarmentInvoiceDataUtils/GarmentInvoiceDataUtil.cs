@@ -59,7 +59,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 						   DeliveryOrderNo="dono",
 						   ArrivalDate  =  DateTimeOffset.Now,
 						   TotalAmount =2000,
-						   CurrencyId=It.IsAny<int>(),
+						   PaymentType="type",
+						  
+						   PaymentMethod="method",
 							Details= new List<GarmentInvoiceDetail>
 							{
 								new GarmentInvoiceDetail
@@ -77,10 +79,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 									UomUnit="ROLL",
 									DOQuantity=40,
 									PricePerDealUnit=5000,
-									PaymentType="type",
-									PaymentDueDays=2,
-									PaymentMethod="method",
-									POSerialNumber="PM132434"
+									POSerialNumber="PM132434",
+									 PaymentDueDays=2
 
 								}
 							}

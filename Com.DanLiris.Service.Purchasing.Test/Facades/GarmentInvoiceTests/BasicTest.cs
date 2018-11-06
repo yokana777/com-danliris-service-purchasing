@@ -163,7 +163,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 				DeliveryOrderNo = "donos",
 				ArrivalDate = DateTimeOffset.Now,
 				TotalAmount = 2000,
-				CurrencyId = It.IsAny<int>(),
+				PaymentType = "type",
+				PaymentMethod = "method",
 				Details = new List<GarmentInvoiceDetail>
 							{
 								new GarmentInvoiceDetail
@@ -181,9 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 									UomUnit="ROLL",
 									DOQuantity=40,
 									PricePerDealUnit=5000,
-									PaymentType="type",
-									PaymentDueDays=2,
-									PaymentMethod="method",
+									PaymentDueDays = 2,
 									POSerialNumber="PM132434"
 
 								}
@@ -210,7 +209,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 				DeliveryOrderNo = "donos",
 				ArrivalDate = DateTimeOffset.Now,
 				TotalAmount = 2000,
-				CurrencyId = It.IsAny<int>(),
 				Details = null
 			});
 
@@ -223,7 +221,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 				DeliveryOrderNo = "dono",
 				ArrivalDate = DateTimeOffset.Now,
 				TotalAmount = 2000,
-				CurrencyId = It.IsAny<int>(),
 				Details =null
 			};
 			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
@@ -278,7 +275,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 						new GarmentInvoiceItemViewModel
 						{
 							deliveryOrder =null,
-							currency="IDR",
+							 
 							details= new List<GarmentInvoiceDetailViewModel>
 							{
 								new GarmentInvoiceDetailViewModel
@@ -313,7 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 						new GarmentInvoiceItemViewModel
 						{
 							deliveryOrder =null,
-							currency="IDR",
+						
 							details= null
 						}
 					}
