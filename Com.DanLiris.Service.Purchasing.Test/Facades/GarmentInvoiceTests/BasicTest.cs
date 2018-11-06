@@ -151,9 +151,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		public async void Should_Success_Update_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-			 
+			var facadeDO = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
-			
+			 
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 			var newItem = new GarmentInvoiceItem

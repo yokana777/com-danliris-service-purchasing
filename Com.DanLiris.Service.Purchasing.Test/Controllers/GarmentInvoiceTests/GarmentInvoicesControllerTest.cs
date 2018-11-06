@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 	public class GarmentInvoicesControllerTest
 	{
 		private const string MediaType = "application/json";
-		private readonly string URI = "v1/delivery-orders";
+		private readonly string URI = "v1/garment-invoices";
 		private readonly string USERNAME = "dev2";
 
 		private GarmentInvoiceViewModel ViewModel
