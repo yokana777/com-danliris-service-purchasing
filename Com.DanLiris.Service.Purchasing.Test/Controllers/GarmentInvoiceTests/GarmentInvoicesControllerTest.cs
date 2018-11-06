@@ -123,19 +123,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
 			Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
 		}
-
 		[Fact]
-		public async Task Should_Success_Get_All_Data_By_User()
+		public void Should_Success_Get_All_Data_By_User()
 		{
-			string URI = $"{this.URI}/by-user";
+			var validateMock = new Mock<IValidateService>();
+			validateMock.Setup(s => s.Validate(It.IsAny<GarmentInvoiceViewModel>())).Verifiable();
 
-			var response = await this.Client.GetAsync(URI);
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			var mockFacade = new Mock<IGarmentInvoice>();
 
-			var responseWithFilter = await this.Client.GetAsync(URI + "?filter={'IsClosed ':false}");
-			Assert.Equal(HttpStatusCode.OK, responseWithFilter.StatusCode);
+			mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+				.Returns(Tuple.Create(new List<GarmentInvoice>(), 0, new Dictionary<string, string>()));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<GarmentInvoiceViewModel>>(It.IsAny<List<GarmentInvoice>>()))
+				.Returns(new List<GarmentInvoiceViewModel> { ViewModel });
+
+			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+			GarmentInvoiceController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+			var response = controller.GetByUser();
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
-
 		[Fact]
 		public async Task Should_Error_Get_Invalid_Id()
 		{
@@ -257,11 +265,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var response = controller.Post(this.ViewModel).Result;
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
+	 
 		[Fact]
-		public async Task Should_Error_Update_Data_Id()
+		public void Should_Error_Update_Data()
 		{
-			var response = await this.Client.PutAsync($"{URI}/0", new StringContent(JsonConvert.SerializeObject(new GarmentInvoiceViewModel()).ToString(), Encoding.UTF8, MediaType));
-			Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+			var validateMock = new Mock<IValidateService>();
+			validateMock.Setup(s => s.Validate(It.IsAny<GarmentInvoiceViewModel>())).Verifiable();
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<GarmentInvoice>(It.IsAny<GarmentInvoiceViewModel>()))
+				.Returns(Model);
+
+			var mockFacade = new Mock<IGarmentInvoice>();
+			mockFacade.Setup(x => x.Create(It.IsAny<GarmentInvoice>(), "unittestusername", 7))
+			   .ReturnsAsync(1);
+
+			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+			var controller = new GarmentInvoiceController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object);
+
+			var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInvoiceViewModel>()).Result;
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 
 		[Fact]
