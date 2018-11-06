@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             this.serviceProvider = serviceProvider;
         }
 
-        public async Task<int> Create(GarmentInternNote m, string user, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(GarmentInternNote m,bool isImport, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -41,9 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    m.INNo = await GenerateNo(m, clientTimeZoneOffset);
-
-                    
+                    m.INNo = await GenerateNo(m,isImport, clientTimeZoneOffset);
 
                     foreach (var item in m.Items)
                     {
@@ -178,17 +176,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             return Updated;
         }
-        async Task<string> GenerateNo(GarmentInternNote model, int clientTimeZoneOffset)
+        async Task<string> GenerateNo(GarmentInternNote model,bool isImport, int clientTimeZoneOffset)
         {
             var viewmodel = new GarmentInternNoteViewModel();
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
             string Year = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("YY");
-            
+            string Supplier = isImport ? "I" : "L";
 
-            string no = $"NI{Year}{Month}";
+            string no = $"NI{Year}{Month}{Supplier}";
             int Padding = 4;
-
+            
             var lastNo = await this.dbSet.Where(w => w.INNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.INNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
@@ -198,16 +196,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             else
             {
                 int lastNoNumber = Int32.Parse(lastNo.INNo.Replace(no, "")) + 1;
-                if (viewmodel.supplier.Import==true)
-                {
-                    string imports = "I";
-                    return no + lastNoNumber.ToString().PadLeft(Padding, '0') + imports;
-                }
-                else
-                {
-                    string imports = "L";
-                    return no + lastNoNumber.ToString().PadLeft(Padding, '0') + imports;
-                }
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
                 
             }
         }

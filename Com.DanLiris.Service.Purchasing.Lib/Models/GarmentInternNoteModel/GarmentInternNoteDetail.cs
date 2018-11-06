@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public string EPONo { get; set; }
         public string POSerialNumber { get; set; }
         public string RONo { get; set; }
-        public string TermOfPayment { get; set; }
+        public string PaymentMethod { get; set; }
         public string PaymentType { get; set; }
         public int PaymentDueDays { get; set; }
         public DateTimeOffset PaymentDueDate { get; set; }

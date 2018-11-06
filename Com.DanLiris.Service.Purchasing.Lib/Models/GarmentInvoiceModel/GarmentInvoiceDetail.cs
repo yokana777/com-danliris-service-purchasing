@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public string PaymentMethod { get; set; }
         public int PaymentDueDays { get; set; }
         public virtual long InvoiceItemId { get; set; }
+        public string POSerialNumber { get; set; }
         [ForeignKey("InvoiceItemId")]
         public virtual GarmentInvoiceItem GarmentInvoiceItem { get; set; }
     }

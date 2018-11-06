@@ -22,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public string paymentType { get; set; }
         public string paymentMethod { get; set; }
         public int paymentDueDays { get; set; }
+        public string poSerialNumber { get; set; }
     }
 }

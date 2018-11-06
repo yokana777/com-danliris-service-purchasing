@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public DateTimeOffset paymentDueDate { get; set; }
 
         public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
-
+        
         /*Product*/
         public ProductViewModel product { get; set; }
 

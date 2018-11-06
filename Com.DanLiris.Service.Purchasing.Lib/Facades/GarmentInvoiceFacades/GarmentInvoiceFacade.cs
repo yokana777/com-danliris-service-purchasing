@@ -70,15 +70,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                 {
                     EntityExtension.FlagForCreate(model, username, USER_AGENT);
 
-                    //foreach (var item in model.Items)
-                    //{
-                    //    EntityExtension.FlagForCreate(item, username, USER_AGENT);
-                        
-                    //    foreach (var detail in item.Details)
-                    //    {
-                    //        EntityExtension.FlagForCreate(detail, username, USER_AGENT);
-                    //    }
-                    //}
+                    foreach (var item in model.Items)
+                    {
+                        EntityExtension.FlagForCreate(item, username, USER_AGENT);
+
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForCreate(detail, username, USER_AGENT);
+                        }
+                    }
 
 
                     this.dbSet.Add(model);

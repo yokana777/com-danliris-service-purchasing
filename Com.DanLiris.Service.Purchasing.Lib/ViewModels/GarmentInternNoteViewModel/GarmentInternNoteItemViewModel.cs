@@ -9,6 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
     public class GarmentInternNoteItemViewModel : BaseViewModel
     {
         public GarmentInvoiceViewModel garmentInvoice { get; set; }
-        public List<GarmentInternNoteDetailViewModel> detail { get; set; }
+        public List<GarmentInternNoteDetailViewModel> details { get; set; }
     }
 }

@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         s.inNo,
                         s.inDate,
                         supplier = new { s.supplier.Name },
-                        items = s.items.Select(i => new { i.garmentInvoice, i.detail }),
+                        items = s.items.Select(i => new { i.garmentInvoice, i.details }),
                         s.CreatedBy,
                         s.LastModifiedUtc
                     }).ToList()
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
 
                 var model = mapper.Map<GarmentInternNote>(ViewModel);
 
-                await facade.Create(model, identityService.Username);
+                await facade.Create(model,ViewModel.supplier.Import, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
