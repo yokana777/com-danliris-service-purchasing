@@ -124,27 +124,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
 		}
 
-		[Fact]
-		public void Should_Success_Get_All_Data_By_User()
-		{
-			var validateMock = new Mock<IValidateService>();
-			validateMock.Setup(s => s.Validate(It.IsAny<GarmentInvoiceViewModel>())).Verifiable();
+		//[Fact]
+		//public void Should_Success_Get_All_Data_By_User()
+		//{
+		//	var validateMock = new Mock<IValidateService>();
+		//	validateMock.Setup(s => s.Validate(It.IsAny<GarmentInvoiceViewModel>())).Verifiable();
 
-			var mockFacade = new Mock<IGarmentInvoice>();
+		//	var mockFacade = new Mock<IGarmentInvoice>();
 
-			mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-				.Returns(Tuple.Create(new List<GarmentInvoice>(), 0, new Dictionary<string, string>()));
+		//	mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+		//		.Returns(Tuple.Create(new List<GarmentInvoice>(), 0, new Dictionary<string, string>()));
 
-			var mockMapper = new Mock<IMapper>();
-			mockMapper.Setup(x => x.Map<List<GarmentInvoiceViewModel>>(It.IsAny<List<GarmentInvoice>>()))
-				.Returns(new List<GarmentInvoiceViewModel> { ViewModel });
+		//	var mockMapper = new Mock<IMapper>();
+		//	mockMapper.Setup(x => x.Map<List<GarmentInvoiceViewModel>>(It.IsAny<List<GarmentInvoice>>()))
+		//		.Returns(new List<GarmentInvoiceViewModel> { ViewModel });
 
-			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+		//	var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
-			GarmentInvoiceController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
-			var response = controller.GetByUser();
-			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-		}
+		//	GarmentInvoiceController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+		//	var response = controller.GetByUser();
+		//	Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+		//}
 		[Fact]
 		public async Task Should_Error_Get_Invalid_Id()
 		{
