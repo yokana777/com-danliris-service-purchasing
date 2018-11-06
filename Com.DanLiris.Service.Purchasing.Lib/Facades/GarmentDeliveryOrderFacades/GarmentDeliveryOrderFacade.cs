@@ -73,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
                     
                     m.IsClosed = false;
+                    m.IsCorrection = false;
 
                     foreach (var item in m.Items)
                     {
@@ -91,6 +92,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
                             externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + detail.DOQuantity;
                             EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
+
+                            detail.QuantityCorrection = detail.DOQuantity;
+                            detail.PricePerDealUnitCorrection = detail.PricePerDealUnitCorrection;
+                            detail.PriceTotalCorrection = detail.PriceTotalCorrection;
                             
                         }
                     }

@@ -26,6 +26,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string billNo { get; set; }
         public string paymentBill { get; set; }
         public double totalAmount { get; set; }
+
+        public bool isCorrection { get; set; }
+
+        public bool useVat { get; set; }
+        public bool useIncomeTax { get; set; }
+
+        public IncomeTaxViewModel incomeTax { get; set; }
+
+        public string paymentType { get; set; }
+        public string paymentMethod { get; set; }
+        public CurrencyViewModel currency { get; set; }
         public List<GarmentDeliveryOrderItemViewModel> items { get; set; }
 
         //public List<long> unitReceiptNoteIds { get; set; }

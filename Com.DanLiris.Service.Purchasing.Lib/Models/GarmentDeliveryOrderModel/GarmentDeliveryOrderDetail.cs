@@ -55,6 +55,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public string RONo { get; set; }
         public double ReceiptQuantity { get; set; }
         public virtual long GarmentDOItemId { get; set; }
+
+        public double? QuantityCorrection { get; set; }
+        public double? PricePerDealUnitCorrection { get; set; }
+        public double? PriceTotalCorrection { get; set; }
         [ForeignKey("GarmentDOItemId")]
         public virtual GarmentDeliveryOrderItem GarmentDeliveryOrderItem { get; set; }
     }
