@@ -298,6 +298,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 supplier = new SupplierViewModel(),
+                incomeTax = new IncomeTaxViewModel(),
+                currency = new CurrencyViewModel(),
             };
             viewModel.Id = model.Id + 1;
             viewModel.doNo = model.DONo;
