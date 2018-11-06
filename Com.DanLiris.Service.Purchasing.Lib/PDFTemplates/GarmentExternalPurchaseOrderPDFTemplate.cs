@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string EPONo = viewModel.IsOverBudget ? viewModel.EPONo + "-OB" : viewModel.EPONo;
 
 
-            Chunk chkHeader = new Chunk("PO: " + EPONo, bold_font);
+            Chunk chkHeader = new Chunk(EPONo, bold_font);
             Phrase pheader = new Phrase(chkHeader);
             HeaderFooter header = new HeaderFooter(pheader, false);
             header.Border = Rectangle.NO_BORDER;
@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderContentLeft.Phrase = new Phrase("PT DAN LIRIS" + "\n" + "Head Office: Kelurahan Banaran" + "\n" + "Kecamatan Grogol" + "\n" + "Sukoharjo 57193 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777", bold_font);
             tableHeader.AddCell(cellHeaderContentLeft);
 
-            string noPO = "PO: " + EPONo;
+            string noPO = EPONo;
 
             //string noPO = viewModel.Supplier.Import ? "FM-PB-00-06-009/R1" + "\n" + "PO: " + EPONo  : "PO: " + EPONo;
 
