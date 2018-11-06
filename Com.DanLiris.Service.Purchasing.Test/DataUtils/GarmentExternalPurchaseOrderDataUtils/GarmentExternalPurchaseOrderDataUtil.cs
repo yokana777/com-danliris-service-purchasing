@@ -38,7 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 Shrinkage = "shrink",
                 QualityStandardType = "quality",
                 PieceLength = "piece",
-
+                PaymentMethod = "pay",
+                PaymentType = "payType",
                 IncomeTaxId = "1",
                 IncomeTaxName = "income1",
                 IncomeTaxRate = "1",

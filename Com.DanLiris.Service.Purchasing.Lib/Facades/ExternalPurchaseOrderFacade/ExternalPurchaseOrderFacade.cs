@@ -673,7 +673,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             UnitCode = i.UnitCode,
                             UnitName = i.UnitName,
                             Details = i.Details
-                                .Where(d => d.DOQuantity < d.DealQuantity && d.IsDeleted == false)
+                                .Where(d => d.DispositionQuantity < d.DealQuantity && d.IsDeleted == false)
                                 .Select(d => new ExternalPurchaseOrderDetail
                                 {
                                     Id = d.Id,
@@ -686,6 +686,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     DealUomId = d.DealUomId,
                                     DealUomUnit = d.DealUomUnit,
                                     DOQuantity = d.DOQuantity,
+                                    DispositionQuantity=d.DispositionQuantity,
                                     ProductRemark = d.ProductRemark,
                                 })
                                 .ToList()
