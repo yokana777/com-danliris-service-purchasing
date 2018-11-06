@@ -341,5 +341,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_By_Supplier()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var Responses = await facade.Create(data, USERNAME);
+            var Response = facade.ReadBySupplier(data.SupplierCode);
+            Assert.NotNull(Response);
+        }
     }
 }

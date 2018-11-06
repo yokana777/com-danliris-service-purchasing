@@ -25,11 +25,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public double smallQuantity { get; set; }
         public UomViewModel smallUom { get; set; }
 
-        public double PricePerDealUnit { get; set; }
-        public double PriceTotal { get; set; }
+        public double pricePerDealUnit { get; set; }
+        public double priceTotal { get; set; }
 
 
         public string rONo { get; set; }
         public double receiptQuantity { get; set; }
+
+        public bool isSave { get; set; }
     }
 }

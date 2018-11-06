@@ -21,5 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         SupplierViewModel GetSupplier(long supplierId);
         GarmentProductViewModel GetProduct(long productId);
         int EPOApprove(List<GarmentExternalPurchaseOrder> ListEPO, string user);
+        List<GarmentExternalPurchaseOrder> ReadBySupplier(string Keyword = null, string Filter = "{}");
     }
 }
