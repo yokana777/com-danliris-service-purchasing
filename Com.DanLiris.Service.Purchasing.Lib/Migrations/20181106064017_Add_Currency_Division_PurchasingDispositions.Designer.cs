@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181106064017_Add_Currency_Division_PurchasingDispositions")]
+    partial class Add_Currency_Division_PurchasingDispositions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2722,12 +2723,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("PurchasingDispositionItemId");
 
+                    b.Property<long?>("PurchasingDispositionItemId1");
+
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
 
                     b.HasIndex("PurchasingDispositionItemId");
+
+                    b.HasIndex("PurchasingDispositionItemId1");
 
                     b.ToTable("PurchasingDispositionDetails");
                 });
@@ -3616,9 +3621,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionDetail", b =>
                 {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem", "PurchasingDispositionItem")
-                        .WithMany("Details")
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDisposition", "PurchasingDisposition")
+                        .WithMany()
                         .HasForeignKey("PurchasingDispositionItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem")
+                        .WithMany("Details")
+                        .HasForeignKey("PurchasingDispositionItemId1")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

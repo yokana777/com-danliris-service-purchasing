@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181106023457_Update_PurchasingDispositions")]
+    partial class Update_PurchasingDispositions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2595,12 +2596,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<long>("CurrencyId");
-
-                    b.Property<string>("CurrencyRate");
-
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -2612,6 +2607,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("DeletedUtc");
 
                     b.Property<string>("DispositionNo");
+
+                    b.Property<long>("IncomeTaxId");
+
+                    b.Property<string>("IncomeTaxName");
+
+                    b.Property<double>("IncomeTaxRate");
 
                     b.Property<string>("Investation");
 
@@ -2645,6 +2646,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);
+
+                    b.Property<bool>("UseIncomeTax");
+
+                    b.Property<bool>("UseVat");
 
                     b.HasKey("Id");
 
@@ -2722,12 +2727,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("PurchasingDispositionItemId");
 
+                    b.Property<long?>("PurchasingDispositionItemId1");
+
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
 
                     b.HasIndex("PurchasingDispositionItemId");
+
+                    b.HasIndex("PurchasingDispositionItemId1");
 
                     b.ToTable("PurchasingDispositionDetails");
                 });
@@ -2759,22 +2768,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DivisionCode");
-
-                    b.Property<long>("DivisionId");
-
-                    b.Property<string>("DivisionName");
-
                     b.Property<long>("EPOId");
 
                     b.Property<string>("EPONo")
                         .HasMaxLength(255);
-
-                    b.Property<long>("IncomeTaxId");
-
-                    b.Property<string>("IncomeTaxName");
-
-                    b.Property<double>("IncomeTaxRate");
 
                     b.Property<bool>("IsDeleted");
 
@@ -2798,10 +2795,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("UnitId");
 
                     b.Property<string>("UnitName");
-
-                    b.Property<bool>("UseIncomeTax");
-
-                    b.Property<bool>("UseVat");
 
                     b.HasKey("Id");
 
@@ -3616,9 +3609,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionDetail", b =>
                 {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem", "PurchasingDispositionItem")
-                        .WithMany("Details")
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDisposition", "PurchasingDisposition")
+                        .WithMany()
                         .HasForeignKey("PurchasingDispositionItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem")
+                        .WithMany("Details")
+                        .HasForeignKey("PurchasingDispositionItemId1")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
