@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         public async Task<int> Delete(int id, string username)
         {
-            int Deleted = 0;
+            int Deleted = 1;
 
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
