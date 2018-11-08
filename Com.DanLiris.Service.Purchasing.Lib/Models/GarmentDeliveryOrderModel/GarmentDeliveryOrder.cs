@@ -52,5 +52,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
 
         public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }
-    }
+	}
 }

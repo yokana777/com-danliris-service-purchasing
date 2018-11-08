@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
     public class GarmentDeliveryOrderViewModel : BaseViewModel, IValidatableObject
     {
         public string doNo { get; set; }
-        public DateTimeOffset? doDate { get; set; }
+        public DateTimeOffset doDate { get; set; }
         public DateTimeOffset? arrivalDate { get; set; }
 
         public SupplierViewModel supplier { get; set; }

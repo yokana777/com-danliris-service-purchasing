@@ -10,7 +10,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
     public class GarmentInvoiceDetail : StandardEntity<long>
     {
         public long EPOId { get; set; }
-        public string EPONo { get; set; }
+		public long DODetailDOId { get; set; }
+		public string EPONo { get; set; }
         public long IPOId { get; set; }
         public long PRItemId { get; set; }
         public string PRNo { get; set; }
@@ -20,12 +21,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public long UomId { get; set; }
         public string UomUnit { get; set; }
         public string RONo { get; set; }
-        public double DOQuantity { get; set; }
+		public string POSerialNumber { get; set; }
+		public double DOQuantity { get; set; }
         public double PricePerDealUnit { get; set; }
-        public string PaymentType { get; set; }
-        public string PaymentMethod { get; set; }
-        public int PaymentDueDays { get; set; }
-        public virtual long InvoiceItemId { get; set; }
+		public int PaymentDueDays { get; set; }
+		public virtual long InvoiceItemId { get; set; }
         [ForeignKey("InvoiceItemId")]
         public virtual GarmentInvoiceItem GarmentInvoiceItem { get; set; }
     }
