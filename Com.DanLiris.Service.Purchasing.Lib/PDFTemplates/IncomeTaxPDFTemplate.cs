@@ -60,16 +60,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			document.Add(title);
 			bold_font.SetStyle(Font.NORMAL);
 
-			PdfPTable tableIncomeTax = new PdfPTable(3);
-			tableIncomeTax.SetWidths(new float[] { 1.2f, 4f, 4f });
-			PdfPCell cellTaxLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-			cellTaxLeft.Phrase = new Phrase("No. Nota Pajak :", normal_font);
+			PdfPTable tableIncomeTax = new PdfPTable(1);
+			tableIncomeTax.SetWidths(new float[] { 4.5f});
+			PdfPCell cellTaxLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT};
+			cellTaxLeft.Phrase = new Phrase("No. Nota Pajak" + "    : " + viewModel.incomeTaxNo, normal_font);
 			tableIncomeTax.AddCell(cellTaxLeft);
-
-			cellTaxLeft.Phrase = new Phrase(viewModel.incomeTaxNo, normal_font);
+			cellTaxLeft.Phrase = new Phrase("Kode Supplier"  + "      : " + viewModel.supplier.Code, normal_font);
 			tableIncomeTax.AddCell(cellTaxLeft);
-
-				 
+			cellTaxLeft.Phrase = new Phrase("Nama Supplier" + "     :" + viewModel.supplier.Name, normal_font);
+			tableIncomeTax.AddCell(cellTaxLeft);
+	 
 
 			PdfPCell cellSupplier = new PdfPCell(tableIncomeTax); // dont remove
 			tableIncomeTax.ExtendLastRow = false;
@@ -99,34 +99,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			double total = 0;
 			foreach (GarmentInvoiceItemViewModel item in viewModel.items)
 			{
-				 
 				total += item.deliveryOrder.totalAmount;
-
-				cellLeft.Phrase = new Phrase(item.deliveryOrder.doNo, normal_font);
-				tableContent.AddCell(cellLeft);
-
-				string doDate = item.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
-
-				cellLeft.Phrase = new Phrase(doDate, normal_font);
-				tableContent.AddCell(cellLeft);
-
-				cellLeft.Phrase = new Phrase(viewModel.invoiceNo, normal_font);
-				tableContent.AddCell(cellLeft);
-
-				
+				double totalPPH = 0;
+				double totalPPHIDR = 0;
 				foreach (GarmentInvoiceDetailViewModel detail in item.details)
 				{
-					 
+					
+					cellLeft.Phrase = new Phrase(item.deliveryOrder.doNo, normal_font);
+					tableContent.AddCell(cellLeft);
+
+					string doDate = item.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+
+					cellLeft.Phrase = new Phrase(doDate, normal_font);
+					tableContent.AddCell(cellLeft);
+
+					cellLeft.Phrase = new Phrase(viewModel.invoiceNo, normal_font);
+					tableContent.AddCell(cellLeft);
+
 					cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
+
+					cellRight.Phrase = new Phrase(viewModel.incomeTaxRate.ToString(), normal_font);
+					tableContent.AddCell(cellRight);
+
+					cellRight.Phrase = new Phrase((viewModel.incomeTaxRate * detail.pricePerDealUnit / 100).ToString(), normal_font);
+					tableContent.AddCell(cellRight);
+					totalPPH += (viewModel.incomeTaxRate * detail.pricePerDealUnit / 100);
+					totalPPHIDR += (viewModel.incomeTaxRate * detail.pricePerDealUnit / 100);/**dikali rate DO*/
 				}
 
-				cellLeft.Phrase = new Phrase(viewModel.incomeTaxRate.ToString(), normal_font);
-				tableContent.AddCell(cellLeft);
-				cellLeft.Phrase = new Phrase((viewModel.incomeTaxRate * item.deliveryOrder.totalAmount/100).ToString(), normal_font);
-				tableContent.AddCell(cellLeft);
+
+				cellRight.Phrase = new Phrase("Total Pph", normal_font);
+				cellRight.Colspan = 5;
+				tableContent.AddCell(cellRight);
+				cellRight.Phrase = new Phrase(totalPPH.ToString(), normal_font);
+				cellRight.Colspan = 5;
+				tableContent.AddCell(cellRight);
+				cellRight.Phrase = new Phrase("Total Pph IDR", normal_font);
+				cellRight.Colspan = 5;
+				tableContent.AddCell(cellRight);
+				cellRight.Phrase = new Phrase(totalPPHIDR.ToString(), normal_font);
+				cellRight.Colspan = 5;
+				tableContent.AddCell(cellRight);
 
 			}
+
 
 			PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
 			tableContent.ExtendLastRow = false;

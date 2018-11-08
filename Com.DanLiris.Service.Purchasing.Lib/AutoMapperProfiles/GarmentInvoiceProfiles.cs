@@ -41,14 +41,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			   .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
 			   .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
 			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
-			   .ForPath(d => d.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
-			  .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
+			   .ForPath(d => d.deliveryOrder.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
+			  .ForPath(d => d.deliveryOrder.paymentType, opt => opt.MapFrom(s => s.PaymentType))
 			   .ReverseMap();
 
             CreateMap<GarmentInvoiceDetail, GarmentInvoiceDetailViewModel>()
 			  .ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
 			  .ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
 			  .ForPath(d => d.pOId, opt => opt.MapFrom(s => s.IPOId))
+			  .ForPath(d => d.dODetailDOId, opt => opt.MapFrom(s => s.DODetailDOId))
 			  .ForPath(d => d.product.Id, opt => opt.MapFrom(s => s.ProductId))
 			  .ForPath(d => d.product.Code, opt => opt.MapFrom(s => s.ProductCode))
 			  .ForPath(d => d.product.Name, opt => opt.MapFrom(s => s.ProductName))

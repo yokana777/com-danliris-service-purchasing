@@ -39,33 +39,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
-		//[HttpGet("by-user")]
-		//public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
-		//{
-		//	try
-		//	{
-		//		identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+		[HttpGet("by-user")]
+		public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-		//		string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
-		//		if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
-		//		{
-		//			filter = string.Concat("{", filterUser, "}");
-		//		}
-		//		else
-		//		{
-		//			filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
-		//		}
+				string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+				if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+				{
+					filter = string.Concat("{", filterUser, "}");
+				}
+				else
+				{
+					filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+				}
 
-		//		return Get(page, size, order, keyword, filter);
-		//	}
-		//	catch (Exception e)
-		//	{
-		//		Dictionary<string, object> Result =
-		//			new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-		//			.Fail();
-		//		return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-		//	}
-		//}
+				return Get(page, size, order, keyword, filter);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
 		[HttpGet]
 		public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
 		{
