@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
@@ -29,8 +32,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
         private readonly IGarmentInvoice facade;
         private readonly IGarmentDeliveryOrderFacade deliveryOrderFacade;
         private readonly IdentityService identityService;
+	 
 
-        public GarmentInvoiceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInvoice facade, IGarmentDeliveryOrderFacade deliveryOrderFacade)
+		public GarmentInvoiceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInvoice facade, IGarmentDeliveryOrderFacade DOfacade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
@@ -66,38 +70,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            try
-            {
-                var model = facade.ReadById(id);
-                var viewModel = mapper.Map<GarmentInvoiceViewModel>(model);
-                if (viewModel == null)
-                {
-                    throw new Exception("Invalid Id");
-                }
-                foreach (var item in viewModel.items)
-                {
-                    var deliveryOrder = deliveryOrderFacade.ReadById((int)item.deliveryOrder.Id);
-                    var deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
-                    item.deliveryOrder.items = deliveryOrderViewModel.items;
-                }
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
@@ -118,6 +90,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                         s.invoiceDate,
                         s.supplier.Name,
                         s.items,
+                        s.useVat,
+                        //s.hasInternNote,
+                        s.useIncomeTax,
+                        s.isPayTax,
+
                         s.LastModifiedUtc
                     }).ToList()
                 );
@@ -135,6 +112,121 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                     .Ok(listData, info);
                 return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("pdf/income-tax/{id}")]
+        public IActionResult GetIncomePDF(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                GarmentInvoice model = facade.ReadById(id);
+                GarmentInvoiceViewModel viewModel = mapper.Map<GarmentInvoiceViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
+                    MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.incomeTaxNo}.pdf"
+                    };
+
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            try
+            {
+                var model = facade.ReadById(id);
+                var viewModel = mapper.Map<GarmentInvoiceViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(viewModel);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("pdf/vat/{id}")]
+        public IActionResult GetVatPDF(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                GarmentInvoice model = facade.ReadById(id);
+                GarmentInvoiceViewModel viewModel = mapper.Map<GarmentInvoiceViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
+                    MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.vatNo}.pdf"
+                    };
+
+                }
             }
             catch (Exception e)
             {
@@ -179,6 +271,58 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute]int id)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                facade.Delete(id, identityService.Username);
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody]GarmentInvoiceViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                validateService.Validate(ViewModel);
+
+                var model = mapper.Map<GarmentInvoice>(ViewModel);
+
+                await facade.Update(id, model, identityService.Username);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Created(String.Concat(Request.Path, "/", 0), Result);
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
 
     }
+
 }

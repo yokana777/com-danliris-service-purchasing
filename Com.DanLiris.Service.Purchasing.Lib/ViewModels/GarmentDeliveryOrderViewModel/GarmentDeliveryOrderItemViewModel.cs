@@ -8,6 +8,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public PurchaseOrderExternal purchaseOrderExternal { get; set; }
         public List<GarmentDeliveryOrderFulfillmentViewModel> fulfillments { get; set; }
         public int paymentDueDays { get; set; }
+		public double incomeTaxRate { get; set; }
+		public bool useVat { get; set; }
+        public bool useIncomeTax { get; set; }
     }
 
     public class PurchaseOrderExternal
