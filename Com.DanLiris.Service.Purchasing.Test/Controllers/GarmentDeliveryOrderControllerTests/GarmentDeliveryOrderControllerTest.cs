@@ -31,11 +31,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                 return new GarmentDeliveryOrderViewModel
                 {
                     supplier = new SupplierViewModel(),
-                    currency = new CurrencyViewModel(),
+                    docurrency = new CurrencyViewModel(),
                     items = new List<GarmentDeliveryOrderItemViewModel>
                     {
                         new GarmentDeliveryOrderItemViewModel()
                         {
+                            currency = new CurrencyViewModel(),
                             fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                             {
                                 new GarmentDeliveryOrderFulfillmentViewModel()

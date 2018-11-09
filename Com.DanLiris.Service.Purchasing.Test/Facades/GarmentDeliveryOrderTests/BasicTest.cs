@@ -188,13 +188,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 shipmentNo = "test",
                 paymentMethod = "test",
                 paymentType = "test",
-                currency = new CurrencyViewModel(),
+                docurrency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = null,
                         paymentDueDays = 1,
+                        currency = new CurrencyViewModel(),
                         
                         fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                         {
@@ -229,14 +230,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 shipmentNo = "test",
                 paymentMethod = "test",
                 paymentType = "test",
-                currency = new CurrencyViewModel(),
+                docurrency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
-                        
+                        currency = new CurrencyViewModel(),
                         fulfillments = null
                     }
                 }
@@ -262,14 +263,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 shipmentNo = "test",
                 paymentMethod = "test",
                 paymentType = "test",
-                currency = new CurrencyViewModel(),
+                docurrency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
-                       
+                        currency = new CurrencyViewModel(),
+
                         fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel
@@ -299,15 +301,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             {
                 supplier = new SupplierViewModel(),
                 incomeTax = new IncomeTaxViewModel(),
-                currency = new CurrencyViewModel(),
+                docurrency = new CurrencyViewModel(),
             };
             viewModel.Id = model.Id + 1;
             viewModel.doNo = model.DONo;
             viewModel.supplier.Id = model.SupplierId;
             viewModel.doDate = model.DODate;
             viewModel.arrivalDate = model.ArrivalDate;
-            viewModel.currency.Id = (long)model.CurrencyId;
-            viewModel.currency.Code = model.CurrencyCode;
+            viewModel.docurrency.Id = (long)model.DOCurrencyId;
+            viewModel.docurrency.Code = model.DOCurrencyCode;
             viewModel.incomeTax.Id = (int)model.IncomeTaxId;
             viewModel.incomeTax.Name = model.IncomeTaxName;
             viewModel.incomeTax.Rate = (double)model.IncomeTaxRate;

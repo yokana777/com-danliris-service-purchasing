@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private string USER_AGENT = "Facade";
 
         private readonly PurchasingDbContext dbContext;
+        public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
 
         public GarmentDeliveryOrderFacade(PurchasingDbContext dbContext)
@@ -94,8 +96,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
 
                             detail.QuantityCorrection = detail.DOQuantity;
-                            detail.PricePerDealUnitCorrection = detail.PricePerDealUnitCorrection;
-                            detail.PriceTotalCorrection = detail.PriceTotalCorrection;
+                            detail.PricePerDealUnitCorrection = detail.PricePerDealUnit;
+                            detail.PriceTotalCorrection = detail.PriceTotal;
                             
                         }
                     }
@@ -124,29 +126,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 try
                 {
                     var oldM = this.dbSet.AsNoTracking()
+                        .Include(d => d.Items)
+                            .ThenInclude(d => d.Details)
                                .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
 
                     if (oldM != null && oldM.Id == id)
                     {
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
 
-                        foreach(var item in m.Items){
-                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
-                            foreach (var detail in item.Details)
+                        foreach (var modelItem in m.Items)
+                        {
+                            foreach (var item in oldM.Items.Where(i => i.EPOId == modelItem.EPOId).ToList())
                             {
-                                GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
-                                GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
-                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
-                                GarmentDeliveryOrderDetail deliveryOrderDetail = this.dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(s => s.Id.Equals(detail.Id));
-                                externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - deliveryOrderDetail.DOQuantity + detail.DOQuantity;
-                                detail.POItemId = (int)internalPurchaseOrderItem.Id;
-                                detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
-                                detail.UnitId = internalPurchaseOrder.UnitId;
-                                detail.UnitCode = internalPurchaseOrder.UnitCode;
+                                EntityExtension.FlagForUpdate(modelItem, user, USER_AGENT);
+                                foreach (var modelDetail in modelItem.Details)
+                                {
+                                    foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
+                                    {
+                                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(modelDetail.POId));
+                                        GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(modelDetail.POId));
+                                        GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(modelDetail.EPOItemId));
+                                        externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity + modelDetail.DOQuantity;
+                                        modelDetail.POItemId = (int)internalPurchaseOrderItem.Id;
+                                        modelDetail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                                        modelDetail.UnitId = internalPurchaseOrder.UnitId;
+                                        modelDetail.UnitCode = internalPurchaseOrder.UnitCode;
 
-                                EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+                                        modelDetail.QuantityCorrection = modelDetail.DOQuantity;
+                                        modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
+                                        modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+
+                                        EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
+                                    }
+                                }
                             }
                         }
+
 
                         dbSet.Update(m);
 
@@ -240,6 +255,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
 
             return Query;
+        }
+
+        public CurrencyViewModel GetCurrency(string currencyCode)
+        {
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"code\":"+currencyCode+"}");
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":desc}page=1&size=1");
+            string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order="+ OrderDictionary;
+            var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
+            //response.EnsureSuccessStatusCode();
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
+            List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
+            return viewModel.First();
         }
     }
 }
