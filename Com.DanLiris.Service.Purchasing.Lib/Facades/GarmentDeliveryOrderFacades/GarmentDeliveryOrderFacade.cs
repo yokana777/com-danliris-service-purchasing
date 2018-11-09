@@ -24,8 +24,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
+		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem; 
 
-        public GarmentDeliveryOrderFacade(PurchasingDbContext dbContext)
+		public GarmentDeliveryOrderFacade(PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentDeliveryOrder>();
@@ -84,7 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         {
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
                             GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
-                            
+
                             detail.POItemId = (int)internalPurchaseOrderItem.Id;
                             detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
                             detail.UnitId = internalPurchaseOrder.UnitId;
@@ -229,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         {
             IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
-            List<string> searchAttributes = new List<string>()
+			List<string> searchAttributes = new List<string>()
             {
                 "DONo"
             };
@@ -250,8 +251,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
             else
             {
+				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details);
+                    .ThenInclude(i => i.Details).Where(s=>s.IsInvoice==false);
             }
 
             return Query;
