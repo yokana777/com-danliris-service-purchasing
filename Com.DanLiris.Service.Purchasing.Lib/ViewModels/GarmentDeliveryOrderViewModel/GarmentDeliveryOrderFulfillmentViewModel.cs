@@ -33,5 +33,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public double receiptQuantity { get; set; }
 
         public bool isSave { get; set; }
+
+        public double quantityCorrection { get; set; }
+        public double pricePerDealUnitCorrection { get; set; }
+        public double priceTotalCorrection { get; set; }
     }
 }

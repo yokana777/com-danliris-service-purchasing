@@ -31,13 +31,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                 return new GarmentDeliveryOrderViewModel
                 {
                     supplier = new SupplierViewModel(),
+                    docurrency = new CurrencyViewModel(),
+                    incomeTax = new IncomeTaxViewModel(),
                     items = new List<GarmentDeliveryOrderItemViewModel>
                     {
                         new GarmentDeliveryOrderItemViewModel()
                         {
+                            currency = new CurrencyViewModel(),
                             fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                             {
                                 new GarmentDeliveryOrderFulfillmentViewModel()
+                                {
+                                    unit = new UnitViewModel(),
+                                    product = new GarmentProductViewModel(),
+                                    purchaseOrderUom = new UomViewModel(),
+                                    smallUom = new UomViewModel(),
+
+                                }
                             }
                         }
                     }
@@ -325,5 +335,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>()).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
-    }
+
+		[Fact]
+		public void Should_Error_Get_Data_By_Supplier()
+		{
+			var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+			mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+				.Returns(Tuple.Create(new List<GarmentDeliveryOrder>(), 0, new Dictionary<string, string>()));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<GarmentDeliveryOrderViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+				.Returns(new List<GarmentDeliveryOrderViewModel> { ViewModel });
+
+			GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+			var response = controller.GetBySupplier();
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+		}
+	}
 }

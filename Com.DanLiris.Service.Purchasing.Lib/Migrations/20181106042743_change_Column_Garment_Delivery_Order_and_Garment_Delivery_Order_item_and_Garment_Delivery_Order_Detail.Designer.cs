@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181106042743_change_Column_Garment_Delivery_Order_and_Garment_Delivery_Order_item_and_Garment_Delivery_Order_Detail")]
+    partial class change_Column_Garment_Delivery_Order_and_Garment_Delivery_Order_item_and_Garment_Delivery_Order_Detail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1171,12 +1172,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("CustomsId");
 
-                    b.Property<string>("DOCurrencyCode");
-
-                    b.Property<long?>("DOCurrencyId");
-
-                    b.Property<double?>("DOCurrencyRate");
-
                     b.Property<DateTimeOffset>("DODate");
 
                     b.Property<string>("DONo")
@@ -1222,10 +1217,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PaymentBill")
                         .HasMaxLength(50);
-
-                    b.Property<string>("PaymentMethod");
-
-                    b.Property<string>("PaymentType");
 
                     b.Property<string>("Remark");
 
@@ -1388,7 +1379,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("CurrencyCode");
 
-                    b.Property<long?>("CurrencyId");
+                    b.Property<long>("CurrencyId");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -1420,6 +1411,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<int>("PaymentDueDays");
+
+                    b.Property<string>("PaymentMethod");
+
+                    b.Property<string>("PaymentType");
 
                     b.HasKey("Id");
 
@@ -1868,6 +1863,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("CurrencyId");
 
+                    b.Property<string>("CurrencyName");
+
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -1882,13 +1879,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("IncomeTaxDate");
 
-                    b.Property<long>("IncomeTaxId");
-
-                    b.Property<string>("IncomeTaxName");
-
                     b.Property<string>("IncomeTaxNo");
-
-                    b.Property<double>("IncomeTaxRate");
 
                     b.Property<DateTimeOffset>("InvoiceDate");
 
@@ -1949,8 +1940,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<long>("DODetailDOId");
-
                     b.Property<double>("DOQuantity");
 
                     b.Property<string>("DeletedAgent")
@@ -1983,13 +1972,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("POSerialNumber");
-
                     b.Property<long>("PRItemId");
 
                     b.Property<string>("PRNo");
 
                     b.Property<int>("PaymentDueDays");
+
+                    b.Property<string>("PaymentMethod");
+
+                    b.Property<string>("PaymentType");
 
                     b.Property<double>("PricePerDealUnit");
 
@@ -2060,10 +2051,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<string>("PaymentMethod");
-
-                    b.Property<string>("PaymentType");
 
                     b.Property<double>("TotalAmount");
 
@@ -2617,12 +2604,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<long>("CurrencyId");
-
-                    b.Property<string>("CurrencyRate");
-
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -2632,8 +2613,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DispositionNo");
 
                     b.Property<string>("Investation");
 
@@ -2712,8 +2691,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<long>("EPODetailId");
-
                     b.Property<bool>("IsDeleted");
 
                     b.Property<string>("LastModifiedAgent")
@@ -2746,12 +2723,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("PurchasingDispositionItemId");
 
+                    b.Property<long?>("PurchasingDispositionItemId1");
+
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
 
                     b.HasIndex("PurchasingDispositionItemId");
+
+                    b.HasIndex("PurchasingDispositionItemId1");
 
                     b.ToTable("PurchasingDispositionDetails");
                 });
@@ -2782,12 +2763,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DivisionCode");
-
-                    b.Property<long>("DivisionId");
-
-                    b.Property<string>("DivisionName");
 
                     b.Property<long>("EPOId");
 
@@ -3640,9 +3615,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionDetail", b =>
                 {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem", "PurchasingDispositionItem")
-                        .WithMany("Details")
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDisposition", "PurchasingDisposition")
+                        .WithMany()
                         .HasForeignKey("PurchasingDispositionItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem")
+                        .WithMany("Details")
+                        .HasForeignKey("PurchasingDispositionItemId1")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
