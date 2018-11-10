@@ -3,7 +3,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -11,6 +13,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUti
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -20,6 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -54,6 +58,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             return dbContext;
         }
 
+        private Mock<IServiceProvider> GetServiceProvider()
+        {
+            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018 - 10 - 20T00: 00:00 + 00:00\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+            var HttpClientService = new Mock<IHttpClientService>();
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(message);
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(HttpClientService.Object);
+
+            return serviceProvider;
+        }
+
         private GarmentDeliveryOrderDataUtil dataUtil(GarmentDeliveryOrderFacade facade, string testName)
         {
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
@@ -71,7 +96,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Success_Create_Data()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME);
             Assert.NotEqual(Response, 0);
@@ -80,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Error_Create_Data()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(null, USERNAME));
             Assert.NotNull(e.Message);
@@ -89,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Success_Update_Data()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.Update((int)model.Id, model, USERNAME);
@@ -99,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Error_Update_Data()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
@@ -109,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Success_Delete_Data()
         {
-            var facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = await facade.Delete((int)model.Id, USERNAME);
             Assert.NotEqual(Response, 0);
@@ -118,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Error_Delete_Data()
         {
-            var facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0, USERNAME));
             Assert.NotNull(e.Message);
@@ -127,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Success_Get_All_Data()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
@@ -136,7 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Success_Get_Data_By_Id()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
@@ -144,7 +170,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 		[Fact]
 		public async void Should_Success_Get_Data_By_Supplier()
 		{
-			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 			var Response = facade.ReadBySupplier("code","{}");
 			Assert.NotNull(Response);
@@ -301,7 +327,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public async void Should_Success_Validate_Data_Duplicate()
         {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
@@ -324,50 +350,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             viewModel.isCorrection = (bool)model.IsCorrection;
             viewModel.useVat = (bool)model.UseVat;
             viewModel.useIncomeTax = (bool)model.UseIncomeTax;
-            foreach(var items in model.Items)
-            {
-                foreach(var item in viewModel.items)
-                {
-                    item.purchaseOrderExternal.Id = items.EPOId;
-                    item.purchaseOrderExternal.no = items.EPONo;
-                    item.currency.Id = (long)items.CurrencyId;
-                    item.currency.Code = items.CurrencyCode;
-                    item.paymentDueDays = items.PaymentDueDays;
-
-                    foreach(var details in items.Details)
-                    {
-                        foreach(var fulfillment in item.fulfillments)
-                        {
-                            fulfillment.dealQuantity = details.DealQuantity;
-                            fulfillment.doQuantity = details.DOQuantity;
-                            fulfillment.ePOItemId = details.EPOItemId;
-                            fulfillment.pOId = details.POId;
-                            fulfillment.pOItemId = details.POItemId;
-                            fulfillment.poSerialNumber = details.POSerialNumber;
-                            fulfillment.pricePerDealUnit = details.PricePerDealUnit;
-                            fulfillment.pricePerDealUnitCorrection = (long)details.PricePerDealUnitCorrection;
-                            fulfillment.priceTotal = details.PriceTotal;
-                            fulfillment.priceTotalCorrection = (long)details.PriceTotalCorrection;
-                            fulfillment.pRId = details.PRId;
-                            fulfillment.pRItemId = details.PRItemId;
-                            fulfillment.pRNo = details.PRNo;
-                            fulfillment.product.Id = details.ProductId;
-                            fulfillment.product.Code = details.ProductCode;
-                            fulfillment.product.Name = details.ProductName;
-                            fulfillment.purchaseOrderUom.Id = details.UomId;
-                            fulfillment.purchaseOrderUom.Unit = details.UomUnit;
-                            fulfillment.smallUom.Id = details.SmallUomId;
-                            fulfillment.smallUom.Unit = details.SmallUomUnit;
-                            fulfillment.quantityCorrection = (double)details.QuantityCorrection;
-                            fulfillment.receiptQuantity = details.ReceiptQuantity;
-                            fulfillment.rONo = details.RONo;
-                            fulfillment.smallQuantity = details.SmallQuantity;
-                            fulfillment.unit.Id = details.UnitId;
-                            fulfillment.unit.Code = details.UnitCode;
-                        }
-                    }
-                }
-            }
+            
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.

@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                         EPOId = datas.Id,
                         EPONo = datas.EPONo,
                         CurrencyId = datas.CurrencyId,
-                        CurrencyCode = datas.CurrencyCode,
+                        CurrencyCode = "USD",
                         PaymentDueDays = datas.PaymentDueDays,
 
                         Details = new List<GarmentDeliveryOrderDetail>

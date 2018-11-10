@@ -276,12 +276,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             try
             {
                 IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-                //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"code\":"+currencyCode+"}");
-                Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
-                //string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order="+ OrderDictionary +"&page=1&size=1";
+                //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
                 string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=1";
                 var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
-                //response.EnsureSuccessStatusCode();
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
                 var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
                 List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());

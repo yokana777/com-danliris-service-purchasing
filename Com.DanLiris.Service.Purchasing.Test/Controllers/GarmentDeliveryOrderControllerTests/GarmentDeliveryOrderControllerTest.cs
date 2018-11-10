@@ -32,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                 {
                     supplier = new SupplierViewModel(),
                     docurrency = new CurrencyViewModel(),
+                    incomeTax = new IncomeTaxViewModel(),
                     items = new List<GarmentDeliveryOrderItemViewModel>
                     {
                         new GarmentDeliveryOrderItemViewModel()
@@ -40,6 +41,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                             fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
                             {
                                 new GarmentDeliveryOrderFulfillmentViewModel()
+                                {
+                                    unit = new UnitViewModel(),
+                                    product = new GarmentProductViewModel(),
+                                    purchaseOrderUom = new UomViewModel(),
+                                    smallUom = new UomViewModel(),
+
+                                }
                             }
                         }
                     }
