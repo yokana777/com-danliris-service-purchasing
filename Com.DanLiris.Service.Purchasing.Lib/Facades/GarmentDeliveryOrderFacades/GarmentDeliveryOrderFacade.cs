@@ -26,10 +26,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
 		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem; 
 
-		public GarmentDeliveryOrderFacade(PurchasingDbContext dbContext)
+		public GarmentDeliveryOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentDeliveryOrder>();
+            this.serviceProvider = serviceProvider;
         }
 
         public Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -81,6 +82,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
+
+                        CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode);
+                        m.DOCurrencyId = garmentCurrencyViewModel.Id;
+                        m.DOCurrencyCode = garmentCurrencyViewModel.Code;
+                        m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
+
                         foreach (var detail in item.Details)
                         {
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
@@ -140,6 +147,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             foreach (var item in oldM.Items.Where(i => i.EPOId == modelItem.EPOId).ToList())
                             {
                                 EntityExtension.FlagForUpdate(modelItem, user, USER_AGENT);
+
+                                CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode);
+                                m.DOCurrencyId = garmentCurrencyViewModel.Id;
+                                m.DOCurrencyCode = garmentCurrencyViewModel.Code;
+                                m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
                                 foreach (var modelDetail in modelItem.Details)
                                 {
                                     foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
@@ -261,16 +273,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public CurrencyViewModel GetCurrency(string currencyCode)
         {
-            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"code\":"+currencyCode+"}");
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":desc}page=1&size=1");
-            string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order="+ OrderDictionary;
-            var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
-            //response.EnsureSuccessStatusCode();
-            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-            var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
-            List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-            return viewModel.First();
+            try
+            {
+                IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+                //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"code\":"+currencyCode+"}");
+                Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
+                //string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order="+ OrderDictionary +"&page=1&size=1";
+                string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=1";
+                var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
+                //response.EnsureSuccessStatusCode();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
+                List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
+                return viewModel.First();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }
