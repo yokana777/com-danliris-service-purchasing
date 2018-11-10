@@ -337,5 +337,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             var response = controller.Put(It.IsAny<int>(), It.IsAny<PurchasingDispositionViewModel>()).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Delete_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+                .Returns(1);
+
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Delete(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Delete_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+                .Returns(1);
+
+            var controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.Delete(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
