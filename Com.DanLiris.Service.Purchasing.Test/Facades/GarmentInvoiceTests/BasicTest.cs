@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			var garmentInvoiceFacade = new GarmentInvoiceFacade(_dbContext(testName), ServiceProvider);
 			var garmentInvoiceDetailDataUtil = new GarmentInvoiceDetailDataUtil();
 			var garmentInvoiceItemDataUtil = new GarmentInvoiceItemDataUtil(garmentInvoiceDetailDataUtil);
-			var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(_dbContext(testName));
+			var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(testName));
 			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
 			var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
@@ -151,7 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		public async void Should_Success_Update_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-			var facadeDO = new GarmentDeliveryOrderFacade(_dbContext(GetCurrentMethod()));
+			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			 
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
