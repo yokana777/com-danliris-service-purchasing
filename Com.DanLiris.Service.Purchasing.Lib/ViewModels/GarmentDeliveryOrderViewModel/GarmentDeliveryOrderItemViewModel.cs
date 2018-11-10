@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel
@@ -6,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
     public class GarmentDeliveryOrderItemViewModel : BaseViewModel
     {
         public PurchaseOrderExternal purchaseOrderExternal { get; set; }
+        public CurrencyViewModel currency { get; set; }
         public List<GarmentDeliveryOrderFulfillmentViewModel> fulfillments { get; set; }
         public int paymentDueDays { get; set; }
 		public double incomeTaxRate { get; set; }
