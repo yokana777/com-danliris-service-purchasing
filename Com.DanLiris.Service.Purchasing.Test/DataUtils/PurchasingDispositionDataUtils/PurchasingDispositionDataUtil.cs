@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using System;
@@ -22,6 +23,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
         public  PurchasingDisposition GetNewData()
         {
             var datas = Task.Run(() =>  externalPurchaseOrderDataUtil.GetTestData("unit-test")).Result;
+            var itemData = datas.Items;
+            ExternalPurchaseOrderDetail detailData= new ExternalPurchaseOrderDetail();
+            ExternalPurchaseOrderItem itemdata = new ExternalPurchaseOrderItem();
+            foreach (var item in itemData)
+            {
+                itemdata = item;break;
+            }
+            foreach(var detail in itemdata.Details)
+            {
+                detailData = detail;break;
+            }
             return new PurchasingDisposition
             {
                 SupplierId = 1,
@@ -29,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                 SupplierName = "supplier1",
 
                 Bank="Bank",
-                Amount=100,
+                Amount=1000,
                 Calculation="axb+c",
                 InvoiceNo="test",
                 ConfirmationOrderNo="test",
@@ -40,6 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                 PaymentMethod="Test",
 
                 Remark = "Remark1",
+                
                 
 
                 Items = new List<PurchasingDispositionItem>
@@ -60,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                        {
                             new PurchasingDispositionDetail
                             {
+                                EPODetailId=detailData.Id,
                                 CategoryCode="test",
                                 CategoryId=1,
                                 CategoryName="test",

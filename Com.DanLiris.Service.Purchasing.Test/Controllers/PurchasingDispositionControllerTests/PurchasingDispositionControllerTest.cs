@@ -279,5 +279,63 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<PurchasingDispositionViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<PurchasingDispositionViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDisposition>(It.IsAny<PurchasingDispositionViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<PurchasingDisposition>(), "unittestusername", 7))
+               .ReturnsAsync(1);
+
+            var controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<PurchasingDispositionViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }

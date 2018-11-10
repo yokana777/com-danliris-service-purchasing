@@ -4,7 +4,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
@@ -16,6 +18,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -107,6 +110,65 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items;
+            PurchasingDispositionItem itemData = new PurchasingDispositionItem();
+            foreach (var item in modelItem)
+            {
+                itemData = item; break;
+            }
+            //model.Items.Clear();
+            model.Items.Add(itemData);
+            var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAdd, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Delete_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            int Deleted =  facade.Delete((int)Data.Id, USERNAME);
+            Assert.True(Deleted > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            PurchasingDispositionViewModel nullViewModel = new PurchasingDispositionViewModel();
+            nullViewModel.Items = new List<PurchasingDispositionItemViewModel>();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            PurchasingDispositionViewModel viewModel = new PurchasingDispositionViewModel()
+            {
+                Currency = null,
+                Supplier = null,
+                Items = new List<PurchasingDispositionItemViewModel>
+                {
+                    new PurchasingDispositionItemViewModel(),
+                    new PurchasingDispositionItemViewModel()
+                    {
+                        EPONo="testEpo",
+                        Details=new List<PurchasingDispositionDetailViewModel>()
+                    },
+                    new PurchasingDispositionItemViewModel()
+                    {
+                        EPONo="testEpo",
+                        Details=new List<PurchasingDispositionDetailViewModel>
+                        {
+
+                        }
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
         }
     }
 }
