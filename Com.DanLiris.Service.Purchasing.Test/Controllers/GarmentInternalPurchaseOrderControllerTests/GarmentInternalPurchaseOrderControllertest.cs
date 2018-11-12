@@ -47,15 +47,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
         {
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             List<ValidationResult> validationResults = new List<ValidationResult>();
-
-            ViewModel.PONo = ViewModel.PONo;
-            ViewModel.PRId = ViewModel.PRId;
-            ViewModel.PRDate = ViewModel.PRDate;
-            foreach (var item in ViewModel.Items)
-            {
-                item.BudgetPrice = item.BudgetPrice;
-                item.RemainingBudget = item.RemainingBudget;
-            }
             System.ComponentModel.DataAnnotations.ValidationContext validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(ViewModel, serviceProvider.Object, null);
             return new ServiceValidationExeption(validationContext, validationResults);
         }
