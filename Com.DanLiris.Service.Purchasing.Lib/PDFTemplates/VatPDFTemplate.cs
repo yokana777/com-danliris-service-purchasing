@@ -126,7 +126,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 					tableContent.AddCell(cellRight);
 					totalPPN += ((0.1) * detail.pricePerDealUnit * detail.doQuantity / 100);
 					var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
-					totalPPNIDR += (0.1 * detail.pricePerDealUnit * detail.doQuantity  * (double) garmentDeliveryOrder.DOCurrencyRate);/**dikali rate DO*/
+					double rate = 1;
+					if(garmentDeliveryOrder !=null)
+					{ rate = (double)garmentDeliveryOrder.DOCurrencyRate; }
+					totalPPNIDR += (0.1 * detail.pricePerDealUnit * detail.doQuantity  * rate);/**dikali rate DO*/
 				}
 
 
