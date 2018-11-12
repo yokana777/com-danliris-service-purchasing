@@ -362,7 +362,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 								arrivalDate  =  DateTimeOffset.Now,
 								totalAmount=2000,
 								paymentType = "type",
-								paymentMethod = "method"
+								paymentMethod = "method",
+								docurrency = new CurrencyViewModel
+								{
+									Id=It.IsAny<int>(),
+									Code="USD",
+									Rate=13700
+								}
 							},
 								
 							details= new List<GarmentInvoiceDetailViewModel>
