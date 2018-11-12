@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
+using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryOrderControllers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceControllers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Http;
@@ -315,9 +316,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var response = controller.Delete(It.IsAny<int>());
 			Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
 		}
-
+		
 		private GarmentInvoiceViewModel ViewModelTax
 		{
+		
 			get
 			{
 				return new GarmentInvoiceViewModel
@@ -405,6 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 				};
 			}
 		}
+
 		[Fact]
 		public void Should_Success_Get_PDF_IncomeTax()
 		{
@@ -416,16 +419,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 
 			mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
 				.Returns(new GarmentInvoice());
-
-
-
 			var mockMapper = new Mock<IMapper>();
 			mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
 				.Returns(ViewModelTax);
-
-
-
+						 
 			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+			IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+			   .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 13700 });
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
@@ -461,16 +461,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 
 			mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
 				.Returns(new GarmentInvoice());
-
-
-
+					   
 			var mockMapper = new Mock<IMapper>();
 			mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
 				.Returns(ViewModelTax);
 
-
-
 			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+			IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+			   .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 13700 });
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
