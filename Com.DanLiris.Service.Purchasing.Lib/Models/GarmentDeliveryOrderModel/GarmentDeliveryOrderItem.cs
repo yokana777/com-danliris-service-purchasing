@@ -11,6 +11,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         [MaxLength(255)]
         public string EPONo { get; set; }
         public int PaymentDueDays { get; set; }
+        public long? CurrencyId { get; set; }
+        public string CurrencyCode { get; set; }
         public virtual ICollection<GarmentDeliveryOrderDetail> Details { get; set; }
 
         public virtual long GarmentDOId { get; set; }
