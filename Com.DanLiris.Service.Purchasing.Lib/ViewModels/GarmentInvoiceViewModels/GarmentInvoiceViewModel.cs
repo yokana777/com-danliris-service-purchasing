@@ -26,7 +26,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 		public bool hasInternNote { get; set; }
         public DateTimeOffset vatDate { get; set; }
         public double totalAmount { get; set; }
-        public bool hasInternNote { get; set; }
         public string poSerialNumber { get; set; }
         public List<GarmentInvoiceItemViewModel> items { get; set; }
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

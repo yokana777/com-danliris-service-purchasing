@@ -48,11 +48,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.deliveryOrder.Id, opt => opt.MapFrom(s => s.DOId))
                 .ForPath(d => d.deliveryOrder.doNo, opt => opt.MapFrom(s => s.DONo))
                 .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
+                .ForPath(d => d.deliveryOrder.paymentType, opt => opt.MapFrom(s => s.PaymentType))
+                .ForPath(d => d.deliveryOrder.paymentMethod, opt => opt.MapFrom(s => s.TermOfPayment))
                 .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
                 .ForPath(d => d.priceTotal, opt => opt.MapFrom(s => s.PriceTotal))
                 .ForPath(d => d.poSerialNumber, opt => opt.MapFrom(s => s.POSerialNumber))
-                .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
-                .ForPath(d => d.termOfPayment, opt => opt.MapFrom(s => s.PaymentMethod))
                 .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
                 .ForPath(d => d.paymentDueDate, opt => opt.MapFrom(s => s.PaymentDueDate))
 
@@ -69,6 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.unit.Code, opt => opt.MapFrom(s => s.UnitCode))
                 .ForPath(d => d.unit.Name, opt => opt.MapFrom(s => s.UnitName))
 
+                .ForPath(d => d.quantity, opt => opt.MapFrom(s => s.Quantity))
                 .ForPath(d => d.pricePerDealUnit, opt => opt.MapFrom(s => s.PricePerDealUnit))
                 .ForPath(d => d.priceTotal, opt => opt.MapFrom(s => s.PriceTotal))
                 .ReverseMap();

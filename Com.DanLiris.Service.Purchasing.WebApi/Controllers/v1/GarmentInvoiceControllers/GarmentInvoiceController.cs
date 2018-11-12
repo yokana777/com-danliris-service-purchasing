@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
         private readonly IdentityService identityService;
 	 
 
-		public GarmentInvoiceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInvoice facade, IGarmentDeliveryOrderFacade DOfacade)
+		public GarmentInvoiceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInvoice facade, IGarmentDeliveryOrderFacade deliveryOrderFacade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                         s.supplier.Name,
                         s.items,
                         s.useVat,
-                        //s.hasInternNote,
+                        s.hasInternNote,
                         s.useIncomeTax,
                         s.isPayTax,
 
@@ -177,7 +177,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                 {
                     throw new Exception("Invalid Id");
                 }
-
+                foreach (var item in viewModel.items)
+                {
+                    var deliveryOrder = deliveryOrderFacade.ReadById((int)item.deliveryOrder.Id);
+                    var deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+                    item.deliveryOrder.items = deliveryOrderViewModel.items;
+                }
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                     .Ok(viewModel);

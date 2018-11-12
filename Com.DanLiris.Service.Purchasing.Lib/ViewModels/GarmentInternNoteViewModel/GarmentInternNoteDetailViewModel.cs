@@ -10,12 +10,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public long ePOId { get; set; }
         public string ePONo { get; set; }
         public string poSerialNumber { get; set; }
-        public string rONo { get; set; }
-        public string termOfPayment { get; set; }
-        public string paymentType { get; set; }
+        public string roNo { get; set; }
         public double pricePerDealUnit { get; set; }
         public double priceTotal { get; set; }
         public double paymentDueDays { get; set; }
+        public double quantity { get; set; }
         public DateTimeOffset paymentDueDate { get; set; }
 
         public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }

@@ -79,9 +79,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 try
                 {
                     var model = this.dbSet
+                                .Include(m => m.Items)
+                                .ThenInclude(i => i.Details)
                                 .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
                     EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                    foreach (var item in model.Items)
+                    {
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                        }
+                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                        garmentInvoice.HasInternNote = false;
+
+                        EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                    }
 
                     Deleted = await dbContext.SaveChangesAsync();
 

@@ -41,9 +41,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ForPath(d => d.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
                 .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
-                /*Currency*/
-                .ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
-                .ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
+                ///*Currency*/
+                //.ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
+                //.ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
 
 
                 .ForPath(d => d.incomeTax.Id, opt => opt.MapFrom(s => s.IncomeTaxId))
