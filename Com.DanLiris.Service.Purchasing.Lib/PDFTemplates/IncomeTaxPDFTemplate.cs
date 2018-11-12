@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -13,9 +14,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
 	public class IncomeTaxPDFTemplate
 	{
-		 
-		
-	public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset)
+
+	public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset,IGarmentDeliveryOrderFacade DOfacade)
 		{
 			Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
 			Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -119,26 +119,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 					cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
 
-					cellRight.Phrase = new Phrase(viewModel.incomeTaxRate.ToString(), normal_font);
+					cellRight.Phrase = new Phrase( viewModel.incomeTaxRate.ToString(), normal_font);
 					tableContent.AddCell(cellRight);
 
-					cellRight.Phrase = new Phrase((viewModel.incomeTaxRate * detail.pricePerDealUnit / 100).ToString(), normal_font);
+					cellRight.Phrase = new Phrase(Math.Round(viewModel.incomeTaxRate * detail.pricePerDealUnit * detail.doQuantity / 100,2).ToString(), normal_font);
 					tableContent.AddCell(cellRight);
-					totalPPH += (viewModel.incomeTaxRate * detail.pricePerDealUnit / 100);
-					totalPPHIDR += (viewModel.incomeTaxRate * detail.pricePerDealUnit / 100);/**dikali rate DO*/
+					totalPPH += (viewModel.incomeTaxRate * detail.pricePerDealUnit * detail.doQuantity / 100);
+					var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+					totalPPHIDR += ((viewModel.incomeTaxRate * detail.pricePerDealUnit * detail.doQuantity / 100) * (double)garmentDeliveryOrder.DOCurrencyRate);/**dikali rate DO*/
 				}
 
 
 				cellRight.Phrase = new Phrase("Total Pph", normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
-				cellRight.Phrase = new Phrase(totalPPH.ToString(), normal_font);
+				cellRight.Phrase = new Phrase(Math.Round(totalPPH,2).ToString(), normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
 				cellRight.Phrase = new Phrase("Total Pph IDR", normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
-				cellRight.Phrase = new Phrase(totalPPHIDR.ToString(), normal_font);
+				cellRight.Phrase = new Phrase(Math.Round(totalPPHIDR,2).ToString(), normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
 
