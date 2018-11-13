@@ -186,6 +186,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var ResponseAddDetail = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAddDetail, 0);
 
+            model.Items.First().Details.Remove(modelDetail);
+            var ResponseAddDetail1 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAddDetail1, 0);
+
             model.Items.Add(dispoItem);
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd, 0);
@@ -257,6 +261,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                                 PaidQuantity=0
                             }
                         }
+                    },
+                    new PurchasingDispositionItemViewModel()
+                    {
+                        EPONo="testEpo1",
+                        Details=new List<PurchasingDispositionDetailViewModel>()
                     }
                 }
             };
