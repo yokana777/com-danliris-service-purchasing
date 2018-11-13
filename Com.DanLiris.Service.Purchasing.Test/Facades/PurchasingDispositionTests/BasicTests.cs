@@ -119,13 +119,73 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
+            var modelDetail = modelItem.Details.First();
             //model.Items.Clear();
             modelItem.EPONo = "test";
             var ResponseAdd1 = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd1, 0);
 
+            var dispoItem =
+                    new PurchasingDispositionItem
+                    {
+                        EPONo = modelItem.EPONo,
+                        IncomeTaxId = 1,
+                        IncomeTaxName = "tax",
+                        IncomeTaxRate = 1,
+                        UnitName = "test",
+                        UnitCode = "test",
+                        UnitId = 1,
+                        UseIncomeTax = true,
+                        UseVat = true,
+                        Details = new List<PurchasingDispositionDetail>
+                       {
+                            new PurchasingDispositionDetail
+                            {
+                                EPODetailId=modelDetail.Id,
+                                CategoryCode="test",
+                                CategoryId=1,
+                                CategoryName="test",
+                                DealQuantity=10,
+                                PaidQuantity=1000,
+                                DealUomId=1,
+                                DealUomUnit="test",
+                                PaidPrice=1000,
+                                PricePerDealUnit=100,
+                                PriceTotal=10000,
+                                PRId=1,
+                                PRNo="test",
+                                ProductCode="test",
+                                ProductName="test",
+                                ProductId=1,
 
-            model.Items.Add(modelItem);
+                            }
+                       }
+                    };
+            var dispoDetail = new PurchasingDispositionDetail
+            {
+                EPODetailId = modelDetail.Id,
+                CategoryCode = "test",
+                CategoryId = 1,
+                CategoryName = "test",
+                DealQuantity = 10,
+                PaidQuantity = 1000,
+                DealUomId = 1,
+                DealUomUnit = "test",
+                PaidPrice = 1000,
+                PricePerDealUnit = 100,
+                PriceTotal = 10000,
+                PRId = 1,
+                PRNo = "test",
+                ProductCode = "test",
+                ProductName = "test",
+                ProductId = 1,
+
+            };
+            model.Items.First().Details.Add(modelDetail);
+            var ResponseAddDetail = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAddDetail, 0);
+
+            model.Items.Add(dispoItem);
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd, 0);
 
