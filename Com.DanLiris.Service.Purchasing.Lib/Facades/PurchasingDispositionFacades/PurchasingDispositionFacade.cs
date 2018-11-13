@@ -302,7 +302,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                         EntityExtension.FlagForDelete(existingDetail, user, "Facade");
                                         
                                         this.dbContext.PurchasingDispositionDetails.Update(existingDetail);
-                                        this.dbContext.PurchasingDispositionDetails.Update(existingDetail);
 
                                     }
                                 }

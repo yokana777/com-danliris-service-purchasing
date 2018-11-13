@@ -164,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                     };
             var dispoDetail = new PurchasingDispositionDetail
             {
-                EPODetailId = modelDetail.Id,
+                EPODetailId = modelDetail.EPODetailId,
                 CategoryCode = "test",
                 CategoryId = 1,
                 CategoryName = "test",
@@ -194,7 +194,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd, 0);
 
-            model.Items.Remove(modelItem);
+            model.Items.Remove(dispoItem);
             var ResponseAdd2 = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd2, 0);
         }
