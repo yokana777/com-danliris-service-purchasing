@@ -235,30 +235,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                                 if (duplicateDispositionItems.Count > 0)
                                 {
-                                    foreach (var detail in item.Details.ToList())
-                                    {
-                                        if (detail.Id != 0)
-                                        {
+                                    //foreach (var detail in item.Details.ToList())
+                                    //{
+                                    //    if (detail.Id != 0)
+                                    //    {
 
-                                            EntityExtension.FlagForUpdate(detail, user, "Facade");
+                                    //        EntityExtension.FlagForUpdate(detail, user, "Facade");
 
-                                            foreach (var duplicateItem in duplicateDispositionItems.ToList())
-                                            {
-                                                foreach (var duplicateDetail in duplicateItem.Details.ToList())
-                                                {
-                                                    if (item.Details.Count(d => d.EPODetailId.Equals(duplicateDetail.EPODetailId)) < 1)
-                                                    {
-                                                        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
-                                                        epoDetail.DispositionQuantity += detail.PaidQuantity;
-                                                        EntityExtension.FlagForCreate(duplicateDetail, user, "Facade");
-                                                        item.Details.Add(duplicateDetail);
+                                    //        foreach (var duplicateItem in duplicateDispositionItems.ToList())
+                                    //        {
+                                    //            foreach (var duplicateDetail in duplicateItem.Details.ToList())
+                                    //            {
+                                    //                if (item.Details.Count(d => d.EPODetailId.Equals(duplicateDetail.EPODetailId)) < 1)
+                                    //                {
+                                    //                    ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                    //                    epoDetail.DispositionQuantity += detail.PaidQuantity;
+                                    //                    EntityExtension.FlagForCreate(duplicateDetail, user, "Facade");
+                                    //                    item.Details.Add(duplicateDetail);
                                                         
-                                                    }
-                                                }
-                                                purchasingDisposition.Items.Remove(duplicateItem);
-                                            }
-                                        }
-                                    }
+                                    //                }
+                                    //            }
+                                    //            purchasingDisposition.Items.Remove(duplicateItem);
+                                    //        }
+                                    //    }
+                                    //}
                                 }
                                 else
                                 {
