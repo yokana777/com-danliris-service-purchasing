@@ -182,7 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                 ProductId = 1,
 
             };
-            model.Items.First().Details.Add(modelDetail);
+            model.Items.First().Details.Add(dispoDetail);
             var ResponseAddDetail = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAddDetail, 0);
 
@@ -194,7 +194,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd, 0);
 
-            model.Items.Remove(dispoItem);
+            model.Items.Remove(modelItem);
             var ResponseAdd2 = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd2, 0);
         }
