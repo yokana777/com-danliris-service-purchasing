@@ -142,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                        {
                             new PurchasingDispositionDetail
                             {
-                                EPODetailId=modelDetail.Id,
+                                EPODetailId=modelDetail.EPODetailId,
                                 CategoryCode="test",
                                 CategoryId=1,
                                 CategoryName="test",
