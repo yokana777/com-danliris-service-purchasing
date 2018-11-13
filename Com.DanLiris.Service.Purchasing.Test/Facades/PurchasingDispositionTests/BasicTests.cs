@@ -128,6 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var dispoItem =
                     new PurchasingDispositionItem
                     {
+                        EPOId = modelItem.EPOId,
                         EPONo = modelItem.EPONo,
                         IncomeTaxId = 1,
                         IncomeTaxName = "tax",
