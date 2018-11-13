@@ -57,6 +57,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
                 return new PurchasingDispositionViewModel
                 {
+                    Remark="Test",
+                    Calculation="axa",
+                    Amount=1000,
                     Supplier = new SupplierViewModel
                     {
                         Name="NameSupp",
