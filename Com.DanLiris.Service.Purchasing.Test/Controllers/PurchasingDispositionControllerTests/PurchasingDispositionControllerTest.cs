@@ -40,6 +40,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 details.Add(
                     new PurchasingDispositionDetailViewModel
                     {
+                        EPODetailId = It.IsAny<int>(),
+                        PRId = It.IsAny<int>(),
+                        PRNo="test",
+                        Category=new CategoryViewModel
+                        {
+                            Id = "1",
+                            Name="Test",
+                            Code="test"
+                        },
                         PricePerDealUnit = 1000,
                         PriceTotal = 10000,
                         DealQuantity=10,

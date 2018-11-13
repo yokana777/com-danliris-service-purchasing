@@ -118,16 +118,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items;
-            PurchasingDispositionItem itemData = new PurchasingDispositionItem();
-            foreach (var item in modelItem)
-            {
-                itemData = item; break;
-            }
+            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
             //model.Items.Clear();
-            model.Items.Add(itemData);
+            modelItem.EPONo = "test";
+            var ResponseAdd1 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAdd1, 0);
+
+
+            model.Items.Add(modelItem);
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(ResponseAdd, 0);
+
+            model.Items.Remove(modelItem);
+            var ResponseAdd2 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAdd2, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Update_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+
+            model.Items = null;
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)model.Id, model, USERNAME));
+            Assert.NotNull(errorNullItems.Message);
         }
 
         [Fact]
@@ -137,6 +155,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             int Deleted =  facade.Delete((int)Data.Id, USERNAME);
             Assert.True(Deleted > 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Delete_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+            Assert.NotNull(e.Message);
         }
 
         [Fact]
@@ -163,7 +190,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                         EPONo="testEpo",
                         Details=new List<PurchasingDispositionDetailViewModel>
                         {
-
+                            new PurchasingDispositionDetailViewModel()
+                            {
+                                PaidPrice=0,
+                                PaidQuantity=0
+                            }
                         }
                     }
                 }
