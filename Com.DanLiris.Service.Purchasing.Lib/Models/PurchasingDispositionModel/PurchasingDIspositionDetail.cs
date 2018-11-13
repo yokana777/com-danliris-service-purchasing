@@ -8,6 +8,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
 {
     public class PurchasingDispositionDetail :BaseModel
     {
+
+        public long EPODetailId { get; set; }
         public long PRId { get; set; }
         public string PRNo { get; set; }
         public long CategoryId { get; set; }
@@ -25,6 +27,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         public double PaidPrice { get; set; }
         public virtual long PurchasingDispositionItemId { get; set; }
         [ForeignKey("PurchasingDispositionItemId")]
-        public virtual PurchasingDisposition PurchasingDisposition { get; set; }
+        public virtual PurchasingDispositionItem PurchasingDispositionItem { get; set; }
     }
 }

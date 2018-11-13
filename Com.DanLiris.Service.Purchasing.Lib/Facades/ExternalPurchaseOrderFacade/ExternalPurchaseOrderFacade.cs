@@ -651,9 +651,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     SupplierId = s.SupplierId,
                     SupplierCode = s.SupplierCode,
                     SupplierName = s.SupplierName,
+                    DivisionId = s.DivisionId,
                     DivisionCode = s.DivisionCode,
                     DivisionName = s.DivisionName,
                     LastModifiedUtc = s.LastModifiedUtc,
+                    UnitId = s.UnitId,
                     UnitName = s.UnitName,
                     UnitCode = s.UnitCode,
                     CreatedBy = s.CreatedBy,
@@ -668,12 +670,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         {
                             Id = i.Id,
                             PRId = i.PRId,
+                            POId=i.POId,
                             PRNo = i.PRNo,
-                            UnitId = i.UnitId,
-                            UnitCode = i.UnitCode,
-                            UnitName = i.UnitName,
                             Details = i.Details
-                                .Where(d => d.DispositionQuantity < d.DealQuantity && d.IsDeleted == false)
+                                .Where(d => d.IsDeleted == false)
                                 .Select(d => new ExternalPurchaseOrderDetail
                                 {
                                     Id = d.Id,
@@ -688,6 +688,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     DOQuantity = d.DOQuantity,
                                     DispositionQuantity=d.DispositionQuantity,
                                     ProductRemark = d.ProductRemark,
+                                    PriceBeforeTax=d.PriceBeforeTax,
+                                    PricePerDealUnit=d.PricePerDealUnit
                                 })
                                 .ToList()
                         })
