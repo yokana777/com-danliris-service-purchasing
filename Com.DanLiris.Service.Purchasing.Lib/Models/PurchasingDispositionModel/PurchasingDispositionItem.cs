@@ -20,7 +20,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         public long IncomeTaxId { get; set; }
         public string IncomeTaxName { get; set; }
         public double IncomeTaxRate { get; set; }
-    
+
+        public string DivisionName { get; set; }
+        public string DivisionCode { get; set; }
+        public long DivisionId { get; set; }
 
         public virtual long PurchasingDispositionId { get; set; }
         [ForeignKey("PurchasingDispositionId")]

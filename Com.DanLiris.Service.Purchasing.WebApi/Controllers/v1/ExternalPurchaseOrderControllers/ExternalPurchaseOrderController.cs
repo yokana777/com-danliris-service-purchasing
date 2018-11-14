@@ -138,11 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     s.incomeTax,
                     s.useIncomeTax,
                     s.useVat,
-                    unit = new
-                    {
-                        division = new { s.unit.division.name },
-                        s.unit.name
-                    },
+                    s.unit,
                     s.isPosted,
                     s.items
                 }).ToList()
