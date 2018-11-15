@@ -106,6 +106,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             detail.QuantityCorrection = detail.DOQuantity;
                             detail.PricePerDealUnitCorrection = detail.PricePerDealUnit;
                             detail.PriceTotalCorrection = detail.PriceTotal;
+
+                            m.TotalAmount += detail.PriceTotal;
                             
                         }
                     }

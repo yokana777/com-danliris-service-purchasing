@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
 			List<string> searchAttributes = new List<string>()
 			{
-				"InvoiceNo", "InvoiceDate", "Suppliers.Name"
+				"InvoiceNo", "SupplierName","Items.DeliveryOrderNo"
 			};
 
 			Query = QueryHelper<GarmentInvoice>.ConfigureSearch(Query, searchAttributes, Keyword);

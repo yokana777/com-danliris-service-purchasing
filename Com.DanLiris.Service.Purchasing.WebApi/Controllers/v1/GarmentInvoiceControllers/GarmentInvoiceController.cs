@@ -28,7 +28,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
         private readonly IGarmentInvoice facade;
-        private readonly IdentityService identityService;
+		private readonly IGarmentDeliveryOrderFacade DOfacade;
+		private readonly IdentityService identityService;
 	 
 
 		public GarmentInvoiceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInvoice facade, IGarmentDeliveryOrderFacade DOfacade)
@@ -36,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
             this.facade = facade;
+			this.DOfacade = DOfacade;
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
@@ -79,20 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 
 				List<object> listData = new List<object>();
 				listData.AddRange(
-					viewModel.AsQueryable().Select(s => new
-					{
-						s.Id,
-						s.invoiceNo,
-						s.invoiceDate,
-						s.supplier.Name,
-						s.items,
-						s.useVat,
-						s.hasInternNote,
-						s.useIncomeTax,
-						s.isPayTax,
-						
-						s.LastModifiedUtc
-					}).ToList()
+					viewModel.AsQueryable().Select(s => s).ToList()
 				);
 
 				var info = new Dictionary<string, object>
@@ -145,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 					
 					IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
@@ -215,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
 					VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
