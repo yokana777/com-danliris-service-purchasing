@@ -1,0 +1,26 @@
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
+{
+	public class GarmentBeacukai : BaseModel
+	{
+		public long BCIdTemp { get; set; }
+		public string BeacukaiNo { get; set; }
+		public DateTimeOffset BeacukaiDate { get; set; }
+		public long SupplierId { get; set; }
+		public string SupplierCode { get; set; }
+		public string SupplierName { get; set; }
+		public double PackagingQty { get; set; }
+		public string Packaging { get; set; }
+		public double Bruto { get; set; }
+		public double Netto { get; set; }
+		public long CurrencyId { get; set; }
+		public string CurrencyCode { get; set; }
+		public string CurrencyName { get; set;
+		}
+		public virtual ICollection<GarmentBeacukaiItem> Items { get; set; }
+	}
+}

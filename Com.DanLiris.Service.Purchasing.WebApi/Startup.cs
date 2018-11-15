@@ -36,6 +36,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -92,7 +93,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
-                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+				.AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
+				.AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
                 .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>();
         }
 
