@@ -233,6 +233,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     UnitName = s.UnitName,
                     DivisionName = s.DivisionName,
                     CategoryName = s.CategoryName,
+                    CategoryCode=s.CategoryCode,
+                    CategoryId=s.CategoryId,
                     IsPosted = s.IsPosted,
                     CreatedBy = s.CreatedBy,
                     PRDate = s.PRDate,

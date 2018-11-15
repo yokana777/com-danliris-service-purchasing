@@ -11,5 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Tuple<List<PurchasingDisposition>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         PurchasingDisposition ReadModelById(int id);
         Task<int> Create(PurchasingDisposition m, string user, int clientTimeZoneOffset = 7);
+        int Delete(int id, string user);
+        Task<int> Update(int id, PurchasingDisposition purchasingDisposition, string user);
     }
 }

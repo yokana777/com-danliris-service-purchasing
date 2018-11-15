@@ -4,7 +4,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
@@ -16,6 +18,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -107,6 +110,172 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
+            var modelDetail = modelItem.Details.First();
+            //model.Items.Clear();
+            modelItem.EPONo = "test";
+            var ResponseAdd1 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAdd1, 0);
+
+            var dispoItem =
+                    new PurchasingDispositionItem
+                    {
+                        EPOId = modelItem.EPOId,
+                        EPONo = modelItem.EPONo,
+                        IncomeTaxId = 1,
+                        IncomeTaxName = "tax",
+                        IncomeTaxRate = 1,
+                        UnitName = "test",
+                        UnitCode = "test",
+                        UnitId = 1,
+                        UseIncomeTax = true,
+                        UseVat = true,
+                        Details = new List<PurchasingDispositionDetail>
+                       {
+                            new PurchasingDispositionDetail
+                            {
+                                EPODetailId=modelDetail.EPODetailId,
+                                CategoryCode="test",
+                                CategoryId=1,
+                                CategoryName="test",
+                                DealQuantity=10,
+                                PaidQuantity=1000,
+                                DealUomId=1,
+                                DealUomUnit="test",
+                                PaidPrice=1000,
+                                PricePerDealUnit=100,
+                                PriceTotal=10000,
+                                PRId=1,
+                                PRNo="test",
+                                ProductCode="test",
+                                ProductName="test",
+                                ProductId=1,
+
+                            }
+                       }
+                    };
+            var dispoDetail = new PurchasingDispositionDetail
+            {
+                EPODetailId = modelDetail.EPODetailId,
+                CategoryCode = "test",
+                CategoryId = 1,
+                CategoryName = "test",
+                DealQuantity = 10,
+                PaidQuantity = 1000,
+                DealUomId = 1,
+                DealUomUnit = "test",
+                PaidPrice = 1000,
+                PricePerDealUnit = 100,
+                PriceTotal = 10000,
+                PRId = 1,
+                PRNo = "test",
+                ProductCode = "test",
+                ProductName = "test",
+                ProductId = 1,
+
+            };
+
+            model.Items.First().Details.Add(dispoDetail);
+            var ResponseAddDetail = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAddDetail, 0);
+
+            var ResponseAddDetail2 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAddDetail2, 0);
+
+            model.Items.First().Details.Remove(modelDetail);
+            var ResponseAddDetail1 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAddDetail1, 0);
+
+            model.Items.Add(dispoItem);
+            var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAdd, 0);
+
+
+            model.Items.Remove(modelItem);
+            var ResponseAdd2 = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(ResponseAdd2, 0);
+
+        }
+
+        [Fact]
+        public async void Should_Error_Update_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+
+            model.Items = null;
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)model.Id, model, USERNAME));
+            Assert.NotNull(errorNullItems.Message);
+        }
+
+        [Fact]
+        public async void Should_Success_Delete_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            int Deleted =  facade.Delete((int)Data.Id, USERNAME);
+            Assert.True(Deleted > 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Delete_Data()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            PurchasingDispositionViewModel nullViewModel = new PurchasingDispositionViewModel();
+            nullViewModel.Items = new List<PurchasingDispositionItemViewModel>();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            PurchasingDispositionViewModel viewModel = new PurchasingDispositionViewModel()
+            {
+                Currency = null,
+                Supplier = null,
+                Items = new List<PurchasingDispositionItemViewModel>
+                {
+                    new PurchasingDispositionItemViewModel(),
+                    new PurchasingDispositionItemViewModel()
+                    {
+                        EPONo="testEpo",
+                        Details=new List<PurchasingDispositionDetailViewModel>()
+                    },
+                    new PurchasingDispositionItemViewModel()
+                    {
+                        EPONo="testEpo",
+                        Details=new List<PurchasingDispositionDetailViewModel>
+                        {
+                            new PurchasingDispositionDetailViewModel()
+                            {
+                                PaidPrice=0,
+                                PaidQuantity=0
+                            }
+                        }
+                    },
+                    new PurchasingDispositionItemViewModel()
+                    {
+                        EPONo="testEpo1",
+                        Details=new List<PurchasingDispositionDetailViewModel>()
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
         }
     }
 }
