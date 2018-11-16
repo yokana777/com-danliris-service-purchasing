@@ -1,7 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
-using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
@@ -87,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         public async Task Should_Success_Get_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            
+
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             ReadResponse Response = facade.Read();
@@ -123,8 +122,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
             BankExpenditureNoteModel model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            
-            var Response = await facade.Create(model, "Unit Test");
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+
+                Username = "Unit Test"
+            };
+            var Response = await facade.Create(model, identityService);
             Assert.NotEqual(Response, 0);
         }
 
@@ -134,21 +138,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
             BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
 
+                Username = "Unit Test"
+            };
             BankExpenditureNoteDetailModel modelDetail = _dataUtil(facade, GetCurrentMethod()).GetNewDetailData();
             model.Details.Clear();
             model.Details.Add(modelDetail);
-            var Response = await facade.Update((int)model.Id, model, "Unit Test");
+            var Response = await facade.Update((int)model.Id, model, identityService);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
         public async Task Should_Success_Delete_Data()
         {
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+
+                Username = "Unit Test"
+            };
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
             BankExpenditureNoteModel Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            int AffectedRows = await facade.Delete((int)Data.Id, "Test");
+            int AffectedRows = await facade.Delete((int)Data.Id, identityService);
             Assert.True(AffectedRows > 0);
         }
 
@@ -250,8 +265,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
             BankExpenditureNoteModel model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
 
-            var Response = await facade.Create(model, "Unit Test");
+                Username = "Unit Test"
+            };
+            var Response = await facade.Create(model, identityService);
             Assert.NotEqual(Response, 0);
         }
     }
