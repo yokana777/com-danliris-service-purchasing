@@ -525,8 +525,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             };
 
             string dailyBankTransactionUri = "daily-bank-transactions";
-            //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var httpClient = new HttpClientService(identityService);
+            //var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
         }
@@ -534,8 +534,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         public void DeleteDailyBankTransaction(string documentNo, IdentityService identityService)
         {
             string dailyBankTransactionUri = "daily-bank-transactions/by-reference-no/";
-            //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var httpClient = new HttpClientService(identityService);
+            //var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}").Result;
             response.EnsureSuccessStatusCode();
         }
