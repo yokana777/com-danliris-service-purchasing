@@ -233,6 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 Token = "Token",
                 Username = "unittestusername"
             };
+
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Create(It.IsAny<BankExpenditureNoteModel>(), identityService))
                .ReturnsAsync(1);
@@ -277,8 +278,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 Token = "Token",
                 Username = "unittestusername"
             };
+            var IdentityMock = new Mock<IdentityService>();
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<BankExpenditureNoteModel>(), identityService))
+            mockFacade.Setup(x => x.Create(It.IsAny<BankExpenditureNoteModel>(), It.IsAny<IdentityService>()))
                .ThrowsAsync(new Exception());
 
             var mockMapper = new Mock<IMapper>();
@@ -368,7 +370,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 Username = "unittestusername"
             };
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
-            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<BankExpenditureNoteModel>(), identityService))
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<BankExpenditureNoteModel>(), It.IsAny<IdentityService>()))
                .ThrowsAsync(new Exception());
 
             var mockMapper = new Mock<IMapper>();
@@ -390,7 +392,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 Username = "unittestusername"
             };
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
-            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), identityService))
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<IdentityService>()))
                .ReturnsAsync(1);
 
             var mockMapper = new Mock<IMapper>();
@@ -434,7 +436,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 Username = "unittestusername"
             };
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
-            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), identityService))
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<IdentityService>()))
                .ThrowsAsync(new Exception());
 
             var mockMapper = new Mock<IMapper>();
