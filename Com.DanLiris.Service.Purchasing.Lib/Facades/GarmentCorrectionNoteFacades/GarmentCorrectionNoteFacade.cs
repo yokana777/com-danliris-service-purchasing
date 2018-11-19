@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -33,11 +34,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
             Query = Query.Select(m => new GarmentCorrectionNote
             {
+                Id = m.Id,
                 CorrectionNo = m.CorrectionNo,
                 CorrectionType = m.CorrectionType,
                 CorrectionDate = m.CorrectionDate,
                 SupplierName = m.SupplierName,
-                DONo = m.DONo
+                DONo = m.DONo,
+                UseIncomeTax = m.UseIncomeTax,
+                UseVat = m.UseVat,
+                CreatedBy = m.CreatedBy,
+                LastModifiedUtc = m.LastModifiedUtc
             });
 
             List<string> searchAttributes = new List<string>()
@@ -77,6 +83,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 try
                 {
                     EntityExtension.FlagForCreate(garmentCorrectionNote, user, USER_AGENT);
+                    do
+                    {
+                        garmentCorrectionNote.CorrectionNo = CodeGenerator.Generate();
+                    }
+                    while (dbSet.Any(m => m.CorrectionNo == garmentCorrectionNote.CorrectionNo));
+
+                    //garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
 
                     var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
                     garmentDeliveryOrder.IsCorrection = true;
@@ -90,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         if ((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA SATUAN")
                         {
                             garmentDeliveryOrderDetail.PricePerDealUnitCorrection = (double)item.PricePerDealUnitAfter;
-                            garmentDeliveryOrderDetail.PriceTotalCorrection = (double)(item.Quantity * item.PricePerDealUnitAfter);
+                            garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
                         }
                         else if ((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
                         {
