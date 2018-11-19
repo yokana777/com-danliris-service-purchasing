@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         EntityExtension.FlagForCreate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                             epoDetail.DispositionQuantity += detail.PaidQuantity;
                             EntityExtension.FlagForCreate(detail, user, "Facade");
                         }
@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         EntityExtension.FlagForDelete(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                             epoDetail.DispositionQuantity -= detail.PaidQuantity;
                             EntityExtension.FlagForDelete(detail, user, "Facade");
                         }
@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     {
                         foreach(var oldDetail in oldIem.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == oldDetail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == oldDetail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                             epoDetail.DispositionQuantity -= oldDetail.PaidQuantity;
                         }
                     }
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                                     foreach (var detail in item.Details)
                                     {
-                                        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                                         epoDetail.DispositionQuantity += detail.PaidQuantity;
                                         EntityExtension.FlagForCreate(detail, user, "Facade");
                                     }
@@ -266,7 +266,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                     {
                                         if (detail.Id != 0)
                                         {
-                                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                                             epoDetail.DispositionQuantity += detail.PaidQuantity;
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
                                         }
