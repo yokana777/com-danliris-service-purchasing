@@ -165,52 +165,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
             }
         }
 
-        [HttpGet("return-note-pph/{id}")]
-        public IActionResult GetReturnNotePph(int id)
-        {
-            try
-            {
-                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
-
-                var model = facade.ReadById(id);
-                var viewModel = mapper.Map<GarmentCorrectionNoteViewModel>(model);
-                if (viewModel == null)
-                {
-                    throw new Exception("Invalid Id");
-                }
-                else if(!viewModel.UseIncomeTax)
-                {
-                    throw new Exception("Data is not UseIncomeTax");
-                }
-
-                if (indexAcceptPdf < 0)
-                {
-                    Dictionary<string, object> Result =
-                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                        .Ok(viewModel);
-                    return Ok(Result);
-                }
-                else
-                {
-                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
-                    var stream = GarmentCorrectionNotePphPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
-
-                    return new FileStreamResult(stream, "application/pdf")
-                    {
-                        FileDownloadName = $"{model.CorrectionNo}-pph.pdf"
-                    };
-                }
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-
         [HttpGet("return-note-ppn/{id}")]
         public IActionResult GetReturnNotePpn(int id)
         {
@@ -245,6 +199,52 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                     return new FileStreamResult(stream, "application/pdf")
                     {
                         FileDownloadName = $"{model.CorrectionNo}-ppn.pdf"
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("return-note-pph/{id}")]
+        public IActionResult GetReturnNotePph(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                var model = facade.ReadById(id);
+                var viewModel = mapper.Map<GarmentCorrectionNoteViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                else if (!viewModel.UseIncomeTax)
+                {
+                    throw new Exception("Data is not UseIncomeTax");
+                }
+
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(viewModel);
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = GarmentCorrectionNotePphPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.CorrectionNo}-pph.pdf"
                     };
                 }
             }
