@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public GarmentCorrectionNote ReadById(long id)
+        public GarmentCorrectionNote ReadById(int id)
         {
             var model = dbSet.Where(m => m.Id == id)
                 .Include(m => m.Items)
@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     }
                     while (dbSet.Any(m => m.CorrectionNo == garmentCorrectionNote.CorrectionNo));
 
-                    //garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
+                    garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
 
                     var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
                     garmentDeliveryOrder.IsCorrection = true;

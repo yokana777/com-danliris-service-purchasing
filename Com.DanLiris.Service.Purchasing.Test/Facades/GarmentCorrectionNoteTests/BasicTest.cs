@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteTest
         {
             var facade = new GarmentCorrectionNoteFacade(_dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan(USERNAME);
-            var Response = facade.ReadById(data.Id);
+            var Response = facade.ReadById((int)data.Id);
             Assert.NotEqual(Response.Id, 0);
         }
 
@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteTest
         {
             var facade = new GarmentCorrectionNoteFacade(_dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal(USERNAME);
-            var Response = facade.ReadById(data.Id);
+            var Response = facade.ReadById((int)data.Id);
             Assert.NotEqual(Response.Id, 0);
         }
 
