@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
             }
             return new PurchasingDisposition
             {
-                SupplierId = 1,
+                SupplierId = "1",
                 SupplierCode = "Supplier1",
                 SupplierName = "supplier1",
 
@@ -59,37 +59,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                 {
                     new PurchasingDispositionItem
                     {
-                       EPOId=datas.Id,
+                       EPOId=datas.Id.ToString(),
                        EPONo=datas.EPONo,
-                       IncomeTaxId=1,
+                       IncomeTaxId="1",
                        IncomeTaxName="tax",
                        IncomeTaxRate=1,
-                       UnitName="test",
-                       UnitCode="test",
-                       UnitId=1,
                        UseIncomeTax=true,
                        UseVat=true,
                        Details=new List<PurchasingDispositionDetail>
                        {
                             new PurchasingDispositionDetail
                             {
-                                EPODetailId=detailData.Id,
+                                EPODetailId=detailData.Id.ToString(),
                                 CategoryCode="test",
-                                CategoryId=1,
+                                CategoryId="1",
                                 CategoryName="test",
                                 DealQuantity=10,
                                 PaidQuantity=1000,
-                                DealUomId=1,
+                                DealUomId="1",
                                 DealUomUnit="test",
                                 PaidPrice=1000,
                                 PricePerDealUnit=100,
                                 PriceTotal=10000,
-                                PRId=1,
+                                PRId="1",
                                 PRNo="test",
                                 ProductCode="test",
                                 ProductName="test",
-                                ProductId=1,
-                                
+                                ProductId="1",
+                                   UnitName="test",
+                                   UnitCode="test",
+                                   UnitId="1",
+
                             }
                        }
                     }
