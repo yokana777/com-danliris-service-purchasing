@@ -347,7 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
         {
             var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
-            var Response = facade.ReadByDOId(data.Items.First().DeliveryOrderId);
+            var Response = facade.ReadByDOId((int)data.Items.First().DeliveryOrderId);
             Assert.NotNull(Response);
         }
     }

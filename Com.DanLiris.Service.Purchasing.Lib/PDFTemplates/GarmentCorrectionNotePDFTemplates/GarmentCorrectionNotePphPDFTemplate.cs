@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             var deliveryOrder = garmentDeliveryOrderFacade.ReadById((int)model.DOId);
-            var invoice = garmentInvoiceFacade.ReadByDOId(model.DOId);
+            var invoice = garmentInvoiceFacade.ReadByDOId((int)model.DOId);
 
             #region Header
             string addressString = "PT. DAN LIRIS\n" +

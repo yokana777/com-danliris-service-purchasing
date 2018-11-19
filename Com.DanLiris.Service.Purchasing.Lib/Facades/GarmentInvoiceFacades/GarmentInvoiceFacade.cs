@@ -214,7 +214,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			return Updated;
 		}
 
-        public GarmentInvoice ReadByDOId(long id) {
+        public GarmentInvoice ReadByDOId(int id) {
             var model = dbSet.Where(m => m.Items.Any(i => i.DeliveryOrderId == id))
                  .Include(m => m.Items)
                      .ThenInclude(i => i.Details)
