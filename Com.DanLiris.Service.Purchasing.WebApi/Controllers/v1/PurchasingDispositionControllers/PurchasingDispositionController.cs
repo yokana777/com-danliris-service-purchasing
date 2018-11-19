@@ -77,13 +77,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 listData.AddRange(
                     viewModel.AsQueryable().Select(s => new
                     {
+                        s.DispositionNo,
                         s.Id,
                         s.Supplier,
                         s.Bank,
                         s.ConfirmationOrderNo,
                         s.InvoiceNo,
                         s.PaymentMethod,
-                        s.LastModifiedUtc
+                        s.CreatedBy,
+                        s.Currency,
+                        s.LastModifiedUtc,
+                        s.CreatedUtc,
+                        s.PaymentDueDate,
+                        s.Items
                     }).ToList()
                 );
 
@@ -169,6 +175,60 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody]PurchasingDispositionViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                validateService.Validate(ViewModel);
+
+                var model = mapper.Map<PurchasingDisposition>(ViewModel);
+
+                await facade.Update(id, model, identityService.Username);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Created(String.Concat(Request.Path, "/", 0), Result);
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute]int id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+
+                facade.Delete(id, identityService.Username);
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
     }

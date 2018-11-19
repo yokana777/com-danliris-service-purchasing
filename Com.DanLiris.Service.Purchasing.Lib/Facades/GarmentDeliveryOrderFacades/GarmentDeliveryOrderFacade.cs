@@ -78,6 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     
                     m.IsClosed = false;
                     m.IsCorrection = false;
+                    m.IsCustoms = false;
 
                     foreach (var item in m.Items)
                     {
