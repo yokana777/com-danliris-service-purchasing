@@ -38,6 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel
 
         public string Remark { get; set; }
 
+        public decimal TotalCorrection { get; set; }
+
         public virtual ICollection<GarmentCorrectionNoteItem> Items { get; set; }
     }
 }

@@ -26,6 +26,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
 
         public string Remark { get; set; }
 
+        public decimal TotalCorrection { get; set; }
+
         public List<GarmentCorrectionNoteItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
