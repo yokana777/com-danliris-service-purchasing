@@ -23,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		public readonly IServiceProvider serviceProvider;
 
         private string USER_AGENT = "Facade";
+
         public GarmentInvoiceFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
@@ -212,5 +213,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
 			return Updated;
 		}
-	}
+
+        public GarmentInvoice ReadByDOId(long id) {
+            var model = dbSet.Where(m => m.Items.Any(i => i.DeliveryOrderId == id))
+                 .Include(m => m.Items)
+                     .ThenInclude(i => i.Details)
+                 .FirstOrDefault();
+            return model;
+        }
+    }
 }

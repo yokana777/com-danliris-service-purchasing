@@ -341,5 +341,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			Assert.True(viewModels.Validate(null).Count() > 0);
 
 		}
-	}
+
+        [Fact]
+        public async void Should_Success_Get_Data_By_DOId()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
+            var Response = facade.ReadByDOId(data.Items.First().DeliveryOrderId);
+            Assert.NotNull(Response);
+        }
+    }
 }
