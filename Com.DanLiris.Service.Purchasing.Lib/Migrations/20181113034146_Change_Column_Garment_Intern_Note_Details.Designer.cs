@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181113034146_Change_Column_Garment_Intern_Note_Details")]
+    partial class Change_Column_Garment_Intern_Note_Details
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2133,8 +2134,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("EPONo");
 
                     b.Property<long>("GarmentItemINId");
-
-                    b.Property<int>("InvoiceDetailId");
 
                     b.Property<bool>("IsDeleted");
 

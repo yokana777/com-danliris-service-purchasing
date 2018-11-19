@@ -12,6 +12,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentInternNote ReadById(int id);
         Task<int> Create(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentInternNote m, string user, int clientTimeZoneOffset = 7);
-        Task<int> Delete(int id, string username);
+        int Delete(int id, string username);
     }
 }

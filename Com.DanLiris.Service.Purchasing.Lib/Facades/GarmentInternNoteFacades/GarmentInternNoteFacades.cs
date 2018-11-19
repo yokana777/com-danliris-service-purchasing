@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
@@ -18,20 +20,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 {
     public class GarmentInternNoteFacades : IGarmentInternNoteFacade
     {
-        private string USER_AGENT = "Facade";
-
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentInternNote> dbSet;
+        private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetExternalPurchaseOrderItem;
         public readonly IServiceProvider serviceProvider;
+        private string USER_AGENT = "Facade";
 
         public GarmentInternNoteFacades(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentInternNote>();
+            dbSetExternalPurchaseOrderItem = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             this.serviceProvider = serviceProvider;
         }
 
-        public async Task<int> Create(GarmentInternNote m,bool isImport, string user, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -42,12 +45,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
                     m.INNo = await GenerateNo(m,isImport, clientTimeZoneOffset);
+                    m.INDate = DateTimeOffset.Now;
 
                     foreach (var item in m.Items)
                     {
                         foreach (var detail in item.Details)
                         {
-                            EntityExtension.FlagForCreate(detail, user, "Facade");
+                            GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.Single(s => s.GarmentEPOId == detail.EPOId);
+                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == eksternalPurchaseOrderItem.POId);
+                            detail.UnitId = internalPurchaseOrder.UnitId;
+                            detail.UnitCode = internalPurchaseOrder.UnitCode;
+                            detail.UnitName = internalPurchaseOrder.UnitName;
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                         }
                         GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
                         garmentInvoice.HasInternNote = true;
@@ -70,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             return Created;
         }
 
-        public async Task<int> Delete(int id, string username)
+        public int Delete(int id, string username)
         {
             int Deleted = 0;
 
@@ -88,6 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     {
                         foreach (var detail in item.Details)
                         {
+                            
                             EntityExtension.FlagForDelete(model, username, USER_AGENT);
                         }
                         GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
@@ -96,9 +106,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         EntityExtension.FlagForDelete(model, username, USER_AGENT);
                     }
 
-                    Deleted = await dbContext.SaveChangesAsync();
+                    Deleted = dbContext.SaveChanges();
 
-                    await dbContext.SaveChangesAsync();
+                    dbContext.SaveChanges();
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -113,7 +123,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         public Tuple<List<GarmentInternNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentInternNote> Query = this.dbSet.Include(m => m.Items);
+            IQueryable<GarmentInternNote> Query = this.dbSet;
+
+            Query = Query.Select(s => new GarmentInternNote
+            {
+                Id = s.Id,
+                INNo = s.INNo,
+                INDate = s.INDate,
+                SupplierName = s.SupplierName,
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items.Select(i => new GarmentInternNoteItem
+                {
+                    InvoiceId = i.InvoiceId,
+                    InvoiceNo = i.InvoiceNo,
+                    InvoiceDate = i.InvoiceDate,
+                    Details = i.Details.Select(d => new GarmentInternNoteDetail
+                    {
+                        DOId = d.DOId
+                    }).ToList()
+                }).ToList()
+            });
 
             List<string> searchAttributes = new List<string>()
             {
@@ -164,8 +194,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             {
                                 EntityExtension.FlagForCreate(detail, user, "Facade");
                             }
-                            GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                            garmentInvoice.HasInternNote = true;
+                            //GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                            //garmentInvoice.HasInternNote = true;
 
                             EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         }
@@ -191,25 +221,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         }
         async Task<string> GenerateNo(GarmentInternNote model,bool isImport, int clientTimeZoneOffset)
         {
-            var viewmodel = new GarmentInternNoteViewModel();
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
-            string Year = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("YY");
+            string Year = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy");
             string Supplier = isImport ? "I" : "L";
 
-            string no = $"NI{Year}{Month}{Supplier}";
+            string no = $"NI{Year}{Month}";
             int Padding = 4;
             
-            var lastNo = await this.dbSet.Where(w => w.INNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.INNo).FirstOrDefaultAsync();
+            var lastNo = await this.dbSet.Where(w => w.INNo.StartsWith(no) && w.INNo.EndsWith(Supplier) && !w.IsDeleted).OrderByDescending(o => o.INNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
-                return no + "1".PadLeft(Padding, '0');
+                return no + "1".PadLeft(Padding, '0') + Supplier;
             }
             else
             {
-                int lastNoNumber = Int32.Parse(lastNo.INNo.Replace(no, "")) + 1;
-                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+                //int lastNoNumber = Int32.Parse(lastNo.INNo.Replace(no, "")) + 1;
+                int.TryParse(lastNo.INNo.Replace(no, "").Replace(Supplier,""), out int lastno1);
+                int lastNoNumber = lastno1 + 1;
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0') +Supplier;
                 
             }
         }
