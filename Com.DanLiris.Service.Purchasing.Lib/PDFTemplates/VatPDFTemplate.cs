@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -12,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
 	public class VatPDFTemplate
 	{
-		public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset)
+		public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
 		{
 			Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
 			Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -99,8 +100,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			foreach (GarmentInvoiceItemViewModel item in viewModel.items)
 			{
 				total += item.deliveryOrder.totalAmount;
-				double totalPPH = 0;
-				double totalPPHIDR = 0;
+				double totalPPN = 0;
+				double totalPPNIDR = 0;
 				foreach (GarmentInvoiceDetailViewModel detail in item.details)
 				{
 
@@ -118,26 +119,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 					cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
 
-					cellRight.Phrase = new Phrase(viewModel.incomeTaxRate.ToString(), normal_font);
+					cellRight.Phrase = new Phrase((10).ToString(), normal_font);
 					tableContent.AddCell(cellRight);
 
-					cellRight.Phrase = new Phrase((viewModel.incomeTaxRate * detail.pricePerDealUnit / 100).ToString(), normal_font);
+					cellRight.Phrase = new Phrase(Math.Round(10 *  detail.pricePerDealUnit * detail.doQuantity / 100,2).ToString(), normal_font);
 					tableContent.AddCell(cellRight);
-					totalPPH += (viewModel.incomeTaxRate * detail.pricePerDealUnit / 100);
-					totalPPHIDR += (viewModel.incomeTaxRate * detail.pricePerDealUnit / 100);/**dikali rate DO*/
+					totalPPN += ((0.1) * detail.pricePerDealUnit * detail.doQuantity / 100);
+					var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+					double rate = 1;
+					if(garmentDeliveryOrder !=null)
+					{ rate = (double)garmentDeliveryOrder.DOCurrencyRate; }
+					totalPPNIDR += (0.1 * detail.pricePerDealUnit * detail.doQuantity  * rate);/**dikali rate DO*/
 				}
 
 
 				cellRight.Phrase = new Phrase("Total Ppn", normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
-				cellRight.Phrase = new Phrase(totalPPH.ToString(), normal_font);
+				cellRight.Phrase = new Phrase(Math.Round( totalPPN,2).ToString(), normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
 				cellRight.Phrase = new Phrase("Total Ppn IDR", normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
-				cellRight.Phrase = new Phrase(totalPPHIDR.ToString(), normal_font);
+				cellRight.Phrase = new Phrase(Math.Round(totalPPNIDR,2).ToString(), normal_font);
 				cellRight.Colspan = 5;
 				tableContent.AddCell(cellRight);
 
