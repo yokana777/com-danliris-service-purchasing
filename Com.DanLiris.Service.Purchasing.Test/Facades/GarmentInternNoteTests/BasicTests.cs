@@ -105,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         {
 
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, false, USERNAME);
             Assert.NotEqual(Response, 0);
         }

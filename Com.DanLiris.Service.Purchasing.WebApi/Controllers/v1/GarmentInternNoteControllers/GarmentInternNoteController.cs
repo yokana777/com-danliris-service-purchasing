@@ -308,7 +308,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                     }
 
                     GarmentInternNotePDFTemplate PdfTemplateLocal = new GarmentInternNotePDFTemplate();
-                    MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset, deliveryOrderFacade);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {

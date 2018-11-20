@@ -391,17 +391,108 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>()).Result;
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
+        private GarmentInternNoteViewModel ViewModelPDF
+        {
 
+            get
+            {
+                return new GarmentInternNoteViewModel
+                {
+                    inNo = "InvoiceNo",
+                    inDate = DateTimeOffset.Now,
+                    supplier = new SupplierViewModel
+                    {
+                        Import = true,
+                        Id = It.IsAny<int>(),
+                        PIC = "importTest",
+                        Contact = "0987654",
+                        Code = "SupplierImport",
+                        Name = "SupplierImport"
+                    },
+                    currency = new CurrencyViewModel
+                    {
+                        Id = It.IsAny<int>(),
+                        Code = "TEST",
+                        Rate = 1,
+                        Symbol = "tst"
+                    },
+                    items = new List<GarmentInternNoteItemViewModel>
+                    {
+                        new GarmentInternNoteItemViewModel
+                        {
+                            garmentInvoice = new GarmentInvoiceViewModel
+                            {
+                                Id =It.IsAny<int>(),
+                                invoiceNo = "1245",
+                                invoiceDate =  DateTimeOffset.Now,
+                                useVat  =  true,
+                                useIncomeTax = true,
+                                totalAmount=2000,
+                            },
+
+                            details= new List<GarmentInternNoteDetailViewModel>
+                            {
+                                new GarmentInternNoteDetailViewModel
+                                {
+                                    ePOId=It.IsAny<int>(),
+                                    ePONo="epono",
+                                    roNo="12343",
+                                    deliveryOrder = new GarmentDeliveryOrderViewModel
+                                    {
+                                        Id = It.IsAny<int>(),
+                                        doNo = "Dono",
+                                        doDate = DateTimeOffset.Now,
+                                        paymentMethod = "PaymentMethod",
+                                        paymentType = "PaymentType",
+                                        docurrency = new CurrencyViewModel
+                                        {
+                                            Id = It.IsAny<int>(),
+                                            Code = "IDR",
+                                            Rate = 1,
+                                        }
+                                    },
+                                    product= new ProductViewModel
+                                    {
+                                        Id = "1",
+                                        Name="button",
+                                        Code="btn"
+                                    },
+                                    uomUnit= new UomViewModel
+                                    {
+                                        Id="1",
+                                        Unit="ROLL"
+                                    },
+                                    unit = new UnitViewModel
+                                    {
+                                        Id = "1",
+                                        Name = "UnitName",
+                                        Code = "UnitCode"
+                                    },
+                                    quantity=40,
+                                    pricePerDealUnit=5000,
+                                    paymentDueDays=2,
+                                    poSerialNumber = "PM132434"
+
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+        }
         [Fact]
         public void Should_Success_Get_PDF_By_Id()
         {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
             var mockFacade = new Mock<IGarmentInternNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentInternNoteViewModel>(It.IsAny<GarmentInternNote>()))
-                .Returns(ViewModel);
+                .Returns(ViewModelPDF);
 
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(new GarmentDeliveryOrderViewModel());
@@ -411,7 +502,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(new GarmentDeliveryOrder());
+                 .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 1 });
 
             var INVmockFacade = new Mock<IGarmentInvoice>();
             INVmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -424,7 +515,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             };
             user.Setup(u => u.Claims).Returns(claims);
 
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, null, mockMapper, INVmockFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()

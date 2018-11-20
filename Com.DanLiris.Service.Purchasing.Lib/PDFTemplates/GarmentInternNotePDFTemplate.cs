@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using iTextSharp.text;
@@ -13,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class GarmentInternNotePDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, int clientTimeZoneOffset)
+        public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -159,10 +160,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellRight);
 
                     totalPriceTotal += detail.priceTotal;
-                    
-                    total = totalPriceTotal * detail.deliveryOrder.docurrency.Rate;
-
-                   // var 
+                    var garmentDeliveryOrder = DOfacade.ReadById((int)detail.deliveryOrder.Id);
+                    double rate = 1;
+                    if (garmentDeliveryOrder != null)
+                    {
+                        rate = (double)garmentDeliveryOrder.DOCurrencyRate;
+                    }
+                    total = totalPriceTotal * rate;
                     
                     if (units.ContainsKey(detail.unit.Code))
                     {
