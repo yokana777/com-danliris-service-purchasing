@@ -341,22 +341,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
 
-            if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
-            {
-                string Key = OrderDictionary.Keys.First();
-                string SubKey = Key.Split(".")[1];
-                string OrderType = OrderDictionary[Key];
-
-                Query = Query.Include(m => m.Items)
-                    .ThenInclude(i => i.Details);
-            }
-            else
-            {
-
-                Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false); //&& (s.Position==1||s.Position==6));
-            }
-
+            Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false); //&& (s.Position==1||s.Position==6));
+            
             return Query;
         }
     }
