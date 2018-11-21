@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         public readonly IServiceProvider serviceProvider;
         
         private readonly string USER_AGENT = "Facade";
+        private readonly string CREDITOR_ACCOUNT_URI = "creditor-account/bank-expenditure-note/list";
 
         public BankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator, IServiceProvider serviceProvider)
         {
@@ -191,6 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Updated = await dbContext.SaveChangesAsync();
                     DeleteDailyBankTransaction(model.DocumentNo, identityService);
                     CreateDailyBankTransaction(model, identityService);
+                    UpdateCreditorAccount(model, identityService);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -245,6 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
                     CreateDailyBankTransaction(model, identityService);
+                    CreateCreditorAccount(model, identityService);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -310,6 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     dbSet.Update(bankExpenditureNote);
                     Count = await dbContext.SaveChangesAsync();
                     DeleteDailyBankTransaction(bankExpenditureNote.DocumentNo, identityService);
+                    DeleteCreditorAccount(bankExpenditureNote, identityService);
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)
@@ -538,6 +542,63 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}").Result;
             response.EnsureSuccessStatusCode();
+        }
+
+        private void CreateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
+        {
+            List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
+            foreach(var item in model.Details)
+            {
+                CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
+                {
+                    Code = model.DocumentNo,
+                    Date = model.Date,
+                    Id = (int)model.Id,
+                    InvoiceNo = item.InvoiceNo,
+                    Mutation = item.TotalPaid,
+                    SupplierCode = model.SupplierCode,
+                    SupplierName = model.SupplierName
+                };
+                postedData.Add(viewModel);
+            }
+
+            
+            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+        }
+
+        private void UpdateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
+        {
+            List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
+            foreach (var item in model.Details)
+            {
+                CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
+                {
+                    Code = model.DocumentNo,
+                    Date = model.Date,
+                    Id = (int)model.Id,
+                    InvoiceNo = item.InvoiceNo,
+                    Mutation = item.TotalPaid,
+                    SupplierCode = model.SupplierCode,
+                    SupplierName = model.SupplierName
+                };
+                postedData.Add(viewModel);
+            }
+
+
+            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PutAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+
+        }
+
+        private void DeleteCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
+        {
+            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.DeleteAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}/{model.DocumentNo}").Result;
+            response.EnsureSuccessStatusCode();
+
         }
     }
 }
