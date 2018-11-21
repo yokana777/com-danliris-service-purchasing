@@ -277,5 +277,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_By_DispositonNo()
+        {
+            var facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadByDisposition(model.DispositionNo);
+            Assert.NotNull(Response);
+        }
     }
 }
