@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.Moonlay.Models;
@@ -30,14 +31,107 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
 		public Tuple<List<GarmentBeacukai>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
 		{
-			throw new NotImplementedException();
+			IQueryable<GarmentBeacukai> Query = this.dbSet.Include(m => m.Items);
+
+			List<string> searchAttributes = new List<string>()
+			{
+				"BCNo", "SupplierName","Items.DeliveryOrderNo","BCDate","BCType"
+			};
+
+			Query = QueryHelper<GarmentBeacukai>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			Query = QueryHelper<GarmentBeacukai>.ConfigureFilter(Query, FilterDictionary);
+
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+			Query = QueryHelper<GarmentBeacukai>.ConfigureOrder(Query, OrderDictionary);
+
+			Pageable<GarmentBeacukai> pageable = new Pageable<GarmentBeacukai>(Query, Page - 1, Size);
+			List<GarmentBeacukai> Data = pageable.Data.ToList();
+			int TotalData = pageable.TotalCount;
+
+			return Tuple.Create(Data, TotalData, OrderDictionary);
 		}
 
 		public GarmentBeacukai ReadById(int id)
 		{
-			throw new NotImplementedException();
+			var model = dbSet.Where(m => m.Id == id)
+			 .Include(m => m.Items)
+			 .FirstOrDefault();
+			return model;
 		}
 
+		public string GenerateBillNo()
+		{
+			string BillNo = null;
+			GarmentDeliveryOrder deliveryOrder = (from data in dbSetDeliveryOrder
+									   orderby data.BillNo descending
+								 select data).FirstOrDefault();
+			string year = DateTime.Now.Year.ToString().Substring(2, 2);
+			string month = DateTime.Now.Month.ToString("D2");
+			string day = DateTime.Now.Day.ToString("D2");
+			string formatDate = year + month + day;
+			int counterId = 0;
+			if (deliveryOrder.BillNo != null)
+			{
+				BillNo = deliveryOrder.PaymentBill;
+				string days = BillNo.Substring(4, 2);
+				string number = BillNo.Substring(6);
+				if (month == DateTime.Now.Month.ToString("D2"))
+				{
+					counterId = Convert.ToInt32(number);
+				}
+				else
+				{
+					counterId = 1;
+					BillNo = "BB" + formatDate + counterId.ToString("D3");
+				}
+			}else
+			{
+				counterId = 1;
+				BillNo = "BB" + formatDate + counterId.ToString("D3");
+			}
+			return BillNo;
+
+		}
+
+		public string GeneratePaymentBillNo()
+		{
+			string PaymentBill = null;
+			GarmentDeliveryOrder deliveryOrder = (from data in dbSetDeliveryOrder
+												  orderby data.PaymentBill descending
+												  select data).FirstOrDefault();
+			string year = DateTime.Now.Year.ToString().Substring(2, 2);
+			string month = DateTime.Now.Month.ToString("D2");
+			string day = DateTime.Now.Day.ToString("D2");
+			string formatDate = year + month + day;
+			int counterId = 0;
+			if (deliveryOrder.BillNo != null)
+			{
+				PaymentBill = deliveryOrder.PaymentBill;
+				string days = PaymentBill.Substring(4, 2);
+				string number = PaymentBill.Substring(6);
+				if (month == DateTime.Now.Month.ToString("D2"))
+				{
+					counterId = Convert.ToInt32(number);
+				}
+				else
+				{
+					counterId = 1;
+					PaymentBill = "BB" + formatDate + counterId.ToString("D3");
+				}
+			}
+			else
+			{
+				counterId = 1;
+				PaymentBill = "BP" + formatDate + counterId.ToString("D3");
+			}
+
+
+
+			return PaymentBill;
+
+		}
 		public async Task<int> Create(GarmentBeacukai model, string username, int clientTimeZoneOffset = 7)
 		{
 			int Created = 0;
@@ -49,11 +143,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
 					EntityExtension.FlagForCreate(model, username, USER_AGENT);
 
-					foreach (var item in model.Items)
+					foreach (GarmentBeacukaiItem item in model.Items)
 					{
 						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.GarmentDOId);
 						if (deliveryOrder != null)
-							deliveryOrder.IsInvoice = true;
+							deliveryOrder.BillNo = GenerateBillNo();
+						deliveryOrder.PaymentBill = GeneratePaymentBillNo();
+						deliveryOrder.CustomsId = model.Id;
 						EntityExtension.FlagForCreate(item, username, USER_AGENT);
 					}
 
