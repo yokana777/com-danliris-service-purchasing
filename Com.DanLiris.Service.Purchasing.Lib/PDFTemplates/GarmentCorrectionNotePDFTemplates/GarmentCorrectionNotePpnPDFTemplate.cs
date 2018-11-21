@@ -128,7 +128,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 cellLeft.Phrase = new Phrase(item.ProductName, normal_font);
                 tableContent.AddCell(cellLeft);
 
-                var totalPPH = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 100;
+                decimal totalPPH;
+                if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+                {
+                    totalPPH = (item.PriceTotalAfter - item.PriceTotalBefore) / 100;
+                }
+                else
+                {
+                    totalPPH = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 100;
+                }
                 totalAmountPPH += totalPPH;
 
                 cellRight.Phrase = new Phrase(totalPPH.ToString("n", new CultureInfo("id-ID")), normal_font);

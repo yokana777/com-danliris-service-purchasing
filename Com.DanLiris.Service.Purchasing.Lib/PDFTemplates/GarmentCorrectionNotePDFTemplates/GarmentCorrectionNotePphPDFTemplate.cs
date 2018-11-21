@@ -131,7 +131,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 cellRight.Phrase = new Phrase(((double)model.IncomeTaxRate).ToString("n", new CultureInfo("id-ID")), normal_font);
                 tableContent.AddCell(cellRight);
 
-                var totalPPH = model.IncomeTaxRate / 100 * (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity;
+                decimal totalPPH;
+                if (((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL"))
+                {
+                    totalPPH = model.IncomeTaxRate / 100 * (item.PriceTotalAfter - item.PriceTotalBefore);
+                }
+                else
+                {
+                    totalPPH = model.IncomeTaxRate / 100 * (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity;
+                }
                 totalAmountPPH += totalPPH;
 
                 cellRight.Phrase = new Phrase(totalPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
