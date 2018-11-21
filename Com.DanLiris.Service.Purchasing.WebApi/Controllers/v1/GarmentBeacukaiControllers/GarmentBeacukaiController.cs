@@ -135,5 +135,83 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
+
+		[HttpGet("{id}")]
+		public IActionResult Get(int id)
+		{
+			try
+			{
+				var model = facade.ReadById(id);
+				var viewModel = mapper.Map<GarmentBeacukaiViewModel>(model);
+				if (viewModel == null)
+				{
+					throw new Exception("Invalid Id");
+				}
+
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+					.Ok(viewModel);
+				return Ok(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+
+		[HttpDelete("{id}")]
+		public IActionResult Delete([FromRoute]int id)
+		{
+			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+			try
+			{
+				facade.Delete(id, identityService.Username);
+				return NoContent();
+			}
+			catch (Exception)
+			{
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+			}
+		}
+		[HttpPut("{id}")]
+		public async Task<IActionResult> Put(int id, [FromBody]GarmentBeacukaiViewModel ViewModel)
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+				validateService.Validate(ViewModel);
+
+				var model = mapper.Map<GarmentBeacukai>(ViewModel);
+
+				await facade.Update(id, model, identityService.Username);
+
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+					.Ok();
+				return Created(String.Concat(Request.Path, "/", 0), Result);
+			}
+			catch (ServiceValidationExeption e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+					.Fail(e);
+				return BadRequest(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+
 	}
 }

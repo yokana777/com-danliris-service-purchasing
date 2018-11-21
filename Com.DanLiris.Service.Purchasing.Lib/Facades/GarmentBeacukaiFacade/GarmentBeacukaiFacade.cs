@@ -182,10 +182,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
 					foreach (var item in model.Items)
 					{
-						GarmentDeliveryOrder garmentDeliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.GarmentDOId);
-						if (garmentDeliveryOrder != null)
-							garmentDeliveryOrder.IsInvoice = false;
-						EntityExtension.FlagForDelete(item, username, USER_AGENT);
+						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.GarmentDOId);
+						if (deliveryOrder != null)
+						{
+							deliveryOrder.BillNo = null;
+							deliveryOrder.PaymentBill = null;
+							deliveryOrder.CustomsId = 0;
+							EntityExtension.FlagForDelete(item, username, USER_AGENT);
+						}
+						
 
 					}
 
