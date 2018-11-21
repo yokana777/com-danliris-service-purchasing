@@ -167,8 +167,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                 foreach (var item in viewModel.items)
                 {
                     GarmentDeliveryOrder deliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
-                    GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
-                    item.deliveryOrder.items = deliveryOrderViewModel.items;
+                    if (deliveryOrder != null)
+                    {
+                        GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+                        item.deliveryOrder.items = deliveryOrderViewModel.items;
+                    }
                 }
 
                 Dictionary<string, object> Result =

@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
@@ -21,6 +22,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -89,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
             var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
-            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
             var garmentInvoiceFacade = new GarmentInvoiceFacade(_dbContext(testName), ServiceProvider);
@@ -103,7 +105,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         [Fact]
         public async void Should_Success_Create_Data()
         {
-
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, false, USERNAME);
@@ -177,44 +178,77 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         [Fact]
         public void Should_Success_Validate_Data()
         {
-            GarmentInternNoteViewModel nullViewModel = new GarmentInternNoteViewModel();
-            Assert.True(nullViewModel.Validate(null).Count() > 0);
-
-            GarmentInternNoteViewModel viewModel = new GarmentInternNoteViewModel()
+            var viewModelNullItems = new GarmentInternNoteViewModel
             {
-                currency = new CurrencyViewModel
-                {
-                    Id = 1
-                },
-                supplier = new SupplierViewModel
-                {
-                    Id = 1
-                },
+                items = null
+            };
+            Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+
+            Mock<IGarmentInvoice> garmentInvoiceFacadeMock = new Mock<IGarmentInvoice>();
+            garmentInvoiceFacadeMock.Setup(s => s.ReadById(1))
+                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = false, UseVat = false });
+            garmentInvoiceFacadeMock.Setup(s => s.ReadById(2))
+                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = true, UseVat = true });
+
+            Mock<IGarmentDeliveryOrderFacade> garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(1))
+                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder { PaymentMethod = "PaymentMethod1" });
+            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(2))
+                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder { PaymentMethod = "PaymentMethod2" });
+
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider.
+                Setup(x => x.GetService(typeof(IGarmentInvoice)))
+                .Returns(garmentInvoiceFacadeMock.Object);
+            serviceProvider.
+               Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
+               .Returns(garmentDeliveryOrderFacadeMock.Object);
+
+            var sameUseVat = new GarmentInternNoteViewModel
+            {
                 items = new List<GarmentInternNoteItemViewModel>
                 {
-                    new GarmentInternNoteItemViewModel(),
-                    new GarmentInternNoteItemViewModel()
+                    new GarmentInternNoteItemViewModel
                     {
-                        garmentInvoice = new GarmentInvoiceViewModel
+                        garmentInvoice  = new GarmentInvoiceViewModel
                         {
-                            _id = 1
+                            Id = 1
                         },
                         details = new List<GarmentInternNoteDetailViewModel>
                         {
-                            new GarmentInternNoteDetailViewModel(),
-                            new GarmentInternNoteDetailViewModel()
+                            new GarmentInternNoteDetailViewModel
                             {
                                 deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel
                                 {
                                     Id = 1
                                 }
-                            },
+                            }
+                        }
+                    },                
+                    new GarmentInternNoteItemViewModel
+                    {
+                        garmentInvoice  = new GarmentInvoiceViewModel
+                        {
+                            Id = 2
                         },
-
-                    }
+                        details = new List<GarmentInternNoteDetailViewModel>
+                        {
+                            new GarmentInternNoteDetailViewModel
+                            {
+                                 deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel
+                                {
+                                    Id = 2
+                                }
+                            }
+                        }
+                    },
+                    
                 }
             };
-            Assert.True(viewModel.Validate(null).Count() > 0);
+
+            ValidationContext Usevats = new ValidationContext(sameUseVat, serviceProvider.Object, null);
+            Assert.True(sameUseVat.Validate(Usevats).Count() > 0);
+            
         }
     }
 }

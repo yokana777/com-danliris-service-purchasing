@@ -199,8 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
                     }
                 }
             };
-            ValidationContext validationDuplicateContext = new ValidationContext(viewModelDuplicate, serviceProvider.Object, null);
-            Assert.True(viewModelDuplicate.Validate(validationDuplicateContext).Count() > 0);
+            Assert.True(viewModelDuplicate.Validate(null).Count() > 0);
 
             var viewModelNotFoundDuplicate = new GarmentInternalPurchaseOrderViewModel
             {

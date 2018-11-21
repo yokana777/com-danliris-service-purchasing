@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
@@ -19,7 +21,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public List<GarmentInternNoteItemViewModel> items { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            PurchasingDbContext dbContext = validationContext == null ? null : (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+            IGarmentInvoice invoiceFacade = validationContext == null ? null : (IGarmentInvoice)validationContext.GetService(typeof(IGarmentInvoice));
+            IGarmentDeliveryOrderFacade doFacade = validationContext == null ? null : (IGarmentDeliveryOrderFacade)validationContext.GetService(typeof(IGarmentDeliveryOrderFacade));
 
             if (currency == null)
             {
@@ -40,8 +43,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             else
             {
                 string itemError = "[";
-                bool? useincometax= null;
-                bool? usevat = null;
+                bool? prevUseIncomeTax= null;
+                bool? prevUseVat = null;
                 string paymentMethod = "";
 
                 foreach (var item in items)
@@ -53,51 +56,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                         itemErrorCount++;
                         itemError += "garmentInvoice: 'No Garment Invoice selected', ";
                     }
-                    var invoice = dbContext.GarmentInvoices.Single(m => m.Id == item.garmentInvoice.Id);
-
-                    if (useincometax != null && useincometax != invoice.UseIncomeTax)
-                    {
-                        itemErrorCount++;
-                        itemError += "useincometax: 'UseIncomeTax harus sama', ";
-                    }
-                    useincometax = invoice.UseIncomeTax;
-                    if (usevat != null && usevat != invoice.UseVat)
-                    {
-                        itemErrorCount++;
-                        itemError += "usevat: 'UseVat harus sama', ";
-                    }
-                    usevat = invoice.UseVat;
-                    if (item.details == null || item.details.Count.Equals(0))
-                    {
-                        itemErrorCount++;
-                        itemError += "detailscount: 'Details is required', ";
-                    }
                     else
                     {
-                        string detailError = "[";
-
-                        foreach (var detail in item.details)
-                        {
-                            detailError += "{";
-                            var deliveryOrder = dbContext.GarmentDeliveryOrders.Single(d => d.Id == detail.deliveryOrder.Id);
-                            if (paymentMethod != "" && paymentMethod != deliveryOrder.PaymentMethod)
-                            {
-                                detailErrorCount++;
-                                detailError += "paymentMethod: 'TermOfPayment Harus Sama', ";
-                            }
-                            paymentMethod = deliveryOrder.PaymentMethod;
-
-                            detailError += "}, ";
-                        }
-
-                        detailError += "]";
-
-                        if (detailErrorCount > 0)
+                        var invoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
+                        if (prevUseIncomeTax != null && prevUseIncomeTax != invoice.UseIncomeTax)
                         {
                             itemErrorCount++;
-                            itemError += $"details: {detailError}, ";
+                            itemError += "useincometax: 'UseIncomeTax harus sama', ";
                         }
+                        prevUseIncomeTax = invoice.UseIncomeTax;
+                        if (prevUseVat != null && prevUseVat != invoice.UseVat)
+                        {
+                            itemErrorCount++;
+                            itemError += "usevat: 'UseVat harus sama', ";
+                        }
+                        prevUseVat = invoice.UseVat;
+                        if (item.details == null || item.details.Count.Equals(0))
+                        {
+                            itemErrorCount++;
+                            itemError += "detailscount: 'Details is required', ";
+                        }
+                        else
+                        {
+                            string detailError = "[";
+
+                            foreach (var detail in item.details)
+                            {
+                                detailError += "{";
+                                var deliveryOrder = doFacade.ReadById((int)detail.deliveryOrder.Id);
+                                if (deliveryOrder != null)
+                                {
+                                    if (paymentMethod != "" && paymentMethod != deliveryOrder.PaymentMethod)
+                                    {
+                                        detailErrorCount++;
+                                        detailError += "paymentMethod: 'TermOfPayment Harus Sama', ";
+                                    }
+                                    paymentMethod = deliveryOrder.PaymentMethod;
+                                }
+
+                                detailError += "}, ";
+                            }
+
+                            detailError += "]";
+
+                            if (detailErrorCount > 0)
+                            {
+                                itemErrorCount++;
+                                itemError += $"details: {detailError}, ";
+                            }
+                        }
+
                     }
+
 
                     itemError += "}, ";
                 }

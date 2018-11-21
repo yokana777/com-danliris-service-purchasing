@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     {
                         foreach (var detail in item.Details)
                         {
-                            GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.Single(s => s.GarmentEPOId == detail.EPOId);
+                            GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.GarmentEPOId == detail.EPOId);
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == eksternalPurchaseOrderItem.POId);
                             detail.UnitId = internalPurchaseOrder.UnitId;
                             detail.UnitCode = internalPurchaseOrder.UnitCode;

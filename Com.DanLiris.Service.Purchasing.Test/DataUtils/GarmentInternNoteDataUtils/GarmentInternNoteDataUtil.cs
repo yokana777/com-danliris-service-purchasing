@@ -23,57 +23,75 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
 
         public GarmentInternNote GetNewData()
         {
-            var datas = Task.Run(() => garmentInvoiceDataUtil.GetTestData("User")).Result;
-            var internNote =  new GarmentInternNote
+            var garmentInvoice = Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User")).Result;
+            List<GarmentInternNoteDetail> garmentInternNoteDetails = new List<GarmentInternNoteDetail>();
+            foreach (var item in garmentInvoice.Items)
             {
-                INNo = "IN12345L",
-                INDate = DateTimeOffset.Now,
-
-                SupplierId = datas.SupplierId.ToString(),
-                SupplierCode = datas.SupplierCode,
-                SupplierName = datas.SupplierName,
-
-                CurrencyRate = 1,
-                CurrencyId = datas.CurrencyId.ToString(),
-                CurrencyCode = datas.CurrencyCode,
-
-                Remark = "remark",
-                Items = new List<GarmentInternNoteItem>()
-            };
-            foreach (var item in datas.Items)
-            {
-                var InternNoteItem = new GarmentInternNoteItem
-                {
-                    InvoiceId = datas.Id,
-                    InvoiceNo = datas.InvoiceNo,
-                    InvoiceDate = datas.InvoiceDate,
-                    TotalAmount = 20000
-                };
                 foreach (var detail in item.Details)
                 {
-                    var InternNoteDetail = new GarmentInternNoteDetail
+                    garmentInternNoteDetails.Add(new GarmentInternNoteDetail
                     {
                         EPOId = detail.EPOId,
                         EPONo = detail.EPONo,
                         POSerialNumber = detail.POSerialNumber,
-                        RONo = detail.RONo,
-                        PricePerDealUnit = detail.PricePerDealUnit,
                         Quantity = (long)detail.DOQuantity,
-                        ProductId = detail.ProductId.ToString(),
-                        ProductCode = detail.ProductCode,
-                        UOMId = detail.UomId.ToString(),
-                        UOMUnit = detail.UomUnit,
+                        RONo = detail.RONo,
+
                         DOId = item.DeliveryOrderId,
                         DONo = item.DeliveryOrderNo,
                         DODate = item.DODate,
-                        PaymentMethod = item.PaymentMethod,
+
+                        ProductId = detail.ProductId.ToString(),
+                        ProductCode = detail.ProductCode,
+                        ProductName = detail.ProductName,
+
                         PaymentType = item.PaymentType,
-                    };
+                        PaymentMethod = item.PaymentMethod,
+
+                        PaymentDueDate = item.DODate.AddDays(detail.PaymentDueDays) ,
+
+                        UOMId = detail.UomId.ToString(),
+                        UOMUnit = detail.UomUnit,
+
+                        PricePerDealUnit = detail.PricePerDealUnit,
+                        PriceTotal = detail.PricePerDealUnit * detail.PricePerDealUnit,
+                    });
                 }
             }
-            return internNote;
+
+            List<GarmentInternNoteItem> garmentInternNoteItems = new List<GarmentInternNoteItem>
+            {
+                new GarmentInternNoteItem
+                {
+                    InvoiceId = garmentInvoice.Id,
+                    InvoiceNo = garmentInvoice.InvoiceNo,
+                    InvoiceDate = garmentInvoice.InvoiceDate,
+                    TotalAmount = 20000,
+                    Details = garmentInternNoteDetails
+                }
+            };
+
+            GarmentInternNote garmentInternNote = new GarmentInternNote
+            {
+                INNo = "NI1234L",
+                INDate = new DateTimeOffset(),
+
+                SupplierId = "SupplierId",
+                SupplierCode = "SupplierCode",
+                SupplierName = "SupplierName",
+
+                CurrencyId = "CurrencyId",
+                CurrencyCode = "CurrencyCode",
+                CurrencyRate = 5,
+                
+
+                Remark = null,
+
+                Items = garmentInternNoteItems
+            };
+            return garmentInternNote;
         }
-        
+
         public async Task<GarmentInternNote> GetTestData()
         {
             var data = GetNewData();

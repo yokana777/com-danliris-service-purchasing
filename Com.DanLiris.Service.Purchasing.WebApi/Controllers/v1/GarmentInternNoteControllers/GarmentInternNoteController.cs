@@ -90,8 +90,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         foreach (var detail in item.details)
                         {
                             var deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
-                            var deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
-                            detail.deliveryOrder.items = deliveryOrderViewModel.items;
+                            if (deliveryOrder != null)
+                            {
+                                var deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+                                detail.deliveryOrder.items = deliveryOrderViewModel.items;
+                            }
+                            
                         }
                     }
                 }
@@ -158,8 +162,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         foreach (GarmentInternNoteDetailViewModel detail in item.details)
                         {
                             GarmentDeliveryOrder deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
-                            GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
-                            detail.deliveryOrder.items = deliveryOrderViewModel.items;
+                            if (deliveryOrder != null)
+                            {
+                                GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+                                detail.deliveryOrder.items = deliveryOrderViewModel.items;
+                            }
                         }
                     }
                 }
