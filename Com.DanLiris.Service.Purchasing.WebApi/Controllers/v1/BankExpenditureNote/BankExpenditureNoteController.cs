@@ -125,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
 
                 BankExpenditureNoteModel model = mapper.Map<BankExpenditureNoteModel>(viewModel);
 
-                int result = await facade.Create(model, identityService.Username);
+                int result = await facade.Create(model, identityService);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
 
             try
             {
-                int Result = await facade.Delete(id, identityService.Username);
+                int Result = await facade.Delete(id, identityService);
 
                 if (Result.Equals(0))
                 {
@@ -181,6 +181,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         public async Task<IActionResult> Put([FromRoute]int id, [FromBody]BankExpenditureNoteViewModel vm)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
             BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
 
@@ -190,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             {
                 validateService.Validate(vm);
 
-                int result = await facade.Update(id, m, identityService.Username);
+                int result = await facade.Update(id, m, identityService);
 
                 return NoContent();
             }

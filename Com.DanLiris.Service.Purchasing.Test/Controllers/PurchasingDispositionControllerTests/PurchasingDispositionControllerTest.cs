@@ -2,7 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispositionControllers;
@@ -40,14 +40,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 details.Add(
                     new PurchasingDispositionDetailViewModel
                     {
-                        EPODetailId = It.IsAny<int>(),
-                        PRId = It.IsAny<int>(),
+                        EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
                         PRNo="test",
                         Category=new CategoryViewModel
                         {
-                            Id = "1",
-                            Name="Test",
-                            Code="test"
+                            _id = "1",
+                            name="Test",
+                            code="test"
                         },
                         PricePerDealUnit = 1000,
                         PriceTotal = 10000,
@@ -62,8 +62,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                     Amount=1000,
                     Supplier = new SupplierViewModel
                     {
-                        Name="NameSupp",
-                        Id= It.IsAny<int>()
+                        name="NameSupp",
+                        _id= It.IsAny<string>()
                     },
                     Items = items
                 };
@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             {
                 return new PurchasingDisposition
                 {
-                    SupplierId = It.IsAny<int>(),
+                    SupplierId = It.IsAny<string>(),
                     SupplierCode = "SupplierCode",
                     SupplierName = "SupplierName",
                     

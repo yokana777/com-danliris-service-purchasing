@@ -1,5 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,12 +31,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
                 yield return new ValidationResult("Tanggal Jatuh Tempo harus diisi", new List<string> { "PaymentDueDate" });
             }
 
-            if (this.Supplier == null || Supplier.Id==0)
+            if (this.Supplier == null || string.IsNullOrWhiteSpace(Supplier._id))
             {
                 yield return new ValidationResult("Supplier harus diisi", new List<string> { "Supplier" });
             }
 
-            if (this.Currency == null || Currency.Id == 0)
+            if (this.Currency == null || string.IsNullOrWhiteSpace(Currency._id))
             {
                 yield return new ValidationResult("Mata Uang harus diisi", new List<string> { "Currency" });
             }
