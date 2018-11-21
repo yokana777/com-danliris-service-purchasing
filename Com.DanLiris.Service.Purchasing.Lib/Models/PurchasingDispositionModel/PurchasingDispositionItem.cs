@@ -11,19 +11,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
     {
         [MaxLength(255)]
         public string EPONo { get; set; }
-        public long EPOId { get; set; }
-        public string UnitName { get; set; }
-        public string UnitCode { get; set; }
-        public long UnitId { get; set; }
+        public string EPOId { get; set; }
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }
-        public long IncomeTaxId { get; set; }
+        public string IncomeTaxId { get; set; }
         public string IncomeTaxName { get; set; }
         public double IncomeTaxRate { get; set; }
-
-        public string DivisionName { get; set; }
-        public string DivisionCode { get; set; }
-        public long DivisionId { get; set; }
 
         public virtual long PurchasingDispositionId { get; set; }
         [ForeignKey("PurchasingDispositionId")]

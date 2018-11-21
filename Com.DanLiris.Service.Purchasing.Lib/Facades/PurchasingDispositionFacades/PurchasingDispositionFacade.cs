@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         EntityExtension.FlagForCreate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                             epoDetail.DispositionQuantity += detail.PaidQuantity;
                             EntityExtension.FlagForCreate(detail, user, "Facade");
                         }
@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         EntityExtension.FlagForDelete(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                             epoDetail.DispositionQuantity -= detail.PaidQuantity;
                             EntityExtension.FlagForDelete(detail, user, "Facade");
                         }
@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     {
                         foreach(var oldDetail in oldIem.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == oldDetail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == oldDetail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                             epoDetail.DispositionQuantity -= oldDetail.PaidQuantity;
                         }
                     }
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                                     foreach (var detail in item.Details)
                                     {
-                                        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                                         epoDetail.DispositionQuantity += detail.PaidQuantity;
                                         EntityExtension.FlagForCreate(detail, user, "Facade");
                                     }
@@ -266,7 +266,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                     {
                                         if (detail.Id != 0)
                                         {
-                                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                                             epoDetail.DispositionQuantity += detail.PaidQuantity;
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
                                         }
@@ -325,6 +325,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             }
 
             return Updated;
+        }
+
+        public IQueryable<PurchasingDisposition> ReadByDisposition(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<PurchasingDisposition> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DispositionNo"
+            };
+
+            Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+            Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false); //&& (s.Position==1||s.Position==6));
+            
+            return Query;
         }
     }
 }

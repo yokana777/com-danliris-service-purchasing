@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
     public class PurchasingDisposition : BaseModel
     {
         public string DispositionNo { get; set; }
-        public long SupplierId { get; set; }
+        public string SupplierId { get; set; }
         public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
         public string Bank { get; set; }
@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         public string ProformaNo { get; set; }
         public string Investation { get; set; }
         public double Amount { get; set; }
-        public long CurrencyId { get; set; }
+        public string CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
         public string CurrencyRate { get; set; }
 

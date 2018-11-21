@@ -26,11 +26,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
 
         public string Remark { get; set; }
 
+        public decimal TotalCorrection { get; set; }
+
         public List<GarmentCorrectionNoteItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (string.IsNullOrWhiteSpace(CorrectionType) || CorrectionType.ToUpper() != "HARGA SATUAN" || CorrectionType.ToUpper() != "HARGA TOTAL")
+            if (string.IsNullOrWhiteSpace(CorrectionType) || (CorrectionType.ToUpper() != "HARGA SATUAN" && CorrectionType.ToUpper() != "HARGA TOTAL"))
             {
                 yield return new ValidationResult("Jenis Koreksi harus berupa 'Harga Satuan' atau 'Harga Total'", new List<string> { "CorrectionType" });
             }
@@ -59,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
                             if (item.PricePerDealUnitAfter < 0)
                             {
                                 itemErrorCount++;
-                                itemError += "PricePerDealUnit: 'Harga Satuan harus lebih dari 0', ";
+                                itemError += "PricePerDealUnit: 'Harga Satuan tidak boleh kurang dari 0', ";
                             }
                             else if (item.PricePerDealUnitAfter == item.PricePerDealUnitBefore)
                             {
@@ -69,15 +71,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
                         }
                         else if (CorrectionType.ToUpper() == "HARGA TOTAL")
                         {
-                            if (item.PriceTotalAfter <= 0)
+                            if (item.PriceTotalAfter < 0)
                             {
                                 itemErrorCount++;
-                                itemError += "PriceTotal: 'Harga Total harus lebih dari 0', ";
+                                itemError += "PriceTotal: 'Harga Total tidak boleh kurang dari 0', ";
                             }
                             else if (item.PriceTotalAfter == item.PriceTotalBefore)
                             {
                                 itemErrorCount++;
-                                itemError += "PriceTotal: 'Harga Satuan tidak berubah', ";
+                                itemError += "PriceTotal: 'Harga Total tidak berubah', ";
                             }
                         }
 

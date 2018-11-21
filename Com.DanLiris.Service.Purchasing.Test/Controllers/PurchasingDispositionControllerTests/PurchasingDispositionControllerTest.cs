@@ -2,7 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispositionControllers;
@@ -13,6 +13,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
@@ -40,14 +41,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 details.Add(
                     new PurchasingDispositionDetailViewModel
                     {
-                        EPODetailId = It.IsAny<int>(),
-                        PRId = It.IsAny<int>(),
+                        EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
                         PRNo="test",
                         Category=new CategoryViewModel
                         {
-                            Id = "1",
-                            Name="Test",
-                            Code="test"
+                            _id = "1",
+                            name="Test",
+                            code="test"
                         },
                         PricePerDealUnit = 1000,
                         PriceTotal = 10000,
@@ -62,8 +63,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                     Amount=1000,
                     Supplier = new SupplierViewModel
                     {
-                        Name="NameSupp",
-                        Id= It.IsAny<int>()
+                        name="NameSupp",
+                        _id= It.IsAny<string>()
                     },
                     Items = items
                 };
@@ -77,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             {
                 return new PurchasingDisposition
                 {
-                    SupplierId = It.IsAny<int>(),
+                    SupplierId = It.IsAny<string>(),
                     SupplierCode = "SupplierCode",
                     SupplierName = "SupplierName",
                     
@@ -381,6 +382,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             var response = controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Data_By_Supplier()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(Tuple.Create(new List<PurchasingDisposition>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
+                .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
+
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+            var response = controller.GetByDisposition();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
     }
 }
