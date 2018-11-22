@@ -180,7 +180,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         {
             var viewModelNullItems = new GarmentInternNoteViewModel
             {
-                items = null
+                items = null,
+                
+                
             };
             Assert.True(viewModelNullItems.Validate(null).Count() > 0);
 
@@ -248,7 +250,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
             ValidationContext Usevats = new ValidationContext(sameUseVat, serviceProvider.Object, null);
             Assert.True(sameUseVat.Validate(Usevats).Count() > 0);
-            
+
+            var viewModelNullDetail = new GarmentInternNoteViewModel
+            {
+                items = new List<GarmentInternNoteItemViewModel>
+                {
+                    new GarmentInternNoteItemViewModel
+                    {
+                        garmentInvoice = null,
+                        details = null
+                    }
+                }
+            };
+            Assert.True(viewModelNullDetail.Validate(null).Count() > 0);
         }
     }
 }

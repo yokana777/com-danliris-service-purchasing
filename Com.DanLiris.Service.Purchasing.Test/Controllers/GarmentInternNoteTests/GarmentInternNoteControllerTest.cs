@@ -133,6 +133,44 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             return serviceProvider;
         }
+
+        [Fact]
+        public void Should_Error_Get_Data_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentInternNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            var INVFacade = new Mock<IGarmentInvoice>();
+
+            GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        [Fact]
+        public void Should_Error_Get_All_Data_By_User()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentInternNoteFacade>();
+            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            var INVFacade = new Mock<IGarmentInvoice>();
+
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(Tuple.Create(new List<GarmentInternNote>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentInternNoteViewModel>>(It.IsAny<List<GarmentInternNote>>()))
+                .Returns(new List<GarmentInternNoteViewModel> { ViewModel });
+
+            GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
+            var response = controller.GetByUser();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
         [Fact]
         public void Should_Success_Get_All_Data_By_User()
         {
@@ -257,7 +295,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
-
         [Fact]
         public void Should_Success_Get_All_Data()
         {
@@ -373,6 +410,46 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         }
 
         [Fact]
+        public void Should_Error_Get_PDF_By_Id()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentInternNote>(It.IsAny<GarmentInternNoteViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IGarmentInternNoteFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<GarmentInternNote>(),false, "unittestusername", 7))
+               .ReturnsAsync(1);
+            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            var INVFacade = new Mock<IGarmentInvoice>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
         public void Should_Validate_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
@@ -471,8 +548,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                                     quantity=40,
                                     pricePerDealUnit=5000,
                                     paymentDueDays=2,
-                                    poSerialNumber = "PM132434"
-
+                                    poSerialNumber = "PM132434",
+                                    priceTotal = 10000
+                                    
                                 }
                             }
                         }
@@ -510,7 +588,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 });
 
             mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
-                .Returns(new GarmentInvoiceViewModel());
+                .Returns(new GarmentInvoiceViewModel { Id = It.IsAny<int>(), useIncomeTax = true, useVat = true, incomeTaxId = It.IsAny<int>(), incomeTaxRate = 2 });
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
