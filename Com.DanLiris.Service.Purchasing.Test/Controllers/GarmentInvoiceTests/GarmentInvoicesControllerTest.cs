@@ -327,11 +327,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
             mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
                 .Returns(ViewModel);
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
-                .Returns(new GarmentDeliveryOrderViewModel());
+                .Returns(new GarmentDeliveryOrderViewModel { });
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(new GarmentDeliveryOrder());
+                 .Returns(new GarmentDeliveryOrder { });
 
             var INVFacade = new Mock<IGarmentInvoice>();
 
