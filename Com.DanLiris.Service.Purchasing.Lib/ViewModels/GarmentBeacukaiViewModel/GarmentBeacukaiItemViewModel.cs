@@ -8,8 +8,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 	public class GarmentBeacukaiItemViewModel : BaseViewModel
 	{
 		public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
-		 
-		public double totalQty { get; set; }
+		public string billNo { get; set; }
+		public double quantity { get; set; }
 		
 	 
  

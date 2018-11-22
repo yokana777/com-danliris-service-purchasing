@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
 	{
 		public long BCIdTemp { get; set; }
 		public string BeacukaiNo { get; set; }
+		public string BillNo { get; set; }
 		public DateTimeOffset BeacukaiDate { get; set; }
 		public DateTimeOffset ValidationDate { get; set; }
 		public long SupplierId { get; set; }

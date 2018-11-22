@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
 			List<string> searchAttributes = new List<string>()
 			{
-				"BCNo", "SupplierName","Items.DeliveryOrderNo","BCDate","BCType"
+				"beacukaiNo", "suppliername","customsType","items.garmentdono"
 			};
 
 			Query = QueryHelper<GarmentBeacukai>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -76,21 +76,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			{
 				BillNo = deliveryOrder.PaymentBill;
 				string days = BillNo.Substring(4, 2);
-				string number = BillNo.Substring(6);
+				string number = BillNo.Substring(8);
 				if (month == DateTime.Now.Month.ToString("D2"))
 				{
-					counterId = Convert.ToInt32(number);
+					counterId = Convert.ToInt32(number) +1;
 				}
 				else
 				{
 					counterId = 1;
-					BillNo = "BB" + formatDate + counterId.ToString("D3");
 				}
 			}else
 			{
 				counterId = 1;
-				BillNo = "BB" + formatDate + counterId.ToString("D3");
+				
 			}
+			BillNo = "BP" + formatDate + counterId.ToString("D3");
 			return BillNo;
 
 		}
@@ -110,24 +110,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			{
 				PaymentBill = deliveryOrder.PaymentBill;
 				string days = PaymentBill.Substring(4, 2);
-				string number = PaymentBill.Substring(6);
+				string number = PaymentBill.Substring(8);
 				if (month == DateTime.Now.Month.ToString("D2"))
 				{
-					counterId = Convert.ToInt32(number);
+					counterId = Convert.ToInt32(number) + 1;
 				}
 				else
 				{
 					counterId = 1;
-					PaymentBill = "BB" + formatDate + counterId.ToString("D3");
 				}
 			}
 			else
 			{
 				counterId = 1;
-				PaymentBill = "BP" + formatDate + counterId.ToString("D3");
 			}
-
-
+			PaymentBill = "BB" + formatDate + counterId.ToString("D3");
 
 			return PaymentBill;
 
@@ -142,19 +139,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 				{
 
 					EntityExtension.FlagForCreate(model, username, USER_AGENT);
-
+					
 					foreach (GarmentBeacukaiItem item in model.Items)
 					{
-						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.GarmentDOId);
+						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+															.ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
 						if (deliveryOrder != null)
+						{
 							deliveryOrder.BillNo = GenerateBillNo();
-						deliveryOrder.PaymentBill = GeneratePaymentBillNo();
-						deliveryOrder.CustomsId = model.Id;
-						EntityExtension.FlagForCreate(item, username, USER_AGENT);
+							deliveryOrder.PaymentBill = GeneratePaymentBillNo();
+							deliveryOrder.CustomsId = model.Id;
+							double qty = 0;
+							foreach(var  deliveryOrderItem in deliveryOrder.Items)
+							{
+								foreach(var detail in deliveryOrderItem.Details)
+								{
+									qty += detail.DOQuantity;
+								}
+							}
+							item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
+							item.TotalQty = qty;
+							EntityExtension.FlagForCreate(item, username, USER_AGENT);
+						}
 					}
 
 					this.dbSet.Add(model);
-					Created = await dbContext.SaveChangesAsync();
+					Created = await dbContext.SaveChangesAsync(); 
 					transaction.Commit();
 				}
 				catch (Exception e)
@@ -212,9 +222,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			return new HashSet<long>(dbContext.GarmentBeacukaiItems.Where(d => d.GarmentBeacukai.Id == id).Select(d => d.Id));
 		}
 
-		public Task<int> Update(int id, GarmentBeacukai m, string user, int clientTimeZoneOffset = 7)
+		public async Task<int> Update(int id, GarmentBeacukai m, string user, int clientTimeZoneOffset = 7)
 		{
-			throw new NotImplementedException();
+			int Updated = 0;
+
+			using (var transaction = this.dbContext.Database.BeginTransaction())
+			{
+				try
+				{
+					 
+					EntityExtension.FlagForUpdate(m, user, USER_AGENT);
+					this.dbSet.Update(m);
+					Updated = await dbContext.SaveChangesAsync();
+					transaction.Commit();
+
+				}
+				catch (Exception e)
+				{
+					transaction.Rollback();
+					throw new Exception(e.Message);
+				}
+			}
+
+			return Updated;
 		}
 	}
 }
