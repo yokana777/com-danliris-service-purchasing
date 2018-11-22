@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181119031527_Add_Column_TotalCorrection_to_GarmentCorrectionNote")]
+    partial class Add_Column_TotalCorrection_to_GarmentCorrectionNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2800,7 +2801,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("CurrencyCode");
 
-                    b.Property<string>("CurrencyId");
+                    b.Property<long>("CurrencyId");
 
                     b.Property<string>("CurrencyRate");
 
@@ -2836,15 +2837,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PaymentMethod");
 
-                    b.Property<int>("Position");
-
                     b.Property<string>("ProformaNo");
 
                     b.Property<string>("Remark");
 
                     b.Property<string>("SupplierCode");
 
-                    b.Property<string>("SupplierId");
+                    b.Property<long>("SupplierId");
 
                     b.Property<string>("SupplierName");
 
@@ -2865,7 +2864,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("CategoryCode");
 
-                    b.Property<string>("CategoryId");
+                    b.Property<long>("CategoryId");
 
                     b.Property<string>("CategoryName");
 
@@ -2881,7 +2880,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("DealQuantity");
 
-                    b.Property<string>("DealUomId");
+                    b.Property<int>("DealUomId");
 
                     b.Property<string>("DealUomUnit");
 
@@ -2895,11 +2894,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DivisionCode");
-
-                    b.Property<string>("DivisionId");
-
-                    b.Property<string>("DivisionName");
+                    b.Property<long>("EPODetailId");
 
                     b.Property<bool>("IsDeleted");
 
@@ -2913,7 +2908,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("PRId");
+                    b.Property<long>("PRId");
 
                     b.Property<string>("PRNo");
 
@@ -2927,7 +2922,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("ProductCode");
 
-                    b.Property<string>("ProductId");
+                    b.Property<long>("ProductId");
 
                     b.Property<string>("ProductName");
 
@@ -2935,12 +2930,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);
-
-                    b.Property<string>("UnitCode");
-
-                    b.Property<string>("UnitId");
-
-                    b.Property<string>("UnitName");
 
                     b.HasKey("Id");
 
@@ -2976,12 +2965,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("EPOId");
+                    b.Property<string>("DivisionCode");
+
+                    b.Property<long>("DivisionId");
+
+                    b.Property<string>("DivisionName");
+
+                    b.Property<long>("EPOId");
 
                     b.Property<string>("EPONo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("IncomeTaxId");
+                    b.Property<long>("IncomeTaxId");
 
                     b.Property<string>("IncomeTaxName");
 
@@ -3003,6 +2998,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);
+
+                    b.Property<string>("UnitCode");
+
+                    b.Property<long>("UnitId");
+
+                    b.Property<string>("UnitName");
 
                     b.Property<bool>("UseIncomeTax");
 

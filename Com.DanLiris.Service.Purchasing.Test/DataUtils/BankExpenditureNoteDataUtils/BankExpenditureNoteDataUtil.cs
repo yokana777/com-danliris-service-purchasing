@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using System;
 using System.Collections.Generic;
@@ -91,8 +92,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
 
         public async Task<BankExpenditureNoteModel> GetTestData()
         {
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+                Username = "Unit Test"
+            };
             BankExpenditureNoteModel model = GetNewData();
-            await Facade.Create(model, "Unit Test");
+            await Facade.Create(model, identityService);
             return await Facade.ReadById((int)model.Id);
         }
     }

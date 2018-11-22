@@ -232,6 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
             }
         }
 
+
         [HttpGet("disposition")]
         public IActionResult Getdisposition(string keyword = null, string filter = "{}", string epoId = "")
         {
@@ -272,6 +273,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                     { "count", listData.Count },
                 },
             });
+        }
+
+        [HttpGet("by-dispostion")]
+        public IActionResult GetByDisposition(string Keyword = "", string Filter = "{}")
+        {
+            var Data = facade.ReadByDisposition(Keyword, Filter);
+            var newData = mapper.Map<List<PurchasingDispositionViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+            return Ok(Result);
         }
     }
 }

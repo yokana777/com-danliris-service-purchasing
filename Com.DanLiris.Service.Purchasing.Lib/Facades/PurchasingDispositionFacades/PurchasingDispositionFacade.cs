@@ -327,7 +327,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             return Updated;
         }
 
-        public List<PurchasingDisposition> ReadDisposition(string Keyword = null, string Filter = "{}", string epoId="")
+        public List<PurchasingDisposition> ReadDisposition(string Keyword = null, string Filter = "{}", string epoId = "")
         {
             IQueryable<PurchasingDisposition> Query = this.dbSet;
 
@@ -367,7 +367,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                 .Where(d => d.IsDeleted == false)
                                 .ToList()
                         })
-                        .Where(i => i.Details.Count > 0 && i.EPOId==epoId)
+                        .Where(i => i.Details.Count > 0 && i.EPOId == epoId)
                         .ToList()
                 })
                 .Where(m => m.Items.Count > 0);
@@ -376,6 +376,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
 
             return Query.ToList();
+        }
+
+        public IQueryable<PurchasingDisposition> ReadByDisposition(string Keyword = null, string Filter = "{}")
+
+        {
+            IQueryable<PurchasingDisposition> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DispositionNo"
+            };
+
+            Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+            Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false); //&& (s.Position==1||s.Position==6));
+            
+            return Query;
         }
     }
 }
