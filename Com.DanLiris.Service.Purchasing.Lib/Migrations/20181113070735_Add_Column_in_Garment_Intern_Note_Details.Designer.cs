@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181113070735_Add_Column_in_Garment_Intern_Note_Details")]
+    partial class Add_Column_in_Garment_Intern_Note_Details
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1221,8 +1222,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("SupplierName")
                         .HasMaxLength(1000);
 
-                    b.Property<decimal>("TotalCorrection");
-
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
@@ -1830,8 +1829,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("RONo")
                         .HasMaxLength(255);
 
-                    b.Property<double>("ReceiptQuantity");
-
                     b.Property<string>("Remark");
 
                     b.Property<double>("SmallQuantity");
@@ -2048,7 +2045,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyCode")
                         .HasMaxLength(255);
 
-                    b.Property<long?>("CurrencyId")
+                    b.Property<string>("CurrencyId")
                         .HasMaxLength(255);
 
                     b.Property<double>("CurrencyRate")
@@ -2085,7 +2082,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("SupplierCode")
                         .HasMaxLength(255);
 
-                    b.Property<long?>("SupplierId")
+                    b.Property<string>("SupplierId")
                         .HasMaxLength(255);
 
                     b.Property<string>("SupplierName")
@@ -2169,7 +2166,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ProductCode")
                         .HasMaxLength(255);
 
-                    b.Property<long?>("ProductId")
+                    b.Property<string>("ProductId")
                         .HasMaxLength(255);
 
                     b.Property<string>("ProductName")
@@ -2179,7 +2176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RONo");
 
-                    b.Property<long?>("UOMId");
+                    b.Property<string>("UOMId");
 
                     b.Property<string>("UOMUnit");
 
@@ -3025,12 +3022,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<string>("CurrencyId");
-
-                    b.Property<string>("CurrencyRate");
-
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3040,8 +3031,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DispositionNo");
 
                     b.Property<string>("Investation");
 
@@ -3069,7 +3058,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("SupplierCode");
 
-                    b.Property<string>("SupplierId");
+                    b.Property<long>("SupplierId");
 
                     b.Property<string>("SupplierName");
 
@@ -3090,7 +3079,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("CategoryCode");
 
-                    b.Property<string>("CategoryId");
+                    b.Property<long>("CategoryId");
 
                     b.Property<string>("CategoryName");
 
@@ -3106,7 +3095,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("DealQuantity");
 
-                    b.Property<string>("DealUomId");
+                    b.Property<int>("DealUomId");
 
                     b.Property<string>("DealUomUnit");
 
@@ -3120,14 +3109,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DivisionCode");
-
-                    b.Property<string>("DivisionId");
-
-                    b.Property<string>("DivisionName");
-
-                    b.Property<string>("EPODetailId");
-
                     b.Property<bool>("IsDeleted");
 
                     b.Property<string>("LastModifiedAgent")
@@ -3140,7 +3121,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("PRId");
+                    b.Property<long>("PRId");
 
                     b.Property<string>("PRNo");
 
@@ -3154,24 +3135,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("ProductCode");
 
-                    b.Property<string>("ProductId");
+                    b.Property<long>("ProductId");
 
                     b.Property<string>("ProductName");
 
                     b.Property<long>("PurchasingDispositionItemId");
 
+                    b.Property<long?>("PurchasingDispositionItemId1");
+
                     b.Property<string>("UId")
                         .HasMaxLength(255);
-
-                    b.Property<string>("UnitCode");
-
-                    b.Property<string>("UnitId");
-
-                    b.Property<string>("UnitName");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PurchasingDispositionItemId");
+
+                    b.HasIndex("PurchasingDispositionItemId1");
 
                     b.ToTable("PurchasingDispositionDetails");
                 });
@@ -3203,12 +3182,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("EPOId");
+                    b.Property<long>("EPOId");
 
                     b.Property<string>("EPONo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("IncomeTaxId");
+                    b.Property<long>("IncomeTaxId");
 
                     b.Property<string>("IncomeTaxName");
 
@@ -3230,6 +3209,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);
+
+                    b.Property<string>("UnitCode");
+
+                    b.Property<long>("UnitId");
+
+                    b.Property<string>("UnitName");
 
                     b.Property<bool>("UseIncomeTax");
 
@@ -4072,9 +4057,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionDetail", b =>
                 {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem", "PurchasingDispositionItem")
-                        .WithMany("Details")
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDisposition", "PurchasingDisposition")
+                        .WithMany()
                         .HasForeignKey("PurchasingDispositionItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel.PurchasingDispositionItem")
+                        .WithMany("Details")
+                        .HasForeignKey("PurchasingDispositionItemId1")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

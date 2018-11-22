@@ -17,6 +17,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 
@@ -79,7 +80,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentInvoice> GarmentInvoices { get; set; }
         public DbSet<GarmentInvoiceItem> GarmentInvoiceItems { get; set; }
         public DbSet<GarmentInvoiceDetail> GarmentInvoiceDetails { get; set; }
-
+        public DbSet<GarmentInternNote> GarmentInternNotes { get; set; }
+        public DbSet<GarmentInternNoteItem> GarmentInternNoteItems { get; set; }
+        public DbSet<GarmentInternNoteDetail> GarmentInternNoteDetails { get; set; }
         public DbSet<PurchasingDisposition> PurchasingDispositions { get; set; }
         public DbSet<PurchasingDispositionItem> PurchasingDispositionItems { get; set; }
         public DbSet<PurchasingDispositionDetail> PurchasingDispositionDetails { get; set; }

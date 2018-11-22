@@ -90,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 		}
 		public async Task<GarmentInvoice> GetTestData(string user)
 		{
-			GarmentInvoice model = await GetNewDataViewModel(user);
+			GarmentInvoice model = await GetNewData(user);
 
 			await facade.Create(model, user);
 
@@ -123,5 +123,47 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 				Items = new List<GarmentInvoiceItem> { garmentInvoiceItemDataUtil.GetNewDataViewModel(garmentDeliveryOrder) }
 			};
 		}
-	}
+        public async Task<GarmentInvoice> GetNewDataNoUseIncomeTaxNoUseVatViewModel(string user)
+        {
+            var garmentDeliveryOrder = await garmentDeliveryOrderDataUtil.GetNewData(user);
+            DateTime dateWithoutOffset = new DateTime(2010, 7, 16, 13, 32, 00);
+            return new GarmentInvoice
+            {
+                InvoiceNo = "InvoiceNo",
+                InvoiceDate = dateWithoutOffset,
+                SupplierId = It.IsAny<int>(),
+                SupplierCode = "codeS",
+                SupplierName = "nameS",
+                IncomeTaxId = It.IsAny<int>(),
+                UseIncomeTax = false,
+                UseVat = false,
+                IsPayTax = true,
+                HasInternNote = false,
+                CurrencyId = It.IsAny<int>(),
+                CurrencyCode = "TEST",
+                Items = new List<GarmentInvoiceItem> { garmentInvoiceItemDataUtil.GetNewDataViewModel(garmentDeliveryOrder) }
+            };
+        }
+
+
+        public async Task<GarmentInvoice> GetTestDataViewModel(string user)
+        {
+            GarmentInvoice model = await GetNewDataViewModel(user);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+
+        public async Task<GarmentInvoice> GetTestDataNoUseIncomeTaxNoUseVatViewModel(string user)
+        {
+            GarmentInvoice model = await GetNewDataNoUseIncomeTaxNoUseVatViewModel(user);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+
+
+    }
 }

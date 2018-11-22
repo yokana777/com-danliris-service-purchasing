@@ -1,0 +1,29 @@
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.Moonlay.Models;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using System;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel
+{
+    public class GarmentInternNoteDetailViewModel : BaseViewModel
+    {
+        public long ePOId { get; set; }
+        public string ePONo { get; set; }
+        public string poSerialNumber { get; set; }
+        public string roNo { get; set; }
+        public double pricePerDealUnit { get; set; }
+        public double priceTotal { get; set; }
+        public double paymentDueDays { get; set; }
+        public double quantity { get; set; }
+        public DateTimeOffset paymentDueDate { get; set; }
+
+        public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
+        
+        /*Product*/
+        public ProductViewModel product { get; set; }
+
+        public UomViewModel uomUnit { get; set; }
+
+        public UnitViewModel unit { get; set; }
+    }
+}
