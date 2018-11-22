@@ -277,5 +277,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_Disposition()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var ResponseCreate = await facade.Create(model, USERNAME, 7);
+            var epoId = "";
+            foreach(var epo in model.Items)
+            {
+                epoId = epo.EPOId;break;
+            }
+            var Response = facade.ReadDisposition(null,"{}",epoId);
+            Assert.NotEqual(Response.Count, 0);
+        }
     }
 }

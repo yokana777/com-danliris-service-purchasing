@@ -382,5 +382,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             var response = controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Get_All_Data_Disposition()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(Tuple.Create(new List<PurchasingDisposition>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
+                .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
+
+
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+            var response = controller.Getdisposition();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
     }
 }

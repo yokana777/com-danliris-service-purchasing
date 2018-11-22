@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
                     m.DispositionNo = await GenerateNo(m, clientTimeZoneOffset);
-
+                    m.Position = 1;
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, "Facade");
