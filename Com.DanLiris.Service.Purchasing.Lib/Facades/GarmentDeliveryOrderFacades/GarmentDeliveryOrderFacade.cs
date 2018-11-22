@@ -306,6 +306,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 			return Query;
 		}
 
+
+		public int  IsReceived(List<int> id)
+		{
+			int isReceived = 0;
+			foreach(var no in id)
+			{
+				var model = dbSet.Where(m => m.Id == no)
+							   .Include(m => m.Items)
+								   .ThenInclude(i => i.Details)
+							   .FirstOrDefault();
+				if (model.IsInvoice == true)
+				{
+					isReceived = 1;
+					break;
+				}
+				else
+				{
+					foreach (var item in model.Items)
+					{
+						foreach (var detail in item.Details)
+						{
+							if (detail.ReceiptQuantity > 0)
+								isReceived = 1;
+							break;
+						}
+					}
+				}
+			}
+			
+			return isReceived;
+		}
 		public CurrencyViewModel GetCurrency(string currencyCode)
         {
             try

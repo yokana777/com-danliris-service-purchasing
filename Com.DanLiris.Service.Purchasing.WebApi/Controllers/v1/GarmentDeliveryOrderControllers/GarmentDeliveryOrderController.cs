@@ -83,7 +83,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 				   .Ok(newData);
 			return Ok(Result);
 		}
-
+		[HttpGet("isReceived")]
+		public IActionResult GetIsReceived(List<int> Id)
+		{
+			var Data = facade.IsReceived(Id);
+			Dictionary<string, object> Result =
+				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+				   .Ok(Data);
+			return Ok(Result);
+		}
 
 		[HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
