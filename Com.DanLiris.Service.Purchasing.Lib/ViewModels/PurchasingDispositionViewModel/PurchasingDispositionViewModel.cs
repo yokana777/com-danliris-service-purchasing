@@ -116,11 +116,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
                                 duplicate.Add(Item.EPONo);
                             }
                         }
+                        var taxId = "";
+                        if (Item.UseIncomeTax)
+                        {
+                            taxId = Item.IncomeTax._id;
+                        }
                         if (tax == "")
                         {
-                            tax = Item.UseIncomeTax.ToString() + Item.UseVat.ToString() + Item.IncomeTax._id;
+                            
+                            tax = Item.UseIncomeTax.ToString() + Item.UseVat.ToString() + taxId;
                         }
-                        else if(tax != Item.UseIncomeTax.ToString() + Item.UseVat.ToString() + Item.IncomeTax._id)
+                        else if(tax != Item.UseIncomeTax.ToString() + Item.UseVat.ToString() + taxId)
                         {
                             itemErrorCount++;
                             disposisiItemError += "incomeTax: 'Pajak PPN dan PPH PO Eksternal harus sama', ";
