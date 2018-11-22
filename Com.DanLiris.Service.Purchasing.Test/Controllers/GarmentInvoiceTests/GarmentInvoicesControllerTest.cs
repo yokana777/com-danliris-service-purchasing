@@ -316,43 +316,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var response = controller.Delete(It.IsAny<int>());
 			Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
 		}
-        [Fact]
-        public void Should_Sucscess_Get_Data_By_Id()
-        {
-            var mockFacade = new Mock<IGarmentInvoice>();
-            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                .Returns(Model);
-
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
-                .Returns(ViewModel);
-            mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
-                .Returns(new GarmentDeliveryOrderViewModel { });
-
-            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(new GarmentDeliveryOrder { });
-
-            var INVFacade = new Mock<IGarmentInvoice>();
-
-            GarmentInvoiceController controller = GetController(mockFacade, null, mockMapper, IPOmockFacade);
-            var response = controller.Get(It.IsAny<int>());
-            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-        }
-        [Fact]
-        public void Should_Error_Get_Data_By_Id()
-        {
-            var mockFacade = new Mock<IGarmentInvoice>();
-            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                .Returns(Model);
-
-            var mockMapper = new Mock<IMapper>();
-            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-
-            GarmentInvoiceController controller = new GarmentInvoiceController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object);
-            var response = controller.Get(It.IsAny<int>());
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
-        }
+        
         private GarmentInvoiceViewModel ViewModelTax
 		{
 		
