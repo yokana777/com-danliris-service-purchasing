@@ -9,7 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
     public class PurchasingDispositionDetail :BaseModel
     {
 
-        public string EPODetailId { get; set; }
+       // public string EPODetailId { get; set; }
         public string PRId { get; set; }
         public string PRNo { get; set; }
         public string CategoryId { get; set; }
