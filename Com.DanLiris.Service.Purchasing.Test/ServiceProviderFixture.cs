@@ -37,6 +37,8 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNoteDa
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -134,7 +136,10 @@ namespace Com.DanLiris.Service.Purchasing.Test
 				.AddTransient<GarmentInvoiceItemDataUtil>()
 				.AddTransient<GarmentInvoiceDetailDataUtil>()
 
-				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+                .AddTransient<GarmentInternNoteFacades>()
+                .AddTransient<GarmentInternNoteDataUtil>()
+
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<UnitPaymentOrderDataUtil>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
                 .AddTransient<UnitPaymentPriceCorrectionNoteDataUtils>()

@@ -34,9 +34,11 @@ using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
+
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -91,6 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
+                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
 				.AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()

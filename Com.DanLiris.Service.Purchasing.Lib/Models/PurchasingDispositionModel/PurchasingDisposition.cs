@@ -24,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         public string CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
         public string CurrencyRate { get; set; }
+        public int Position { get; set; }
 
         public virtual ICollection<PurchasingDispositionItem> Items { get; set; }
     }

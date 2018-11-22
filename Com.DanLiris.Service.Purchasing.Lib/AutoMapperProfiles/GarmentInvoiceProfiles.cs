@@ -32,6 +32,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 				.ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
+
+                .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))
                 .ReverseMap();
 
             CreateMap<GarmentInvoiceItem, GarmentInvoiceItemViewModel>()

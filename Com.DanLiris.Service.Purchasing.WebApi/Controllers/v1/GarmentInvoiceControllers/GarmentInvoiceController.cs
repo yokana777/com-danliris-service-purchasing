@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -162,8 +164,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				{
 					throw new Exception("Invalid Id");
 				}
+                foreach (var item in viewModel.items)
+                {
+                    GarmentDeliveryOrder deliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+                    if (deliveryOrder != null)
+                    {
+                        GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+                        item.deliveryOrder.items = deliveryOrderViewModel.items;
+                    }
+                }
 
-				Dictionary<string, object> Result =
+                Dictionary<string, object> Result =
 					new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
 					.Ok(viewModel);
 				return Ok(Result);

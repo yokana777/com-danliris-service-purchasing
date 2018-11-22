@@ -7,7 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
 {
     public class PurchasingDispositionDetailViewModel
     {
-        public string EPODetailId { get; set; }
+        //public string EPODetailId { get; set; }
         public string PRId { get; set; }
         public string PRNo { get; set; }
         public CategoryViewModel Category { get; set; }

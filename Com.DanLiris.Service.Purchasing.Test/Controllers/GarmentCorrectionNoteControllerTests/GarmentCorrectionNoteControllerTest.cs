@@ -180,6 +180,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Success_Get_PDF_By_Id()
         {
+            Test_Get_PDF_By_Id(null);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Harga_Total_PDF_By_Id()
+        {
+            Test_Get_PDF_By_Id("Harga Total");
+        }
+
+        [Fact]
+        public void Should_Success_Get_Harga_Satuan_PDF_By_Id()
+        {
+            Test_Get_PDF_By_Id("Harga Satuan");
+        }
+
+        private void Test_Get_PDF_By_Id(string correctionType)
+        {
+            var Model = this.Model;
+            Model.CorrectionType = correctionType;
+
             var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
@@ -287,6 +307,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Success_Get_Ppn_PDF_By_Id()
         {
+            Get_Ppn_PDF_By_Id(null);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Ppn_Harga_Total_PDF_By_Id()
+        {
+            Get_Ppn_PDF_By_Id("Harga Total");
+        }
+
+        [Fact]
+        public void Should_Success_Get_Ppn_Harga_Satuan_PDF_By_Id()
+        {
+            Get_Ppn_PDF_By_Id("Harga Satuan");
+        }
+
+        private void Get_Ppn_PDF_By_Id(string correctionType)
+        {
+            var Model = this.Model;
+            Model.CorrectionType = correctionType;
+
             var ViewModel = this.ViewModel;
             ViewModel.UseVat = true;
 
@@ -383,6 +423,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Success_Get_Pph_PDF_By_Id()
         {
+            Get_Pph_PDF_By_Id(null);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Pph_Harga_Total_PDF_By_Id()
+        {
+            Get_Pph_PDF_By_Id("Harga Total");
+        }
+
+        [Fact]
+        public void Should_Success_Get_Pph_Harga_Satuan_PDF_By_Id()
+        {
+            Get_Pph_PDF_By_Id("Harga Satuan");
+        }
+
+        private void Get_Pph_PDF_By_Id(string correctionType)
+        {
+            var Model = this.Model;
+            Model.CorrectionType = correctionType;
+
             var ViewModel = this.ViewModel;
             ViewModel.UseIncomeTax = true;
 

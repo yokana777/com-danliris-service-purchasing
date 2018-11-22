@@ -231,5 +231,59 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
+
+
+        [HttpGet("disposition")]
+        public IActionResult Getdisposition(string keyword = null, string filter = "{}", string epoId = "")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            var Data = facade.ReadDisposition(keyword, filter, epoId);
+
+            var viewModel = mapper.Map<List<PurchasingDispositionViewModel>>(Data);
+
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                viewModel.AsQueryable().Select(s => new
+                {
+                    s.DispositionNo,
+                    s.Id,
+                    s.Supplier,
+                    s.Bank,
+                    s.ConfirmationOrderNo,
+                    s.InvoiceNo,
+                    s.PaymentMethod,
+                    s.CreatedBy,
+                    s.Currency,
+                    s.LastModifiedUtc,
+                    s.CreatedUtc,
+                    s.PaymentDueDate,
+                    s.Items
+                }).ToList()
+            );
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                statusCode = General.OK_STATUS_CODE,
+                message = General.OK_MESSAGE,
+                data = listData,
+                info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                },
+            });
+        }
+
+        [HttpGet("by-dispostion")]
+        public IActionResult GetByDisposition(string Keyword = "", string Filter = "{}")
+        {
+            var Data = facade.ReadByDisposition(Keyword, Filter);
+            var newData = mapper.Map<List<PurchasingDispositionViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+            return Ok(Result);
+        }
     }
 }
