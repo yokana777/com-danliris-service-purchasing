@@ -124,7 +124,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             double totalPriceTotal = 0;
             double total = 0;
-            double totalunit = 0;
             double ppn = 0;
             double pph = 0;
             double maxtotal = 0;
