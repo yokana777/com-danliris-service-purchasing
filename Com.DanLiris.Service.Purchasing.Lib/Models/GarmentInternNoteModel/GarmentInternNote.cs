@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
 
         /*Currency*/
         [MaxLength(255)]
-        public string CurrencyId { get; set; }
+        public long? CurrencyId { get; set; }
         [MaxLength(255)]
         public string CurrencyCode { get; set; }
         [MaxLength(1000)]
@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
 
         /*Supplier*/
         [MaxLength(255)]
-        public string SupplierId { get; set; }
+        public long? SupplierId { get; set; }
         [MaxLength(255)]
         public string SupplierCode { get; set; }
         [MaxLength(1000)]

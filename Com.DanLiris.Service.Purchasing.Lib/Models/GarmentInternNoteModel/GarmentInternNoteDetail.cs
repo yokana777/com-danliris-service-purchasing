@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         [MaxLength(255)]
         public string ProductCode { get; set; }
         [MaxLength(255)]
-        public string ProductId { get; set; }
+        public long? ProductId { get; set; }
         [MaxLength(255)]
         public string ProductName { get; set; }
 
@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public string UnitName { get; set; }
 
         /*UOM*/
-        public string UOMId { get; set; }
+        public long? UOMId { get; set; }
         public string UOMUnit { get; set; }
         
         public double PricePerDealUnit { get; set; }

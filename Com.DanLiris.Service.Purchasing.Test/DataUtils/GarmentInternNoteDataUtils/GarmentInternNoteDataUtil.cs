@@ -41,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
                         DONo = item.DeliveryOrderNo,
                         DODate = item.DODate,
 
-                        ProductId = detail.ProductId.ToString(),
+                        ProductId = detail.ProductId,
                         ProductCode = detail.ProductCode,
                         ProductName = detail.ProductName,
 
@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
 
                         PaymentDueDate = item.DODate.AddDays(detail.PaymentDueDays) ,
 
-                        UOMId = detail.UomId.ToString(),
+                        UOMId = detail.UomId,
                         UOMUnit = detail.UomUnit,
 
                         PricePerDealUnit = detail.PricePerDealUnit,
@@ -76,12 +76,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
                 INNo = "NI1234L",
                 INDate = new DateTimeOffset(),
 
-                SupplierId = "SupplierId",
-                SupplierCode = "SupplierCode",
-                SupplierName = "SupplierName",
+                SupplierId = garmentInvoice.SupplierId,
+                SupplierCode = garmentInvoice.SupplierCode,
+                SupplierName = garmentInvoice.SupplierCode,
 
-                CurrencyId = "CurrencyId",
-                CurrencyCode = "CurrencyCode",
+                CurrencyId = garmentInvoice.CurrencyId,
+                CurrencyCode = garmentInvoice.CurrencyCode,
                 CurrencyRate = 5,
                 
 

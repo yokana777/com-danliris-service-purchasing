@@ -495,7 +495,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Returns(ViewModelPDF);
 
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
-                .Returns(new GarmentDeliveryOrderViewModel());
+                .Returns(new GarmentDeliveryOrderViewModel {
+                    Id = It.IsAny<int>(),
+                    doNo = "Dono",
+                    doDate = DateTimeOffset.Now,
+                    paymentMethod = "PaymentMethod",
+                    paymentType = "PaymentType",
+                    docurrency = new CurrencyViewModel
+                    {
+                        Id = It.IsAny<int>(),
+                        Code = "IDR",
+                        Rate = 1,
+                    }
+                });
 
             mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
                 .Returns(new GarmentInvoiceViewModel());

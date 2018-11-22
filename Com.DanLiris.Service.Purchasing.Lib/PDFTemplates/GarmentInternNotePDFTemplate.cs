@@ -160,14 +160,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellRight);
 
                     totalPriceTotal += detail.priceTotal;
-                    var garmentDeliveryOrder = DOfacade.ReadById((int)detail.deliveryOrder.Id);
-                    double rate = 1;
-                    if (garmentDeliveryOrder != null)
-                    {
-                        rate = (double)garmentDeliveryOrder.DOCurrencyRate;
-                    }
-                    total = totalPriceTotal * rate;
-                    
+                    total = totalPriceTotal * detail.deliveryOrder.docurrency.Rate;
+
                     if (units.ContainsKey(detail.unit.Code))
                     {
                         units[detail.unit.Code] += detail.priceTotal;
