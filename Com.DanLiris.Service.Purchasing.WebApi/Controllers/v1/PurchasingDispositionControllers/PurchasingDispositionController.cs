@@ -275,7 +275,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
             });
         }
 
-        [HttpGet("by-dispostion")]
+        [HttpGet("by-disposition")]
         public IActionResult GetByDisposition(string Keyword = "", string Filter = "{}")
         {
             var Data = facade.ReadByDisposition(Keyword, Filter);
