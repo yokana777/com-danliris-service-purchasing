@@ -80,6 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
             }
             else
             {
+                string tax = "";
                 var epoNo = Items.ToArray();
                 List<String> duplicate = new List<string>();
                 string disposisiItemError = "[";
@@ -115,7 +116,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
                                 duplicate.Add(Item.EPONo);
                             }
                         }
-
+                        if (tax == "")
+                        {
+                            tax = Item.UseIncomeTax.ToString() + Item.UseVat.ToString() + Item.IncomeTax._id;
+                        }
+                        else if(tax != Item.UseIncomeTax.ToString() + Item.UseVat.ToString() + Item.IncomeTax._id)
+                        {
+                            itemErrorCount++;
+                            disposisiItemError += "incomeTax: 'Pajak PPN dan PPH PO Eksternal harus sama', ";
+                        }
                     }
 
                     if (Item.Details==null || Item.Details.Count.Equals(0))

@@ -100,8 +100,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         EntityExtension.FlagForCreate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
-                            epoDetail.DispositionQuantity += detail.PaidQuantity;
+                            //ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            //epoDetail.DispositionQuantity += detail.PaidQuantity;
                             EntityExtension.FlagForCreate(detail, user, "Facade");
                         }
                     }
@@ -163,8 +163,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         EntityExtension.FlagForDelete(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
-                            epoDetail.DispositionQuantity -= detail.PaidQuantity;
+                            //ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                            //epoDetail.DispositionQuantity -= detail.PaidQuantity;
                             EntityExtension.FlagForDelete(detail, user, "Facade");
                         }
                     }
@@ -195,14 +195,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         .ThenInclude(d => d.Details)
                         .Single(epo => epo.Id == id && !epo.IsDeleted);
 
-                    foreach(var oldIem in existingModel.Items)
-                    {
-                        foreach(var oldDetail in oldIem.Details)
-                        {
-                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == oldDetail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
-                            epoDetail.DispositionQuantity -= oldDetail.PaidQuantity;
-                        }
-                    }
+                    //foreach(var oldIem in existingModel.Items)
+                    //{
+                    //    foreach(var oldDetail in oldIem.Details)
+                    //    {
+                    //        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == oldDetail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                    //        epoDetail.DispositionQuantity -= oldDetail.PaidQuantity;
+                    //    }
+                    //}
 
                     if (existingModel != null && id == purchasingDisposition.Id)
                     {
@@ -222,8 +222,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                                     foreach (var detail in item.Details)
                                     {
-                                        ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
-                                        epoDetail.DispositionQuantity += detail.PaidQuantity;
+                                        //ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                        //epoDetail.DispositionQuantity += detail.PaidQuantity;
                                         EntityExtension.FlagForCreate(detail, user, "Facade");
                                     }
                                     
@@ -266,8 +266,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                     {
                                         if (detail.Id != 0)
                                         {
-                                            ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
-                                            epoDetail.DispositionQuantity += detail.PaidQuantity;
+                                            //ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
+                                            //epoDetail.DispositionQuantity += detail.PaidQuantity;
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
                                         }
                                     }
@@ -325,6 +325,57 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             }
 
             return Updated;
+        }
+
+        public List<PurchasingDisposition> ReadDisposition(string Keyword = null, string Filter = "{}", string epoId="")
+        {
+            IQueryable<PurchasingDisposition> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DispositionNo","SupplierName","Items.EPONo","CurrencyCode"
+            };
+
+            Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query
+                .Where(m => m.IsDeleted == false)
+                .Select(s => new PurchasingDisposition
+                {
+                    DispositionNo = s.DispositionNo,
+                    Id = s.Id,
+                    SupplierCode = s.SupplierCode,
+                    SupplierId = s.SupplierId,
+                    SupplierName = s.SupplierName,
+                    Bank = s.Bank,
+                    CurrencyCode = s.CurrencyCode,
+                    CurrencyId = s.CurrencyId,
+                    CurrencyRate = s.CurrencyRate,
+                    ConfirmationOrderNo = s.ConfirmationOrderNo,
+                    InvoiceNo = s.InvoiceNo,
+                    PaymentMethod = s.PaymentMethod,
+                    PaymentDueDate = s.PaymentDueDate,
+                    CreatedBy = s.CreatedBy,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    CreatedUtc = s.CreatedUtc,
+                    Items = s.Items
+                        .Select(i => new PurchasingDispositionItem
+                        {
+                            Id = i.Id,
+                            EPOId = i.EPOId,
+                            Details = i.Details
+                                .Where(d => d.IsDeleted == false)
+                                .ToList()
+                        })
+                        .Where(i => i.Details.Count > 0 && i.EPOId==epoId)
+                        .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
+
+            return Query.ToList();
         }
     }
 }

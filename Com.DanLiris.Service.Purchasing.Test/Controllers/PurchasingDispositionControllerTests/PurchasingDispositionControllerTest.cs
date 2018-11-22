@@ -40,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 details.Add(
                     new PurchasingDispositionDetailViewModel
                     {
-                        EPODetailId = It.IsAny<string>(),
+                        //EPODetailId = It.IsAny<string>(),
                         PRId = It.IsAny<string>(),
                         PRNo="test",
                         Category=new CategoryViewModel

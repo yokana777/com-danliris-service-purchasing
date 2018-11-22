@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                        {
                             new PurchasingDispositionDetail
                             {
-                                EPODetailId=modelDetail.EPODetailId,
+                                //EPODetailId=modelDetail.EPODetailId,
                                 CategoryCode="test",
                                 CategoryId="1",
                                 CategoryName="test",
@@ -164,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                     };
             var dispoDetail = new PurchasingDispositionDetail
             {
-                EPODetailId = modelDetail.EPODetailId,
+                //EPODetailId = modelDetail.EPODetailId,
                 CategoryCode = "test",
                 CategoryId = "1",
                 CategoryName = "test",
