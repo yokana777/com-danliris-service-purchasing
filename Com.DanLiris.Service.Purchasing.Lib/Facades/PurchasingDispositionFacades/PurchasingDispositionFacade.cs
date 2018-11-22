@@ -394,7 +394,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false); //&& (s.Position==1||s.Position==6));
+                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false && (s.Position==1||s.Position==6));
             
             return Query;
         }
