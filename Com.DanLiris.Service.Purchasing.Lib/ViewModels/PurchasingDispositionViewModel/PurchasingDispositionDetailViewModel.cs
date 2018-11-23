@@ -1,11 +1,12 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel
 {
-    public class PurchasingDispositionDetailViewModel
+    public class PurchasingDispositionDetailViewModel : BaseViewModel
     {
         //public string EPODetailId { get; set; }
         public string PRId { get; set; }
