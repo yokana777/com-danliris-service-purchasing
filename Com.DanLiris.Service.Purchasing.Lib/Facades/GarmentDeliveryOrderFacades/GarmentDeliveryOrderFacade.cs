@@ -268,7 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s=>s.IsInvoice==false);
+                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false);
             }
 
             return Query;
@@ -300,7 +300,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 			{
 
 				Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-					.ThenInclude(i => i.Details).Where(s => s.CustomsId == 0 );
+					.ThenInclude(i => i.Details).Where(s => s.BillNo ==null );
 			}
 
 			return Query;

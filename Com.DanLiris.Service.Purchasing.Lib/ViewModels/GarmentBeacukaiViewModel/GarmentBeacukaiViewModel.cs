@@ -31,14 +31,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 			{
 				yield return new ValidationResult("No is required", new List<string> { "beacukaiNo" });
 			}
-			else
-			{
-				PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-				if (purchasingDbContext.GarmentBeacukais.Where(DO => DO.BeacukaiNo.Equals(beacukaiNo) && DO.Id != Id && DO.BeacukaiDate.ToOffset((new TimeSpan(7, 0, 0))) == beacukaiDate && DO.SupplierId == supplier.Id).Count() > 0)
-				{
-					yield return new ValidationResult("No is already exist", new List<string> { "no" });
-				}
-			}
+			//else
+			//{
+			//	PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+			//	if (purchasingDbContext.GarmentBeacukais.Where(DO => DO.BeacukaiNo.Equals(beacukaiNo) && DO.Id != Id && DO.BeacukaiDate.ToOffset((new TimeSpan(7, 0, 0))) == beacukaiDate && DO.SupplierId == supplier.Id).Count() > 0)
+			//	{
+			//		yield return new ValidationResult("No is already exist", new List<string> { "no" });
+			//	}
+			//}
 
 			if (beacukaiDate.Equals(DateTimeOffset.MinValue) || beacukaiDate == null)
 			{
@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 			}
 			if (validationDate.Equals(DateTimeOffset.MinValue) || beacukaiDate == null)
 			{
-				yield return new ValidationResult("Validate Date is required", new List<string> { "validateDate" });
+				yield return new ValidationResult("Validate Date is required", new List<string> { "validationDate" });
 			}
 			if (currency == null)
 			{

@@ -69,14 +69,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 								 select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
 			string month = DateTime.Now.Month.ToString("D2");
+			string hour = DateTime.Now.Hour.ToString("D2");
 			string day = DateTime.Now.Day.ToString("D2");
-			string formatDate = year + month + day;
+			string minute = DateTime.Now.Minute.ToString("D2");
+			string second = DateTime.Now.Second.ToString("D2");
+			string formatDate = year + month + day + hour + minute + second;
 			int counterId = 0;
 			if (deliveryOrder.BillNo != null)
 			{
-				BillNo = deliveryOrder.PaymentBill;
+				BillNo = deliveryOrder.BillNo;
 				string days = BillNo.Substring(4, 2);
-				string number = BillNo.Substring(8);
+				string number = BillNo.Substring(14);
 				if (month == DateTime.Now.Month.ToString("D2"))
 				{
 					counterId = Convert.ToInt32(number) +1;
@@ -90,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 				counterId = 1;
 				
 			}
-			BillNo = "BP" + formatDate + counterId.ToString("D3");
+			BillNo = "BP" + formatDate + counterId.ToString("D6");
 			return BillNo;
 
 		}
@@ -146,7 +149,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 															.ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
 						if (deliveryOrder != null)
 						{
-							deliveryOrder.BillNo = GenerateBillNo();
+							if (model.BillNo == "" | model.BillNo == null)
+							{
+								deliveryOrder.BillNo = GenerateBillNo();
+							}else
+							{
+								deliveryOrder.BillNo = model.BillNo;
+							}
 							deliveryOrder.PaymentBill = GeneratePaymentBillNo();
 							deliveryOrder.CustomsId = model.Id;
 							double qty = 0;
@@ -201,7 +210,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 							EntityExtension.FlagForDelete(item, username, USER_AGENT);
 						}
 						
-
 					}
 
 					Deleted = dbContext.SaveChanges();
@@ -222,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			return new HashSet<long>(dbContext.GarmentBeacukaiItems.Where(d => d.GarmentBeacukai.Id == id).Select(d => d.Id));
 		}
 
-		public async Task<int> Update(int id, GarmentBeacukai m, string user, int clientTimeZoneOffset = 7)
+		public async Task<int> Update(int id, GarmentBeacukai model, string user, int clientTimeZoneOffset = 7)
 		{
 			int Updated = 0;
 
@@ -231,8 +239,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 				try
 				{
 					 
-					EntityExtension.FlagForUpdate(m, user, USER_AGENT);
-					this.dbSet.Update(m);
+					EntityExtension.FlagForUpdate(model, user, USER_AGENT);
+					foreach (GarmentBeacukaiItem item in model.Items)
+					{
+						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+															.ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
+						if (deliveryOrder != null)
+						{
+							if (model.BillNo != "" | model.BillNo != null)
+							{
+								deliveryOrder.BillNo = model.BillNo;
+							}
+							
+							double qty = 0;
+							foreach (var deliveryOrderItem in deliveryOrder.Items)
+							{
+								foreach (var detail in deliveryOrderItem.Details)
+								{
+									qty += detail.DOQuantity;
+								}
+							}
+							item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
+							item.TotalQty = qty;
+							EntityExtension.FlagForUpdate(item, user , USER_AGENT);
+						}
+					}
+					this.dbSet.Update(model);
 					Updated = await dbContext.SaveChangesAsync();
 					transaction.Commit();
 
