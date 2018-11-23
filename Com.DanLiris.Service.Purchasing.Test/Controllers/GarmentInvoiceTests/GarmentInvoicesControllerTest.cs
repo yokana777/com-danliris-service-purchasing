@@ -318,6 +318,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 		}
 		
 		private GarmentInvoiceViewModel ViewModelTax
+
 		{
 		
 			get

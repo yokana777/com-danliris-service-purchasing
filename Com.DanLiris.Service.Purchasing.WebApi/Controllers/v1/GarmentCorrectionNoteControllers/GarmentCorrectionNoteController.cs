@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNotePDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -56,6 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                             s.CorrectionType,
                             s.Supplier,
                             s.DONo,
+                            s.UseIncomeTax,
+                            s.UseVat,
                             s.CreatedBy,
                             s.LastModifiedUtc
                         })
@@ -90,6 +93,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
         {
             try
             {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
                 var model = facade.ReadById(id);
                 var viewModel = mapper.Map<GarmentCorrectionNoteViewModel>(model);
                 if (viewModel == null)
@@ -97,10 +102,24 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                     throw new Exception("Invalid Id");
                 }
 
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(viewModel);
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = GarmentCorrectionNotePDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.CorrectionNo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -136,6 +155,98 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                     new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
                     .Fail(e);
                 return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("return-note-ppn/{id}")]
+        public IActionResult GetReturnNotePpn(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                var model = facade.ReadById(id);
+                var viewModel = mapper.Map<GarmentCorrectionNoteViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                else if (!viewModel.UseVat)
+                {
+                    throw new Exception("Data is not UseVat");
+                }
+
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(viewModel);
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = GarmentCorrectionNotePpnPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.CorrectionNo}-ppn.pdf"
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("return-note-pph/{id}")]
+        public IActionResult GetReturnNotePph(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                var model = facade.ReadById(id);
+                var viewModel = mapper.Map<GarmentCorrectionNoteViewModel>(model);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                else if (!viewModel.UseIncomeTax)
+                {
+                    throw new Exception("Data is not UseIncomeTax");
+                }
+
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(viewModel);
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = GarmentCorrectionNotePphPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.CorrectionNo}-pph.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {

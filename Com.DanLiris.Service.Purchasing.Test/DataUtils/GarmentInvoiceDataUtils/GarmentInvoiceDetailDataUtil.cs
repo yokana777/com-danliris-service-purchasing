@@ -41,6 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 				{
 					garmentInvoiceDetailViewModels.Add(new GarmentInvoiceDetail
 					{
+                        EPOId = item.EPOId,
 						IPOId = detail.POId,
 						POSerialNumber = detail.POSerialNumber,
 						PRItemId = detail.PRItemId,

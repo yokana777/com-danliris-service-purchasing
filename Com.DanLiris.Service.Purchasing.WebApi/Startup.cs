@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
@@ -34,7 +34,10 @@ using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
+
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -89,9 +92,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
+                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
-                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>();
+                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
