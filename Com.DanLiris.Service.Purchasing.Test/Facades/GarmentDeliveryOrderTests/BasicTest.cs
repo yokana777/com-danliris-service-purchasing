@@ -176,6 +176,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 			Assert.NotNull(Response);
 		}
 		[Fact]
+		public async void Should_Success_Get_Data_For_Customs()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			var Response = facade.DOForCustoms("code", "{}");
+			Assert.NotNull(Response);
+		}
+		[Fact]
         public void Should_Success_Validate_Data()
         {
             GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
