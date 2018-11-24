@@ -287,21 +287,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
 			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
 
-			if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
-			{
-				string Key = OrderDictionary.Keys.First();
-				string SubKey = Key.Split(".")[1];
-				string OrderType = OrderDictionary[Key];
+			//if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+			//{
+			//	string Key = OrderDictionary.Keys.First();
+			//	string SubKey = Key.Split(".")[1];
+			//	string OrderType = OrderDictionary[Key];
 
-				Query = Query.Include(m => m.Items)
-					.ThenInclude(i => i.Details);
-			}
-			else
-			{
+			//	Query = Query.Include(m => m.Items)
+			//		.ThenInclude(i => i.Details);
+			//}
+			//else
+			//{
 
 				Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
 					.ThenInclude(i => i.Details).Where(s => s.BillNo ==null );
-			}
+			//}
 
 			return Query;
 		}
