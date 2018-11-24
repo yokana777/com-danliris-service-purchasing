@@ -67,7 +67,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
 				var Data = facade.Read(page, size, order, keyword, filter);
 
 				var viewModel = mapper.Map<List<GarmentBeacukaiViewModel>>(Data.Item1);
