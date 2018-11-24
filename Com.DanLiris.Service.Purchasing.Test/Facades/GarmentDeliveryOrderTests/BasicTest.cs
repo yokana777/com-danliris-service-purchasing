@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 		{
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-			model.IsInvoice = true;
+			model.IsInvoice = false;
 			foreach(var data in model.Items)
 			{
 				foreach(var item in data.Details)
