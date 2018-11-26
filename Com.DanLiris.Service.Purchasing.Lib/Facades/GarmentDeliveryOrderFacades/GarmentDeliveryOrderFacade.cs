@@ -243,7 +243,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public IQueryable<GarmentDeliveryOrder> ReadBySupplier(string Keyword, string Filter)
         {
-            IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
+           IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
 			List<string> searchAttributes = new List<string>()
             {
