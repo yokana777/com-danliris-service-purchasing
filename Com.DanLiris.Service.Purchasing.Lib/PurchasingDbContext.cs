@@ -21,6 +21,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -93,7 +95,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 		public DbSet<GarmentBeacukai> GarmentBeacukais { get; set; }
 		public DbSet<GarmentBeacukaiItem> GarmentBeacukaiItems { get; set; }
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public DbSet<GarmentUnitReceiptNote> GarmentUnitReceiptNotes { get; set; }
+        public DbSet<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItems { get; set; }
+
+        public DbSet<GarmentInventoryDocument> GarmentInventoryDocuments { get; set; }
+        public DbSet<GarmentInventoryDocumentItem> GarmentInventoryDocumentItems { get; set; }
+        public DbSet<GarmentInventoryMovement> GarmentInventoryMovements { get; set; }
+        public DbSet<GarmentInventorySummary> GarmentInventorySummaries { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
