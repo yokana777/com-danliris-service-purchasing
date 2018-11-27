@@ -181,8 +181,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             var viewModelNullItems = new GarmentInternNoteViewModel
             {
                 items = null,
-                
-                
             };
             Assert.True(viewModelNullItems.Validate(null).Count() > 0);
 

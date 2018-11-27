@@ -27,15 +27,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
         public string Remark { get; set; }
 
         public decimal TotalCorrection { get; set; }
+        public string NKPN { get; set; }
+        public string NKPH { get; set; }
 
         public List<GarmentCorrectionNoteItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (string.IsNullOrWhiteSpace(CorrectionType) || (CorrectionType.ToUpper() != "HARGA SATUAN" && CorrectionType.ToUpper() != "HARGA TOTAL"))
+            if (string.IsNullOrWhiteSpace(CorrectionType) || (CorrectionType.ToUpper() != "HARGA SATUAN" && CorrectionType.ToUpper() != "HARGA TOTAL" && CorrectionType.ToUpper() != "JUMLAH") )
             {
                 yield return new ValidationResult("Jenis Koreksi harus berupa 'Harga Satuan' atau 'Harga Total'", new List<string> { "CorrectionType" });
-            }
+            } 
 
             if (string.IsNullOrWhiteSpace(DONo))
             {
