@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectionNoteControllers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -31,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             {
                 return new GarmentCorrectionNoteViewModel
                 {
+                    Supplier = new SupplierViewModel(),
                     Items = new List<GarmentCorrectionNoteItemViewModel>
                     {
                         new GarmentCorrectionNoteItemViewModel()
@@ -75,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             return serviceProvider;
         }
 
-        private GarmentCorrectionNoteController GetController(Mock<IGarmentCorrectionNoteFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> garmentDeliveryOrderFacadeM = null, Mock<IGarmentInternalPurchaseOrderFacade> garmentInternalPurchaseOrderFacadeM = null, Mock<IGarmentInvoice> garmentInvoiceMock = null)
+        private GarmentCorrectionNoteQuantityController GetController(Mock<IGarmentCorrectionNoteQuantityFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> garmentDeliveryOrderFacadeM = null, Mock<IGarmentInternalPurchaseOrderFacade> garmentInternalPurchaseOrderFacadeM = null, Mock<IGarmentInvoice> garmentInvoiceMock = null)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -113,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
                     .Returns(garmentInvoiceMock.Object);
             }
 
-            var controller = new GarmentCorrectionNoteController(servicePMock.Object, mapper.Object, facadeM.Object)
+            var controller = new GarmentCorrectionNoteQuantityController(servicePMock.Object, mapper.Object, facadeM.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -138,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Success_Get_All_Data()
         {
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(Tuple.Create(new List<GarmentCorrectionNote>(), 0, new Dictionary<string, string>()));
 
@@ -146,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockMapper.Setup(x => x.Map<List<GarmentCorrectionNoteViewModel>>(It.IsAny<List<GarmentCorrectionNote>>()))
                 .Returns(new List<GarmentCorrectionNoteViewModel> { ViewModel });
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.Get();
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -154,9 +156,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Error_Get_All_Data()
         {
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             var mockMapper = new Mock<IMapper>();
-            GarmentCorrectionNoteController controller = new GarmentCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            GarmentCorrectionNoteQuantityController controller = new GarmentCorrectionNoteQuantityController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.Get();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -164,7 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Success_Get_Data_By_Id()
         {
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -172,7 +174,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
                 .Returns(ViewModel);
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -183,40 +185,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             Test_Get_PDF_By_Id(null);
         }
 
-        [Fact]
-        public void Should_Success_Get_Harga_Total_PDF_By_Id()
-        {
-            Test_Get_PDF_By_Id("Harga Total");
-        }
-
-        [Fact]
-        public void Should_Success_Get_Harga_Satuan_PDF_By_Id()
-        {
-            Test_Get_PDF_By_Id("Harga Satuan");
-        }
-
         private void Test_Get_PDF_By_Id(string correctionType)
         {
             var Model = this.Model;
             Model.CorrectionType = correctionType;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
                 .Returns(ViewModel);
+            var garmentdeliveryOrder = new GarmentDeliveryOrder
+            {
+                DOCurrencyRate = 1,
+                Items = new List<GarmentDeliveryOrderItem>
+                {
+                    new GarmentDeliveryOrderItem
+                    {
+                        Details = Model.Items.Select(i => new GarmentDeliveryOrderDetail
+                        {
+                            Id = i.DODetailId
+                        }).ToList()
+                    }
+                }
+            };
 
             var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
             mockGarmentDeliveryOrderFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 1 });
+                .Returns(garmentdeliveryOrder);
 
             var mockGarmentInternalPurchaseOrderFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
             mockGarmentInternalPurchaseOrderFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentInternalPurchaseOrder { UnitCode = "UnitCode" });
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, mockGarmentInternalPurchaseOrderFacade);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, mockGarmentInternalPurchaseOrderFacade);
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
 
             var response = controller.Get(It.IsAny<int>());
@@ -226,13 +230,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Error_Get_Data_By_Id()
         {
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
 
-            GarmentCorrectionNoteController controller = new GarmentCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            GarmentCorrectionNoteQuantityController controller = new GarmentCorrectionNoteQuantityController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -248,8 +252,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentCorrectionNoteViewModel>()))
                 .Verifiable();
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<GarmentCorrectionNote>(), "unittestusername", 7))
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<GarmentCorrectionNote>(),false, "unittestusername", 7))
                .ReturnsAsync(1);
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
@@ -265,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
 
             var mockMapper = new Mock<IMapper>();
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
@@ -277,9 +281,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         public void Should_Error_Create_Data()
         {
             var mockMapper = new Mock<IMapper>();
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
 
-            var controller = new GarmentCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var controller = new GarmentCorrectionNoteQuantityController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
             var response = controller.Post(new GarmentCorrectionNoteViewModel()).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
@@ -291,7 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var ViewModel = this.ViewModel;
             ViewModel.UseVat = true;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -299,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
                 .Returns(ViewModel);
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.GetReturnNotePpn(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -310,18 +314,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             Get_Ppn_PDF_By_Id(null);
         }
 
-        [Fact]
-        public void Should_Success_Get_Ppn_Harga_Total_PDF_By_Id()
-        {
-            Get_Ppn_PDF_By_Id("Harga Total");
-        }
-
-        [Fact]
-        public void Should_Success_Get_Ppn_Harga_Satuan_PDF_By_Id()
-        {
-            Get_Ppn_PDF_By_Id("Harga Satuan");
-        }
-
         private void Get_Ppn_PDF_By_Id(string correctionType)
         {
             var Model = this.Model;
@@ -330,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var ViewModel = this.ViewModel;
             ViewModel.UseVat = true;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -361,7 +353,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockGarmentInvoiceFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
                 .Returns(new GarmentInvoice());
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, null, mockGarmentInvoiceFacade);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, null, mockGarmentInvoiceFacade);
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
 
             var response = controller.GetReturnNotePpn(It.IsAny<int>());
@@ -371,13 +363,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Error_Get_Ppn_Data_By_Id()
         {
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
 
-            GarmentCorrectionNoteController controller = new GarmentCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            GarmentCorrectionNoteQuantityController controller = new GarmentCorrectionNoteQuantityController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.GetReturnNotePpn(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -388,7 +380,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var ViewModel = this.ViewModel;
             ViewModel.UseVat = false;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -396,7 +388,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
                 .Returns(ViewModel);
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.GetReturnNotePpn(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -407,7 +399,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var ViewModel = this.ViewModel;
             ViewModel.UseIncomeTax = true;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -415,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
                 .Returns(ViewModel);
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.GetReturnNotePph(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -426,18 +418,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             Get_Pph_PDF_By_Id(null);
         }
 
-        [Fact]
-        public void Should_Success_Get_Pph_Harga_Total_PDF_By_Id()
-        {
-            Get_Pph_PDF_By_Id("Harga Total");
-        }
-
-        [Fact]
-        public void Should_Success_Get_Pph_Harga_Satuan_PDF_By_Id()
-        {
-            Get_Pph_PDF_By_Id("Harga Satuan");
-        }
-
         private void Get_Pph_PDF_By_Id(string correctionType)
         {
             var Model = this.Model;
@@ -446,7 +426,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var ViewModel = this.ViewModel;
             ViewModel.UseIncomeTax = true;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -477,7 +457,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockGarmentInvoiceFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
                 .Returns(new GarmentInvoice());
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, null, mockGarmentInvoiceFacade);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, null, mockGarmentInvoiceFacade);
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
 
             var response = controller.GetReturnNotePph(It.IsAny<int>());
@@ -487,13 +467,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         [Fact]
         public void Should_Error_Get_Pph_Data_By_Id()
         {
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
 
-            GarmentCorrectionNoteController controller = new GarmentCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            GarmentCorrectionNoteQuantityController controller = new GarmentCorrectionNoteQuantityController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.GetReturnNotePph(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -504,7 +484,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var ViewModel = this.ViewModel;
             ViewModel.UseIncomeTax = false;
 
-            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
@@ -512,7 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
                 .Returns(ViewModel);
 
-            GarmentCorrectionNoteController controller = GetController(mockFacade, null, mockMapper);
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.GetReturnNotePph(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }

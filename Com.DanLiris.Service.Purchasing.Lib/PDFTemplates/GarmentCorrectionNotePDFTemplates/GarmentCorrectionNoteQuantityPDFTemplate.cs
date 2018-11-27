@@ -120,6 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 var garmentInternalPurchaseOrder = garmentInternalPurchaseOrderFacade.ReadById((int)item.POId);
 
                 var deliveryOrderItem = garmentDeliveryOrder.Items.First(i => i.Details.Any(d => d.Id == item.DODetailId));
+
                 var doDetail = deliveryOrderItem.Details.FirstOrDefault(d => d.Id == item.DODetailId);
 
                 cellLeft.Phrase = new Phrase(item.POSerialNumber, normal_font);
