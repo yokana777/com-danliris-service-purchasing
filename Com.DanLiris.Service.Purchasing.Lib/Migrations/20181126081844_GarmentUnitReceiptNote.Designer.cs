@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181126081844_GarmentUnitReceiptNote")]
+    partial class GarmentUnitReceiptNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1177,6 +1178,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyCode");
 
                     b.Property<long>("CurrencyId");
+
+                    b.Property<string>("CurrencyName");
 
                     b.Property<string>("CustomsType");
 
@@ -2755,10 +2758,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<string>("NPH");
-
-                    b.Property<string>("NPN");
 
                     b.Property<string>("SupplierCode");
 
