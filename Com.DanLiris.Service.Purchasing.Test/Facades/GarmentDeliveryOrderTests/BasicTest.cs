@@ -130,6 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
+                Id = 1,
                 supplier = new SupplierViewModel(),
                 customsId = 1,
                 billNo = "test",
@@ -144,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
+                        Id = 1,
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
                         currency = new CurrencyViewModel(),
@@ -152,6 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel
                             {
+                                Id = 1,
                                 pOId = 1,
                                 pOItemId = 1,
                                 conversion = 0,
@@ -178,6 +181,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
+                Id = 1,
                 supplier = new SupplierViewModel(),
                 customsId = 1,
                 billNo = "test",
@@ -192,6 +196,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
+                        Id = 1,
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
                         currency = new CurrencyViewModel(),
@@ -200,6 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel
                             {
+                                Id = 1,
                                 pOId = 1,
                                 pOItemId = 1,
                                 conversion = 0,
@@ -226,6 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
+                Id = 1,
                 supplier = new SupplierViewModel(),
                 customsId = 1,
                 billNo = "test",
@@ -240,6 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
+                        Id = 1,
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
                         currency = new CurrencyViewModel(),
@@ -248,6 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                         {
                             new GarmentDeliveryOrderFulfillmentViewModel
                             {
+                                Id = 1,
                                 pOId = 1,
                                 pOItemId = 1,
                                 conversion = 0,
