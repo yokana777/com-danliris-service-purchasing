@@ -74,7 +74,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 				{
 					double _total = 0;
 					EntityExtension.FlagForCreate(model, username, USER_AGENT);
-
+					if (model.UseIncomeTax)
+					{
+						model.NPH = GenerateNPH();
+					}
+					if (model.UseVat)
+					{
+						model.NPN = GenerateNPN();
+					}
 					foreach (var item in model.Items)
 					{
 						_total += item.TotalAmount;
@@ -102,6 +109,73 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			}
 
 			return Created;
+		}
+
+		private string GenerateNPN()
+		{
+			string NPN = null;
+			GarmentInvoice garmentInvoice = (from data in dbSet
+												  orderby data.NPN descending
+												  select data).FirstOrDefault();
+			string year = DateTime.Now.Year.ToString().Substring(2, 2);
+			string month = DateTime.Now.Month.ToString("D2");
+			string day = DateTime.Now.Day.ToString("D2");
+			string formatDate = year + month + day;
+			int counterId = 0;
+			if (garmentInvoice != null)
+			{
+				NPN = garmentInvoice.NPN;
+				string days = NPN.Substring(5, 2);
+				string number = NPN.Substring(9);
+				if (month == DateTime.Now.Month.ToString("D2"))
+				{
+					counterId = Convert.ToInt32(number) + 1;
+				}
+				else
+				{
+					counterId = 1;
+				}
+			}
+			else
+			{
+				counterId = 1;
+			}
+			NPN = "NPN" + formatDate + counterId.ToString("D4");
+
+			return NPN;
+		}
+		private string GenerateNPH()
+		{
+			string NPH = null;
+			GarmentInvoice garmentInvoice = (from data in dbSet
+											 orderby data.NPN descending
+											 select data).FirstOrDefault();
+			string year = DateTime.Now.Year.ToString().Substring(2, 2);
+			string month = DateTime.Now.Month.ToString("D2");
+			string day = DateTime.Now.Day.ToString("D2");
+			string formatDate = year + month + day;
+			int counterId = 0;
+			if (garmentInvoice != null)
+			{
+				NPH = garmentInvoice.NPH;
+				string days = NPH.Substring(5, 2);
+				string number = NPH.Substring(9);
+				if (month == DateTime.Now.Month.ToString("D2"))
+				{
+					counterId = Convert.ToInt32(number) + 1;
+				}
+				else
+				{
+					counterId = 1;
+				}
+			}
+			else
+			{
+				counterId = 1;
+			}
+			NPH = "NPH" + formatDate + counterId.ToString("D4");
+
+			return NPH;
 		}
 		public int Delete(int id, string username)
 		{
@@ -162,16 +236,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 						foreach (var itemId in detailIds)
 						{
 							GarmentInvoiceItem data = model.Items.FirstOrDefault(prop => prop.Id.Equals(itemId));
-							//if (data == null)
-							//{
-							//	GarmentInvoiceItem dataItem = dbContext.GarmentInvoiceItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
-							//	EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
-							 
-							//}
-							//else
-							//{
+							if (data == null)
+							{
+								GarmentInvoiceItem dataItem = dbContext.GarmentInvoiceItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
+								EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
+
+							}
+							else
+							{
 								EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-							//}
+							}
 
 							foreach (GarmentInvoiceItem item in model.Items)
 							{
