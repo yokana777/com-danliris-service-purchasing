@@ -119,7 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
         public GarmentDeliveryOrder GetNewData2()
         {
-            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetDataForDo()).Result;
+            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo()).Result;
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
@@ -216,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
         public GarmentDeliveryOrder GetNewData3()
         {
-            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetDataForDo2()).Result;
+            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2()).Result;
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
