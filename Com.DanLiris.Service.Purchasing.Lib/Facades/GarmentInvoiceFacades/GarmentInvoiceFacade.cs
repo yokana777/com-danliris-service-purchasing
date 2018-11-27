@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 					{
 						model.NPH = GenerateNPH();
 					}
-					else if (model.UseVat)
+					if (model.UseVat)
 					{
 						model.NPN = GenerateNPN();
 					}
