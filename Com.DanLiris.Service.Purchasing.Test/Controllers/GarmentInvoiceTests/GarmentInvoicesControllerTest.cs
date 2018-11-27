@@ -316,8 +316,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			var response = controller.Delete(It.IsAny<int>());
 			Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
 		}
-        
-        private GarmentInvoiceViewModel ViewModelTax
+
+		private GarmentInvoiceViewModel ViewModelTax
 		{
 		
 			get

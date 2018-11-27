@@ -176,6 +176,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 			Assert.NotNull(Response);
 		}
 		[Fact]
+		public async void Should_Success_Get_Data_For_Customs()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			var Response = facade.DOForCustoms("code", "{}");
+			Assert.NotNull(Response);
+		}
+		[Fact]
+		public async void Should_Success_Get_Data_Is_Received()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			model.IsInvoice = true;
+			List<int> _id = new List<int>();
+			_id.Add((int)model.Id);
+			var Response = facade.IsReceived(_id);
+			Assert.NotNull(Response);
+		}
+		[Fact]
+		public async void Should_Success_Get_Data_Is_Received2()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			model.IsInvoice = false;
+			foreach(var data in model.Items)
+			{
+				foreach(var item in data.Details)
+				{
+					item.ReceiptQuantity = 2;
+				}
+			}
+			List<int> _id = new List<int>();
+			_id.Add((int)model.Id);
+			var Response = facade.IsReceived(_id);
+			Assert.NotNull(Response);
+		}
+		[Fact]
         public void Should_Success_Validate_Data()
         {
             GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();

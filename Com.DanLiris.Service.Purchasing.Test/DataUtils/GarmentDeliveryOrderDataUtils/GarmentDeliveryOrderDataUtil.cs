@@ -58,9 +58,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 IsCorrection = false,
 
                 CustomsId = nowTicks,
-                PaymentBill = $"{nowTicksB}",
-                BillNo = $"{nowTicksB}",
-                PaymentType = datas.PaymentType,
+                PaymentBill = "BB181122003",
+                BillNo = "BP181122142947000001",
+				PaymentType = datas.PaymentType,
                 PaymentMethod = datas.PaymentMethod,
                 DOCurrencyId = datas.CurrencyId,
                 DOCurrencyCode = datas.CurrencyCode,

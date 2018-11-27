@@ -268,13 +268,76 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s=>s.IsInvoice==false);
+                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false);
             }
 
             return Query;
         }
+		public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
+		{
+			IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
-        public CurrencyViewModel GetCurrency(string currencyCode)
+			List<string> searchAttributes = new List<string>()
+			{
+				"DONo"
+			};
+
+			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+			//if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+			//{
+			//	string Key = OrderDictionary.Keys.First();
+			//	string SubKey = Key.Split(".")[1];
+			//	string OrderType = OrderDictionary[Key];
+
+			//	Query = Query.Include(m => m.Items)
+			//		.ThenInclude(i => i.Details);
+			//}
+			//else
+			//{
+
+				Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+					.ThenInclude(i => i.Details).Where(s => s.BillNo ==null );
+			//}
+
+			return Query;
+		}
+
+
+		public int  IsReceived(List<int> id)
+		{
+			int isReceived = 0;
+			foreach(var no in id)
+			{
+				var model = dbSet.Where(m => m.Id == no)
+							   .Include(m => m.Items)
+								   .ThenInclude(i => i.Details)
+							   .FirstOrDefault();
+				if (model.IsInvoice == true)
+				{
+					isReceived = 1;
+					break;
+				}
+				else
+				{
+					foreach (var item in model.Items)
+					{
+						foreach (var detail in item.Details)
+						{
+							if (detail.ReceiptQuantity > 0)
+								isReceived = 1;
+							break;
+						}
+					}
+				}
+			}
+			
+			return isReceived;
+		}
+		public CurrencyViewModel GetCurrency(string currencyCode)
         {
             try
             {
