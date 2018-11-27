@@ -291,7 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                 .Returns(Model);
 
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrder>(), "unittestusername", 7))
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>(), It.IsAny<GarmentDeliveryOrder>(), "unittestusername", 7))
                .ReturnsAsync(1);
 
             var controller = GetController(mockFacade, validateMock, mockMapper);

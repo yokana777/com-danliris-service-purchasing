@@ -207,7 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
                 var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 
-                await facade.Update(id, model, identityService.Username);
+                await facade.Update(id, ViewModel, model, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
