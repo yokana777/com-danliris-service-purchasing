@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			string day = DateTime.Now.Day.ToString("D2");
 			string formatDate = year + month + day;
 			int counterId = 0;
-			if (garmentInvoice.NPN != null)
+			if (garmentInvoice != null)
 			{
 				NPN = garmentInvoice.NPN;
 				string days = NPN.Substring(5, 2);
@@ -155,9 +155,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			string day = DateTime.Now.Day.ToString("D2");
 			string formatDate = year + month + day;
 			int counterId = 0;
-			if (garmentInvoice.NPN != null)
+			if (garmentInvoice != null)
 			{
-				NPH = garmentInvoice.NPN;
+				NPH = garmentInvoice.NPH;
 				string days = NPH.Substring(5, 2);
 				string number = NPH.Substring(9);
 				if (month == DateTime.Now.Month.ToString("D2"))
