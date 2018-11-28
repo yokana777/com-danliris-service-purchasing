@@ -239,6 +239,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                 Position = Lib.Enums.ExpeditionPosition.CASHIER_DIVISION,
                 PurchasingDispositionNoes = new List<string>() { prepData.DispositionNo }
             };
+            PurchasingDispositionUpdatePositionPostedViewModel nullModel = new PurchasingDispositionUpdatePositionPostedViewModel();
+            Assert.True(nullModel.Validate(null).Count() > 0);
             int updated = await facade.UpdatePosition(data, USERNAME);
             Assert.True(updated > 0);
         }
