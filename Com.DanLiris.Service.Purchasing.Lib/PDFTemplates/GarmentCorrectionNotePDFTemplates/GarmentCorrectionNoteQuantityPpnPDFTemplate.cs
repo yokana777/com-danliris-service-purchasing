@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
             #region TableContent
 
-            var columnHeaders = new List<string> { "No. Surat Jalan", "Tgl. Surat Jalan", "Tgl. Jatuh Tempo", "No. Invoice", "Nama Barang", $"Total PPH ({model.CurrencyCode})" };
+            var columnHeaders = new List<string> { "No. Surat Jalan", "Tgl. Surat Jalan", "Tgl. Jatuh Tempo", "No. Invoice", "Nama Barang", $"Total PPN ({model.CurrencyCode})" };
 
             PdfPTable tableContent = new PdfPTable(columnHeaders.Count);
             tableContent.SetWidths(new float[] { 1.1f, 1.2f, 1f, 1f, 1.1f, 1.2f });
@@ -144,13 +144,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 Padding = 5, Colspan = columnHeaders.Count - 1
             };
 
-            cellRightMerge.Phrase = new Phrase($"Total PPH ({model.CurrencyCode})", normal_font);
+            cellRightMerge.Phrase = new Phrase($"Total PPN ({model.CurrencyCode})", normal_font);
             tableContent.AddCell(cellRightMerge);
 
             cellRight.Phrase = new Phrase(totalAmountPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
             tableContent.AddCell(cellRight);
 
-            cellRightMerge.Phrase = new Phrase("Total PPH (IDR)", normal_font);
+            cellRightMerge.Phrase = new Phrase("Total PPN (IDR)", normal_font);
             tableContent.AddCell(cellRightMerge);
 
             cellRight.Phrase = new Phrase((totalAmountPPH * (decimal)deliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID")), normal_font);
