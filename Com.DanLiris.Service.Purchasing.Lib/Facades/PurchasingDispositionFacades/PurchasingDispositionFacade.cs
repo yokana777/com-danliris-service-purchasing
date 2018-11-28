@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -397,6 +398,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                 .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false && (s.Position==1||s.Position==6));
             
             return Query;
+        }
+
+        public async Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user)
+        {
+            int updated = 0;
+            using(var transaction = dbContext.Database.BeginTransaction())
+            {
+                foreach (var dispositionNo in data.PurchasingDispositionNoes)
+                {
+                    PurchasingDisposition purchasingDisposition = dbSet.FirstOrDefault(x => x.DispositionNo == dispositionNo);
+
+                    purchasingDisposition.Position = (int)data.Position;
+                    EntityExtension.FlagForUpdate(purchasingDisposition, user, "Facade");
+                    
+                }
+                updated = await dbContext.SaveChangesAsync();
+                transaction.Commit();
+            }
+            return updated;
         }
     }
 }
