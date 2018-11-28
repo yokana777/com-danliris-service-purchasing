@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
-						FileDownloadName = $"{viewModel.incomeTaxNo}.pdf"
+						FileDownloadName = $"{viewModel.nph}.pdf"
 					};
 
 				}
@@ -219,7 +219,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
-						FileDownloadName = $"{viewModel.vatNo}.pdf"
+						FileDownloadName = $"{viewModel.npn}.pdf"
 					};
 
 				}

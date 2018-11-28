@@ -21,7 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
 		public double Netto { get; set; }
 		public long CurrencyId { get; set; }
 		public string CurrencyCode { get; set; }
-		public string CurrencyName { get; set; }
 		public string CustomsType { get; set; }
 		public virtual ICollection<GarmentBeacukaiItem> Items { get; set; }
 	}

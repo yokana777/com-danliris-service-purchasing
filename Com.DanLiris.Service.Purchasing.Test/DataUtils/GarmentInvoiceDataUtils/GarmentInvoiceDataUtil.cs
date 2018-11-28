@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
         }
 		public async Task<GarmentInvoice> GetNewData(string user)
 		{
+			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
 			long nowTicks = DateTimeOffset.Now.Ticks;
 			return new GarmentInvoice
 			{
@@ -54,13 +55,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 						new GarmentInvoiceItem
 						{
 
-						   DeliveryOrderId =It.IsAny<int>(),
+						   DeliveryOrderId =garmentDO.Id,
 						   DODate=DateTimeOffset.Now,
 						   DeliveryOrderNo="dono",
 						   ArrivalDate  =  DateTimeOffset.Now,
 						   TotalAmount =2000,
 						   PaymentType="type",
-						  
 						   PaymentMethod="method",
 							Details= new List<GarmentInvoiceDetail>
 							{

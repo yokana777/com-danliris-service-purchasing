@@ -23,6 +23,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d.incomeTaxNo, opt => opt.MapFrom(s => s.IncomeTaxNo))
 				.ForMember(d => d.hasInternNote, opt => opt.MapFrom(s => s.HasInternNote))
 				.ForMember(d => d.incomeTaxDate, opt => opt.MapFrom(s => s.IncomeTaxDate))
+				.ForMember(d => d.nph, opt => opt.MapFrom(s => s.NPH))
+				.ForMember(d => d.npn, opt => opt.MapFrom(s => s.NPN))
 				.ForPath(d => d.incomeTaxRate, opt => opt.MapFrom(s => s.IncomeTaxRate))
 				.ForPath(d => d.incomeTaxName , opt => opt.MapFrom(s => s.IncomeTaxName))
 				.ForPath(d => d.incomeTaxId, opt => opt.MapFrom(s => s.IncomeTaxId))
@@ -42,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			   .ForPath(d => d.deliveryOrder.doNo, opt => opt.MapFrom(s => s.DeliveryOrderNo))
 			   .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
 			   .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
-			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s => Math.Round( s.TotalAmount,2)))
+			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s =>  s.TotalAmount))
 			   .ForPath(d => d.deliveryOrder.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
 			  .ForPath(d => d.deliveryOrder.paymentType, opt => opt.MapFrom(s => s.PaymentType))
 			   .ReverseMap();
