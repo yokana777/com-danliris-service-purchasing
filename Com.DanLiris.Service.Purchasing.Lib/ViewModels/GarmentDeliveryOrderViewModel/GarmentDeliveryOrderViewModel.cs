@@ -116,6 +116,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                                 detailError += "conversion: 'Conversion can not 0', ";
                             }
 
+                            if (detail.doQuantity == 0)
+                            {
+                                detailErrorCount++;
+                                detailError += "doQuantity: 'DoQuantity must be greater than 0', ";
+                            }
+
                             detailError += "}, ";
                         }
 
