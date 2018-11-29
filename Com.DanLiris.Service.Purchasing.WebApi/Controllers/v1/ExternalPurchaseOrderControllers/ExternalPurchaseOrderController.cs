@@ -118,6 +118,45 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
             });
         }
 
+        [HttpGet("disposition")]
+        public IActionResult Getdisposition(string keyword = null, string filter = "{}")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            var Data = _facade.ReadDisposition(keyword, filter);
+
+            var newData = _mapper.Map<List<ExternalPurchaseOrderViewModel>>(Data);
+
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.no,
+                    s.orderDate,
+                    s.supplier,
+                    s.incomeTax,
+                    s.useIncomeTax,
+                    s.useVat,
+                    s.unit,
+                    s.isPosted,
+                    s.items
+                }).ToList()
+            );
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                statusCode = General.OK_STATUS_CODE,
+                message = General.OK_MESSAGE,
+                data = listData,
+                info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                },
+            });
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {

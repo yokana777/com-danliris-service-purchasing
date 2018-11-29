@@ -255,7 +255,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
-
         [Fact]
         public void Should_Success_Get_PDF_Data_By_Id()
         {

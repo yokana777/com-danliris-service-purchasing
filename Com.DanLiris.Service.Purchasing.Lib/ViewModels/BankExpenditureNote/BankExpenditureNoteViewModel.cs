@@ -22,9 +22,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
                 yield return new ValidationResult("Minimal 1 Surat Perintah Bayar", new List<string> { "Details" });
             }
 
-            if (Bank == null)
+            if (Bank == null || string.IsNullOrWhiteSpace(Bank._id))
             {
                 yield return new ValidationResult("Bank harus diisi", new List<string> { "Bank" });
+            }
+
+            if (Supplier == null || string.IsNullOrWhiteSpace(Supplier._id))
+            {
+                yield return new ValidationResult("Supplier harus diisi", new List<string> { "Supplier" });
             }
 
             if (Date == null)

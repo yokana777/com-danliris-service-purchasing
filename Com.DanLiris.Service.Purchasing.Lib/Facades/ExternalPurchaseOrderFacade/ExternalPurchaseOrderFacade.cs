@@ -627,6 +627,83 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Query.ToList();
         }
 
+        public List<ExternalPurchaseOrder> ReadDisposition(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo", "SupplierName", "DivisionName","UnitName"
+            };
+
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+
+            Query = Query
+                .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false)
+                .Select(s => new ExternalPurchaseOrder
+                {
+                    Id = s.Id,
+                    EPONo = s.EPONo,
+                    CurrencyCode = s.CurrencyCode,
+                    CurrencyRate = s.CurrencyRate,
+                    OrderDate = s.OrderDate,
+                    DeliveryDate = s.DeliveryDate,
+                    SupplierId = s.SupplierId,
+                    SupplierCode = s.SupplierCode,
+                    SupplierName = s.SupplierName,
+                    DivisionId = s.DivisionId,
+                    DivisionCode = s.DivisionCode,
+                    DivisionName = s.DivisionName,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    UnitId = s.UnitId,
+                    UnitName = s.UnitName,
+                    UnitCode = s.UnitCode,
+                    CreatedBy = s.CreatedBy,
+                    IsPosted = s.IsPosted,
+                    UseVat=s.UseVat,
+                    UseIncomeTax=s.UseIncomeTax,
+                    IncomeTaxId=s.IncomeTaxId,
+                    IncomeTaxName=s.IncomeTaxName,
+                    IncomeTaxRate=s.IncomeTaxRate,
+                    Items = s.Items
+                        .Select(i => new ExternalPurchaseOrderItem
+                        {
+                            Id = i.Id,
+                            PRId = i.PRId,
+                            POId=i.POId,
+                            PRNo = i.PRNo,
+                            Details = i.Details
+                                .Where(d => d.IsDeleted == false)
+                                .Select(d => new ExternalPurchaseOrderDetail
+                                {
+                                    Id = d.Id,
+                                    POItemId = d.POItemId,
+                                    PRItemId = d.PRItemId,
+                                    ProductId = d.ProductId,
+                                    ProductCode = d.ProductCode,
+                                    ProductName = d.ProductName,
+                                    DealQuantity = d.DealQuantity,
+                                    DealUomId = d.DealUomId,
+                                    DealUomUnit = d.DealUomUnit,
+                                    DOQuantity = d.DOQuantity,
+                                    DispositionQuantity=d.DispositionQuantity,
+                                    ProductRemark = d.ProductRemark,
+                                    PriceBeforeTax=d.PriceBeforeTax,
+                                    PricePerDealUnit=d.PricePerDealUnit
+                                })
+                                .ToList()
+                        })
+                        .Where(i => i.Details.Count > 0)
+                        .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            return Query.ToList();
+        }
+
         public ProductViewModel GetProduct(string productId)
         {
             string productUri = "master/products";

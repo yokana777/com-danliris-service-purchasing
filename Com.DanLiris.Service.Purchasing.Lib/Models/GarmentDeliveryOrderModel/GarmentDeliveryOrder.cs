@@ -34,6 +34,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public string PaymentBill { get; set; }
         public double TotalAmount { get; set; }
 
+        public bool? IsCorrection { get; set; }
+
+        public bool? UseVat { get; set; }
+        public bool? UseIncomeTax { get; set; }
+
+        [MaxLength(255)]
+        public int? IncomeTaxId { get; set; }
+        [MaxLength(255)]
+        public string IncomeTaxName { get; set; }
+        public double? IncomeTaxRate { get; set; }
+
+        public string PaymentType { get; set; }
+        public string PaymentMethod { get; set; }
+        public long? DOCurrencyId { get; set; }
+        public string DOCurrencyCode { get; set; }
+        public double? DOCurrencyRate { get; set; }
+
+
         public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }
-    }
+	}
 }

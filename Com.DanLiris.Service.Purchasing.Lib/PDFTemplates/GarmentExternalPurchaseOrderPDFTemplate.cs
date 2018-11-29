@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             //Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font table_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
             Document document = new Document(PageSize.A4, 40, 40, 40, 40);
             document.AddHeader("Header", viewModel.EPONo);
@@ -30,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string EPONo = viewModel.IsOverBudget ? viewModel.EPONo + "-OB" : viewModel.EPONo;
 
 
-            Chunk chkHeader = new Chunk("PO: " + EPONo, bold_font);
+            Chunk chkHeader = new Chunk(EPONo, bold_font);
             Phrase pheader = new Phrase(chkHeader);
             HeaderFooter header = new HeaderFooter(pheader, false);
             header.Border = Rectangle.NO_BORDER;
@@ -47,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderContentLeft.Phrase = new Phrase("PT DAN LIRIS" + "\n" + "Head Office: Kelurahan Banaran" + "\n" + "Kecamatan Grogol" + "\n" + "Sukoharjo 57193 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777", bold_font);
             tableHeader.AddCell(cellHeaderContentLeft);
 
-            string noPO = "PO: " + EPONo;
+            string noPO = EPONo;
 
             //string noPO = viewModel.Supplier.Import ? "FM-PB-00-06-009/R1" + "\n" + "PO: " + EPONo  : "PO: " + EPONo;
 
@@ -151,8 +152,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
-            PdfPTable tableContent = new PdfPTable(6);
-            tableContent.SetWidths(new float[] { 1.2f,7f, 3.5f, 4f, 4.5f, 4f });
+            PdfPCell cellRightMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.NO_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+
+            PdfPTable tableContent = new PdfPTable(8);
+            tableContent.SetWidths(new float[] { 1.2f,7f, 3.5f, 4f, 1.5f, 2.5f, 1.5f, 3f });
             if (viewModel.Supplier.Import)
             {
                 cellCenter.Phrase = new Phrase("NO", bold_font);
@@ -164,8 +168,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellCenter.Phrase = new Phrase("QUANTITY", bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("UNIT PRICE", bold_font);
+                cellCenter.Colspan = 2;
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("SUB TOTAL", bold_font);
+                cellCenter.Colspan = 2;
                 tableContent.AddCell(cellCenter);
             }
             else
@@ -179,8 +185,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellCenter.Phrase = new Phrase("JUMLAH", bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("HARGA SATUAN", bold_font);
+                cellCenter.Colspan = 2;
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("SUB TOTAL", bold_font);
+                cellCenter.Colspan = 2;
                 tableContent.AddCell(cellCenter);
             }
                 
@@ -198,7 +206,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 if (viewModel.Category.ToLower().Contains("fabric"))
                 {
-                    productRemark = item.Product.Code + "-" + item.Product.Name + "\nCOMPOSITION : " + item.Product.Composition + "\nKONSTRUKSI : " + item.Product.Const + "\nYARN : " + item.Product.Yarn + "\nLEBAR : " + item.Product.Width + "\nQUALITY : " + "EXPORT QUALITY" + "\n" + item.Remark + "\n" + item.PRNo + "-" + item.PO_SerialNumber;
+                    if (viewModel.Supplier.Import)
+                    {
+                        productRemark = item.Product.Code + "-" + item.Product.Name + "\nCOMPOSITION : " + item.Product.Composition + "\nCONSTRUCTION : " + item.Product.Const + "\nYARN : " + item.Product.Yarn + "\nWIDTH : " + item.Product.Width + "\nQUALITY : " + "EXPORT QUALITY" + "\nREMARK :" + item.Remark + "\n" + item.PRNo + "-" + item.PO_SerialNumber;
+                    }
+                    else
+                    {
+                        productRemark = item.Product.Code + "-" + item.Product.Name + "\nCOMPOSITION : " + item.Product.Composition + "\nKONSTRUKSI : " + item.Product.Const + "\nYARN : " + item.Product.Yarn + "\nLEBAR : " + item.Product.Width + "\nQUALITY : " + "EXPORT QUALITY" + "\nKETERANGAN :" + item.Remark + "\n" + item.PRNo + "-" + item.PO_SerialNumber;
+                    }
+                   
+                    
                 }
                 else
                 {
@@ -206,24 +223,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
 
 
-                cellLeft.Phrase = new Phrase(index.ToString(), normal_font);
+                cellLeft.Phrase = new Phrase(index.ToString(), table_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase(productRemark, normal_font);
+                cellLeft.Phrase = new Phrase(productRemark, table_font);
                 tableContent.AddCell(cellLeft);
 
                 string shipmentDate = viewModel.Supplier.Import ? item.ShipmentDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("en-EN")) : item.ShipmentDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
-                cellLeft.Phrase = new Phrase(item.Article + " - " + item.RONo + " - " + shipmentDate, normal_font);
+                cellLeft.Phrase = new Phrase(item.Article + " - " + item.RONo + " - " + shipmentDate, table_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase(string.Format("{0:n2}", item.DealQuantity) + " " + $"{item.DealUom.Unit}", normal_font);
+                cellLeft.Phrase = new Phrase(string.Format("{0:n2}", item.DealQuantity) + " " + $"{item.DealUom.Unit}", table_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase($"{viewModel.Currency.Code}" + string.Format("{0:n2}", item.PricePerDealUnit), normal_font);
-                tableContent.AddCell(cellLeft);
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
 
-                cellLeft.Phrase = new Phrase($"{viewModel.Currency.Code}" + string.Format("{0:n2}", subTotal), normal_font);
-                tableContent.AddCell(cellLeft);
+                cellRightMerge.Phrase = new Phrase(string.Format("{0:n2}", item.PricePerDealUnit), table_font);
+                tableContent.AddCell(cellRightMerge);
+
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
+
+                cellRightMerge.Phrase = new Phrase(string.Format("{0:n2}", subTotal), table_font);
+                tableContent.AddCell(cellRightMerge);
 
                 total += subTotal;
             }
@@ -231,17 +254,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             if (viewModel.Supplier.Import)
             {
                 cellRight.Colspan = 3;
-                cellRight.Phrase = new Phrase("Quantity Total", bold_font);
+                cellRight.Phrase = new Phrase("Total Quantity", bold_font);
                 tableContent.AddCell(cellRight);
 
-                cellLeft.Phrase = new Phrase($"{qtyTotal.ToString("N2", new CultureInfo("en-EN"))}", normal_font);
+                cellLeft.Phrase = new Phrase($"{qtyTotal.ToString("N2", new CultureInfo("en-EN"))}", table_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase("Quantity", normal_font);
+                cellLeft.Phrase = new Phrase("Total", bold_font);
+                cellLeft.Colspan = 2;
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase($"{viewModel.Currency.Code} {total.ToString("N2", new CultureInfo("en-EN"))}", normal_font);
-                tableContent.AddCell(cellLeft);
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
+
+                cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("en-EN"))}", table_font);
+                tableContent.AddCell(cellRightMerge);
 
             }
             else
@@ -250,14 +277,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellRight.Phrase = new Phrase("Total Jumlah", bold_font);
                 tableContent.AddCell(cellRight);
 
-                cellLeft.Phrase = new Phrase($"{qtyTotal.ToString("N2", new CultureInfo("id-ID"))}", normal_font);
+                cellLeft.Phrase = new Phrase($"{qtyTotal.ToString("N2", new CultureInfo("id-ID"))}", table_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase("Jumlah", normal_font);
+                cellLeft.Phrase = new Phrase("Jumlah", bold_font);
+                cellLeft.Colspan = 2;
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase($"{viewModel.Currency.Code} {total.ToString("N2", new CultureInfo("id-ID"))}", normal_font);
-                tableContent.AddCell(cellLeft);
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
+
+                cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("id-ID"))}", table_font);
+                tableContent.AddCell(cellRightMerge);
 
                 double ppn = 0;
                 if (viewModel.IsUseVat)
@@ -270,10 +301,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableContent.AddCell(cellRight);
 
                 cellLeft.Phrase = new Phrase("", normal_font);
+                cellLeft.Colspan = 2;
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase($"{viewModel.Currency.Code} {ppn.ToString("N2", new CultureInfo("id-ID"))}", normal_font);
-                tableContent.AddCell(cellLeft);
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
+
+                cellRightMerge.Phrase = new Phrase($"{ppn.ToString("N2", new CultureInfo("id-ID"))}", table_font);
+                tableContent.AddCell(cellRightMerge);
 
                 double grandTotal = ppn + total;
 
@@ -283,15 +318,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableContent.AddCell(cellRight);
 
                 cellLeft.Phrase = new Phrase("", normal_font);
+                cellLeft.Colspan = 2;
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase($"{viewModel.Currency.Code} {grandTotal.ToString("N2", new CultureInfo("id-ID"))}", normal_font);
-                tableContent.AddCell(cellLeft);
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
+
+                cellRightMerge.Phrase = new Phrase($"{grandTotal.ToString("N2", new CultureInfo("id-ID"))}", table_font);
+                tableContent.AddCell(cellRightMerge);
 
             }
-
-                
-
+            
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
             tableContent.SpacingAfter = 20f;
