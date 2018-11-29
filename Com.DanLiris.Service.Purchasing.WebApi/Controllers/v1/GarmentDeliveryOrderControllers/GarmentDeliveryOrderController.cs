@@ -73,7 +73,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 				   .Ok(newData);
 			return Ok(Result);
 		}
-
+		[HttpGet("forCustoms")]
+		public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}")
+		{
+			var Data = facade.DOForCustoms(Keyword, Filter);
+			var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
+			Dictionary<string, object> Result =
+				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+				   .Ok(newData);
+			return Ok(Result);
+		}
+		[HttpGet("isReceived")]
+		public IActionResult GetIsReceived(List<int> Id)
+		{
+			var Data = facade.IsReceived(Id);
+			Dictionary<string, object> Result =
+				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+				   .Ok(Data);
+			return Ok(Result);
+		}
 
 		[HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
@@ -207,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
                 var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 
-                await facade.Update(id, model, identityService.Username);
+                await facade.Update(id, ViewModel, model, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)

@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         private Mock<IServiceProvider> GetServiceProvider()
         {
             HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018 - 10 - 20T00: 00:00 + 00:00\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
             var HttpClientService = new Mock<IHttpClientService>();
             HttpClientService
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
@@ -104,6 +104,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_2()
+        {
+
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData2();
+            var Response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Create_Data()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
@@ -118,7 +128,150 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = await facade.Update((int)model.Id, model, USERNAME);
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                Id = model.Id,
+                supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalAmount = 1,
+                shipmentType = "test",
+                shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
+                docurrency = new CurrencyViewModel(),
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        Id = model.Items.ElementAt(0).Id,
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                        currency = new CurrencyViewModel(),
+
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                Id = model.Items.ElementAt(0).Details.ElementAt(0).Id,
+                                pOId = 1,
+                                pOItemId = 1,
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
+                                isSave = true
+                            }
+                        }
+                    }
+                }
+
+            };
+
+            var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data2()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData2();
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                Id = model.Id,
+                supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalAmount = 1,
+                shipmentType = "test",
+                shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
+                docurrency = new CurrencyViewModel(),
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        Id = model.Items.ElementAt(0).Id,
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                        currency = new CurrencyViewModel(),
+
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                Id = model.Items.ElementAt(0).Details.ElementAt(0).Id,
+                                pOId = 1,
+                                pOItemId = 1,
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
+                                isSave = false
+                            }
+                        }
+                    }
+                }
+
+            };
+
+            var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data3()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData3();
+
+            GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+            {
+                Id = model.Id,
+                supplier = new SupplierViewModel(),
+                customsId = 1,
+                billNo = "test",
+                paymentBill = "test",
+                totalAmount = 1,
+                shipmentType = "test",
+                shipmentNo = "test",
+                paymentMethod = "test",
+                paymentType = "test",
+                docurrency = new CurrencyViewModel(),
+                items = new List<GarmentDeliveryOrderItemViewModel>
+                {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        Id = model.Items.ElementAt(0).Id,
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                        currency = new CurrencyViewModel(),
+
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                Id = model.Items.ElementAt(0).Details.ElementAt(0).Id,
+                                pOId = 1,
+                                pOItemId = 1,
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
+                                isSave = true
+                            }
+                        }
+                    }
+                }
+
+            };
+
+            var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
             Assert.NotEqual(Response, 0);
         }
 
@@ -128,7 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, null, model, USERNAME));
             Assert.NotNull(errorInvalidId.Message);
         }
 
@@ -137,6 +290,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         {
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = await facade.Delete((int)model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Delete_Data2()
+        {
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData2();
+            var Response = await facade.Delete((int)model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Delete_Data3()
+        {
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData3();
             var Response = await facade.Delete((int)model.Id, USERNAME);
             Assert.NotEqual(Response, 0);
         }
@@ -173,6 +344,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 			var Response = facade.ReadBySupplier("code","{}");
+			Assert.NotNull(Response);
+		}
+		[Fact]
+		public async void Should_Success_Get_Data_For_Customs()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			var Response = facade.DOForCustoms("code", "{}");
+			Assert.NotNull(Response);
+		}
+		[Fact]
+		public async void Should_Success_Get_Data_Is_Received()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			model.IsInvoice = true;
+			List<int> _id = new List<int>();
+			_id.Add((int)model.Id);
+			var Response = facade.IsReceived(_id);
+			Assert.NotNull(Response);
+		}
+		[Fact]
+		public async void Should_Success_Get_Data_Is_Received2()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			model.IsInvoice = false;
+			foreach(var data in model.Items)
+			{
+				foreach(var item in data.Details)
+				{
+					item.ReceiptQuantity = 2;
+				}
+			}
+			List<int> _id = new List<int>();
+			_id.Add((int)model.Id);
+			var Response = facade.IsReceived(_id);
 			Assert.NotNull(Response);
 		}
 		[Fact]

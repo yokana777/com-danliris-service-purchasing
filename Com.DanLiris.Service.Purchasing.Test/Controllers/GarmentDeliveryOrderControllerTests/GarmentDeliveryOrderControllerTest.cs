@@ -291,7 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
                 .Returns(Model);
 
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrder>(), "unittestusername", 7))
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>(), It.IsAny<GarmentDeliveryOrder>(), "unittestusername", 7))
                .ReturnsAsync(1);
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
@@ -350,6 +350,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
 			GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
 			var response = controller.GetBySupplier();
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+		}
+
+		[Fact]
+		public void Should_Error_Get_Data_For_Customs()
+		{
+			var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+			mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+				.Returns(Tuple.Create(new List<GarmentDeliveryOrder>(), 0, new Dictionary<string, string>()));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<GarmentDeliveryOrderViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+				.Returns(new List<GarmentDeliveryOrderViewModel> { ViewModel });
+
+			GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+			var response = controller.GetForCustoms();
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+		}
+		[Fact]
+		public void Should_Error_Get_Data_is_Received()
+		{
+			var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+			mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+				.Returns(Tuple.Create(new List<GarmentDeliveryOrder>(), 0, new Dictionary<string, string>()));
+			
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<GarmentDeliveryOrderViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+				.Returns(new List<GarmentDeliveryOrderViewModel> { ViewModel });
+			List<int> listID = new List<int>();
+			listID.Add(1);
+
+			GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+			var response = controller.GetIsReceived(listID);
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
 	}

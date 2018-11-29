@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -121,17 +123,85 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
         {
             try
             {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
                 var result = facade.ReadModelById(id);
                 PurchasingDispositionViewModel viewModel = mapper.Map<PurchasingDispositionViewModel>(result);
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
                 }
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
 
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    PurchasingDispositionPDFTemplate PdfTemplate = new PurchasingDispositionPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{result.DispositionNo}.pdf"
+                    };
+                }
+
+                //Dictionary<string, object> Result =
+                //    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                //    .Ok(viewModel);
+                //return Ok(Result);
+            }
+            catch (Exception e)
+            {
                 Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("pdf/{id}")]
+        public IActionResult GetPDF(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                PurchasingDisposition model = facade.ReadModelById(id);
+
+                PurchasingDispositionViewModel viewModel = mapper.Map<PurchasingDispositionViewModel>(model);
+
+                if (indexAcceptPdf < 0)
+                {
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
+                }
+                else
+                {
+                    
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                    
+                    PurchasingDispositionPDFTemplate PdfTemplate = new PurchasingDispositionPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{model.DispositionNo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -284,6 +354,40 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                    .Ok(newData);
             return Ok(Result);
+        }
+
+        [HttpPut("update/position")]
+        public async Task<IActionResult> UpdatePosition([FromBody] PurchasingDispositionUpdatePositionPostedViewModel data)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                validateService.Validate(data);
+
+                await facade.UpdatePosition(data, identityService.Username);
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Created(String.Concat(Request.Path, "/", 0), Result);
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+            
         }
     }
 }

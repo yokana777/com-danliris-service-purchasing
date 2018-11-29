@@ -11,5 +11,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
         public string Symbol { get; set; }
         public double Rate { get; set; }
         public string Description { get; set; }
+        public DateTimeOffset Date { get; set; }
     }
 }

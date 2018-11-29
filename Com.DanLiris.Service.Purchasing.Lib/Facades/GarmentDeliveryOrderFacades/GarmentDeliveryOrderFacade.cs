@@ -3,7 +3,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -84,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     {
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
-                        CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode);
+                        CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode, m.DODate);
                         m.DOCurrencyId = garmentCurrencyViewModel.Id;
                         m.DOCurrencyCode = garmentCurrencyViewModel.Code;
                         m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
@@ -92,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         foreach (var detail in item.Details)
                         {
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
-                            GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
+                            GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(internalPurchaseOrder.Id));
 
                             detail.POItemId = (int)internalPurchaseOrderItem.Id;
                             detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
@@ -102,7 +104,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
                             externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + detail.DOQuantity;
-                            EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
+
+                            if(externalPurchaseOrderItem.ReceiptQuantity == 0)
+                            {
+                                if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                {
+                                    internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+                                }
+                                else if(externalPurchaseOrderItem.DOQuantity>0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                {
+                                    internalPurchaseOrderItem.Status = "Barang sudah datang semua";
+                                }
+                            }
 
                             detail.QuantityCorrection = detail.DOQuantity;
                             detail.PricePerDealUnitCorrection = detail.PricePerDealUnit;
@@ -128,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Created;
         }
 
-        public async Task<int> Update(int id, GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7)
+        public async Task<int> Update(int id, GarmentDeliveryOrderViewModel vm, GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7)
         {
             int Updated = 0;
 
@@ -145,39 +158,70 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     {
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
 
-                        foreach (var modelItem in m.Items)
+                        foreach (var vmItem in vm.items)
                         {
-                            foreach (var item in oldM.Items.Where(i => i.EPOId == modelItem.EPOId).ToList())
+                            foreach (var modelItem in m.Items.Where(i => i.Id == vmItem.Id))
                             {
-                                EntityExtension.FlagForUpdate(modelItem, user, USER_AGENT);
-
-                                CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode);
-                                m.DOCurrencyId = garmentCurrencyViewModel.Id;
-                                m.DOCurrencyCode = garmentCurrencyViewModel.Code;
-                                m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
-                                foreach (var modelDetail in modelItem.Details)
+                                foreach (var item in oldM.Items.Where(i => i.EPOId == modelItem.EPOId).ToList())
                                 {
-                                    foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
+                                    EntityExtension.FlagForUpdate(modelItem, user, USER_AGENT);
+
+                                    CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode, m.DODate);
+                                    m.DOCurrencyId = garmentCurrencyViewModel.Id;
+                                    m.DOCurrencyCode = garmentCurrencyViewModel.Code;
+                                    m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
+
+                                    foreach (var vmDetail in vmItem.fulfillments)
                                     {
-                                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(modelDetail.POId));
-                                        GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(modelDetail.POId));
-                                        GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(modelDetail.EPOItemId));
-                                        externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity + modelDetail.DOQuantity;
-                                        modelDetail.POItemId = (int)internalPurchaseOrderItem.Id;
-                                        modelDetail.PRItemId = internalPurchaseOrderItem.GPRItemId;
-                                        modelDetail.UnitId = internalPurchaseOrder.UnitId;
-                                        modelDetail.UnitCode = internalPurchaseOrder.UnitCode;
+                                        foreach (var modelDetail in modelItem.Details.Where(j => j.Id == vmDetail.Id))
+                                        {
+                                            foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
+                                            {
+                                                GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(modelDetail.POId));
+                                                GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(modelDetail.POId));
+                                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(modelDetail.EPOItemId));
 
-                                        modelDetail.QuantityCorrection = modelDetail.DOQuantity;
-                                        modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
-                                        modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+                                                if (vmDetail.isSave == false)
+                                                {
+                                                    externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
+                                                }
+                                                else
+                                                {
+                                                    externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity + modelDetail.DOQuantity;
+                                                    modelDetail.POItemId = (int)internalPurchaseOrderItem.Id;
+                                                    modelDetail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                                                    modelDetail.UnitId = internalPurchaseOrder.UnitId;
+                                                    modelDetail.UnitCode = internalPurchaseOrder.UnitCode;
 
-                                        EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
+                                                    modelDetail.QuantityCorrection = modelDetail.DOQuantity;
+                                                    modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
+                                                    modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+                                                }
+
+                                                if (externalPurchaseOrderItem.ReceiptQuantity == 0)
+                                                {
+                                                    if(externalPurchaseOrderItem.DOQuantity == 0)
+                                                    {
+                                                        GarmentPurchaseRequestItem purchaseRequestItem = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(s => s.Id.Equals(modelDetail.PRItemId));
+                                                        purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                                                        internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
+                                                    } else if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                                    {
+                                                        internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+                                                    }
+                                                    else if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                                    {
+                                                        internalPurchaseOrderItem.Status = "Barang Sudah Datang Semua";
+                                                    }
+                                                }
+
+                                                EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-
 
                         dbSet.Update(m);
 
@@ -220,8 +264,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         foreach(var detail in item.Details)
                         {
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
+                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
+                            GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(detail.POId));
+
                             GarmentDeliveryOrderDetail deliveryOrderDetail = this.dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(s => s.Id.Equals(detail.Id));
                             externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
+
+                            if (externalPurchaseOrderItem.ReceiptQuantity == 0)
+                            {
+                                if (externalPurchaseOrderItem.DOQuantity == 0)
+                                {
+                                    GarmentPurchaseRequestItem purchaseRequestItem = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(s => s.Id.Equals(detail.PRItemId));
+                                    purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                                    internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
+                                }
+                                else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                {
+                                    internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+                                }
+                                else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                {
+                                    internalPurchaseOrderItem.Status = "Barang Sudah Datang Semua";
+                                }
+                            }
 
                             EntityExtension.FlagForDelete(detail, user, USER_AGENT);
                         }
@@ -243,7 +308,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public IQueryable<GarmentDeliveryOrder> ReadBySupplier(string Keyword, string Filter)
         {
-            IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
+           IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
 			List<string> searchAttributes = new List<string>()
             {
@@ -268,24 +333,88 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s=>s.IsInvoice==false);
+                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false);
             }
 
             return Query;
         }
+		public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
+		{
+			IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
-        public CurrencyViewModel GetCurrency(string currencyCode)
+			List<string> searchAttributes = new List<string>()
+			{
+				"DONo"
+			};
+
+			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+			//if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+			//{
+			//	string Key = OrderDictionary.Keys.First();
+			//	string SubKey = Key.Split(".")[1];
+			//	string OrderType = OrderDictionary[Key];
+
+			//	Query = Query.Include(m => m.Items)
+			//		.ThenInclude(i => i.Details);
+			//}
+			//else
+			//{
+
+				Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+					.ThenInclude(i => i.Details).Where(s => s.BillNo ==null );
+			//}
+
+			return Query;
+		}
+
+
+		public int  IsReceived(List<int> id)
+		{
+			int isReceived = 0;
+			foreach(var no in id)
+			{
+				var model = dbSet.Where(m => m.Id == no)
+							   .Include(m => m.Items)
+								   .ThenInclude(i => i.Details)
+							   .FirstOrDefault();
+				if (model.IsInvoice == true)
+				{
+					isReceived = 1;
+					break;
+				}
+				else
+				{
+					foreach (var item in model.Items)
+					{
+						foreach (var detail in item.Details)
+						{
+							if (detail.ReceiptQuantity > 0)
+								isReceived = 1;
+							break;
+						}
+					}
+				}
+			}
+			
+			return isReceived;
+		}
+
+        public CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
         {
             try
             {
                 IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
                 //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
-                string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=1";
+                string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=25";
                 var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
                 var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
                 List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel.First();
+                return viewModel.FirstOrDefault(s=> s.Date <= doDate);
             }
             catch (Exception e)
             {
