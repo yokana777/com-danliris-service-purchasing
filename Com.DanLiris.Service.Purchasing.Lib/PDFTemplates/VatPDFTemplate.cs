@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -12,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
 	public class VatPDFTemplate
 	{
-		public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset)
+		public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
 		{
 			Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
 			Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -20,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			//Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
 			Document document = new Document(PageSize.A4, 40, 40, 40, 40);
-			document.AddHeader("Header", viewModel.incomeTaxNo);
+			document.AddHeader("Header", viewModel.npn);
 			MemoryStream stream = new MemoryStream();
 			PdfWriter writer = PdfWriter.GetInstance(document, stream);
 			writer.PageEvent = new PDFPages();
@@ -57,13 +58,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			document.Add(title);
 			bold_font.SetStyle(Font.NORMAL);
 
-			PdfPTable tableIncomeTax = new PdfPTable(3);
-			tableIncomeTax.SetWidths(new float[] { 1.2f, 4f, 4f });
-			PdfPCell cellTaxLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-			cellTaxLeft.Phrase = new Phrase("No. Nota Pajak :", normal_font);
-			tableIncomeTax.AddCell(cellTaxLeft);
 
-			cellTaxLeft.Phrase = new Phrase(viewModel.incomeTaxNo, normal_font);
+			PdfPTable tableIncomeTax = new PdfPTable(1);
+			tableIncomeTax.SetWidths(new float[] { 4.5f });
+			PdfPCell cellTaxLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
+			cellTaxLeft.Phrase = new Phrase("No. Nota Pajak" + "    : " + viewModel.npn, normal_font);
+			tableIncomeTax.AddCell(cellTaxLeft);
+			cellTaxLeft.Phrase = new Phrase("Kode Supplier" + "      : " + viewModel.supplier.Code, normal_font);
+			tableIncomeTax.AddCell(cellTaxLeft);
+			cellTaxLeft.Phrase = new Phrase("Nama Supplier" + "     :" + viewModel.supplier.Name, normal_font);
 			tableIncomeTax.AddCell(cellTaxLeft);
 
 
@@ -79,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
 			PdfPTable tableContent = new PdfPTable(6);
-			tableContent.SetWidths(new float[] { 4.5f, 4f, 3.5f, 4f, 3.2f, 5f });
+			tableContent.SetWidths(new float[] { 4.5f, 5f, 3.5f, 4f, 2.2f, 5f });
 			cellCenter.Phrase = new Phrase("No Surat Jalan", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("Tanggal Surat Jalan", bold_font);
@@ -88,42 +91,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
 			tableContent.AddCell(cellCenter);
-			cellCenter.Phrase = new Phrase("Rate PPh", bold_font);
+			cellCenter.Phrase = new Phrase("Rate PPn", bold_font);
 			tableContent.AddCell(cellCenter);
-			cellCenter.Phrase = new Phrase("Sub Total PPh", bold_font);
+			cellCenter.Phrase = new Phrase("Sub Total PPn", bold_font);
 			tableContent.AddCell(cellCenter);
 
 			double total = 0;
+			double totalPPN = 0;
+			double totalPPNIDR = 0;
 			foreach (GarmentInvoiceItemViewModel item in viewModel.items)
 			{
-
 				total += item.deliveryOrder.totalAmount;
-
-				cellLeft.Phrase = new Phrase(item.deliveryOrder.doNo, normal_font);
-				tableContent.AddCell(cellLeft);
-
-				string doDate = item.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
-
-				cellLeft.Phrase = new Phrase(doDate, normal_font);
-				tableContent.AddCell(cellLeft);
-
-				cellLeft.Phrase = new Phrase(viewModel.invoiceNo, normal_font);
-				tableContent.AddCell(cellLeft);
-
-
+				
 				foreach (GarmentInvoiceDetailViewModel detail in item.details)
 				{
 
+					cellLeft.Phrase = new Phrase(item.deliveryOrder.doNo, normal_font);
+					tableContent.AddCell(cellLeft);
+
+					string doDate = item.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+
+					cellLeft.Phrase = new Phrase(doDate, normal_font);
+					tableContent.AddCell(cellLeft);
+
+					cellLeft.Phrase = new Phrase(viewModel.invoiceNo, normal_font);
+					tableContent.AddCell(cellLeft);
+
 					cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
+
+					cellRight.Phrase = new Phrase((10).ToString(), normal_font);
+					tableContent.AddCell(cellRight);
+
+					cellRight.Phrase = new Phrase( Math.Round(10 *  detail.pricePerDealUnit * detail.doQuantity / 100,2).ToString("N2"), normal_font);
+					tableContent.AddCell(cellRight);
+					totalPPN += ((0.1) * detail.pricePerDealUnit * detail.doQuantity);
+					var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+					double rate = 1;
+					if(garmentDeliveryOrder !=null)
+					{ rate = (double)garmentDeliveryOrder.DOCurrencyRate; }
+					totalPPNIDR += (0.1 * detail.pricePerDealUnit * detail.doQuantity  * rate);/**dikali rate DO*/
 				}
 
-				cellLeft.Phrase = new Phrase(viewModel.incomeTaxRate.ToString(), normal_font);
-				tableContent.AddCell(cellLeft);
-				cellLeft.Phrase = new Phrase((0.1 * item.deliveryOrder.totalAmount).ToString(), normal_font);
-				tableContent.AddCell(cellLeft);
-
 			}
+			 
+			cellRight.Phrase = new Phrase("Total Ppn", normal_font);
+			cellRight.Colspan = 5;
+			tableContent.AddCell(cellRight);
+			cellRight.Phrase = new Phrase(totalPPN.ToString("N2"), normal_font);
+			cellRight.Colspan = 5;
+			tableContent.AddCell(cellRight);
+			cellRight.Phrase = new Phrase("Total Ppn IDR", normal_font);
+			cellRight.Colspan = 5;
+			tableContent.AddCell(cellRight);
+			cellRight.Phrase = new Phrase( totalPPNIDR.ToString("N2"), normal_font);
+			cellRight.Colspan = 5;
+			tableContent.AddCell(cellRight);
 
 			PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
 			tableContent.ExtendLastRow = false;

@@ -1,15 +1,15 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel
 {
-    public class PurchasingDispositionItemViewModel
+    public class PurchasingDispositionItemViewModel : BaseViewModel
     {
         public string EPONo { get; set; }
-        public long EPOId { get; set; }
-        public UnitViewModel Unit { get; set; }
+        public string EPOId { get; set; }
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }
         public IncomeTaxViewModel IncomeTax { get; set; }

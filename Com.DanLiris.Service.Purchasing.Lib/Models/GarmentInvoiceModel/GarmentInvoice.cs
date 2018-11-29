@@ -27,6 +27,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
 		public DateTimeOffset VatDate { get; set; }
         public bool HasInternNote { get; set; }
 		public double TotalAmount { get; set; }
+		public string NPN { get; set; }
+		public string NPH { get; set; }
 
 		public virtual ICollection<GarmentInvoiceItem> Items { get; set; }
     }

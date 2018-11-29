@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
 
         public string paymentType { get; set; }
         public string paymentMethod { get; set; }
-        public CurrencyViewModel currency { get; set; }
+        public CurrencyViewModel docurrency { get; set; }
         public List<GarmentDeliveryOrderItemViewModel> items { get; set; }
 
         //public List<long> unitReceiptNoteIds { get; set; }
@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                 {
                     itemError += "{";
 
-                    if (item.purchaseOrderExternal == null)
+                    if (item.purchaseOrderExternal == null || item.purchaseOrderExternal.Id == 0)
                     {
                         itemErrorCount++;
                         itemError += "purchaseOrderExternal: 'No PurchaseOrderExternal selected', ";
@@ -116,6 +116,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                                 detailError += "conversion: 'Conversion can not 0', ";
                             }
 
+                            if (detail.doQuantity == 0)
+                            {
+                                detailErrorCount++;
+                                detailError += "doQuantity: 'DoQuantity must be greater than 0', ";
+                            }
+
                             detailError += "}, ";
                         }
 
@@ -128,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                         }
                     }
 
-
+                    itemError += "}, ";
                 }
 
                 itemError += "]";

@@ -41,18 +41,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ForPath(d => d.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
                 .ForPath(d => d.paymentType, opt => opt.MapFrom(s => s.PaymentType))
-                /*Currency*/
-                .ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
-                .ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
+                .ForPath(d => d.docurrency.Id, opt => opt.MapFrom(s => s.DOCurrencyId))
+                .ForPath(d => d.docurrency.Code, opt => opt.MapFrom(s => s.DOCurrencyCode))
+                .ForPath(d => d.docurrency.Rate, opt => opt.MapFrom(s => s.DOCurrencyRate))
+
+                .ForPath(d => d.incomeTax.Id, opt => opt.MapFrom(s => s.IncomeTaxId))
+                .ForPath(d => d.incomeTax.Name, opt => opt.MapFrom(s => s.IncomeTaxName))
+                .ForPath(d => d.incomeTax.Rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
 
                 .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))
                 
                 .ReverseMap();
 
+
             CreateMap<GarmentDeliveryOrderItem, GarmentDeliveryOrderItemViewModel>()
                 .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForPath(d => d.purchaseOrderExternal.Id, opt => opt.MapFrom(s => s.EPOId))
                 .ForPath(d => d.purchaseOrderExternal.no, opt => opt.MapFrom(s => s.EPONo))
+
+                .ForPath(d => d.currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
+                .ForPath(d => d.currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
 
                 .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
                 
@@ -66,6 +74,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.pRNo, opt => opt.MapFrom(s => s.PRNo))
 
                 .ForPath(d => d.pOId, opt => opt.MapFrom(s => s.POId))
+                .ForPath(d => d.pOItemId, opt => opt.MapFrom(s => s.POItemId))
+
                 .ForPath(d => d.pOItemId, opt => opt.MapFrom(s => s.POItemId))
 
                 /*Unit*/

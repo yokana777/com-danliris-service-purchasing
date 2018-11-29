@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
+using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryOrderControllers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceControllers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Http;
@@ -41,10 +42,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			{
 				return new GarmentInvoiceViewModel
 				{
+					supplier= new SupplierViewModel {
+						Name="supplier",
+					},
 					items = new List<GarmentInvoiceItemViewModel>
 					{
 						new GarmentInvoiceItemViewModel()
 					}
+					
 				};
 			}
 		}
@@ -124,27 +129,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
 		}
 
-		//[Fact]
-		//public void Should_Success_Get_All_Data_By_User()
-		//{
-		//	var validateMock = new Mock<IValidateService>();
-		//	validateMock.Setup(s => s.Validate(It.IsAny<GarmentInvoiceViewModel>())).Verifiable();
+		[Fact]
+		public void Should_Success_Get_All_Data_By_User()
+		{
+			var validateMock = new Mock<IValidateService>();
+			validateMock.Setup(s => s.Validate(It.IsAny<GarmentInvoiceViewModel>())).Verifiable();
 
-		//	var mockFacade = new Mock<IGarmentInvoice>();
+			var mockFacade = new Mock<IGarmentInvoice>();
 
-		//	mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-		//		.Returns(Tuple.Create(new List<GarmentInvoice>(), 0, new Dictionary<string, string>()));
+			mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+				.Returns(Tuple.Create(new List<GarmentInvoice>(), 0, new Dictionary<string, string>()));
 
-		//	var mockMapper = new Mock<IMapper>();
-		//	mockMapper.Setup(x => x.Map<List<GarmentInvoiceViewModel>>(It.IsAny<List<GarmentInvoice>>()))
-		//		.Returns(new List<GarmentInvoiceViewModel> { ViewModel });
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<GarmentInvoiceViewModel>>(It.IsAny<List<GarmentInvoice>>()))
+				.Returns(new List<GarmentInvoiceViewModel> { ViewModel });
 
-		//	var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
-		//	GarmentInvoiceController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
-		//	var response = controller.GetByUser();
-		//	Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-		//}
+			GarmentInvoiceController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+			var response = controller.GetByUser();
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+		}
 		[Fact]
 		public async Task Should_Error_Get_Invalid_Id()
 		{
@@ -170,8 +175,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			foreach (var item in ViewModel.items)
 			{
 				item.deliveryOrder = item.deliveryOrder;
-				item.paymentType = "type";
-				item.paymentMethod = "method";
+				if (item.deliveryOrder != null)
+				{
+					item.deliveryOrder.paymentType = "type";
+					item.deliveryOrder.paymentMethod = "method";
+				}
 			}
 			System.ComponentModel.DataAnnotations.ValidationContext validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(ViewModel, serviceProvider.Object, null);
 			return new ServiceValidationExeption(validationContext, validationResults);
@@ -311,6 +319,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 
 		private GarmentInvoiceViewModel ViewModelTax
 		{
+		
 			get
 			{
 				return new GarmentInvoiceViewModel
@@ -353,10 +362,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 								doNo = "1245",
 								doDate =  DateTimeOffset.Now,
 								arrivalDate  =  DateTimeOffset.Now,
-								totalAmount=2000
-							},
+								totalAmount=2000,
 								paymentType = "type",
 								paymentMethod = "method",
+								docurrency = new CurrencyViewModel
+								{
+									Id=It.IsAny<int>(),
+									Code="USD",
+									Rate=13700
+								}
+							},
+								
 							details= new List<GarmentInvoiceDetailViewModel>
 							{
 								new GarmentInvoiceDetailViewModel
@@ -391,6 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 				};
 			}
 		}
+
 		[Fact]
 		public void Should_Success_Get_PDF_IncomeTax()
 		{
@@ -402,16 +419,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 
 			mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
 				.Returns(new GarmentInvoice());
-
-
-
 			var mockMapper = new Mock<IMapper>();
 			mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
 				.Returns(ViewModelTax);
-
-
-
+						 
 			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+			IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+			   .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 13700 });
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
@@ -447,16 +461,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 
 			mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
 				.Returns(new GarmentInvoice());
-
-
-
+					   
 			var mockMapper = new Mock<IMapper>();
 			mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
 				.Returns(ViewModelTax);
 
-
-
 			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+			IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+			   .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 13700 });
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]

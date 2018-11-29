@@ -47,8 +47,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
         public string PaymentType { get; set; }
         public string PaymentMethod { get; set; }
-        public long? CurrencyId { get; set; }
-        public string CurrencyCode { get; set; }
+        public long? DOCurrencyId { get; set; }
+        public string DOCurrencyCode { get; set; }
+        public double? DOCurrencyRate { get; set; }
 
 
         public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }

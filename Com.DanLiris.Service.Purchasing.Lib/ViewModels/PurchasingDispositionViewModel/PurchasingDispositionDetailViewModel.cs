@@ -1,13 +1,15 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel
 {
-    public class PurchasingDispositionDetailViewModel
+    public class PurchasingDispositionDetailViewModel : BaseViewModel
     {
-        public long PRId { get; set; }
+        //public string EPODetailId { get; set; }
+        public string PRId { get; set; }
         public string PRNo { get; set; }
         public CategoryViewModel Category { get; set; }
         public ProductViewModel Product { get; set; }
@@ -17,5 +19,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public double PricePerDealUnit { get; set; }
         public double PriceTotal { get; set; }
         public double PaidPrice { get; set; }
+        public UnitViewModel Unit { get; set; }
     }
 }

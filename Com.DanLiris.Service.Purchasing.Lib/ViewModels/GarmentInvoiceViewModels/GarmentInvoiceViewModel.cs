@@ -25,7 +25,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 		public double incomeTaxRate { get; set; }
 		public bool hasInternNote { get; set; }
         public DateTimeOffset vatDate { get; set; }
-        public List<GarmentInvoiceItemViewModel> items { get; set; }
+        public double totalAmount { get; set; }
+        public string poSerialNumber { get; set; }
+		public string npn { get; set; }
+		public string nph { get; set; }
+		public List<GarmentInvoiceItemViewModel> items { get; set; }
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if (string.IsNullOrWhiteSpace(invoiceNo))
@@ -77,7 +81,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			int itemErrorCount = 0;
 			int detailErrorCount = 0;
 
- 
 			if (this.items == null || this.items.Count==0)
 			{
 				yield return new ValidationResult("DeliveryOrder is required", new List<string> { "itemscount" });

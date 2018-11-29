@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -28,7 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
         private readonly IGarmentInvoice facade;
-        private readonly IdentityService identityService;
+		private readonly IGarmentDeliveryOrderFacade DOfacade;
+		private readonly IdentityService identityService;
 	 
 
 		public GarmentInvoiceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInvoice facade, IGarmentDeliveryOrderFacade DOfacade)
@@ -36,36 +39,37 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
             this.facade = facade;
+			this.DOfacade = DOfacade;
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
-		//[HttpGet("by-user")]
-		//public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
-		//{
-		//	try
-		//	{
-		//		identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+		[HttpGet("by-user")]
+		public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-		//		string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
-		//		if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
-		//		{
-		//			filter = string.Concat("{", filterUser, "}");
-		//		}
-		//		else
-		//		{
-		//			filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
-		//		}
+				string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+				if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+				{
+					filter = string.Concat("{", filterUser, "}");
+				}
+				else
+				{
+					filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+				}
 
-		//		return Get(page, size, order, keyword, filter);
-		//	}
-		//	catch (Exception e)
-		//	{
-		//		Dictionary<string, object> Result =
-		//			new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-		//			.Fail();
-		//		return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-		//	}
-		//}
+				return Get(page, size, order, keyword, filter);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
 		[HttpGet]
 		public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
 		{
@@ -79,20 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 
 				List<object> listData = new List<object>();
 				listData.AddRange(
-					viewModel.AsQueryable().Select(s => new
-					{
-						s.Id,
-						s.invoiceNo,
-						s.invoiceDate,
-						s.supplier.Name,
-						s.items,
-						s.useVat,
-						s.hasInternNote,
-						s.useIncomeTax,
-						s.isPayTax,
-						
-						s.LastModifiedUtc
-					}).ToList()
+					viewModel.AsQueryable().Select(s => s).ToList()
 				);
 
 				var info = new Dictionary<string, object>
@@ -145,11 +136,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 					
 					IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
-						FileDownloadName = $"{viewModel.incomeTaxNo}.pdf"
+						FileDownloadName = $"{viewModel.nph}.pdf"
 					};
 
 				}
@@ -173,8 +164,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				{
 					throw new Exception("Invalid Id");
 				}
+                foreach (var item in viewModel.items)
+                {
+                    GarmentDeliveryOrder deliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+                    if (deliveryOrder != null)
+                    {
+                        GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+                        item.deliveryOrder.items = deliveryOrderViewModel.items;
+                    }
+                }
 
-				Dictionary<string, object> Result =
+                Dictionary<string, object> Result =
 					new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
 					.Ok(viewModel);
 				return Ok(Result);
@@ -215,11 +215,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
 					VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
-						FileDownloadName = $"{viewModel.vatNo}.pdf"
+						FileDownloadName = $"{viewModel.npn}.pdf"
 					};
 
 				}

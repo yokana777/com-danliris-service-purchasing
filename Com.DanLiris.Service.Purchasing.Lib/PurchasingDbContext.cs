@@ -17,7 +17,12 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -78,10 +83,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentInvoice> GarmentInvoices { get; set; }
         public DbSet<GarmentInvoiceItem> GarmentInvoiceItems { get; set; }
         public DbSet<GarmentInvoiceDetail> GarmentInvoiceDetails { get; set; }
-
+        public DbSet<GarmentInternNote> GarmentInternNotes { get; set; }
+        public DbSet<GarmentInternNoteItem> GarmentInternNoteItems { get; set; }
+        public DbSet<GarmentInternNoteDetail> GarmentInternNoteDetails { get; set; }
         public DbSet<PurchasingDisposition> PurchasingDispositions { get; set; }
         public DbSet<PurchasingDispositionItem> PurchasingDispositionItems { get; set; }
         public DbSet<PurchasingDispositionDetail> PurchasingDispositionDetails { get; set; }
+
+        public DbSet<GarmentCorrectionNote> GarmentCorrectionNotes { get; set; }
+        public DbSet<GarmentCorrectionNoteItem> GarmentCorrectionNoteItems { get; set; }
+		public DbSet<GarmentBeacukai> GarmentBeacukais { get; set; }
+		public DbSet<GarmentBeacukaiItem> GarmentBeacukaiItems { get; set; }
+
+        public DbSet<GarmentUnitReceiptNote> GarmentUnitReceiptNotes { get; set; }
+        public DbSet<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItems { get; set; }
+
+        public DbSet<GarmentInventoryDocument> GarmentInventoryDocuments { get; set; }
+        public DbSet<GarmentInventoryDocumentItem> GarmentInventoryDocumentItems { get; set; }
+        public DbSet<GarmentInventoryMovement> GarmentInventoryMovements { get; set; }
+        public DbSet<GarmentInventorySummary> GarmentInventorySummaries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
