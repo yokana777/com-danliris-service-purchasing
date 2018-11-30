@@ -49,6 +49,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                     foreach (var item in m.Items)
                     {
+
+
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
                             GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.GarmentEPOId == detail.EPOId);
@@ -61,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
                         garmentInvoice.HasInternNote = true;
 
-                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                     }
 
                     this.dbSet.Add(m);
@@ -95,21 +98,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     EntityExtension.FlagForDelete(model, username, USER_AGENT);
                     foreach (var item in model.Items)
                     {
-                        foreach (var detail in item.Details)
-                        {
-                            
-                            EntityExtension.FlagForDelete(model, username, USER_AGENT);
-                        }
                         GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
                         garmentInvoice.HasInternNote = false;
-
-                        EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForDelete(detail, username, USER_AGENT);
+                        }
                     }
 
                     Deleted = dbContext.SaveChanges();
-
-                    dbContext.SaveChanges();
-                    transaction.Commit();
+					transaction.Commit();
                 }
                 catch (Exception e)
                 {
@@ -123,7 +122,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         public Tuple<List<GarmentInternNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentInternNote> Query = this.dbSet;
+            IQueryable<GarmentInternNote> Query = dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "INNo", "SupplierName", "Items.InvoiceNo"
+            };
+
+            Query = QueryHelper<GarmentInternNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Query = Query.Select(s => new GarmentInternNote
             {
@@ -144,13 +150,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     }).ToList()
                 }).ToList()
             });
-
-            List<string> searchAttributes = new List<string>()
-            {
-                "INNo", "INDate", "SupplierName", "Items.InvoiceNo", "CreatedBy"
-            };
-
-            Query = QueryHelper<GarmentInternNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<GarmentInternNote>.ConfigureFilter(Query, FilterDictionary);
@@ -190,14 +189,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
                         foreach (var item in m.Items)
                         {
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             foreach (var detail in item.Details)
                             {
-                                EntityExtension.FlagForCreate(detail, user, "Facade");
+                                EntityExtension.FlagForUpdate(detail, user, "Facade");
                             }
-                            //GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                            //garmentInvoice.HasInternNote = true;
+                            GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                            garmentInvoice.HasInternNote = true;
 
-                            EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                         }
 
                         dbSet.Update(m);

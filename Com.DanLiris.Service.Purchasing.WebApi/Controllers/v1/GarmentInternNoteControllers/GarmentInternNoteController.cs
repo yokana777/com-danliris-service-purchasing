@@ -100,7 +100,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                     }
                 }
 
-
                 List<object> listData = new List<object>();
                 listData.AddRange(
                     viewModel.AsQueryable().Select(s => new
@@ -114,8 +113,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                             details = i.details.Select(d => new
                             {
                                 d.deliveryOrder
-                            })
-                        }),
+                            }).ToList(),
+                        }).ToList(),
                         s.CreatedBy,
                         s.LastModifiedUtc
                     }).ToList()
