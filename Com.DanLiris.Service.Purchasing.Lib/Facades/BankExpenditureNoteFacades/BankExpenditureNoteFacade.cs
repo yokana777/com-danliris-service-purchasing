@@ -293,6 +293,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 },
                 Credit = sumData.ToList().Sum(s => s.Total)
             };
+            items.Add(bankJournalItem);
 
             var modelToPost = new JournalTransaction()
             {
