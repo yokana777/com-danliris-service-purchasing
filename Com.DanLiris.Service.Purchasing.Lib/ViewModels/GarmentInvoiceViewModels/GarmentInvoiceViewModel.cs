@@ -19,12 +19,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public bool useVat { get; set; }
         public bool useIncomeTax { get; set; }
         public bool isPayTax { get; set; }
-        public DateTimeOffset incomeTaxDate { get; set; }
+        public DateTimeOffset? incomeTaxDate { get; set; }
 		public long incomeTaxId { get; set; }
 		public string incomeTaxName { get; set; }
 		public double incomeTaxRate { get; set; }
 		public bool hasInternNote { get; set; }
-        public DateTimeOffset vatDate { get; set; }
+        public DateTimeOffset? vatDate { get; set; }
         public double totalAmount { get; set; }
         public string poSerialNumber { get; set; }
 		public string npn { get; set; }
@@ -77,7 +77,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 				{
 					yield return new ValidationResult("Date is required", new List<string> { "incomeTaxDate" });
 				}
-			}
+                if (string.IsNullOrWhiteSpace(incomeTaxName) || incomeTaxName == null)
+                {
+                    yield return new ValidationResult("incomeTax is required", new List<string> { "incomeTax" });
+                }
+            }
 			int itemErrorCount = 0;
 			int detailErrorCount = 0;
 

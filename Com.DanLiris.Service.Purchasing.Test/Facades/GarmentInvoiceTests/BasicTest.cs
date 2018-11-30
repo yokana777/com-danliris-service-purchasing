@@ -340,7 +340,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			};
 			Assert.True(viewModels.Validate(null).Count() > 0);
 
-		}
+            GarmentInvoiceViewModel viewModels1 = new GarmentInvoiceViewModel
+            {
+                invoiceNo = "",
+                invoiceDate = DateTimeOffset.MinValue,
+                supplier = { },
+                incomeTaxId = It.IsAny<int>(),
+                incomeTaxName = "",
+                incomeTaxNo = "",
+                incomeTaxDate = DateTimeOffset.MinValue,
+                incomeTaxRate = 2,
+                vatNo = "",
+                vatDate = DateTimeOffset.MinValue,
+                useIncomeTax = true,
+                useVat = true,
+                isPayTax = true,
+                poSerialNumber="any",
+                hasInternNote = false,
+                currency = new CurrencyViewModel { Id = It.IsAny<int>(), Code = "USD", Symbol = "$", Rate = 13000, Description = "" },
+                items = new List<GarmentInvoiceItemViewModel>
+                    {
+                        new GarmentInvoiceItemViewModel
+                        {
+                            deliveryOrder =null,
+
+                            details= null
+                        }
+                    }
+            };
+            Assert.True(viewModels1.Validate(null).Count() > 0);
+
+        }
 
         [Fact]
         public async void Should_Success_Get_Data_By_DOId()

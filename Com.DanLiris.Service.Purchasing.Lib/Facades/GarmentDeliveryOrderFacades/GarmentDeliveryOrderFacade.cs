@@ -333,11 +333,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false);
+                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false && !string.IsNullOrWhiteSpace( s.BillNo));
             }
 
             return Query;
         }
+
 		public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
 		{
 			IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
