@@ -114,13 +114,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		private string GenerateNPN()
 		{
 			string NPN = null;
-			GarmentInvoice garmentInvoice = (from data in dbSet
+			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPN!=null
 												  orderby data.NPN descending
 												  select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
 			string month = DateTime.Now.Month.ToString("D2");
 			string day = DateTime.Now.Day.ToString("D2");
-			string formatDate = year + month + day;
+			string formatDate = year + month;
 			int counterId = 0;
 			if (garmentInvoice != null)
 			{
@@ -147,13 +147,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		private string GenerateNPH()
 		{
 			string NPH = null;
-			GarmentInvoice garmentInvoice = (from data in dbSet
-											 orderby data.NPN descending
+			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPH !=null
+											 orderby data.NPH descending
 											 select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
 			string month = DateTime.Now.Month.ToString("D2");
 			string day = DateTime.Now.Day.ToString("D2");
-			string formatDate = year + month + day;
+			string formatDate = year + month;
 			int counterId = 0;
 			if (garmentInvoice != null)
 			{
