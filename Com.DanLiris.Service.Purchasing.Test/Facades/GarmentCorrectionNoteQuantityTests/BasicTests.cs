@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
@@ -156,6 +157,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Responses = await facade.Create(data,false, USERNAME);
             var Response = facade.GetSupplier(data.SupplierId);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data_By_DOId()
+        {
+            var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentCorrectionNote data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
+            var Response = facade.ReadByDOId((int)data.DOId);
             Assert.NotNull(Response);
         }
     }

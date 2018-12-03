@@ -14,8 +14,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class GarmentInternNotePDFTemplate
     {
-        public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
+        public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, IServiceProvider serviceProvider, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
         {
+            IGarmentCorrectionNoteQuantityFacade correctionNote = (IGarmentCorrectionNoteQuantityFacade)serviceProvider.GetService(typeof(IGarmentCorrectionNoteQuantityFacade));
+
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
@@ -131,6 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             double ppn = 0;
             double pph = 0;
             double maxtotal = 0;
+            decimal totalcorrection = 0;
             Dictionary<string, double> units = new Dictionary<string, double>();
             foreach (GarmentInternNoteItemViewModel item in viewModel.items)
             {
@@ -185,7 +188,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     }
 
                     maxtotal =  totalPriceTotal + ppn - pph ;
-                    
+
+                    var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
+                    totalcorrection += correctionNotes.TotalCorrection;
                 }
             }
             
@@ -239,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftNoBorder.Phrase = new Phrase("Total Nota Koreksi", normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase($": " + 0, normal_font);
+                cellLeftNoBorder.Phrase = new Phrase($": " + totalcorrection.ToString("N", new CultureInfo("id-ID")), normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
 
                 cellLeftNoBorder.Phrase = new Phrase("Total Nota PPn" , normal_font);

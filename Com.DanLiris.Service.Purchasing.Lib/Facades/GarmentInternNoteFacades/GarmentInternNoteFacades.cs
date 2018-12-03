@@ -49,14 +49,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                     foreach (var item in m.Items)
                     {
-
-
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
                             GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.GarmentEPOId == detail.EPOId);
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == eksternalPurchaseOrderItem.POId);
-                            //GarmentInternalPurchaseOrderItem internalpurchaseorderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(p => p.GPOId.Equals(internalPurchaseOrder.Id));
+                            GarmentInternalPurchaseOrderItem internalpurchaseorderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(p => p.GPOId.Equals(internalPurchaseOrder.Id));
                             detail.UnitId = internalPurchaseOrder.UnitId;
                             detail.UnitCode = internalPurchaseOrder.UnitCode;
                             detail.UnitName = internalPurchaseOrder.UnitName;
@@ -234,7 +232,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                         EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                                     }
                                     else
+                                    {
+                                        GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.GarmentEPOId == detail.EPOId);
+                                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == eksternalPurchaseOrderItem.POId);
+                                        GarmentInternalPurchaseOrderItem internalpurchaseorderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(p => p.GPOId.Equals(internalPurchaseOrder.Id));
+                                        detail.UnitId = internalPurchaseOrder.UnitId;
+                                        detail.UnitCode = internalPurchaseOrder.UnitCode;
+                                        detail.UnitName = internalPurchaseOrder.UnitName;
+
                                         EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+                                    }
                                 }
                             }
                         }
