@@ -151,14 +151,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                             itemError += "OverBudgetRemark: 'Keterangan OverBudget Harus Diisi', ";
                         }
                     }
-                    if (item.DealUom.Unit == item.SmallUom.Unit)
+                    if(item.DealUom!=null && item.SmallUom != null)
                     {
-                        if (item.Conversion != 1)
+                        if (item.DealUom.Unit == item.SmallUom.Unit)
                         {
-                            itemErrorCount++;
-                            itemError += "Conversion: 'Konversi harus 1', ";
+                            if (item.Conversion != 1)
+                            {
+                                itemErrorCount++;
+                                itemError += "Conversion: 'Konversi harus 1', ";
+                            }
                         }
                     }
+                    
 
                     itemError += "}, ";
                 }

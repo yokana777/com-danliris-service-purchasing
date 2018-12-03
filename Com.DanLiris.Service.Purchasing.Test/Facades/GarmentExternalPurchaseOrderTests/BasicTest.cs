@@ -335,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
                     {
                         Product = new GarmentProductViewModel(),
                         DealUom = new UomViewModel(),
-
+                        SmallUom= new UomViewModel(),
                     }
                 }
             };
