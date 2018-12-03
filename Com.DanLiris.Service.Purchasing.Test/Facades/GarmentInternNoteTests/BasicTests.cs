@@ -131,16 +131,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Error_Update_Data()
-        {
-            GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-
-            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
-            Assert.NotNull(errorInvalidId.Message);
-        }
-
-        [Fact]
         public async void Should_Success_Delete_Data()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
