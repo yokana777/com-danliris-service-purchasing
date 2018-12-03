@@ -15,5 +15,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
         public const string CORE_ENDPOINT = "AzureCoreEndpoint";
         public const string INVENTORY_ENDPOINT = "AzureInventoryEndpoint";
         public const string FINANCE_ENDPOINT = "FinanceEndpoint";
-    }
+		public const string CUSTOMSREPORT_ENDPOINT = "CustomsReportEndpoint";
+	}
 }
