@@ -123,11 +123,54 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         [Fact]
         public async void Should_Success_Update_Data()
         {
-            GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
+            var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
 
-            var Response = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+            var newItem = new GarmentInternNoteItem
+            {
+                InvoiceId = It.IsAny<int>(),
+                InvoiceDate = DateTimeOffset.Now,
+                InvoiceNo = "donos",
+                TotalAmount = 2000,
+                Details = new List<GarmentInternNoteDetail>
+                            {
+                                new GarmentInternNoteDetail
+                                {
+                                    EPOId=It.IsAny<int>(),
+                                    EPONo="epono",
+                                    UnitId="1",
+                                    UnitCode = "UnitCode",
+                                    UnitName = "UnitName",
+                                    DOId = It.IsAny<int>(),
+                                    DODate = DateTimeOffset.Now,
+
+                                    DONo = "DONO",
+                                    PaymentMethod = "PaymentMethod",
+                                    PaymentType = "PaymentType",
+                                    InvoiceDetailId = It.IsAny<int>(),
+                                    RONo="12343",
+                                    ProductId= It.IsAny<int>(),
+                                    ProductCode="code",
+                                    ProductName="name",
+                                    UOMId=It.IsAny<int>(),
+                                    UOMUnit="ROLL",
+                                    Quantity=40,
+                                    PricePerDealUnit=5000,
+                                    PaymentDueDays = 2,
+                                    POSerialNumber="PM132434",
+                                    PriceTotal = 12345
+                                }
+                            }
+            };
+            List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
+            Newitems.Add(newItem);
+            data.Items = Newitems;
+
+            var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
         }
 
         [Fact]
