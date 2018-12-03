@@ -133,6 +133,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         }
 
         [Fact]
+        public async Task Should_Success_Create_Import_Supplier_Data()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            BankExpenditureNoteModel model = _dataUtil(facade, GetCurrentMethod()).GetImportData();
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+
+                Username = "Unit Test"
+            };
+            var Response = await facade.Create(model, identityService);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
@@ -144,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
 
                 Username = "Unit Test"
             };
-            BankExpenditureNoteDetailModel modelDetail = _dataUtil(facade, GetCurrentMethod()).GetNewDetailData();
+            BankExpenditureNoteDetailModel modelDetail = _dataUtil(facade, GetCurrentMethod()).GetNewDetailGarmentData();
             model.Details.Clear();
             model.Details.Add(modelDetail);
             var Response = await facade.Update((int)model.Id, model, identityService);

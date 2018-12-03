@@ -378,7 +378,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                             if (item.ProductId.ToString() == IPOItems.ProductId)
                             {
-                                IPOItems.RemainingBudget += item.UsedBudget;
+                                //IPOItems.RemainingBudget += item.UsedBudget;
                                 IPOItems.Status = "Sudah diorder ke Supplier";
                             }
 

@@ -229,6 +229,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
+        public async void Should_Success_Update_Position()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var prepData = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+          
+            PurchasingDispositionUpdatePositionPostedViewModel data = new PurchasingDispositionUpdatePositionPostedViewModel()
+            {
+                Position = Lib.Enums.ExpeditionPosition.CASHIER_DIVISION,
+                PurchasingDispositionNoes = new List<string>() { prepData.DispositionNo }
+            };
+            PurchasingDispositionUpdatePositionPostedViewModel nullModel = new PurchasingDispositionUpdatePositionPostedViewModel();
+            Assert.True(nullModel.Validate(null).Count() > 0);
+            int updated = await facade.UpdatePosition(data, USERNAME);
+            Assert.True(updated > 0);
+        }
+
+        [Fact]
         public async void Should_Error_Delete_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));

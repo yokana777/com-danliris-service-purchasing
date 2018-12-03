@@ -85,8 +85,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<UnitReceiptNoteFacade>()
-				.AddTransient<TotalPurchaseFacade>()
-				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+                .AddTransient<TotalPurchaseFacade>()
+                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
@@ -96,8 +96,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
-				.AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
-				.AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
+                .AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
+                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
                 .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>();
         }
 
