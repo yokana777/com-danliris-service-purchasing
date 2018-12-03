@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
@@ -87,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
-        private GarmentInternNoteController GetController(Mock<IGarmentInternNoteFacade> facadeM, Mock<IGarmentDeliveryOrderFacade> facadeDO , Mock<IValidateService> validateM, Mock<IMapper> mapper,Mock<IGarmentInvoice> facadeINV)
+        private GarmentInternNoteController GetController(Mock<IGarmentInternNoteFacade> facadeM, Mock<IGarmentDeliveryOrderFacade> facadeDO , Mock<IValidateService> validateM, Mock<IMapper> mapper,Mock<IGarmentInvoice> facadeINV, Mock<IGarmentCorrectionNoteQuantityFacade> correctionNote = null)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -102,6 +103,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 servicePMock
                     .Setup(x => x.GetService(typeof(IValidateService)))
                     .Returns(validateM.Object);
+            }
+            if (correctionNote != null)
+            {
+                servicePMock
+                    .Setup(x => x.GetService(typeof(IGarmentCorrectionNoteQuantityFacade)))
+                    .Returns(correctionNote.Object);
             }
 
             GarmentInternNoteController controller = new GarmentInternNoteController(servicePMock.Object, mapper.Object, facadeM.Object,facadeDO.Object, facadeINV.Object)
@@ -574,7 +581,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(new GarmentDeliveryOrderViewModel {
-                    Id = It.IsAny<int>(),
+                    Id = 1,
                     doNo = "Dono",
                     doDate = DateTimeOffset.Now,
                     paymentMethod = "PaymentMethod",
@@ -592,11 +599,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 1 });
+                 .Returns(new GarmentDeliveryOrder { Id=1, DOCurrencyRate = 1 });
 
             var INVmockFacade = new Mock<IGarmentInvoice>();
             INVmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                  .Returns(new GarmentInvoice());
+
+            var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
+                .Returns(new GarmentCorrectionNote());
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -605,7 +616,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             };
             user.Setup(u => u.Claims).Returns(claims);
 
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()

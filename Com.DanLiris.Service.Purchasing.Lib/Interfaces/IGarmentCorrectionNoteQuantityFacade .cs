@@ -13,5 +13,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentCorrectionNote ReadById(int id);
         Task<int> Create(GarmentCorrectionNote garmentCorrectionNote, bool isImport, string user, int clientTimeZoneOffset = 7);
         SupplierViewModel GetSupplier(long supplierId);
+        GarmentCorrectionNote ReadByDOId(int id);
     }
 }
