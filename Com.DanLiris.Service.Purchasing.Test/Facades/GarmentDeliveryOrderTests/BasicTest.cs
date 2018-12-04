@@ -445,7 +445,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                             {
                                 pOId = 1,
                                 pOItemId = 1,
-                                conversion = 1
+                                conversion = 1,
+                                purchaseOrderUom = new UomViewModel()
+                                {
+                                    Id= "2",
+                                    Unit = "test"
+                                },
+                                smallUom = new UomViewModel()
+                                {
+                                    Id = "1",
+                                    Unit = "test"
+                                }
                             }
                         }
                     }
