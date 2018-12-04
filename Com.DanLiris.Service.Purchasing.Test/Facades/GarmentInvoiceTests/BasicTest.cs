@@ -216,8 +216,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			data.Items = Newitems;
 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
-		}
+			Assert.NotEqual(ResponseUpdate1, 0);
+
+            //Newitems.Remove(newItem);
+            //data.Items = Newitems;
+            //var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
+            //Assert.NotEqual(ResponseUpdate2, 0);
+        }
 		[Fact]
 		public async void Should_Error_Update_Data()
 		{
@@ -253,9 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
 			Assert.NotNull(errorNullItems.Message);
 
-            data.Items.Remove(newItem);
-            Exception errorNullItems1 = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
-            Assert.NotNull(errorNullItems1.Message);
+            
         }
 
 		[Fact]
@@ -280,11 +283,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		{
 			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
 			Assert.True(nullViewModel.Validate(null).Count() > 0);
-            var yesterday = DateTime.Now.Date.AddDays(-1);
+            var tomorrow = DateTime.Now.Date.AddDays(+1);
             GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
-				invoiceDate = yesterday,
+				invoiceDate = tomorrow,
 				supplier = { },
 				incomeTaxId = It.IsAny<int>(),
 				incomeTaxName = "name",
