@@ -1,17 +1,23 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNotePDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +39,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
 
+        private readonly IMapper mapper;
+
         public GarmentUnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
@@ -45,9 +53,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
+
+            mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
-        public Tuple<List<GarmentUnitReceiptNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<GarmentUnitReceiptNote> Query = dbSet;
 
@@ -80,15 +90,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             List<GarmentUnitReceiptNote> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData, OrderDictionary);
+            List<object> ListData = new List<object>();
+            ListData.AddRange(Data.Select(s => new
+            {
+                s.Id,
+                s.URNNo,
+                Unit = new { Name = s.UnitName },
+                s.ReceiptDate,
+                Supplier = new { Name = s.SupplierName },
+                s.DONo,
+                s.CreatedBy,
+                s.LastModifiedUtc
+            }));
+
+            return new ReadResponse(ListData, TotalData, OrderDictionary);
         }
 
-        public GarmentUnitReceiptNote ReadById(int id)
+        public GarmentUnitReceiptNoteViewModel ReadById(int id)
         {
             var model = dbSet.Where(m => m.Id == id)
                             .Include(m => m.Items)
                             .FirstOrDefault();
-            return model;
+            var viewModel = mapper.Map<GarmentUnitReceiptNoteViewModel>(model);
+
+            foreach (var item in viewModel.Items)
+            {
+                item.Buyer = new BuyerViewModel
+                {
+                    Name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == item.PRId).Select(m => m.BuyerName).FirstOrDefault()
+                };
+                item.Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == item.EPOItemId).Select(m => m.Article).FirstOrDefault();
+            }
+
+            return viewModel;
+        }
+
+        public MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote)
+        {
+            return GarmentUnitReceiptNotePDFTemplate.GeneratePdfTemplate();
         }
 
         public async Task<int> Create(GarmentUnitReceiptNote garmentUnitReceiptNote)

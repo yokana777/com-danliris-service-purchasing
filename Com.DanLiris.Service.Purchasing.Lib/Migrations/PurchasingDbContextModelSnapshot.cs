@@ -249,6 +249,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("BGCheckNumber")
                         .HasMaxLength(255);
 
+                    b.Property<string>("BankAccountCOA")
+                        .HasMaxLength(255);
+
                     b.Property<string>("BankAccountName")
                         .HasMaxLength(255);
 
@@ -1347,6 +1350,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("LastModifiedUtc");
+
+                    b.Property<string>("NKPH");
+
+                    b.Property<string>("NKPN");
 
                     b.Property<string>("Remark");
 

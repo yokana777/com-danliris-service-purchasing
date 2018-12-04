@@ -39,6 +39,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel
         public string Remark { get; set; }
 
         public decimal TotalCorrection { get; set; }
+        public string NKPN { get; set; }
+        public string NKPH { get; set; }
 
         public virtual ICollection<GarmentCorrectionNoteItem> Items { get; set; }
     }

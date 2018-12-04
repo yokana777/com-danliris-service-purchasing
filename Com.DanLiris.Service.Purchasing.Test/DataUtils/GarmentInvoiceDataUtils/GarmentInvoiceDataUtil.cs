@@ -61,6 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 						   ArrivalDate  =  DateTimeOffset.Now,
 						   TotalAmount =2000,
 						   PaymentType="type",
+						  
 						   PaymentMethod="method",
 							Details= new List<GarmentInvoiceDetail>
 							{

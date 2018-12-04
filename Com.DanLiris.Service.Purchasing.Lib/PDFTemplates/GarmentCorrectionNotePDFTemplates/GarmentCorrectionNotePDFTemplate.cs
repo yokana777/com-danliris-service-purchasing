@@ -188,6 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
             PdfPTable tableFooterRight = new PdfPTable(2);
             tableFooterRight.SetWidths(new float[] { 3f, 5f });
+
             cellLeftNoBorder.Phrase = new Phrase("Total Amount", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase($":   ({totalAmount.ToString("n", new CultureInfo("id-ID"))})", normal_font);

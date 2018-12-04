@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         public readonly IServiceProvider serviceProvider;
-        
+
         private readonly string USER_AGENT = "Facade";
         private readonly string CREDITOR_ACCOUNT_URI = "creditor-account/bank-expenditure-note/list";
 
@@ -248,6 +248,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Created = await dbContext.SaveChangesAsync();
                     CreateDailyBankTransaction(model, identityService);
                     CreateCreditorAccount(model, identityService);
+                    CreateJournalTransaction(model, identityService);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -258,6 +259,55 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             }
 
             return Created;
+        }
+
+        private void CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
+        {
+            var sumData = model.Details.GroupBy(g => g.DivisionName).Select(s =>
+            new
+            {
+                s.First().DivisionName,
+                Total = s.Sum(sm => sm.TotalPaid)
+            });
+
+            var items = new List<JournalTransactionItem>();
+            foreach (var datum in sumData)
+            {
+                var item = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = COAGenerator.GetDebtCOA(model.SupplierImport, datum.DivisionName)
+                    },
+                    Debit = datum.Total
+                };
+
+                items.Add(item);
+            }
+
+            var bankJournalItem = new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = model.BankAccountCOA
+                },
+                Credit = sumData.ToList().Sum(s => s.Total)
+            };
+            items.Add(bankJournalItem);
+
+            var modelToPost = new JournalTransaction()
+            {
+                Date = DateTimeOffset.Now,
+                Description = "Bukti Pengeluaran Bank",
+                ReferenceNo = model.DocumentNo,
+                Items = items
+            };
+
+            string journalTransactionUri = "journal-transactions";
+            //var httpClient = new HttpClientService(identityService);
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<int> Delete(int Id, IdentityService identityService)
@@ -547,7 +597,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private void CreateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
         {
             List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
-            foreach(var item in model.Details)
+            foreach (var item in model.Details)
             {
                 CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
                 {
@@ -562,7 +612,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 postedData.Add(viewModel);
             }
 
-            
+
             var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
@@ -600,5 +650,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             response.EnsureSuccessStatusCode();
 
         }
+    }
+
+    class JournalTransaction
+    {
+        public string Description { get; set; }
+        public DateTimeOffset? Date { get; set; }
+        public string ReferenceNo { get; set; }
+        public List<JournalTransactionItem> Items { get; set; }
+    }
+
+    class JournalTransactionItem
+    {
+        public COA COA { get; set; }
+        public string Remark { get; set; }
+        public double? Debit { get; set; }
+        public double? Credit { get; set; }
+    }
+
+    class COA
+    {
+        public string Name { get; set; }
+        public string Code { get; set; }
     }
 }
