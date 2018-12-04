@@ -228,5 +228,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             }
 
         }
+
+        public GarmentCorrectionNote ReadByDOId(int id)
+        {
+            var model = dbSet.Where(m => m.DOId == id)
+                 .Include(m => m.Items)
+                 .FirstOrDefault();
+            return model;
+        }
     }
 }

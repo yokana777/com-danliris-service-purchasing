@@ -20,7 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             this.pdaDataUtil = pdaDataUtil;
         }
 
-        public BankExpenditureNoteDetailModel GetNewDetailData()
+        public BankExpenditureNoteDetailModel GetNewDetailSpinningData()
         {
             PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
 
@@ -49,7 +49,133 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 UnitPaymentOrderId = purchasingDocumentExpedition.Id,
                 UnitPaymentOrderNo = purchasingDocumentExpedition.UnitPaymentOrderNo,
                 DivisionCode = purchasingDocumentExpedition.DivisionCode,
-                DivisionName = purchasingDocumentExpedition.DivisionName,
+                DivisionName = "SPINNING",
+                Currency = purchasingDocumentExpedition.Currency,
+                DueDate = purchasingDocumentExpedition.DueDate,
+                InvoiceNo = purchasingDocumentExpedition.InvoiceNo,
+                SupplierCode = purchasingDocumentExpedition.SupplierCode,
+                SupplierName = purchasingDocumentExpedition.SupplierName,
+                TotalPaid = purchasingDocumentExpedition.TotalPaid,
+                UPODate = purchasingDocumentExpedition.UPODate,
+                Vat = purchasingDocumentExpedition.Vat,
+                Items = Items
+            };
+        }
+
+        public BankExpenditureNoteDetailModel GetNewDetailWeavingData()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+
+            List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
+            foreach (var item in purchasingDocumentExpedition.Items)
+            {
+                BankExpenditureNoteItemModel Item = new BankExpenditureNoteItemModel
+                {
+                    Price = item.Price,
+                    ProductCode = item.ProductCode,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    UnitCode = item.UnitCode,
+                    UnitId = item.UnitId,
+                    UnitName = item.UnitName,
+                    Uom = item.Uom
+                };
+
+                Items.Add(Item);
+            }
+
+            return new BankExpenditureNoteDetailModel()
+            {
+                Id = 0,
+                UnitPaymentOrderId = purchasingDocumentExpedition.Id,
+                UnitPaymentOrderNo = purchasingDocumentExpedition.UnitPaymentOrderNo,
+                DivisionCode = purchasingDocumentExpedition.DivisionCode,
+                DivisionName = "WEAVING",
+                Currency = purchasingDocumentExpedition.Currency,
+                DueDate = purchasingDocumentExpedition.DueDate,
+                InvoiceNo = purchasingDocumentExpedition.InvoiceNo,
+                SupplierCode = purchasingDocumentExpedition.SupplierCode,
+                SupplierName = purchasingDocumentExpedition.SupplierName,
+                TotalPaid = purchasingDocumentExpedition.TotalPaid,
+                UPODate = purchasingDocumentExpedition.UPODate,
+                Vat = purchasingDocumentExpedition.Vat,
+                Items = Items
+            };
+        }
+
+        public BankExpenditureNoteDetailModel GetNewDetailFinishingPrintingData()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+
+            List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
+            foreach (var item in purchasingDocumentExpedition.Items)
+            {
+                BankExpenditureNoteItemModel Item = new BankExpenditureNoteItemModel
+                {
+                    Price = item.Price,
+                    ProductCode = item.ProductCode,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    UnitCode = item.UnitCode,
+                    UnitId = item.UnitId,
+                    UnitName = item.UnitName,
+                    Uom = item.Uom
+                };
+
+                Items.Add(Item);
+            }
+
+            return new BankExpenditureNoteDetailModel()
+            {
+                Id = 0,
+                UnitPaymentOrderId = purchasingDocumentExpedition.Id,
+                UnitPaymentOrderNo = purchasingDocumentExpedition.UnitPaymentOrderNo,
+                DivisionCode = purchasingDocumentExpedition.DivisionCode,
+                DivisionName = "FINISHING & PRINTING",
+                Currency = purchasingDocumentExpedition.Currency,
+                DueDate = purchasingDocumentExpedition.DueDate,
+                InvoiceNo = purchasingDocumentExpedition.InvoiceNo,
+                SupplierCode = purchasingDocumentExpedition.SupplierCode,
+                SupplierName = purchasingDocumentExpedition.SupplierName,
+                TotalPaid = purchasingDocumentExpedition.TotalPaid,
+                UPODate = purchasingDocumentExpedition.UPODate,
+                Vat = purchasingDocumentExpedition.Vat,
+                Items = Items
+            };
+        }
+
+        public BankExpenditureNoteDetailModel GetNewDetailGarmentData()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+
+            List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
+            foreach (var item in purchasingDocumentExpedition.Items)
+            {
+                BankExpenditureNoteItemModel Item = new BankExpenditureNoteItemModel
+                {
+                    Price = item.Price,
+                    ProductCode = item.ProductCode,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    UnitCode = item.UnitCode,
+                    UnitId = item.UnitId,
+                    UnitName = item.UnitName,
+                    Uom = item.Uom
+                };
+
+                Items.Add(Item);
+            }
+
+            return new BankExpenditureNoteDetailModel()
+            {
+                Id = 0,
+                UnitPaymentOrderId = purchasingDocumentExpedition.Id,
+                UnitPaymentOrderNo = purchasingDocumentExpedition.UnitPaymentOrderNo,
+                DivisionCode = purchasingDocumentExpedition.DivisionCode,
+                DivisionName = "GARMENT",
                 Currency = purchasingDocumentExpedition.Currency,
                 DueDate = purchasingDocumentExpedition.DueDate,
                 InvoiceNo = purchasingDocumentExpedition.InvoiceNo,
@@ -69,12 +195,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
 
             List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
             {
-                GetNewDetailData()
+                GetNewDetailSpinningData(),
+                GetNewDetailWeavingData(),
+                GetNewDetailFinishingPrintingData(),
+                GetNewDetailGarmentData()
             };
 
             BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
             {
                 BankAccountNumber = "100020003000",
+                BankAccountCOA = "BankAccountCOA",
                 BankAccountName = "BankAccountName",
                 BankCode = "BankCode",
                 BankId = "BankId",
@@ -84,6 +214,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 BankCurrencyRate = "1",
                 GrandTotal = 120,
                 BGCheckNumber = "BGNo",
+                SupplierImport = false,
+                Details = Details,
+            };
+
+            return TestData;
+        }
+
+        public BankExpenditureNoteModel GetImportData()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+
+            List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
+            {
+                GetNewDetailSpinningData(),
+                GetNewDetailWeavingData(),
+                GetNewDetailFinishingPrintingData(),
+                GetNewDetailGarmentData()
+            };
+
+            BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
+            {
+                BankAccountNumber = "100020003000",
+                BankAccountCOA = "BankAccountCOA",
+                BankAccountName = "BankAccountName",
+                BankCode = "BankCode",
+                BankId = "BankId",
+                BankName = "BankName",
+                BankCurrencyCode = "CurrencyCode",
+                BankCurrencyId = "CurrencyId",
+                BankCurrencyRate = "1",
+                GrandTotal = 120,
+                BGCheckNumber = "BGNo",
+                SupplierImport = true,
                 Details = Details,
             };
 

@@ -378,6 +378,68 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
         }
 
         [Fact]
+        public void Should_Success_Update_Position()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+                .ReturnsAsync(1);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Update_Position()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Update_Position()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception());
+
+            var controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Delete_Data()
         {
             var validateMock = new Mock<IValidateService>();

@@ -16,6 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         [MaxLength(255)]
         public string BankAccountName { get; set; }
         [MaxLength(255)]
+        public string BankAccountCOA { get; set; }
+        [MaxLength(255)]
         public string BankAccountNumber { get; set; }
         public string BankName { get; set; }
         [MaxLength(255)]
