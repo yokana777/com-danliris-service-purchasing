@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             dbSet = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
 
-            mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
+            mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
         public Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
