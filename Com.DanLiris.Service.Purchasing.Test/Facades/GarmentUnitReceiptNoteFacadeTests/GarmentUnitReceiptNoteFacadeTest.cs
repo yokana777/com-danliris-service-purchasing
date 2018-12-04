@@ -50,7 +50,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var mapper = new Mock<IMapper>();
             mapper
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
-                .Returns(new GarmentUnitReceiptNoteViewModel { Id = 1, Items = new List<GarmentUnitReceiptNoteItemViewModel>() });
+                .Returns(new GarmentUnitReceiptNoteViewModel {
+                    Id = 1,
+                    Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                    {
+                        new GarmentUnitReceiptNoteItemViewModel()
+                    }
+                });
 
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
