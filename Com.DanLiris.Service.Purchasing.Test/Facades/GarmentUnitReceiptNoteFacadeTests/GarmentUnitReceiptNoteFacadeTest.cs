@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
@@ -6,7 +7,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -19,6 +22,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -43,6 +47,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(httpResponseMessage);
 
+            var mapper = new Mock<IMapper>();
+            mapper
+                .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
+                .Returns(new GarmentUnitReceiptNoteViewModel { Id = 1, Items = new List<GarmentUnitReceiptNoteItemViewModel>() });
+
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IdentityService)))
@@ -50,6 +59,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(httpClientService.Object);
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IMapper)))
+                .Returns(mapper.Object);
 
             return serviceProviderMock.Object;
         }
@@ -98,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEqual(Response.Data.Count, 0);
         }
 
         [Fact]
@@ -108,6 +120,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.ReadById((int)data.Id);
             Assert.NotEqual(Response.Id, 0);
+        }
+
+        [Fact]
+        public void Should_Success_Generate_Pdf()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response = facade.GeneratePdf(new GarmentUnitReceiptNoteViewModel());
+            Assert.IsType<MemoryStream>(Response);
         }
 
         [Fact]
@@ -178,6 +198,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0));
             Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            GarmentUnitReceiptNoteViewModel viewModel = new GarmentUnitReceiptNoteViewModel { IsStorage = true };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelCheckDeliveryOrder = new GarmentUnitReceiptNoteViewModel {
+                Supplier = new SupplierViewModel { Id = 1 },
+                Unit = new UnitViewModel { Id = "1" },
+            };
+            Assert.True(viewModelCheckDeliveryOrder.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelCheckItemsCount = new GarmentUnitReceiptNoteViewModel { DOId = 1 };
+            Assert.True(viewModelCheckItemsCount.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelCheckItems = new GarmentUnitReceiptNoteViewModel {
+                DOId = 1,
+                Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                {
+                    new GarmentUnitReceiptNoteItemViewModel()
+                }
+            };
+            Assert.True(viewModelCheckItems.Validate(null).Count() > 0);
         }
     }
 }
