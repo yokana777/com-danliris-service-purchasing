@@ -252,7 +252,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 			Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
 			Assert.NotNull(errorNullItems.Message);
-		}
+
+            data.Items.Remove(newItem);
+            Exception errorNullItems1 = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
+            Assert.NotNull(errorNullItems1.Message);
+        }
 
 		[Fact]
 		public async void Should_Success_Delete_Data()
@@ -276,10 +280,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		{
 			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
 			Assert.True(nullViewModel.Validate(null).Count() > 0);
-			GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
+            var yesterday = DateTime.Now.Date.AddDays(-1);
+            GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
-				invoiceDate = DateTimeOffset.MinValue,
+				invoiceDate = yesterday,
 				supplier = { },
 				incomeTaxId = It.IsAny<int>(),
 				incomeTaxName = "name",
@@ -304,6 +309,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 								new GarmentInvoiceDetailViewModel
 								{
 									doQuantity=0
+                                    
 								}
 							}
 						}
