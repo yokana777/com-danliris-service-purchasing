@@ -84,6 +84,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
                                 itemError += "PriceTotal: 'Harga Total tidak berubah', ";
                             }
                         }
+                        else if(CorrectionType.ToUpper() == "JUMLAH")
+                        {
+                            if (item.Quantity == 0)
+                            {
+                                itemErrorCount++;
+                                itemError += "Quantity: 'Jumlah Tidak Boleh 0', ";
+                            }
+                        }
 
                         itemError += "}, ";
                     }
