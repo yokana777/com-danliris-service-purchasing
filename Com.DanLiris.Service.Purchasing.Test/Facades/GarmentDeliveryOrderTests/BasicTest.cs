@@ -497,7 +497,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                             {
                                 pOId = 1,
                                 pOItemId = 1,
-                                conversion = 1,
+                                conversion = 2,
                                 purchaseOrderUom = new UomViewModel()
                                 {
                                     Id= "1",
