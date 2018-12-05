@@ -80,6 +80,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             return serviceProvider;
         }
 
+        private Mock<IServiceProvider> GetServiceProviderError()
+        {
+            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            message.Content = null;
+            var HttpClientService = new Mock<IHttpClientService>();
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(message);
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(HttpClientService.Object);
+
+            return serviceProvider;
+        }
+
         private GarmentDeliveryOrderDataUtil dataUtil(GarmentDeliveryOrderFacade facade, string testName)
         {
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
@@ -92,6 +113,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
             return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
+
+        [Fact]
+        public async void Should_Error_Get_Currency_when_Create_Data()
+        {
+
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProviderError().Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            foreach(var item in model.Items)
+            {
+                item.CurrencyCode = "test";
+            }
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            Assert.NotNull(e.Message);
         }
 
         [Fact]
