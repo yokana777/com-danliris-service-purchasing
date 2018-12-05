@@ -56,6 +56,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
 
         public decimal ReceiptCorrection { get; set; }
 
+        public decimal OrderQuantity { get; set; }
+
         public long SmallUomId { get; set; }
         [MaxLength(1000)]
         public string SmallUomUnit { get; set; }
