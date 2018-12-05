@@ -90,18 +90,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return garmentUnitReceiptNote;
         }
 
-        public GarmentUnitReceiptNote GetNewDataWithStorage()
+        public void SetDataWithStorage(GarmentUnitReceiptNote garmentUnitReceiptNote, long? unitId = null)
         {
-            long nowTicks = DateTimeOffset.Now.Ticks;
-
-            var garmentUnitReceiptNote = GetNewData();
+            long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
 
             garmentUnitReceiptNote.IsStorage = true;
             garmentUnitReceiptNote.StorageId = nowTicks;
             garmentUnitReceiptNote.StorageCode = string.Concat("StorageCode", nowTicks);
             garmentUnitReceiptNote.StorageName = string.Concat("StorageName", nowTicks);
+        }
 
-            return garmentUnitReceiptNote;
+
+        public GarmentUnitReceiptNote GetNewDataWithStorage()
+        {
+            var data = GetNewData();
+            SetDataWithStorage(data, data.UnitId);
+
+            return data;
         }
 
         public async Task<GarmentUnitReceiptNote> GetTestData()
