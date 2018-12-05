@@ -276,6 +276,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             Assert.NotEqual(Response, 0);
         }
 
+        //[Fact]
+        //public async void Should_Success_Update_Data4()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData3();
+        //    var model2 = await dataUtil(facade, GetCurrentMethod()).GetTestData4();
+
+        //    GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+        //    {
+        //        Id = model.Id,
+        //        supplier = new SupplierViewModel(),
+        //        customsId = 1,
+        //        billNo = "test",
+        //        paymentBill = "test",
+        //        totalAmount = 1,
+        //        shipmentType = "test",
+        //        shipmentNo = "test",
+        //        paymentMethod = "test",
+        //        paymentType = "test",
+        //        docurrency = new CurrencyViewModel(),
+        //        items = new List<GarmentDeliveryOrderItemViewModel>
+        //        {
+        //            new GarmentDeliveryOrderItemViewModel
+        //            {
+        //                Id = (model.Items.ElementAt(0).Id + 2),
+        //                purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+        //                paymentDueDays = 1,
+        //                currency = new CurrencyViewModel(),
+
+        //                fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+        //                {
+        //                    new GarmentDeliveryOrderFulfillmentViewModel
+        //                    {
+        //                        Id = model.Items.ElementAt(0).Details.ElementAt(0).Id,
+        //                        pOId = 1,
+        //                        pOItemId = 1,
+        //                        conversion = 0,
+        //                        quantityCorrection = 0,
+        //                        pricePerDealUnit = 0,
+        //                        priceTotalCorrection = 0,
+        //                        isSave = true
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //    };
+        //    model2.Items.Remove(model2.Items.FirstOrDefault());
+        //    var Response = await facade.Update((int)model2.Id, viewModel, model2, USERNAME);
+        //    Assert.NotEqual(Response, 0);
+        //}
+
         [Fact]
         public async void Should_Error_Update_Data()
         {
@@ -448,7 +500,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                                 conversion = 1,
                                 purchaseOrderUom = new UomViewModel()
                                 {
-                                    Id= "2",
+                                    Id= "1",
                                     Unit = "test"
                                 },
                                 smallUom = new UomViewModel()

@@ -236,7 +236,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             if (newItem == null)
                             {
                                 EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
-                                dbContext.GarmentDeliveryOrderItems.Update(oldItem);
                             }
                         }
 
