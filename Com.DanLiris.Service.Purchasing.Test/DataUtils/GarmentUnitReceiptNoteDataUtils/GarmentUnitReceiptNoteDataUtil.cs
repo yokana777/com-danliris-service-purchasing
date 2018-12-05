@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var gdo = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
 
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
@@ -31,19 +31,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                 UnitCode = string.Concat("UnitCode", nowTicks),
                 UnitName = string.Concat("UnitName", nowTicks),
 
-                SupplierId = gdo.SupplierId,
-                SupplierCode = gdo.SupplierCode,
-                SupplierName = gdo.SupplierName,
+                SupplierId = garmentDeliveryOrder.SupplierId,
+                SupplierCode = garmentDeliveryOrder.SupplierCode,
+                SupplierName = garmentDeliveryOrder.SupplierName,
 
-                DOId = gdo.Id,
-                DONo = gdo.DONo,
+                DOId = garmentDeliveryOrder.Id,
+                DONo = garmentDeliveryOrder.DONo,
 
                 ReceiptDate = DateTimeOffset.Now,
 
                 Items = new List<GarmentUnitReceiptNoteItem>()
             };
 
-            foreach (var item in gdo.Items)
+            foreach (var item in garmentDeliveryOrder.Items)
             {
                 foreach (var detail in item.Details)
                 {

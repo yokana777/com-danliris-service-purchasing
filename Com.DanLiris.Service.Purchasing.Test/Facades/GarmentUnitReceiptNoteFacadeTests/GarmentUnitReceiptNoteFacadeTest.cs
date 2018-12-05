@@ -162,11 +162,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), dbContext);
 
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            dbContext.Entry(data).State = EntityState.Detached;
-            foreach (var item in data.Items)
-            {
-                dbContext.Entry(item).State = EntityState.Detached;
-            }
 
             var Response = await facade.Update((int)data.Id, data);
             Assert.NotEqual(Response, 0);
