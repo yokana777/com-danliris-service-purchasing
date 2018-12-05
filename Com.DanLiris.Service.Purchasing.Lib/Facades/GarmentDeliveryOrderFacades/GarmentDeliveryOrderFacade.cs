@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
@@ -26,13 +28,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
-		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem; 
+		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem;
 
-		public GarmentDeliveryOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
+        private readonly IMapper mapper;
+
+        public GarmentDeliveryOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
+
+            mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
         public Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -333,11 +339,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false);
+                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false && !string.IsNullOrWhiteSpace( s.BillNo));
             }
 
             return Query;
         }
+
 		public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
 		{
 			IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
@@ -420,6 +427,85 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public ReadResponse ReadForUnitReceiptNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long filterSupplierId = FilterDictionary.ContainsKey("SupplierId") ? long.Parse(FilterDictionary["SupplierId"]) : 0;
+            FilterDictionary.Remove("SupplierId");
+
+            var filterUnitId = FilterDictionary.ContainsKey("UnitId") ? FilterDictionary["UnitId"] : string.Empty;
+            FilterDictionary.Remove("UnitId");
+
+            IQueryable<GarmentDeliveryOrder> Query = dbSet
+                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.SupplierId == filterSupplierId) && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId))))
+                //.Where(m => m.DONo.Contains(Keyword ?? "") && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0)))
+                .Include(m => m.Items)
+                    .ThenInclude(i => i.Details);
+
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentDeliveryOrder> pageable = new Pageable<GarmentDeliveryOrder>(Query, Page - 1, Size);
+            List<GarmentDeliveryOrder> DataModel = pageable.Data.ToList();
+            int Total = pageable.TotalCount;
+
+            List<GarmentDeliveryOrderViewModel> DataViewModel = mapper.Map<List<GarmentDeliveryOrderViewModel>>(DataModel);
+
+            List<dynamic> listData = new List<dynamic>();
+            listData.AddRange(
+                DataViewModel.Select(s => new
+                {
+                    s.Id,
+                    s.doNo,
+                    s.LastModifiedUtc,
+                    items = s.items.Select(i => new
+                    {
+                        i.Id,
+                        fulfillments = i.fulfillments.Select(d => new
+                        {
+                            d.Id,
+
+                            d.ePOItemId,
+
+                            d.pRId,
+                            d.pRNo,
+                            d.pRItemId,
+
+                            d.pOId,
+                            d.pOItemId,
+                            d.poSerialNumber,
+
+                            d.product,
+
+                            d.rONo,
+
+                            d.doQuantity,
+                            d.receiptQuantity,
+
+                            d.purchaseOrderUom,
+
+                            d.pricePerDealUnit,
+                            d.pricePerDealUnitCorrection,
+
+                            d.conversion,
+
+                            d.smallUom,
+
+                            buyer = new {
+                                name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == d.pRId).Select(m => m.BuyerName).FirstOrDefault()
+                            },
+                            article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == d.ePOItemId).Select(m => m.Article).FirstOrDefault()
+                        }).ToList()
+                    }).ToList()
+                }).ToList()
+            );
+
+            return new ReadResponse(listData, Total, OrderDictionary);
         }
     }
 }

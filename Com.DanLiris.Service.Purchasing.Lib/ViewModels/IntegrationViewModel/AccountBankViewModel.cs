@@ -3,6 +3,7 @@
     public class AccountBankViewModel
     {
         public string _id { get; set; }
+        public string accountCOA { get; set; }
         public string code { get; set; }
         public string accountName { get; set; }
         public string accountNumber { get; set; }

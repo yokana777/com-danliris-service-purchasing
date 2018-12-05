@@ -214,10 +214,73 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
 			Newitems.Add(newItem);
 			data.Items = Newitems;
-
+			 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
+			
 		}
+		//[Fact]
+		//public async void Should_Success_Update_Data2()
+		//{
+		//	var dbContext = _dbContext(GetCurrentMethod());
+		//	var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+		//	var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+		//	GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+
+		//	var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+		//	Assert.NotEqual(ResponseUpdate, 0);
+		//	var newItem = new GarmentInvoiceItem
+		//	{
+		//		DeliveryOrderId = It.IsAny<int>(),
+		//		DODate = DateTimeOffset.Now,
+		//		DeliveryOrderNo = "donos",
+		//		ArrivalDate = DateTimeOffset.Now,
+		//		TotalAmount = 2000,
+		//		PaymentType = "type",
+		//		PaymentMethod = "method",
+		//		Details = new List<GarmentInvoiceDetail>
+		//					{
+		//						new GarmentInvoiceDetail
+		//						{
+		//							EPOId=It.IsAny<int>(),
+		//							EPONo="epono",
+		//							IPOId=It.IsAny<int>(),
+		//							PRItemId=It.IsAny<int>(),
+		//							PRNo="prno",
+		//							RONo="12343",
+		//							ProductId= It.IsAny<int>(),
+		//							ProductCode="code",
+		//							ProductName="name",
+		//							UomId=It.IsAny<int>(),
+		//							UomUnit="ROLL",
+		//							DOQuantity=40,
+		//							PricePerDealUnit=5000,
+		//							PaymentDueDays = 2,
+		//							POSerialNumber="PM132434"
+
+		//						}
+		//					}
+		//	};
+		//	List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
+		//	Newitems.Add(newItem);
+		//	data.Items = Newitems;
+
+
+		//	var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+		//	Assert.NotEqual(ResponseUpdate, 0);
+
+		//	dbContext.Entry(data).State = EntityState.Detached;
+		//	foreach (var item in data.Items)
+		//	{
+		//		dbContext.Entry(item).State = EntityState.Detached;
+		//	}
+
+		//	List<GarmentInvoiceItem> Newitem = new List<GarmentInvoiceItem>();
+		//	data.Items = data.Items.Take(1).ToList();
+			
+		//	var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
+		//	Assert.NotEqual(ResponseUpdate2, 0);
+		//}
 		[Fact]
 		public async void Should_Error_Update_Data()
 		{
@@ -340,7 +403,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			};
 			Assert.True(viewModels.Validate(null).Count() > 0);
 
-		}
+            GarmentInvoiceViewModel viewModels1 = new GarmentInvoiceViewModel
+            {
+                invoiceNo = "",
+                invoiceDate = DateTimeOffset.MinValue,
+                supplier = { },
+                incomeTaxId = It.IsAny<int>(),
+                incomeTaxName = "",
+                incomeTaxNo = "",
+                incomeTaxDate = DateTimeOffset.MinValue,
+                incomeTaxRate = 2,
+                vatNo = "",
+                vatDate = DateTimeOffset.MinValue,
+                useIncomeTax = true,
+                useVat = true,
+                isPayTax = true,
+                poSerialNumber="any",
+                hasInternNote = false,
+                currency = new CurrencyViewModel { Id = It.IsAny<int>(), Code = "USD", Symbol = "$", Rate = 13000, Description = "" },
+                items = new List<GarmentInvoiceItemViewModel>
+                    {
+                        new GarmentInvoiceItemViewModel
+                        {
+                            deliveryOrder =null,
+
+                            details= null
+                        }
+                    }
+            };
+            Assert.True(viewModels1.Validate(null).Count() > 0);
+
+        }
 
         [Fact]
         public async void Should_Success_Get_Data_By_DOId()
