@@ -175,7 +175,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
-        [HttpDelete("{id}")]
+        // tidak dipakai, tidak ada menu hapus
+        //[HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute]int id)
         {
             try
