@@ -451,9 +451,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
                 .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.SupplierId == filterSupplierId) && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId))))
-                //.Where(m => m.DONo.Contains(Keyword ?? "") && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0)))
-                .Include(m => m.Items)
-                    .ThenInclude(i => i.Details);
+                .Select(m => new GarmentDeliveryOrder
+                {
+                    Id = m.Id,
+                    DONo = m.DONo,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Items = m.Items.Select(i => new GarmentDeliveryOrderItem
+                    {
+                        Id = i.Id,
+                        Details = i.Details.Where(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId)).ToList()
+                    }).ToList()
+                });
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
 

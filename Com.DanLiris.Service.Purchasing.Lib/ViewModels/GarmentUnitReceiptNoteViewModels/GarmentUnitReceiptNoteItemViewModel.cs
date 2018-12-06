@@ -37,6 +37,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewM
 
         public decimal SmallQuantity { get; set; }
 
+        public decimal ReceiptCorrection { get; set; }
+
+        public decimal OrderQuantity { get; set; }
+
         public UomViewModel SmallUom { get; set; }
 
         public BuyerViewModel Buyer { get; set; }

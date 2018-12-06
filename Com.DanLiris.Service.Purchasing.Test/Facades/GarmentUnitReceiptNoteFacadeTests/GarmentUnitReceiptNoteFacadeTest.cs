@@ -161,15 +161,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), dbContext);
 
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            dbContext.Entry(data).State = EntityState.Detached;
-            foreach (var item in data.Items)
-            {
-                dbContext.Entry(item).State = EntityState.Detached;
-            }
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var data = await dataUtil.GetTestDataWithStorage();
+            dataUtil.SetDataWithStorage(data);
 
-            var Response = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(Response, 0);
+            var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseUpdateStorage, 0);
+
+            data.IsStorage = false;
+
+            var ResponseDeleteStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseDeleteStorage, 0);
+
+            dataUtil.SetDataWithStorage(data);
+
+            var ResponseAddStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseAddStorage, 0);
         }
 
         [Fact]
