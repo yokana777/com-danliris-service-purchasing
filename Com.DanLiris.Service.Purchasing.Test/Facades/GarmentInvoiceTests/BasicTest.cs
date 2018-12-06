@@ -216,9 +216,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			data.Items = Newitems;
 			 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
-			
-		}
+			Assert.NotEqual(ResponseUpdate1, 0);
+
+            //Newitems.Remove(newItem);
+            //data.Items = Newitems;
+            //var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
+            //Assert.NotEqual(ResponseUpdate2, 0);
+        }
+
 		//[Fact]
 		//public async void Should_Success_Update_Data2()
 		//{
@@ -281,6 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		//	var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
 		//	Assert.NotEqual(ResponseUpdate2, 0);
 		//}
+
 		[Fact]
 		public async void Should_Error_Update_Data()
 		{
@@ -315,7 +321,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 			Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
 			Assert.NotNull(errorNullItems.Message);
-		}
+
+            
+        }
 
 		[Fact]
 		public async void Should_Success_Delete_Data()
@@ -339,10 +347,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		{
 			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
 			Assert.True(nullViewModel.Validate(null).Count() > 0);
-			GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
+            var tomorrow = DateTime.Now.Date.AddDays(+1);
+            GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
-				invoiceDate = DateTimeOffset.MinValue,
+				invoiceDate = tomorrow,
 				supplier = { },
 				incomeTaxId = It.IsAny<int>(),
 				incomeTaxName = "name",
@@ -367,6 +376,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 								new GarmentInvoiceDetailViewModel
 								{
 									doQuantity=0
+                                    
 								}
 							}
 						}

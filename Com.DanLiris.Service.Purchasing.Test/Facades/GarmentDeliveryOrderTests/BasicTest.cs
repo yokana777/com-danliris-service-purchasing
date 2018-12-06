@@ -80,6 +80,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             return serviceProvider;
         }
 
+        private Mock<IServiceProvider> GetServiceProviderError()
+        {
+            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            message.Content = null;
+            var HttpClientService = new Mock<IHttpClientService>();
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(message);
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(HttpClientService.Object);
+
+            return serviceProvider;
+        }
+
         private GarmentDeliveryOrderDataUtil dataUtil(GarmentDeliveryOrderFacade facade, string testName)
         {
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
@@ -92,6 +113,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
             return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
+
+        [Fact]
+        public async void Should_Error_Get_Currency_when_Create_Data()
+        {
+
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProviderError().Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            foreach(var item in model.Items)
+            {
+                item.CurrencyCode = "test";
+            }
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            Assert.NotNull(e.Message);
         }
 
         [Fact]
@@ -276,6 +311,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             Assert.NotEqual(Response, 0);
         }
 
+        //[Fact]
+        //public async void Should_Success_Update_Data4()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData3();
+        //    var model2 = await dataUtil(facade, GetCurrentMethod()).GetTestData4();
+
+        //    GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
+        //    {
+        //        Id = model.Id,
+        //        supplier = new SupplierViewModel(),
+        //        customsId = 1,
+        //        billNo = "test",
+        //        paymentBill = "test",
+        //        totalAmount = 1,
+        //        shipmentType = "test",
+        //        shipmentNo = "test",
+        //        paymentMethod = "test",
+        //        paymentType = "test",
+        //        docurrency = new CurrencyViewModel(),
+        //        items = new List<GarmentDeliveryOrderItemViewModel>
+        //        {
+        //            new GarmentDeliveryOrderItemViewModel
+        //            {
+        //                Id = (model.Items.ElementAt(0).Id + 2),
+        //                purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+        //                paymentDueDays = 1,
+        //                currency = new CurrencyViewModel(),
+
+        //                fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+        //                {
+        //                    new GarmentDeliveryOrderFulfillmentViewModel
+        //                    {
+        //                        Id = model.Items.ElementAt(0).Details.ElementAt(0).Id,
+        //                        pOId = 1,
+        //                        pOItemId = 1,
+        //                        conversion = 0,
+        //                        quantityCorrection = 0,
+        //                        pricePerDealUnit = 0,
+        //                        priceTotalCorrection = 0,
+        //                        isSave = true
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //    };
+        //    model2.Items.Remove(model2.Items.FirstOrDefault());
+        //    var Response = await facade.Update((int)model2.Id, viewModel, model2, USERNAME);
+        //    Assert.NotEqual(Response, 0);
+        //}
+
         [Fact]
         public async void Should_Error_Update_Data()
         {
@@ -445,7 +532,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                             {
                                 pOId = 1,
                                 pOItemId = 1,
-                                conversion = 1
+                                conversion = 2,
+                                purchaseOrderUom = new UomViewModel()
+                                {
+                                    Id= "1",
+                                    Unit = "test"
+                                },
+                                smallUom = new UomViewModel()
+                                {
+                                    Id = "1",
+                                    Unit = "test"
+                                }
                             }
                         }
                     }
