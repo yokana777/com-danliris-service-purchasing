@@ -97,6 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
 
                     var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
+                    garmentDeliveryOrder.IsCorrection = true;
                     if (garmentDeliveryOrder.UseIncomeTax == true)
                     {
                         garmentCorrectionNote.NKPH = await GenerateNKPH(garmentCorrectionNote, clientTimeZoneOffset);
@@ -113,7 +114,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     {
                         garmentCorrectionNote.NKPN = "";
                     }
-                    //garmentDeliveryOrder.IsCorrection = true;
                     EntityExtension.FlagForUpdate(garmentDeliveryOrder, user, USER_AGENT);
 
                     foreach (var item in garmentCorrectionNote.Items)
@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
                         var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
                         
-                        garmentDeliveryOrderDetail.QuantityCorrection = (double)item.Quantity;
+                        garmentDeliveryOrderDetail.QuantityCorrection = (double)item.Quantity + garmentDeliveryOrderDetail.QuantityCorrection;
                         garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
                         
                         EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, user, USER_AGENT);
@@ -218,8 +218,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             {
                 var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-                List<SupplierViewModel> viewModel = JsonConvert.DeserializeObject<List<SupplierViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel.First();
+                SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                return viewModel;
             }
             else
             {
