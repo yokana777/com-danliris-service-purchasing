@@ -194,5 +194,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var Response = facade.ReadByDOId((int)data.DOId);
             Assert.NotNull(Response);
         }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Koreksi_Harga_Jumlah()
+        {
+            GarmentCorrectionNoteViewModel viewModel = new GarmentCorrectionNoteViewModel
+            {
+                CorrectionType = "Jumlah",
+                DONo = "DONo",
+                Items = new List<GarmentCorrectionNoteItemViewModel>
+                {
+                    new GarmentCorrectionNoteItemViewModel
+                    {
+                        Quantity = 0
+                    },
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
     }
 }

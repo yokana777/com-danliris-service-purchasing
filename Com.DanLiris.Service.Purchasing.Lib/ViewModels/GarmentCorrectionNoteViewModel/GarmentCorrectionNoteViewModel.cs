@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
             {
                 yield return new ValidationResult("Nomor Surat Jalan tidak boleh kosong", new List<string> { "DONo" });
             }
-            else if ((CorrectionType ?? "").ToUpper() == "HARGA SATUAN" || (CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+            else if ((CorrectionType ?? "").ToUpper() == "HARGA SATUAN" || (CorrectionType ?? "").ToUpper() == "HARGA TOTAL" || (CorrectionType ?? "").ToUpper() == "JUMLAH")
             {
                 if (Items == null || Items.Count < 1)
                 {

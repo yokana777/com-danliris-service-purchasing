@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
                         var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
                         
-                        garmentDeliveryOrderDetail.QuantityCorrection = (double)item.Quantity;
+                        garmentDeliveryOrderDetail.QuantityCorrection = (double)item.Quantity + garmentDeliveryOrderDetail.QuantityCorrection;
                         garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
                         
                         EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, user, USER_AGENT);
