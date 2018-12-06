@@ -203,6 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 			var response = controller.GetByUser();
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
+	
 		[Fact]
 		public async Task Should_Error_Get_Invalid_Id()
 		{

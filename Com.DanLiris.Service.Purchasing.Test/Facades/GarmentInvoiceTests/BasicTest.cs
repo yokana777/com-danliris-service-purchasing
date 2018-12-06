@@ -27,6 +27,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
@@ -181,43 +182,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
-			 
+			GarmentInvoiceItem item= await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
+
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
-			var newItem = new GarmentInvoiceItem
-			{
-				DeliveryOrderId = It.IsAny<int>(),
-				DODate = DateTimeOffset.Now,
-				DeliveryOrderNo = "donos",
-				ArrivalDate = DateTimeOffset.Now,
-				TotalAmount = 2000,
-				PaymentType = "type",
-				PaymentMethod = "method",
-				Details = new List<GarmentInvoiceDetail>
-							{
-								new GarmentInvoiceDetail
-								{
-									EPOId=It.IsAny<int>(),
-									EPONo="epono",
-									IPOId=It.IsAny<int>(),
-									PRItemId=It.IsAny<int>(),
-									PRNo="prno",
-									RONo="12343",
-									ProductId= It.IsAny<int>(),
-									ProductCode="code",
-									ProductName="name",
-									UomId=It.IsAny<int>(),
-									UomUnit="ROLL",
-									DOQuantity=40,
-									PricePerDealUnit=5000,
-									PaymentDueDays = 2,
-									POSerialNumber="PM132434"
-
-								}
-							}
-			};
+			 
 			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
-			Newitems.Add(newItem);
+			Newitems.Add(item);
 			data.Items = Newitems;
 			 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
