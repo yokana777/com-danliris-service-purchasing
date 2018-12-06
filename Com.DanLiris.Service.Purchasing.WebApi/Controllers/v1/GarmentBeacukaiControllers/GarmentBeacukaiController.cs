@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -25,13 +27,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 		public readonly IServiceProvider serviceProvider;
 		private readonly IMapper mapper;
 		private readonly IGarmentBeacukaiFacade facade;
+		private readonly IGarmentDeliveryOrderFacade DOfacade;
 		private readonly IdentityService identityService;
 
-		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade)
+		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade)
 		{
 			this.serviceProvider = serviceProvider;
 			this.mapper = mapper;
 			this.facade = facade;
+			this.DOfacade = DOfacade;
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
 		[HttpGet("by-user")]
@@ -146,7 +150,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 				{
 					throw new Exception("Invalid Id");
 				}
-
+				foreach (var item in viewModel.items)
+				{
+					GarmentDeliveryOrder deliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+					if (deliveryOrder != null)
+					{
+						GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+						item.deliveryOrder.items = deliveryOrderViewModel.items;
+					}
+				}
 				Dictionary<string, object> Result =
 					new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
 					.Ok(viewModel);
@@ -189,7 +201,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 
 				var model = mapper.Map<GarmentBeacukai>(ViewModel);
 
-				await facade.Update(id, model, identityService.Username);
+				await facade.Update(id,ViewModel, model, identityService.Username);
 
 				Dictionary<string, object> Result =
 					new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)

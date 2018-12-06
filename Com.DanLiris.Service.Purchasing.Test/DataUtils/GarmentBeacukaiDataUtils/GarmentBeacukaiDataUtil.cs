@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Moq;
 using System;
@@ -53,6 +54,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 						
 						}
 				}
+			};
+		}
+		public async Task<GarmentBeacukaiViewModel> GetViewModel(string user)
+		{
+			long nowTicks = DateTimeOffset.Now.Ticks;
+			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+
+			return new GarmentBeacukaiViewModel
+			{
+				beacukaiNo = "",
+				beacukaiDate = DateTimeOffset.MinValue,
+				supplier = { },
+				customType = null,
+				packagingQty = 0,
+				netto = 0,
+				bruto = 0,
+				packaging = "",
+				currency = { },
+
+				items = { new GarmentBeacukaiItemViewModel {
+					selected=true
+				} ,
+				new GarmentBeacukaiItemViewModel {
+					selected=false
+				}
+				}
+			
 			};
 		}
 		public async Task<GarmentBeacukai> GetTestData(string user)

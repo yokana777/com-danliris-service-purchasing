@@ -176,13 +176,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 			var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+			GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
+			var ResponseUpdate = await facade.Update((int)data.Id, viewModel,data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 			List<GarmentBeacukaiItem> Newitems = new List<GarmentBeacukaiItem>(data.Items);
-			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+			var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
 		}
-	
+
 		[Fact]
 		public async void Should_Success_Delete_Data()
 		{

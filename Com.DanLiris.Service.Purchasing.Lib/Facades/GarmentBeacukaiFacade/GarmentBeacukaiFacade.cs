@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -65,33 +66,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 		{
 			string BillNo = null;
 			GarmentDeliveryOrder deliveryOrder = (from data in dbSetDeliveryOrder
-									   orderby data.BillNo descending
-								 select data).FirstOrDefault();
-			string year = DateTime.Now.Year.ToString().Substring(2, 2);
-			string month = DateTime.Now.Month.ToString("D2");
-			string hour = DateTime.Now.Hour.ToString("D2");
-			string day = DateTime.Now.Day.ToString("D2");
-			string minute = DateTime.Now.Minute.ToString("D2");
-			string second = DateTime.Now.Second.ToString("D2");
+												  orderby data.BillNo descending
+												  select data).FirstOrDefault();
+			string year = DateTimeOffset.Now.Year.ToString().Substring(2, 2);
+			string month = DateTimeOffset.Now.Month.ToString("D2");
+			string hour = DateTimeOffset.Now.Hour.ToString("D2");
+			string day = DateTimeOffset.Now.Day.ToString("D2");
+			string minute = DateTimeOffset.Now.Minute.ToString("D2");
+			string second = DateTimeOffset.Now.Second.ToString("D2");
 			string formatDate = year + month + day + hour + minute + second;
 			int counterId = 0;
 			if (deliveryOrder.BillNo != null)
 			{
 				BillNo = deliveryOrder.BillNo;
-				string days = BillNo.Substring(4, 2);
+				string months = BillNo.Substring(4, 2);
 				string number = BillNo.Substring(14);
-				if (month == DateTime.Now.Month.ToString("D2"))
+				if (months == DateTimeOffset.Now.Month.ToString("D2"))
 				{
-					counterId = Convert.ToInt32(number) +1;
+					counterId = Convert.ToInt32(number) + 1;
 				}
 				else
 				{
 					counterId = 1;
 				}
-			}else
+			}
+			else
 			{
 				counterId = 1;
-				
+
 			}
 			BillNo = "BP" + formatDate + counterId.ToString("D6");
 			return BillNo;
@@ -104,17 +106,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			GarmentDeliveryOrder deliveryOrder = (from data in dbSetDeliveryOrder
 												  orderby data.PaymentBill descending
 												  select data).FirstOrDefault();
-			string year = DateTime.Now.Year.ToString().Substring(2, 2);
-			string month = DateTime.Now.Month.ToString("D2");
-			string day = DateTime.Now.Day.ToString("D2");
+			string year = DateTimeOffset.Now.Year.ToString().Substring(2, 2);
+			string month = DateTimeOffset.Now.Month.ToString("D2");
+			string day = DateTimeOffset.Now.Day.ToString("D2");
 			string formatDate = year + month + day;
 			int counterId = 0;
 			if (deliveryOrder.BillNo != null)
 			{
 				PaymentBill = deliveryOrder.PaymentBill;
-				string days = PaymentBill.Substring(4, 2);
+				string months = PaymentBill.Substring(4, 2);
 				string number = PaymentBill.Substring(8);
-				if (month == DateTime.Now.Month.ToString("D2"))
+				if (months == DateTimeOffset.Now.Month.ToString("D2"))
 				{
 					counterId = Convert.ToInt32(number) + 1;
 				}
@@ -142,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 				{
 
 					EntityExtension.FlagForCreate(model, username, USER_AGENT);
-					
+
 					foreach (GarmentBeacukaiItem item in model.Items)
 					{
 						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
@@ -152,16 +154,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 							if (model.BillNo == "" | model.BillNo == null)
 							{
 								deliveryOrder.BillNo = GenerateBillNo();
-							}else
+							}
+							else
 							{
 								deliveryOrder.BillNo = model.BillNo;
 							}
 							deliveryOrder.PaymentBill = GeneratePaymentBillNo();
 							deliveryOrder.CustomsId = model.Id;
 							double qty = 0;
-							foreach(var  deliveryOrderItem in deliveryOrder.Items)
+							foreach (var deliveryOrderItem in deliveryOrder.Items)
 							{
-								foreach(var detail in deliveryOrderItem.Details)
+								foreach (var detail in deliveryOrderItem.Details)
 								{
 									qty += detail.DOQuantity;
 								}
@@ -173,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 					}
 
 					this.dbSet.Add(model);
-					Created = await dbContext.SaveChangesAsync(); 
+					Created = await dbContext.SaveChangesAsync();
 					transaction.Commit();
 				}
 				catch (Exception e)
@@ -209,7 +212,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 							deliveryOrder.CustomsId = 0;
 							EntityExtension.FlagForDelete(item, username, USER_AGENT);
 						}
-						
+
 					}
 
 					Deleted = dbContext.SaveChanges();
@@ -230,7 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			return new HashSet<long>(dbContext.GarmentBeacukaiItems.Where(d => d.GarmentBeacukai.Id == id).Select(d => d.Id));
 		}
 
-		public async Task<int> Update(int id, GarmentBeacukai model, string user, int clientTimeZoneOffset = 7)
+		public async Task<int> Update(int id, GarmentBeacukaiViewModel vm, GarmentBeacukai model, string user, int clientTimeZoneOffset = 7)
 		{
 			int Updated = 0;
 
@@ -238,32 +241,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			{
 				try
 				{
-					 
 					EntityExtension.FlagForUpdate(model, user, USER_AGENT);
-					foreach (GarmentBeacukaiItem item in model.Items)
+					foreach (GarmentBeacukaiItemViewModel itemViewModel in vm.items)
 					{
-						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
-															.ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
-						if (deliveryOrder != null)
+						GarmentBeacukaiItem item = model.Items.FirstOrDefault(s => s.Id.Equals(itemViewModel.Id));
+						if (itemViewModel.selected == true)
 						{
-							if (model.BillNo != "" | model.BillNo != null)
-							{
-								deliveryOrder.BillNo = model.BillNo;
-							}
+							//GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+							//								   .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == itemViewModel.deliveryOrder.Id);
 							
-							double qty = 0;
-							foreach (var deliveryOrderItem in deliveryOrder.Items)
-							{
-								foreach (var detail in deliveryOrderItem.Details)
-								{
-									qty += detail.DOQuantity;
-								}
-							}
-							item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
-							item.TotalQty = qty;
-							EntityExtension.FlagForUpdate(item, user , USER_AGENT);
+							//if (deliveryOrder != null)
+							//{
+
+							//	if (model.BillNo != "" | model.BillNo != null)
+							//	{
+							//		deliveryOrder.BillNo = model.BillNo;
+							//	}
+
+							//	double qty = 0;
+							//	foreach (var deliveryOrderItem in deliveryOrder.Items)
+							//	{
+							//		foreach (var detail in deliveryOrderItem.Details)
+							//		{
+							//			qty += detail.DOQuantity;
+							//		}
+							//	}
+							//	item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
+							//	item.TotalQty = qty;
+							//}
+							EntityExtension.FlagForUpdate(item, user, USER_AGENT);
 						}
+						else
+						{
+							EntityExtension.FlagForDelete(item, user, USER_AGENT);
+							GarmentDeliveryOrder deleteDO = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id.Equals(itemViewModel.deliveryOrder.Id));
+							deleteDO.BillNo = null;
+							deleteDO.PaymentBill = null;
+						}
+
 					}
+
+
 					this.dbSet.Update(model);
 					Updated = await dbContext.SaveChangesAsync();
 					transaction.Commit();
@@ -277,6 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			}
 
 			return Updated;
+
 		}
 	}
 }
