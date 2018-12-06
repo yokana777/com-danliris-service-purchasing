@@ -38,7 +38,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
-
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -102,7 +102,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
                 .AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>();
+                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

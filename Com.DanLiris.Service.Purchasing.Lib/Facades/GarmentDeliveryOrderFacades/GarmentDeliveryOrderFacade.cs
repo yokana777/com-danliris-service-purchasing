@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
@@ -26,13 +28,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
-		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem; 
+		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem;
 
-		public GarmentDeliveryOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
+        private readonly IMapper mapper;
+
+        public GarmentDeliveryOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
+
+            mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
         public Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -184,6 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                 if (vmDetail.isSave == false)
                                                 {
                                                     externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
+                                                    EntityExtension.FlagForDelete(modelDetail, user, USER_AGENT);
                                                 }
                                                 else
                                                 {
@@ -196,30 +203,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                     modelDetail.QuantityCorrection = modelDetail.DOQuantity;
                                                     modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
                                                     modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+                                                    
+                                                    EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
                                                 }
-
                                                 if (externalPurchaseOrderItem.ReceiptQuantity == 0)
                                                 {
-                                                    if(externalPurchaseOrderItem.DOQuantity == 0)
+                                                    if (externalPurchaseOrderItem.DOQuantity == 0)
                                                     {
                                                         GarmentPurchaseRequestItem purchaseRequestItem = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(s => s.Id.Equals(modelDetail.PRItemId));
                                                         purchaseRequestItem.Status = "Sudah diorder ke Supplier";
                                                         internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
-                                                    } else if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                                    }
+                                                    else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
                                                     {
                                                         internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
                                                     }
-                                                    else if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                                    else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
                                                     {
-                                                        internalPurchaseOrderItem.Status = "Barang Sudah Datang Semua";
+                                                        internalPurchaseOrderItem.Status = "Barang sudah datang semua";
                                                     }
                                                 }
-
-                                                EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
                                             }
                                         }
                                     }
                                 }
+                            }
+                        }
+
+                        foreach (var oldItem in oldM.Items)
+                        {
+                            var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            if (newItem == null)
+                            {
+                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
                             }
                         }
 
@@ -284,7 +300,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                 }
                                 else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
                                 {
-                                    internalPurchaseOrderItem.Status = "Barang Sudah Datang Semua";
+                                    internalPurchaseOrderItem.Status = "Barang sudah datang Semua";
                                 }
                             }
 
@@ -415,12 +431,99 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
                 var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
                 List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel.FirstOrDefault(s=> s.Date <= doDate);
+                return viewModel.FirstOrDefault(s=> s.Date.Date <= doDate.Date);
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public ReadResponse ReadForUnitReceiptNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long filterSupplierId = FilterDictionary.ContainsKey("SupplierId") ? long.Parse(FilterDictionary["SupplierId"]) : 0;
+            FilterDictionary.Remove("SupplierId");
+
+            var filterUnitId = FilterDictionary.ContainsKey("UnitId") ? FilterDictionary["UnitId"] : string.Empty;
+            FilterDictionary.Remove("UnitId");
+
+            IQueryable<GarmentDeliveryOrder> Query = dbSet
+                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.SupplierId == filterSupplierId) && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId))))
+                .Select(m => new GarmentDeliveryOrder
+                {
+                    Id = m.Id,
+                    DONo = m.DONo,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Items = m.Items.Select(i => new GarmentDeliveryOrderItem
+                    {
+                        Id = i.Id,
+                        Details = i.Details.Where(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId)).ToList()
+                    }).ToList()
+                });
+
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentDeliveryOrder> pageable = new Pageable<GarmentDeliveryOrder>(Query, Page - 1, Size);
+            List<GarmentDeliveryOrder> DataModel = pageable.Data.ToList();
+            int Total = pageable.TotalCount;
+
+            List<GarmentDeliveryOrderViewModel> DataViewModel = mapper.Map<List<GarmentDeliveryOrderViewModel>>(DataModel);
+
+            List<dynamic> listData = new List<dynamic>();
+            listData.AddRange(
+                DataViewModel.Select(s => new
+                {
+                    s.Id,
+                    s.doNo,
+                    s.LastModifiedUtc,
+                    items = s.items.Select(i => new
+                    {
+                        i.Id,
+                        fulfillments = i.fulfillments.Select(d => new
+                        {
+                            d.Id,
+
+                            d.ePOItemId,
+
+                            d.pRId,
+                            d.pRNo,
+                            d.pRItemId,
+
+                            d.pOId,
+                            d.pOItemId,
+                            d.poSerialNumber,
+
+                            d.product,
+
+                            d.rONo,
+
+                            d.doQuantity,
+                            d.receiptQuantity,
+
+                            d.purchaseOrderUom,
+
+                            d.pricePerDealUnit,
+                            d.pricePerDealUnitCorrection,
+
+                            d.conversion,
+
+                            d.smallUom,
+
+                            buyer = new {
+                                name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == d.pRId).Select(m => m.BuyerName).FirstOrDefault()
+                            },
+                            article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == d.ePOItemId).Select(m => m.Article).FirstOrDefault()
+                        }).ToList()
+                    }).ToList()
+                }).ToList()
+            );
+
+            return new ReadResponse(listData, Total, OrderDictionary);
         }
     }
 }
