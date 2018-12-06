@@ -172,16 +172,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 		}
 		[Fact]
 		public async void Should_Success_Update_Data()
-		{
+	{
 			var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
 			GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
-			var ResponseUpdate = await facade.Update((int)data.Id, viewModel,data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
-			List<GarmentBeacukaiItem> Newitems = new List<GarmentBeacukaiItem>(data.Items);
+
+			//var ResponseUpdate = await facade.Update((int)data.Id, viewModel,data, USERNAME);
+			//Assert.NotEqual(ResponseUpdate, 0);
+			var newItem =
+				new GarmentBeacukaiItemViewModel
+				{
+					selected = true 
+				};
+   			
+			List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>(viewModel.items);
+			Newitems.Add(newItem);
+			viewModel.items = Newitems;
+			//List<GarmentBeacukaiItem> Newitems = new List<GarmentBeacukaiItem>(data.Items);
 			var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
+			Assert.NotEqual(ResponseUpdate1, 0);
 		}
 
 		[Fact]

@@ -247,34 +247,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 						GarmentBeacukaiItem item = model.Items.FirstOrDefault(s => s.Id.Equals(itemViewModel.Id));
 						if (itemViewModel.selected == true)
 						{
-							//GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
-							//								   .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == itemViewModel.deliveryOrder.Id);
-							
-							//if (deliveryOrder != null)
-							//{
-
-							//	if (model.BillNo != "" | model.BillNo != null)
-							//	{
-							//		deliveryOrder.BillNo = model.BillNo;
-							//	}
-
-							//	double qty = 0;
-							//	foreach (var deliveryOrderItem in deliveryOrder.Items)
-							//	{
-							//		foreach (var detail in deliveryOrderItem.Details)
-							//		{
-							//			qty += detail.DOQuantity;
-							//		}
-							//	}
-							//	item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
-							//	item.TotalQty = qty;
-							//}
 							EntityExtension.FlagForUpdate(item, user, USER_AGENT);
 						}
 						else
 						{
 							EntityExtension.FlagForDelete(item, user, USER_AGENT);
-							GarmentDeliveryOrder deleteDO = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id.Equals(itemViewModel.deliveryOrder.Id));
+							GarmentDeliveryOrder deleteDO = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == itemViewModel.deliveryOrder.Id);
 							deleteDO.BillNo = null;
 							deleteDO.PaymentBill = null;
 						}
