@@ -110,6 +110,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		
 			var Response = await facade.Create(data, USERNAME);
 			Assert.NotEqual(Response, 0);
+			GarmentInvoice data2 = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+			DateTime dateWithoutOffset = new DateTime(2010,8, 16, 13, 32, 00);
+			data2.InvoiceDate = dateWithoutOffset;
+			var Response1 = await facade.Create(data2, USERNAME);
+			Assert.NotEqual(Response1, 0);
 		}
 
 		[Fact]
@@ -282,7 +287,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 		//	List<GarmentInvoiceItem> Newitem = new List<GarmentInvoiceItem>();
 		//	data.Items = data.Items.Take(1).ToList();
-			
+
 		//	var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
 		//	Assert.NotEqual(ResponseUpdate2, 0);
 		//}

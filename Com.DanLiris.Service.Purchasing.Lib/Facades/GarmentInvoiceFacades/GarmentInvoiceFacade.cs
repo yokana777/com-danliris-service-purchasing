@@ -125,9 +125,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			if (garmentInvoice != null)
 			{
 				NPN = garmentInvoice.NPN;
-				string days = NPN.Substring(5, 2);
+				string months = NPN.Substring(5, 2);
 				string number = NPN.Substring(9);
-				if (month == DateTime.Now.Month.ToString("D2"))
+				if (months == DateTime.Now.Month.ToString("D2"))
 				{
 					counterId = Convert.ToInt32(number) + 1;
 				}
@@ -158,9 +158,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 			if (garmentInvoice != null)
 			{
 				NPH = garmentInvoice.NPH;
-				string days = NPH.Substring(5, 2);
+				string months = NPH.Substring(5, 2);
 				string number = NPH.Substring(9);
-				if (month == DateTime.Now.Month.ToString("D2"))
+				if (months == DateTime.Now.Month.ToString("D2"))
 				{
 					counterId = Convert.ToInt32(number) + 1;
 				}
