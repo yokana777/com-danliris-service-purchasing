@@ -301,6 +301,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 			var response = controller.Post(this.ViewModel).Result;
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
+		
 		[Fact]
 		public void Should_Error_Update_Data()
 		{

@@ -241,9 +241,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 								GarmentInvoiceItem dataItem = dbContext.GarmentInvoiceItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
 								EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
                                 var Details= dbContext.GarmentInvoiceDetails.Where(prop => prop.InvoiceItemId.Equals(itemId)).ToList();
-                                foreach (var detail in Details)
+								GarmentDeliveryOrder deliveryOrder = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id.Equals(dataItem.DeliveryOrderId));
+								deliveryOrder.IsInvoice = false;
+								foreach (var detail in Details)
                                 {
-                                    EntityExtension.FlagForDelete(detail, user, USER_AGENT);
+									
+									EntityExtension.FlagForDelete(detail, user, USER_AGENT);
                                 }
 							}
 							else
