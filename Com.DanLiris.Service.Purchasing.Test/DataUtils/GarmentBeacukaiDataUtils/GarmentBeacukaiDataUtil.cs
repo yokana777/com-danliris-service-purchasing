@@ -1,5 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Moq;
 using System;
@@ -52,6 +54,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 						   TotalQty=50
 						
 						}
+				}
+			};
+		}
+		public async Task<GarmentBeacukaiViewModel> GetViewModel(string user)
+		{
+			long nowTicks = DateTimeOffset.Now.Ticks;
+			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+
+			return new GarmentBeacukaiViewModel
+			{
+				beacukaiNo = "",
+				beacukaiDate = DateTimeOffset.MinValue,
+				supplier = { },
+				customType = null,
+				packagingQty = 0,
+				netto = 0,
+				bruto = 0,
+				packaging = "",
+				currency = { },
+
+				items = new List<GarmentBeacukaiItemViewModel> {new  GarmentBeacukaiItemViewModel {
+					selected=false,
+					deliveryOrder  =  new GarmentDeliveryOrderViewModel{
+						   Id=garmentDO.Id,
+						   doDate=garmentDO.DODate,
+						   doNo=garmentDO.DONo
+					}
+				}
 				}
 			};
 		}

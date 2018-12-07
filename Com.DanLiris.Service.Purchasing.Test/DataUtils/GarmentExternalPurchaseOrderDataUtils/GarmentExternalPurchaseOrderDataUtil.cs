@@ -93,6 +93,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         ReceiptQuantity = 0,
                         DOQuantity = 5,
+
+                        SmallUomId = 1,
+                        SmallUomUnit = "UomUnit1",
                     }
                 }
             };
@@ -151,7 +154,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         DefaultQuantity=5,
                         DefaultUomId=1,
                         DefaultUomUnit="unit1",
-                        
+
+                        SmallUomId = 1,
+                        SmallUomUnit = "UomUnit1",
 
                         UsedBudget=1,
 
@@ -226,6 +231,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         DefaultQuantity=5,
                         DefaultUomId=1,
                         DefaultUomUnit="unit1",
+
+                        SmallUomId = 1,
+                        SmallUomUnit = "UomUnit1",
 
                         UsedBudget=1,
 
@@ -320,6 +328,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         ReceiptQuantity = 0,
                         DOQuantity = 0,
 
+                        SmallUomId = 1,
+                        SmallUomUnit = "UomUnit1",
                     }
                 }
             };

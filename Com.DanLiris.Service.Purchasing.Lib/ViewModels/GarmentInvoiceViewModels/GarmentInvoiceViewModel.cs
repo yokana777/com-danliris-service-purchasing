@@ -48,6 +48,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			{
 				yield return new ValidationResult("Date is required", new List<string> { "invoiceDate" });
 			}
+            else if(invoiceDate.Date > DateTimeOffset.Now.Date)
+            {
+                yield return new ValidationResult("Date should not be more than today", new List<string> { "invoiceDate" });
+            }
 			if ( currency == null)
 			{
 				yield return new ValidationResult("Currency is required", new List<string> { "currency" });

@@ -190,6 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                 if (vmDetail.isSave == false)
                                                 {
                                                     externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
+                                                    EntityExtension.FlagForDelete(modelDetail, user, USER_AGENT);
                                                 }
                                                 else
                                                 {
@@ -202,30 +203,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                     modelDetail.QuantityCorrection = modelDetail.DOQuantity;
                                                     modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
                                                     modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+                                                    
+                                                    EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
                                                 }
-
                                                 if (externalPurchaseOrderItem.ReceiptQuantity == 0)
                                                 {
-                                                    if(externalPurchaseOrderItem.DOQuantity == 0)
+                                                    if (externalPurchaseOrderItem.DOQuantity == 0)
                                                     {
                                                         GarmentPurchaseRequestItem purchaseRequestItem = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(s => s.Id.Equals(modelDetail.PRItemId));
                                                         purchaseRequestItem.Status = "Sudah diorder ke Supplier";
                                                         internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
-                                                    } else if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                                    }
+                                                    else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
                                                     {
                                                         internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
                                                     }
-                                                    else if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                                    else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
                                                     {
-                                                        internalPurchaseOrderItem.Status = "Barang Sudah Datang Semua";
+                                                        internalPurchaseOrderItem.Status = "Barang sudah datang semua";
                                                     }
                                                 }
-
-                                                EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
                                             }
                                         }
                                     }
                                 }
+                            }
+                        }
+
+                        foreach (var oldItem in oldM.Items)
+                        {
+                            var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            if (newItem == null)
+                            {
+                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
                             }
                         }
 
@@ -290,7 +300,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                 }
                                 else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
                                 {
-                                    internalPurchaseOrderItem.Status = "Barang Sudah Datang Semua";
+                                    internalPurchaseOrderItem.Status = "Barang sudah datang Semua";
                                 }
                             }
 
@@ -326,21 +336,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
 
-            if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
-            {
-                string Key = OrderDictionary.Keys.First();
-                string SubKey = Key.Split(".")[1];
-                string OrderType = OrderDictionary[Key];
+            //if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+            //{
+            //    string Key = OrderDictionary.Keys.First();
+            //    string SubKey = Key.Split(".")[1];
+            //    string OrderType = OrderDictionary[Key];
 
-                Query = Query.Include(m => m.Items)
-                    .ThenInclude(i => i.Details);
-            }
-            else
-            {
+            //    Query = Query.Include(m => m.Items)
+            //        .ThenInclude(i => i.Details);
+            //}
+            //else
+            //{
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
                     .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false && !string.IsNullOrWhiteSpace( s.BillNo));
-            }
+            //}
 
             return Query;
         }
@@ -421,7 +431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
                 var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
                 List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel.FirstOrDefault(s=> s.Date <= doDate);
+                return viewModel.FirstOrDefault(s=> s.Date.Date <= doDate.Date);
             }
             catch (Exception e)
             {
@@ -441,9 +451,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
                 .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.SupplierId == filterSupplierId) && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId))))
-                //.Where(m => m.DONo.Contains(Keyword ?? "") && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0)))
-                .Include(m => m.Items)
-                    .ThenInclude(i => i.Details);
+                .Select(m => new GarmentDeliveryOrder
+                {
+                    Id = m.Id,
+                    DONo = m.DONo,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Items = m.Items.Select(i => new GarmentDeliveryOrderItem
+                    {
+                        Id = i.Id,
+                        Details = i.Details.Where(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId)).ToList()
+                    }).ToList()
+                });
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
 

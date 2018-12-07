@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 					.Returns(validateM.Object);
 			}
 
-			GarmentBeacukaiController controller = new GarmentBeacukaiController(servicePMock.Object, mapper.Object, facadeM.Object)
+			GarmentBeacukaiController controller = new GarmentBeacukaiController(servicePMock.Object, mapper.Object, facadeM.Object,facadeDO.Object)
 			{
 				ControllerContext = new ControllerContext()
 				{
@@ -155,7 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 					.Returns(validateM.Object);
 			}
 
-			var controller = new GarmentBeacukaiController(servicePMock.Object, mapper.Object, facadeM.Object)
+			var controller = new GarmentBeacukaiController(servicePMock.Object, mapper.Object, facadeM.Object,facadeDO.Object)
 			{
 				ControllerContext = new ControllerContext()
 				{
@@ -203,6 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 			var response = controller.GetByUser();
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
+	
 		[Fact]
 		public async Task Should_Error_Get_Invalid_Id()
 		{
@@ -295,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 
 			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
-			GarmentBeacukaiController controller = new GarmentBeacukaiController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+			GarmentBeacukaiController controller = new GarmentBeacukaiController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object,IPOmockFacade.Object);
 
 			var response = controller.Post(this.ViewModel).Result;
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
@@ -316,7 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 
 			var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
-			var controller = new GarmentBeacukaiController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+			var controller = new GarmentBeacukaiController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object,IPOmockFacade.Object);
 
 			var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentBeacukaiViewModel>()).Result;
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));

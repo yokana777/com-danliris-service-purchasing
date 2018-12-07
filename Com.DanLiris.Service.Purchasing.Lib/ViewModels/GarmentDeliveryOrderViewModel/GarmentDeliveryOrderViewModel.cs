@@ -114,6 +114,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                             {
                                 detailErrorCount++;
                                 detailError += "conversion: 'Conversion can not 0', ";
+                            } else if (detail.purchaseOrderUom.Id == detail.smallUom.Id && detail.conversion!=1)
+                            {
+                                detailErrorCount++;
+                                detailError += "conversion: 'Conversion must be 1'";
                             }
 
                             if (detail.doQuantity == 0)
@@ -121,6 +125,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                                 detailErrorCount++;
                                 detailError += "doQuantity: 'DoQuantity must be greater than 0', ";
                             }
+
+                            
 
                             detailError += "}, ";
                         }
