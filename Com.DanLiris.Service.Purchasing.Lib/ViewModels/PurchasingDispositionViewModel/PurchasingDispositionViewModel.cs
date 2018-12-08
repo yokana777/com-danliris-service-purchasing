@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public string ProformaNo { get; set; }
         public string Investation { get; set; }
         public double Amount { get; set; }
+        public int Position { get; set; }
         public virtual List<PurchasingDispositionItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
