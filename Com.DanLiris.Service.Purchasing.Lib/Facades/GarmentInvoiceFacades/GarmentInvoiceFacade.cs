@@ -281,6 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 					}
 					EntityExtension.FlagForUpdate(model, user, USER_AGENT);
 					this.dbSet.Update(model);
+
 					Updated = await dbContext.SaveChangesAsync();
 					transaction.Commit();
 					 
