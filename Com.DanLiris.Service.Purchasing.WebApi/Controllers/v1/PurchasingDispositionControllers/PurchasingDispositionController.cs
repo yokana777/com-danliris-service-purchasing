@@ -96,6 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.LastModifiedUtc,
                         s.CreatedUtc,
                         s.PaymentDueDate,
+                        s.Position,
                         s.Items
                     }).ToList()
                 );
