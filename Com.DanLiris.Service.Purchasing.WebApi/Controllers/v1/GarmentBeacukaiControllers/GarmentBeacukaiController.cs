@@ -156,6 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 					if (deliveryOrder != null)
 					{
 						GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+						item.deliveryOrder.isInvoice = deliveryOrderViewModel.isInvoice;
 						item.deliveryOrder.items = deliveryOrderViewModel.items;
 					}
 				}
