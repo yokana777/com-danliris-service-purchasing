@@ -57,10 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 									PricePerDealUnit=5000,
 									POSerialNumber="PM132434",
 									 PaymentDueDays=2
-
 								}
-							}
-
+				}
 			};
 		}
 			public async Task<GarmentInvoice> GetNewData(string user)
