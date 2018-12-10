@@ -181,6 +181,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 {
                     new GarmentDeliveryOrderItemViewModel
                     {
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                        currency = new CurrencyViewModel(),
+
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                pOId = 1,
+                                pOItemId = 1,
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
+                                isSave = true
+                            }
+                        }
+                    },
+                    new GarmentDeliveryOrderItemViewModel
+                    {
                         Id = model.Items.ElementAt(0).Id,
                         purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
                         paymentDueDays = 1,
@@ -197,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                                 quantityCorrection = 0,
                                 pricePerDealUnit = 0,
                                 priceTotalCorrection = 0,
-                                isSave = true
+                                isSave = false
                             }
                         }
                     }
@@ -256,6 +276,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 docurrency = new CurrencyViewModel(),
                 items = new List<GarmentDeliveryOrderItemViewModel>
                 {
+                    new GarmentDeliveryOrderItemViewModel
+                    {
+                        purchaseOrderExternal = new PurchaseOrderExternal{ Id = 1,no="test"},
+                        paymentDueDays = 1,
+                        currency = new CurrencyViewModel(),
+
+                        fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                        {
+                            new GarmentDeliveryOrderFulfillmentViewModel
+                            {
+                                pOId = 1,
+                                pOItemId = 1,
+                                conversion = 0,
+                                quantityCorrection = 0,
+                                pricePerDealUnit = 0,
+                                priceTotalCorrection = 0,
+                                isSave = true
+                            }
+                        }
+                    },
                     new GarmentDeliveryOrderItemViewModel
                     {
                         Id = model.Items.ElementAt(0).Id,
@@ -375,9 +415,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                             }
                         }
                     },
-
                 }
-
             };
 
             List<GarmentDeliveryOrderItem> item = new List<GarmentDeliveryOrderItem>(model.Items);
