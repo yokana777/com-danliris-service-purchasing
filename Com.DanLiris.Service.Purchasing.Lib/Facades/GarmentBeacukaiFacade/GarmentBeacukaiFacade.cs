@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 												  select data).FirstOrDefault();
 			string year = DateTimeOffset.Now.Year.ToString().Substring(2, 2);
 			string month = DateTimeOffset.Now.Month.ToString("D2");
-			string hour = DateTimeOffset.Now.Hour.ToString("D2");
+			string hour = (DateTimeOffset.Now.Hour+7).ToString("D2");
 			string day = DateTimeOffset.Now.Day.ToString("D2");
 			string minute = DateTimeOffset.Now.Minute.ToString("D2");
 			string second = DateTimeOffset.Now.Second.ToString("D2");

@@ -156,6 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 					if (deliveryOrder != null)
 					{
 						GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+						item.deliveryOrder.isInvoice = deliveryOrderViewModel.isInvoice;
 						item.deliveryOrder.items = deliveryOrderViewModel.items;
 					}
 				}
@@ -192,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 		public async Task<IActionResult> Put(int id, [FromBody]GarmentBeacukaiViewModel ViewModel)
 		{
 			try
-			{
+		{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
