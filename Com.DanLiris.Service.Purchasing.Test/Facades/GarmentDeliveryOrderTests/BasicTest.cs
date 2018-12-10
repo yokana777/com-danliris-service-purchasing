@@ -205,6 +205,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             };
 
+            List<GarmentDeliveryOrderItem> item = new List<GarmentDeliveryOrderItem>(model.Items);
+            List<GarmentDeliveryOrderDetail> detail = new List<GarmentDeliveryOrderDetail>(item[0].Details);
+
+            model.Items.Add(new GarmentDeliveryOrderItem
+            {
+                EPOId = 1,
+                EPONo = "test",
+                PaymentDueDays = 1,
+                CurrencyCode = "test",
+                CurrencyId = 1,
+                Details = new List<GarmentDeliveryOrderDetail>
+                        {
+                            new GarmentDeliveryOrderDetail
+                            {
+                                POId = detail[0].POId,
+                                POItemId = detail[0].POItemId,
+                                Conversion = detail[0].Conversion,
+                                QuantityCorrection = detail[0].QuantityCorrection,
+                                PricePerDealUnit = detail[0].PricePerDealUnit,
+                                PriceTotalCorrection = detail[0].PriceTotalCorrection,
+                                DOQuantity = detail[0].DOQuantity,
+                                EPOItemId = detail[0].EPOItemId,
+                            }
+                        }
+            });
+
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
             Assert.NotEqual(Response, 0);
         }
@@ -255,6 +281,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 }
 
             };
+
+            List<GarmentDeliveryOrderItem> item = new List<GarmentDeliveryOrderItem>(model.Items);
+            List<GarmentDeliveryOrderDetail> detail = new List<GarmentDeliveryOrderDetail>(item[0].Details);
+
+            model.Items.Add(new GarmentDeliveryOrderItem
+            {
+                EPOId = 1,
+                EPONo = "test",
+                PaymentDueDays = 1,
+                CurrencyCode = "test",
+                CurrencyId = 1,
+                Details = new List<GarmentDeliveryOrderDetail>
+                        {
+                            new GarmentDeliveryOrderDetail
+                            {
+                                POId = detail[0].POId,
+                                POItemId = detail[0].POItemId,
+                                Conversion = detail[0].Conversion,
+                                QuantityCorrection = detail[0].QuantityCorrection,
+                                PricePerDealUnit = detail[0].PricePerDealUnit,
+                                PriceTotalCorrection = detail[0].PriceTotalCorrection,
+                                DOQuantity = detail[0].DOQuantity,
+                                EPOItemId = detail[0].EPOItemId,
+                            }
+                        }
+            });
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
             Assert.NotEqual(Response, 0);
