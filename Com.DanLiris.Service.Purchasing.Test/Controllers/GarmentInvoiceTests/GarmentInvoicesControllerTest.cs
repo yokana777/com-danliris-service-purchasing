@@ -150,7 +150,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			{
 				return new GarmentDeliveryOrder
 				{
-					Id = 1
+					Id = 1,
+					IncomeTaxId=1,
+					IncomeTaxName="name",
+					IncomeTaxRate=10000
 				};
 			}
 		}
