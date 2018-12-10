@@ -221,7 +221,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
-                validateService.Validate(ViewModel);
+                GarmentDeliveryOrderViewModel vmValidate = ViewModel;
+
+                foreach (var vmItem in vmValidate.items)
+                {
+                    vmItem.fulfillments = vmItem.fulfillments.Where(s => s.isSave).ToList();
+                }
+
+                validateService.Validate(vmValidate);
 
                 var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 
