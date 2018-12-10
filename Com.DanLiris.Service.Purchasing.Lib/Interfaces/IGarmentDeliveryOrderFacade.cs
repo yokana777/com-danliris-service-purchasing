@@ -16,10 +16,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Update(int id, GarmentDeliveryOrderViewModel vm, GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
 
         Task<int> Delete(int id, string username);
-       IQueryable<GarmentDeliveryOrder>  ReadBySupplier( string Keyword = null, string Filter = "{}");
+        IQueryable<GarmentDeliveryOrder>  ReadBySupplier( string Keyword = null, string Filter = "{}");
 		IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword = null, string Filter = "{}");
 		int IsReceived(List<int> Id);
         ReadResponse ReadForUnitReceiptNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
+
+        ReadResponse ReadForCorrectionNoteQuantity(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
 
     }
 }

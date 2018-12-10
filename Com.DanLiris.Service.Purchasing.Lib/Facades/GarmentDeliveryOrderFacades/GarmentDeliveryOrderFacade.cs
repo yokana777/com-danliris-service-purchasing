@@ -336,21 +336,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
 
-            //if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
-            //{
-            //    string Key = OrderDictionary.Keys.First();
-            //    string SubKey = Key.Split(".")[1];
-            //    string OrderType = OrderDictionary[Key];
+            if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+            {
+                string Key = OrderDictionary.Keys.First();
+                string SubKey = Key.Split(".")[1];
+                string OrderType = OrderDictionary[Key];
 
-            //    Query = Query.Include(m => m.Items)
-            //        .ThenInclude(i => i.Details);
-            //}
-            //else
-            //{
+                Query = Query.Include(m => m.Items)
+                    .ThenInclude(i => i.Details);
+            }
+            else
+            {
 				
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
                     .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false && !string.IsNullOrWhiteSpace( s.BillNo));
-            //}
+            }
 
             return Query;
         }
@@ -523,6 +523,94 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 }).ToList()
             );
 
+            return new ReadResponse(listData, Total, OrderDictionary);
+        }
+
+        public ReadResponse ReadForCorrectionNoteQuantity(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            IQueryable<GarmentDeliveryOrder> Query = dbSet
+                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.IsInvoice == true && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
+                .Select(m => new GarmentDeliveryOrder
+                {
+                    Id = m.Id,
+                    DONo = m.DONo,
+                    BillNo = m.BillNo,
+                    IsInvoice = m.IsInvoice,
+                    UseIncomeTax = m.UseIncomeTax,
+                    SupplierName = m.SupplierName,
+                    SupplierId = m.SupplierId,
+                    DOCurrencyCode = m.DOCurrencyCode,
+                    UseVat = m.UseVat,
+                    IncomeTaxId = m.IncomeTaxId,
+                    IncomeTaxName = m.IncomeTaxName,
+                    IncomeTaxRate = m.IncomeTaxRate,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Items = m.Items.Select(i => new GarmentDeliveryOrderItem
+                    {
+                        Id = i.Id,
+                        EPOId = i.EPOId,
+                        EPONo = i.EPONo,
+                        Details = i.Details.Where(d => d.ReceiptQuantity > 0).ToList()
+                    }).ToList()
+                });
+
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentDeliveryOrder> pageable = new Pageable<GarmentDeliveryOrder>(Query, Page - 1, Size);
+            List<GarmentDeliveryOrder> DataModel = pageable.Data.ToList();
+            int Total = pageable.TotalCount;
+
+            List<GarmentDeliveryOrderViewModel> DataViewModel = mapper.Map<List<GarmentDeliveryOrderViewModel>>(DataModel);
+
+            List<dynamic> listData = new List<dynamic>();
+            listData.AddRange(
+                DataViewModel.Select(s => new
+                {
+                    s.Id,
+                    s.doNo,
+                    s.docurrency,
+                    s.supplier,
+                    s.useIncomeTax,
+                    s.billNo,
+                    s.isInvoice,
+                    s.useVat,
+                    s.incomeTax,
+                    s.LastModifiedUtc,
+                    items = s.items.Select(i => new
+                    {
+                        i.Id,
+                        i.purchaseOrderExternal,
+                        fulfillments = i.fulfillments.Select(d => new
+                        {
+                            d.Id,
+
+                            d.pRId,
+                            d.pRNo,
+
+                            d.pOId,
+                            d.poSerialNumber,
+
+                            d.product,
+
+                            d.rONo,
+
+                            d.purchaseOrderUom,
+                            d.quantityCorrection,
+                            d.priceTotalCorrection,
+
+                            d.pricePerDealUnit,
+                            d.pricePerDealUnitCorrection,
+
+                            receiptCorrection =  dbContext.GarmentUnitReceiptNoteItems.Where(m => m.DODetailId == d.Id && m.IsDeleted == false).Select(m => m.ReceiptCorrection).FirstOrDefault()
+                        }).ToList()
+                    }).ToList()
+                }).ToList()
+            );
             return new ReadResponse(listData, Total, OrderDictionary);
         }
     }

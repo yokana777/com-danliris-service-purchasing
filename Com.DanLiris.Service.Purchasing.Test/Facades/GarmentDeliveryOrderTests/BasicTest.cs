@@ -710,5 +710,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = facade.ReadForUnitReceiptNote(Filter:filterString);
             Assert.NotEqual(Response.Data.Count, 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_For_CorrectionNoteQuantity()
+        {
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(m => m.Map<List<GarmentDeliveryOrderViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<GarmentDeliveryOrderViewModel>
+                {
+                    new GarmentDeliveryOrderViewModel
+                    {
+                        items = new List<GarmentDeliveryOrderItemViewModel>
+                        {
+                            new GarmentDeliveryOrderItemViewModel
+                            {
+                                fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                                {
+                                    new GarmentDeliveryOrderFulfillmentViewModel()
+                                }
+                            }
+                        }
+                    }
+                });
+
+            var serviceProvider = GetServiceProvider();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMapper)))
+                .Returns(mapper.Object);
+
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadForCorrectionNoteQuantity();
+            Assert.NotEqual(Response.Data.Count, 0);
+        }
     }
 }
