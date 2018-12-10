@@ -540,6 +540,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     IsInvoice = m.IsInvoice,
                     UseIncomeTax = m.UseIncomeTax,
                     SupplierName = m.SupplierName,
+                    SupplierId = m.SupplierId,
                     DOCurrencyCode = m.DOCurrencyCode,
                     UseVat = m.UseVat,
                     IncomeTaxId = m.IncomeTaxId,
