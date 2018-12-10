@@ -287,14 +287,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         foreach (var oldItem in oldM.Items)
                         {
                             var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
-                            if (newItem == null)
+                            foreach (var oldDetail in oldItem.Details)
                             {
-                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
-                                dbContext.GarmentDeliveryOrderItems.Update(oldItem);
-                                foreach (var oldDetail in oldItem.Details)
+                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
+                                if (newItem == null)
                                 {
+                                    EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
+                                    dbContext.GarmentDeliveryOrderItems.Update(oldItem);
                                     EntityExtension.FlagForDelete(oldDetail, user, USER_AGENT);
-                                    GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
                                     externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - oldDetail.DOQuantity;
                                     dbContext.GarmentDeliveryOrderDetails.Update(oldDetail);
                                 }
