@@ -297,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>()).Result;
+            var response = controller.Put(It.IsAny<int>(), this.ViewModel).Result;
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
@@ -313,7 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>()).Result;
+            var response = controller.Put(It.IsAny<int>(), this.ViewModel).Result;
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 

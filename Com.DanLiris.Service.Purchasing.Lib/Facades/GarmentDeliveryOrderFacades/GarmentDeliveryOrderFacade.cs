@@ -166,61 +166,113 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                         foreach (var vmItem in vm.items)
                         {
-                            foreach (var modelItem in m.Items.Where(i => i.Id == vmItem.Id))
-                            {
-                                foreach (var item in oldM.Items.Where(i => i.EPOId == modelItem.EPOId).ToList())
-                                {
-                                    EntityExtension.FlagForUpdate(modelItem, user, USER_AGENT);
 
-                                    CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode, m.DODate);
+                            foreach (var modelItem in m.Items.Where(i => i.Id == vmItem.Id))
+                            {   
+                                if(modelItem.Id == 0)
+                                {
+                                    EntityExtension.FlagForCreate(modelItem, user, USER_AGENT);
+
+                                    CurrencyViewModel garmentCurrencyViewModel = GetCurrency(modelItem.CurrencyCode, m.DODate);
                                     m.DOCurrencyId = garmentCurrencyViewModel.Id;
                                     m.DOCurrencyCode = garmentCurrencyViewModel.Code;
                                     m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
-
                                     foreach (var vmDetail in vmItem.fulfillments)
                                     {
-                                        foreach (var modelDetail in modelItem.Details.Where(j => j.Id == vmDetail.Id))
+                                        foreach (var modelDetail in modelItem.Details)
                                         {
-                                            foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
+                                            if (vmDetail.isSave)
                                             {
                                                 GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(modelDetail.POId));
-                                                GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(modelDetail.POId));
+                                                GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(internalPurchaseOrder.Id));
+
+                                                modelDetail.POItemId = (int)internalPurchaseOrderItem.Id;
+                                                modelDetail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                                                modelDetail.UnitId = internalPurchaseOrder.UnitId;
+                                                modelDetail.UnitCode = internalPurchaseOrder.UnitCode;
+                                                EntityExtension.FlagForCreate(modelDetail, user, USER_AGENT);
+
                                                 GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(modelDetail.EPOItemId));
+                                                externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + modelDetail.DOQuantity;
 
-                                                if (vmDetail.isSave == false)
-                                                {
-                                                    externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
-                                                    EntityExtension.FlagForDelete(modelDetail, user, USER_AGENT);
-                                                }
-                                                else
-                                                {
-                                                    externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity + modelDetail.DOQuantity;
-                                                    modelDetail.POItemId = (int)internalPurchaseOrderItem.Id;
-                                                    modelDetail.PRItemId = internalPurchaseOrderItem.GPRItemId;
-                                                    modelDetail.UnitId = internalPurchaseOrder.UnitId;
-                                                    modelDetail.UnitCode = internalPurchaseOrder.UnitCode;
-
-                                                    modelDetail.QuantityCorrection = modelDetail.DOQuantity;
-                                                    modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
-                                                    modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
-                                                    
-                                                    EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
-                                                }
                                                 if (externalPurchaseOrderItem.ReceiptQuantity == 0)
                                                 {
-                                                    if (externalPurchaseOrderItem.DOQuantity == 0)
-                                                    {
-                                                        GarmentPurchaseRequestItem purchaseRequestItem = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(s => s.Id.Equals(modelDetail.PRItemId));
-                                                        purchaseRequestItem.Status = "Sudah diorder ke Supplier";
-                                                        internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
-                                                    }
-                                                    else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                                    if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
                                                     {
                                                         internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
                                                     }
                                                     else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
                                                     {
                                                         internalPurchaseOrderItem.Status = "Barang sudah datang semua";
+                                                    }
+                                                }
+
+                                                modelDetail.QuantityCorrection = modelDetail.DOQuantity;
+                                                modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
+                                                modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+
+                                                m.TotalAmount += modelDetail.PriceTotal;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var item in oldM.Items.Where(i => i.EPOId == modelItem.EPOId).ToList())
+                                    {
+                                        EntityExtension.FlagForUpdate(modelItem, user, USER_AGENT);
+
+                                        CurrencyViewModel garmentCurrencyViewModel = GetCurrency(item.CurrencyCode, m.DODate);
+                                        m.DOCurrencyId = garmentCurrencyViewModel.Id;
+                                        m.DOCurrencyCode = garmentCurrencyViewModel.Code;
+                                        m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
+
+                                        foreach (var vmDetail in vmItem.fulfillments)
+                                        {
+                                            foreach (var modelDetail in modelItem.Details.Where(j => j.Id == vmDetail.Id))
+                                            {
+                                                foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
+                                                {
+                                                    GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(modelDetail.POId));
+                                                    GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(modelDetail.POId));
+                                                    GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(modelDetail.EPOItemId));
+
+                                                    if (vmDetail.isSave == false)
+                                                    {
+                                                        externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity;
+                                                        EntityExtension.FlagForDelete(modelDetail, user, USER_AGENT);
+                                                    }
+                                                    else
+                                                    {
+                                                        externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - detail.DOQuantity + modelDetail.DOQuantity;
+                                                        modelDetail.POItemId = (int)internalPurchaseOrderItem.Id;
+                                                        modelDetail.PRItemId = internalPurchaseOrderItem.GPRItemId;
+                                                        modelDetail.UnitId = internalPurchaseOrder.UnitId;
+                                                        modelDetail.UnitCode = internalPurchaseOrder.UnitCode;
+
+                                                        modelDetail.QuantityCorrection = modelDetail.DOQuantity;
+                                                        modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
+                                                        modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
+                                                        m.TotalAmount += oldM.TotalAmount - detail.PriceTotal + modelDetail.PriceTotal;
+
+                                                        EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
+                                                    }
+                                                    if (externalPurchaseOrderItem.ReceiptQuantity == 0)
+                                                    {
+                                                        if (externalPurchaseOrderItem.DOQuantity == 0)
+                                                        {
+                                                            GarmentPurchaseRequestItem purchaseRequestItem = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(s => s.Id.Equals(modelDetail.PRItemId));
+                                                            purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                                                            internalPurchaseOrderItem.Status = "Sudah diorder ke Supplier";
+                                                        }
+                                                        else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                                        {
+                                                            internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+                                                        }
+                                                        else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                                        {
+                                                            internalPurchaseOrderItem.Status = "Barang sudah datang semua";
+                                                        }
                                                     }
                                                 }
                                             }
@@ -230,16 +282,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             }
                         }
 
+                        dbSet.Update(m);
+
                         foreach (var oldItem in oldM.Items)
                         {
                             var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
-                            if (newItem == null)
+                            foreach (var oldDetail in oldItem.Details)
                             {
-                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
+                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
+                                if (newItem == null)
+                                {
+                                    EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
+                                    dbContext.GarmentDeliveryOrderItems.Update(oldItem);
+                                    EntityExtension.FlagForDelete(oldDetail, user, USER_AGENT);
+                                    externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity - oldDetail.DOQuantity;
+                                    dbContext.GarmentDeliveryOrderDetails.Update(oldDetail);
+                                }
                             }
                         }
-
-                        dbSet.Update(m);
 
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
@@ -431,7 +491,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
                 var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
                 List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel.FirstOrDefault(s=> s.Date.Date <= doDate.Date);
+                return viewModel.FirstOrDefault(s=> s.Date < doDate.AddDays(1));
             }
             catch (Exception e)
             {
