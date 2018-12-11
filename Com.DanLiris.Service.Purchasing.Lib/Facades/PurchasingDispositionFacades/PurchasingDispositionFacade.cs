@@ -164,10 +164,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
         async Task<string> GenerateNo(PurchasingDisposition model, int clientTimeZoneOffset)
         {
             DateTimeOffset Now = DateTime.UtcNow;
-            string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); ;
-            string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); ;
+            string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); 
+            string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); 
 
-            string no = $"{Year}-{Month}-";
+            string no = $"{Year}-{Month}-T";
             int Padding = 3;
 
             var lastNo = await this.dbSet.Where(w => w.DispositionNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.DispositionNo).FirstOrDefaultAsync();
