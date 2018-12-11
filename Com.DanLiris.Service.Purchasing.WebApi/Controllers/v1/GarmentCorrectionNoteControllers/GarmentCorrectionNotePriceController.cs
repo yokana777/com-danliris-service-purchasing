@@ -142,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
 
                 var Model = mapper.Map<GarmentCorrectionNote>(viewModel);
 
-                await facade.Create(Model, identityService.Username);
+                await facade.Create(Model);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)

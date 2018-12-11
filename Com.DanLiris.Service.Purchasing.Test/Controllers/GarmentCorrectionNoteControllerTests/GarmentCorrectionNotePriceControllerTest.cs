@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
                 .Setup(x => x.GetService(typeof(IdentityService)))
-                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+                .Returns(new IdentityService() { Token = "Token", Username = "Test", TimezoneOffset = 7 });
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
@@ -249,7 +249,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
                 .Verifiable();
 
             var mockFacade = new Mock<IGarmentCorrectionNotePriceFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<GarmentCorrectionNote>(), "unittestusername", 7))
+            mockFacade.Setup(x => x.Create(It.IsAny<GarmentCorrectionNote>()))
                .ReturnsAsync(1);
 
             var controller = GetController(mockFacade, validateMock, mockMapper);

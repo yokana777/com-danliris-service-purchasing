@@ -32,8 +32,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
     {
         private const string ENTITY = "GarmentCorrectionNotePrice";
 
-        private const string USERNAME = "Unit Test";
-
         private IServiceProvider GetServiceProvider()
         {
             var httpClientService = new Mock<IHttpClientService>();
@@ -97,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         public async void Should_Success_Get_All_Data_Koreksi_Harga_Satuan()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan(USERNAME);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan();
             var Response = facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
@@ -106,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         public async void Should_Success_Get_All_Data_Koreksi_Harga_Total()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal(USERNAME);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal();
             var Response = facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
@@ -115,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         public async void Should_Success_Get_Data_By_Id_Koreksi_Harga_Satuan()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan(USERNAME);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan();
             var Response = facade.ReadById((int)data.Id);
             Assert.NotEqual(Response.Id, 0);
         }
@@ -124,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         public async void Should_Success_Get_Data_By_Id_Koreksi_Harga_Total()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal(USERNAME);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal();
             var Response = facade.ReadById((int)data.Id);
             Assert.NotEqual(Response.Id, 0);
         }
@@ -134,8 +132,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData().GarmentCorrectionNote;
-            var Response = await facade.Create(data, USERNAME);
+            var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Create_Data_With_Tax()
+        {
+            var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var Response = await facade.Create(data);
+            Assert.NotEqual(Response, 0);
+
+            var data2nd = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var Response2nd = await facade.Create(data2nd);
+            Assert.NotEqual(Response2nd, 0);
         }
 
         [Fact]
@@ -144,7 +155,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData().GarmentCorrectionNote;
             data.Items = null;
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data, USERNAME));
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async void Should_Error_Create_Data_Failed_Get_Supplier()
+        {
+            var httpClientService = new Mock<IHttpClientService>();
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError) { Content = new StringContent("") });
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService { Username = "Username", TimezoneOffset = 7 });
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+
+            var facade = new GarmentCorrectionNotePriceFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData().GarmentCorrectionNote;
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
             Assert.NotNull(e.Message);
         }
 

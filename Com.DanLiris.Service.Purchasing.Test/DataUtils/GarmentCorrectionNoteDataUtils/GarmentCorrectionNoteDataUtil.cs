@@ -107,17 +107,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             return data.GarmentCorrectionNote;
         }
 
-        public async Task<GarmentCorrectionNote> GetTestDataKoreksiHargaSatuan(string user)
+        public GarmentCorrectionNote GetNewDataWithTax()
+        {
+            var data = GetNewData();
+
+            data.GarmentCorrectionNote.UseVat = true;
+            data.GarmentCorrectionNote.UseIncomeTax = true;
+            data.GarmentCorrectionNote.IncomeTaxId = (long)data.GarmentDeliveryOrder.IncomeTaxId;
+            data.GarmentCorrectionNote.IncomeTaxName = data.GarmentDeliveryOrder.IncomeTaxName;
+            data.GarmentCorrectionNote.IncomeTaxRate = (decimal)data.GarmentDeliveryOrder.IncomeTaxRate;
+
+            return data.GarmentCorrectionNote;
+        }
+
+        public async Task<GarmentCorrectionNote> GetTestDataKoreksiHargaSatuan()
         {
             var data = GetNewDataKoreksiHargaSatuan();
-            await garmentCorrectionNoteFacade.Create(data, user);
+            await garmentCorrectionNoteFacade.Create(data);
             return data;
         }
 
-        public async Task<GarmentCorrectionNote> GetTestDataKoreksiHargaTotal(string user)
+        public async Task<GarmentCorrectionNote> GetTestDataKoreksiHargaTotal()
         {
             var data = GetNewDataKoreksiHargaTotal();
-            await garmentCorrectionNoteFacade.Create(data, user);
+            await garmentCorrectionNoteFacade.Create(data);
             return data;
         }
     }

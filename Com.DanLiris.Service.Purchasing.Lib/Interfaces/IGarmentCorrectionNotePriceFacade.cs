@@ -10,6 +10,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     {
         Tuple<List<GarmentCorrectionNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentCorrectionNote ReadById(int id);
-        Task<int> Create(GarmentCorrectionNote garmentCorrectionNote, string user, int clientTimeZoneOffset = 7);
+        Task<int> Create(GarmentCorrectionNote garmentCorrectionNote);
     }
 }

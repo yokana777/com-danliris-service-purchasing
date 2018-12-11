@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             return model;
         }
 
-        public async Task<int> Create(GarmentCorrectionNote garmentCorrectionNote, string user, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(GarmentCorrectionNote garmentCorrectionNote)
         {
             int Created = 0;
 
@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             {
                 try
                 {
-                    EntityExtension.FlagForCreate(garmentCorrectionNote, user, USER_AGENT);
+                    EntityExtension.FlagForCreate(garmentCorrectionNote, identityService.Username, USER_AGENT);
                     var supplier = GetSupplier(garmentCorrectionNote.SupplierId);
                     garmentCorrectionNote.CorrectionNo = GenerateNo("NK", garmentCorrectionNote, supplier.Import ? "I" : "L");
                     if (garmentCorrectionNote.UseVat)
@@ -105,11 +105,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
                     var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
                     garmentDeliveryOrder.IsCorrection = true;
-                    EntityExtension.FlagForUpdate(garmentDeliveryOrder, user, USER_AGENT);
+                    EntityExtension.FlagForUpdate(garmentDeliveryOrder, identityService.Username, USER_AGENT);
 
                     foreach (var item in garmentCorrectionNote.Items)
                     {
-                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
 
                         var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
                         if ((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA SATUAN")
@@ -121,7 +121,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         {
                             garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
                         }
-                        EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, user, USER_AGENT);
+                        EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, identityService.Username, USER_AGENT);
                     }
 
                     dbSet.Add(garmentCorrectionNote);
@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             string no = string.Concat(code, Year, Month);
             int Padding = 4;
 
-            var lastNo = dbSet.Where(w => w.CorrectionNo.StartsWith(no) && w.CorrectionNo.EndsWith(suffix) && !w.IsDeleted).OrderByDescending(o => o.CorrectionNo).FirstOrDefaultAsync().Result;
+            var lastNo = dbSet.Where(w => (w.CorrectionNo ?? "").StartsWith(no) && (w.CorrectionNo ?? "").EndsWith(suffix) && !w.IsDeleted).OrderByDescending(o => o.CorrectionNo).FirstOrDefaultAsync().Result;
 
             int lastNoNumber = 0;
             if (lastNo != null)
@@ -165,7 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             string no = string.Concat(code, Year, Month);
             int Padding = 4;
 
-            var lastData = dbSet.Where(w => w.NKPN.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPN).FirstOrDefaultAsync().Result;
+            var lastData = dbSet.Where(w => (w.NKPN ?? "").StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPN).FirstOrDefaultAsync().Result;
 
             int lastNoNumber = 0;
             if (lastData != null)
@@ -183,7 +183,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             string no = string.Concat(code, Year, Month);
             int Padding = 4;
 
-            var lastData = dbSet.Where(w => w.NKPH.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPH).FirstOrDefaultAsync().Result;
+            var lastData = dbSet.Where(w => (w.NKPH ?? "").StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPH).FirstOrDefaultAsync().Result;
 
             int lastNoNumber = 0;
             if (lastData != null)
