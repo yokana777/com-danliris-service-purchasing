@@ -12,6 +12,7 @@ using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryOrderControllers
 {
@@ -221,14 +222,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
-                GarmentDeliveryOrderViewModel vmValidate = ViewModel;
+                var vmString = JsonConvert.SerializeObject(ViewModel);
+                var vmValidation = JsonConvert.DeserializeObject<GarmentDeliveryOrderViewModel>(vmString);
 
-                foreach (var vmItem in vmValidate.items)
+                foreach (var vmItem in vmValidation.items)
                 {
                     vmItem.fulfillments = vmItem.fulfillments.Where(s => s.isSave).ToList();
                 }
 
-                validateService.Validate(vmValidate);
+                validateService.Validate(vmValidation);
 
                 var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 

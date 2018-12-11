@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     if (oldM != null && oldM.Id == id)
                     {
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
-
+                        m.TotalAmount = 0;
                         foreach (var vmItem in vm.items)
                         {
 
@@ -253,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                         modelDetail.QuantityCorrection = modelDetail.DOQuantity;
                                                         modelDetail.PricePerDealUnitCorrection = modelDetail.PricePerDealUnit;
                                                         modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
-                                                        m.TotalAmount += oldM.TotalAmount - detail.PriceTotal + modelDetail.PriceTotal;
+                                                        m.TotalAmount += modelDetail.PriceTotal;
 
                                                         EntityExtension.FlagForUpdate(modelDetail, user, USER_AGENT);
                                                     }
@@ -288,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         {
                             var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
                             foreach (var oldDetail in oldItem.Details)
-                            {
+                             {
                                 GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
                                 if (newItem == null)
                                 {
