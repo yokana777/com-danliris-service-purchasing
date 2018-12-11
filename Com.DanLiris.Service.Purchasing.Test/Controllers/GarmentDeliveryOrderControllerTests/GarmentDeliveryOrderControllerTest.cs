@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
@@ -296,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>()).Result;
+            var response = controller.Put(It.IsAny<int>(), this.ViewModel).Result;
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
@@ -312,7 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>()).Result;
+            var response = controller.Put(It.IsAny<int>(), this.ViewModel).Result;
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
@@ -387,5 +388,51 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 			var response = controller.GetIsReceived(listID);
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
-	}
+
+        [Fact]
+        public void Should_Success_Get_All_Data_For_UnitReceiptNote()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadForUnitReceiptNote(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetForUnitReceiptNote();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_For_UnitReceiptNote()
+        {
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, null, null);
+            var response = controller.GetForUnitReceiptNote();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_All_Data_For_CorrectionNoteQuantity()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadForCorrectionNoteQuantity(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetForCorrectionNoteQuantity();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_For_CorrectionNoteQuantity()
+        {
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, null, null);
+            var response = controller.GetForCorrectionNoteQuantity();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+    }
 }

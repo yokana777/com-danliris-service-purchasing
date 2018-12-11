@@ -87,10 +87,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.InvoiceNo,
                         s.PaymentMethod,
                         s.CreatedBy,
+                        s.Calculation,
+                        s.Investation,
+                        s.Remark,
+                        s.ProformaNo,
+                        s.Amount,
                         s.Currency,
                         s.LastModifiedUtc,
                         s.CreatedUtc,
                         s.PaymentDueDate,
+                        s.Position,
                         s.Items
                     }).ToList()
                 );

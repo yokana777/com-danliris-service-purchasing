@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			  	.ForPath(d => d.bruto, opt => opt.MapFrom(s => s.Bruto))
 			  	.ForPath(d => d.packaging, opt => opt.MapFrom(s => s.Packaging))
 			  	.ForPath(d => d.packagingQty, opt => opt.MapFrom(s => s.PackagingQty))
-			  	.ForPath(d => d.bCIdTemp, opt => opt.MapFrom(s => s.BCIdTemp))
+			  
 				/*Supplier*/
 				.ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
 			  	.ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))

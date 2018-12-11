@@ -38,7 +38,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
-
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -98,11 +98,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
                 .AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>();
+                .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
+                .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -151,10 +152,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
             services.AddAutoMapper();
-
-            RegisterSerializationProvider();
-            RegisterClassMap();
-            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             RegisterSerializationProvider();
             RegisterClassMap();
