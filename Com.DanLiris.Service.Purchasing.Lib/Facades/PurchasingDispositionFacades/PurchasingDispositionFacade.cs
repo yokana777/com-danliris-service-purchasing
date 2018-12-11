@@ -135,12 +135,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             if (lastNo == null)
             {
-                return no + "1".PadLeft(Padding, '0');
+                return no + "T" + "1".PadLeft(Padding, '0');
             }
             else
             {
                 int lastNoNumber = Int32.Parse(lastNo.DispositionNo.Replace(no, "")) + 1;
-                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+                return no + "T"+ lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
 
