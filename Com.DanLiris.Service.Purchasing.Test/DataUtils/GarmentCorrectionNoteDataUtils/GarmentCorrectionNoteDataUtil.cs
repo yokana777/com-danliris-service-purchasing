@@ -12,10 +12,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
 {
     public class GarmentCorrectionNoteDataUtil
     {
-        private readonly GarmentCorrectionNoteFacade garmentCorrectionNoteFacade;
+        private readonly GarmentCorrectionNotePriceFacade garmentCorrectionNoteFacade;
         private readonly GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil;
 
-        public GarmentCorrectionNoteDataUtil(GarmentCorrectionNoteFacade garmentCorrectionNoteFacade, GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil)
+        public GarmentCorrectionNoteDataUtil(GarmentCorrectionNotePriceFacade garmentCorrectionNoteFacade, GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil)
         {
             this.garmentCorrectionNoteFacade = garmentCorrectionNoteFacade;
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;

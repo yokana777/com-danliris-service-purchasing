@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
-    public interface IGarmentCorrectionNoteFacade
+    public interface IGarmentCorrectionNotePriceFacade
     {
         Tuple<List<GarmentCorrectionNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentCorrectionNote ReadById(int id);

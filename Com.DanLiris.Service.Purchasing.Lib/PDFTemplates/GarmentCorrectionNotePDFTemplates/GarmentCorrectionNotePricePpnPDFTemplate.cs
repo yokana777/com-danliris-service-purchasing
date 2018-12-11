@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNotePDFTemplates
 {
-    public class GarmentCorrectionNotePpnPDFTemplate
+    public class GarmentCorrectionNotePricePpnPDFTemplate
     {
         public static MemoryStream Generate(GarmentCorrectionNote model, IServiceProvider serviceProvider, int clientTimeZoneOffset = 7, string userName = "")
         {
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             tableIdentityLeft.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("No. Nota Pajak", normal_font);
             tableIdentityLeft.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   {invoice.VatNo}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {model.NKPN}", normal_font);
             tableIdentityLeft.AddCell(cellLeftNoBorder);
 
             PdfPTable tableIdentityRight = new PdfPTable(2);

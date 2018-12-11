@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;

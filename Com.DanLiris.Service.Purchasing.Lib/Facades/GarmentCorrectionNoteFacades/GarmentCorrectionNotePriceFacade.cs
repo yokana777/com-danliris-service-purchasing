@@ -1,29 +1,34 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
-using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades
 {
-    public class GarmentCorrectionNoteFacade : IGarmentCorrectionNoteFacade
+    public class GarmentCorrectionNotePriceFacade : IGarmentCorrectionNotePriceFacade
     {
         private string USER_AGENT = "Facade";
+
+        private readonly IServiceProvider serviceProvider;
+        private readonly IdentityService identityService;
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentCorrectionNote> dbSet;
 
-        public GarmentCorrectionNoteFacade(PurchasingDbContext dbContext)
+        public GarmentCorrectionNotePriceFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
+            this.serviceProvider = serviceProvider;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentCorrectionNote>();
         }
@@ -31,6 +36,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
         public Tuple<List<GarmentCorrectionNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<GarmentCorrectionNote> Query = dbSet;
+
+            Query = Query.Where(m => (m.CorrectionType ?? "").ToUpper().StartsWith("HARGA"));
 
             Query = Query.Select(m => new GarmentCorrectionNote
             {
@@ -83,11 +90,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 try
                 {
                     EntityExtension.FlagForCreate(garmentCorrectionNote, user, USER_AGENT);
-                    do
+                    var supplier = GetSupplier(garmentCorrectionNote.SupplierId);
+                    garmentCorrectionNote.CorrectionNo = GenerateNo("NK", garmentCorrectionNote, supplier.Import ? "I" : "L");
+                    if (garmentCorrectionNote.UseVat)
                     {
-                        garmentCorrectionNote.CorrectionNo = CodeGenerator.Generate();
+                        garmentCorrectionNote.NKPN = GenerateNKPN("NKPN", garmentCorrectionNote);
                     }
-                    while (dbSet.Any(m => m.CorrectionNo == garmentCorrectionNote.CorrectionNo));
+                    if (garmentCorrectionNote.UseIncomeTax)
+                    {
+                        garmentCorrectionNote.NKPH = GenerateNKPH("NKPH", garmentCorrectionNote);
+                    }
 
                     garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
 
@@ -126,5 +138,79 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
             return Created;
         }
+
+        private string GenerateNo(string code, GarmentCorrectionNote garmentCorrectionNote, string suffix = "")
+        {
+            string Year = garmentCorrectionNote.CorrectionDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
+            string Month = garmentCorrectionNote.CorrectionDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");
+
+            string no = string.Concat(code, Year, Month);
+            int Padding = 4;
+
+            var lastNo = dbSet.Where(w => w.CorrectionNo.StartsWith(no) && w.CorrectionNo.EndsWith(suffix) && !w.IsDeleted).OrderByDescending(o => o.CorrectionNo).FirstOrDefaultAsync().Result;
+
+            int lastNoNumber = 0;
+            if (lastNo != null)
+            {
+                int.TryParse(lastNo.CorrectionNo.Substring(no.Length, lastNo.CorrectionNo.Length - no.Length - suffix.Length), out lastNoNumber);
+            }
+            return no + (lastNoNumber + 1).ToString().PadLeft(Padding, '0') + suffix;
+        }
+
+        private string GenerateNKPN(string code, GarmentCorrectionNote garmentCorrectionNote)
+        {
+            string Year = garmentCorrectionNote.CorrectionDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
+            string Month = garmentCorrectionNote.CorrectionDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");
+
+            string no = string.Concat(code, Year, Month);
+            int Padding = 4;
+
+            var lastData = dbSet.Where(w => w.NKPN.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPN).FirstOrDefaultAsync().Result;
+
+            int lastNoNumber = 0;
+            if (lastData != null)
+            {
+                int.TryParse(lastData.NKPN.Substring(no.Length, lastData.NKPN.Length - no.Length), out lastNoNumber);
+            }
+            return no + (lastNoNumber + 1).ToString().PadLeft(Padding, '0');
+        }
+
+        private string GenerateNKPH(string code, GarmentCorrectionNote garmentCorrectionNote)
+        {
+            string Year = garmentCorrectionNote.CorrectionDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
+            string Month = garmentCorrectionNote.CorrectionDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");
+
+            string no = string.Concat(code, Year, Month);
+            int Padding = 4;
+
+            var lastData = dbSet.Where(w => w.NKPH.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPH).FirstOrDefaultAsync().Result;
+
+            int lastNoNumber = 0;
+            if (lastData != null)
+            {
+                int.TryParse(lastData.NKPH.Substring(no.Length, lastData.NKPH.Length - no.Length), out lastNoNumber);
+            }
+            return no + (lastNoNumber + 1).ToString().PadLeft(Padding, '0');
+        }
+
+        private SupplierViewModel GetSupplier(long supplierId)
+        {
+            string supplierUri = "master/garment-suppliers";
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }

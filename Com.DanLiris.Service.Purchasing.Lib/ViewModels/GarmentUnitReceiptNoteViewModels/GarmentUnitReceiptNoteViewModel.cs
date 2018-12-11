@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels
 {
     public class GarmentUnitReceiptNoteViewModel : BaseViewModel, IValidatableObject
     {

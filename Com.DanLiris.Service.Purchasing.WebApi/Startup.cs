@@ -98,11 +98,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
                 .AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>();
         }
 
@@ -152,10 +152,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
             services.AddAutoMapper();
-
-            RegisterSerializationProvider();
-            RegisterClassMap();
-            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             RegisterSerializationProvider();
             RegisterClassMap();
