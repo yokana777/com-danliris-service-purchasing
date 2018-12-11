@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); ;
             string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); ;
 
-            string no = $"{Year}-{Month}-";
+            string no = $"{Year}-{Month}-T";
             int Padding = 3;
 
             var lastNo = await this.dbSet.Where(w => w.DispositionNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.DispositionNo).FirstOrDefaultAsync();
@@ -175,12 +175,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             if (lastNo == null)
             {
-                return no + "T" + "1".PadLeft(Padding, '0');
+                return no + "1".PadLeft(Padding, '0');
             }
             else
             {
                 int lastNoNumber = Int32.Parse(lastNo.DispositionNo.Replace(no, "")) + 1;
-                return no + "T"+ lastNoNumber.ToString().PadLeft(Padding, '0');
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
 
