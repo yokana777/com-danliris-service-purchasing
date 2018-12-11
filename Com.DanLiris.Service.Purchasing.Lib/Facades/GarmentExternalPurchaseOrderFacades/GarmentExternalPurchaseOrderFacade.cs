@@ -421,6 +421,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                     EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.IsPosted = false;
+                    m.IsApproved = false;
 
                     foreach (var item in m.Items)
                     {
