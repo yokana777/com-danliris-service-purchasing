@@ -123,6 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         [Fact]
         public async void Should_Success_Update_Data()
         {
+            var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -171,6 +172,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
             var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
             Assert.NotEqual(ResponseUpdate, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data2()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentInternNoteFacades(dbContext, ServiceProvider);
+            var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
+            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var items in data.Items)
+            {
+                dbContext.Entry(items).State = EntityState.Detached;
+                foreach (var detail in items.Details)
+                {
+                    dbContext.Entry(detail).State = EntityState.Detached;
+                }
+            }
+
+            var newData = dbContext.GarmentInternNotes.AsNoTracking()
+                .Include(m => m.Items)
+                    .ThenInclude(i => i.Details)
+                .FirstOrDefault(m => m.Id == data.Id);
+
+            newData.Items = newData.Items.Take(1).ToList();
+
+            var ResponseUpdate2 = await facade.Update((int)newData.Id, newData, USERNAME);
+            Assert.NotEqual(ResponseUpdate2, 0);
         }
 
         [Fact]
