@@ -255,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(Tuple.Create(new List<PurchasingDisposition>(), 0, new Dictionary<string, string>()));
-
+            mockFacade.Setup(x => x.GetTotalPaidPrice(It.IsAny<List<PurchasingDispositionViewModel>>())).Returns(new List<PurchasingDispositionViewModel>());
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
                 .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
