@@ -1,6 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
