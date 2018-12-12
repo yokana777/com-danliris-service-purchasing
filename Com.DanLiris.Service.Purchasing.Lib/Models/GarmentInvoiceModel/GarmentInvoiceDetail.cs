@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
     public class GarmentInvoiceDetail : StandardEntity<long>
     {
         public long EPOId { get; set; }
-		public long DODetailDOId { get; set; }
+		public long DODetailId { get; set; }
 		public string EPONo { get; set; }
         public long IPOId { get; set; }
         public long PRItemId { get; set; }

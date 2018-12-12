@@ -53,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			  .ForPath(d => d.ePOId, opt => opt.MapFrom(s => s.EPOId))
 			  .ForPath(d => d.ePONo, opt => opt.MapFrom(s => s.EPONo))
 			  .ForPath(d => d.pOId, opt => opt.MapFrom(s => s.IPOId))
-			  .ForPath(d => d.dODetailDOId, opt => opt.MapFrom(s => s.DODetailDOId))
+			  .ForPath(d => d.dODetailId, opt => opt.MapFrom(s => s.DODetailId))
 			  .ForPath(d => d.product.Id, opt => opt.MapFrom(s => s.ProductId))
 			  .ForPath(d => d.product.Code, opt => opt.MapFrom(s => s.ProductCode))
 			  .ForPath(d => d.product.Name, opt => opt.MapFrom(s => s.ProductName))

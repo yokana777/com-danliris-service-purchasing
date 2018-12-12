@@ -163,18 +163,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var data = await dataUtil.GetTestDataWithStorage();
-            dataUtil.SetDataWithStorage(data);
 
+            dataUtil.SetDataWithStorage(data);
             var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseUpdateStorage, 0);
 
-            data.IsStorage = false;
+            // Create Storage based on UnitId that contain longTick on create DataUtil
+            dataUtil.SetDataWithStorage(data, data.UnitId);
+            var ResponseRestoreStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseRestoreStorage, 0);
 
+            data.IsStorage = false;
             var ResponseDeleteStorage = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseDeleteStorage, 0);
 
             dataUtil.SetDataWithStorage(data);
-
             var ResponseAddStorage = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseAddStorage, 0);
         }
@@ -236,6 +239,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 }
             };
             Assert.True(viewModelCheckItems.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelCheckItemsConvertion = new GarmentUnitReceiptNoteViewModel
+            {
+                DOId = 1,
+                Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                {
+                    new GarmentUnitReceiptNoteItemViewModel
+                    {
+                        Uom = new UomViewModel
+                        {
+                            Id = "1"
+                        },
+                        SmallUom = new UomViewModel
+                        {
+                            Id = "1"
+                        },
+                        Conversion = 10
+                    }
+                }
+            };
+            Assert.True(viewModelCheckItemsConvertion.Validate(null).Count() > 0);
         }
     }
 }
