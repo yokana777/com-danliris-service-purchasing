@@ -56,6 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.poSerialNumber, opt => opt.MapFrom(s => s.POSerialNumber))
                 .ForPath(d => d.paymentDueDays, opt => opt.MapFrom(s => s.PaymentDueDays))
                 .ForPath(d => d.paymentDueDate, opt => opt.MapFrom(s => s.PaymentDueDate))
+                .ForPath(d => d.invoiceDetailId, opt => opt.MapFrom(s => s.InvoiceDetailId))
 
                 /*UOM*/
                 .ForPath(d => d.uomUnit.Id, opt => opt.MapFrom(s => s.UOMId))

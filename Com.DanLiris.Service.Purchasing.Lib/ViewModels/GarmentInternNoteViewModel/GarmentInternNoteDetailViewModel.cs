@@ -26,5 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public UomViewModel uomUnit { get; set; }
 
         public UnitViewModel unit { get; set; }
+        public long dODetailId { get; set; }
+
     }
 }
