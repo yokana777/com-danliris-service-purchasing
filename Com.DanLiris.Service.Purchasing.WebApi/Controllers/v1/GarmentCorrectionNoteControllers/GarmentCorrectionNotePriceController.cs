@@ -136,6 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
                 validateService.Validate(viewModel);
