@@ -123,55 +123,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         [Fact]
         public async void Should_Success_Update_Data()
         {
-            var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
             Assert.NotEqual(ResponseUpdate, 0);
-            var newItem = new GarmentInternNoteItem
-            {
-                InvoiceId = It.IsAny<int>(),
-                InvoiceDate = DateTimeOffset.Now,
-                InvoiceNo = "donos",
-                TotalAmount = 2000,
-                Details = new List<GarmentInternNoteDetail>
-                            {
-                                new GarmentInternNoteDetail
-                                {
-                                    EPOId=It.IsAny<int>(),
-                                    EPONo="epono",
-                                    UnitId="1",
-                                    UnitCode = "UnitCode",
-                                    UnitName = "UnitName",
-                                    DOId = It.IsAny<int>(),
-                                    DODate = DateTimeOffset.Now,
 
-                                    DONo = "DONO",
-                                    PaymentMethod = "PaymentMethod",
-                                    PaymentType = "PaymentType",
-                                    InvoiceDetailId = It.IsAny<int>(),
-                                    RONo="12343",
-                                    ProductId= It.IsAny<int>(),
-                                    ProductCode="code",
-                                    ProductName="name",
-                                    UOMId=It.IsAny<int>(),
-                                    UOMUnit="ROLL",
-                                    Quantity=40,
-                                    PricePerDealUnit=5000,
-                                    PaymentDueDays = 2,
-                                    POSerialNumber="PM132434",
-                                    PriceTotal = 12345
-                                }
-                            }
-            };
             List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
-            Newitems.Add(newItem);
+            Newitems.Add(item);
             data.Items = Newitems;
 
             var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(ResponseUpdate1, 0);
         }
 
         [Fact]
@@ -181,8 +146,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             var facade = new GarmentInternNoteFacades(dbContext, ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
             GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+
+            List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
+            Newitems.Add(item);
+            data.Items = Newitems;
+
+            var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
             Assert.NotEqual(ResponseUpdate, 0);
 
             dbContext.Entry(data).State = EntityState.Detached;
@@ -204,6 +177,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
             var ResponseUpdate2 = await facade.Update((int)newData.Id, newData, USERNAME);
             Assert.NotEqual(ResponseUpdate2, 0);
+        }
+        [Fact]
+        public async void Should_Error_Update_Data()
+        {
+            var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            List<GarmentInternNoteItem> item = new List<GarmentInternNoteItem>(data.Items);
+
+            data.Items.Add(new GarmentInternNoteItem
+            {
+                InvoiceId = It.IsAny<int>(),
+                InvoiceDate = DateTimeOffset.Now,
+                InvoiceNo = "donos",
+                TotalAmount = 2000,
+                Details = null
+            });
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+            var newItem = new GarmentInternNoteItem
+            {
+                InvoiceId = It.IsAny<int>(),
+                InvoiceDate = DateTimeOffset.Now,
+                InvoiceNo = "dono",
+                TotalAmount = 2000,
+                Details = null
+            };
+            List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
+            Newitems.Add(newItem);
+            data.Items = Newitems;
+
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
+            Assert.NotNull(errorNullItems.Message);
+
+
         }
 
         [Fact]
