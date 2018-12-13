@@ -230,9 +230,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 }
                                 else
                                 {
-                                    //GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                                    //if (garmentInvoice != null)
-                                    //    garmentInvoice.HasInternNote = false;
                                     EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                                 }
                                 
