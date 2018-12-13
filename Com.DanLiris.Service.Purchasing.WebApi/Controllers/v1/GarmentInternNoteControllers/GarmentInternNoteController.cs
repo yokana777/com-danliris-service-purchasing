@@ -158,6 +158,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 {
                     foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                     {
+                        GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
+
                         foreach (GarmentInternNoteDetailViewModel detail in item.details)
                         {
                             GarmentDeliveryOrder deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
@@ -165,6 +167,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                             {
                                 GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                                 detail.deliveryOrder.items = deliveryOrderViewModel.items;
+                                var invoiceItem = garmentInvoice.Items.First(s => s.Details.Any(d => d.Id == detail.invoiceDetailId));
+
+                                var invoiceDetail = invoiceItem.Details.First(i => i.Id == detail.invoiceDetailId);
+
+                                detail.dODetailId = invoiceDetail.DODetailId;
                             }
                         }
                     }
