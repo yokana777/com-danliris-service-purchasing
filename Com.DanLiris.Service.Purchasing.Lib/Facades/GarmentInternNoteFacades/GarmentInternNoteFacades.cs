@@ -215,10 +215,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             else
                             {
                                 EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-                                foreach (var detail in data.Details)
-                                {
-
-                                }
                             }
 
                             foreach (GarmentInternNoteItem item in m.Items)
