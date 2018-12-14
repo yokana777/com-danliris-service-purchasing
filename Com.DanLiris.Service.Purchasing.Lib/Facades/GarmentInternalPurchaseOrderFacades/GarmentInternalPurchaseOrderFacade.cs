@@ -2,12 +2,16 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
@@ -313,5 +317,181 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
             return Models.ToList();
         }
+
+        #region Duration InternalPO-POEks
+        public IQueryable<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> GetIPOEPODurationReportQuery(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            int start = 0;
+            int end = 0;
+
+            if(duration == "0-7 hari")
+            {
+                start = 0;
+                end = 7;
+            }
+            else if (duration == "8-14 hari")
+            {
+                start = 8;
+                end = 14;
+            }
+            else if (duration == "15-30 hari")
+            {
+                start = 15;
+                end = 30;
+            }
+            else
+            {
+                start = 31;
+                end = 1000;
+            }
+            List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> listIPODUration = new List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>();
+            var Query = (from a in dbContext.GarmentInternalPurchaseOrders
+                         join b in dbContext.GarmentInternalPurchaseOrderItems on a.Id equals b.GPOId
+                         join c in dbContext.GarmentPurchaseRequestItems on b.GPRItemId equals c.Id
+                         join d in dbContext.GarmentPurchaseRequests on c.GarmentPRId equals d.Id
+                         join e in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals e.POId
+                         join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
+                         //Conditions
+                         where a.IsDeleted == false
+                            && b.IsDeleted == false
+                            && c.IsDeleted == false
+                            && d.IsDeleted == false
+                            && e.IsDeleted == false
+                            && f.IsDeleted == false
+                            && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
+                            && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                         select new GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel
+                         {
+                             roNo=a.RONo,
+                             artikelNo=a.Article,
+                             buyerName=a.BuyerName,
+                             poIntNo=a.PONo,
+                             poEksNo=f.EPONo,
+                             planPO=b.PO_SerialNumber,
+                             poEksCreatedDate=f.CreatedUtc,
+                             poIntCreatedDate=a.CreatedUtc,
+                             unit = a.UnitName,
+                             category = b.CategoryName,
+                             productCode = e.ProductCode,
+                             productName = e.ProductName,
+                             supplierCode = f.SupplierCode,
+                             supplierName = f.SupplierName,
+                             expectedDate=f.DeliveryDate,
+                             productPrice=e.PricePerDealUnit,
+                             productQuantity=e.DealQuantity,
+                             productUom=e.DealUomUnit,
+                             staff = f.CreatedBy,
+                         }).Distinct();
+            foreach (var item in Query)
+            {
+                var ePODate = new DateTimeOffset(item.poEksCreatedDate.Date, TimeSpan.Zero);
+                var poCreatedDate = new DateTimeOffset(item.poIntCreatedDate.Date, TimeSpan.Zero);
+
+                var datediff = ((TimeSpan)(ePODate - poCreatedDate)).Days;
+                GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel _new = new GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel
+                {
+                    roNo = item.roNo,
+                    artikelNo = item.artikelNo,
+                    buyerName = item.buyerName,
+                    poIntNo = item.poIntNo,
+                    poEksNo = item.poEksNo,
+                    planPO = item.planPO,
+                    poEksCreatedDate = item.poEksCreatedDate,
+                    poIntCreatedDate = item.poIntCreatedDate,
+                    unit = item.unit,
+                    category = item.category,
+                    productCode = item.productCode,
+                    productName = item.productName,
+                    supplierCode = item.supplierCode,
+                    supplierName = item.supplierName,
+                    expectedDate = item.expectedDate,
+                    productPrice = item.productPrice,
+                    productQuantity = item.productQuantity,
+                    productUom = item.productUom,
+                    dateDiff = datediff,
+                    staff = item.staff,
+                };
+                listIPODUration.Add(_new);
+            }
+            return listIPODUration.Where(s => s.dateDiff >= start && s.dateDiff <= end).AsQueryable();
+        }
+           
+        public Tuple<List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>, int> GetIPOEPODurationReport(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetIPOEPODurationReportQuery(unit, duration, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.poIntCreatedDate);
+            }
+            //else
+            //{
+            //    string Key = OrderDictionary.Keys.First();
+            //    string OrderType = OrderDictionary[Key];
+
+            //    Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+            //}
+
+            Pageable<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> pageable = new Pageable<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>(Query, page - 1, size);
+            List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> Data = pageable.Data.ToList<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+        public MemoryStream GenerateExcelIPOEPODuration(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetIPOEPODurationReportQuery(unit, duration, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.poIntCreatedDate);
+            DataTable result = new DataTable();
+            //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO Internal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Plan PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Article / Style", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Buyer", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal PO Internal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Target Datang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih Tanggal PO Internal - PO Eksternal (hari)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Staff Pembelian", DataType = typeof(string) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string poDate = item.poIntCreatedDate == new DateTime(1970, 1, 1) ? "-" : item.poIntCreatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string orderDate = item.expectedDate == new DateTime(1970, 1, 1) ? "-" : item.expectedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string ePOCreatedDate = item.poEksCreatedDate == new DateTime(1970, 1, 1) ? "-" : item.poEksCreatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    
+                    result.Rows.Add(index, item.poIntNo, item.roNo, item.planPO, item.artikelNo, item.buyerName, item.unit, item.category,item.productCode,
+                        item.productName,item.productQuantity,item.productUom,item.productPrice, item.supplierCode,item.supplierName, poDate,ePOCreatedDate, orderDate, 
+                        item.poEksNo, item.dateDiff, item.staff);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        #endregion
     }
 }
