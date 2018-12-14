@@ -602,6 +602,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     SupplierName = m.SupplierName,
                     SupplierId = m.SupplierId,
                     SupplierCode = m.SupplierCode,
+                    DOCurrencyId = m.DOCurrencyId,
                     DOCurrencyCode = m.DOCurrencyCode,
                     UseVat = m.UseVat,
                     IncomeTaxId = m.IncomeTaxId,
