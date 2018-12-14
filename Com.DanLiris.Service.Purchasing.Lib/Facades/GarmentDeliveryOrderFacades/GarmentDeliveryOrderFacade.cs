@@ -591,7 +591,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
-                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.IsInvoice == true && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
+                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,

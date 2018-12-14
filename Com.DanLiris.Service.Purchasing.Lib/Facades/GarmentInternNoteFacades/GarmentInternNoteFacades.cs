@@ -223,7 +223,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 if (item.Id <= 0)
                                 {
                                     GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                                    
                                     if (garmentInvoice != null)
                                         garmentInvoice.HasInternNote = true;
                                     EntityExtension.FlagForCreate(item, user, USER_AGENT);
