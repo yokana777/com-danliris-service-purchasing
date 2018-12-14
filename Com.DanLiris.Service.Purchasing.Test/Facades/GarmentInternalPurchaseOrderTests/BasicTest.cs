@@ -284,6 +284,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
 
             var Response = Facade.GenerateExcelIPOEPODuration("", "8-14 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+            var Response1 = Facade.GenerateExcelIPOEPODuration("", "0-7 hari", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
         }
     }
 }
