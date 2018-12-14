@@ -1,8 +1,10 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +56,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             return new GarmentInternalPurchaseOrderDataUtil(facade, garmentPurchaseRequestDataUtil);
+        }
+
+        private GarmentExternalPurchaseOrderDataUtil EPOdataUtil(GarmentExternalPurchaseOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            return new GarmentExternalPurchaseOrderDataUtil(facade, garmentInternalPurchaseOrderDataUtil);
         }
 
         [Fact]
@@ -229,6 +242,48 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
 
             var ResponseWhiteSpace = facade.ReadByTags("Accessories", "", DateTimeOffset.MinValue, DateTimeOffset.MinValue);
             Assert.NotNull(ResponseWhiteSpace);
+        }
+
+        [Fact]
+        public async void Should_Success_Create_Data_Fabric()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            await facade.Create(data, USERNAME);
+
+
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_POIPOExDuration_Data()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            await facade.Create(data, USERNAME);
+            GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var Response = Facade.GetIPOEPODurationReport("", "0-7 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+
+            var Response1 = Facade.GetIPOEPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response1.Item2, 0);
+
+            var Response2 = Facade.GetIPOEPODurationReport("", "15-30 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response2.Item2, 0);
+
+            var Response3 = Facade.GetIPOEPODurationReport("", ">30 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response3.Item2, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_POIPOEDuration_Excel()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            await facade.Create(data, USERNAME);
+            GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+
+            var Response = Facade.GenerateExcelIPOEPODuration("", "8-14 hari", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
 }
