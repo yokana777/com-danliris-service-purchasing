@@ -265,13 +265,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             Assert.NotEqual(Response.Item2, 0);
 
             var Response1 = Facade.GetIPOEPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response1.Item2, 0);
+            Assert.NotNull(Response1.Item1);
 
             var Response2 = Facade.GetIPOEPODurationReport("", "15-30 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response2.Item2, 0);
+            Assert.NotNull(Response2.Item1);
 
             var Response3 = Facade.GetIPOEPODurationReport("", ">30 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response3.Item2, 0);
+            Assert.NotNull(Response3.Item1);
         }
 
         [Fact]
