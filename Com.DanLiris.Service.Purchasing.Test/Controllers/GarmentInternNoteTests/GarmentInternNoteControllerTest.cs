@@ -43,7 +43,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                     {
                         new GarmentInternNoteItemViewModel()
                         {
-                            garmentInvoice = new GarmentInvoiceViewModel(),
+                            garmentInvoice = new GarmentInvoiceViewModel{
+                                Id = 1,
+                            },
                             details = new List<GarmentInternNoteDetailViewModel>
                             {
                                 new GarmentInternNoteDetailViewModel()
@@ -51,8 +53,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                                     unit = new UnitViewModel(),
                                     product = new ProductViewModel(),
                                     uomUnit = new UomViewModel(),
-                                    deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel(),
-
+                                    deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel{
+                                        Id = 1
+                                    },
+                                    invoiceDetailId = 1,
+                                    dODetailId = 1,
                                 }
                             }
                         }
@@ -72,7 +77,73 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         {
             get
             {
-                return new GarmentDeliveryOrder { };
+                return new GarmentDeliveryOrder {
+                    Id = 1,
+                    Items = new List<GarmentDeliveryOrderItem> {
+                            new GarmentDeliveryOrderItem
+                        {
+                            Id = 1,
+                            Details = new List<GarmentDeliveryOrderDetail>
+                            {
+                                new GarmentDeliveryOrderDetail
+                                {
+                                    Id =1,
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+        }
+
+        private GarmentDeliveryOrderViewModel DeliveryOrderModelViewModel
+        {
+            get
+            {
+                return new GarmentDeliveryOrderViewModel
+                {
+                    Id = 1,
+                    items = new List<GarmentDeliveryOrderItemViewModel>
+                    {
+                        new GarmentDeliveryOrderItemViewModel
+                        {
+                            Id = 1,
+                            fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                            {
+                                new GarmentDeliveryOrderFulfillmentViewModel
+                                {
+                                    Id = 1,
+                                }
+                            }
+                        }
+                    }
+                    
+                };
+            }
+        }
+
+        private GarmentInvoice garmentInvoiceModel
+        {
+            get
+            {
+                return new GarmentInvoice {
+                Id = 1,
+                Items = new List<GarmentInvoiceItem>
+                {
+                    new GarmentInvoiceItem
+                    {
+                        Id = 1,
+                        Details = new List<GarmentInvoiceDetail>
+                        {
+                            new GarmentInvoiceDetail
+                            {
+                                Id = 1,
+                                DODetailId = 1,
+                            }
+                        }
+                    }
+                }
+                };
             }
         }
         private ServiceValidationExeption GetServiceValidationExeption()
@@ -290,13 +361,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             mockMapper.Setup(x => x.Map<GarmentInternNoteViewModel>(It.IsAny<GarmentInternNote>()))
                 .Returns(ViewModel);
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
-                .Returns(new GarmentDeliveryOrderViewModel());
+                .Returns(DeliveryOrderModelViewModel);
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                  .Returns(DeliveryOrderModel);
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(garmentInvoiceModel);
 
             GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade , null, mockMapper, INVFacade);
             var response = controller.Get(It.IsAny<int>());

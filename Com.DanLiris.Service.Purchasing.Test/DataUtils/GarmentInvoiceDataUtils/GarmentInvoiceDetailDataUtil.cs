@@ -25,7 +25,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 						ProductId = detail.ProductId,
 						ProductCode = detail.ProductCode,
 						ProductName = detail.ProductName,
-						DOQuantity = detail.DOQuantity 
+						DOQuantity = detail.DOQuantity ,
+                        RONo = detail.RONo
 					});
 				}
 			}
@@ -44,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
                         EPOId = item.EPOId,
 						IPOId = detail.POId,
 						POSerialNumber = detail.POSerialNumber,
+                        RONo = detail.RONo,
 						PRItemId = detail.PRItemId,
 						ProductId = detail.ProductId,
 						ProductCode = detail.ProductCode,
