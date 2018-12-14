@@ -68,6 +68,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
 
             return garmentCorrectionNote;
         }
+        public GarmentCorrectionNote GetNewDataWithTax()
+        {
+            var data = GetNewData();
+
+            data.UseVat = true;
+            data.UseIncomeTax = true;
+            data.IncomeTaxId = data.IncomeTaxId;
+            data.IncomeTaxName = data.IncomeTaxName;
+            data.IncomeTaxRate = data.IncomeTaxRate;
+
+            return data;
+        }
 
         public async Task<GarmentCorrectionNote> GetTestData(string user)
         {
