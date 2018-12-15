@@ -94,11 +94,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         supplierImport = supplier.Import;
                     }
                     garmentCorrectionNote.CorrectionNo = await GenerateNo(garmentCorrectionNote, supplierImport, clientTimeZoneOffset);
-                    garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
+                    garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter);
 
-                    var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
-                    garmentDeliveryOrder.IsCorrection = true;
-                    if (garmentDeliveryOrder.UseIncomeTax == true)
+                    if (garmentCorrectionNote.UseIncomeTax == true)
                     {
                         garmentCorrectionNote.NKPH = await GenerateNKPH(garmentCorrectionNote, clientTimeZoneOffset);
                     }
@@ -106,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     {
                         garmentCorrectionNote.NKPH = "";
                     }
-                    if (garmentDeliveryOrder.UseVat == true)
+                    if (garmentCorrectionNote.UseVat == true)
                     {
                         garmentCorrectionNote.NKPN = await GenerateNKPN(garmentCorrectionNote, clientTimeZoneOffset);
                     }
@@ -114,6 +112,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     {
                         garmentCorrectionNote.NKPN = "";
                     }
+
+                    var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
+                    garmentDeliveryOrder.IsCorrection = true;
+                    
                     EntityExtension.FlagForUpdate(garmentDeliveryOrder, user, USER_AGENT);
 
                     foreach (var item in garmentCorrectionNote.Items)
@@ -123,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
                         
                         garmentDeliveryOrderDetail.QuantityCorrection = (double)item.Quantity + garmentDeliveryOrderDetail.QuantityCorrection;
-                        garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
+                        garmentDeliveryOrderDetail.PriceTotalCorrection = garmentDeliveryOrderDetail.QuantityCorrection * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
                         
                         EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, user, USER_AGENT);
                     }
@@ -174,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             string no = $"NKPN{Year}{Month}";
             int Padding = 4;
 
-            var lastNo = await this.dbSet.Where(w => w.CorrectionNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.CorrectionNo).FirstOrDefaultAsync();
+            var lastNo = await this.dbSet.Where(w => w.NKPN.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPN).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -182,8 +184,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             }
             else
             {
-                int.TryParse(lastNo.CorrectionNo.Replace(no, ""), out int lastno1);
-                int lastNoNumber = lastno1 + 1;
+                int lastNoNumber = Int32.Parse(lastNo.NKPN.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
@@ -196,7 +197,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             string no = $"NKPH{Year}{Month}";
             int Padding = 4;
 
-            var lastNo = await this.dbSet.Where(w => w.CorrectionNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.CorrectionNo).FirstOrDefaultAsync();
+            var lastNo = await this.dbSet.Where(w => w.NKPH.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.NKPH).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -204,8 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             }
             else
             {
-                int.TryParse(lastNo.CorrectionNo.Replace(no, ""), out int lastno1);
-                int lastNoNumber = lastno1 + 1;
+                int lastNoNumber = Int32.Parse(lastNo.NKPH.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }

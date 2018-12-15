@@ -463,6 +463,109 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var response = controller.GetReturnNotePph(It.IsAny<int>());
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
+        [Fact]
+        public void Should_Success_Get_Pph_PDF_By_Id_NullInvoice()
+        {
+            Get_Pph_PDF_By_Id_NullInvoice(null);
+        }
+
+        private void Get_Pph_PDF_By_Id_NullInvoice(string correctionType)
+        {
+            var Model = this.Model;
+            Model.CorrectionType = correctionType;
+
+            var ViewModel = this.ViewModel;
+            ViewModel.UseIncomeTax = true;
+
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
+                .Returns(ViewModel);
+
+            var garmentdeliveryOrder = new GarmentDeliveryOrder
+            {
+                DOCurrencyRate = 1,
+                Items = new List<GarmentDeliveryOrderItem>
+                {
+                    new GarmentDeliveryOrderItem
+                    {
+                        Details = Model.Items.Select(i => new GarmentDeliveryOrderDetail
+                        {
+                            Id = i.DODetailId
+                        }).ToList()
+                    }
+                }
+            };
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(garmentdeliveryOrder);
+
+            var mockGarmentInvoiceFacade = new Mock<IGarmentInvoice>();
+            mockGarmentInvoiceFacade.Setup(x => x.ReadByDOId(1))
+                .Returns(new GarmentInvoice());
+
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, null, mockGarmentInvoiceFacade);
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+
+            var response = controller.GetReturnNotePph(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Ppn_PDF_By_Id_NullInvoice()
+        {
+            Get_Ppn_PDF_By_Id_NullInvoice(null);
+        }
+
+        private void Get_Ppn_PDF_By_Id_NullInvoice(string correctionType)
+        {
+            var Model = this.Model;
+            Model.CorrectionType = correctionType;
+
+            var ViewModel = this.ViewModel;
+            ViewModel.UseVat = true;
+
+            var mockFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentCorrectionNoteViewModel>(It.IsAny<GarmentCorrectionNote>()))
+                .Returns(ViewModel);
+
+            var garmentdeliveryOrder = new GarmentDeliveryOrder
+            {
+                DOCurrencyRate = 1,
+                Items = new List<GarmentDeliveryOrderItem>
+                {
+                    new GarmentDeliveryOrderItem
+                    {
+                        Details = Model.Items.Select(i => new GarmentDeliveryOrderDetail
+                        {
+                            Id = i.DODetailId
+                        }).ToList()
+                    }
+                }
+            };
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(garmentdeliveryOrder);
+
+            var mockGarmentInvoiceFacade = new Mock<IGarmentInvoice>();
+            mockGarmentInvoiceFacade.Setup(x => x.ReadByDOId(1))
+                .Returns(new GarmentInvoice());
+
+            GarmentCorrectionNoteQuantityController controller = GetController(mockFacade, null, mockMapper, mockGarmentDeliveryOrderFacade, null, mockGarmentInvoiceFacade);
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+
+            var response = controller.GetReturnNotePpn(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
 
         [Fact]
         public void Should_Error_Get_Pph_Data_By_Id()

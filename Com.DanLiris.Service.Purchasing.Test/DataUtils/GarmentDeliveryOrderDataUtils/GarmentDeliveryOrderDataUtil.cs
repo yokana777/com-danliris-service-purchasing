@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
                 IsCorrection = false,
 
-                CustomsId = nowTicks,
+                InternNo = "InternNO1234",
                 PaymentBill = "BB181122003",
                 BillNo = "BP181122142947000001",
 				PaymentType = datas.PaymentType,
@@ -154,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
                 IsCorrection = false,
 
-                CustomsId = nowTicks,
+                InternNo = $"{nowTicksB}",
                 PaymentBill = $"{nowTicksB}",
                 BillNo = $"{nowTicksB}",
                 PaymentType = datas.PaymentType,
@@ -251,7 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
                 IsCorrection = false,
 
-                CustomsId = nowTicks,
+                InternNo = $"{nowTicksB}",
                 PaymentBill = $"{nowTicksB}",
                 BillNo = $"{nowTicksB}",
                 PaymentType = datas.PaymentType,
@@ -348,7 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
                 IsCorrection = false,
 
-                CustomsId = nowTicks,
+                InternNo = $"{nowTicksB}",
                 PaymentBill = $"{nowTicksA}",
                 BillNo = $"{nowTicksA}",
                 PaymentType = datas.PaymentType,
