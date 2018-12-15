@@ -1,0 +1,79 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
+using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers
+{
+	[Produces("application/json")]
+	[ApiVersion("1.0")]
+	[Route("v{version:apiVersion}/unit-receipt-note-monitoring-all")]
+	[Authorize]
+	public class MonitoringUnitReceiptNoteAllController : Controller
+	{
+		private string ApiVersion = "1.0.0";
+		private readonly MonitoringUnitReceiptAllFacade monitoringUnitReceiptAllFacade;
+
+		public MonitoringUnitReceiptNoteAllController(IServiceProvider @object, MonitoringUnitReceiptAllFacade monitoringUnitReceiptAllFacade)
+		{
+			this.monitoringUnitReceiptAllFacade = monitoringUnitReceiptAllFacade;
+		}
+
+		[HttpGet]
+		public IActionResult Get(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo)
+		{
+			try
+			{
+				var data = monitoringUnitReceiptAllFacade.GetReport(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo);
+				
+				return Ok(new
+				{
+					apiVersion = ApiVersion,
+					data = data.Item1,
+					info = new { total = data.Item2 },
+					message = General.OK_MESSAGE,
+					statusCode = General.OK_STATUS_CODE
+
+				});
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+		[HttpGet("download")]
+		public IActionResult GetXls(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo)
+		{
+			try
+			{
+				byte[] xlsInBytes;
+
+				var xls = monitoringUnitReceiptAllFacade.GenerateExcel(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo);
+
+				string filename = "Laporan Bon Terima Unit ALL";
+				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+				if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+				filename += ".xlsx";
+
+				xlsInBytes = xls.ToArray();
+				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+				return file;
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+	}
+}
