@@ -1,7 +1,9 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,5 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentProductViewModel GetProduct(long productId);
         int EPOApprove(List<GarmentExternalPurchaseOrder> ListEPO, string user);
         List<GarmentExternalPurchaseOrder> ReadBySupplier(string Keyword = null, string Filter = "{}");
+
+        MemoryStream GenerateExcelEPODODuration(string unit, string supplier, string duration, DateTime? dateFrom, DateTime? dateTo, int offset);
+        Tuple<List<GarmentExternalPurchaseOrderDeliveryOrderDurationReportViewModel>, int> GetEPODODurationReport(string unit, string supplier, string duration, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
     }
 }
