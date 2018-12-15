@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public bool IsClosed { get; set; }
         public bool IsCustoms { get; set; }
         public bool IsInvoice { get; set; }
-        public long CustomsId { get; set; }
+        public string InternNo { get; set; }
         [MaxLength(50)]
         public string BillNo { get; set; }
         [MaxLength(50)]
