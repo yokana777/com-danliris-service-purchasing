@@ -395,7 +395,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
         //Duration
         [Fact]
-        public async void Should_Success_Get_Report_POIPOExDuration_Data()
+        public async void Should_Success_Get_Report_POEDODuration_Data()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
@@ -413,7 +413,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POIPOEDuration_Excel()
+        public async void Should_Success_Get_Report_POEDODuration_Excel()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
