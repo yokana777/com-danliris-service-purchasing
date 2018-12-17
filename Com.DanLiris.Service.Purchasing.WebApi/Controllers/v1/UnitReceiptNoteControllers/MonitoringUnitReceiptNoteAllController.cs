@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,11 +18,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 	public class MonitoringUnitReceiptNoteAllController : Controller
 	{
 		private string ApiVersion = "1.0.0";
-		private readonly MonitoringUnitReceiptAllFacade monitoringUnitReceiptAllFacade;
-
-		public MonitoringUnitReceiptNoteAllController(IServiceProvider @object, MonitoringUnitReceiptAllFacade monitoringUnitReceiptAllFacade)
+		private readonly IMonitoringUnitReceiptAllFacade monitoringUnitReceiptAllFacade;
+		public readonly IServiceProvider serviceProvider;
+		public MonitoringUnitReceiptNoteAllController(IServiceProvider serviceProvider, IMonitoringUnitReceiptAllFacade monitoringUnitReceiptAllFacade)
 		{
 			this.monitoringUnitReceiptAllFacade = monitoringUnitReceiptAllFacade;
+			this.serviceProvider = serviceProvider;
 		}
 
 		[HttpGet]

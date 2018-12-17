@@ -13,7 +13,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades
 {
-	public class MonitoringUnitReceiptAllFacade
+	public class MonitoringUnitReceiptAllFacade : IMonitoringUnitReceiptAllFacade
 	{
 		private readonly PurchasingDbContext dbContext;
 		public readonly IServiceProvider serviceProvider;
