@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<PurchasingDisposition> ReadDisposition(string Keyword = null, string Filter = "{}", string epoId = "");
         IQueryable<PurchasingDisposition> ReadByDisposition(string Keyword = null, string Filter = "{}");
         Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user);
+        List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data);
 
     }
 }

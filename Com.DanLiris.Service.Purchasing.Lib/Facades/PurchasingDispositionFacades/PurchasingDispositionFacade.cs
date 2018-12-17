@@ -458,5 +458,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             }
             return updated;
         }
+
+        public List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data)
+        {
+            foreach(var purchasingDisposition in data)
+            {
+                foreach(var item in purchasingDisposition.Items)
+                {
+                    foreach(var detail in item.Details)
+                    {
+                        detail.TotalPaidPrice = dbContext.PurchasingDispositionDetails.Where(x => x.ProductId == detail.Product._id && x.PRId == detail.PRId).Sum(x => x.PaidPrice);
+                    }
+                }
+            }
+            return data;
+        }
     }
 }

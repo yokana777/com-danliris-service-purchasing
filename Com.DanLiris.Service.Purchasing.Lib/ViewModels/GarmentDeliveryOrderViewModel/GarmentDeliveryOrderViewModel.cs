@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public bool isClosed { get; set; }
         public bool isCustoms { get; set; }
         public bool isInvoice { get; set; }
-        public long customsId { get; set; }
+        public string internNo { get; set; }
         public string billNo { get; set; }
         public string paymentBill { get; set; }
         public double totalAmount { get; set; }

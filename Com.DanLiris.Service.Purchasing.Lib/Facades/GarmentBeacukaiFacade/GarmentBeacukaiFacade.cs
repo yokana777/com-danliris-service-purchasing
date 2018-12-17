@@ -160,7 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 								deliveryOrder.BillNo = model.BillNo;
 							}
 							deliveryOrder.PaymentBill = GeneratePaymentBillNo();
-							deliveryOrder.CustomsId = model.Id;
+							//deliveryOrder.CustomsId = model.Id;
 							double qty = 0;
 							foreach (var deliveryOrderItem in deliveryOrder.Items)
 							{
@@ -209,7 +209,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 						{
 							deliveryOrder.BillNo = null;
 							deliveryOrder.PaymentBill = null;
-							deliveryOrder.CustomsId = 0;
+							//deliveryOrder.CustomsId = 0;
 							EntityExtension.FlagForDelete(item, username, USER_AGENT);
 						}
 
