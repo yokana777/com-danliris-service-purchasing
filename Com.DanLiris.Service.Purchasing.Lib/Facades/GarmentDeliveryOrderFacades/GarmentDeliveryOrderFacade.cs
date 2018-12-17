@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -15,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
-		private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem;
+        private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem;
 
         private readonly IMapper mapper;
 
@@ -83,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 try
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
-                    
+
                     m.IsClosed = false;
                     m.IsCorrection = false;
                     m.IsCustoms = false;
@@ -111,13 +114,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
                             externalPurchaseOrderItem.DOQuantity = externalPurchaseOrderItem.DOQuantity + detail.DOQuantity;
 
-                            if(externalPurchaseOrderItem.ReceiptQuantity == 0)
+                            if (externalPurchaseOrderItem.ReceiptQuantity == 0)
                             {
-                                if(externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
+                                if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity < externalPurchaseOrderItem.DealQuantity)
                                 {
                                     internalPurchaseOrderItem.Status = "Barang sudah datang parsial";
                                 }
-                                else if(externalPurchaseOrderItem.DOQuantity>0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
+                                else if (externalPurchaseOrderItem.DOQuantity > 0 && externalPurchaseOrderItem.DOQuantity >= externalPurchaseOrderItem.DealQuantity)
                                 {
                                     internalPurchaseOrderItem.Status = "Barang sudah datang semua";
                                 }
@@ -128,7 +131,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             detail.PriceTotalCorrection = detail.PriceTotal;
 
                             m.TotalAmount += detail.PriceTotal;
-                            
+
                         }
                     }
 
@@ -168,8 +171,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         {
 
                             foreach (var modelItem in m.Items.Where(i => i.Id == vmItem.Id))
-                            {   
-                                if(modelItem.Id == 0)
+                            {
+                                if (modelItem.Id == 0)
                                 {
                                     EntityExtension.FlagForCreate(modelItem, user, USER_AGENT);
 
@@ -288,7 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         {
                             var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
                             foreach (var oldDetail in oldItem.Details)
-                             {
+                            {
                                 GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
                                 if (newItem == null)
                                 {
@@ -333,11 +336,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                 .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
 
                     EntityExtension.FlagForDelete(model, user, USER_AGENT);
-                    foreach(var item in model.Items)
+                    foreach (var item in model.Items)
                     {
                         EntityExtension.FlagForDelete(item, user, USER_AGENT);
 
-                        foreach(var detail in item.Details)
+                        foreach (var detail in item.Details)
                         {
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
                             GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(detail.POId));
@@ -384,9 +387,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public IQueryable<GarmentDeliveryOrder> ReadBySupplier(string Keyword, string Filter)
         {
-           IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
+            IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
-			List<string> searchAttributes = new List<string>()
+            List<string> searchAttributes = new List<string>()
             {
                 "DONo"
             };
@@ -407,95 +410,114 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
             else
             {
-				
+
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s=> s.IsInvoice == false && !string.IsNullOrWhiteSpace( s.BillNo));
+                    .ThenInclude(i => i.Details).Where(s => s.IsInvoice == false && !string.IsNullOrWhiteSpace(s.BillNo));
             }
 
             return Query;
         }
 
-		public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
-		{
-			IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
-
-			List<string> searchAttributes = new List<string>()
-			{
-				"DONo"
-			};
-
-			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
-			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-			Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
-			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
-
-			//if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
-			//{
-			//	string Key = OrderDictionary.Keys.First();
-			//	string SubKey = Key.Split(".")[1];
-			//	string OrderType = OrderDictionary[Key];
-
-			//	Query = Query.Include(m => m.Items)
-			//		.ThenInclude(i => i.Details);
-			//}
-			//else
-			//{
-
-				Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-					.ThenInclude(i => i.Details).Where(s => s.BillNo ==null );
-			//}
-
-			return Query;
-		}
-
-
-		public int  IsReceived(List<int> id)
-		{
-			int isReceived = 0;
-			foreach(var no in id)
-			{
-				var model = dbSet.Where(m => m.Id == no)
-							   .Include(m => m.Items)
-								   .ThenInclude(i => i.Details)
-							   .FirstOrDefault();
-				if (model.IsInvoice == true)
-				{
-					isReceived = 1;
-					break;
-				}
-				else
-				{
-					foreach (var item in model.Items)
-					{
-						foreach (var detail in item.Details)
-						{
-							if (detail.ReceiptQuantity > 0)
-								isReceived = 1;
-							break;
-						}
-					}
-				}
-			}
-			
-			return isReceived;
-		}
-
-        public CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
+        public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
         {
-            try
+            IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
             {
-                IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-                //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
-                string gCurrencyUri = "master/garment-currencies?keyword="+currencyCode+"&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=25";
-                var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-                var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
-                List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel.FirstOrDefault(s=> s.Date < doDate.AddDays(1));
+                "DONo"
+            };
+
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+            //if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
+            //{
+            //	string Key = OrderDictionary.Keys.First();
+            //	string SubKey = Key.Split(".")[1];
+            //	string OrderType = OrderDictionary[Key];
+
+            //	Query = Query.Include(m => m.Items)
+            //		.ThenInclude(i => i.Details);
+            //}
+            //else
+            //{
+
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                .ThenInclude(i => i.Details).Where(s => s.BillNo == null);
+            //}
+
+            return Query;
+        }
+
+
+        public int IsReceived(List<int> id)
+        {
+            int isReceived = 0;
+            foreach (var no in id)
+            {
+                var model = dbSet.Where(m => m.Id == no)
+                               .Include(m => m.Items)
+                                   .ThenInclude(i => i.Details)
+                               .FirstOrDefault();
+                if (model.IsInvoice == true)
+                {
+                    isReceived = 1;
+                    break;
+                }
+                else
+                {
+                    foreach (var item in model.Items)
+                    {
+                        foreach (var detail in item.Details)
+                        {
+                            if (detail.ReceiptQuantity > 0)
+                                isReceived = 1;
+                            break;
+                        }
+                    }
+                }
             }
-            catch (Exception e)
+
+            return isReceived;
+        }
+
+        //public CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
+        //{
+        //    try
+        //    {
+        //        IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+        //        //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
+        //        string gCurrencyUri = "master/garment-currencies?keyword=" + currencyCode + "&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=25";
+        //        var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+        //        var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
+        //        List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        return viewModel.FirstOrDefault(s => s.Date < doDate.AddDays(1));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception(e.Message);
+        //    }
+        //}
+
+        private CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
+        {
+            string currencyUri = "master/garment-currencies/byCode";
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = httpClient.GetAsync($"{APIEndpoint.Core}{currencyUri}/{currencyCode}").Result;
+            if (response.IsSuccessStatusCode)
             {
-                throw new Exception(e.Message);
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
+                return viewModel.FirstOrDefault(s => s.Date < doDate.AddDays(1)); ;
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -591,7 +613,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
-                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.IsInvoice == true && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
+                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo != null && m.IsInvoice == true && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0)))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,
@@ -667,12 +689,125 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             d.pricePerDealUnit,
                             d.pricePerDealUnitCorrection,
 
-                            receiptCorrection =  dbContext.GarmentUnitReceiptNoteItems.Where(m => m.DODetailId == d.Id && m.IsDeleted == false).Select(m => m.ReceiptCorrection).FirstOrDefault()
+                            receiptCorrection = dbContext.GarmentUnitReceiptNoteItems.Where(m => m.DODetailId == d.Id && m.IsDeleted == false).Select(m => m.ReceiptCorrection).FirstOrDefault()
                         }).ToList()
                     }).ToList()
                 }).ToList()
             );
             return new ReadResponse(listData, Total, OrderDictionary);
+        }
+
+        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, int offset, string Filter = "{}")
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var codeRequirment = "";
+            if (category == "Bahan Baku") codeRequirment = "BB";
+            else if (category == "Bahan Pendukung") codeRequirment = "BP";
+
+            var Query = (from a in dbContext.GarmentDeliveryOrders
+                         join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                         join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                         join d in dbContext.GarmentInternalPurchaseOrders on c.POId equals d.Id
+                         join e in dbContext.GarmentInternalPurchaseOrderItems on d.Id equals e.GPOId
+                         join f in dbContext.GarmentPurchaseRequests on c.PRId equals f.Id
+                         join g in dbContext.GarmentPurchaseRequestItems on f.Id equals g.GarmentPRId
+                         join h in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals h.Id
+                         join i in dbContext.GarmentExternalPurchaseOrderItems on h.Id equals i.GarmentEPOId
+                         where a.IsDeleted == false
+                             && d.IsDeleted == false
+                             && f.IsDeleted == false
+                             && h.IsDeleted == false
+                             && a.DODate.AddHours(offset).Date >= DateFrom.Date
+                             && a.DODate.AddHours(offset).Date <= DateTo.Date
+                         select new AccuracyOfArrivalReportViewModel
+                         {
+                             supplier = new SupplierViewModel
+                             {
+                                 Code = a.SupplierCode,
+                                 Id = a.SupplierId,
+                                 Name = a.SupplierName
+                             },
+                             poSerialNumber = c.POSerialNumber,
+                             prDate = f.Date,
+                             poDate = d.CreatedUtc,
+                             epoDate = h.OrderDate,
+                             product = new ProductViewModel
+                             {
+                                 Code = c.ProductCode,
+                                 Id = c.ProductId.ToString(),
+                                 Name = c.ProductName,
+                             },
+                             article = i.Article,
+                             roNo = c.RONo,
+                             shipmentDate = f.ShipmentDate,
+                             doDate = a.DODate,
+                             staff = a.CreatedBy,
+                             category = category,
+                             doNo = a.DONo,
+                             LastModifiedUtc = i.LastModifiedUtc
+                         });
+            return Query;
+        }
+
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReport(string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string Filter = "{}")
+        {
+            var Query = GetReportQuery(category, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            }
+
+
+            Pageable<AccuracyOfArrivalReportViewModel> pageable = new Pageable<AccuracyOfArrivalReportViewModel>(Query, page - 1, size);
+            List<AccuracyOfArrivalReportViewModel> Data = pageable.Data.ToList<AccuracyOfArrivalReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(string category, DateTime? dateFrom, DateTime? dateTo, int offset, string Filter = "{}")
+        {
+            var Query = GetReportQuery(category, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.doDate).ThenByDescending(b => b.CreatedUtc);
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "NOMOR SURAT JALAN", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SURAT JALAN", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL DATANG BARANG", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "NO PO EXTERNAL", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "DESKRIPSI BARANG", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG YANG DIMINTA", DataType = typeof(double) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG YANG DATANG", DataType = typeof(double) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "SISA QTY", DataType = typeof(double) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
+
+            //result.Columns.Add(new Datacolumn() { ColumnName = "OK %" DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    //string date = item.date == null ? "-" : item.date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //string supplierDoDate = item.supplierDoDate == new DateTime(1970, 1, 1) ? "-" : item.supplierDoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //result.Rows.Add(index, item.supplier.Name, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
+                    result.Rows.Add(index, item.supplier, "", "");
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
     }
 }
