@@ -29,6 +29,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -37,8 +38,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         private const string ENTITY = "GarmentUnitReceiptNote";
 
         private const string USERNAME = "Unit Test";
+		private IServiceProvider ServiceProvider { get; set; }
 
-        private IServiceProvider GetServiceProvider() {
+		private IServiceProvider GetServiceProvider() {
             HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
 
@@ -110,7 +112,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil);
         }
 
-        [Fact]
+		private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+		{
+			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+			var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+			var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+			var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+			var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+			var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+		}
+		[Fact]
         public async void Should_Success_Get_All_Data()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -261,5 +276,44 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             };
             Assert.True(viewModelCheckItemsConvertion.Validate(null).Count() > 0);
         }
-    }
+		//monitoring
+		[Fact]
+		public async void Should_Success_Get_Report_Data()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var uFacade= new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var datas = dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
+			var Responses = await uFacade.Create(datas);
+			Assert.NotEqual(Responses, 0);
+			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GetReport(null, null, null, null, null, null, null, null);
+			Assert.NotEqual(Response.Item2, 0);
+
+			var Response1 = Facade.GetReport(null, null, null, null, null, null, null, null);
+			Assert.NotNull(Response1.Item1);
+
+
+		}
+
+		[Fact]
+		public async void Should_Success_Get_Report_Excel()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var uFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var datas = dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
+			var Responses = await uFacade.Create(datas);
+			Assert.NotEqual(Responses, 0);
+			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GetReport(null, null, null, null, null, null, null, null);
+			Assert.NotEqual(Response.Item2, 0);
+
+			var Response1 = Facade.GenerateExcel(null, null, null, null, null, null, null, null);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+		}
+
+	}
 }
