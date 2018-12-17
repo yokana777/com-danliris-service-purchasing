@@ -419,8 +419,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Returns(new GarmentInvoiceViewModel());
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(DeliveryOrderModel);
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(garmentInvoiceModel);
 
             GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, null, mockMapper, INVFacade);
             var response = controller.Get();
