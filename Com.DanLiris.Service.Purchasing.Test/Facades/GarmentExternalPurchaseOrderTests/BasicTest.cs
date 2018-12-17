@@ -402,9 +402,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GetEPODODurationReport("","", "0-30 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+			Assert.NotNull(Response.Item1);
 
-            var Response1 = Facade.GetEPODODurationReport("", "", "31-60 hari", null, null, 1, 25, "{}", 7);
+			var Response1 = Facade.GetEPODODurationReport("", "", "31-60 hari", null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response1.Item1);
 
             var Response2 = Facade.GetEPODODurationReport("", "", ">60 hari", null, null, 1, 25, "{}", 7);
