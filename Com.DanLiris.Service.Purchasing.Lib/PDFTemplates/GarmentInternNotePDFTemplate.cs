@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+            Font normal_font1 = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             //Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
@@ -110,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             PdfPTable tableContent = new PdfPTable(8);
-            tableContent.SetWidths(new float[] { 3.5f, 4f, 5f, 5.5f, 3f, 3f, 3.7f,4.5f });
+            tableContent.SetWidths(new float[] { 3.5f, 4.5f, 5f, 5.5f, 3f, 2.5f, 3.7f,4.5f });
                 cellCenter.Phrase = new Phrase("NO. Surat Jalan", bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("Tgl. Surat Jalan", bold_font);
@@ -144,13 +145,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     string doDate = detail.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
 
-                    cellLeft.Phrase = new Phrase(doDate, normal_font);
+                    cellLeft.Phrase = new Phrase(doDate, normal_font1);
                     tableContent.AddCell(cellLeft);
 
                     cellLeft.Phrase = new Phrase(detail.poSerialNumber+" - "+detail.ePONo, normal_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
+                    cellLeft.Phrase = new Phrase(detail.product.Name, normal_font1);
                     tableContent.AddCell(cellLeft);
 
                     cellRight.Phrase = new Phrase(detail.quantity.ToString("N", new CultureInfo("id-ID")), normal_font);
@@ -214,10 +215,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (var unit in units)
             {
-                cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
-                tableFooterLeft.AddCell(cellLeftNoBorder);
-                cellLeftNoBorder.Phrase = new Phrase($":   ({unit.Value.ToString("n", new CultureInfo("id-ID"))})", normal_font);
-                tableFooterLeft.AddCell(cellLeftNoBorder);
+                if (unit.Value == 0)
+                {
+                    cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                    cellLeftNoBorder.Phrase = new Phrase($": -", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                }
+                else
+                {
+                    cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                    cellLeftNoBorder.Phrase = new Phrase($":   {unit.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                }
             }
 
                 PdfPTable tableFooterRight = new PdfPTable(2);
