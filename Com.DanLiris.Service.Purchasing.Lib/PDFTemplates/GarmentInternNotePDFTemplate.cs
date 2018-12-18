@@ -215,20 +215,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (var unit in units)
             {
-                if (unit.Value == 0)
-                {
-                    cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
-                    tableFooterLeft.AddCell(cellLeftNoBorder);
-                    cellLeftNoBorder.Phrase = new Phrase($": -", normal_font);
-                    tableFooterLeft.AddCell(cellLeftNoBorder);
-                }
-                else
-                {
-                    cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
-                    tableFooterLeft.AddCell(cellLeftNoBorder);
-                    cellLeftNoBorder.Phrase = new Phrase($":   {unit.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
-                    tableFooterLeft.AddCell(cellLeftNoBorder);
-                }
+                cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
+                tableFooterLeft.AddCell(cellLeftNoBorder);
+                cellLeftNoBorder.Phrase = new Phrase($":   {unit.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+                tableFooterLeft.AddCell(cellLeftNoBorder);
             }
 
                 PdfPTable tableFooterRight = new PdfPTable(2);
