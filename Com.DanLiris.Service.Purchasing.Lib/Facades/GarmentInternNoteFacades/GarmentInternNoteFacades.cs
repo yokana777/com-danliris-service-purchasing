@@ -111,6 +111,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         EntityExtension.FlagForDelete(item, username, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            if (garmentDeliveryOrder!=null)
+                            {
+                                garmentDeliveryOrder.InternNo = null;
+                            }
                             EntityExtension.FlagForDelete(detail, username, USER_AGENT);
                         }
                     }
@@ -214,7 +219,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 foreach (GarmentInternNoteDetail detail in Details)
                                 {
                                     GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
-                                    garmentDeliveryOrder.InternNo = "";
+                                    garmentDeliveryOrder.InternNo = null;
 
                                     EntityExtension.FlagForDelete(detail, user, USER_AGENT);
                                 }

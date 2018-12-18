@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
@@ -17,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, IServiceProvider serviceProvider, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
         {
             IGarmentCorrectionNoteQuantityFacade correctionNote = (IGarmentCorrectionNoteQuantityFacade)serviceProvider.GetService(typeof(IGarmentCorrectionNoteQuantityFacade));
+            IGarmentCorrectionNotePriceFacade correctionNotePrice = (IGarmentCorrectionNotePriceFacade)serviceProvider.GetService(typeof(IGarmentCorrectionNotePriceFacade));
 
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -67,15 +68,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellInternNoteHeaderLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, normal_font);
                 tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
-            
+
                 DateTimeOffset paymentduedates;
                 string paymentmethods = "";
-
-                var paymentDueDateTemp = DateTimeOffset.MinValue;
                 foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                 {
                     foreach (GarmentInternNoteDetailViewModel detail in item.details)
                     {
+                        var paymentDueDateTemp = DateTimeOffset.(detail.paymentDueDate);
                         if (paymentDueDateTemp > detail.paymentDueDate)
                         {
                             paymentduedates = paymentDueDateTemp;
@@ -85,6 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             paymentduedates = detail.paymentDueDate;
                         }
                         paymentmethods = detail.deliveryOrder.paymentMethod;
+
                     }
 
                 }
@@ -136,6 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             double maxtotal = 0;
             decimal totalcorrection = 0;
             Dictionary<string, double> units = new Dictionary<string, double>();
+
             foreach (GarmentInternNoteItemViewModel item in viewModel.items)
             {
                 foreach (GarmentInternNoteDetailViewModel detail in item.details)
@@ -167,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellRight);
 
                     totalPriceTotal += detail.priceTotal;
-                    total = totalPriceTotal * detail.deliveryOrder.docurrency.Rate;
+                    total += totalPriceTotal * detail.deliveryOrder.docurrency.Rate;
 
                     if (units.ContainsKey(detail.unit.Code))
                     {
@@ -191,7 +193,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     maxtotal =  totalPriceTotal + ppn - pph ;
 
                     var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
-                    totalcorrection += correctionNotes.TotalCorrection;
+                    var correctionNotesPrice = correctionNotePrice.ReadByDOId((int)detail.deliveryOrder.Id);
+                    if (correctionNotes != null && correctionNotesPrice != null)
+                    {
+                        totalcorrection += correctionNotes.TotalCorrection + correctionNotesPrice.TotalCorrection;
+                    }
                 }
             }
             
@@ -245,8 +251,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftNoBorder.Phrase = new Phrase("Total Nota Koreksi", normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase($": " + totalcorrection.ToString("N", new CultureInfo("id-ID")), normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
+                if (correctionNote != null)
+                {
+                    cellLeftNoBorder.Phrase = new Phrase($": " + totalcorrection.ToString("N", new CultureInfo("id-ID")), normal_font);
+                    tableFooterRight.AddCell(cellLeftNoBorder);
+                }
+                else
+                {
+                    cellLeftNoBorder.Phrase = new Phrase($": " + 0, normal_font);
+                    tableFooterRight.AddCell(cellLeftNoBorder);
+                }
 
                 cellLeftNoBorder.Phrase = new Phrase("Total Nota PPn" , normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
