@@ -248,22 +248,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 {
                                     if (item.Id <= 0)
                                     {
-                                        EntityExtension.FlagForCreate(detail, user, USER_AGENT);
-                                    }
-                                    else
-                                    {
                                         GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
                                         GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.RONo == detail.RONo);
-                                        if (internalPurchaseOrder!=null)
+                                        if (internalPurchaseOrder != null)
                                         {
                                             detail.UnitId = internalPurchaseOrder.UnitId;
                                             detail.UnitCode = internalPurchaseOrder.UnitCode;
                                             detail.UnitName = internalPurchaseOrder.UnitName;
                                         }
-                                        if (garmentDeliveryOrder!=null)
+                                        if (garmentDeliveryOrder != null)
                                         {
                                             garmentDeliveryOrder.InternNo = m.INNo;
                                         }
+                                        EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+                                    }
+                                    else
+                                    {
                                         EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
                                     }
                                 }

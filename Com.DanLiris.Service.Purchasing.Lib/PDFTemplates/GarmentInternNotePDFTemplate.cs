@@ -17,7 +17,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, IServiceProvider serviceProvider, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
         {
             IGarmentCorrectionNoteQuantityFacade correctionNote = (IGarmentCorrectionNoteQuantityFacade)serviceProvider.GetService(typeof(IGarmentCorrectionNoteQuantityFacade));
-            IGarmentCorrectionNotePriceFacade correctionNotePrice = (IGarmentCorrectionNotePriceFacade)serviceProvider.GetService(typeof(IGarmentCorrectionNotePriceFacade));
 
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -68,29 +67,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellInternNoteHeaderLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, normal_font);
                 tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
-
-                DateTimeOffset paymentduedates;
+            
                 string paymentmethods = "";
+                List<DateTimeOffset> coba = new List<DateTimeOffset>();
                 foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                 {
                     foreach (GarmentInternNoteDetailViewModel detail in item.details)
                     {
-                        var paymentDueDateTemp = DateTimeOffset.(detail.paymentDueDate);
-                        if (paymentDueDateTemp > detail.paymentDueDate)
-                        {
-                            paymentduedates = paymentDueDateTemp;
-                        }
-                        else if(detail.paymentDueDate > paymentDueDateTemp)
-                        {
-                            paymentduedates = detail.paymentDueDate;
-                        }
+                    coba.Add(detail.paymentDueDate);
                         paymentmethods = detail.deliveryOrder.paymentMethod;
-
                     }
-
                 }
-
-                cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + paymentduedates.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+                DateTimeOffset coba1 = coba.Max(p=> p);
+                cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
                 tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
                 cellInternNoteHeaderLeft.Phrase = new Phrase("Nama Supplier" + "       : " + viewModel.supplier.Name, normal_font);
@@ -137,7 +126,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             double maxtotal = 0;
             decimal totalcorrection = 0;
             Dictionary<string, double> units = new Dictionary<string, double>();
-
+            units.Add("C1A", 0);
+            units.Add("C2A", 0);
+            units.Add("C1B", 0);
+            units.Add("C2B", 0);
+            units.Add("C2C", 0);
+            Dictionary<long, decimal> koreksi = new Dictionary<long, decimal>();
             foreach (GarmentInternNoteItemViewModel item in viewModel.items)
             {
                 foreach (GarmentInternNoteDetailViewModel detail in item.details)
@@ -171,6 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     totalPriceTotal += detail.priceTotal;
                     total += totalPriceTotal * detail.deliveryOrder.docurrency.Rate;
 
+                    
                     if (units.ContainsKey(detail.unit.Code))
                     {
                         units[detail.unit.Code] += detail.priceTotal;
@@ -191,16 +186,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     }
 
                     maxtotal =  totalPriceTotal + ppn - pph ;
-
                     var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
-                    var correctionNotesPrice = correctionNotePrice.ReadByDOId((int)detail.deliveryOrder.Id);
-                    if (correctionNotes != null && correctionNotesPrice != null)
+                    
+                    if (koreksi.ContainsKey(correctionNotes.Id))
                     {
-                        totalcorrection += correctionNotes.TotalCorrection + correctionNotesPrice.TotalCorrection;
+                        totalcorrection += correctionNotes.TotalCorrection;
                     }
+                    else
+                    {
+                        koreksi.Add(correctionNotes.Id, correctionNotes.TotalCorrection);
+                    }
+
                 }
             }
-            
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
             tableContent.SpacingAfter = 20f;
@@ -217,17 +215,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellInternNoteFooterLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             PdfPCell cellInternNoteFooterRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            
-
             foreach (var unit in units)
             {
-                cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
-                tableFooterLeft.AddCell(cellLeftNoBorder);
-                cellLeftNoBorder.Phrase = new Phrase($":   {unit.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
-                tableFooterLeft.AddCell(cellLeftNoBorder);
+                if (unit.Value == 0)
+                {
+
+                    cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                    cellLeftNoBorder.Phrase = new Phrase($":   -", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                }
+                else
+                {
+                    cellLeftNoBorder.Phrase = new Phrase($"Total {unit.Key}", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                    cellLeftNoBorder.Phrase = new Phrase($":   {unit.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+                    tableFooterLeft.AddCell(cellLeftNoBorder);
+                }
             }
 
-                PdfPTable tableFooterRight = new PdfPTable(2);
+            PdfPTable tableFooterRight = new PdfPTable(2);
                 tableFooterRight.SetWidths(new float[] { 5f, 5f });
 
                 cellLeftNoBorder.Phrase = new Phrase($"Total Harga Pokok (DPP)", normal_font);
@@ -250,7 +257,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellLeftNoBorder.Phrase = new Phrase("Total Nota Koreksi", normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
-
+            
                 if (correctionNote != null)
                 {
                     cellLeftNoBorder.Phrase = new Phrase($": " + totalcorrection.ToString("N", new CultureInfo("id-ID")), normal_font);
