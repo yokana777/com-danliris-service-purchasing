@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringUnitReceiptAl
 	{
 		public long id { get; set; }
 		public string no { get; set; }
-		public DateTimeOffset dateBon { get; set; }
+		public string dateBon { get; set; }
 		public string unit { get; set; }
 		public string supplier { get; set; }
 		public string doNo { get; set; }
@@ -21,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringUnitReceiptAl
 		public decimal qty { get; set; }
 		public string uom { get; set; }
 		public string remark { get; set; }
+		public string design { get; set; }
 		public string user { get; set; }
 		public string internNote { get; set; }
 	}

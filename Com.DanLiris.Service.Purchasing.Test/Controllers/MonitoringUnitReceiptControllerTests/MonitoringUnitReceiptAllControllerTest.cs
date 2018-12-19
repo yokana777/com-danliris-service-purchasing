@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
 		public void Should_Error_Get_Report_Data()
 		{
 			var mockFacade = new Mock<IMonitoringUnitReceiptAllFacade>();
-			mockFacade.Setup(x => x.GetReport("no","c","b","b", "b", "b", DateTime.Now, DateTime.Now))
+			mockFacade.Setup(x => x.GetReport("no","c","b","b", "b", "b", DateTime.Now, DateTime.Now,1,25,"{}",7))
 				.Returns(Tuple.Create(new List<MonitoringUnitReceiptAll> { ViewModel }, 25));
 
 			var user = new Mock<ClaimsPrincipal>();
@@ -109,14 +109,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.Get(null, null, null, null, null, null, null, null);
+			var response = controller.Get(null, null, null, null, null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 		[Fact]
 		public void Should_Sucess_Get_Report_Data()
 		{
 			var mockFacade = new Mock<IMonitoringUnitReceiptAllFacade>();
-			mockFacade.Setup(x => x.GetReport(null, null, null, null, null, null, null, null))
+			mockFacade.Setup(x => x.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
 				.Returns(Tuple.Create(new List<MonitoringUnitReceiptAll> { ViewModel }, 25));
 
 			var user = new Mock<ClaimsPrincipal>();
@@ -134,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.Get(null, null, null, null, null, null, null, null);
+			var response = controller.Get(null, null, null, null, null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
 
@@ -142,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
 		public void Should_Error_Get_Report_Xls_Data()
 		{
 			var mockFacade = new Mock<IMonitoringUnitReceiptAllFacade>();
-			mockFacade.Setup(x => x.GetReport("no", "c", "b", "b", "b", "b", DateTime.Now, DateTime.Now))
+			mockFacade.Setup(x => x.GetReport("no", "c", "b", "b", "b", "b", DateTime.Now, DateTime.Now, 1, 25, "{}", 7))
 				.Returns(Tuple.Create(new List<MonitoringUnitReceiptAll> { ViewModel }, 25)); 
 
 			var user = new Mock<ClaimsPrincipal>();
@@ -160,7 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetXls(null, null, null, null, null, null, null, null);
+			var response = controller.GetXls(null, null, null, null, null, null, null, null, 1, 25, "{}");
 			Assert.Equal(null, response.GetType().GetProperty("FileStream"));
 		}
 

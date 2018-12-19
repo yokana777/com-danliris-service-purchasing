@@ -874,9 +874,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
 			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-			int start = 0;
-			int end = 0;
-			double Srno =1;
+			
 			bool _status;
 			if (status == "BELUM")
 			{

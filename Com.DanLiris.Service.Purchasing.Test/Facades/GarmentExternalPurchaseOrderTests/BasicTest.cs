@@ -425,5 +425,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var Response1 = Facade.GenerateExcelEPODODuration("", "", ">60 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response1);
         }
-    }
+
+		//OVER BUDGET
+		[Fact]
+		public async void Should_Success_Get_Report_POOverBudget_Data()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GetEPOOverBudgetReport(null,null,null,null,null,null,1,25,"{}",7);
+			Assert.NotNull(Response.Item1);
+
+		}
+
+		[Fact]
+		public async void Should_Success_Get_Report_POOverBudget_Excel()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GenerateExcelEPOOverBudget(null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+		}
+	}
 }
