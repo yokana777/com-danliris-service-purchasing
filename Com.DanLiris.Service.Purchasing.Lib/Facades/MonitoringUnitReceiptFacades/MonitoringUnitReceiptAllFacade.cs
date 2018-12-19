@@ -2,14 +2,16 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringUnitReceiptAllViewModel;
+using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
+ 
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades
 {
@@ -25,11 +27,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 			this.dbContext = dbContext;
 		 
 		}
-		public IEnumerable<MonitoringUnitReceiptAll> GetReportQuery(string no, string refNo, string roNo,string doNo, string unit,string supplier, DateTime? dateFrom, DateTime? dateTo)
+		public IEnumerable<MonitoringUnitReceiptAll> GetReportQuery(string no, string refNo, string roNo,string doNo, string unit,string supplier, DateTime? dateFrom, DateTime? dateTo,int offset)
 		{
 			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-
+			List<MonitoringUnitReceiptAll> list = new List<MonitoringUnitReceiptAll>();
 			var Data = (from a in dbContext.GarmentUnitReceiptNotes
 						join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
 						join c in dbContext.GarmentDeliveryOrders on a.DOId equals c.Id
@@ -43,18 +45,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						   && ((doNo  != null) ? (a.DONo == doNo) : true)
 							&& ((roNo  != null) ? (b.RONo == roNo) : true)
 							&& ((refNo != null) ? (b.POSerialNumber == refNo ) : true)
-						select  new {	id= a.Id, no=a.URNNo, dateBon= a.ReceiptDate, unit=a.UnitName, supplier= a.SupplierName, doNo= a.DONo,poEksternalNo=e.EPONo,poRefPR=b.POSerialNumber,
+						select  new {	id= a.Id, no=a.URNNo, dateBon= a.ReceiptDate, unit=a.UnitName, supplier= a.SupplierName, doNo= a.DONo,poEksternalNo=e.EPONo,poRefPR=b.POSerialNumber,design=b.DesignColor,
 										roNo = b.RONo,article=d.Article,productCode=b.ProductCode,productName=b.ProductName, qty= b.ReceiptQuantity,uom=b.UomUnit,remark= b.ProductRemark, user= a.CreatedBy, internNo=c.InternNo}
 						)
 						.Distinct()
 						.ToList();
 
-			var Query = from data in Data
+			var Query = (from data in Data
 						 select new MonitoringUnitReceiptAll
-						{
-							id=data.id,
+						{ 
 							no=data.no,
-							dateBon=data.dateBon.AddHours(-7),
+							dateBon=data.dateBon.ToString("d", CultureInfo.InvariantCulture),
 							unit=data.unit,
 							supplier=data.supplier,
 							doNo=data.doNo,
@@ -68,22 +69,56 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 							uom=data.uom,
 							remark=data.remark,
 							user=data.user,
+							design=data.design,
 							internNote=data.internNo
 
-						};
+						}).OrderByDescending(s => s.dateBon);
+			int i = 1;
+			foreach (var item in Query)
+			{
+				list.Add(
+					   new MonitoringUnitReceiptAll
+					   {
+						   id=i,
+						   no = item.no,
+						   dateBon = item.dateBon,
+						   unit = item.unit,
+						   supplier = item.supplier,
+						   doNo = item.doNo,
+						   poEksternalNo = item.poEksternalNo,
+						   poRefPR = item.poRefPR,
+						   roNo = item.roNo,
+						   article = item.article,
+						   productCode = item.productCode,
+						   productName = item.productName,
+						   qty = item.qty,
+						   uom = item.uom,
+						   remark = item.remark,
+						   user = item.user,
+						   design = item.design,
+						   internNote = item.internNote
+					   });
+				i++;
+			}
 
-			return Query;
+				return list.AsQueryable();
 		}
 
-		public Tuple<List<MonitoringUnitReceiptAll>, int> GetReport(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo)
+		public Tuple<List<MonitoringUnitReceiptAll>, int> GetReport(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
-			List<MonitoringUnitReceiptAll> reportData = GetReportQuery( no,  refNo,  roNo,  doNo,  unit,  supplier, dateFrom, dateTo).ToList();
-			return Tuple.Create(reportData, reportData.Count);
-		}
-		public MemoryStream GenerateExcel(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo)
-		{
-			Tuple<List<MonitoringUnitReceiptAll>, int> Data = this.GetReport(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo);
+			List<MonitoringUnitReceiptAll> Query = GetReportQuery( no,  refNo,  roNo,  doNo,  unit,  supplier, dateFrom, dateTo,offset).ToList();
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+		
+			Pageable<MonitoringUnitReceiptAll> pageable = new Pageable<MonitoringUnitReceiptAll>(Query, page - 1, size);
+			List<MonitoringUnitReceiptAll> Data = pageable.Data.ToList<MonitoringUnitReceiptAll>();
+			int TotalData = pageable.TotalCount;
 
+			return Tuple.Create(Data, TotalData);
+		}
+		public MemoryStream GenerateExcel(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		{ 
+			var Query = GetReportQuery(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo, offset);
+			
 			DataTable result = new DataTable();
 			result.Columns.Add(new DataColumn() { ColumnName = "NOMOR BON TERIMA UNIT", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL BON TERIMA UNIT", DataType = typeof(String) });
@@ -98,22 +133,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 			result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(decimal) });
 			result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "DESAIN COLOR", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "USER", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "NOTA INTERN", DataType = typeof(String) });
 
 			List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
-			if (Data.Item2 == 0)
+			if (Query.ToArray().Count() == 0)
 			{
-				result.Rows.Add("", "", "", "", "", "","","","","","",0,"","","",""); // to allow column name to be generated properly for empty data as template
+				result.Rows.Add("", "", "", "", "", "","","","","","",0,"","","","",""); // to allow column name to be generated properly for empty data as template
 			}
 			else
 			{ 
-				foreach (MonitoringUnitReceiptAll data in Data.Item1)
+				foreach (MonitoringUnitReceiptAll data in Query)
 				{
-					var dates =  data.dateBon.AddHours(-7) ;
-
-					result.Rows.Add(data.no, data.dateBon.ToString("dd MMM yyyy", new CultureInfo("id-ID")), data.unit,data.supplier,data.doNo,data.poEksternalNo,data.poRefPR,data.roNo,data.productCode,data.productName,data.qty,data.uom,data.remark,data.user,data.internNote);
+					
+					result.Rows.Add(data.no, data.dateBon, data.unit,data.supplier,data.doNo,data.poEksternalNo,data.poRefPR,data.roNo,data.productCode,data.productName,data.qty,data.uom,data.remark,data.design,data.user,data.internNote);
 
 				}
 			
