@@ -866,6 +866,167 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
-        #endregion
-    }
+		#endregion
+		#region Monitoring Over Budget
+		public IQueryable<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel> GetEPOOverBudgetReportQuery(string epono, string unit, string supplier, string status, DateTime? dateFrom, DateTime? dateTo,  int offset)
+		{
+
+
+			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+			int start = 0;
+			int end = 0;
+			double Srno =1;
+			bool _status;
+			if (status == "BELUM")
+			{
+				_status = false;
+			}else
+			{
+				_status = true;
+			}
+			List<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel> listEPO = new List<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>();
+			var Query = (from a in dbContext.GarmentExternalPurchaseOrders
+						 join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
+						 join d in dbContext.GarmentPurchaseRequests on b.PRId equals d.Id
+
+						 //Conditions
+						 where b.IsOverBudget == true && a.IsOverBudget == true && a.IsDeleted == false
+							&& b.IsDeleted == false
+							&& d.IsDeleted == false
+							&& a.IsApproved ==(string.IsNullOrWhiteSpace(status) ? a.IsApproved: _status)
+							&& d.UnitId == (string.IsNullOrWhiteSpace(unit) ? d.UnitId : unit)
+							&& a.EPONo == (string.IsNullOrWhiteSpace(epono) ? a.EPONo : epono)
+							&& a.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? a.SupplierId.ToString() : supplier)
+							 && ((d1 != new DateTime(1970, 1, 1)) ? (a.OrderDate .Date >= d1 && a.OrderDate.Date <= d2) : true)
+
+						 select new GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel
+						 {
+							
+							 poExtNo = a.EPONo,
+							 poExtDate = a.OrderDate.ToString("d",CultureInfo.InvariantCulture),
+							 supplierCode=a.SupplierCode,
+							 supplierName=a.SupplierName,
+							 prNo=b.PRNo,
+							 prRefNo=b.PO_SerialNumber,
+							 prDate=d.Date.ToString("d", CultureInfo.InvariantCulture),
+							 unit = d.UnitName,
+							 productCode = b.ProductCode,
+							 productName = b.ProductName,
+							 productDesc= b.Remark,
+							 quantity=b.DealQuantity,
+							 uom=b.DealUomUnit,
+							 budgetPrice=b.BudgetPrice,
+							 price=b.PricePerDealUnit,
+							 totalBudgetPrice= Convert.ToDouble(string.Format("{0:f4}", b.DealQuantity * b.BudgetPrice)),
+							 totalPrice= Convert.ToDouble( string.Format("{0:f4}", b.DealQuantity * b.PricePerDealUnit)),
+							 overBudgetValue= Convert.ToDouble(string.Format("{0:f4}", (b.DealQuantity * b.PricePerDealUnit) - (b.DealQuantity * b.BudgetPrice))),
+							 overBudgetValuePercentage= Convert.ToDouble(string.Format("{0:f4}", ((b.DealQuantity * b.PricePerDealUnit) - (b.DealQuantity * b.BudgetPrice)) / ((b.DealQuantity * b.BudgetPrice) * 100))),
+							 status=a.IsApproved.Equals(true)?"SUDAH":"BELUM",
+							 overBudgetRemark=b.OverBudgetRemark
+
+						 }).Distinct().OrderByDescending(s=>s.poExtDate);
+			int i = 1;
+		foreach(var item in Query)
+			{
+				listEPO.Add(
+					new GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel
+					{
+						no = i,
+						poExtNo = item.poExtNo,
+						poExtDate =item.poExtDate,
+						supplierCode = item.supplierCode,
+						supplierName = item.supplierName,
+						prNo = item.prNo,
+						prRefNo = item.prRefNo,
+						prDate = item.prDate,
+						unit = item.unit,
+						productCode = item.productCode,
+						productName = item.productName,
+						productDesc = item.productDesc,
+						quantity = item.quantity,
+						uom = item.uom,
+						budgetPrice = item.budgetPrice,
+						price = item.price,
+						totalBudgetPrice = item.totalBudgetPrice,
+						totalPrice = item.totalPrice,
+						overBudgetValue =item.overBudgetValue,
+						overBudgetValuePercentage = item.overBudgetValuePercentage,
+						status =item.status,
+						overBudgetRemark =item.overBudgetRemark
+					}
+			 
+					);
+				i++;
+			}
+			return listEPO.AsQueryable();
+
+		}
+
+
+		public Tuple<List<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>, int> GetEPOOverBudgetReport(string epono, string unit, string supplier,string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		{
+			var Query = GetEPOOverBudgetReportQuery(epono, unit, supplier, status, dateFrom, dateTo, offset);
+
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+			if (OrderDictionary.Count.Equals(0))
+			{
+				Query = Query.OrderByDescending(b => b.poExtDate);
+			}
+
+			Pageable<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel> pageable = new Pageable<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>(Query, page - 1, size);
+			List<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel> Data = pageable.Data.ToList<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>();
+			int TotalData = pageable.TotalCount;
+
+			return Tuple.Create(Data, TotalData);
+		}
+
+		public MemoryStream GenerateExcelEPOOverBudget(string epono, string unit, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		{
+			var Query = GetEPOOverBudgetReportQuery(epono, unit, supplier, status, dateFrom, dateTo, offset);
+			Query = Query.OrderByDescending(b => b.poExtDate);
+			DataTable result = new DataTable();
+
+			result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "No. PO Eksternal", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Tanggal PO Eksternal", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "No. Purchase Request", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Purchase Request", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "No. Ref. Purchase Request", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Harga Budget", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Harga  Beli", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Total Harga Budget", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Total Harga Beli", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nilai Over Budget", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Nilai Over Budget (%)", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Status Approve", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Over Budget", DataType = typeof(String) });
+			
+			if (Query.ToArray().Count() == 0)
+				result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+			else
+			{
+				int index = 0;
+				foreach (var item in Query)
+				{
+					index++;
+				
+					result.Rows.Add(item.no, item.poExtNo, item.poExtDate, item.supplierCode, item.supplierName, item.prNo,item.prDate, item.prRefNo, item.unit, item.productName, item.productCode, item.productDesc, item.quantity, item.uom, item.price, item.budgetPrice, item.totalBudgetPrice, item.totalPrice, item.overBudgetValue, item.overBudgetValuePercentage,item.status, item.overBudgetRemark);
+				}
+			}
+
+			return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+		}
+
+		
+		#endregion
+	}
 }
