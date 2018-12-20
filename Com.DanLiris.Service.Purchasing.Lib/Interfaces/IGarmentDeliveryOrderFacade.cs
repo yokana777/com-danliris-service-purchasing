@@ -25,8 +25,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         ReadResponse ReadForCorrectionNoteQuantity(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
 
-        IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, int offset, string Filter = "{}");
-        Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReport(string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string Filter = "{}");
-        MemoryStream GenerateExcel(string category, DateTime? dateFrom, DateTime? dateTo, int offset, string Filter = "{}");
+        IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset);
+        Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofArrival(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset);
+        MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset);
+
+        Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofArrival(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset);
+        MemoryStream GenerateExcelArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset);
     }
 }

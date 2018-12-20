@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public DateTimeOffset prDate { get; set; } //date PR
         public DateTimeOffset poDate { get; set; } //createdDate PO
         public DateTimeOffset epoDate { get; set; } //date EPO
-        public ProductViewModel product { get; set; } //SJ
+        public GarmentProductViewModel product { get; set; } //SJ
         public string article { get; set; } // article EPO
         public string roNo { get; set; } //SJ
         public DateTimeOffset shipmentDate { get; set; } //PR
@@ -22,6 +22,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string staff { get; set; } //CreatedBy SJ
         public string category { get; set; } //GarmentCategory Based On Product 
         public string doNo { get; set; } //SJ
-        public List<ProductViewModel> productByCategory { get; set; }
+        public int dateDiff { get; set; }
+        public string ok_notOk { get; set; }
+        public int percentOk_notOk { get; set; }
+        public int jumlah { get; set; }
     }
 }

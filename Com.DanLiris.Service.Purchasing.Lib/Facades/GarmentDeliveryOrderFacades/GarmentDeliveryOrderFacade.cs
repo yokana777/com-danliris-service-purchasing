@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -483,25 +484,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return isReceived;
         }
 
-        //public CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
-        //{
-        //    try
-        //    {
-        //        IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-        //        //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{\"date\":\"desc\"}");
-        //        string gCurrencyUri = "master/garment-currencies?keyword=" + currencyCode + "&order=%7B\"date\"%3A\"desc\"%7D&page=1&size=25";
-        //        var response = httpClient.GetAsync($"{APIEndpoint.Core}{gCurrencyUri}").Result.Content.ReadAsStringAsync();
-        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-        //        var jsonUOM = result.Single(p => p.Key.Equals("data")).Value;
-        //        List<CurrencyViewModel> viewModel = JsonConvert.DeserializeObject<List<CurrencyViewModel>>(result.GetValueOrDefault("data").ToString());
-        //        return viewModel.FirstOrDefault(s => s.Date < doDate.AddDays(1));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw new Exception(e.Message);
-        //    }
-        //}
-
         private CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
         {
             string currencyUri = "master/garment-currencies/byCode";
@@ -699,13 +681,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return new ReadResponse(listData, Total, OrderDictionary);
         }
 
-        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, int offset, string Filter = "{}")
+        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            var codeRequirment = "";
-            if (category == "Bahan Baku") codeRequirment = "BB";
-            else if (category == "Bahan Pendukung") codeRequirment = "BP";
+
+            var ProductCode = JsonConvert.DeserializeObject<List<string>>(productCode);
+
+            List<AccuracyOfArrivalReportViewModel> listAccuracyOfArrival = new List<AccuracyOfArrivalReportViewModel>();
 
             var Query = (from a in dbContext.GarmentDeliveryOrders
                          join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
@@ -720,8 +703,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && d.IsDeleted == false
                              && f.IsDeleted == false
                              && h.IsDeleted == false
-                             && a.DODate.AddHours(offset).Date >= DateFrom.Date
-                             && a.DODate.AddHours(offset).Date <= DateTo.Date
+                             && ((DateFrom != new DateTime(1970, 1, 1)) ? (a.DODate.Date >= DateFrom && a.DODate.Date <= DateTo) : true)
+                             && ProductCode.Contains(c.ProductCode)
                          select new AccuracyOfArrivalReportViewModel
                          {
                              supplier = new SupplierViewModel
@@ -734,11 +717,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              prDate = f.Date,
                              poDate = d.CreatedUtc,
                              epoDate = h.OrderDate,
-                             product = new ProductViewModel
+                             product = new GarmentProductViewModel
                              {
                                  Code = c.ProductCode,
-                                 Id = c.ProductId.ToString(),
+                                 Id = c.ProductId,
                                  Name = c.ProductName,
+                                 Remark = c.ProductRemark,
                              },
                              article = i.Article,
                              roNo = c.RONo,
@@ -747,68 +731,348 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              staff = a.CreatedBy,
                              category = category,
                              doNo = a.DONo,
+                             ok_notOk = "NOT OK",
                              LastModifiedUtc = i.LastModifiedUtc
                          });
-            return Query;
+            Query = Query.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate);
+            var suppTemp = "";
+            var percentOK = 0;
+            var percentNotOk = 0;
+            var jumlah = 0;
+            var jumlahOk = 0;
+            foreach (var item in Query)
+            {
+                var ShipmentDate = new DateTimeOffset(item.shipmentDate.Date, TimeSpan.Zero);
+                var DODate = new DateTimeOffset(item.doDate.Date, TimeSpan.Zero);
+
+                var datediff = ((TimeSpan)(ShipmentDate - DODate)).Days;
+
+                foreach(var Category in garmentCategory)
+                {
+                    if (item.product.Code == Category.Code && item.category=="")
+                    {
+                        item.category = Category.CodeRequirement;
+                    }
+                }
+                if(item.category == "BB")
+                {
+                    if (datediff >= 30)
+                    {
+                        item.ok_notOk = "OK";
+                    }
+                } else if(item.category == "BP")
+                {
+                    if (datediff >= 20)
+                    {
+                        item.ok_notOk = "OK";
+                    }
+                }
+                if (suppTemp == "")
+                {
+                    jumlah += 1;
+                    suppTemp = item.supplier.Code;
+                    if (item.ok_notOk == "OK")
+                    {
+                        percentOK += 1;
+                    }
+                    else
+                    {
+                        percentNotOk += 1;
+                    }
+                   
+                }
+                else if(suppTemp == item.supplier.Code)
+                {
+                    jumlah += 1;
+                    if (item.ok_notOk == "OK")
+                    {
+                        percentOK += 1;
+                    }
+                    else
+                    {
+                        percentNotOk += 1;
+                    }
+                } else if(suppTemp != item.supplier.Code)
+                {
+                    var perOk = 0;
+                    var perNotOk = 0;
+                    suppTemp = item.supplier.Code;
+                    jumlah = 1;
+                    if (item.ok_notOk == "OK")
+                    {
+                        percentOK = perOk + 1;
+                    }
+                    else
+                    {
+                        percentNotOk = perNotOk + 1;
+                    }
+                }
+                jumlahOk = percentOK + percentNotOk;
+                AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                {
+                    supplier = item.supplier,
+                    poSerialNumber = item.poSerialNumber,
+                    prDate = item.prDate,
+                    poDate = item.poDate,
+                    epoDate = item.epoDate,
+                    product = item.product,
+                    article = item.article,
+                    roNo = item.roNo,
+                    shipmentDate = item.shipmentDate,
+                    doDate = item.doDate,
+                    staff = item.staff,
+                    category = item.category,
+                    doNo = item.doNo,
+                    ok_notOk = item.ok_notOk,
+                    percentOk_notOk = percentOK / jumlahOk,
+                    jumlah = jumlah,
+                    dateDiff = datediff,
+                    LastModifiedUtc = item.LastModifiedUtc
+                };
+                listAccuracyOfArrival.Add(_new);
+            }
+            return listAccuracyOfArrival.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate).AsQueryable();
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReport(string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string Filter = "{}")
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofArrival(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
         {
-            var Query = GetReportQuery(category, dateFrom, dateTo, offset);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            if (OrderDictionary.Count.Equals(0))
+            var ctg = "";
+            if(category== "Bahan Baku")
             {
-                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+                ctg = "BB";
+            } else if(category == "Bahan Pendukung")
+            {
+                ctg = "BP";
             }
 
+            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
 
-            Pageable<AccuracyOfArrivalReportViewModel> pageable = new Pageable<AccuracyOfArrivalReportViewModel>(Query, page - 1, size);
-            List<AccuracyOfArrivalReportViewModel> Data = pageable.Data.ToList<AccuracyOfArrivalReportViewModel>();
-            int TotalData = pageable.TotalCount;
+            List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
-            return Tuple.Create(Data, TotalData);
+            var SuppTemp = "";
+            foreach(var item in QuerySupplier.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.jumlah))
+            {
+                if (SuppTemp == "" || SuppTemp != item.supplier.Code)
+                {
+                    SuppTemp = item.supplier.Code;
+
+                    AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                    {
+                        supplier = item.supplier,
+                        poSerialNumber = item.poSerialNumber,
+                        prDate = item.prDate,
+                        poDate = item.poDate,
+                        epoDate = item.epoDate,
+                        product = item.product,
+                        article = item.article,
+                        roNo = item.roNo,
+                        shipmentDate = item.shipmentDate,
+                        doDate = item.doDate,
+                        staff = item.staff,
+                        category = item.category,
+                        doNo = item.doNo,
+                        ok_notOk = item.ok_notOk,
+                        percentOk_notOk = item.percentOk_notOk,
+                        jumlah = item.jumlah,
+                        dateDiff = item.dateDiff,
+                        LastModifiedUtc = item.LastModifiedUtc
+                    };
+                    Data.Add(_new);
+                }
+            }
+            return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcel(string category, DateTime? dateFrom, DateTime? dateTo, int offset, string Filter = "{}")
+        public MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
         {
-            var Query = GetReportQuery(category, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.doDate).ThenByDescending(b => b.CreatedUtc);
+            var ctg = "";
+            if (category == "Bahan Baku")
+            {
+                ctg = "BB";
+            }
+            else if (category == "Bahan Pendukung")
+            {
+                ctg = "BP";
+            }
+            var Query = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+
+            List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
+
+            var SuppTemp = "";
+            foreach (var item in Query.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.jumlah))
+            {
+                if (SuppTemp == "" || SuppTemp != item.supplier.Code)
+                {
+                    SuppTemp = item.supplier.Code;
+
+                    AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                    {
+                        supplier = item.supplier,
+                        poSerialNumber = item.poSerialNumber,
+                        prDate = item.prDate,
+                        poDate = item.poDate,
+                        epoDate = item.epoDate,
+                        product = item.product,
+                        article = item.article,
+                        roNo = item.roNo,
+                        shipmentDate = item.shipmentDate,
+                        doDate = item.doDate,
+                        staff = item.staff,
+                        category = item.category,
+                        doNo = item.doNo,
+                        ok_notOk = item.ok_notOk,
+                        percentOk_notOk = item.percentOk_notOk,
+                        jumlah = item.jumlah,
+                        dateDiff = item.dateDiff,
+                        LastModifiedUtc = item.LastModifiedUtc
+                    };
+                    Data.Add(_new);
+                }
+            }
+
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "NOMOR SURAT JALAN", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SURAT JALAN", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL DATANG BARANG", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "NO PO EXTERNAL", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "DESKRIPSI BARANG", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG YANG DIMINTA", DataType = typeof(double) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG YANG DATANG", DataType = typeof(double) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "SISA QTY", DataType = typeof(double) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "OK %", DataType = typeof(int) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(int) });
 
-            //result.Columns.Add(new Datacolumn() { ColumnName = "OK %" DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(String) });
-
-            if (Query.ToArray().Count() == 0)
-                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+            if (Data.ToArray().Count() == 0)
                 result.Rows.Add("", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
-                foreach (var item in Query)
+                foreach (var item in Data)
                 {
                     index++;
-                    //string date = item.date == null ? "-" : item.date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    //string supplierDoDate = item.supplierDoDate == new DateTime(1970, 1, 1) ? "-" : item.supplierDoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    //result.Rows.Add(index, item.supplier.Name, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
-                    result.Rows.Add(index, item.supplier, "", "");
+                    result.Rows.Add(index, item.supplier.Name, item.percentOk_notOk, item.jumlah);
                 }
             }
 
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofArrival(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        {
+            var ctg = "";
+            if (category == "Bahan Baku")
+            {
+                ctg = "BB";
+            }
+            else if (category == "Bahan Pendukung")
+            {
+                ctg = "BP";
+            }
+
+            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+
+            List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
+
+            foreach (var item in QuerySupplier.Where(b=>b.supplier.Code == supplier).OrderByDescending(b => b.doDate))
+            {
+                AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                {
+                     supplier = item.supplier,
+                     poSerialNumber = item.poSerialNumber,
+                     prDate = item.prDate,
+                     poDate = item.poDate,
+                     epoDate = item.epoDate,
+                     product = item.product,
+                     article = item.article,
+                     roNo = item.roNo,
+                     shipmentDate = item.shipmentDate,
+                     doDate = item.doDate,
+                     staff = item.staff,
+                     category = item.category,
+                     doNo = item.doNo,
+                     ok_notOk = item.ok_notOk,
+                     percentOk_notOk = item.percentOk_notOk,
+                     jumlah = item.jumlah,
+                     dateDiff = item.dateDiff,
+                     LastModifiedUtc = item.LastModifiedUtc
+                 };
+                 Data.Add(_new);
+            }
+            return Tuple.Create(Data, Data.Count);
+        }
+
+        public MemoryStream GenerateExcelArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        {
+            var ctg = "";
+            if (category == "Bahan Baku")
+            {
+                ctg = "BB";
+            }
+            else if (category == "Bahan Pendukung")
+            {
+                ctg = "BP";
+            }
+            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+
+            List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
+
+            foreach (var item in QuerySupplier.Where(b => b.supplier.Code == supplier).OrderByDescending(b => b.doDate))
+            {
+                AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                {
+                    supplier = item.supplier,
+                    poSerialNumber = item.poSerialNumber,
+                    prDate = item.prDate,
+                    poDate = item.poDate,
+                    epoDate = item.epoDate,
+                    product = item.product,
+                    article = item.article,
+                    roNo = item.roNo,
+                    shipmentDate = item.shipmentDate,
+                    doDate = item.doDate,
+                    staff = item.staff,
+                    category = item.category,
+                    doNo = item.doNo,
+                    ok_notOk = item.ok_notOk,
+                    percentOk_notOk = item.percentOk_notOk,
+                    jumlah = item.jumlah,
+                    dateDiff = item.dateDiff,
+                    LastModifiedUtc = item.LastModifiedUtc
+                };
+                Data.Add(_new);
+            }
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "NO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PLAN PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PURCHASE REQUEST", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PO INTERNAL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PEMBELIAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO SJ", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "ARTIKEL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SHIPMENT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL DATANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "+/- DATANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "STAFF", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KATEGORI", DataType = typeof(String) });
+
+            if (Data.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Data)
+                {
+                    index++;
+                    string prDate = item.prDate == null ? "-" : item.prDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string poDate = item.poDate == null ? "-" : item.poDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string epoDate = item.epoDate == null ? "-" : item.epoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string shipmentDate = item.shipmentDate == null ? "-" : item.shipmentDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string doDate = item.doDate == null ? "-" : item.doDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.supplier.Name, item.poSerialNumber, prDate, poDate, epoDate, item.doNo, item.product.Code, item.product.Name, item.product.Remark, item.article, item.roNo,
+                        shipmentDate, doDate, item.ok_notOk, item.staff, item.category);
+                }
+            }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
     }
