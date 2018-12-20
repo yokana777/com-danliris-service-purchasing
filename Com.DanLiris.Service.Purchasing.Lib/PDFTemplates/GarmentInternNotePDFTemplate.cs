@@ -20,7 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
-            Font normal_font1 = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+            Font normal_font1 = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             //Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             PdfPTable tableContent = new PdfPTable(8);
-            tableContent.SetWidths(new float[] { 3.5f, 4.5f, 5f, 5.5f, 3f, 2.5f, 3.7f,4.5f });
+            tableContent.SetWidths(new float[] { 3f, 5f, 4.5f, 5.5f, 3.3f, 2.5f, 3f,4.5f });
                 cellCenter.Phrase = new Phrase("NO. Surat Jalan", bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("Tgl. Surat Jalan", bold_font);
@@ -128,15 +128,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Dictionary<string, double> units = new Dictionary<string, double>();
             units.Add("C1A", 0);
             units.Add("C2A", 0);
-            units.Add("C1B", 0);
             units.Add("C2B", 0);
             units.Add("C2C", 0);
             Dictionary<long, decimal> koreksi = new Dictionary<long, decimal>();
+            Dictionary<long, double> kurs = new Dictionary<long, double>();
             foreach (GarmentInternNoteItemViewModel item in viewModel.items)
             {
                 foreach (GarmentInternNoteDetailViewModel detail in item.details)
                 {
-                    cellLeft.Phrase = new Phrase(detail.deliveryOrder.doNo, normal_font);
+                    cellLeft.Phrase = new Phrase(detail.deliveryOrder.doNo, normal_font1);
                     tableContent.AddCell(cellLeft);
 
                     string doDate = detail.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
@@ -144,28 +144,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase(doDate, normal_font1);
                     tableContent.AddCell(cellLeft);
 
-                    cellLeft.Phrase = new Phrase(detail.poSerialNumber+" - "+detail.ePONo, normal_font);
+                    cellLeft.Phrase = new Phrase(detail.poSerialNumber+" - "+detail.ePONo, normal_font1);
                     tableContent.AddCell(cellLeft);
 
                     cellLeft.Phrase = new Phrase(detail.product.Name, normal_font1);
                     tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase(detail.quantity.ToString("N", new CultureInfo("id-ID")), normal_font);
+                    cellRight.Phrase = new Phrase(detail.quantity.ToString("N", new CultureInfo("id-ID")), normal_font1);
                     tableContent.AddCell(cellRight);
 
-                    cellRight.Phrase = new Phrase(detail.uomUnit.Unit, normal_font);
+                    cellRight.Phrase = new Phrase(detail.uomUnit.Unit, normal_font1);
                     tableContent.AddCell(cellRight);
 
-                    cellRight.Phrase = new Phrase(detail.pricePerDealUnit.ToString("N", new CultureInfo("id-ID")), normal_font);
+                    cellRight.Phrase = new Phrase(detail.pricePerDealUnit.ToString("N", new CultureInfo("id-ID")), normal_font1);
                     tableContent.AddCell(cellRight);
 
-                    cellRight.Phrase = new Phrase(detail.priceTotal.ToString("N", new CultureInfo("id-ID")), normal_font);
+                    cellRight.Phrase = new Phrase(detail.priceTotal.ToString("N", new CultureInfo("id-ID")), normal_font1);
                     tableContent.AddCell(cellRight);
 
                     totalPriceTotal += detail.priceTotal;
-                    total += totalPriceTotal * detail.deliveryOrder.docurrency.Rate;
 
-                    
+                    total += detail.priceTotal * detail.deliveryOrder.docurrency.Rate;
+
                     if (units.ContainsKey(detail.unit.Code))
                     {
                         units[detail.unit.Code] += detail.priceTotal;
@@ -186,15 +186,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     }
 
                     maxtotal =  totalPriceTotal + ppn - pph ;
+
                     var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
                     
-                    if (koreksi.ContainsKey(correctionNotes.Id))
+                    if (!koreksi.ContainsKey(detail.deliveryOrder.Id))
                     {
-                        totalcorrection += correctionNotes.TotalCorrection;
-                    }
-                    else
-                    {
-                        koreksi.Add(correctionNotes.Id, correctionNotes.TotalCorrection);
+                        totalcorrection += correctionNotes.Sum(s=>s.TotalCorrection);
+                        koreksi.Add(detail.deliveryOrder.Id, correctionNotes.Sum(s=>s.TotalCorrection));
                     }
 
                 }
