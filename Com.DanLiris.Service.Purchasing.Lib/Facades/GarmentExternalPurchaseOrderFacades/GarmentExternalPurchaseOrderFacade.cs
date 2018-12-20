@@ -902,12 +902,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 						 {
 							
 							 poExtNo = a.EPONo,
-							 poExtDate = a.OrderDate.ToString("d",CultureInfo.InvariantCulture),
-							 supplierCode=a.SupplierCode,
+							 poExtDate = a.OrderDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+							 supplierCode =a.SupplierCode,
 							 supplierName=a.SupplierName,
 							 prNo=b.PRNo,
 							 prRefNo=b.PO_SerialNumber,
-							 prDate=d.Date.ToString("d", CultureInfo.InvariantCulture),
+							 prDate=d.Date.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
 							 unit = d.UnitName,
 							 productCode = b.ProductCode,
 							 productName = b.ProductName,
@@ -919,7 +919,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 							 totalBudgetPrice= Convert.ToDouble(string.Format("{0:f4}", b.DealQuantity * b.BudgetPrice)),
 							 totalPrice= Convert.ToDouble( string.Format("{0:f4}", b.DealQuantity * b.PricePerDealUnit)),
 							 overBudgetValue= Convert.ToDouble(string.Format("{0:f4}", (b.DealQuantity * b.PricePerDealUnit) - (b.DealQuantity * b.BudgetPrice))),
-							 overBudgetValuePercentage= Convert.ToDouble(string.Format("{0:f4}", ((b.DealQuantity * b.PricePerDealUnit) - (b.DealQuantity * b.BudgetPrice)) / ((b.DealQuantity * b.BudgetPrice) * 100))),
+							 overBudgetValuePercentage= Convert.ToDouble(string.Format("{0:f4}", ((b.DealQuantity * b.PricePerDealUnit) - (b.DealQuantity * b.BudgetPrice))* 100 / ((b.DealQuantity * b.BudgetPrice)))),
 							 status=a.IsApproved.Equals(true)?"SUDAH":"BELUM",
 							 overBudgetRemark=b.OverBudgetRemark
 
@@ -967,10 +967,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 			var Query = GetEPOOverBudgetReportQuery(epono, unit, supplier, status, dateFrom, dateTo, offset);
 
 			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-			if (OrderDictionary.Count.Equals(0))
-			{
-				Query = Query.OrderByDescending(b => b.poExtDate);
-			}
+			//if (OrderDictionary.Count.Equals(0))
+			//{
+			//	Query = Query.OrderByDescending(b => b.poExtDate);
+			//}
 
 			Pageable<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel> pageable = new Pageable<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>(Query, page - 1, size);
 			List<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel> Data = pageable.Data.ToList<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>();
