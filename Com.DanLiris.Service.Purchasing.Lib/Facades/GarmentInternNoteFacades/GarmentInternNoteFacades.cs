@@ -111,6 +111,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         EntityExtension.FlagForDelete(item, username, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            if (garmentDeliveryOrder!=null)
+                            {
+                                garmentDeliveryOrder.InternNo = null;
+                            }
                             EntityExtension.FlagForDelete(detail, username, USER_AGENT);
                         }
                     }
@@ -214,7 +219,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 foreach (GarmentInternNoteDetail detail in Details)
                                 {
                                     GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
-                                    garmentDeliveryOrder.InternNo = "";
+                                    garmentDeliveryOrder.InternNo = null;
 
                                     EntityExtension.FlagForDelete(detail, user, USER_AGENT);
                                 }
@@ -243,22 +248,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 {
                                     if (item.Id <= 0)
                                     {
-                                        EntityExtension.FlagForCreate(detail, user, USER_AGENT);
-                                    }
-                                    else
-                                    {
                                         GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
                                         GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.RONo == detail.RONo);
-                                        if (internalPurchaseOrder!=null)
+                                        if (internalPurchaseOrder != null)
                                         {
                                             detail.UnitId = internalPurchaseOrder.UnitId;
                                             detail.UnitCode = internalPurchaseOrder.UnitCode;
                                             detail.UnitName = internalPurchaseOrder.UnitName;
                                         }
-                                        if (garmentDeliveryOrder!=null)
+                                        if (garmentDeliveryOrder != null)
                                         {
                                             garmentDeliveryOrder.InternNo = m.INNo;
                                         }
+                                        EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+                                    }
+                                    else
+                                    {
                                         EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
                                     }
                                 }
