@@ -563,6 +563,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             d.poSerialNumber,
 
                             d.product,
+                            productRemark = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == d.ePOItemId).Select(m => m.Remark).FirstOrDefault(),
 
                             d.rONo,
 

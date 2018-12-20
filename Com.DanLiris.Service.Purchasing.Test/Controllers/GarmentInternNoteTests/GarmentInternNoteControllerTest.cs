@@ -146,6 +146,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 };
             }
         }
+
+        private GarmentInvoiceViewModel garmentInvoiceViewModel
+        {
+            get
+            {
+                return new GarmentInvoiceViewModel
+                {
+                    Id = 1,
+                    items = new List<GarmentInvoiceItemViewModel>
+                {
+                    new GarmentInvoiceItemViewModel
+                    {
+                        Id = 1,
+                        details = new List<GarmentInvoiceDetailViewModel>
+                        {
+                            new GarmentInvoiceDetailViewModel
+                            {
+                                Id = 1,
+                                dODetailId = 1,
+                            }
+                        }
+                    }
+                }
+                };
+            }
+        }
         private ServiceValidationExeption GetServiceValidationExeption()
         {
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
@@ -362,6 +388,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Returns(ViewModel);
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(DeliveryOrderModelViewModel);
+            mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(garmentInvoiceViewModel);
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -387,10 +415,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Returns(new List<GarmentInternNoteViewModel> { ViewModel });
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(new GarmentDeliveryOrderViewModel());
+            mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(new GarmentInvoiceViewModel());
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(DeliveryOrderModel);
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(garmentInvoiceModel);
 
             GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, null, mockMapper, INVFacade);
             var response = controller.Get();

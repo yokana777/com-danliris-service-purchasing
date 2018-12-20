@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceiptNoteControllers
 {
 	[Produces("application/json")]
 	[ApiVersion("1.0")]
@@ -27,11 +27,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 		}
 
 		[HttpGet]
-		public IActionResult Get(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo)
+		public IActionResult Get(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
 		{
 			try
 			{
-				var data = monitoringUnitReceiptAllFacade.GetReport(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo);
+				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+				var data = monitoringUnitReceiptAllFacade.GetReport(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo,page,size,Order,offset);
 				
 				return Ok(new
 				{
@@ -52,13 +53,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 			}
 		}
 		[HttpGet("download")]
-		public IActionResult GetXls(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo)
+		public IActionResult GetXls(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
 		{
 			try
 			{
 				byte[] xlsInBytes;
-
-				var xls = monitoringUnitReceiptAllFacade.GenerateExcel(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo);
+				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+				var xls = monitoringUnitReceiptAllFacade.GenerateExcel(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo, page, size, Order, offset);
 
 				string filename = "Laporan Bon Terima Unit ALL";
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");

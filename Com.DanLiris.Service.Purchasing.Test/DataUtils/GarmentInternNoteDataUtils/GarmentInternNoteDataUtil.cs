@@ -97,39 +97,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
         public async Task<GarmentInternNoteItem> GetNewDataItem(string user)
         {
             var garmentInvoice = Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User")).Result;
+            List<GarmentInternNoteDetail> garmentInternNoteDetails = new List<GarmentInternNoteDetail>();
+            foreach (var item in garmentInvoice.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    garmentInternNoteDetails.Add(new GarmentInternNoteDetail
+                    {
+                        EPOId = It.IsAny<int>(),
+                        EPONo = "epono",
+                        DOId = item.DeliveryOrderId,
+                        DODate = DateTimeOffset.Now,
+                        PaymentType = "PaymentType",
+                        PaymentMethod = "PaymentMethod",
+                        UnitId = "UnitId",
+                        UnitName = "UnitName",
+                        UnitCode = "UnitCode",
+                        DONo = "prno",
+                        RONo = detail.RONo,
+                        ProductId = It.IsAny<int>(),
+                        ProductCode = "code",
+                        ProductName = "name",
+                        UOMId = It.IsAny<int>(),
+                        UOMUnit = "ROLL",
+                        Quantity = 40,
+                        PricePerDealUnit = 5000,
+                        POSerialNumber = "PM132434",
+                        PaymentDueDays = 2
+                    });
+                }
+            }
             return new GarmentInternNoteItem
             {
-
                 InvoiceId = garmentInvoice.Id,
                 InvoiceDate = garmentInvoice.InvoiceDate,
                 InvoiceNo = garmentInvoice.InvoiceNo,
                 TotalAmount = 2000,
-                Details = new List<GarmentInternNoteDetail>
-                            {
-                                new GarmentInternNoteDetail
-                                {
-                                    EPOId=It.IsAny<int>(),
-                                    EPONo="epono",
-                                    DOId=It.IsAny<int>(),
-                                    DODate = DateTimeOffset.Now,
-                                    PaymentType="PaymentType",
-                                    PaymentMethod = "PaymentMethod",
-                                    UnitId = "UnitId",
-                                    UnitName = "UnitName",
-                                    UnitCode = "UnitCode",
-                                    DONo="prno",
-                                    RONo="12343",
-                                    ProductId= It.IsAny<int>(),
-                                    ProductCode="code",
-                                    ProductName="name",
-                                    UOMId=It.IsAny<int>(),
-                                    UOMUnit="ROLL",
-                                    Quantity=40,
-                                    PricePerDealUnit=5000,
-                                    POSerialNumber="PM132434",
-                                    PaymentDueDays=2
-                                }
-                }
+                Details = garmentInternNoteDetails
             };
         }
 
