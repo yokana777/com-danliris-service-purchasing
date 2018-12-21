@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181215020144_Change_Column_Name_in_Garment_Delivery_Order")]
+    partial class Change_Column_Name_in_Garment_Delivery_Order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1437,11 +1438,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);
 
-                    b.Property<decimal>("PricePerDealUnitAfter")
-                        .HasColumnType("decimal(38, 20)");
+                    b.Property<decimal>("PricePerDealUnitAfter");
 
-                    b.Property<decimal>("PricePerDealUnitBefore")
-                        .HasColumnType("decimal(38, 20)");
+                    b.Property<decimal>("PricePerDealUnitBefore");
 
                     b.Property<decimal>("PriceTotalAfter");
 

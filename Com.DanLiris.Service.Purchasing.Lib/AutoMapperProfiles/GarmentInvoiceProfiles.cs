@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			   .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
 			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s =>  s.TotalAmount))
 			   .ForPath(d => d.deliveryOrder.paymentMethod, opt => opt.MapFrom(s => s.PaymentMethod))
-			  .ForPath(d => d.deliveryOrder.paymentType, opt => opt.MapFrom(s => s.PaymentType))
+			   .ForPath(d => d.deliveryOrder.paymentType, opt => opt.MapFrom(s => s.PaymentType))
 			   .ReverseMap();
 
             CreateMap<GarmentInvoiceDetail, GarmentInvoiceDetailViewModel>()

@@ -210,8 +210,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
             Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
             Assert.NotNull(errorNullItems.Message);
-
-
         }
 
         [Fact]

@@ -559,6 +559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             d.poSerialNumber,
 
                             d.product,
+                            productRemark = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == d.ePOItemId).Select(m => m.Remark).FirstOrDefault(),
 
                             d.rONo,
 
@@ -591,7 +592,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
-                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.IsInvoice == true && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
+                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,
@@ -602,6 +603,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     SupplierName = m.SupplierName,
                     SupplierId = m.SupplierId,
                     SupplierCode = m.SupplierCode,
+                    DOCurrencyId = m.DOCurrencyId,
                     DOCurrencyCode = m.DOCurrencyCode,
                     UseVat = m.UseVat,
                     IncomeTaxId = m.IncomeTaxId,

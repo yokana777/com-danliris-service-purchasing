@@ -107,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             PdfPTable tableContent = new PdfPTable(10);
             tableContent.SetWidths(new float[] { 1.1f, 1.2f, 1f, 1f, 0.9f, 0.7f, 1.2f, 0.8f, 1.2f, 1.3f });
 
-            foreach (var columnName in new List<string>{ "Plan PO", "Artikel", "Kode Barang", "Nama Barang", "Jumlah SJ (Koreksi)", "Satuan", "Harga Satuan", "Jumlah Koreksi", "Harga/Satuan (Koreksi)", "Total Harga" })
+            foreach (var columnName in new List<string>{ "Plan PO", "Artikel", "Kode Barang", "Nama Barang", "Jumlah SJ", "Satuan", "Harga Satuan", "Jumlah Koreksi", "Harga/Satuan (Koreksi)", "Total Harga" })
             {
                 cellCenter.Phrase = new Phrase(columnName, bold_font);
                 tableContent.AddCell(cellCenter);
@@ -185,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             {
                 cellLeftNoBorder.Phrase = new Phrase($"Total {unitAmount.Key}", normal_font);
                 tableFooterLeft.AddCell(cellLeftNoBorder);
-                cellLeftNoBorder.Phrase = new Phrase($":   ({unitAmount.Value.ToString("n", new CultureInfo("id-ID"))})", normal_font);
+                cellLeftNoBorder.Phrase = new Phrase($":   {unitAmount.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
                 tableFooterLeft.AddCell(cellLeftNoBorder);
             }
 
@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             tableFooterRight.SetWidths(new float[] { 3f, 5f });
             cellLeftNoBorder.Phrase = new Phrase("Total Amount", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   ({totalAmount.ToString("n", new CultureInfo("id-ID"))})", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {totalAmount.ToString("n", new CultureInfo("id-ID"))}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("Mata Uang", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
@@ -201,7 +201,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             tableFooterRight.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("Total Harga Pokok (Rp)", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   ({(totalAmount * (decimal)garmentDeliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID"))})", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {(totalAmount * (decimal)garmentDeliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID"))}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             PdfPCell cellFooterLeft = new PdfPCell(tableFooterLeft) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };

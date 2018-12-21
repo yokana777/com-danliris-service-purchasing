@@ -168,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             {
                 Id = model.Id,
                 supplier = new SupplierViewModel(),
-                customsId = 1,
+                internNo = "1",
                 billNo = "test",
                 paymentBill = "test",
                 totalAmount = 1,
@@ -265,7 +265,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             {
                 Id = model.Id,
                 supplier = new SupplierViewModel(),
-                customsId = 1,
+                internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
                 totalAmount = 1,
@@ -362,7 +362,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             {
                 Id = model.Id,
                 supplier = new SupplierViewModel(),
-                customsId = 1,
+                internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
                 totalAmount = 1,
@@ -646,7 +646,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 supplier = new SupplierViewModel(),
-                customsId = 1,
+                internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
                 totalAmount = 1,
@@ -698,7 +698,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 supplier = new SupplierViewModel(),
-                customsId = 1,
+                internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
                 totalAmount = 1,
@@ -731,7 +731,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 supplier = new SupplierViewModel(),
-                customsId = 1,
+                internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
                 totalAmount = 1,

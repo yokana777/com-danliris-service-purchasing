@@ -149,6 +149,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_With_Tax()
+        {
+            var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var Response = await facade.Create(data,false,USERNAME);
+            Assert.NotEqual(Response, 0);
+
+            var data2nd = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var Response2nd = await facade.Create(data2nd,false,USERNAME);
+            Assert.NotEqual(Response2nd, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
