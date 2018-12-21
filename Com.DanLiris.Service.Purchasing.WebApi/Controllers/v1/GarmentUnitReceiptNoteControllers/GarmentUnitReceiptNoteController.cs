@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 }
                 else
                 {
-                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                    identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                     var stream = facade.GeneratePdf(viewModel);
 

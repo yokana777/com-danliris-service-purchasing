@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 		{
 			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+		
 			List<MonitoringUnitReceiptAll> list = new List<MonitoringUnitReceiptAll>();
 			var Data = (from a in dbContext.GarmentUnitReceiptNotes
 						join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
@@ -38,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						join d in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals d.Id
 						join e in dbContext.GarmentExternalPurchaseOrders on d.GarmentEPOId equals e.Id
 						where a.IsDeleted == false  
-						   && ((d1 != new DateTime(1970, 1, 1)) ? (a.ReceiptDate.Date >= d1 && a.ReceiptDate.Date <= d2) : true)
+						   && ((d1 != new DateTime(1970, 1, 1)) ? (a.CreatedUtc.Date >= d1 && a.CreatedUtc.Date <= d2) : true)
 						   && ((supplier != null) ? (a.SupplierCode == supplier) : true)
 						   && ((unit != null) ? (a.UnitCode == unit) : true)
 						   && ((no != null) ? (a.URNNo == no) : true)
@@ -55,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						 select new MonitoringUnitReceiptAll
 						{ 
 							no=data.no,
-							dateBon=data.dateBon.ToString("d", CultureInfo.InvariantCulture),
+							dateBon=(data.dateBon.AddHours(offset)).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
 							unit=data.unit,
 							supplier=data.supplier,
 							doNo=data.doNo,
