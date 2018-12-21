@@ -501,58 +501,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         }
 
         [Fact]
-        public void Should_Error_Get_Report_Data_Arrival_Header()
-        {
-            List<GarmentCategoryViewModel> garmentCategory = new List<GarmentCategoryViewModel>
-            {
-                new GarmentCategoryViewModel
-                {
-                    Id = 7,
-                    Code = "LBL",
-                    Name = "LABEL",
-                    CodeRequirement = "BP"
-                },
-                new GarmentCategoryViewModel
-                {
-                    Id = 13,
-                    Code = "SUB",
-                    Name = "SUBKON",
-                    CodeRequirement = "BB"
-                }
-            };
-            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
-
-            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportHeaderAccuracyofArrival(null, null, null, It.IsAny<List<GarmentCategoryViewModel>>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
-
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
-                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
-
-            var user = new Mock<ClaimsPrincipal>();
-            var claims = new Claim[]
-            {
-                new Claim("username", "unittestusername")
-            };
-            user.Setup(u => u.Claims).Returns(claims);
-            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = user.Object
-                }
-            };
-
-            var vmString = JsonConvert.SerializeObject(garmentCategory);
-
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport(null, null, null, vmString, It.IsAny<string>());
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
-        }
-
-        [Fact]
         public void Should_Error_Get_Report_Xls_Data_Header_AccuracyArrival()
         {
             List<GarmentCategoryViewModel> garmentCategory = new List<GarmentCategoryViewModel>
