@@ -131,11 +131,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 decimal totalPPN;
                 if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
                 {
-                    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) / 100;
+                    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) / 10;
                 }
                 else
                 {
-                    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 100;
+                    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 10;
                 }
                 totalAmountPPN += totalPPN;
 
