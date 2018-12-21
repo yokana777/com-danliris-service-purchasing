@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 {
     public class GarmentDeliveryOrder : BaseModel
     {
+		public long CustomsId { get; set; }
         [MaxLength(255)]
         public string DONo { get; set; }
         public DateTimeOffset DODate { get; set; }
