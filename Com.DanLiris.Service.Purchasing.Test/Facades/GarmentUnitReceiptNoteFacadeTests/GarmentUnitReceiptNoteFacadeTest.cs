@@ -30,6 +30,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -54,11 +55,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
                 .Returns(new GarmentUnitReceiptNoteViewModel {
                     Id = 1,
+                    DOId = 1,
+                    Supplier = new SupplierViewModel(),
+                    Unit = new UnitViewModel(),
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
-                        new GarmentUnitReceiptNoteItemViewModel()
+                        new GarmentUnitReceiptNoteItemViewModel {
+                            Product = new GarmentProductViewModel(),
+                            Uom = new UomViewModel()
+                        }
                     }
                 });
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentDeliveryOrder());
 
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
@@ -70,6 +82,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IMapper)))
                 .Returns(mapper.Object);
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
+                .Returns(mockGarmentDeliveryOrderFacade.Object);
+
 
             return serviceProviderMock.Object;
         }
@@ -144,10 +160,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
-        public void Should_Success_Generate_Pdf()
+        public async void Should_Success_Generate_Pdf()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var Response = facade.GeneratePdf(new GarmentUnitReceiptNoteViewModel());
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var dataViewModel = facade.ReadById((int)data.Id);
+            var Response = facade.GeneratePdf(dataViewModel);
             Assert.IsType<MemoryStream>(Response);
         }
 
