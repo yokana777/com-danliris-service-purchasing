@@ -351,8 +351,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
             List<GarmentCategoryViewModel> gCategory = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(garmentCategory);
 
-            try
-            {
+            //try
+            //{
                 var data = facade.GetReportHeaderAccuracyofArrival(category, dateFrom, dateTo, gCategory, productCode, offset);
 
                 return Ok(new
@@ -363,14 +363,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
         }
         [HttpGet("arrivalReport/download")]
         public IActionResult GetXlsArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, string garmentCategory, string productCode)
@@ -416,8 +416,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
             List<GarmentCategoryViewModel> gCategory = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(garmentCategory);
 
-            try
-            {
+            //try
+            //{
                 var data = facade.GetReportDetailAccuracyofArrival(supplier, category, dateFrom, dateTo, gCategory, productCode, offset);
 
                 return Ok(new
@@ -428,14 +428,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
         }
         [HttpGet("arrivalReportDetail/download")]
         public IActionResult GetXlsArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, string garmentCategory, string productCode)
@@ -481,8 +481,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            try
-            {
+            //try
+            //{
                 var data = facade.GetReportHeaderAccuracyofDelivery(dateFrom, dateTo, productCode, offset);
 
                 return Ok(new
@@ -493,14 +493,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
         }
         [HttpGet("deliveryReport/download")]
         public IActionResult GetXlsDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, string productCode)
@@ -536,8 +536,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            try
-            {
+            //try
+            //{
                 var data = facade.GetReportDetailAccuracyofDelivery(supplier, dateFrom, dateTo, productCode, offset);
 
                 return Ok(new
@@ -548,14 +548,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
         }
         [HttpGet("deliveryReportDetail/download")]
         public IActionResult GetXlsDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode)
