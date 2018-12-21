@@ -885,7 +885,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public async void Should_Success_Get_Report_AccuracyArrival()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data.DODate = DateTimeOffset.Now.AddDays(-35);
             foreach (var item in data.Items)
             {
@@ -917,7 +917,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = Facade.GetReportHeaderAccuracyofArrival(null, null, null, garmentCategory, product, 7);
             Assert.NotNull(Response.Item1);
 
-            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data2.DODate = DateTimeOffset.Now.AddDays(-35);
             foreach (var item in data2.Items)
             {
@@ -928,7 +928,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data2, USERNAME);
 
-            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data3.DODate = DateTimeOffset.Now.AddDays(-34);
             foreach (var item in data3.Items)
             {
@@ -939,7 +939,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data3, USERNAME);
 
-            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data4.DODate = DateTimeOffset.Now.AddDays(-33);
             foreach (var item in data4.Items)
             {
@@ -963,10 +963,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public async void Should_Success_Get_Report_AccuracyArrival_Excel()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             await facade.Create(data, USERNAME);
 
-            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data2.DODate = DateTimeOffset.Now.AddDays(-35);
             foreach (var item in data2.Items)
             {
@@ -977,7 +977,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data2, USERNAME);
 
-            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data3.DODate = DateTimeOffset.Now.AddDays(-34);
             foreach (var item in data3.Items)
             {
@@ -988,7 +988,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data3, USERNAME);
 
-            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data4.DODate = DateTimeOffset.Now.AddDays(-33);
             foreach (var item in data4.Items)
             {
@@ -1032,7 +1032,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public async void Should_Success_Get_Report_AccuracyDelivery()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data.DODate = DateTimeOffset.Now.AddDays(10);
             foreach (var item in data.Items)
             {
@@ -1048,7 +1048,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, product, 7);
             Assert.NotNull(Response.Item1);
 
-            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data2.DODate = DateTimeOffset.Now.AddDays(10);
             foreach (var item in data2.Items)
             {
@@ -1059,7 +1059,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data2, USERNAME);
 
-            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data3.DODate = DateTimeOffset.Now.AddDays(10);
             foreach (var item in data3.Items)
             {
@@ -1070,7 +1070,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data3, USERNAME);
 
-            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data4.DODate = DateTimeOffset.Now.AddDays(11);
             foreach (var item in data4.Items)
             {
@@ -1094,10 +1094,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public async void Should_Success_Get_Report_AccuracyDelivery_Excel()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             await facade.Create(data, USERNAME);
 
-            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data2.DODate = DateTimeOffset.Now.AddDays(10);
             foreach (var item in data2.Items)
             {
@@ -1108,7 +1108,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data2, USERNAME);
 
-            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data3.DODate = DateTimeOffset.Now.AddDays(10);
             foreach (var item in data3.Items)
             {
@@ -1119,7 +1119,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data3, USERNAME);
 
-            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
             data4.DODate = DateTimeOffset.Now.AddDays(10);
             foreach (var item in data4.Items)
             {
