@@ -30,8 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.internNo, opt => opt.MapFrom(s => s.InternNo))
                 .ForPath(d => d.billNo, opt => opt.MapFrom(s => s.BillNo))
                 .ForPath(d => d.paymentBill, opt => opt.MapFrom(s => s.PaymentBill))
-
-                .ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+				 .ForPath(d => d.customsId, opt => opt.MapFrom(s => s.CustomsId))
+				.ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
 
                 .ForMember(d => d.isCorrection, opt => opt.MapFrom(s => s.IsCorrection))
 

@@ -8,8 +8,9 @@ using System.Linq;
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel
 {
     public class GarmentDeliveryOrderViewModel : BaseViewModel, IValidatableObject
-    {
-        public string doNo { get; set; }
+	{
+		public long customsId { get; set; }
+		public string doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
         public DateTimeOffset? arrivalDate { get; set; }
 

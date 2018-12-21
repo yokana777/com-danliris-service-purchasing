@@ -151,9 +151,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 															.ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
 						if (deliveryOrder != null)
 						{
+							
 							if (model.BillNo == "" | model.BillNo == null)
 							{
 								deliveryOrder.BillNo = GenerateBillNo();
+
 							}
 							else
 							{
@@ -178,6 +180,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 					this.dbSet.Add(model);
 					Created = await dbContext.SaveChangesAsync();
 					transaction.Commit();
+					foreach (GarmentBeacukaiItem item in model.Items)
+					{
+						GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+															.ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
+						if (deliveryOrder != null)
+						{
+							deliveryOrder.CustomsId = model.Id;
+						}
+					}
+					Created = await dbContext.SaveChangesAsync();
 				}
 				catch (Exception e)
 				{
@@ -209,7 +221,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 						{
 							deliveryOrder.BillNo = null;
 							deliveryOrder.PaymentBill = null;
-							//deliveryOrder.CustomsId = 0;
+							deliveryOrder.CustomsId = 0;
 							EntityExtension.FlagForDelete(item, username, USER_AGENT);
 						}
 
@@ -255,6 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 							GarmentDeliveryOrder deleteDO = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == itemViewModel.deliveryOrder.Id);
 							deleteDO.BillNo = null;
 							deleteDO.PaymentBill = null;
+							deleteDO.CustomsId = 0;
 						}
 
 					}
