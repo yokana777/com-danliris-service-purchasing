@@ -1026,5 +1026,119 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response1 = Facade.GenerateExcelArrivalDetail($"BuyerCode{nowTicksA}", null, null, null, garmentCategory, product, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response1);
         }
+
+
+        [Fact]
+        public async void Should_Success_Get_Report_AccuracyDelivery()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data.DODate = DateTimeOffset.Now.AddDays(10);
+            foreach (var item in data.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "LBL";
+                }
+            }
+            await facade.Create(data, USERNAME);
+            
+            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
+            var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, product, 7);
+            Assert.NotNull(Response.Item1);
+
+            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data2.DODate = DateTimeOffset.Now.AddDays(10);
+            foreach (var item in data2.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "SUB";
+                }
+            }
+            await facade.Create(data2, USERNAME);
+
+            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data3.DODate = DateTimeOffset.Now.AddDays(10);
+            foreach (var item in data3.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "SUB";
+                }
+            }
+            await facade.Create(data3, USERNAME);
+
+            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data4.DODate = DateTimeOffset.Now.AddDays(11);
+            foreach (var item in data4.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "LBL";
+                }
+            }
+            await facade.Create(data4, USERNAME);
+
+            var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, product, 7);
+            Assert.NotNull(Response1.Item1);
+
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+            var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, product, 7);
+            Assert.NotNull(Response2.Item1);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_AccuracyDelivery_Excel()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            await facade.Create(data, USERNAME);
+
+            var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data2.DODate = DateTimeOffset.Now.AddDays(10);
+            foreach (var item in data2.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "SUB";
+                }
+            }
+            await facade.Create(data2, USERNAME);
+
+            var data3 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data3.DODate = DateTimeOffset.Now.AddDays(10);
+            foreach (var item in data3.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "SUB";
+                }
+            }
+            await facade.Create(data3, USERNAME);
+
+            var data4 = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data4.DODate = DateTimeOffset.Now.AddDays(10);
+            foreach (var item in data4.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductCode = "LBL";
+                }
+            }
+            await facade.Create(data4, USERNAME);
+
+            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
+            var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GenerateExcelDeliveryHeader(null, null, product, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+            var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, product, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+        }
     }
 }
