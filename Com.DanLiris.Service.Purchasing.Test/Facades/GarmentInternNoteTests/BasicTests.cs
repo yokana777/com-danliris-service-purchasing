@@ -7,6 +7,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
@@ -258,15 +259,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
             Mock<IGarmentInvoice> garmentInvoiceFacadeMock = new Mock<IGarmentInvoice>();
             garmentInvoiceFacadeMock.Setup(s => s.ReadById(1))
-                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = false, UseVat = false });
+                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = false, UseVat = false,IncomeTaxId = 1, Items = new List<GarmentInvoiceItem>{
+                    new GarmentInvoiceItem
+                    {
+                        InvoiceId = 1,
+                        PaymentMethod = "PaymentMethod1"
+                    }
+                }
+                });
             garmentInvoiceFacadeMock.Setup(s => s.ReadById(2))
-                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = true, UseVat = true });
+                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice
+                {
+                    UseIncomeTax = true,
+                    UseVat = true,
+                    IncomeTaxId = 2,
+                    Items = new List<GarmentInvoiceItem>{
+                    new GarmentInvoiceItem
+                    {
+                        InvoiceId = 2,
+                        PaymentMethod = "PaymentMethod2"
+                    }
+                }
+                });
 
             Mock<IGarmentDeliveryOrderFacade> garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
-            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(1))
-                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder { PaymentMethod = "PaymentMethod1" });
-            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(2))
-                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder { PaymentMethod = "PaymentMethod2" });
+            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(It.IsAny<int>()))
+                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder ());
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.
