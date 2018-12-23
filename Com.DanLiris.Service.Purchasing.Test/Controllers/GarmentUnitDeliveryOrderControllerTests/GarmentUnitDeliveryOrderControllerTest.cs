@@ -30,11 +30,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
                 {
                     Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     UnitRequest = new UnitViewModel(),
+                    UnitSender = new UnitViewModel(),
                     Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                     {
                         new GarmentUnitDeliveryOrderItemViewModel()
                         {
+                            Id = It.IsAny<int>(),
                             Product = new GarmentProductViewModel(),
+                            Uom = new UomViewModel(),
+                            URNId = It.IsAny<int>(),
+                            URNItemId = It.IsAny<int>(),
+                            DODetailId = It.IsAny<int>(),
+                            EPOItemId = It.IsAny<int>(),
+                            POItemId = It.IsAny<int>(),
+                            PRItemId = It.IsAny<int>(),
+                            PricePerDealUnit = It.IsAny<int>(),
+                            POSerialNumber = "PO12345",
+                            URNNo = "URNNO",
+                            Quantity = It.IsAny<int>(),
+                            FabricType = "SAMPLE"
                         }
                     }
                 };
@@ -249,6 +263,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
 
             var response = controller.Post(this.ViewModel).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitDeliveryOrderViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrder>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentUnitDeliveryOrderViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Create_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitDeliveryOrderViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrder>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.Post(this.ViewModel).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
