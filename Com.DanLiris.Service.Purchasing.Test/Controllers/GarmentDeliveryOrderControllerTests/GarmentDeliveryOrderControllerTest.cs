@@ -1020,6 +1020,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
         }
 
+        [Fact]
+        public void Should_Error_Get_Report_DO()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+        
+
+            GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportDO(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Xls_DO()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+         
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+           
+            var response = controller.GetXlsDO(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+
+        }
+
     }
 
 }

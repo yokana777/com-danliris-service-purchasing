@@ -589,13 +589,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         #region MONITORING DELIVERY ORDER
         [HttpGet("monitoring")]
         public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string no, string poEksNo, long supplierId, int page, int size, string Order = "{}")
-
         {
-            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-            string accept = Request.Headers["Accept"];
-
             try
             {
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
 
                 var data = facade.GetReportDO(no, poEksNo, supplierId, dateFrom, dateTo, page, size, Order, offset);
 
