@@ -8,8 +8,9 @@ using System.Linq;
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel
 {
     public class GarmentDeliveryOrderViewModel : BaseViewModel, IValidatableObject
-    {
-        public string doNo { get; set; }
+	{
+		public long customsId { get; set; }
+		public string doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
         public DateTimeOffset? arrivalDate { get; set; }
 
@@ -22,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public bool isClosed { get; set; }
         public bool isCustoms { get; set; }
         public bool isInvoice { get; set; }
-        public long customsId { get; set; }
+        public string internNo { get; set; }
         public string billNo { get; set; }
         public string paymentBill { get; set; }
         public double totalAmount { get; set; }
@@ -114,6 +115,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                             {
                                 detailErrorCount++;
                                 detailError += "conversion: 'Conversion can not 0', ";
+                            } else if (detail.purchaseOrderUom.Id == detail.smallUom.Id && detail.conversion!=1)
+                            {
+                                detailErrorCount++;
+                                detailError += "conversion: 'Conversion must be 1'";
                             }
 
                             if (detail.doQuantity == 0)
@@ -121,6 +126,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                                 detailErrorCount++;
                                 detailError += "doQuantity: 'DoQuantity must be greater than 0', ";
                             }
+
+                            
 
                             detailError += "}, ";
                         }

@@ -87,6 +87,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 {
                     foreach (var item in d.items)
                     {
+                        GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
+                        if (garmentInvoice!=null)
+                        {
+                            GarmentInvoiceViewModel invoiceViewModel = mapper.Map<GarmentInvoiceViewModel>(garmentInvoice);
+
+                            item.garmentInvoice.items = invoiceViewModel.items;
+                        }
                         foreach (var detail in item.details)
                         {
                             var deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
@@ -158,6 +165,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 {
                     foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                     {
+                        GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
+                        if (garmentInvoice!=null)
+                        {
+                            GarmentInvoiceViewModel invoiceViewModel = mapper.Map<GarmentInvoiceViewModel>(garmentInvoice);
+
+                            item.garmentInvoice.items = invoiceViewModel.items;
+
+                        }
                         foreach (GarmentInternNoteDetailViewModel detail in item.details)
                         {
                             GarmentDeliveryOrder deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
@@ -165,6 +180,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                             {
                                 GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                                 detail.deliveryOrder.items = deliveryOrderViewModel.items;
+                                if (detail.invoiceDetailId!=0)
+                                {
+                                    var invoiceItem = garmentInvoice.Items.First(s => s.Details.Any(d => d.Id == detail.invoiceDetailId));
+
+                                    var invoiceDetail = invoiceItem.Details.First(i => i.Id == detail.invoiceDetailId);
+
+                                    if (invoiceDetail != null)
+                                    {
+                                        detail.dODetailId = invoiceDetail.DODetailId;
+                                    }
+                                }
+                                
                             }
                         }
                     }

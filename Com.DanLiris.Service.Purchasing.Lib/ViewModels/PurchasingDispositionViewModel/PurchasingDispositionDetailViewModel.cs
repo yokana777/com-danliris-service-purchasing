@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public double PricePerDealUnit { get; set; }
         public double PriceTotal { get; set; }
         public double PaidPrice { get; set; }
+        public double TotalPaidPrice { get; set; }
         public UnitViewModel Unit { get; set; }
     }
 }

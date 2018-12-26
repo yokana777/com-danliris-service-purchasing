@@ -5,8 +5,10 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
@@ -17,6 +19,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrde
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -126,6 +129,73 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+
+            List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
+            Newitems.Add(item);
+            data.Items = Newitems;
+
+            var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate1, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data2()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentInternNoteFacades(dbContext, ServiceProvider);
+            var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
+            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+
+            List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
+            Newitems.Add(item);
+            data.Items = Newitems;
+
+            var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+            Assert.NotEqual(ResponseUpdate, 0);
+
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var items in data.Items)
+            {
+                dbContext.Entry(items).State = EntityState.Detached;
+                foreach (var detail in items.Details)
+                {
+                    dbContext.Entry(detail).State = EntityState.Detached;
+                }
+            }
+
+            var newData = dbContext.GarmentInternNotes.AsNoTracking()
+                .Include(m => m.Items)
+                    .ThenInclude(i => i.Details)
+                .FirstOrDefault(m => m.Id == data.Id);
+
+            newData.Items = newData.Items.Take(1).ToList();
+
+            var ResponseUpdate2 = await facade.Update((int)newData.Id, newData, USERNAME);
+            Assert.NotEqual(ResponseUpdate2, 0);
+        }
+        [Fact]
+        public async void Should_Error_Update_Data()
+        {
+            var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            List<GarmentInternNoteItem> item = new List<GarmentInternNoteItem>(data.Items);
+
+            data.Items.Add(new GarmentInternNoteItem
+            {
+                InvoiceId = It.IsAny<int>(),
+                InvoiceDate = DateTimeOffset.Now,
+                InvoiceNo = "donos",
+                TotalAmount = 2000,
+                Details = null
+            });
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
             Assert.NotEqual(ResponseUpdate, 0);
@@ -133,44 +203,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             {
                 InvoiceId = It.IsAny<int>(),
                 InvoiceDate = DateTimeOffset.Now,
-                InvoiceNo = "donos",
+                InvoiceNo = "dono",
                 TotalAmount = 2000,
-                Details = new List<GarmentInternNoteDetail>
-                            {
-                                new GarmentInternNoteDetail
-                                {
-                                    EPOId=It.IsAny<int>(),
-                                    EPONo="epono",
-                                    UnitId="1",
-                                    UnitCode = "UnitCode",
-                                    UnitName = "UnitName",
-                                    DOId = It.IsAny<int>(),
-                                    DODate = DateTimeOffset.Now,
-
-                                    DONo = "DONO",
-                                    PaymentMethod = "PaymentMethod",
-                                    PaymentType = "PaymentType",
-                                    InvoiceDetailId = It.IsAny<int>(),
-                                    RONo="12343",
-                                    ProductId= It.IsAny<int>(),
-                                    ProductCode="code",
-                                    ProductName="name",
-                                    UOMId=It.IsAny<int>(),
-                                    UOMUnit="ROLL",
-                                    Quantity=40,
-                                    PricePerDealUnit=5000,
-                                    PaymentDueDays = 2,
-                                    POSerialNumber="PM132434",
-                                    PriceTotal = 12345
-                                }
-                            }
+                Details = null
             };
             List<GarmentInternNoteItem> Newitems = new List<GarmentInternNoteItem>(data.Items);
             Newitems.Add(newItem);
             data.Items = Newitems;
 
-            var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
+            Assert.NotNull(errorNullItems.Message);
         }
 
         [Fact]
@@ -219,15 +261,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
             Mock<IGarmentInvoice> garmentInvoiceFacadeMock = new Mock<IGarmentInvoice>();
             garmentInvoiceFacadeMock.Setup(s => s.ReadById(1))
-                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = false, UseVat = false });
+                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = false, UseVat = false,IncomeTaxId = 1, Items = new List<GarmentInvoiceItem>{
+                    new GarmentInvoiceItem
+                    {
+                        InvoiceId = 1,
+                        PaymentMethod = "PaymentMethod1"
+                    }
+                }
+                });
             garmentInvoiceFacadeMock.Setup(s => s.ReadById(2))
-                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice { UseIncomeTax = true, UseVat = true });
+                .Returns(new Lib.Models.GarmentInvoiceModel.GarmentInvoice
+                {
+                    UseIncomeTax = true,
+                    UseVat = true,
+                    IncomeTaxId = 2,
+                    Items = new List<GarmentInvoiceItem>{
+                    new GarmentInvoiceItem
+                    {
+                        InvoiceId = 2,
+                        PaymentMethod = "PaymentMethod2"
+                    }
+                }
+                });
 
             Mock<IGarmentDeliveryOrderFacade> garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
-            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(1))
-                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder { PaymentMethod = "PaymentMethod1" });
-            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(2))
-                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder { PaymentMethod = "PaymentMethod2" });
+            garmentDeliveryOrderFacadeMock.Setup(s => s.ReadById(It.IsAny<int>()))
+                .Returns(new Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder ());
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.

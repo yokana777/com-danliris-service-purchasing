@@ -1,7 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels
 {
     public class GarmentUnitReceiptNoteItemViewModel : BaseViewModel
     {
@@ -36,6 +36,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewM
         public decimal Conversion { get; set; }
 
         public decimal SmallQuantity { get; set; }
+
+        public decimal ReceiptCorrection { get; set; }
+
+        public decimal OrderQuantity { get; set; }
 
         public UomViewModel SmallUom { get; set; }
 

@@ -17,17 +17,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/garment-correction-notes")]
+    [Route("v{version:apiVersion}/garment-correction-notes/price")]
     [Authorize]
-    public class GarmentCorrectionNoteController : Controller
+    public class GarmentCorrectionNotePriceController : Controller
     {
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
-        private readonly IGarmentCorrectionNoteFacade facade;
+        private readonly IGarmentCorrectionNotePriceFacade facade;
         private readonly IdentityService identityService;
 
-        public GarmentCorrectionNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentCorrectionNoteFacade facade)
+        public GarmentCorrectionNotePriceController(IServiceProvider serviceProvider, IMapper mapper, IGarmentCorrectionNotePriceFacade facade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    var stream = GarmentCorrectionNotePDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+                    var stream = GarmentCorrectionNotePricePDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
@@ -136,13 +136,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
                 validateService.Validate(viewModel);
 
                 var Model = mapper.Map<GarmentCorrectionNote>(viewModel);
 
-                await facade.Create(Model, identityService.Username);
+                await facade.Create(Model);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -194,11 +195,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    var stream = GarmentCorrectionNotePpnPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+                    var stream = GarmentCorrectionNotePricePpnPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{model.CorrectionNo}-ppn.pdf"
+                        FileDownloadName = $"{model.NKPN}.pdf"
                     };
                 }
             }
@@ -240,11 +241,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    var stream = GarmentCorrectionNotePphPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
+                    var stream = GarmentCorrectionNotePricePphPDFTemplate.Generate(model, serviceProvider, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{model.CorrectionNo}-pph.pdf"
+                        FileDownloadName = $"{model.NKPH}.pdf"
                     };
                 }
             }

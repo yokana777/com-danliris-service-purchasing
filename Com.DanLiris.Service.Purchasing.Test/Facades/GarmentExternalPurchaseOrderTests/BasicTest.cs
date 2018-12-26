@@ -1,19 +1,25 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -34,6 +40,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             StackFrame sf = st.GetFrame(1);
 
             return string.Concat(sf.GetMethod().Name, "_", ENTITY);
+        }
+
+        private Mock<IServiceProvider> GetServiceProvider()
+        {
+            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+            var HttpClientService = new Mock<IHttpClientService>();
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(message);
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(HttpClientService.Object);
+
+            return serviceProvider;
         }
 
         private PurchasingDbContext _dbContext(string testName)
@@ -57,6 +84,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
 
             return new GarmentExternalPurchaseOrderDataUtil(facade, garmentInternalPurchaseOrderDataUtil);
+        }
+
+        private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
         }
 
         [Fact]
@@ -351,5 +392,63 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var Response = facade.ReadBySupplier(data.SupplierCode);
             Assert.NotNull(Response);
         }
-    }
+
+        //Duration
+        [Fact]
+        public async void Should_Success_Get_Report_POEDODuration_Data()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+            await facade.Create(data, USERNAME);
+            var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GetEPODODurationReport("","", "0-30 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+
+			      var Response1 = Facade.GetEPODODurationReport("", "", "31-60 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response1.Item1);
+
+            var Response2 = Facade.GetEPODODurationReport("", "", ">60 hari", null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response2.Item1);
+
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_POEDODuration_Excel()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+            await facade.Create(data, USERNAME);
+            var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GenerateExcelEPODODuration("", "", "0-30 hari", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+            var Response1 = Facade.GenerateExcelEPODODuration("", "", ">60 hari", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+        }
+
+		//OVER BUDGET
+		[Fact]
+		public async void Should_Success_Get_Report_POOverBudget_Data()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GetEPOOverBudgetReport(null,null,null,null,null,null,1,25,"{}",7);
+			Assert.NotNull(Response.Item1);
+
+		}
+
+		[Fact]
+		public async void Should_Success_Get_Report_POOverBudget_Excel()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GenerateExcelEPOOverBudget(null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+		}
+	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -7,11 +8,13 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryOrderControllers
 {
@@ -221,7 +224,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
-                validateService.Validate(ViewModel);
+                var vmString = JsonConvert.SerializeObject(ViewModel);
+                var vmValidation = JsonConvert.DeserializeObject<GarmentDeliveryOrderViewModel>(vmString);
+
+                foreach (var vmItem in vmValidation.items)
+                {
+                    vmItem.fulfillments = vmItem.fulfillments.Where(s => s.isSave).ToList();
+                }
+
+                validateService.Validate(vmValidation);
 
                 var model = mapper.Map<GarmentDeliveryOrder>(ViewModel);
 
@@ -299,5 +310,280 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             }
         }
 
+        [HttpGet("correction-note-quantity")]
+        public IActionResult GetForCorrectionNoteQuantity(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var result = facade.ReadForCorrectionNoteQuantity(page, size, order, keyword, filter);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        #region MONITORING ARRIVAL
+        [HttpGet("arrivalReport")]
+        public IActionResult GetReport(string category, DateTime? dateFrom, DateTime? dateTo, string garmentCategory, string productCode)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+
+            List<GarmentCategoryViewModel> gCategory = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(garmentCategory);
+
+            //try
+            //{
+                var data = facade.GetReportHeaderAccuracyofArrival(category, dateFrom, dateTo, gCategory, productCode, offset);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
+        }
+        [HttpGet("arrivalReport/download")]
+        public IActionResult GetXlsArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, string garmentCategory, string productCode)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                List<GarmentCategoryViewModel> gCategory = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(garmentCategory);
+
+                var xls = facade.GenerateExcelArrivalHeader(category, dateFrom, dateTo, gCategory, productCode, offset);
+
+                if (category == "")
+                {
+                    category = "Bahan Baku dan Bahan Pendukung";
+                }
+
+                string filename = String.Format($"Monitoring Ketepatan Kedatangan {category} - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("arrivalReportDetail")]
+        public IActionResult GetReportDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, string garmentCategory, string productCode)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+
+            List<GarmentCategoryViewModel> gCategory = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(garmentCategory);
+
+            //try
+            //{
+                var data = facade.GetReportDetailAccuracyofArrival(supplier, category, dateFrom, dateTo, gCategory, productCode, offset);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
+        }
+        [HttpGet("arrivalReportDetail/download")]
+        public IActionResult GetXlsArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, string garmentCategory, string productCode)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                List<GarmentCategoryViewModel> gCategory = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(garmentCategory);
+
+                var xls = facade.GenerateExcelArrivalDetail(supplier, category, dateFrom, dateTo, gCategory, productCode, offset);
+
+                if (category == "")
+                {
+                    category = "Bahan Baku dan Bahan Pendukung";
+                }
+
+                string filename = String.Format($"Monitoring Detail Ketepatan Kedatangan {category} - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        #endregion
+
+        #region MONITORING DELIVERY
+        [HttpGet("deliveryReport")]
+        public IActionResult GetReport2(DateTime? dateFrom, DateTime? dateTo, string productCode)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+
+            //try
+            //{
+                var data = facade.GetReportHeaderAccuracyofDelivery(dateFrom, dateTo, productCode, offset);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
+        }
+        [HttpGet("deliveryReport/download")]
+        public IActionResult GetXlsDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, string productCode)
+        {
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = facade.GenerateExcelDeliveryHeader(dateFrom, dateTo, productCode, offset);
+
+                string filename = String.Format($"Monitoring Ketepatan Pengiriman - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("deliveryReportDetail")]
+        public IActionResult GetReportDetail2(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+
+            //try
+            //{
+                var data = facade.GetReportDetailAccuracyofDelivery(supplier, dateFrom, dateTo, productCode, offset);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            //}
+            //catch (Exception e)
+            //{
+            //    Dictionary<string, object> Result =
+            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+            //        .Fail();
+            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            //}
+        }
+        [HttpGet("deliveryReportDetail/download")]
+        public IActionResult GetXlsDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode)
+        {
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = facade.GenerateExcelDeliveryDetail(supplier, dateFrom, dateTo, productCode, offset);
+
+                string filename = String.Format($"Monitoring Detail Ketepatan Pengiriman - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        #endregion
     }
 }

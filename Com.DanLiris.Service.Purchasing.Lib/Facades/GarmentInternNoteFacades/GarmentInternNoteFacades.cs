@@ -49,21 +49,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                     foreach (var item in m.Items)
                     {
+                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                        if (garmentInvoice != null)
+                            garmentInvoice.HasInternNote = true;
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
-                            GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.GarmentEPOId == detail.EPOId);
-                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == eksternalPurchaseOrderItem.POId);
-                            GarmentInternalPurchaseOrderItem internalpurchaseorderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(p => p.GPOId.Equals(internalPurchaseOrder.Id));
-                            detail.UnitId = internalPurchaseOrder.UnitId;
-                            detail.UnitCode = internalPurchaseOrder.UnitCode;
-                            detail.UnitName = internalPurchaseOrder.UnitName;
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.RONo.Equals(detail.RONo));
+                            if (internalPurchaseOrder != null)
+                            {
+                                detail.UnitId = internalPurchaseOrder.UnitId;
+                                detail.UnitCode = internalPurchaseOrder.UnitCode;
+                                detail.UnitName = internalPurchaseOrder.UnitName;
+                            }
+                            if (garmentDeliveryOrder!=null)
+                            {
+                                garmentDeliveryOrder.InternNo = m.INNo;
+                            }
                             EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                         }
-                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                        garmentInvoice.HasInternNote = true;
-
-                        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                     }
 
                     this.dbSet.Add(m);
@@ -97,14 +102,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     EntityExtension.FlagForDelete(model, username, USER_AGENT);
                     foreach (var item in model.Items)
                     {
-                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
-
                         GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                        garmentInvoice.HasInternNote = false;
-
-                        EntityExtension.FlagForUpdate(item, username, USER_AGENT);
+                        
+                        if (garmentInvoice != null)
+                        {
+                            garmentInvoice.HasInternNote = false;
+                        }
+                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
                         foreach (var detail in item.Details)
                         {
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            if (garmentDeliveryOrder!=null)
+                            {
+                                garmentDeliveryOrder.InternNo = null;
+                            }
                             EntityExtension.FlagForDelete(detail, username, USER_AGENT);
                         }
                     }
@@ -199,7 +210,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             {
                                 GarmentInternNoteItem dataItem = dbContext.GarmentInternNoteItems.FirstOrDefault(prop => prop.Id.Equals(itemId));
                                 EntityExtension.FlagForDelete(dataItem, user, USER_AGENT);
+                                var Details = dbContext.GarmentInternNoteDetails.Where(prop => prop.GarmentItemINId.Equals(itemId)).ToList();
+                                GarmentInvoice garmentInvoices = dbContext.GarmentInvoices.FirstOrDefault(s => s.Id.Equals(dataItem.InvoiceId));
+                                if (garmentInvoices != null)
+                                {
+                                    garmentInvoices.HasInternNote = false;
+                                }
+                                foreach (GarmentInternNoteDetail detail in Details)
+                                {
+                                    GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                                    garmentDeliveryOrder.InternNo = null;
 
+                                    EntityExtension.FlagForDelete(detail, user, USER_AGENT);
+                                }
                             }
                             else
                             {
@@ -212,34 +235,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 if (item.Id <= 0)
                                 {
                                     GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                                    
                                     if (garmentInvoice != null)
                                         garmentInvoice.HasInternNote = true;
                                     EntityExtension.FlagForCreate(item, user, USER_AGENT);
                                 }
                                 else
                                 {
-                                    GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-
-                                    if (garmentInvoice != null)
-                                        garmentInvoice.HasInternNote = false;
                                     EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                                 }
+                                
                                 foreach (GarmentInternNoteDetail detail in item.Details)
                                 {
                                     if (item.Id <= 0)
                                     {
+                                        GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.RONo == detail.RONo);
+                                        if (internalPurchaseOrder != null)
+                                        {
+                                            detail.UnitId = internalPurchaseOrder.UnitId;
+                                            detail.UnitCode = internalPurchaseOrder.UnitCode;
+                                            detail.UnitName = internalPurchaseOrder.UnitName;
+                                        }
+                                        if (garmentDeliveryOrder != null)
+                                        {
+                                            garmentDeliveryOrder.InternNo = m.INNo;
+                                        }
                                         EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                                     }
                                     else
                                     {
-                                        GarmentExternalPurchaseOrderItem eksternalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.GarmentEPOId == detail.EPOId);
-                                        GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id == eksternalPurchaseOrderItem.POId);
-                                        GarmentInternalPurchaseOrderItem internalpurchaseorderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(p => p.GPOId.Equals(internalPurchaseOrder.Id));
-                                        detail.UnitId = internalPurchaseOrder.UnitId;
-                                        detail.UnitCode = internalPurchaseOrder.UnitCode;
-                                        detail.UnitName = internalPurchaseOrder.UnitName;
-
                                         EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
                                     }
                                 }

@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -58,11 +59,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
 
         private Mock<IServiceProvider> GetServiceProvider()
         {
-            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
             var HttpClientService = new Mock<IHttpClientService>();
+            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+
+            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":{\"_id\":1,\"_deleted\":false,\"_active\":false,\"_createdDate\":\"2018-06-21T01:57:47.6772924\",\"_createdBy\":\"\",\"_createAgent\":\"\",\"_updatedDate\":\"2018-06-21T01:57:47.6772924\",\"_updatedBy\":\"\",\"_updateAgent\":\"\",\"code\":\"A001\",\"name\":\"ADI KARYA. UD\",\"address\":\"JL.JAMBU,JAJAR,SOLO\",\"contact\":\"\",\"PIC\":\"\",\"import\":true,\"NPWP\":\"\",\"serialNumber\":\"\"}}");
+            string supplierUri = "master/garment-suppliers";
             HttpClientService
-                .Setup(x => x.GetAsync(It.IsAny<string>()))
+                .Setup(x => x.GetAsync(It.IsRegex( $"^{APIEndpoint.Core}{supplierUri}")))
+                .ReturnsAsync(message);
+
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(HttpClientService.Object);
+
+            return serviceProvider;
+        }
+        private Mock<IServiceProvider> GetServiceProviderDO()
+        {
+            var HttpClientService = new Mock<IHttpClientService>();
+            HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+
+            message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+            string gCurrencyUri = "master/garment-currencies";
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsRegex($"^{APIEndpoint.Core}{gCurrencyUri}")))
                 .ReturnsAsync(message);
 
             var serviceProvider = new Mock<IServiceProvider>();
@@ -77,6 +102,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             return serviceProvider;
         }
 
+
         private GarmentCorrectionNoteQuantityDataUtil dataUtil(GarmentCorrectionNoteQuantityFacade facade, string testName)
         {
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
@@ -88,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
             var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
-            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(testName));
+            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
             return new GarmentCorrectionNoteQuantityDataUtil(facade, garmentDeliveryOrderDataUtil);
@@ -120,6 +146,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(data,false, USERNAME);
             Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Create_Data_With_Tax()
+        {
+            var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var Response = await facade.Create(data,false,USERNAME);
+            Assert.NotEqual(Response, 0);
+
+            var data2nd = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var Response2nd = await facade.Create(data2nd,false,USERNAME);
+            Assert.NotEqual(Response2nd, 0);
         }
 
         [Fact]
@@ -167,6 +206,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             GarmentCorrectionNote data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.ReadByDOId((int)data.DOId);
             Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Koreksi_Harga_Jumlah()
+        {
+            GarmentCorrectionNoteViewModel viewModel = new GarmentCorrectionNoteViewModel
+            {
+                CorrectionType = "Jumlah",
+                DONo = "DONo",
+                Items = new List<GarmentCorrectionNoteItemViewModel>
+                {
+                    new GarmentCorrectionNoteItemViewModel
+                    {
+                        Quantity = 0
+                    },
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
         }
     }
 }

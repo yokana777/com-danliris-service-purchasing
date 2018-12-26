@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
     {
         public string invoiceNo { get; set; }
         public SupplierViewModel supplier { get; set; }
-        public DateTimeOffset invoiceDate { get; set; }
+        public DateTimeOffset? invoiceDate { get; set; }
         public CurrencyViewModel currency { get; set; }
         public string vatNo { get; set; }
         public string incomeTaxNo { get; set; }
@@ -47,7 +47,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			if (invoiceDate.Equals(DateTimeOffset.MinValue) || invoiceDate == null)
 			{
 				yield return new ValidationResult("Date is required", new List<string> { "invoiceDate" });
-			}
+			} 
+            else if(invoiceDate > DateTimeOffset.Now.Date)
+            {
+                yield return new ValidationResult("Date should not be more than today", new List<string> { "invoiceDate" });
+            }
 			if ( currency == null)
 			{
 				yield return new ValidationResult("Currency is required", new List<string> { "currency" });

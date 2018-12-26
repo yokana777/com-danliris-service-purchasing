@@ -7,7 +7,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
@@ -29,6 +29,8 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -37,8 +39,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         private const string ENTITY = "GarmentUnitReceiptNote";
 
         private const string USERNAME = "Unit Test";
+		private IServiceProvider ServiceProvider { get; set; }
 
-        private IServiceProvider GetServiceProvider() {
+		private IServiceProvider GetServiceProvider() {
             HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
 
@@ -52,11 +55,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
                 .Returns(new GarmentUnitReceiptNoteViewModel {
                     Id = 1,
+                    DOId = 1,
+                    Supplier = new SupplierViewModel(),
+                    Unit = new UnitViewModel(),
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
-                        new GarmentUnitReceiptNoteItemViewModel()
+                        new GarmentUnitReceiptNoteItemViewModel {
+                            Product = new GarmentProductViewModel(),
+                            Uom = new UomViewModel()
+                        }
                     }
                 });
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentDeliveryOrder());
 
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
@@ -68,6 +82,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IMapper)))
                 .Returns(mapper.Object);
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
+                .Returns(mockGarmentDeliveryOrderFacade.Object);
+
 
             return serviceProviderMock.Object;
         }
@@ -110,7 +128,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil);
         }
 
-        [Fact]
+		private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+		{
+			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+			var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+			var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+			var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+			var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+			var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+		}
+		[Fact]
         public async void Should_Success_Get_All_Data()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -129,10 +160,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
-        public void Should_Success_Generate_Pdf()
+        public async void Should_Success_Generate_Pdf()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var Response = facade.GeneratePdf(new GarmentUnitReceiptNoteViewModel());
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var dataViewModel = facade.ReadById((int)data.Id);
+            var Response = facade.GeneratePdf(dataViewModel);
             Assert.IsType<MemoryStream>(Response);
         }
 
@@ -161,15 +194,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), dbContext);
 
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            dbContext.Entry(data).State = EntityState.Detached;
-            foreach (var item in data.Items)
-            {
-                dbContext.Entry(item).State = EntityState.Detached;
-            }
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var data = await dataUtil.GetTestDataWithStorage();
 
-            var Response = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(Response, 0);
+            dataUtil.SetDataWithStorage(data);
+            var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseUpdateStorage, 0);
+
+            // Create Storage based on UnitId that contain longTick on create DataUtil
+            dataUtil.SetDataWithStorage(data, data.UnitId);
+            var ResponseRestoreStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseRestoreStorage, 0);
+
+            data.IsStorage = false;
+            var ResponseDeleteStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseDeleteStorage, 0);
+
+            dataUtil.SetDataWithStorage(data);
+            var ResponseAddStorage = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseAddStorage, 0);
         }
 
         [Fact]
@@ -229,6 +272,66 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 }
             };
             Assert.True(viewModelCheckItems.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelCheckItemsConvertion = new GarmentUnitReceiptNoteViewModel
+            {
+                DOId = 1,
+                Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                {
+                    new GarmentUnitReceiptNoteItemViewModel
+                    {
+                        Uom = new UomViewModel
+                        {
+                            Id = "1"
+                        },
+                        SmallUom = new UomViewModel
+                        {
+                            Id = "1"
+                        },
+                        Conversion = 10
+                    }
+                }
+            };
+            Assert.True(viewModelCheckItemsConvertion.Validate(null).Count() > 0);
         }
-    }
+		//monitoring
+		[Fact]
+		public async void Should_Success_Get_Report_Data()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var uFacade= new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var datas = dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
+			var Responses = await uFacade.Create(datas);
+			Assert.NotEqual(Responses, 0);
+			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.NotEqual(Response.Item2, 0);
+
+			var Response1 = Facade.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.NotNull(Response1.Item1);
+
+
+		}
+
+		[Fact]
+		public async void Should_Success_Get_Report_Excel()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var uFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var datas = dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
+			var Responses = await uFacade.Create(datas);
+			Assert.NotEqual(Responses, 0);
+			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response = Facade.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.NotEqual(Response.Item2, 0);
+
+			var Response1 = Facade.GenerateExcel(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+		}
+
+	}
 }

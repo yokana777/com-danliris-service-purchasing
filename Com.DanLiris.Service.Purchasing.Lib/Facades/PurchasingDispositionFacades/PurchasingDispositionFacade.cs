@@ -1,6 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.Moonlay.Models;
@@ -10,7 +9,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades
@@ -39,6 +37,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
 
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary);
             Query = Query
                 .Select(s => new PurchasingDisposition
                 {
@@ -54,21 +57,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     ConfirmationOrderNo = s.ConfirmationOrderNo,
                     InvoiceNo = s.InvoiceNo,
                     PaymentMethod = s.PaymentMethod,
-                    PaymentDueDate=s.PaymentDueDate,
+                    PaymentDueDate = s.PaymentDueDate,
                     CreatedBy = s.CreatedBy,
                     LastModifiedUtc = s.LastModifiedUtc,
-                    CreatedUtc=s.CreatedUtc,
-                    Items = s.Items.ToList()
+                    CreatedUtc = s.CreatedUtc,
+                    Amount = s.Amount,
+                    Calculation = s.Calculation,
+                    Investation = s.Investation,
+                    Position = s.Position,
+                    ProformaNo = s.ProformaNo,
+                    Remark = s.Remark,
+                    UId = s.UId,
+                    Items = s.Items.Select(x => new PurchasingDispositionItem()
+                    {
+                        EPOId = x.EPOId,
+                        EPONo = x.EPONo,
+                        Id = x.Id,
+                        IncomeTaxId = x.IncomeTaxId,
+                        IncomeTaxName = x.IncomeTaxName,
+                        IncomeTaxRate = x.IncomeTaxRate,
+                        UseVat = x.UseVat,
+                        UseIncomeTax = x.UseIncomeTax,
+                        UId = x.UId,
+                        Details = x.Details.Select(y => new PurchasingDispositionDetail()
+                        {
+                            CategoryCode = y.CategoryCode,
+                            UId = y.UId,
+                            CategoryId = y.CategoryId,
+                            CategoryName = y.CategoryName,
+                            DealQuantity = y.DealQuantity,
+                            DealUomId = y.DealUomId,
+                            DealUomUnit = y.DealUomUnit,
+                            DivisionCode = y.DivisionCode,
+                            DivisionId = y.DivisionId,
+                            DivisionName = y.DivisionName,
+                            Id = y.Id,
+                            PaidPrice = y.PaidPrice,
+                            PaidQuantity = y.PaidQuantity,
+                            PricePerDealUnit = y.PricePerDealUnit,
+                            PriceTotal = y.PriceTotal,
+                            PRId = y.PRId,
+                            PRNo = y.PRNo,
+                            ProductCode = y.ProductCode,
+                            ProductId = y.ProductId,
+                            ProductName = y.ProductName,
+                            PurchasingDispositionItem = y.PurchasingDispositionItem,
+                            PurchasingDispositionItemId = y.PurchasingDispositionItemId,
+                            UnitCode = y.UnitCode,
+                            UnitId = y.UnitId,
+                            UnitName = y.UnitName
+                        }).ToList()
+                    }).ToList()
                 });
-
-
-
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary);
-
             Pageable<PurchasingDisposition> pageable = new Pageable<PurchasingDisposition>(Query, Page - 1, Size);
             List<PurchasingDisposition> Data = pageable.Data.ToList<PurchasingDisposition>();
             int TotalData = pageable.TotalCount;
@@ -124,10 +164,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
         async Task<string> GenerateNo(PurchasingDisposition model, int clientTimeZoneOffset)
         {
             DateTimeOffset Now = DateTime.UtcNow;
-            string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); ;
-            string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); ;
+            string Year = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy"); 
+            string Month = Now.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM"); 
 
-            string no = $"{Year}-{Month}-";
+            string no = $"{Year}-{Month}-T";
             int Padding = 3;
 
             var lastNo = await this.dbSet.Where(w => w.DispositionNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.DispositionNo).FirstOrDefaultAsync();
@@ -227,7 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                         //epoDetail.DispositionQuantity += detail.PaidQuantity;
                                         EntityExtension.FlagForCreate(detail, user, "Facade");
                                     }
-                                    
+
                                 }
                             }
                             else
@@ -253,7 +293,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                     //                    epoDetail.DispositionQuantity += detail.PaidQuantity;
                                     //                    EntityExtension.FlagForCreate(duplicateDetail, user, "Facade");
                                     //                    item.Details.Add(duplicateDetail);
-                                                        
+
                                     //                }
                                     //            }
                                     //            purchasingDisposition.Items.Remove(duplicateItem);
@@ -284,12 +324,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                             if (newItem == null)
                             {
                                 EntityExtension.FlagForDelete(existingItem, user, "Facade");
-                                
+
                                 this.dbContext.PurchasingDispositionItems.Update(existingItem);
                                 foreach (var existingDetail in existingItem.Details)
                                 {
                                     EntityExtension.FlagForDelete(existingDetail, user, "Facade");
-                                    
+
                                     this.dbContext.PurchasingDispositionDetails.Update(existingDetail);
                                 }
                             }
@@ -301,7 +341,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                     if (newDetail == null)
                                     {
                                         EntityExtension.FlagForDelete(existingDetail, user, "Facade");
-                                        
+
                                         this.dbContext.PurchasingDispositionDetails.Update(existingDetail);
 
                                     }
@@ -395,15 +435,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false && (s.Position==1||s.Position==6));
-            
+                .ThenInclude(i => i.Details).Where(s => s.IsDeleted == false && (s.Position == 1 || s.Position == 6));
+
             return Query;
         }
 
         public async Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user)
         {
             int updated = 0;
-            using(var transaction = dbContext.Database.BeginTransaction())
+            using (var transaction = dbContext.Database.BeginTransaction())
             {
                 foreach (var dispositionNo in data.PurchasingDispositionNoes)
                 {
@@ -411,12 +451,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                     purchasingDisposition.Position = (int)data.Position;
                     EntityExtension.FlagForUpdate(purchasingDisposition, user, "Facade");
-                    
+
                 }
                 updated = await dbContext.SaveChangesAsync();
                 transaction.Commit();
             }
             return updated;
+        }
+
+        public List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data)
+        {
+            foreach(var purchasingDisposition in data)
+            {
+                foreach(var item in purchasingDisposition.Items)
+                {
+                    foreach(var detail in item.Details)
+                    {
+                        detail.TotalPaidPrice = dbContext.PurchasingDispositionDetails.Where(x => x.ProductId == detail.Product._id && x.PRId == detail.PRId).Sum(x => x.PaidPrice);
+                    }
+                }
+            }
+            return data;
         }
     }
 }

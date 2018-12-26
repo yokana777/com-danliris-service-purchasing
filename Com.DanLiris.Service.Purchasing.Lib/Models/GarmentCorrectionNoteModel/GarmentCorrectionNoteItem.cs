@@ -37,7 +37,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel
         [MaxLength(1000)]
         public string UomIUnit { get; set; }
 
+        [Column(TypeName = "decimal(38, 20)")]
         public decimal PricePerDealUnitBefore { get; set; }
+        [Column(TypeName = "decimal(38, 20)")]
         public decimal PricePerDealUnitAfter { get; set; }
         public decimal PriceTotalBefore { get; set; }
         public decimal PriceTotalAfter { get; set; }

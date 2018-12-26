@@ -74,10 +74,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 var Data = facade.Read(page, size, order, keyword, filter);
 
                 var viewModel = mapper.Map<List<PurchasingDispositionViewModel>>(Data.Item1);
-
+                var newData = facade.GetTotalPaidPrice(viewModel);
                 List<object> listData = new List<object>();
                 listData.AddRange(
-                    viewModel.AsQueryable().Select(s => new
+                    newData.AsQueryable().Select(s => new
                     {
                         s.DispositionNo,
                         s.Id,
@@ -87,10 +87,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.InvoiceNo,
                         s.PaymentMethod,
                         s.CreatedBy,
+                        s.Calculation,
+                        s.Investation,
+                        s.Remark,
+                        s.ProformaNo,
+                        s.Amount,
                         s.Currency,
                         s.LastModifiedUtc,
                         s.CreatedUtc,
                         s.PaymentDueDate,
+                        s.Position,
                         s.Items
                     }).ToList()
                 );

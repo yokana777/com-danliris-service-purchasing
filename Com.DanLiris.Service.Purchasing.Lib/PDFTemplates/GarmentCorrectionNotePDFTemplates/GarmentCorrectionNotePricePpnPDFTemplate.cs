@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNotePDFTemplates
 {
-    public class GarmentCorrectionNotePpnPDFTemplate
+    public class GarmentCorrectionNotePricePpnPDFTemplate
     {
         public static MemoryStream Generate(GarmentCorrectionNote model, IServiceProvider serviceProvider, int clientTimeZoneOffset = 7, string userName = "")
         {
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             tableIdentityLeft.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("No. Nota Pajak", normal_font);
             tableIdentityLeft.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   {invoice.VatNo}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {model.NKPN}", normal_font);
             tableIdentityLeft.AddCell(cellLeftNoBorder);
 
             PdfPTable tableIdentityRight = new PdfPTable(2);
@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
             #region TableContent
 
-            var columnHeaders = new List<string> { "No. Surat Jalan", "Tgl. Surat Jalan", "Tgl. Jatuh Tempo", "No. Invoice", "Nama Barang", $"Total PPH ({model.CurrencyCode})" };
+            var columnHeaders = new List<string> { "No. Surat Jalan", "Tgl. Surat Jalan", "Tgl. Jatuh Tempo", "No. Invoice", "Nama Barang", $"Total PPN ({model.CurrencyCode})" };
 
             PdfPTable tableContent = new PdfPTable(columnHeaders.Count);
             tableContent.SetWidths(new float[] { 1.1f, 1.2f, 1f, 1f, 1.1f, 1.2f });
@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             }
 
             Dictionary<string, decimal> dictionaryUnitAmount = new Dictionary<string, decimal>();
-            var totalAmountPPH = 0m;
+            var totalAmountPPN = 0m;
             foreach (var item in model.Items)
             {
                 var deliveryOrderItem = deliveryOrder.Items.First(i => i.Details.Any(d => d.Id == item.DODetailId));
@@ -122,24 +122,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 cellLeft.Phrase = new Phrase(deliveryOrder.DODate.AddDays(deliveryOrderItem.PaymentDueDays).ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase(invoice.InvoiceNo, normal_font);
-                tableContent.AddCell(cellLeft);
+                if (invoice!=null)
+                {
+                    cellLeft.Phrase = new Phrase(invoice.InvoiceNo, normal_font);
+                    tableContent.AddCell(cellLeft);
+                }
+                else
+                {
+                    cellLeft.Phrase = new Phrase("", normal_font);
+                    tableContent.AddCell(cellLeft);
+                }
 
                 cellLeft.Phrase = new Phrase(item.ProductName, normal_font);
                 tableContent.AddCell(cellLeft);
 
-                decimal totalPPH;
+                decimal totalPPN;
                 if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
                 {
-                    totalPPH = (item.PriceTotalAfter - item.PriceTotalBefore) / 100;
+                    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) / 10;
                 }
                 else
                 {
-                    totalPPH = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 100;
+                    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 10;
                 }
-                totalAmountPPH += totalPPH;
+                totalAmountPPN += totalPPN;
 
-                cellRight.Phrase = new Phrase(totalPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
+                cellRight.Phrase = new Phrase(totalPPN.ToString("n", new CultureInfo("id-ID")), normal_font);
                 tableContent.AddCell(cellRight);
             }
 
@@ -149,16 +157,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 Padding = 5, Colspan = columnHeaders.Count - 1
             };
 
-            cellRightMerge.Phrase = new Phrase($"Total PPH ({model.CurrencyCode})", normal_font);
+            cellRightMerge.Phrase = new Phrase($"Total PPN ({model.CurrencyCode})", normal_font);
             tableContent.AddCell(cellRightMerge);
 
-            cellRight.Phrase = new Phrase(totalAmountPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
+            cellRight.Phrase = new Phrase(totalAmountPPN.ToString("n", new CultureInfo("id-ID")), normal_font);
             tableContent.AddCell(cellRight);
 
-            cellRightMerge.Phrase = new Phrase("Total PPH (IDR)", normal_font);
+            cellRightMerge.Phrase = new Phrase("Total PPN (IDR)", normal_font);
             tableContent.AddCell(cellRightMerge);
 
-            cellRight.Phrase = new Phrase((totalAmountPPH * (decimal)deliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID")), normal_font);
+            cellRight.Phrase = new Phrase((totalAmountPPN * (decimal)deliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID")), normal_font);
             tableContent.AddCell(cellRight);
 
             PdfPCell cellContent = new PdfPCell(tableContent);

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewModels
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels
 {
     public class GarmentUnitReceiptNoteViewModel : BaseViewModel, IValidatableObject
     {
@@ -82,13 +82,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteViewM
                     if (item.ReceiptQuantity <= 0)
                     {
                         itemErrorCount++;
-                        itemError += "ReceiptQuantity: 'ReceiptQuantity harus lebih dari 0', ";
+                        itemError += "ReceiptQuantity: 'Jumlah harus lebih dari 0', ";
                     }
 
                     if (item.Conversion <= 0)
                     {
                         itemErrorCount++;
-                        itemError += "Conversion: 'Conversion harus lebih dari 0', ";
+                        itemError += "Conversion: 'Konversi harus lebih dari 0', ";
+                    }
+                    else if(item.Uom.Id == item.SmallUom.Id && item.Conversion != 1)
+                    {
+                        itemErrorCount++;
+                        itemError += "Conversion: 'Satuan sama, Konversi harus 1', ";
                     }
 
                     if (string.IsNullOrWhiteSpace(item.DesignColor))

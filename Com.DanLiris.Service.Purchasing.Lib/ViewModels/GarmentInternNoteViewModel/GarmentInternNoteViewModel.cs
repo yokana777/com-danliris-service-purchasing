@@ -46,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                 bool? prevUseIncomeTax= null;
                 bool? prevUseVat = null;
                 string paymentMethod = "";
+                long? IncomeTaxId = null;
 
                 foreach (var item in items)
                 {
@@ -71,6 +72,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                             itemError += "usevat: 'UseVat harus sama', ";
                         }
                         prevUseVat = invoice.UseVat;
+                        if (IncomeTaxId != null && IncomeTaxId != invoice.IncomeTaxId)
+                        {
+                            itemErrorCount++;
+                            itemError += "incometax: 'Income Tax Harus Sama', ";
+                        }
+                        IncomeTaxId = invoice.IncomeTaxId;
                         if (item.details == null || item.details.Count.Equals(0))
                         {
                             itemErrorCount++;
@@ -84,9 +91,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                             {
                                 detailError += "{";
                                 var deliveryOrder = doFacade.ReadById((int)detail.deliveryOrder.Id);
-                                if (deliveryOrder != null)
+                                var invitem = invoice.Items.First(s => s.InvoiceId == item.garmentInvoice.Id);
+
+                                if (invitem != null)
                                 {
-                                    if (paymentMethod != "" && paymentMethod != deliveryOrder.PaymentMethod)
+                                    if (paymentMethod != "" && paymentMethod != invitem.PaymentMethod)
                                     {
                                         detailErrorCount++;
                                         detailError += "paymentMethod: 'TermOfPayment Harus Sama', ";
