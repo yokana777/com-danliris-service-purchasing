@@ -37,5 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GenerateExcelDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, string productCode, int offset);
         Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofDelivery(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode, int offset);
         MemoryStream GenerateExcelDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode, int offset);
+        Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }

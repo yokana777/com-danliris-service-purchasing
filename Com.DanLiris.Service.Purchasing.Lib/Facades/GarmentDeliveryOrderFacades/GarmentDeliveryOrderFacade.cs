@@ -1417,5 +1417,144 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+
+        public IQueryable<GarmentDeliveryOrderReportViewModel> GetReportQueryDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.GarmentDeliveryOrders
+                         join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
+                         join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
+                        
+                         where a.IsDeleted == false
+                             && i.IsDeleted == false
+                             && j.IsDeleted == false
+                            
+                             && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
+                           
+                            && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
+                            && a.DODate.AddHours(offset).Date >= DateFrom.Date
+                             && a.DODate.AddHours(offset).Date <= DateTo.Date
+                             && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
+                         select new GarmentDeliveryOrderReportViewModel
+                         {
+                             no = a.DONo,
+                             supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
+                             date = a.ArrivalDate,
+                             supplierName = a.SupplierName,
+                             supplierCode = a.SupplierCode,
+                             shipmentNo = a.ShipmentNo,
+                             shipmentType = a.ShipmentType,
+                             createdBy = a.CreatedBy,
+                             doCurrencyCode = a.DOCurrencyCode,
+                             isCustoms = a.IsCustoms,
+                             price = j.PricePerDealUnit,
+                             ePONo = i.EPONo,
+                             productCode = j.ProductCode,
+                             productName = j.ProductName,
+                             productRemark = j.ProductRemark,
+                             prRefNo = j.POSerialNumber,
+                             roNo = j.RONo,
+                             prNo = j.PRNo,
+                             remark = a.Remark,
+                             dOQuantity = j.DOQuantity,
+                             dealQuantity = j.DealQuantity,
+                             uomUnit = j.UomUnit,
+                             createdUtc = j.CreatedUtc,
+                           
+                         });
+            Dictionary<string, double> q = new Dictionary<string, double>();
+            List<GarmentDeliveryOrderReportViewModel> urn = new List<GarmentDeliveryOrderReportViewModel>();
+            foreach (GarmentDeliveryOrderReportViewModel data in Query.ToList())
+            {
+                double value;
+                if (q.TryGetValue(data.productCode + data.ePONo + data.ePODetailId, out value))
+                {
+                    q[data.productCode + data.ePONo + data.ePODetailId] -= data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
+                    urn.Add(data);
+                }
+                else
+                {
+                    q[data.productCode + data.ePONo + data.ePODetailId] = data.remainingQuantity - data.dOQuantity;
+                    data.remainingQuantity = q[data.productCode + data.ePONo + data.ePODetailId];
+                    urn.Add(data);
+                }
+            }
+            return Query = urn.AsQueryable();
+        }
+
+
+        public Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+
+        {
+            var Query = GetReportQueryDO(no, poEksNo, supplierId, dateFrom, dateTo, offset);
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.createdUtc);
+            }
+
+
+            Pageable<GarmentDeliveryOrderReportViewModel> pageable = new Pageable<GarmentDeliveryOrderReportViewModel>(Query, page - 1, size);
+            List<GarmentDeliveryOrderReportViewModel> Data = pageable.Data.ToList<GarmentDeliveryOrderReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQueryDO(no, poEksNo, supplierId, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.createdUtc);
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Tiba", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jenis Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Pengiriman", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor BL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Dikenakan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Referensi PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Dipesan", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Diterima", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", "", "");
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string date = item.date == null ? "-" : item.date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string supplierDoDate = item.supplierDoDate == new DateTime(1970, 1, 1) ? "-" : item.supplierDoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string dikenakan = item.isCustoms == true ? "Ya" : "Tidak";
+                    string jenissupp = item.shipmentType == "" ? "Local" : "Import";
+                    // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
+                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentType, item.shipmentNo, dikenakan, item.ePONo, item.prNo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.productRemark, item.createdBy);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
     }
 }
