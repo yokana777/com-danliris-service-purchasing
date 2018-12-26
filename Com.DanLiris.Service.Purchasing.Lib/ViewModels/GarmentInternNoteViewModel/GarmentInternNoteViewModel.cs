@@ -46,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                 bool? prevUseIncomeTax= null;
                 bool? prevUseVat = null;
                 string paymentMethod = "";
+                long? IncomeTaxId = 0;
 
                 foreach (var item in items)
                 {
@@ -84,14 +85,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                             {
                                 detailError += "{";
                                 var deliveryOrder = doFacade.ReadById((int)detail.deliveryOrder.Id);
-                                if (deliveryOrder != null)
+                                var invitem = invoice.Items.First(s => s.InvoiceId == item.garmentInvoice.Id);
+
+                                if (invitem != null)
                                 {
-                                    if (paymentMethod != "" && paymentMethod != deliveryOrder.PaymentMethod)
+                                    if (paymentMethod != "" && paymentMethod != invitem.PaymentMethod)
                                     {
                                         detailErrorCount++;
                                         detailError += "paymentMethod: 'TermOfPayment Harus Sama', ";
                                     }
                                     paymentMethod = deliveryOrder.PaymentMethod;
+                                    if (IncomeTaxId != null && IncomeTaxId != invoice.IncomeTaxId)
+                                    {
+                                        detailErrorCount++;
+                                        detailError += "incometax: 'Income Tax Harus Sama', ";
+                                    }
+                                    IncomeTaxId = invoice.IncomeTaxId;
                                 }
 
                                 detailError += "}, ";

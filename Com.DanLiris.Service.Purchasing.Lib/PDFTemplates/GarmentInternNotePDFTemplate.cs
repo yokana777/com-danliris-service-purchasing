@@ -127,6 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             decimal totalcorrection = 0;
             Dictionary<string, double> units = new Dictionary<string, double>();
             units.Add("C1A", 0);
+            units.Add("C1B", 0);
             units.Add("C2A", 0);
             units.Add("C2B", 0);
             units.Add("C2C", 0);

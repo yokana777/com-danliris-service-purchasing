@@ -764,7 +764,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             foreach (var item in Query)
             {
                 var ePODate = new DateTimeOffset(item.poEksCreatedDate.Date, TimeSpan.Zero);
-                var doDate = new DateTimeOffset(item.doCreatedDate.Date, TimeSpan.Zero);
+                var doDate = new DateTimeOffset(item.supplierDoDate.Date, TimeSpan.Zero);
 
                 var datediff = (((TimeSpan)(doDate - ePODate)).Days) + 1;
                 GarmentExternalPurchaseOrderDeliveryOrderDurationReportViewModel _new = new GarmentExternalPurchaseOrderDeliveryOrderDurationReportViewModel
