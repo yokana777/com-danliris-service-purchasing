@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                 bool? prevUseIncomeTax= null;
                 bool? prevUseVat = null;
                 string paymentMethod = "";
-                long? IncomeTaxId = 0;
+                long? IncomeTaxId = null;
 
                 foreach (var item in items)
                 {
