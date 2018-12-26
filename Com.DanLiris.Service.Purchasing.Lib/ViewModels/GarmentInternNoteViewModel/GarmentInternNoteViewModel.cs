@@ -72,6 +72,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                             itemError += "usevat: 'UseVat harus sama', ";
                         }
                         prevUseVat = invoice.UseVat;
+                        if (IncomeTaxId != null && IncomeTaxId != invoice.IncomeTaxId)
+                        {
+                            itemErrorCount++;
+                            itemError += "incometax: 'Income Tax Harus Sama', ";
+                        }
+                        IncomeTaxId = invoice.IncomeTaxId;
                         if (item.details == null || item.details.Count.Equals(0))
                         {
                             itemErrorCount++;
@@ -95,12 +101,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                                         detailError += "paymentMethod: 'TermOfPayment Harus Sama', ";
                                     }
                                     paymentMethod = deliveryOrder.PaymentMethod;
-                                    if (IncomeTaxId != null && IncomeTaxId != invoice.IncomeTaxId)
-                                    {
-                                        detailErrorCount++;
-                                        detailError += "incometax: 'Income Tax Harus Sama', ";
-                                    }
-                                    IncomeTaxId = invoice.IncomeTaxId;
                                 }
 
                                 detailError += "}, ";
