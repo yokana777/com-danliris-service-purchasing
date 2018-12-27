@@ -1,5 +1,6 @@
 
 
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -29,7 +30,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
     public class UnitReceiptNoteFacade : IUnitReceiptNoteFacade
     {
         private string USER_AGENT = "Facade";
-
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<UnitReceiptNote> dbSet;
@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
         }
 
-        public async Task<int> Create(UnitReceiptNote m, string user)
+        public async Task<int> Create(UnitReceiptNote model, string user)
         {
             int Created = 0;
 
@@ -120,12 +120,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             {
                 try
                 {
-                    EntityExtension.FlagForCreate(m, user, "Facade");
+                    EntityExtension.FlagForCreate(model, user, "Facade");
 
-                    m.URNNo = await GenerateNo(m);
-                    if (m.Items != null)
+                    model.URNNo = await GenerateNo(model);
+                    if (model.Items != null)
                     {
-                        foreach (var item in m.Items)
+                        foreach (var item in model.Items)
                         {
 
                             EntityExtension.FlagForCreate(item, user, "Facade");
@@ -162,12 +162,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                         }
                     }
-                    if (m.IsStorage == true)
+                    if (model.IsStorage == true)
                     {
-                        insertStorage(m, user, "IN");
+                        insertStorage(model, user, "IN");
                     }
-                    this.dbSet.Add(m);
+                    this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+                    CreateJournalTransactionUnitReceiptNote(model);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -180,6 +181,114 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Created;
         }
 
+        public void CreateJournalTransactionUnitReceiptNote(UnitReceiptNote model)
+        {
+            var items = new List<JournalTransactionItem>();
+
+            var purchasingItems = new List<JournalTransactionItem>();
+            var stockItems = new List<JournalTransactionItem>();
+            var debtItems = new List<JournalTransactionItem>();
+            var incomeTaxItems = new List<JournalTransactionItem>();
+            foreach (var item in model.Items)
+            {
+                var purchaseRequest = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(item.PRId));
+                var poExternalItem = dbContext.ExternalPurchaseOrderItems.FirstOrDefault(f => f.PRId.Equals(item.PRId));
+                var poExternal = dbContext.ExternalPurchaseOrders.FirstOrDefault(f => f.Id.Equals(poExternalItem.EPOId));
+
+                var purchasingCOACode = "";
+                var stockCOACode = "";
+                var debtCOACode = "";
+                if (purchaseRequest != null)
+                {
+                    purchasingCOACode = COAGenerator.GetPurchasingCOA(purchaseRequest.DivisionName, purchaseRequest.UnitCode, purchaseRequest.CategoryName);
+                    stockCOACode = COAGenerator.GetStockCOA(purchaseRequest.DivisionName, purchaseRequest.UnitCode, purchaseRequest.CategoryName);
+                    debtCOACode = COAGenerator.GetDebtCOA(model.SupplierIsImport, purchaseRequest.DivisionName, purchaseRequest.UnitCode);
+                }
+
+                var journalPurchasingItem = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = purchasingCOACode
+                    },
+                    Debit = item.PricePerDealUnit * item.ReceiptQuantity
+                };
+                purchasingItems.Add(journalPurchasingItem);
+
+                var journalStockItem = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = stockCOACode
+                    },
+                    Debit = item.PricePerDealUnit * item.ReceiptQuantity
+                };
+                stockItems.Add(journalStockItem);
+
+                var journalDebtItem = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = debtCOACode
+                    },
+                    Credit = item.PricePerDealUnit * item.ReceiptQuantity
+                };
+                debtItems.Add(journalDebtItem);
+            }
+
+            purchasingItems = purchasingItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Debit = s.Sum(sum => sum.Debit)
+            }).ToList();
+            items.AddRange(purchasingItems);
+
+            debtItems = debtItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Credit = s.Sum(sum => sum.Credit)
+            }).ToList();
+            items.AddRange(debtItems);
+
+            stockItems = stockItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Debit = s.Sum(sum => sum.Debit)
+            }).ToList();
+            items.AddRange(stockItems);
+
+            var purchasingCreditItems = purchasingItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Credit = s.Sum(sum => sum.Debit)
+            }).ToList();
+            items.AddRange(purchasingCreditItems);
+
+            var modelToPost = new JournalTransaction()
+            {
+                Date = DateTimeOffset.Now,
+                Description = "Bon Terima Unit",
+                ReferenceNo = model.URNNo,
+                Items = items
+            };
+
+            string journalTransactionUri = "journal-transactions";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+        }
 
         public async Task<int> Update(int id, UnitReceiptNote unitReceiptNote, string user)
         {
