@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
-        public ReadResponse Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<GarmentUnitReceiptNote> Query = dbSet;
 
@@ -103,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 s.LastModifiedUtc
             }));
 
-            return new ReadResponse(ListData, TotalData, OrderDictionary);
+            return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
 
         public GarmentUnitReceiptNoteViewModel ReadById(int id)

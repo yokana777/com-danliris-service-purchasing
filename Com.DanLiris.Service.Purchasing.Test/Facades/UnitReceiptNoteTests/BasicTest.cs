@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
@@ -37,8 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async void Should_Success_Get_Data()
         {
             await DataUtil.GetTestData("Unit test");
-            Tuple<List<UnitReceiptNote>, int, Dictionary<string, string>> Response = Facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            ReadResponse<UnitReceiptNote> Response = Facade.Read();
+            Assert.NotEqual(Response.Data.Count, 0);
         }
 
         [Fact]

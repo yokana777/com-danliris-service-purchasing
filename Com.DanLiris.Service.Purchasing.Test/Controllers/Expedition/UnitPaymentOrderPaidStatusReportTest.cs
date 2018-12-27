@@ -25,7 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         {
             Mock<IUnitPaymentOrderPaidStatusReportFacade> mockFacade = new Mock<IUnitPaymentOrderPaidStatusReportFacade>();
             mockFacade.Setup(p => p.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int>()))
-                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
 
             UnitPaymentOrderPaidStatusReportController controller = new UnitPaymentOrderPaidStatusReportController(mockFacade.Object);
             controller.ControllerContext = new ControllerContext()

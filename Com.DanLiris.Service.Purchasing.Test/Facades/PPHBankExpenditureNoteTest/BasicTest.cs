@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            ReadResponse Response = facade.Read();
+            ReadResponse<object> Response = facade.Read();
             Assert.NotEqual(Response.Data.Count, 0);
         }
 

@@ -1,4 +1,7 @@
+
+
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
@@ -6,7 +9,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -24,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 {
-    public class UnitReceiptNoteFacade
+    public class UnitReceiptNoteFacade : IUnitReceiptNoteFacade
     {
         private string USER_AGENT = "Facade";
 
@@ -39,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             this.dbSet = dbContext.Set<UnitReceiptNote>();
         }
 
-        public Tuple<List<UnitReceiptNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse<UnitReceiptNote> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<UnitReceiptNote> Query = this.dbSet;
 
@@ -65,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 Items = s.Items.ToList()
             });
 
-            
+
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<UnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
@@ -77,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             List<UnitReceiptNote> Data = pageable.Data.ToList<UnitReceiptNote>();
             int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData, OrderDictionary);
+            return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
         }
 
         public UnitReceiptNote ReadById(int id)
@@ -87,8 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 .FirstOrDefault();
             return a;
         }
-
-
+        
         async Task<string> GenerateNo(UnitReceiptNote model)
         {
             string Year = model.ReceiptDate.ToString("yy");
@@ -394,7 +395,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
                         doDetail.ReceiptQuantity -= item.ReceiptQuantity;
                         externalPurchaseOrderDetail.ReceiptQuantity -= item.ReceiptQuantity;
-                        if (externalPurchaseOrderDetail.ReceiptQuantity == 0 && upoDetail==null)
+                        if (externalPurchaseOrderDetail.ReceiptQuantity == 0 && upoDetail == null)
                         {
                             if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                             {
@@ -421,7 +422,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                                     //prItem.Status = "Barang sudah diterima Unit semua";
                                     poItem.Status = "Barang sudah diterima Unit semua";
                                 }
-                                else if(externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                else if (externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
                                 {
                                     poItem.Status = "Barang sudah diterima Unit parsial";
                                 }
@@ -446,41 +447,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Deleted;
         }
 
-        public void insertStorage( UnitReceiptNote unitReceiptNote, string user,string type)
+        public void insertStorage(UnitReceiptNote unitReceiptNote, string user, string type)
         {
-                List<object> items =new List<object>();
-                foreach(var item in unitReceiptNote.Items)
+            List<object> items = new List<object>();
+            foreach (var item in unitReceiptNote.Items)
+            {
+                items.Add(new
                 {
-                    items.Add(new {
-                        productId=item.ProductId,
-                        productcode = item.ProductCode,
-                        productname = item.ProductName,
-                        uomId=item.UomId,
-                        uom=item.Uom,
-                        quantity=item.ReceiptQuantity,
-                        remark=item.ProductRemark
-                    });
-                }
-                var data = new
-                {
-                    storageId=unitReceiptNote.StorageId,
-                    storagecode = unitReceiptNote.StorageCode,
-                    storagename = unitReceiptNote.StorageName,
-                    referenceNo=unitReceiptNote.URNNo,
-                    referenceType= "Bon Terima Unit - " + unitReceiptNote.UnitName,
-                    type=type,
-                    remark=unitReceiptNote.Remark,
-                    date=unitReceiptNote.ReceiptDate,
-                    items=items
-                };
-                string inventoryUri = "inventory-documents";
-                IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-                var response = httpClient.PostAsync($"{APIEndpoint.Inventory}{inventoryUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-                response.EnsureSuccessStatusCode();
-                
+                    productId = item.ProductId,
+                    productcode = item.ProductCode,
+                    productname = item.ProductName,
+                    uomId = item.UomId,
+                    uom = item.Uom,
+                    quantity = item.ReceiptQuantity,
+                    remark = item.ProductRemark
+                });
+            }
+            var data = new
+            {
+                storageId = unitReceiptNote.StorageId,
+                storagecode = unitReceiptNote.StorageCode,
+                storagename = unitReceiptNote.StorageName,
+                referenceNo = unitReceiptNote.URNNo,
+                referenceType = "Bon Terima Unit - " + unitReceiptNote.UnitName,
+                type = type,
+                remark = unitReceiptNote.Remark,
+                date = unitReceiptNote.ReceiptDate,
+                items = items
+            };
+            string inventoryUri = "inventory-documents";
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Inventory}{inventoryUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+
         }
 
-        public Tuple<List<UnitReceiptNote>, int, Dictionary<string, string>> ReadBySupplierUnit(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse<UnitReceiptNote> ReadBySupplierUnit(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<UnitReceiptNote> Query = this.dbSet;
 
@@ -507,7 +509,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             epo.UseIncomeTax == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseIncomeTax") ?? "false") &&
                             string.Concat("", epo.IncomeTaxId).Equals(FilterDictionary.GetValueOrDefault("IncomeTaxId") ?? "") &&
                             epo.UseVat == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseVat") ?? "false") &&
-                            epo.Items.Any(epoItem => 
+                            epo.Items.Any(epoItem =>
                                 dbContext.InternalPurchaseOrders.Any(po =>
                                     po.Id == epoItem.POId &&
                                     po.CategoryId.Equals(FilterDictionary.GetValueOrDefault("CategoryId") ?? "")
@@ -539,10 +541,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             List<UnitReceiptNote> Data = pageable.Data.ToList<UnitReceiptNote>();
             int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData, OrderDictionary);
+            return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
         }
 
-            public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -567,12 +569,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
                              && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
                              && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
-                         orderby  a.ReceiptDate,a.CreatedUtc ascending 
+                         orderby a.ReceiptDate, a.CreatedUtc ascending
                          select new UnitReceiptNoteReportViewModel
                          {
                              urnNo = a.URNNo,
                              prNo = b.PRNo,
-                             epoDetailId=b.EPODetailId,
+                             epoDetailId = b.EPODetailId,
                              category = d.CategoryName,
                              unit = a.DivisionName + " - " + a.UnitName,
                              supplier = a.SupplierName,
@@ -580,10 +582,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              productCode = b.ProductCode,
                              productName = b.ProductName,
                              receiptUom = b.Uom,
-                             receiptQuantity=b.ReceiptQuantity,
+                             receiptQuantity = b.ReceiptQuantity,
                              DealUom = k.DealUomUnit,
                              dealQuantity = k.DealQuantity,
-                             quantity= k.DealQuantity,
+                             quantity = k.DealQuantity,
                              CreatedUtc = b.CreatedUtc
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
@@ -591,7 +593,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             foreach (UnitReceiptNoteReportViewModel data in Query.ToList())
             {
                 double value;
-                if(q.TryGetValue(data.productCode + data.prNo+data.epoDetailId.ToString(), out value))
+                if (q.TryGetValue(data.productCode + data.prNo + data.epoDetailId.ToString(), out value))
                 {
                     q[data.productCode + data.prNo + data.epoDetailId.ToString()] -= data.receiptQuantity;
                     data.quantity = q[data.productCode + data.prNo + data.epoDetailId.ToString()];
@@ -599,30 +601,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 }
                 else
                 {
-                    q[data.productCode + data.prNo + data.epoDetailId.ToString()] = data.quantity- data.receiptQuantity;
+                    q[data.productCode + data.prNo + data.epoDetailId.ToString()] = data.quantity - data.receiptQuantity;
                     data.quantity = q[data.productCode + data.prNo + data.epoDetailId.ToString()];
                     urn.Add(data);
                 }
-                
+
             }
-            return Query=urn.AsQueryable();
+            return Query = urn.AsQueryable();
         }
 
-        public Tuple<List<UnitReceiptNoteReportViewModel>, int> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public ReadResponse<UnitReceiptNoteReportViewModel> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId,  dateFrom, dateTo, offset);
+            var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a=>a.CreatedUtc);
+                Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.CreatedUtc);
             }
 
             Pageable<UnitReceiptNoteReportViewModel> pageable = new Pageable<UnitReceiptNoteReportViewModel>(Query, page - 1, size);
             List<UnitReceiptNoteReportViewModel> Data = pageable.Data.ToList<UnitReceiptNoteReportViewModel>();
             int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData);
+            return new ReadResponse<UnitReceiptNoteReportViewModel>(Data, TotalData, OrderDictionary);
         }
 
         public MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
@@ -656,7 +658,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     index++;
                     string date = item.receiptDate == null ? "-" : item.receiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, item.unit, item.category, item.prNo,  item.productName, item.productCode, item.supplier, date,  item.urnNo, item.dealQuantity,item.DealUom,item.receiptQuantity,item.receiptUom,item.quantity );
+                    result.Rows.Add(index, item.unit, item.category, item.prNo, item.productName, item.productCode, item.supplier, date, item.urnNo, item.dealQuantity, item.DealUom, item.receiptQuantity, item.receiptUom, item.quantity);
                 }
             }
 

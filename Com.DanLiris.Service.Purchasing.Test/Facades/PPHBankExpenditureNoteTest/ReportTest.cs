@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public void Should_Success_Get_Data()
         {
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
-            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, null, null, 0);
+            ReadResponse<object> response = facade.GetReport(1, 25, null, null, null, null, null, null, 0);
 
             Assert.NotEqual(null, response);
         }
@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public void Should_Success_Get_Data_With_Params()
         {
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
-            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", null, null, 0);
+            ReadResponse<object> response = facade.GetReport(1, 25, "", "", "", "", null, null, 0);
 
             Assert.NotEqual(null, response);
         }
@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public void Should_Success_Get_Data_With_Date()
         {
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
-            ReadResponse response = facade.GetReport(1, 25, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
+            ReadResponse<object> response = facade.GetReport(1, 25, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
 
             Assert.NotEqual(null, response);
         }
@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public void Should_Success_Get_Data_With_Date_And_Params()
         {
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
-            ReadResponse response = facade.GetReport(1, 25, "", "", "", "", new DateTimeOffset(), new DateTimeOffset(), 0);
+            ReadResponse<object> response = facade.GetReport(1, 25, "", "", "", "", new DateTimeOffset(), new DateTimeOffset(), 0);
 
             Assert.NotEqual(null, response);
         }

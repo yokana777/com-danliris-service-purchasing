@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport(model.URNNo, "", model.UnitId, "", "", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(Response.TotalData, 0);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport("", "", "", "", "", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(Response.TotalData, 0);
         }
 
         [Fact]
