@@ -217,31 +217,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	Assert.NotEqual(Response.Item2, 0);
         //}
 
-        [Fact]
-        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
-        {
-            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
-            DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
-            UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
-            var DateFrom = DateTime.Now;
-            DateFrom = DateFrom.Date;
-            var DateTo = DateTime.Now;
-            DateTo = DateTo.Date;
-            var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
-        }
-        [Fact]
-        public async void Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
-        {
-            ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
-            DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
-            UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
-            var DateFrom = DateTime.Now;
-            DateFrom = DateFrom.Date;
-            var DateTo = DateTime.Now;
-            DateTo = DateTo.Date;
-            var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
-        }
+        //[Fact]
+        //public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        //{
+        //    ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
+        //    DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
+        //    UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
+        //    var DateFrom = DateTime.Now;
+        //    DateFrom = DateFrom.Date;
+        //    var DateTo = DateTime.Now;
+        //    DateTo = DateTo.Date;
+        //    var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
+        //    Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        //}
+        //[Fact]
+        //public async void Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
+        //{
+        //    ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
+        //    DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
+        //    UnitReceiptNote urn = await DataUtil.GetTestData3("unit-test");
+        //    var DateFrom = DateTime.Now;
+        //    DateFrom = DateFrom.Date;
+        //    var DateTo = DateTime.Now;
+        //    DateTo = DateTo.Date;
+        //    var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
+        //    Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        //}
     }
 }
