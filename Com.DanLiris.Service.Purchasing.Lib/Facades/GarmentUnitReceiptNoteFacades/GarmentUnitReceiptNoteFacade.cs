@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
         public MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote)
         {
-            return GarmentUnitReceiptNotePDFTemplate.GeneratePdfTemplate();
+            return GarmentUnitReceiptNotePDFTemplate.GeneratePdfTemplate(serviceProvider, garmentUnitReceiptNote);
         }
 
         public async Task<int> Create(GarmentUnitReceiptNote garmentUnitReceiptNote)

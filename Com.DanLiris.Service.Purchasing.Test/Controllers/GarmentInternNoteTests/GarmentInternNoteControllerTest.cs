@@ -714,7 +714,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
-                .Returns(new GarmentCorrectionNote());
+                .Returns(new List<GarmentCorrectionNote>());
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]

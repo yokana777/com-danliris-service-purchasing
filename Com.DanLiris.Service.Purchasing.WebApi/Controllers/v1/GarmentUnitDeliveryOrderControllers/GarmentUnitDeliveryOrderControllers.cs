@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -12,26 +12,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceiptNoteControllers
+namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliveryOrderControllers
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/garment-unit-receipt-notes")]
+    [Route("v{version:apiVersion}/garment-unit-delivery-orders")]
     [Authorize]
-    public class GarmentUnitReceiptNoteController : Controller
+    public class GarmentUnitDeliveryOrderControllers : Controller
     {
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
-        private readonly IGarmentUnitReceiptNoteFacade facade;
+        private readonly IGarmentUnitDeliveryOrder facade;
         private readonly IdentityService identityService;
 
-        public GarmentUnitReceiptNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitReceiptNoteFacade facade)
+        public GarmentUnitDeliveryOrderControllers(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitDeliveryOrder facade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
             this.facade = facade;
-            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
@@ -41,20 +41,39 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var model = facade.Read(page, size, order, keyword, filter);
+                var Data = facade.Read(page, size, order, keyword, filter);
+
+                var viewModel = mapper.Map<List<GarmentUnitDeliveryOrderViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    viewModel.AsQueryable().Select(s => new
+                    {
+                        s.Id,
+                        s.UnitDONo,
+                        s.UnitDODate,
+                        s.UnitDOType,
+                        s.RONo,
+                        s.Article,
+                        s.UnitRequest.Name,
+                        s.Storage.name,
+                        s.CreatedBy,
+                        s.LastModifiedUtc
+                    }).ToList()
+                );
 
                 var info = new Dictionary<string, object>
                     {
-                        { "count", model.Data.Count },
-                        { "total", model.TotalData },
-                        { "order", model.Order },
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
                         { "page", page },
                         { "size", size }
                     };
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(model.Data, info);
+                    .Ok(listData, info);
                 return Ok(Result);
             }
             catch (Exception e)
@@ -71,32 +90,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
         {
             try
             {
-                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
-
-                var viewModel = facade.ReadById(id);
+                var model = facade.ReadById(id);
+                var viewModel = mapper.Map<GarmentUnitDeliveryOrderViewModel>(model);
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
                 }
-
-                if (indexAcceptPdf < 0)
-                {
-                    Dictionary<string, object> Result =
-                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                        .Ok(viewModel);
-                    return Ok(Result);
-                }
-                else
-                {
-                    identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
-                    var stream = facade.GeneratePdf(viewModel);
-
-                    return new FileStreamResult(stream, "application/pdf")
-                    {
-                        FileDownloadName = $"{viewModel.URNNo}.pdf"
-                    };
-                }
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(viewModel);
+                return Ok(Result);
             }
             catch (Exception e)
             {
@@ -108,19 +111,54 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]GarmentUnitReceiptNoteViewModel viewModel)
+        public async Task<IActionResult> Post([FromBody]GarmentUnitDeliveryOrderViewModel ViewModel)
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
-                validateService.Validate(viewModel);
 
-                var Model = mapper.Map<GarmentUnitReceiptNote>(viewModel);
+                validateService.Validate(ViewModel);
 
-                await facade.Create(Model);
+                var model = mapper.Map<GarmentUnitDeliveryOrder>(ViewModel);
+
+                await facade.Create(model, identityService.Username);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Created(String.Concat(Request.Path, "/", 0), Result);
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody]GarmentUnitDeliveryOrderViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                validateService.Validate(ViewModel);
+
+                var model = mapper.Map<GarmentUnitDeliveryOrder>(ViewModel);
+
+                await facade.Update(id, model, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -143,58 +181,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]GarmentUnitReceiptNoteViewModel ViewModel)
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute]int id)
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
-                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
-
-                validateService.Validate(ViewModel);
-
-                var model = mapper.Map<GarmentUnitReceiptNote>(ViewModel);
-
-                await facade.Update(id, model);
-
+                facade.Delete(id, identityService.Username);
                 return NoContent();
             }
-            catch (ServiceValidationExeption e)
+            catch (Exception)
             {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
-                    .Fail(e);
-                return BadRequest(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-
-        // tidak dipakai, tidak ada menu hapus
-        //[HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute]int id)
-        {
-            try
-            {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
-                await facade.Delete(id);
-                return NoContent();
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
     }

@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{model.CorrectionNo}-ppn.pdf"
+                        FileDownloadName = $"{model.NKPN}.pdf"
                     };
                 }
             }
@@ -245,7 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"{model.CorrectionNo}-pph.pdf"
+                        FileDownloadName = $"{model.NKPH}.pdf"
                     };
                 }
             }

@@ -101,7 +101,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         garmentCorrectionNote.NKPH = GenerateNKPH("NKPH", garmentCorrectionNote);
                     }
 
-                    garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
+                    if (((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA SATUAN"))
+                    {
+                        garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => (i.PricePerDealUnitAfter - i.PricePerDealUnitBefore) * i.Quantity);
+                    }
+                    else if ((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+                    {
+                        garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter - i.PriceTotalBefore);
+                    }
 
                     var garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.First(d => d.Id == garmentCorrectionNote.DOId);
                     garmentDeliveryOrder.IsCorrection = true;
@@ -211,6 +218,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 return null;
             }
         }
-
     }
 }
