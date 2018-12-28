@@ -322,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         private void ReverseJournalTransaction(string referenceNo)
         {
-            string journalTransactionUri = $"journal-transactions/everse-transactions/{referenceNo}";
+            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();
