@@ -462,6 +462,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
+                        ReverseJournalTransaction(m.URNNo);
+                        CreateJournalTransactionUnitReceiptNote(m);
                         transaction.Commit();
                     }
                     else
@@ -477,6 +479,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
 
             return Updated;
+        }
+
+        private void ReverseJournalTransaction(string referenceNo)
+        {
+            string journalTransactionUri = $"journal-transactions/everse-transactions/{referenceNo}";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
         }
 
         public int Delete(int id, string user)
@@ -544,6 +554,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
 
                     Deleted = dbContext.SaveChanges();
+                    ReverseJournalTransaction(m.URNNo);
                     transaction.Commit();
                 }
                 catch (Exception e)

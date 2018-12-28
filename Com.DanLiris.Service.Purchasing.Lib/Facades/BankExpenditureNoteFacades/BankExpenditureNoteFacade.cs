@@ -193,6 +193,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     DeleteDailyBankTransaction(model.DocumentNo, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     UpdateCreditorAccount(model, identityService);
+                    ReverseJournalTransaction(model.DocumentNo);
+                    CreateJournalTransaction(model, identityService);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -318,6 +320,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             response.EnsureSuccessStatusCode();
         }
 
+        private void ReverseJournalTransaction(string referenceNo)
+        {
+            string journalTransactionUri = $"journal-transactions/everse-transactions/{referenceNo}";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+        }
+
         public async Task<int> Delete(int Id, IdentityService identityService)
         {
             int Count = 0;
@@ -372,6 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Count = await dbContext.SaveChangesAsync();
                     DeleteDailyBankTransaction(bankExpenditureNote.DocumentNo, identityService);
                     DeleteCreditorAccount(bankExpenditureNote, identityService);
+                    ReverseJournalTransaction(bankExpenditureNote.DocumentNo);
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)
