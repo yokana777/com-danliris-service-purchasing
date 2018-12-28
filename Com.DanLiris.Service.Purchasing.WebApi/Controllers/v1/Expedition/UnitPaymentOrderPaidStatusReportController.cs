@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         {
             int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-            ReadResponse response = this.unitPaymentOrderPaidStatusReportFacade.GetReport(Size, Page, Order, UnitPaymentOrderNo, SupplierCode, DivisionCode, Status, DateFrom, DateTo, clientTimeZoneOffset);
+            ReadResponse<object> response = this.unitPaymentOrderPaidStatusReportFacade.GetReport(Size, Page, Order, UnitPaymentOrderNo, SupplierCode, DivisionCode, Status, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

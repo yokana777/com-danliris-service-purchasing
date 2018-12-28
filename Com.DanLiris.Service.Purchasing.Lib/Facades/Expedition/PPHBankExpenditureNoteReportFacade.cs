@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PPHBankExpenditureNote>();
         }
 
-        public ReadResponse GetReport(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public ReadResponse<object> GetReport(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             IQueryable<PPHBankExpenditureNoteReportViewModel> Query;
 
@@ -80,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             Pageable<PPHBankExpenditureNoteReportViewModel> pageable = new Pageable<PPHBankExpenditureNoteReportViewModel>(Query, Page - 1, Size);
             List<object> data = pageable.Data.ToList<object>();
             
-            return new ReadResponse(data, pageable.TotalCount, new Dictionary<string, string>());
+            return new ReadResponse<object>(data, pageable.TotalCount, new Dictionary<string, string>());
         }
     }
 }

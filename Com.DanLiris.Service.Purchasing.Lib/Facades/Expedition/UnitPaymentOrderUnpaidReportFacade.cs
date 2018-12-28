@@ -138,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return list;
         }
 
-        public async Task<ReadResponse> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public async Task<ReadResponse<object>> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             if (!DateFrom.HasValue && !DateTo.HasValue)
             {
@@ -197,7 +197,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             List<UnitPaymentOrderUnpaidViewModel> Data = await pageable.Data.ToDynamicListAsync<UnitPaymentOrderUnpaidViewModel>();
             int TotalData = pageable.TotalCount;
 
-            return new ReadResponse(Data.ToList<object>(), TotalData, OrderDictionary);
+            return new ReadResponse<object>(Data.ToList<object>(), TotalData, OrderDictionary);
         }
 
         public void InsertToMongoUPO(BsonDocument document)

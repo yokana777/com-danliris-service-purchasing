@@ -34,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel
         public string SupplierCode { get; set; }
         [MaxLength(1000)]
         public string SupplierName { get; set; }
+        public bool SupplierIsImport { get; set; }
 
         public long DOId { get; set; }
         public string DONo { get; set; }

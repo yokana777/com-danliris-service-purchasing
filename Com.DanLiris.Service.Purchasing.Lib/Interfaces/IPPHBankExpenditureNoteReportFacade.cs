@@ -7,6 +7,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
     public interface IPPHBankExpenditureNoteReportFacade
     {
-        ReadResponse GetReport(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
+        ReadResponse<object> GetReport(int Size, int Page, string No, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
     }
 }

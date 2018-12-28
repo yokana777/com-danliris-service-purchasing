@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 1, new Dictionary<string, string>()));
             var mockMapper = new Mock<IMapper>();
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
@@ -111,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int>()))
-                .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 1, new Dictionary<string, string>()));
             var mockMapper = new Mock<IMapper>();
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
@@ -130,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.GetAllByPosition(1, int.MaxValue, "{}", null, "{}"))
-                .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 1, new Dictionary<string, string>()));
             var mockMapper = new Mock<IMapper>();
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);

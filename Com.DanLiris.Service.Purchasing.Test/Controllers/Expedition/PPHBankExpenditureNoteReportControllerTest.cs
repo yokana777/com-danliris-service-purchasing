@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         {
             Mock<IPPHBankExpenditureNoteReportFacade> mockFacade = new Mock<IPPHBankExpenditureNoteReportFacade>();
             mockFacade.Setup(p => p.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int>()))
-                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
 
             PPHBankExpenditureNoteReportController controller = new PPHBankExpenditureNoteReportController(mockFacade.Object);
             controller.ControllerContext = new ControllerContext()

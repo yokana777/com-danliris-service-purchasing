@@ -6,6 +6,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
     public interface IUnitPaymentOrderUnpaidReportFacade
     {
-        Task<ReadResponse> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
+        Task<ReadResponse<object>> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
     }
 }

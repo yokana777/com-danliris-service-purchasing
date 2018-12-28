@@ -126,6 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<BankExpenditureNoteFacade>()
                 .AddTransient<BankExpenditureNoteDataUtil>()
 
+                //.AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitReceiptNoteFacade>()
                 .AddTransient<UnitReceiptNoteDataUtil>()
                 .AddTransient<UnitReceiptNoteItemDataUtil>()

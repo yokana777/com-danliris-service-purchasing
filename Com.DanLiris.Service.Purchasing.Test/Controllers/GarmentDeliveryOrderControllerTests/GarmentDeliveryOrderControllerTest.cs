@@ -409,7 +409,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             mockFacade.Setup(x => x.ReadForUnitReceiptNote(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
 
@@ -432,7 +432,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             mockFacade.Setup(x => x.ReadForCorrectionNoteQuantity(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
 

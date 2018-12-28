@@ -1,60 +1,103 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
-using Newtonsoft.Json;
+using Com.DanLiris.Service.Purchasing.Test.Helpers;
+using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Xunit;
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 {
-    [Collection("TestServerFixture Collection")]
     public class UnitReceiptNoteReportControllerTest
     {
-        private const string MediaType = "application/json";
-        private readonly string URI = "v1/unit-receipt-notes/monitoring";
-
-        private TestServerFixture TestFixture { get; set; }
-
-        private HttpClient Client
+        private Mock<IServiceProvider> GetServiceProvider()
         {
-            get { return this.TestFixture.Client; }
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
+
+            return serviceProvider;
         }
 
-        protected UnitReceiptNoteDataUtil DataUtil
+        private UnitReceiptNoteReportController GetController(Mock<IUnitReceiptNoteFacade> facadeMock, Mock<IServiceProvider> serviceProviderMock, Mock<IMapper> autoMapperMock)
         {
-            get { return (UnitReceiptNoteDataUtil)this.TestFixture.Service.GetService(typeof(UnitReceiptNoteDataUtil)); }
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            //var servicePMock = GetServiceProvider();
+            //servicePMock
+            //    .Setup(x => x.GetService(typeof(IValidateService)))
+            //    .Returns(validateM.Object);
+
+            UnitReceiptNoteReportController controller = new UnitReceiptNoteReportController(autoMapperMock.Object, facadeMock.Object, serviceProviderMock.Object)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = user.Object
+                    }
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
+            controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
+
+            return controller;
         }
 
-        public UnitReceiptNoteReportControllerTest(TestServerFixture fixture)
+        protected int GetStatusCode(IActionResult response)
         {
-            TestFixture = fixture;
+            return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
         [Fact]
-        public async Task Should_Success_Get_Report()
+        public void Should_Success_Get_All_Data()
         {
-            var response = await this.Client.GetAsync(URI + "?page=1&size=25");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            var json = response.Content.ReadAsStringAsync().Result;
-            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(new ReadResponse<UnitReceiptNoteReportViewModel>(new List<UnitReceiptNoteReportViewModel>() { new UnitReceiptNoteReportViewModel() }, 1, new Dictionary<string, string>()));
 
-            Assert.True(result.ContainsKey("apiVersion"));
-            Assert.True(result.ContainsKey("message"));
-            Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+            var mockMapper = new Mock<IMapper>();
+
+            UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
         [Fact]
-        public async Task Should_Success_Get_Report_Excel()
+        public void Should_Success_Get_Xls_Data()
         {
-            var response = await this.Client.GetAsync(URI + "/download");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+
+            UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileDownloadName"));
         }
     }
 }
