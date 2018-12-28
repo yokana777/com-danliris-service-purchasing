@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             }
             else
             {
-                if (lastData.CreatedUtc.Month != Now.Month)
+                if (lastData.LastModifiedUtc.Month != Now.Month)
                 {
                     result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}001";
 
@@ -58,10 +58,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                     result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}{lastData.LastDocumentNumber.ToString().PadLeft(4, '0')}";
                 }
                 EntityExtension.FlagForUpdate(lastData, Username, USER_AGENT);
-                dbContext.Entry(lastData).Property(x => x.LastDocumentNumber).IsModified = true;
-                dbContext.Entry(lastData).Property(x => x.LastModifiedAgent).IsModified = true;
-                dbContext.Entry(lastData).Property(x => x.LastModifiedBy).IsModified = true;
-                dbContext.Entry(lastData).Property(x => x.LastModifiedUtc).IsModified = true;
+                dbSet.Update(lastData);
+                //dbContext.Entry(lastData).Property(x => x.LastDocumentNumber).IsModified = true;
+                //dbContext.Entry(lastData).Property(x => x.LastModifiedAgent).IsModified = true;
+                //dbContext.Entry(lastData).Property(x => x.LastModifiedBy).IsModified = true;
+                //dbContext.Entry(lastData).Property(x => x.LastModifiedUtc).IsModified = true;
 
                 await dbContext.SaveChangesAsync();
             }

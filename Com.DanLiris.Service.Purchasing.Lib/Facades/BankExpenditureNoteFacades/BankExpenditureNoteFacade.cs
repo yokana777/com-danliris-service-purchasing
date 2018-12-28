@@ -248,9 +248,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+                    CreateJournalTransaction(model, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     CreateCreditorAccount(model, identityService);
-                    CreateJournalTransaction(model, identityService);
                     transaction.Commit();
                 }
                 catch (Exception e)
