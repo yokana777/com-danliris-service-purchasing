@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         private const string ENTITY = "UnitReceiptNote";
 
         private const string USERNAME = "Unit Test";
-        private IServiceProvider ServiceProvider { get; set; }
+        //private IServiceProvider ServiceProvider { get; set; }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetCurrentMethod()
@@ -62,8 +62,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
 
             return serviceProvider;
         }
-
-        //private PurchasingDbContext _DbContext => _dbContext(GetCurrentMethod());
 
         private Mock<IServiceProvider> _ServiceProvider => GetServiceProvider();
 
