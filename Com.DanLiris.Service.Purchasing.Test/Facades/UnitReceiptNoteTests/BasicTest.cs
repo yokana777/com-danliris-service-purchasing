@@ -118,6 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var model = _dataUtil(facade, dbContext).GetNewData(USERNAME).Result;
+            model.IsStorage = true;
             var response = facade.Create(model, USERNAME).Result;
             Assert.NotEqual(response, 0);
         }
