@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests
 {
@@ -46,6 +47,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         private ExternalPurchaseOrderFacade Facade
         {
             get { return (ExternalPurchaseOrderFacade)ServiceProvider.GetService(typeof(ExternalPurchaseOrderFacade)); }
+        }
+
+        private MonitoringPriceFacade FacadeMP
+        {
+            get { return (MonitoringPriceFacade)ServiceProvider.GetService(typeof(MonitoringPriceFacade)); }
         }
 
         //Duration PO EX-DO
