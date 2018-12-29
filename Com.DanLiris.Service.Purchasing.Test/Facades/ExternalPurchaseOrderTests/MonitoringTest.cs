@@ -96,5 +96,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var Response = Facade.GenerateExcelEPODODuration("", "61-90 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
+
+        // Monitoring Price
+        [Fact]
+        public async void Should_Success_Get_Report_Data()
+        {
+            ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
+            var EPODtl = modelEPO.Items.First().Details.First();
+            var Response = FacadeMP.GetDisplayReport(EPODtl.ProductName, null, null, 1, 50, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Null_Parameter()
+        {
+            ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
+            var Response = FacadeMP.GetDisplayReport("", null, null, 1, 50, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel()
+        {
+            ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
+            var EPODtl = modelEPO.Items.First().Details.First();
+            var Response = FacadeMP.GenerateExcel(EPODtl.ProductName, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        {
+            ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
+            var Response = FacadeMP.GenerateExcel("", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
     }
 }

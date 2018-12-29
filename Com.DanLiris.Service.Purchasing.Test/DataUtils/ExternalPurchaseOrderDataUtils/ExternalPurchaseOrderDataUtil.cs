@@ -193,6 +193,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
 
             return externalPurchaseOrder;
         }
+
+        public async Task<ExternalPurchaseOrder> GetTestDataMP(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+            externalPurchaseOrder.IsPosted = true;
+            foreach (var item in externalPurchaseOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.ProductName = "KERTAS BURAM";
+                }
+            }
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+
+            return externalPurchaseOrder;
+        }
     }
 }
     
