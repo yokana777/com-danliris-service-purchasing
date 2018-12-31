@@ -110,6 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 QuantityCorrection = EPOItem[0].DOQuantity,
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
+                                CodeRequirment = $"{nowTicksA}",
                             }
                         }
                     }
@@ -207,6 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 QuantityCorrection = EPOItem[0].DOQuantity,
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
+                                CodeRequirment = $"{nowTicksA}",
                             }
                         }
                     }
@@ -304,6 +306,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 QuantityCorrection = EPOItem[0].DOQuantity,
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
+                                CodeRequirment = $"{nowTicksA}",
                             }
                         }
                     }
@@ -401,6 +404,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 QuantityCorrection = EPOItem[0].DOQuantity,
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
+                                CodeRequirment = $"{nowTicksA}",
                             }
                         }
                     },
@@ -444,6 +448,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 QuantityCorrection = EPOItem[0].DOQuantity,
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
+                                CodeRequirment = $"{nowTicksA}",
                             }
                         }
                     }

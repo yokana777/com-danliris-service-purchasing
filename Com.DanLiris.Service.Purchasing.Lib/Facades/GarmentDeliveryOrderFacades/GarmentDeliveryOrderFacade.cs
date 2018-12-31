@@ -682,12 +682,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
 
-        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-
-            var ProductCode = JsonConvert.DeserializeObject<List<string>>(productCode);
+            List<string> Category = null;
+            if (category == "")
+            {
+                var categoryAll = "[\"BB\",\"BP\"]";
+                Category = JsonConvert.DeserializeObject<List<string>>(categoryAll);
+            }
 
             List<AccuracyOfArrivalReportViewModel> listAccuracyOfArrival = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -705,7 +709,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && f.IsDeleted == false
                              && h.IsDeleted == false
                              && ((DateFrom != new DateTime(1970, 1, 1)) ? (a.DODate.Date >= DateFrom && a.DODate.Date <= DateTo) : true)
-                             && ProductCode.Contains(c.ProductCode)
+                             && (category == "" ? Category.Contains(c.CodeRequirment) : c.CodeRequirment==category)
                          select new AccuracyOfArrivalReportViewModel
                          {
                              supplier = new SupplierViewModel
@@ -715,7 +719,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                  Name = a.SupplierName
                              },
                              poSerialNumber = c.POSerialNumber,
-                             prDate = f.Date,
+                             prDate = f.Date,    //distinct garmentdodetailid
                              poDate = d.CreatedUtc,
                              epoDate = h.OrderDate,
                              product = new GarmentProductViewModel
@@ -730,31 +734,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              shipmentDate = f.ShipmentDate,
                              doDate = a.DODate,
                              staff = a.CreatedBy,
-                             category = category,
+                             category = c.CodeRequirment,
                              doNo = a.DONo,
                              ok_notOk = "NOT OK",
                              LastModifiedUtc = i.LastModifiedUtc
-                         });
+                         }).Distinct();
+
             Query = Query.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate);
             var suppTemp = "";
             var percentOK = 0;
             var percentNotOk = 0;
             var jumlah = 0;
-            var jumlahOk = 0;
+            
             foreach (var item in Query)
             {
                 var ShipmentDate = new DateTimeOffset(item.shipmentDate.Date, TimeSpan.Zero);
                 var DODate = new DateTimeOffset(item.doDate.Date, TimeSpan.Zero);
-
+                var jumlahOk = 0;
                 var datediff = ((TimeSpan)(ShipmentDate - DODate)).Days;
-
-                foreach(var Category in garmentCategory)
-                {
-                    if (item.product.Code == Category.Code && item.category=="")
-                    {
-                        item.category = Category.CodeRequirement;
-                    }
-                }
+               
                 if(item.category == "BB")
                 {
                     if (datediff >= 30)
@@ -793,20 +791,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     {
                         percentNotOk += 1;
                     }
-                } else if(suppTemp != item.supplier.Code)
+                }
+                else if (suppTemp != item.supplier.Code)
                 {
-                    percentOK = 0;
-                    percentOK = 0;
+                    var perOk = 0;
+                    var perNotOk = 0;
                     suppTemp = item.supplier.Code;
                     jumlah = 1;
-
+                    jumlahOk = perOk;
                     if (item.ok_notOk == "OK")
                     {
-                        percentOK = percentOK + 1;
+                        percentOK = perOk + 1;
+                        percentNotOk = perNotOk;
                     }
                     else
                     {
-                        percentNotOk = percentNotOk + 1;
+                        percentNotOk = perNotOk + 1;
+                        percentOK = perOk;
                     }
                 }
                 jumlahOk = percentOK + percentNotOk;
@@ -826,7 +827,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     category = item.category,
                     doNo = item.doNo,
                     ok_notOk = item.ok_notOk,
-                    percentOk_notOk = (percentOK *100) / jumlahOk,
+                    percentOk_notOk = (percentOK *100) / jumlah,
+                    jumlahOk = percentOK,
                     jumlah = jumlah,
                     dateDiff = datediff,
                     LastModifiedUtc = item.LastModifiedUtc
@@ -836,7 +838,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return listAccuracyOfArrival.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate).AsQueryable();
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofArrival(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofArrival(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var ctg = "";
             if(category== "Bahan Baku")
@@ -847,7 +849,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 ctg = "BP";
             }
 
-            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -876,6 +878,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         ok_notOk = item.ok_notOk,
                         percentOk_notOk = item.percentOk_notOk,
                         jumlah = item.jumlah,
+                        jumlahOk = item.jumlahOk,
                         dateDiff = item.dateDiff,
                         LastModifiedUtc = item.LastModifiedUtc
                     };
@@ -885,7 +888,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        public MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var ctg = "";
             if (category == "Bahan Baku")
@@ -896,7 +899,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
                 ctg = "BP";
             }
-            var Query = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+            var Query = GetReportQuery(ctg, dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -925,6 +928,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         ok_notOk = item.ok_notOk,
                         percentOk_notOk = item.percentOk_notOk,
                         jumlah = item.jumlah,
+                        jumlahOk = item.jumlahOk,
                         dateDiff = item.dateDiff,
                         LastModifiedUtc = item.LastModifiedUtc
                     };
@@ -953,7 +957,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofArrival(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofArrival(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var ctg = "";
             if (category == "Bahan Baku")
@@ -965,7 +969,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 ctg = "BP";
             }
 
-            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -989,6 +993,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                      ok_notOk = item.ok_notOk,
                      percentOk_notOk = item.percentOk_notOk,
                      jumlah = item.jumlah,
+                     jumlahOk = item.jumlahOk,
                      dateDiff = item.dateDiff,
                      LastModifiedUtc = item.LastModifiedUtc
                  };
@@ -997,7 +1002,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcelArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, List<GarmentCategoryViewModel> garmentCategory, string productCode, int offset)
+        public MemoryStream GenerateExcelArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var ctg = "";
             if (category == "Bahan Baku")
@@ -1008,7 +1013,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
                 ctg = "BP";
             }
-            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, garmentCategory, productCode, offset);
+            var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1032,6 +1037,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     ok_notOk = item.ok_notOk,
                     percentOk_notOk = item.percentOk_notOk,
                     jumlah = item.jumlah,
+                    jumlahOk = item.jumlahOk,
                     dateDiff = item.dateDiff,
                     LastModifiedUtc = item.LastModifiedUtc
                 };
@@ -1079,12 +1085,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         }
 
 
-        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, string productCode, int offset)
+        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-
-            var ProductCode = JsonConvert.DeserializeObject<List<string>>(productCode);
 
             List<AccuracyOfArrivalReportViewModel> listAccuracyOfArrival = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1102,7 +1106,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && f.IsDeleted == false
                              && h.IsDeleted == false
                              && ((DateFrom != new DateTime(1970, 1, 1)) ? (a.DODate.Date >= DateFrom && a.DODate.Date <= DateTo) : true)
-                             && ProductCode.Contains(c.ProductCode)
                          select new AccuracyOfArrivalReportViewModel
                          {
                              supplier = new SupplierViewModel
@@ -1130,18 +1133,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              doNo = a.DONo,
                              ok_notOk = "NOT OK",
                              LastModifiedUtc = i.LastModifiedUtc
-                         });
+                         }).Distinct();
             Query = Query.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate);
             var suppTemp = "";
             var percentOK = 0;
             var percentNotOk = 0;
             var jumlah = 0;
-            var jumlahOk = 0;
+            
             foreach (var item in Query)
             {
                 var ShipmentDate = new DateTimeOffset(item.shipmentDate.Date, TimeSpan.Zero);
                 var DODate = new DateTimeOffset(item.doDate.Date, TimeSpan.Zero);
-
+                var jumlahOk = 0;
                 var datediff = ((TimeSpan)(DODate - ShipmentDate)).Days;
 
                 if (datediff <= 7)
@@ -1184,10 +1187,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     if (item.ok_notOk == "OK")
                     {
                         percentOK = perOk + 1;
+                        percentNotOk = perNotOk;
                     }
                     else
                     {
                         percentNotOk = perNotOk + 1;
+                        percentOK = perOk;
                     }
                 }
                 jumlahOk = percentOK + percentNotOk;
@@ -1206,8 +1211,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     staff = item.staff,
                     doNo = item.doNo,
                     ok_notOk = item.ok_notOk,
-                    percentOk_notOk = (percentOK*100) / jumlahOk,
+                    percentOk_notOk = (percentOK*100) / jumlah,
                     jumlah = jumlah,
+                    jumlahOk = percentOK,
                     dateDiff = datediff,
                     LastModifiedUtc = item.LastModifiedUtc
                 };
@@ -1216,9 +1222,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return listAccuracyOfArrival.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate).AsQueryable();
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofDelivery(DateTime? dateFrom, DateTime? dateTo, string productCode, int offset)
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofDelivery(DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, productCode, offset);
+            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1246,6 +1252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         ok_notOk = item.ok_notOk,
                         percentOk_notOk = item.percentOk_notOk,
                         jumlah = item.jumlah,
+                        jumlahOk = item.jumlahOk,
                         dateDiff = item.dateDiff,
                         LastModifiedUtc = item.LastModifiedUtc
                     };
@@ -1255,9 +1262,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcelDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, string productCode, int offset)
+        public MemoryStream GenerateExcelDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportQuery2(dateFrom, dateTo, productCode, offset);
+            var Query = GetReportQuery2(dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1285,6 +1292,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         ok_notOk = item.ok_notOk,
                         percentOk_notOk = item.percentOk_notOk,
                         jumlah = item.jumlah,
+                        jumlahOk = item.jumlahOk,
                         dateDiff = item.dateDiff,
                         LastModifiedUtc = item.LastModifiedUtc
                     };
@@ -1313,9 +1321,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofDelivery(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode, int offset)
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofDelivery(string supplier, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, productCode, offset);
+            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1338,6 +1346,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     ok_notOk = item.ok_notOk,
                     percentOk_notOk = item.percentOk_notOk,
                     jumlah = item.jumlah,
+                    jumlahOk = item.jumlahOk,
                     dateDiff = item.dateDiff,
                     LastModifiedUtc = item.LastModifiedUtc
                 };
@@ -1346,9 +1355,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcelDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, string productCode, int offset)
+        public MemoryStream GenerateExcelDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, productCode, offset);
+            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1372,6 +1381,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     ok_notOk = item.ok_notOk,
                     percentOk_notOk = item.percentOk_notOk,
                     jumlah = item.jumlah,
+                    jumlahOk = item.jumlahOk,
                     dateDiff = item.dateDiff,
                     LastModifiedUtc = item.LastModifiedUtc
                 };

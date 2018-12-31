@@ -247,6 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                                 PriceTotalCorrection = detail[0].PriceTotalCorrection,
                                 DOQuantity = detail[0].DOQuantity,
                                 EPOItemId = detail[0].EPOItemId,
+                                CodeRequirment = "test",
                             }
                         }
             });
@@ -895,26 +896,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                 }
             }
             await facade.Create(data, USERNAME);
-            List<GarmentCategoryViewModel> garmentCategory = new List<GarmentCategoryViewModel>
-            {
-                new GarmentCategoryViewModel
-                {
-                    Id = 7,
-                    Code = "LBL",
-                    Name = "LABEL",
-                    CodeRequirement = "BP"
-                },
-                new GarmentCategoryViewModel
-                {
-                    Id = 13,
-                    Code = "SUB",
-                    Name = "SUBKON",
-                    CodeRequirement = "BB"
-                }
-            };
-            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
+            
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetReportHeaderAccuracyofArrival(null, null, null, garmentCategory, product, 7);
+            var Response = Facade.GetReportHeaderAccuracyofArrival(null, null, null, 7);
             Assert.NotNull(Response.Item1);
 
             var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
@@ -950,12 +934,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data4, USERNAME);
 
-            var Response1 = Facade.GetReportHeaderAccuracyofArrival(null, null, null, garmentCategory, product, 7);
+            var Response1 = Facade.GetReportHeaderAccuracyofArrival(null, null, null, 7);
             Assert.NotNull(Response1.Item1);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
-            var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, garmentCategory, product, 7);
+            var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.NotNull(Response2.Item1);
         }
 
@@ -999,31 +983,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data4, USERNAME);
 
-            List<GarmentCategoryViewModel> garmentCategory = new List<GarmentCategoryViewModel>
-            {
-                new GarmentCategoryViewModel
-                {
-                    Id = 7,
-                    Code = "LBL",
-                    Name = "LABEL",
-                    CodeRequirement = "BP"
-                },
-                new GarmentCategoryViewModel
-                {
-                    Id = 13,
-                    Code = "SUB",
-                    Name = "SUBKON",
-                    CodeRequirement = "BB"
-                }
-            };
-            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcelArrivalHeader(null, null, null, garmentCategory, product, 7);
+            var Response = Facade.GenerateExcelArrivalHeader(null, null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
-            var Response1 = Facade.GenerateExcelArrivalDetail($"BuyerCode{nowTicksA}", null, null, null, garmentCategory, product, 7);
+            var Response1 = Facade.GenerateExcelArrivalDetail($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response1);
         }
 
@@ -1043,9 +1009,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data, USERNAME);
             
-            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, product, 7);
+            var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, 7);
             Assert.NotNull(Response.Item1);
 
             var data2 = dataUtil(facade, GetCurrentMethod()).GetNewData3();
@@ -1081,12 +1046,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data4, USERNAME);
 
-            var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, product, 7);
+            var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, 7);
             Assert.NotNull(Response1.Item1);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
-            var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, product, 7);
+            var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, 7);
             Assert.NotNull(Response2.Item1);
         }
 
@@ -1130,49 +1095,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data4, USERNAME);
 
-            string product = "[\"LBL\",\"SUB\",\"SLB\",\"STK\",\"DRS\",\"BTG\"]";
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcelDeliveryHeader(null, null, product, 7);
+            var Response = Facade.GenerateExcelDeliveryHeader(null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
-            var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, product, 7);
+            var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response1);
-        }
-
-
-        [Fact]
-        public async void Should_Success_Get_Report_Data()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportDO(model.DONo, "", model.SupplierId, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
-        }
-        [Fact]
-        public async void Should_Success_Get_Report_Data_Null_Parameter()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportDO("", "", 0, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
-        }
-        [Fact]
-        public async void Should_Success_Get_Report_Data_Excel()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelDO(model.DONo, "", model.SupplierId, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
-        }
-        [Fact]
-        public async void Should_Success_Get_Report_Data_Excel_Null_parameter()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelDO("", "", 0, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
 }
