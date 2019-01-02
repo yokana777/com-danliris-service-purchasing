@@ -26,7 +26,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
             this.garmentDeliveryOrderDataUtil = GarmentDeliveryOrderDataUtil;
             this.facade = facade;
         }
-		public async Task<GarmentInvoice> GetNewData(string user)
+		public async Task<GarmentInvoiceItem> GetNewDataItem(string user)
+		{
+			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+			return new GarmentInvoiceItem
+			{
+
+				DeliveryOrderId = garmentDO.Id,
+				DODate = DateTimeOffset.Now,
+				DeliveryOrderNo = "dono",
+				ArrivalDate = DateTimeOffset.Now,
+				TotalAmount = 2000,
+				PaymentType = "type",
+				Details = new List<GarmentInvoiceDetail>
+							{
+								new GarmentInvoiceDetail
+								{
+									EPOId=It.IsAny<int>(),
+									EPONo="epono",
+									IPOId=It.IsAny<int>(),
+									PRItemId=It.IsAny<int>(),
+									PRNo="prno",
+									RONo="12343",
+									ProductId= It.IsAny<int>(),
+									ProductCode="code",
+									ProductName="name",
+									UomId=It.IsAny<int>(),
+									UomUnit="ROLL",
+									DOQuantity=40,
+									PricePerDealUnit=5000,
+									POSerialNumber="PM132434",
+									 PaymentDueDays=2
+								}
+				}
+			};
+		}
+			public async Task<GarmentInvoice> GetNewData(string user)
 		{
 			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
 			long nowTicks = DateTimeOffset.Now.Ticks;
@@ -61,6 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 						   ArrivalDate  =  DateTimeOffset.Now,
 						   TotalAmount =2000,
 						   PaymentType="type",
+						  
 						   PaymentMethod="method",
 							Details= new List<GarmentInvoiceDetail>
 							{

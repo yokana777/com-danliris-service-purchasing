@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         public readonly IServiceProvider serviceProvider;
-        
+
         private readonly string USER_AGENT = "Facade";
         private readonly string CREDITOR_ACCOUNT_URI = "creditor-account/bank-expenditure-note/list";
 
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 .FirstOrDefaultAsync();
         }
 
-        public ReadResponse Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<BankExpenditureNoteModel> Query = this.dbSet;
 
@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             int TotalData = pageable.TotalCount;
 
-            return new ReadResponse(list, TotalData, OrderDictionary);
+            return new ReadResponse<object>(list, TotalData, OrderDictionary);
         }
 
         public async Task<int> Update(int id, BankExpenditureNoteModel model, IdentityService identityService)
@@ -193,6 +193,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     DeleteDailyBankTransaction(model.DocumentNo, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     UpdateCreditorAccount(model, identityService);
+                    ReverseJournalTransaction(model.DocumentNo);
+                    CreateJournalTransaction(model, identityService);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -246,6 +248,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+                    CreateJournalTransaction(model, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     CreateCreditorAccount(model, identityService);
                     transaction.Commit();
@@ -258,6 +261,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             }
 
             return Created;
+        }
+
+        private void CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
+        {
+            var items = new List<JournalTransactionItem>();
+            foreach (var detail in model.Details)
+            {
+                var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
+                {
+                    s.First().UnitCode,
+                    Total = s.Sum(sm => sm.Price)
+                });
+
+                foreach (var datum in sumDataByUnit)
+                {
+                    var item = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, datum.UnitCode)
+                        },
+                        Debit = datum.Total
+                    };
+
+                    items.Add(item);
+                }
+            }
+
+            items = items.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = s.First().COA,
+                Debit = s.Sum(sm => sm.Debit)
+            }).ToList();
+
+            var bankJournalItem = new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = model.BankAccountCOA
+                },
+                Credit = items.Sum(s => s.Debit)
+            };
+            items.Add(bankJournalItem);
+
+            var modelToPost = new JournalTransaction()
+            {
+                Date = DateTimeOffset.Now,
+                Description = "Bukti Pengeluaran Bank",
+                ReferenceNo = model.DocumentNo,
+                Items = items
+            };
+
+            string journalTransactionUri = "journal-transactions";
+            //var httpClient = new HttpClientService(identityService);
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+        }
+
+        private void ReverseJournalTransaction(string referenceNo)
+        {
+            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<int> Delete(int Id, IdentityService identityService)
@@ -314,6 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Count = await dbContext.SaveChangesAsync();
                     DeleteDailyBankTransaction(bankExpenditureNote.DocumentNo, identityService);
                     DeleteCreditorAccount(bankExpenditureNote, identityService);
+                    ReverseJournalTransaction(bankExpenditureNote.DocumentNo);
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)
@@ -331,7 +400,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             return Count;
         }
 
-        public ReadResponse GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
+        public ReadResponse<object> GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
         {
             IQueryable<PurchasingDocumentExpedition> Query = dbContext.PurchasingDocumentExpeditions;
 
@@ -418,10 +487,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 }).ToList()
             }));
 
-            return new ReadResponse(list, TotalData, OrderDictionary);
+            return new ReadResponse<object>(list, TotalData, OrderDictionary);
         }
 
-        public ReadResponse GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public ReadResponse<object> GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             IQueryable<BankExpenditureNoteReportViewModel> Query;
 
@@ -493,7 +562,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             Pageable<BankExpenditureNoteReportViewModel> pageable = new Pageable<BankExpenditureNoteReportViewModel>(Query, Page - 1, Size);
             List<object> data = pageable.Data.ToList<object>();
 
-            return new ReadResponse(data, pageable.TotalCount, new Dictionary<string, string>());
+            return new ReadResponse<object>(data, pageable.TotalCount, new Dictionary<string, string>());
         }
 
         public void CreateDailyBankTransaction(BankExpenditureNoteModel model, IdentityService identityService)
@@ -547,7 +616,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private void CreateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
         {
             List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
-            foreach(var item in model.Details)
+            foreach (var item in model.Details)
             {
                 CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
                 {
@@ -562,7 +631,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 postedData.Add(viewModel);
             }
 
-            
+
             var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
             response.EnsureSuccessStatusCode();

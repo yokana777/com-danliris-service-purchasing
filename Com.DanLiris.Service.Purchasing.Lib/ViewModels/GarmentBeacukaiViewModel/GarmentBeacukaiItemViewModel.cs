@@ -10,8 +10,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 		public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
 		public string billNo { get; set; }
 		public double quantity { get; set; }
-		
-	 
- 
+		public bool selected { get; set; }
+
+
+
 	}
 }

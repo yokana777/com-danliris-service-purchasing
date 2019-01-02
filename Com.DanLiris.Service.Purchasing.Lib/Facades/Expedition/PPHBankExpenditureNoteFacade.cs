@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return list;
         }
 
-        public ReadResponse Read(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        public ReadResponse<object> Read(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             IQueryable<PPHBankExpenditureNote> Query = this.dbSet;
 
@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                }).ToList()
             );
 
-            return new ReadResponse(list, TotalData, OrderDictionary);
+            return new ReadResponse<object>(list, TotalData, OrderDictionary);
         }
 
         public async Task<int> Update(int id, PPHBankExpenditureNote model, string username)

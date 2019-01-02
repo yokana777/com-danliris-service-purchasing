@@ -74,10 +74,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 var Data = facade.Read(page, size, order, keyword, filter);
 
                 var viewModel = mapper.Map<List<PurchasingDispositionViewModel>>(Data.Item1);
-
+                var newData = facade.GetTotalPaidPrice(viewModel);
                 List<object> listData = new List<object>();
                 listData.AddRange(
-                    viewModel.AsQueryable().Select(s => new
+                    newData.AsQueryable().Select(s => new
                     {
                         s.DispositionNo,
                         s.Id,
@@ -87,10 +87,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.InvoiceNo,
                         s.PaymentMethod,
                         s.CreatedBy,
+                        s.Calculation,
+                        s.Investation,
+                        s.Remark,
+                        s.ProformaNo,
+                        s.Amount,
                         s.Currency,
                         s.LastModifiedUtc,
                         s.CreatedUtc,
                         s.PaymentDueDate,
+                        s.Position,
                         s.Items
                     }).ToList()
                 );
@@ -354,6 +360,40 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                    .Ok(newData);
             return Ok(Result);
+        }
+
+        [HttpPut("update/position")]
+        public async Task<IActionResult> UpdatePosition([FromBody] PurchasingDispositionUpdatePositionPostedViewModel data)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                validateService.Validate(data);
+
+                await facade.UpdatePosition(data, identityService.Username);
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok();
+                return Created(String.Concat(Request.Path, "/", 0), Result);
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+            
         }
     }
 }

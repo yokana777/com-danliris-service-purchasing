@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Update(int id, PurchasingDisposition purchasingDisposition, string user);
         List<PurchasingDisposition> ReadDisposition(string Keyword = null, string Filter = "{}", string epoId = "");
         IQueryable<PurchasingDisposition> ReadByDisposition(string Keyword = null, string Filter = "{}");
+        Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user);
+        List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data);
 
     }
 }

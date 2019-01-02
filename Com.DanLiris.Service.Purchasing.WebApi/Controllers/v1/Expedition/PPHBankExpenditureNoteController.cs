@@ -54,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         [HttpGet]
         public ActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            ReadResponse Response = this.PPHBankExpenditureNoteFacade.Read(page, size, order, keyword, filter);
+            ReadResponse<object> Response = this.PPHBankExpenditureNoteFacade.Read(page, size, order, keyword, filter);
 
             return Ok(new
             {

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
@@ -54,6 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			DbContextOptionsBuilder<PurchasingDbContext> optionsBuilder = new DbContextOptionsBuilder<PurchasingDbContext>();
 			optionsBuilder
 				.UseInMemoryDatabase(testName)
+				.EnableSensitiveDataLogging()
 				.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
 			PurchasingDbContext dbContext = new PurchasingDbContext(optionsBuilder.Options);
@@ -110,6 +112,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		
 			var Response = await facade.Create(data, USERNAME);
 			Assert.NotEqual(Response, 0);
+			GarmentInvoice data2 = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+			DateTime dateWithoutOffset = new DateTime(2010,8, 16, 13, 32, 00);
+			data2.InvoiceDate = dateWithoutOffset;
+			var Response1 = await facade.Create(data2, USERNAME);
+			Assert.NotEqual(Response1, 0);
 		}
 
 		[Fact]
@@ -176,48 +183,64 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
-			 
+			GarmentInvoiceItem item= await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
+
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
-			var newItem = new GarmentInvoiceItem
-			{
-				DeliveryOrderId = It.IsAny<int>(),
-				DODate = DateTimeOffset.Now,
-				DeliveryOrderNo = "donos",
-				ArrivalDate = DateTimeOffset.Now,
-				TotalAmount = 2000,
-				PaymentType = "type",
-				PaymentMethod = "method",
-				Details = new List<GarmentInvoiceDetail>
-							{
-								new GarmentInvoiceDetail
-								{
-									EPOId=It.IsAny<int>(),
-									EPONo="epono",
-									IPOId=It.IsAny<int>(),
-									PRItemId=It.IsAny<int>(),
-									PRNo="prno",
-									RONo="12343",
-									ProductId= It.IsAny<int>(),
-									ProductCode="code",
-									ProductName="name",
-									UomId=It.IsAny<int>(),
-									UomUnit="ROLL",
-									DOQuantity=40,
-									PricePerDealUnit=5000,
-									PaymentDueDays = 2,
-									POSerialNumber="PM132434"
-
-								}
-							}
-			};
+			 
 			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
-			Newitems.Add(newItem);
+			Newitems.Add(item);
+			data.Items = Newitems;
+			 
+			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
+			Assert.NotEqual(ResponseUpdate1, 0);
+
+            //Newitems.Remove(newItem);
+            //data.Items = Newitems;
+            //var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
+            //Assert.NotEqual(ResponseUpdate2, 0);
+        }
+
+		[Fact]
+		public async void Should_Success_Update_Data2()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facade = new GarmentInvoiceFacade(dbContext, ServiceProvider);
+			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
+			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+			GarmentInvoiceItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
+
+			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
+			Assert.NotEqual(ResponseUpdate, 0);
+
+			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
+			Newitems.Add(item);
 			data.Items = Newitems;
 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
 			Assert.NotEqual(ResponseUpdate, 0);
+
+			dbContext.Entry(data).State = EntityState.Detached;
+			foreach (var items in data.Items)
+			{
+				dbContext.Entry(items).State = EntityState.Detached;
+				foreach (var detail in items.Details)
+				{
+					dbContext.Entry(detail).State = EntityState.Detached;
+				}
+			}
+
+			var newData = dbContext.GarmentInvoices.AsNoTracking()
+				.Include(m => m.Items)
+					.ThenInclude(i => i.Details)
+				.FirstOrDefault(m => m.Id == data.Id);
+
+			newData.Items = newData.Items.Take(1).ToList();
+
+			var ResponseUpdate2 = await facade.Update((int)newData.Id, newData, USERNAME);
+			Assert.NotEqual(ResponseUpdate2, 0);
 		}
+
 		[Fact]
 		public async void Should_Error_Update_Data()
 		{
@@ -252,7 +275,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 			Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
 			Assert.NotNull(errorNullItems.Message);
-		}
+        }
 
 		[Fact]
 		public async void Should_Success_Delete_Data()
@@ -276,10 +299,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		{
 			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
 			Assert.True(nullViewModel.Validate(null).Count() > 0);
-			GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
+            var tomorrow = DateTime.Now.Date.AddDays(+1);
+            GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
-				invoiceDate = DateTimeOffset.MinValue,
+				invoiceDate = tomorrow,
 				supplier = { },
 				incomeTaxId = It.IsAny<int>(),
 				incomeTaxName = "name",
@@ -304,6 +328,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 								new GarmentInvoiceDetailViewModel
 								{
 									doQuantity=0
+                                    
 								}
 							}
 						}
@@ -340,7 +365,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			};
 			Assert.True(viewModels.Validate(null).Count() > 0);
 
-		}
+            GarmentInvoiceViewModel viewModels1 = new GarmentInvoiceViewModel
+            {
+                invoiceNo = "",
+                invoiceDate = DateTimeOffset.MinValue,
+                supplier = { },
+                incomeTaxId = It.IsAny<int>(),
+                incomeTaxName = "",
+                incomeTaxNo = "",
+                incomeTaxDate = DateTimeOffset.MinValue,
+                incomeTaxRate = 2,
+                vatNo = "",
+                vatDate = DateTimeOffset.MinValue,
+                useIncomeTax = true,
+                useVat = true,
+                isPayTax = true,
+                poSerialNumber="any",
+                hasInternNote = false,
+                currency = new CurrencyViewModel { Id = It.IsAny<int>(), Code = "USD", Symbol = "$", Rate = 13000, Description = "" },
+                items = new List<GarmentInvoiceItemViewModel>
+                    {
+                        new GarmentInvoiceItemViewModel
+                        {
+                            deliveryOrder =null,
+
+                            details= null
+                        }
+                    }
+            };
+            Assert.True(viewModels1.Validate(null).Count() > 0);
+
+        }
 
         [Fact]
         public async void Should_Success_Get_Data_By_DOId()

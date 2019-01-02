@@ -38,7 +38,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
-
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -64,45 +66,51 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.Core = Configuration.GetValue<string>(Constant.CORE_ENDPOINT) ?? Configuration[Constant.CORE_ENDPOINT];
             APIEndpoint.Inventory = Configuration.GetValue<string>(Constant.INVENTORY_ENDPOINT) ?? Configuration[Constant.INVENTORY_ENDPOINT];
             APIEndpoint.Finance = Configuration.GetValue<string>(Constant.FINANCE_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
-        }
+			APIEndpoint.CustomsReport = Configuration.GetValue<string>(Constant.CUSTOMSREPORT_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
+		}
 
         private void RegisterFacades(IServiceCollection services)
         {
-            services
-                .AddTransient<PurchasingDocumentExpeditionFacade>()
-                .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
-                .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
-                .AddTransient<PurchasingDocumentExpeditionReportFacade>()
-                .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
-                .AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
-                .AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
-                .AddTransient<IUnitPaymentOrderUnpaidReportFacade, UnitPaymentOrderUnpaidReportFacade>()
-                .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
-                .AddTransient<PurchaseRequestFacade>()
-                .AddTransient<DeliveryOrderFacade>()
-                .AddTransient<ImportPurchasingBookReportFacade>()
-                .AddTransient<LocalPurchasingBookReportFacade>()
-                .AddTransient<InternalPurchaseOrderFacade>()
-                .AddTransient<ExternalPurchaseOrderFacade>()
-                .AddTransient<UnitReceiptNoteFacade>()
-                .AddTransient<TotalPurchaseFacade>()
-                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
-                .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
-                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
-                .AddTransient<PurchaseOrderMonitoringAllFacade>()
-                .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
-                .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
-                .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
-                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
-                .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
-                .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
-                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
-                .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
-                .AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
-                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>();
-        }
+			services
+				.AddTransient<PurchasingDocumentExpeditionFacade>()
+				.AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
+				.AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
+				.AddTransient<PurchasingDocumentExpeditionReportFacade>()
+				.AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
+				.AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
+				.AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
+				.AddTransient<IUnitPaymentOrderUnpaidReportFacade, UnitPaymentOrderUnpaidReportFacade>()
+				.AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
+				.AddTransient<PurchaseRequestFacade>()
+				.AddTransient<DeliveryOrderFacade>()
+				.AddTransient<ImportPurchasingBookReportFacade>()
+				.AddTransient<LocalPurchasingBookReportFacade>()
+				.AddTransient<InternalPurchaseOrderFacade>()
+				.AddTransient<ExternalPurchaseOrderFacade>()
+                .AddTransient<MonitoringPriceFacade>()
+                .AddTransient<IUnitReceiptNoteFacade, UnitReceiptNoteFacade>()
+				.AddTransient<TotalPurchaseFacade>()
+				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+				.AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
+				.AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+				.AddTransient<PurchaseOrderMonitoringAllFacade>()
+				.AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
+				.AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
+				.AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
+				.AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
+				.AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
+				.AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
+				.AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+				.AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
+				.AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
+				.AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
+				.AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+				.AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
+				.AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
+				.AddTransient<IMonitoringUnitReceiptAllFacade,MonitoringUnitReceiptAllFacade>()
+                .AddTransient<IGarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderFacade>();
+
+		}
 
         private void RegisterServices(IServiceCollection services, bool isTest)
         {
@@ -150,10 +158,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
             services.AddAutoMapper();
-
-            RegisterSerializationProvider();
-            RegisterClassMap();
-            MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
             RegisterSerializationProvider();
             RegisterClassMap();

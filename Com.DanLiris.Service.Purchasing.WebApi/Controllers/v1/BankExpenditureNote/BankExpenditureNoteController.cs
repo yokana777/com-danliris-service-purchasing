@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         [HttpGet]
         public ActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
-            ReadResponse Response = this.facade.Read(page, size, order, keyword, filter);
+            ReadResponse<object> Response = this.facade.Read(page, size, order, keyword, filter);
 
             return Ok(new
             {
@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         public ActionResult GetAllCashierPosition(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             size = int.MaxValue;
-            ReadResponse Response = facade.GetAllByPosition(page, size, order, keyword, filter);
+            ReadResponse<object> Response = facade.GetAllByPosition(page, size, order, keyword, filter);
 
             return Ok(new
             {
@@ -240,7 +240,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         public ActionResult GetReport(string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Size = 25, int Page = 1)
         {
             int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-            ReadResponse response = this.facade.GetReport(Size, Page, DocumentNo, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DivisionCode, PaymentMethod, DateFrom, DateTo, clientTimeZoneOffset);
+            ReadResponse<object> response = this.facade.GetReport(Size, Page, DocumentNo, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DivisionCode, PaymentMethod, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

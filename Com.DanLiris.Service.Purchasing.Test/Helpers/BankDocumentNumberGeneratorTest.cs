@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -39,9 +40,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         [Fact]
         public async void Should_Success_Get_Data()
         {
-            BankDocumentNumberGenerator generator = new BankDocumentNumberGenerator(_dbContext(GetCurrentMethod()));
+            var dbContext = _dbContext(GetCurrentMethod());
+            BankDocumentNumberGenerator generator = new BankDocumentNumberGenerator(dbContext);
             string result = await generator.GenerateDocumentNumber("test", "test", "test");
-            Assert.NotNull(result);
+            var bankDocument = dbContext.BankDocumentNumbers.FirstOrDefault();
+            bankDocument.LastModifiedUtc = bankDocument.LastModifiedUtc.AddMonths(-1);
+            dbContext.Update(bankDocument);
+            dbContext.SaveChanges();
+            string result2 = await generator.GenerateDocumentNumber("test", "test", "test");
+            string result3 = await generator.GenerateDocumentNumber("test", "test", "test");
+            Assert.NotNull(result3);
         }
     }
 }

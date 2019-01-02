@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
@@ -42,7 +43,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                     {
                         new GarmentInternNoteItemViewModel()
                         {
-                            garmentInvoice = new GarmentInvoiceViewModel(),
+                            garmentInvoice = new GarmentInvoiceViewModel{
+                                Id = 1,
+                            },
                             details = new List<GarmentInternNoteDetailViewModel>
                             {
                                 new GarmentInternNoteDetailViewModel()
@@ -50,8 +53,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                                     unit = new UnitViewModel(),
                                     product = new ProductViewModel(),
                                     uomUnit = new UomViewModel(),
-                                    deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel(),
-
+                                    deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel{
+                                        Id = 1
+                                    },
+                                    invoiceDetailId = 1,
+                                    dODetailId = 1,
                                 }
                             }
                         }
@@ -71,7 +77,99 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         {
             get
             {
-                return new GarmentDeliveryOrder { };
+                return new GarmentDeliveryOrder {
+                    Id = 1,
+                    Items = new List<GarmentDeliveryOrderItem> {
+                            new GarmentDeliveryOrderItem
+                        {
+                            Id = 1,
+                            Details = new List<GarmentDeliveryOrderDetail>
+                            {
+                                new GarmentDeliveryOrderDetail
+                                {
+                                    Id =1,
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+        }
+
+        private GarmentDeliveryOrderViewModel DeliveryOrderModelViewModel
+        {
+            get
+            {
+                return new GarmentDeliveryOrderViewModel
+                {
+                    Id = 1,
+                    items = new List<GarmentDeliveryOrderItemViewModel>
+                    {
+                        new GarmentDeliveryOrderItemViewModel
+                        {
+                            Id = 1,
+                            fulfillments = new List<GarmentDeliveryOrderFulfillmentViewModel>
+                            {
+                                new GarmentDeliveryOrderFulfillmentViewModel
+                                {
+                                    Id = 1,
+                                }
+                            }
+                        }
+                    }
+                    
+                };
+            }
+        }
+
+        private GarmentInvoice garmentInvoiceModel
+        {
+            get
+            {
+                return new GarmentInvoice {
+                Id = 1,
+                Items = new List<GarmentInvoiceItem>
+                {
+                    new GarmentInvoiceItem
+                    {
+                        Id = 1,
+                        Details = new List<GarmentInvoiceDetail>
+                        {
+                            new GarmentInvoiceDetail
+                            {
+                                Id = 1,
+                                DODetailId = 1,
+                            }
+                        }
+                    }
+                }
+                };
+            }
+        }
+
+        private GarmentInvoiceViewModel garmentInvoiceViewModel
+        {
+            get
+            {
+                return new GarmentInvoiceViewModel
+                {
+                    Id = 1,
+                    items = new List<GarmentInvoiceItemViewModel>
+                {
+                    new GarmentInvoiceItemViewModel
+                    {
+                        Id = 1,
+                        details = new List<GarmentInvoiceDetailViewModel>
+                        {
+                            new GarmentInvoiceDetailViewModel
+                            {
+                                Id = 1,
+                                dODetailId = 1,
+                            }
+                        }
+                    }
+                }
+                };
             }
         }
         private ServiceValidationExeption GetServiceValidationExeption()
@@ -87,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
-        private GarmentInternNoteController GetController(Mock<IGarmentInternNoteFacade> facadeM, Mock<IGarmentDeliveryOrderFacade> facadeDO , Mock<IValidateService> validateM, Mock<IMapper> mapper,Mock<IGarmentInvoice> facadeINV)
+        private GarmentInternNoteController GetController(Mock<IGarmentInternNoteFacade> facadeM, Mock<IGarmentDeliveryOrderFacade> facadeDO , Mock<IValidateService> validateM, Mock<IMapper> mapper,Mock<IGarmentInvoice> facadeINV, Mock<IGarmentCorrectionNoteQuantityFacade> correctionNote = null)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -102,6 +200,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 servicePMock
                     .Setup(x => x.GetService(typeof(IValidateService)))
                     .Returns(validateM.Object);
+            }
+            if (correctionNote != null)
+            {
+                servicePMock
+                    .Setup(x => x.GetService(typeof(IGarmentCorrectionNoteQuantityFacade)))
+                    .Returns(correctionNote.Object);
             }
 
             GarmentInternNoteController controller = new GarmentInternNoteController(servicePMock.Object, mapper.Object, facadeM.Object,facadeDO.Object, facadeINV.Object)
@@ -283,13 +387,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             mockMapper.Setup(x => x.Map<GarmentInternNoteViewModel>(It.IsAny<GarmentInternNote>()))
                 .Returns(ViewModel);
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
-                .Returns(new GarmentDeliveryOrderViewModel());
+                .Returns(DeliveryOrderModelViewModel);
+            mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(garmentInvoiceViewModel);
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                  .Returns(DeliveryOrderModel);
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(garmentInvoiceModel);
 
             GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade , null, mockMapper, INVFacade);
             var response = controller.Get(It.IsAny<int>());
@@ -307,10 +415,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Returns(new List<GarmentInternNoteViewModel> { ViewModel });
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(new GarmentDeliveryOrderViewModel());
+            mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(new GarmentInvoiceViewModel());
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(DeliveryOrderModel);
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(garmentInvoiceModel);
 
             GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, null, mockMapper, INVFacade);
             var response = controller.Get();
@@ -574,7 +688,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(new GarmentDeliveryOrderViewModel {
-                    Id = It.IsAny<int>(),
+                    Id = 1,
                     doNo = "Dono",
                     doDate = DateTimeOffset.Now,
                     paymentMethod = "PaymentMethod",
@@ -592,11 +706,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(new GarmentDeliveryOrder { DOCurrencyRate = 1 });
+                 .Returns(new GarmentDeliveryOrder { Id=1, DOCurrencyRate = 1 });
 
             var INVmockFacade = new Mock<IGarmentInvoice>();
             INVmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                  .Returns(new GarmentInvoice());
+
+            var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
+                .Returns(new List<GarmentCorrectionNote>());
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -605,7 +723,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             };
             user.Setup(u => u.Claims).Returns(claims);
 
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()

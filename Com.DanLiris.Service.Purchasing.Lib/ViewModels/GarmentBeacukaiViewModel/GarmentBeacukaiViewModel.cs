@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 {
 	public class GarmentBeacukaiViewModel : BaseViewModel, IValidatableObject
 	{
-		public long bCIdTemp { get; set; }
+		
 		public string beacukaiNo { get; set; }
 		public string billNo { get; set; }
 		public DateTimeOffset beacukaiDate { get; set; }
@@ -18,8 +18,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 		public SupplierViewModel supplier  { get; set; }
 		public double packagingQty { get; set; }
 		public string packaging { get; set; }
-		
-		public string customsOrigin { get; set; }
 		public string customType { get; set; }
 		public double bruto { get; set; }
 		public double netto { get; set; }
@@ -42,17 +40,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 
 			if (beacukaiDate.Equals(DateTimeOffset.MinValue) || beacukaiDate == null)
 			{
-				yield return new ValidationResult("Date is required", new List<string> { "bcDate" });
+				yield return new ValidationResult("Date is required", new List<string> { "beacukaiDate" });
 			}
 			if (validationDate.Equals(DateTimeOffset.MinValue) || beacukaiDate == null)
 			{
 				yield return new ValidationResult("Validate Date is required", new List<string> { "validationDate" });
 			}
-			if (currency == null)
+			if (currency == null )
 			{
 				yield return new ValidationResult("Currency is required", new List<string> { "currency" });
 			}
-			if (customType == null)
+			if (customType == null || customType =="")
 			{
 				yield return new ValidationResult("Type is required", new List<string> { "customType" });
 			}

@@ -1,42 +1,135 @@
-﻿using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
+﻿
+
+using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Test.Helpers;
+using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 {
-    [Collection("TestServerFixture Collection")]
     public class UnitReceiptNoteBySupplierUnitControllerTest
     {
-        private const string MediaType = "application/json";
-        private readonly string URI = "v1/unit-receipt-notes/by-supplier-unit";
-
-        private TestServerFixture TestFixture { get; set; }
-
-        private HttpClient Client
+        private UnitReceiptNoteViewModel ViewModel
         {
-            get { return this.TestFixture.Client; }
+            get
+            {
+                List<UnitReceiptNoteItemViewModel> items = new List<UnitReceiptNoteItemViewModel>
+                {
+                    new UnitReceiptNoteItemViewModel()
+                    {
+                        product = new ProductViewModel()
+                        {
+                            uom = new UomViewModel()
+                        }
+                    }
+                };
+
+                return new UnitReceiptNoteViewModel
+                {
+                    storage = new StorageViewModel(),
+                    supplier = new SupplierViewModel()
+                    {
+                        import = false
+                    },
+                    items = items,
+                    unit = new UnitViewModel()
+                    {
+                        division = new DivisionViewModel()
+                    }
+                };
+            }
         }
 
-        protected UnitReceiptNoteDataUtil DataUtil
+        private UnitReceiptNote Model
         {
-            get { return (UnitReceiptNoteDataUtil)this.TestFixture.Service.GetService(typeof(UnitReceiptNoteDataUtil)); }
+            get
+            {
+                return new UnitReceiptNote
+                {
+                    Items = new List<UnitReceiptNoteItem>()
+                };
+            }
         }
 
-        public UnitReceiptNoteBySupplierUnitControllerTest(TestServerFixture fixture)
+        private Mock<IServiceProvider> GetServiceProvider()
         {
-            TestFixture = fixture;
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
+
+            return serviceProvider;
+        }
+
+        private UnitReceiptNoteBySupplierUnitController GetController(Mock<IUnitReceiptNoteFacade> facadeMock, Mock<IServiceProvider> serviceProviderMock, Mock<IMapper> autoMapperMock)
+        {
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            //var servicePMock = GetServiceProvider();
+            //servicePMock
+            //    .Setup(x => x.GetService(typeof(IValidateService)))
+            //    .Returns(validateM.Object);
+
+            UnitReceiptNoteBySupplierUnitController controller = new UnitReceiptNoteBySupplierUnitController(autoMapperMock.Object, facadeMock.Object, serviceProviderMock.Object)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        User = user.Object
+                    }
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
+            controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
+
+            return controller;
+        }
+
+        protected int GetStatusCode(IActionResult response)
+        {
+            return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
         [Fact]
-        public async Task Should_Success_Get_All_Data()
+        public void Should_Success_Get_All_Data()
         {
-            var response = await this.Client.GetAsync(URI);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.ReadBySupplierUnit(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new ReadResponse<UnitReceiptNote>(new List<UnitReceiptNote>() { Model }, 1, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<UnitReceiptNoteViewModel>>(It.IsAny<List<UnitReceiptNote>>()))
+                .Returns(new List<UnitReceiptNoteViewModel> { ViewModel });
+
+            UnitReceiptNoteBySupplierUnitController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetBySupplierUnit(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), "{}");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
     }
 }

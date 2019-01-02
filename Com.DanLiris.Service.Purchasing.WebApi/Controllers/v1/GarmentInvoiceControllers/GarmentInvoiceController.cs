@@ -171,7 +171,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
                     {
                         GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                         item.deliveryOrder.items = deliveryOrderViewModel.items;
-                    }
+						item.deliveryOrder.useIncomeTax = deliveryOrderViewModel.useIncomeTax;
+						item.deliveryOrder.useVat = deliveryOrderViewModel.useVat;
+						item.deliveryOrder.supplier = deliveryOrderViewModel.supplier;
+						item.deliveryOrder.docurrency = deliveryOrderViewModel.docurrency;
+						if(item.deliveryOrder.incomeTax !=null)
+						{
+							item.deliveryOrder.incomeTax.Id = (int)deliveryOrder.IncomeTaxId;
+							item.deliveryOrder.incomeTax.Name = deliveryOrder.IncomeTaxName;
+							item.deliveryOrder.incomeTax.Rate = (double)deliveryOrder.IncomeTaxRate ;
+						}
+						
+					}
                 }
 
                 Dictionary<string, object> Result =

@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTests
@@ -77,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            
+
             return new PurchasingDispositionDataUtil(facade, externalPurchaseOrderDataUtil);
         }
 
@@ -93,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         [Fact]
         public async void Should_Success_Get_Data_By_Id()
         {
-            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadModelById((int)model.Id);
             Assert.NotNull(Response);
@@ -104,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME,7);
+            var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseLocalSupplier, 0);
 
             var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -224,8 +223,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            int Deleted =  facade.Delete((int)Data.Id, USERNAME);
+            int Deleted = facade.Delete((int)Data.Id, USERNAME);
             Assert.True(Deleted > 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Position()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var prepData = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            PurchasingDispositionUpdatePositionPostedViewModel data = new PurchasingDispositionUpdatePositionPostedViewModel()
+            {
+                Position = Lib.Enums.ExpeditionPosition.CASHIER_DIVISION,
+                PurchasingDispositionNoes = new List<string>() { prepData.DispositionNo }
+            };
+            PurchasingDispositionUpdatePositionPostedViewModel nullModel = new PurchasingDispositionUpdatePositionPostedViewModel();
+            Assert.True(nullModel.Validate(null).Count() > 0);
+            int updated = await facade.UpdatePosition(data, USERNAME);
+            Assert.True(updated > 0);
         }
 
         [Fact]
@@ -300,6 +316,115 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadByDisposition(model.DispositionNo);
             Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data_TotalPaidPrice()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read();
+            var data = Response.Item1.Select(x => new PurchasingDispositionViewModel()
+            {
+                Active = x.Active,
+                Amount = x.Amount,
+                Bank = x.Bank,
+                Calculation = x.Calculation,
+                ConfirmationOrderNo = x.ConfirmationOrderNo,
+                CreatedAgent = x.CreatedAgent,
+                CreatedBy = x.CreatedBy,
+                CreatedUtc = x.CreatedUtc,
+                Currency = new Lib.ViewModels.IntegrationViewModel.CurrencyViewModel()
+                {
+                    code = x.CurrencyCode,
+                    _id = x.CurrencyId
+                },
+                Id = x.Id,
+                DispositionNo = x.DispositionNo,
+                Investation = x.Investation,
+                InvoiceNo = x.InvoiceNo,
+                IsDeleted = x.IsDeleted,
+                LastModifiedAgent = x.LastModifiedAgent,
+                LastModifiedBy = x.LastModifiedBy,
+                LastModifiedUtc = x.LastModifiedUtc,
+                PaymentDueDate = x.PaymentDueDate,
+                PaymentMethod = x.PaymentMethod,
+                Position = x.Position,
+                ProformaNo = x.ProformaNo,
+                Remark = x.Remark,
+                Supplier = new Lib.ViewModels.IntegrationViewModel.SupplierViewModel()
+                {
+                    code = x.SupplierCode,
+                    name = x.SupplierName,
+                    _id = x.SupplierId
+                },
+                Items = x.Items.Select(y => new PurchasingDispositionItemViewModel()
+                {
+                    Active = y.Active,
+                    CreatedAgent = y.CreatedAgent,
+                    CreatedBy = y.CreatedBy,
+                    CreatedUtc = y.CreatedUtc,
+                    EPOId = y.EPOId,
+                    EPONo = y.EPONo,
+                    Id = y.Id,
+                    IncomeTax = new Lib.ViewModels.IntegrationViewModel.IncomeTaxViewModel()
+                    {
+                        name = y.IncomeTaxName,
+                        rate = y.IncomeTaxRate.ToString(),
+                        _id = y.IncomeTaxId
+                    },
+                    UseVat = y.UseVat,
+                    UseIncomeTax = y.UseIncomeTax,
+                    LastModifiedUtc = y.LastModifiedUtc,
+                    LastModifiedBy = y.LastModifiedBy,
+                    LastModifiedAgent = y.LastModifiedAgent,
+                    IsDeleted = y.IsDeleted,
+                    Details = y.Details.Select(z => new PurchasingDispositionDetailViewModel()
+                    {
+                        Active = z.Active,
+                        IsDeleted = z.IsDeleted,
+                        LastModifiedAgent = z.LastModifiedAgent,
+                        Category = new Lib.ViewModels.IntegrationViewModel.CategoryViewModel()
+                        {
+                            code = z.CategoryCode,
+                            name = z.CategoryName,
+                            _id = z.CategoryId
+                        },
+                        Unit = new Lib.ViewModels.IntegrationViewModel.UnitViewModel()
+                        {
+                            name = z.UnitName,
+                            code = z.UnitCode,
+                            _id = z.UnitId
+                        },
+                        Product = new Lib.ViewModels.IntegrationViewModel.ProductViewModel()
+                        {
+                            _id = z.ProductId,
+                            code = z.ProductCode,
+                            name = z.ProductName
+                        },
+                        PRNo = z.PRNo,
+                        PRId = z.PRId,
+                        PriceTotal = z.PriceTotal,
+                        PaidQuantity = z.PaidQuantity,
+                        CreatedAgent = z.CreatedAgent,
+                        CreatedBy = z.CreatedBy,
+                        CreatedUtc = z.CreatedUtc,
+                        DealQuantity = z.DealQuantity,
+                        DealUom = new Lib.ViewModels.IntegrationViewModel.UomViewModel()
+                        {
+                            unit = z.DealUomUnit,
+                            _id = z.DealUomId
+                        },
+                        Id = z.Id,
+                        PricePerDealUnit = z.PricePerDealUnit,
+                        PaidPrice = z.PaidPrice,
+                        LastModifiedUtc = z.LastModifiedUtc,
+                        LastModifiedBy = z.LastModifiedBy
+                    }).ToList()
+                }).ToList()
+            }).ToList();
+            var totalPaidPriceResponse = facade.GetTotalPaidPrice(data);
+            Assert.NotEqual(totalPaidPriceResponse.Count, 0);
         }
     }
 }

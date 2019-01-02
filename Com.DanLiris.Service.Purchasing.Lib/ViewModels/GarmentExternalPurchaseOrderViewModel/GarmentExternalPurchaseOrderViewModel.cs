@@ -143,7 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                         itemErrorCount++;
                         itemError += "DealUom: 'Data Satuan tidak benar', ";
                     }
-                    if (item.IsOverBudget)
+                    if (item.IsOverBudget && !((PaymentMethod == "CMT" || PaymentMethod == "FREE FROM BUYER") && (PaymentType == "FREE" || PaymentType == "EX MASTER FREE")))
                     {
                         if (string.IsNullOrWhiteSpace(item.OverBudgetRemark))
                         {
@@ -151,6 +151,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                             itemError += "OverBudgetRemark: 'Keterangan OverBudget Harus Diisi', ";
                         }
                     }
+                    if(item.DealUom!=null && item.SmallUom != null)
+                    {
+                        if (item.DealUom.Unit == item.SmallUom.Unit)
+                        {
+                            if (item.Conversion != 1)
+                            {
+                                itemErrorCount++;
+                                itemError += "Conversion: 'Konversi harus 1', ";
+                            }
+                        }
+                    }
+                    
 
                     itemError += "}, ";
                 }

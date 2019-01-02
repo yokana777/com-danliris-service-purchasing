@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNotePDFTemplates
 {
-    public class GarmentCorrectionNotePphPDFTemplate
+    public class GarmentCorrectionNotePricePphPDFTemplate
     {
         public static MemoryStream Generate(GarmentCorrectionNote model, IServiceProvider serviceProvider, int clientTimeZoneOffset = 7, string userName = "")
         {
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             tableIdentityLeft.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("No. Nota Pajak", normal_font);
             tableIdentityLeft.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   {invoice.IncomeTaxNo}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {model.NKPH}", normal_font);
             tableIdentityLeft.AddCell(cellLeftNoBorder);
 
             PdfPTable tableIdentityRight = new PdfPTable(2);
@@ -122,8 +122,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 cellLeft.Phrase = new Phrase(deliveryOrder.DODate.AddDays(deliveryOrderItem.PaymentDueDays).ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase(invoice.InvoiceNo, normal_font);
-                tableContent.AddCell(cellLeft);
+                if (invoice!=null)
+                {
+                    cellLeft.Phrase = new Phrase(invoice.InvoiceNo, normal_font);
+                    tableContent.AddCell(cellLeft);
+                }
+                else
+                {
+                    cellLeft.Phrase = new Phrase("", normal_font);
+                    tableContent.AddCell(cellLeft);
+                }
 
                 cellLeft.Phrase = new Phrase(item.ProductName, normal_font);
                 tableContent.AddCell(cellLeft);

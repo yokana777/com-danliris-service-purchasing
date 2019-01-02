@@ -13,10 +13,8 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Text;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDispositionControllerTests
@@ -34,15 +32,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 items.Add(
                     new PurchasingDispositionItemViewModel
                     {
-                        IncomeTax= new IncomeTaxViewModel
+                        IncomeTax = new IncomeTaxViewModel
                         {
-                            name="test",
-                            rate="1",
-                            _id="1"
+                            name = "test",
+                            rate = "1",
+                            _id = "1"
                         },
-                        UseIncomeTax=true,
-                      Details = details
-                        
+                        UseIncomeTax = true,
+                        Details = details
+
                     });
 
                 details.Add(
@@ -50,47 +48,47 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                     {
                         //EPODetailId = It.IsAny<string>(),
                         PRId = It.IsAny<string>(),
-                        PRNo="test",
-                        Category=new CategoryViewModel
+                        PRNo = "test",
+                        Category = new CategoryViewModel
                         {
                             _id = "1",
-                            name="Test",
-                            code="test"
+                            name = "Test",
+                            code = "test"
                         },
                         PricePerDealUnit = 1000,
                         PriceTotal = 10000,
-                        DealQuantity=10,
-                        Product=new ProductViewModel
+                        DealQuantity = 10,
+                        Product = new ProductViewModel
                         {
-                            name="test"
+                            name = "test"
                         },
-                        DealUom=new UomViewModel
+                        DealUom = new UomViewModel
                         {
-                            unit="test"
+                            unit = "test"
                         },
-                        Unit= new UnitViewModel
+                        Unit = new UnitViewModel
                         {
-                            name="test",
+                            name = "test",
 
                         }
-                        
+
 
                     });
 
                 return new PurchasingDispositionViewModel
                 {
-                    Remark="Test",
-                    Calculation="axa",
-                    Amount=1000,
-                    Currency=new CurrencyViewModel
+                    Remark = "Test",
+                    Calculation = "axa",
+                    Amount = 1000,
+                    Currency = new CurrencyViewModel
                     {
-                        code="test",
-                        rate=1
+                        code = "test",
+                        rate = 1
                     },
                     Supplier = new SupplierViewModel
                     {
-                        name="NameSupp",
-                        _id= It.IsAny<string>()
+                        name = "NameSupp",
+                        _id = It.IsAny<string>()
                     },
                     Items = items
                 };
@@ -107,19 +105,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                     SupplierId = It.IsAny<string>(),
                     SupplierCode = "SupplierCode",
                     SupplierName = "SupplierName",
-                    
+
 
                     PaymentMethod = "CASH",
 
                     InvoiceNo = "INV000111",
-                    
+
 
                     Remark = null,
 
                     PaymentDueDate = new DateTimeOffset(), // ???
 
                     Items = new List<PurchasingDispositionItem> {
-                        
+
                         new PurchasingDispositionItem
                         {
                             Details=new List<PurchasingDispositionDetail> { }
@@ -201,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             mockFacade.Setup(x => x.Create(It.IsAny<PurchasingDisposition>(), "unittestusername", 7))
                .ReturnsAsync(1);
 
-            
+
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
@@ -257,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(Tuple.Create(new List<PurchasingDisposition>(), 0, new Dictionary<string, string>()));
-
+            mockFacade.Setup(x => x.GetTotalPaidPrice(It.IsAny<List<PurchasingDispositionViewModel>>())).Returns(new List<PurchasingDispositionViewModel>());
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
                 .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
@@ -275,6 +273,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             mockFacade.Setup(x => x.Read(1, 25, "{}", null, "{}"))
                 .Returns(Tuple.Create(new List<PurchasingDisposition>(), 0, new Dictionary<string, string>()));
+
+            mockFacade.Setup(x => x.GetTotalPaidPrice(It.IsAny<List<PurchasingDispositionViewModel>>())).Returns(new List<PurchasingDispositionViewModel>());
 
             var mockMapper = new Mock<IMapper>();
 
@@ -378,6 +378,68 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
         }
 
         [Fact]
+        public void Should_Success_Update_Position()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+                .ReturnsAsync(1);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Validate_Update_Position()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Throws(GetServiceValidationExeption());
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Update_Position()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception());
+
+            var controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>()).Result;
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Delete_Data()
         {
             var validateMock = new Mock<IValidateService>();
@@ -464,7 +526,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             var ViewModel = this.ViewModel;
 
-            
+
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))

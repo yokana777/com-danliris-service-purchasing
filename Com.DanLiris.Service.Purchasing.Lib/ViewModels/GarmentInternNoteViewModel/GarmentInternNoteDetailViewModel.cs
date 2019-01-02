@@ -13,8 +13,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public string roNo { get; set; }
         public double pricePerDealUnit { get; set; }
         public double priceTotal { get; set; }
-        public double paymentDueDays { get; set; }
+        public int paymentDueDays { get; set; }
         public double quantity { get; set; }
+        public int invoiceDetailId { get; set; }
         public DateTimeOffset paymentDueDate { get; set; }
 
         public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
@@ -25,5 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public UomViewModel uomUnit { get; set; }
 
         public UnitViewModel unit { get; set; }
+        public long dODetailId { get; set; }
+
     }
 }

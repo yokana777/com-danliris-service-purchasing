@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
         }
 
-        public ReadResponse GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string Status, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public ReadResponse<object> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string Status, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbContext.PurchasingDocumentExpeditions;
 
@@ -136,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 });
             }
 
-            return new ReadResponse(list, TotalData, OrderDictionary);
+            return new ReadResponse<object>(list, TotalData, OrderDictionary);
         }
     }
 }

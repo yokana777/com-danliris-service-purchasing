@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNotePDFTemplates
 {
-    public class GarmentCorrectionNotePDFTemplate
+    public class GarmentCorrectionNotePricePDFTemplate
     {
         public static MemoryStream Generate(GarmentCorrectionNote model, IServiceProvider serviceProvider, int clientTimeZoneOffset = 7, string userName = "")
         {
@@ -182,15 +182,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             {
                 cellLeftNoBorder.Phrase = new Phrase($"Total {unitAmount.Key}", normal_font);
                 tableFooterLeft.AddCell(cellLeftNoBorder);
-                cellLeftNoBorder.Phrase = new Phrase($":   ({unitAmount.Value.ToString("n", new CultureInfo("id-ID"))})", normal_font);
+                cellLeftNoBorder.Phrase = new Phrase($":   {unitAmount.Value.ToString("n", new CultureInfo("id-ID"))}", normal_font);
                 tableFooterLeft.AddCell(cellLeftNoBorder);
             }
 
             PdfPTable tableFooterRight = new PdfPTable(2);
             tableFooterRight.SetWidths(new float[] { 3f, 5f });
+
             cellLeftNoBorder.Phrase = new Phrase("Total Amount", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   ({totalAmount.ToString("n", new CultureInfo("id-ID"))})", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {totalAmount.ToString("n", new CultureInfo("id-ID"))}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("Mata Uang", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
@@ -198,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             tableFooterRight.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("Total Harga Pokok (Rp)", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($":   ({(totalAmount * (decimal)garmentDeliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID"))})", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($":   {(totalAmount * (decimal)garmentDeliveryOrder.DOCurrencyRate).ToString("n", new CultureInfo("id-ID"))}", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             PdfPCell cellFooterLeft = new PdfPCell(tableFooterLeft) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
