@@ -30,8 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.internNo, opt => opt.MapFrom(s => s.InternNo))
                 .ForPath(d => d.billNo, opt => opt.MapFrom(s => s.BillNo))
                 .ForPath(d => d.paymentBill, opt => opt.MapFrom(s => s.PaymentBill))
-
-                .ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+				 .ForPath(d => d.customsId, opt => opt.MapFrom(s => s.CustomsId))
+				.ForPath(d => d.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
 
                 .ForMember(d => d.isCorrection, opt => opt.MapFrom(s => s.IsCorrection))
 
@@ -111,6 +111,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.quantityCorrection, opt => opt.MapFrom(s => s.QuantityCorrection))
                 .ForPath(d => d.pricePerDealUnitCorrection, opt => opt.MapFrom(s => s.PricePerDealUnitCorrection))
                 .ForPath(d => d.priceTotalCorrection, opt => opt.MapFrom(s => s.PriceTotalCorrection))
+
+                .ForPath(d => d.codeRequirment, opt => opt.MapFrom(s => s.CodeRequirment))
                 .ReverseMap();
         }
     }

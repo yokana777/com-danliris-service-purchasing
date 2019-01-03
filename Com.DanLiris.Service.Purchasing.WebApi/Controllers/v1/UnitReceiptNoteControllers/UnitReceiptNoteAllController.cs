@@ -1,18 +1,13 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
-using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
-using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers
 {
@@ -24,14 +19,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
     {
         private string ApiVersion = "1.0.0";
         private readonly IMapper _mapper;
-        private readonly UnitReceiptNoteFacade _facade;
+        private readonly IUnitReceiptNoteFacade _facade;
         private readonly IdentityService identityService;
 
-        public UnitReceiptNoteAllController(IMapper mapper, UnitReceiptNoteFacade facade, IdentityService identityService)
+        public UnitReceiptNoteAllController(IMapper mapper, IUnitReceiptNoteFacade facade, IServiceProvider serviceProvider)
         {
             _mapper = mapper;
             _facade = facade;
-            this.identityService = identityService;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
@@ -41,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
             
             var Data = _facade.Read(page, size, order, keyword, filter);
 
-            var newData = _mapper.Map<List<UnitReceiptNoteViewModel>>(Data.Item1);
+            var newData = _mapper.Map<List<UnitReceiptNoteViewModel>>(Data.Data);
 
             List<object> listData = new List<object>();
             listData.AddRange(
@@ -70,8 +65,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 info = new Dictionary<string, object>
                 {
                     { "count", listData.Count },
-                    { "total", Data.Item2 },
-                    { "order", Data.Item3 },
+                    { "total", Data.TotalData },
+                    { "order", Data.Order },
                     { "page", page },
                     { "size", size }
                 },

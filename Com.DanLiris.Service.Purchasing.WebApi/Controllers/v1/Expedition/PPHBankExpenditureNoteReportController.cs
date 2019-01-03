@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         {
             int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-            ReadResponse response = this.pphBankExpenditureNoteReportFacade.GetReport(Size, Page, No, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
+            ReadResponse<object> response = this.pphBankExpenditureNoteReportFacade.GetReport(Size, Page, No, UnitPaymentOrderNo, InvoiceNo, SupplierCode, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

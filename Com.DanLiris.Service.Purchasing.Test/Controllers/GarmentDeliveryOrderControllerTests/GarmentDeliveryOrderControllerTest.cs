@@ -13,6 +13,7 @@ using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -61,6 +62,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             get
             {
                 return new GarmentDeliveryOrder { };
+            }
+        }
+
+        private AccuracyOfArrivalReportViewModel ViewModelAccuracyArrival
+        {
+            get
+            {
+                return new AccuracyOfArrivalReportViewModel
+                {
+                    supplier = new SupplierViewModel(),
+                    product = new GarmentProductViewModel(),
+                };
             }
         }
 
@@ -395,7 +408,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             mockFacade.Setup(x => x.ReadForUnitReceiptNote(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
 
@@ -418,7 +431,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             mockFacade.Setup(x => x.ReadForCorrectionNoteQuantity(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-                .Returns(new ReadResponse(new List<object>(), 0, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
 
             var mockMapper = new Mock<IMapper>();
 
@@ -433,6 +447,416 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, null, null);
             var response = controller.GetForCorrectionNoteQuantity();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Arrival_Header()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofArrival(null, null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetReport(null, null, null);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Report_Xls_Data_Header_AccuracyArrival()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofArrival(null, null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsArrivalHeader(null, null, null);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Xls_Data_Header_AccuracyArrival()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofArrival(null, null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsArrivalHeader(null, null, null);
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Arrival_Detail()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetReportDetail($"BuyerCode{nowTicksA}", null, null, null);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Report_Xls_Data_Detail_AccuracyArrival()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsArrivalDetail($"BuyerCode{nowTicksA}", null, null, null);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Xls_Data_Detail_AccuracyArrival()
+        {
+            List<GarmentCategoryViewModel> garmentCategory = new List<GarmentCategoryViewModel>
+            {
+                new GarmentCategoryViewModel
+                {
+                    Id = 7,
+                    Code = "LBL",
+                    Name = "LABEL",
+                    CodeRequirement = "BP"
+                },
+                new GarmentCategoryViewModel
+                {
+                    Id = 13,
+                    Code = "SUB",
+                    Name = "SUBKON",
+                    CodeRequirement = "BB"
+                }
+            };
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            var vmString = JsonConvert.SerializeObject(garmentCategory);
+            
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsArrivalDetail($"BuyerCode{nowTicksA}", null, null, null);
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+        }
+
+
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Delivery_Header()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery( null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetReport2(null, null);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Report_Xls_Data_Header_AccuracyDelivery()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery(null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsDeliveryHeader(null, null);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Xls_Data_Header_AccuracyDelivery()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery(null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsDeliveryHeader(null, null);
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Data_Delivery_Detail()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetReportDetail2($"BuyerCode{nowTicksA}", null, null);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Report_Xls_Data_Detail_AccuracyDelivery()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Report_Xls_Data_Detail_DeliveryArrival()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+                .Returns(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null);
+            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
         }
     }
 }

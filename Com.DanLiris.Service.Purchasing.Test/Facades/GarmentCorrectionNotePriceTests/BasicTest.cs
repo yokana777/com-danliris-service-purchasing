@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
                 .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
             httpClientService
-                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies?keyword="))))
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
 
             var serviceProviderMock = new Mock<IServiceProvider>();
