@@ -526,66 +526,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
         }
 
-        public ReadResponse ReadForUnitDO(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
         {
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
-            IQueryable<GarmentUnitReceiptNote> Query = dbSet
-                .Select(m => new GarmentUnitReceiptNote
-                {
-                    Id = m.Id,
-                    DONo = m.DONo,
-                    URNNo = m.URNNo,
-                    SupplierName = m.SupplierName,
-                    SupplierId = m.SupplierId,
-                    SupplierCode = m.SupplierCode,
-                    LastModifiedUtc = m.LastModifiedUtc,
-                    Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
-                    {
-                        Id = i.Id,
-                        RONo = i.RONo,
-                        ProductId = i.ProductId,
-                        ProductCode = i.ProductCode,
-                        ProductName = i.ProductName,
-                        ProductRemark = i.ProductRemark,
-                        UomId = i.UomId,
-                        UomUnit = i.UomUnit,
-                        EPOItemId = i.EPOItemId,
-                        ReceiptQuantity = i.ReceiptQuantity,
-                        OrderQuantity = i.OrderQuantity
-                    }).ToList()
-                });
-
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
-
-            Pageable<GarmentUnitReceiptNote> pageable = new Pageable<GarmentUnitReceiptNote>(Query, Page - 1, Size);
-            List<GarmentUnitReceiptNote> DataModel = pageable.Data.ToList();
-            int Total = pageable.TotalCount;
-
-            List<GarmentUnitReceiptNoteViewModel> DataViewModel = mapper.Map<List<GarmentUnitReceiptNoteViewModel>>(DataModel);
-
-            List<dynamic> listData = new List<dynamic>();
-            listData.AddRange(
-                DataViewModel.Select(s => new
-                {
-                    s.Id,
-                    s.URNNo,
-                    s.LastModifiedUtc,
-                    Items = s.Items.Select(i => new
-                    {
-                        i.Id,
-                        i.RONo,
-                        product = new { i.Product.Id, i.Product.Name, i.Product.Code, i.Product.Remark },
-                        i.ReceiptCorrection,
-                        i.OrderQuantity,
-                        Article = dbContext.GarmentExternalPurchaseOrderItems.Where(k => k.Id == i.EPOItemId && s.IsDeleted == false).Select(l=>l.Article).FirstOrDefault()
-                    }).ToList()
-                }).ToList()
-            );
-            return new ReadResponse(listData, Total, OrderDictionary);
+            var readForUnitDO = dbSet.Where(x => !FilterDictionary.ContainsKey("UnitId") ? true : x.UnitId == long.Parse(FilterDictionary["UnitId"])).
+                SelectMany(x => x.Items.Select(y => new {
+                y.Id,
+                y.RONo,
+                y.ProductId,
+                y.ProductName,
+                y.ProductCode,
+                y.ProductRemark,
+                y.OrderQuantity,
+                y.ReceiptQuantity,
+                y.UomUnit,
+                y.UomId,
+                Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m=>m.Id == y.EPOItemId).Select(d=>d.Article).FirstOrDefault()
+            })).ToList();
+            var coba = readForUnitDO.GroupBy(g => g.RONo);
+            var test = coba.Select(c => new
+            {
+                Article = c.Select(s => s.Article),
+                RONo = c.Key,
+                Items = c.ToList()
+            });
+            List<object> result = new List<object>(test);
+            return result;
         }
     }
 }

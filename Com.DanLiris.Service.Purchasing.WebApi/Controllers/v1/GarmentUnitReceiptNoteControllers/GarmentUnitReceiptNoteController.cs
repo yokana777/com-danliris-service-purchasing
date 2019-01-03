@@ -199,26 +199,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
         }
 
         [HttpGet("unit-delivery-order")]
-        public IActionResult GetForUnitDO(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        public IActionResult GetForUnitDO(string keyword = null, string filter = "{}")
         {
             try
             {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
-                var result = facade.ReadForUnitDO(page, size, order, keyword, filter);
-
-                var info = new Dictionary<string, object>
-                    {
-                        { "count", result.Data.Count },
-                        { "total", result.TotalData },
-                        { "order", result.Order },
-                        { "page", page },
-                        { "size", size }
-                    };
-
+                var result = facade.ReadForUnitDO(keyword, filter);
                 Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(result.Data, info);
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok(result);
                 return Ok(Result);
             }
             catch (Exception e)
