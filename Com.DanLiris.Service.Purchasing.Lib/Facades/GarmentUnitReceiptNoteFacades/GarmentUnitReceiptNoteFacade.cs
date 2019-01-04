@@ -486,10 +486,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 garmentInventoryDocumentItem.ProductCode = garmentUnitReceiptNoteItem.ProductCode;
                 garmentInventoryDocumentItem.ProductName = garmentUnitReceiptNoteItem.ProductName;
 
-                garmentInventoryDocumentItem.Quantity = garmentUnitReceiptNoteItem.ReceiptQuantity;
+                garmentInventoryDocumentItem.Quantity = garmentUnitReceiptNoteItem.SmallQuantity;
 
-                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.UomId;
-                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
                 garmentInventoryDocumentItem.ProductRemark = garmentUnitReceiptNoteItem.ProductRemark;
 
