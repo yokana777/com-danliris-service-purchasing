@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
                     PaymentMethod = "CASH",
 
-                    InvoiceNo = "INV000111",
+                   // InvoiceNo = "INV000111",
 
 
                     Remark = null,
@@ -525,7 +525,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 .Returns(new PurchasingDisposition());
 
             var ViewModel = this.ViewModel;
-
+            ViewModel.IncomeTaxBy = "Dan Liris";
 
 
             var mockMapper = new Mock<IMapper>();
