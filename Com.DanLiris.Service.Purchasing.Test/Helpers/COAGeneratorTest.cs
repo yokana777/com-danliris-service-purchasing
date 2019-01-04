@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         [Fact]
         public void Should_Success_Get_COA_SpinningMS()
         {
-            var result = COAGenerator.GetDebtCOA(false, "SPINNING", "MS");
+            var result = COAGenerator.GetDebtCOA(false, "SPINNING", "S4");
             Assert.NotNull(result);
         }
 
