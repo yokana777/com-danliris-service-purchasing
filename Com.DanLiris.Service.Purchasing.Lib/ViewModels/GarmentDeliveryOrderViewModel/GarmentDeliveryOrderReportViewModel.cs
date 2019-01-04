@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel
+{
+   public class GarmentDeliveryOrderReportViewModel
+    {
+        public string no { get; set; }
+        public DateTimeOffset supplierDoDate { get; set; } // DODate
+        public DateTimeOffset date { get; set; } // ArrivalDate
+        public string supplierCode { get; set; }
+        public string supplierName { get; set; }
+        public string ePONo { get; set; }
+        public string productCode { get; set; }
+        public string productName { get; set; }
+        public string productRemark { get; set; }
+        public double dealQuantity { get; set; }
+        public double dOQuantity { get; set; }
+        public double remainingQuantity { get; set; }
+        public string uomUnit { get; set; }
+        public long ePODetailId { get; set; }
+        public DateTimeOffset createdUtc { get; set; }
+        public string shipmentType { get; set; }
+        public string shipmentNo { get; set; }
+        public string prNo { get; set; }
+        public string prRefNo { get; set; }
+        public string roNo { get; set; }
+        public double price { get; set; }
+        public string doCurrencyCode { get; set; }
+        public string remark { get; set; }
+        public string createdBy { get; set; }
+        public bool isCustoms { get; set; }
+    }
+}

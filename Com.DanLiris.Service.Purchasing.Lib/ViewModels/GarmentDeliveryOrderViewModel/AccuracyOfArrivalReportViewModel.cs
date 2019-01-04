@@ -26,5 +26,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string ok_notOk { get; set; }
         public int percentOk_notOk { get; set; }
         public int jumlah { get; set; }
+        public int jumlahOk { get; set; }
     }
 }

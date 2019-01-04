@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
     public interface IGarmentUnitReceiptNoteFacade
     {
-        ReadResponse Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentUnitReceiptNoteViewModel ReadById(int id);
         MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote);
         Task<int> Create(GarmentUnitReceiptNote garmentUnitReceiptNote);

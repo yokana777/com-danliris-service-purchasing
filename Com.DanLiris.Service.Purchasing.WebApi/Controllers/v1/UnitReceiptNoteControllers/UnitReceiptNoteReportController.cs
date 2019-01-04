@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers
 {
@@ -19,14 +17,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
     {
         private string ApiVersion = "1.0.0";
         private readonly IMapper mapper;
-        private readonly UnitReceiptNoteFacade facade;
+        private readonly IUnitReceiptNoteFacade facade;
         private readonly IdentityService identityService;
 
-        public UnitReceiptNoteReportController(IMapper mapper, UnitReceiptNoteFacade facade, IdentityService identityService)
+        public UnitReceiptNoteReportController(IMapper mapper, IUnitReceiptNoteFacade facade, IServiceProvider serviceProvider)
         {
             this.mapper = mapper;
             this.facade = facade;
-            this.identityService = identityService;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
@@ -43,8 +41,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
-                    data = data.Item1,
-                    info = new { total = data.Item2 },
+                    data = data.Data,
+                    info = new { total = data.TotalData },
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });

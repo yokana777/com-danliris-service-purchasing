@@ -158,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         {
             var mockFacade = new Mock<IPPHBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(new ReadResponse(new List<object>(), 1, new Dictionary<string, string>()));
+                .Returns(new ReadResponse<object>(new List<object>(), 1, new Dictionary<string, string>()));
 
             PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
             var response = controller.Get(1, 25, "{}", null, "{}");
