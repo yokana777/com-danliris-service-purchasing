@@ -43,9 +43,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                 Bank="Bank",
                 Amount=1000,
                 Calculation="axb+c",
-                InvoiceNo="test",
+                //InvoiceNo="test",
                 ConfirmationOrderNo="test",
-                Investation = "test",
+                //Investation = "test",
 
                 PaymentDueDate=new DateTimeOffset(),
                 ProformaNo="aaa",
