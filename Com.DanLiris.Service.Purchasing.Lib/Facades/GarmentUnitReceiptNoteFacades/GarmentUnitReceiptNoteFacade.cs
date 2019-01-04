@@ -534,20 +534,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 SelectMany(x => x.Items.Select(y => new {
                 y.Id,
                 y.RONo,
+                y.DODetailId,
+                y.EPOItemId,
+                y.POItemId,
+                y.PRItemId,
+                y.URNId,
                 y.ProductId,
                 y.ProductName,
                 y.ProductCode,
                 y.ProductRemark,
                 y.OrderQuantity,
-                y.ReceiptQuantity,
-                y.UomUnit,
-                y.UomId,
+                y.SmallQuantity,
+                y.SmallUomId,
+                y.SmallUomUnit,
+                y.POSerialNumber,
+                y.PricePerDealUnit,
+                URNNo = dbContext.GarmentUnitReceiptNotes.Where(u => u.Id == y.URNId).Select(s=>s.URNNo).FirstOrDefault(),
                 Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m=>m.Id == y.EPOItemId).Select(d=>d.Article).FirstOrDefault()
             })).ToList();
             var coba = readForUnitDO.GroupBy(g => g.RONo);
             var test = coba.Select(c => new
             {
-                Article = c.Select(s => s.Article),
+                Article = c.Select(s => s.Article).FirstOrDefault(),
                 RONo = c.Key,
                 Items = c.ToList()
             });
