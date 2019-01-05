@@ -23,6 +23,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         public string Article { get; set; }
         public bool IsUsed { get; set; }
 
+        public long DOId { get; set; }
+        public string DONo { get; set; }
+        public long CorrectionId { get; set; }
+        public string CorrectionNo { get; set; }
+
         public virtual ICollection<GarmentUnitDeliveryOrderItem> Items { get; set; }
     }
 }

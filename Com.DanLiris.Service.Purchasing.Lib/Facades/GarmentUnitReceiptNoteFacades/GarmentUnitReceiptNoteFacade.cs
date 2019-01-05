@@ -530,7 +530,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         {
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
-            var readForUnitDO = dbSet.Where(x => !FilterDictionary.ContainsKey("UnitId") ? true : x.UnitId == long.Parse(FilterDictionary["UnitId"])).
+            var readForUnitDO = dbSet.Where(x => !FilterDictionary.ContainsKey("UnitId") ? true : x.UnitId == long.Parse(FilterDictionary["UnitId"]) && x.IsDeleted == false).
                 SelectMany(x => x.Items.Select(y => new {
                 y.Id,
                 y.RONo,
@@ -560,6 +560,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 Items = c.ToList()
             });
             List<object> result = new List<object>(test);
+            return result;
+        }
+
+        public List<object> ReadForUnitDOHeader(string Keyword = null)
+        {
+            var readForUnitDO = dbSet.SelectMany(x => x.Items.Select(y => new {
+                    y.Id,
+                    y.RONo,
+                    y.ProductId,
+                    y.ProductName,
+                    y.ProductCode,
+                    y.ProductRemark,
+                    y.OrderQuantity,
+                    y.SmallQuantity,
+                    y.SmallUomId,
+                    y.SmallUomUnit,
+                })).ToList();
+            var coba = readForUnitDO.GroupBy(g => new { g.RONo, g.ProductName, g.ProductRemark });
+            var test = coba.Select(c => new
+            {
+                RONo = c.Key,
+                Items = c.ToList()
+            });
+            List<object> result = new List<object>(readForUnitDO);
             return result;
         }
     }
