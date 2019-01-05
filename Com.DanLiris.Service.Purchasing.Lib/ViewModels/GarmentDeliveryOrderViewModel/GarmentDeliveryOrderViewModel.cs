@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
             }
-            if (shipmentNo == null)
+            if (supplier.Import==true && shipmentNo == null )
             {
                 yield return new ValidationResult("ShipmentNo is required", new List<string> { "shipmentNo" });
             }

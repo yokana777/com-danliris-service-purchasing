@@ -183,7 +183,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                     m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
                                     foreach (var vmDetail in vmItem.fulfillments)
                                     {
-                                        foreach (var modelDetail in modelItem.Details)
+                                        foreach (var modelDetail in modelItem.Details.Where(j => j.POId == vmDetail.pOId))
                                         {
                                             if (vmDetail.isSave)
                                             {
@@ -216,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                 modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
 
                                                 m.TotalAmount += modelDetail.PriceTotal;
-                                            }
+                                            } 
                                         }
                                     }
                                 }
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                         foreach (var oldItem in oldM.Items)
                         {
-                            var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            var newItem = m.Items.FirstOrDefault(i => i.EPOId.Equals(oldItem.EPOId));
                             foreach (var oldDetail in oldItem.Details)
                             {
                                 GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
