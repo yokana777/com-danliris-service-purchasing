@@ -1,10 +1,10 @@
-﻿using Com.Moonlay.Models;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 {
-    public class GarmentPurchaseRequestItem : StandardEntity<long>
+    public class GarmentPurchaseRequestItem : BaseModel
     {
         [MaxLength(255)]
         public string PO_SerialNumber { get; set; }
