@@ -42,7 +42,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
-            
+
+            string fmString = "FM-PB-00-06-011";
+            Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT};
+
             string titleString = "DISPOSISI PEMBAYARAN";
             Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
             
@@ -255,6 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableContent.AddCell(cellCenter);
 
             double total = 0;
+            double totalPurchase = 0;
             foreach (PurchasingDispositionItemViewModel item in viewModel.Items)
             {
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
@@ -297,6 +301,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellRightMerge);
 
                     total += detail.PaidPrice;
+
+                    totalPurchase += (detail.PricePerDealUnit * detail.DealQuantity);
                 }
             }
 
@@ -387,7 +393,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{total.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{totalPurchase.ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove
