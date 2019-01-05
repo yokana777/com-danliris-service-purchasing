@@ -939,6 +939,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
+            AccuracyOfArrivalReportViewModel viewModelAccuracy = new AccuracyOfArrivalReportViewModel
+            {
+                supplier = new SupplierViewModel(),
+                product = new GarmentProductViewModel(),
+            };
+            viewModelAccuracy.Id = 1;
+            viewModelAccuracy.doNo = data.DONo;
+            viewModelAccuracy.supplier.Id = data.SupplierId;
+            viewModelAccuracy.supplier.Code = data.SupplierCode;
+            viewModelAccuracy.supplier.Name = data.SupplierName;
+            viewModelAccuracy.doDate = data.DODate;
+            viewModelAccuracy.poSerialNumber = nowTicksA;
+            viewModelAccuracy.product.Id = nowTicks;
+            viewModelAccuracy.product.Code = nowTicksA;
+            viewModelAccuracy.prDate = DateTimeOffset.Now;
+            viewModelAccuracy.poDate = DateTimeOffset.Now;
+            viewModelAccuracy.epoDate = DateTimeOffset.Now;
+            viewModelAccuracy.article = nowTicksA;
+            viewModelAccuracy.roNo = nowTicksA;
+            viewModelAccuracy.shipmentDate = DateTimeOffset.Now;
+            viewModelAccuracy.status = nowTicksA;
+            viewModelAccuracy.staff = nowTicksA;
+            viewModelAccuracy.category = nowTicksA;
+            viewModelAccuracy.dateDiff = (int)nowTicks;
+            viewModelAccuracy.ok_notOk = nowTicksA;
+            viewModelAccuracy.percentOk_notOk = (int)nowTicks;
+            viewModelAccuracy.jumlahOk = (int)nowTicks;
+            viewModelAccuracy.jumlah = (int)nowTicks;
+
             var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.NotNull(Response2.Item1);
         }
