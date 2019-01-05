@@ -526,6 +526,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             var ViewModel = this.ViewModel;
             ViewModel.IncomeTaxBy = "Dan Liris";
+            ViewModel.Currency.description = "rupiah";
 
 
             var mockMapper = new Mock<IMapper>();
