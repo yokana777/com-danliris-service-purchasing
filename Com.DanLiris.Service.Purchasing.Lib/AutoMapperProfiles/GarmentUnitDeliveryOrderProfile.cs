@@ -27,10 +27,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<GarmentUnitDeliveryOrderItem, GarmentUnitDeliveryOrderItemViewModel>()
-                .ForPath(d => d.Product.Id, opt => opt.MapFrom(s => s.ProductId))
-                .ForPath(d => d.Product.Code, opt => opt.MapFrom(s => s.ProductCode))
-                .ForPath(d => d.Product.Name, opt => opt.MapFrom(s => s.ProductName))
-                .ForPath(d => d.Product.Remark, opt => opt.MapFrom(s => s.ProductRemark))
+                .ForPath(d => d.ProductId, opt => opt.MapFrom(s => s.ProductId))
+                .ForPath(d => d.ProductCode, opt => opt.MapFrom(s => s.ProductCode))
+                .ForPath(d => d.ProductName, opt => opt.MapFrom(s => s.ProductName))
+                .ForPath(d => d.ProductRemark, opt => opt.MapFrom(s => s.ProductRemark))
 
                 .ForPath(d => d.Uom.Id, opt => opt.MapFrom(s => s.UomId))
                 .ForPath(d => d.Uom.Unit, opt => opt.MapFrom(s => s.UomUnit))
