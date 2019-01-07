@@ -32,6 +32,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
                     StorageRequest = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     UnitRequest = new UnitViewModel(),
                     UnitSender = new UnitViewModel(),
+                    IsUsed = false,
+                    DOId = It.IsAny<int>(),
+                    DONo = "DONo",
+                    CorrectionId = It.IsAny<int>(),
+                    CorrectionNo = "CorrectionNo",
                     Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                     {
                         new GarmentUnitDeliveryOrderItemViewModel()
