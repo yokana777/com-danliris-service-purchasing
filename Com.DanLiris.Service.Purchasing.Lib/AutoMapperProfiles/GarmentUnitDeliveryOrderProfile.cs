@@ -32,8 +32,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.ProductName, opt => opt.MapFrom(s => s.ProductName))
                 .ForPath(d => d.ProductRemark, opt => opt.MapFrom(s => s.ProductRemark))
 
-                .ForPath(d => d.Uom.Id, opt => opt.MapFrom(s => s.UomId))
-                .ForPath(d => d.Uom.Unit, opt => opt.MapFrom(s => s.UomUnit))
+                .ForPath(d => d.UomId, opt => opt.MapFrom(s => s.UomId))
+                .ForPath(d => d.UomUnit, opt => opt.MapFrom(s => s.UomUnit))
 
                 .ReverseMap();
         }

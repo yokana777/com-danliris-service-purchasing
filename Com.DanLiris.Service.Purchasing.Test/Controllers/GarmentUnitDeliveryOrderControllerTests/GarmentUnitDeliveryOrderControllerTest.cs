@@ -29,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
                 return new GarmentUnitDeliveryOrderViewModel
                 {
                     Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
+                    StorageRequest = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     UnitRequest = new UnitViewModel(),
                     UnitSender = new UnitViewModel(),
                     Items = new List<GarmentUnitDeliveryOrderItemViewModel>
@@ -36,8 +37,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
                         new GarmentUnitDeliveryOrderItemViewModel()
                         {
                             Id = It.IsAny<int>(),
-                            Product = new GarmentProductViewModel(),
-                            Uom = new UomViewModel(),
+                            ProductId = It.IsAny<int>(),
+                            ProductCode = "ProductCode",
+                            ProductName = "ProductName",
+                            ProductRemark = "ProductRemark",
+                            UomId = It.IsAny<int>(),
+                            UomUnit = "UOMUnit",
                             URNId = It.IsAny<int>(),
                             URNItemId = It.IsAny<int>(),
                             DODetailId = It.IsAny<int>(),

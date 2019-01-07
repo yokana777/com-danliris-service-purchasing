@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel
 {
-    public class GarmentUnitDeliveryOrderViewModel : BaseViewModel, IValidatableObject
+    public class GarmentUnitDeliveryOrderViewModel : BaseViewModel//, IValidatableObject
     {
         public string UnitDOType { get; set; }
         public DateTimeOffset UnitDODate { get; set; }
@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
         public UnitViewModel UnitSender { get; set; }
         
         public IntegrationViewModel.StorageViewModel Storage { get; set; }
+        public IntegrationViewModel.StorageViewModel StorageRequest { get; set; }
         public string RONo { get; set; }
         public string Article { get; set; }
         public bool IsUsed { get; set; }
@@ -29,66 +30,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
 
         public List<GarmentUnitDeliveryOrderItemViewModel> Items { get; set; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (UnitDODate.Equals(DateTimeOffset.MinValue) || UnitDODate == null)
-            {
-                yield return new ValidationResult("UnitDODate is required", new List<string> { "UnitDODate" });
-            }
-            if (UnitRequest == null)
-            {
-                yield return new ValidationResult("UnitRequest is required", new List<string> { "UnitRequest" });
-            }
-            if (UnitSender == null)
-            {
-                yield return new ValidationResult("UnitSender is required", new List<string> { "UnitSender" });
-            }
-            if (Storage == null)
-            {
-                yield return new ValidationResult("Storage is required", new List<string> { "Storage" });
-            }
-            if (RONo == null)
-            {
-                yield return new ValidationResult("RONo is required", new List<string> { "RONo" });
-            }
-            if (Article == null)
-            {
-                yield return new ValidationResult("Article is required", new List<string> { "Article" });
-            }
+        //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        //{
+        //    if (UnitDODate.Equals(DateTimeOffset.MinValue) || UnitDODate == null)
+        //    {
+        //        yield return new ValidationResult("UnitDODate is required", new List<string> { "UnitDODate" });
+        //    }
+        //    if (UnitRequest == null)
+        //    {
+        //        yield return new ValidationResult("UnitRequest is required", new List<string> { "UnitRequest" });
+        //    }
+        //    if (UnitSender == null)
+        //    {
+        //        yield return new ValidationResult("UnitSender is required", new List<string> { "UnitSender" });
+        //    }
+        //    if (Storage == null)
+        //    {
+        //        yield return new ValidationResult("Storage is required", new List<string> { "Storage" });
+        //    }
+        //    if (RONo == null)
+        //    {
+        //        yield return new ValidationResult("RONo is required", new List<string> { "RONo" });
+        //    }
+        //    if (Article == null)
+        //    {
+        //        yield return new ValidationResult("Article is required", new List<string> { "Article" });
+        //    }
 
-            int itemErrorCount = 0;
+        //    int itemErrorCount = 0;
 
-            if (this.Items == null || Items.Count <= 0)
-            {
-                yield return new ValidationResult("Item is required", new List<string> { "ItemsCount" });
-            }
-            else
-            {
-                string itemError = "[";
+        //    if (this.Items == null || Items.Count <= 0)
+        //    {
+        //        yield return new ValidationResult("Item is required", new List<string> { "ItemsCount" });
+        //    }
+        //    else
+        //    {
+        //        string itemError = "[";
 
-                foreach (var item in Items)
-                {
-                    itemError += "{";
+        //        foreach (var item in Items)
+        //        {
+        //            itemError += "{";
 
-                    if (item.Quantity == 0)
-                    {
-                        itemErrorCount++;
-                        itemError += "Quantity: 'Jumlah tidk boleh 0', ";
-                    }
+        //            if (item.Quantity == 0)
+        //            {
+        //                itemErrorCount++;
+        //                itemError += "Quantity: 'Jumlah tidk boleh 0', ";
+        //            }
 
-                    //if (item.Product == null)
-                    //{
-                    //    itemErrorCount++;
-                    //    itemError += "Product: 'Product tidk boleh kosong', ";
-                    //}
-                    itemError += "}, ";
-                }
+        //            //if (item.Product == null)
+        //            //{
+        //            //    itemErrorCount++;
+        //            //    itemError += "Product: 'Product tidk boleh kosong', ";
+        //            //}
+        //            itemError += "}, ";
+        //        }
 
-                itemError += "]";
+        //        itemError += "]";
 
-                if (itemErrorCount > 0)
-                    yield return new ValidationResult(itemError, new List<string> { "items" });
-            }
-        }
+        //        if (itemErrorCount > 0)
+        //            yield return new ValidationResult(itemError, new List<string> { "items" });
+        //    }
+        //}
     }
 }

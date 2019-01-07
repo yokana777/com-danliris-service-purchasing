@@ -28,6 +28,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         public long CorrectionId { get; set; }
         public string CorrectionNo { get; set; }
 
+
+        public long StorageRequestId { get; set; }
+        public string StorageRequestCode { get; set; }
+        public string StorageRequestName { get; set; }
+
         public virtual ICollection<GarmentUnitDeliveryOrderItem> Items { get; set; }
     }
 }

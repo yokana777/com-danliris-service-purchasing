@@ -198,44 +198,44 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
-        [HttpGet("unit-delivery-order")]
-        public IActionResult GetForUnitDO(string keyword = null, string filter = "{}")
-        {
-            try
-            {
-                var result = facade.ReadForUnitDO(keyword, filter);
-                Dictionary<string, object> Result =
-                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                       .Ok(result);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
+        //[HttpGet("unit-delivery-order")]
+        //public IActionResult GetForUnitDO(string keyword = null, string filter = "{}")
+        //{
+        //    try
+        //    {
+        //        var result = facade.ReadForUnitDO(keyword, filter);
+        //        Dictionary<string, object> Result =
+        //               new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+        //               .Ok(result);
+        //        return Ok(Result);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Dictionary<string, object> Result =
+        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+        //            .Fail();
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+        //    }
+        //}
 
-        [HttpGet("unit-delivery-order-header")]
-        public IActionResult GetForUnitDOHeader(string keyword = null)
-        {
-            try
-            {
-                var result = facade.ReadForUnitDOHeader(keyword);
-                Dictionary<string, object> Result =
-                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                       .Ok(result);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
+        //[HttpGet("unit-delivery-order-header")]
+        //public IActionResult GetForUnitDOHeader(string keyword = null)
+        //{
+        //    try
+        //    {
+        //        var result = facade.ReadForUnitDOHeader(keyword);
+        //        Dictionary<string, object> Result =
+        //               new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+        //               .Ok(result);
+        //        return Ok(Result);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Dictionary<string, object> Result =
+        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+        //            .Fail();
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+        //    }
+        //}
     }
 }
