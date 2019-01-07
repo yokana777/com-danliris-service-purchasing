@@ -230,6 +230,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 foreach (var vmItem in vmValidation.items)
                 {
                     vmItem.fulfillments = vmItem.fulfillments.Where(s => s.isSave).ToList();
+                    if (vmItem.Id == 0)
+                    {
+                        foreach (var vItem in ViewModel.items.Where(s => s.Id == vmItem.Id))
+                        {
+                            vItem.fulfillments = vItem.fulfillments.Where(s => s.isSave).ToList();
+                        }
+                    }
                 }
 
                 validateService.Validate(vmValidation);
