@@ -12,7 +12,8 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
         public string description { get; set; }
         public ObjectId uomId { get; set; }
         public UomMongo uom { get; set; }
-        public List<object> properties { get; set; }
+        public string tags { get; set; }
+        public object properties { get; set; }
         public ObjectId currencyId { get; set; }
     }
 }

@@ -3,7 +3,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels;
 using Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoRepositories;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,7 +36,8 @@ namespace Com.DanLiris.Service.Purchasing.Data.Migration.Lib.MigrationServices
                 startingNumber += transformedData.Count;
 
                 //Insert into SQL
-                TotalInsertedData += Load(transformedData);
+                Load(transformedData);
+                TotalInsertedData += transformedData.Count;
 
                 await RunAsync(startingNumber, numberOfBatch);
             }
@@ -52,7 +52,14 @@ namespace Com.DanLiris.Service.Purchasing.Data.Migration.Lib.MigrationServices
 
         private int Load(List<PurchaseRequest> transformedData)
         {
-            throw new NotImplementedException();
-        }        
+            var existingUids = _purchaseRequestDbSet.Select(entity => entity.UId).ToList();
+            transformedData = transformedData.Where(entity => !existingUids.Contains(entity.UId)).ToList();
+            if (transformedData.Count > 0)
+            {
+                _purchaseRequestItemDbSet.AddRange(transformedData.SelectMany(x => x.Items));
+                _purchaseRequestDbSet.AddRange(transformedData);
+            }
+            return _dbContext.SaveChanges();
+        }
     }
 }

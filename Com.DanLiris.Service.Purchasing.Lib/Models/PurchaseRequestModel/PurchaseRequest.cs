@@ -1,11 +1,10 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels;
-using Com.Moonlay.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel
 {
@@ -20,7 +19,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel
             Active = mongoPurchaseRequest._active;
             BudgetCode = mongoPurchaseRequest.budget.code;
             BudgetName = mongoPurchaseRequest.budget.name;
-            CategoryCode = mongoPurchaseRequest.category.name;
+            CategoryCode = mongoPurchaseRequest.category.code;
+            CategoryName = mongoPurchaseRequest.category.name;
+            CreatedAgent = mongoPurchaseRequest._createAgent;
+            CreatedBy = mongoPurchaseRequest._createdBy;
+            CreatedUtc = mongoPurchaseRequest._createdDate;
+            Date = mongoPurchaseRequest.date;
+            DeletedAgent = mongoPurchaseRequest._deleted ? mongoPurchaseRequest._updateAgent : "";
+            DeletedBy = mongoPurchaseRequest._deleted ? mongoPurchaseRequest._updatedBy : "";
+            DeletedUtc = mongoPurchaseRequest._deleted ?  mongoPurchaseRequest._updatedDate : DateTime.MinValue;
+            DivisionCode = mongoPurchaseRequest.unit.division.code;
+            DivisionName = mongoPurchaseRequest.unit.division.name;
+            ExpectedDeliveryDate = mongoPurchaseRequest.expectedDeliveryDate;
+            Internal = mongoPurchaseRequest.@internal;
+            IsDeleted = mongoPurchaseRequest._deleted;
+            IsPosted = mongoPurchaseRequest.isPosted;
+            IsUsed = mongoPurchaseRequest.isUsed;
+            Items = mongoPurchaseRequest.items.Select(mongoPurchaseRequestItem => new PurchaseRequestItem(mongoPurchaseRequestItem)).ToList();
+            LastModifiedAgent = mongoPurchaseRequest._updateAgent;
+            LastModifiedBy = mongoPurchaseRequest._updatedBy;
+            LastModifiedUtc = mongoPurchaseRequest._updatedDate;
+            No = mongoPurchaseRequest.no;
+            Remark = mongoPurchaseRequest.remark;
+            Status = (PurchaseRequestStatus)mongoPurchaseRequest.status.value;
+            UId = mongoPurchaseRequest._id.ToString();
+            UnitCode = mongoPurchaseRequest.unit.code;
+            UnitName = mongoPurchaseRequest.unit.name;
         }
 
         [MaxLength(255)]

@@ -43,6 +43,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Mongo.Lib;
 using MongoDB.Driver;
+using Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoRepositories;
+using Com.DanLiris.Service.Purchasing.Data.Migration.Lib.MigrationServices;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -176,6 +178,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 _ => new MongoClient(Configuration.GetConnectionString("MongoConnection") ?? Configuration["MongoConnection"]));
 
             services.AddTransient<IMongoDbContext, MongoDbMigrationContext>();
+            services.AddTransient<IPurchaseRequestMongoRepository, PurchaseRequestMongoRepository>();
+            services.AddTransient<IPurchaseRequestMigrationService, PurchaseRequestMigrationService>();
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
@@ -221,11 +225,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
 
             /* Update Database */
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
-                context.Database.Migrate();
-            }
+            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
+            //    context.Database.Migrate();
+            //}
 
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);
