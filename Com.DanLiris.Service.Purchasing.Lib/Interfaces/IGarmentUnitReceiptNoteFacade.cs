@@ -17,8 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(GarmentUnitReceiptNote garmentUnitReceiptNote);
         Task<int> Update(int id, GarmentUnitReceiptNote garmentUnitReceiptNote);
         Task<int> Delete(int id);
-        List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}");
-        List<object> ReadForUnitDOHeader(string Keyword = null);
+        //List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}");
+        //List<object> ReadForUnitDOHeader(string Keyword = null);
 
     }
 }
