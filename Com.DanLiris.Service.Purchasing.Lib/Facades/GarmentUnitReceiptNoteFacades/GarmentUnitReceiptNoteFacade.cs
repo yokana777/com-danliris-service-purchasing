@@ -145,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
                     garmentUnitReceiptNote.URNNo = await GenerateNo(garmentUnitReceiptNote);
+                    garmentUnitReceiptNote.IsStorage = true;
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
