@@ -411,8 +411,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             garmentInventorySummary.Quantity = garmentInventoryMovement.After;
 
-            garmentInventorySummary.UomId = garmentUnitReceiptNoteItem.UomId;
-            garmentInventorySummary.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+            garmentInventorySummary.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+            garmentInventorySummary.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
             garmentInventorySummary.StockPlanning = 0;
 
@@ -445,11 +445,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             garmentInventoryMovement.StockPlanning = 0;
 
             garmentInventoryMovement.Before = garmentInventorySummary == null ? 0 : garmentInventorySummary.Quantity;
-            garmentInventoryMovement.Quantity = garmentUnitReceiptNoteItem.ReceiptQuantity * ((type ?? "").ToUpper() == "OUT" ? -1 : 1);
+            garmentInventoryMovement.Quantity = garmentUnitReceiptNoteItem.SmallQuantity * ((type ?? "").ToUpper() == "OUT" ? -1 : 1);
             garmentInventoryMovement.After = garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
 
-            garmentInventoryMovement.UomId = garmentUnitReceiptNoteItem.UomId;
-            garmentInventoryMovement.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+            garmentInventoryMovement.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+            garmentInventoryMovement.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
             garmentInventoryMovement.Remark = garmentUnitReceiptNoteItem.ProductRemark;
 
@@ -491,10 +491,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 garmentInventoryDocumentItem.ProductCode = garmentUnitReceiptNoteItem.ProductCode;
                 garmentInventoryDocumentItem.ProductName = garmentUnitReceiptNoteItem.ProductName;
 
-                garmentInventoryDocumentItem.Quantity = garmentUnitReceiptNoteItem.ReceiptQuantity;
+                garmentInventoryDocumentItem.Quantity = garmentUnitReceiptNoteItem.SmallQuantity;
 
-                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.UomId;
-                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
                 garmentInventoryDocumentItem.ProductRemark = garmentUnitReceiptNoteItem.ProductRemark;
 

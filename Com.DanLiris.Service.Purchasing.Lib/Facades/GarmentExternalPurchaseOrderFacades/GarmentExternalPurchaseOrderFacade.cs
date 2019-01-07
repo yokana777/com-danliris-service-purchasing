@@ -126,6 +126,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                         if((m.PaymentMethod== "CMT" || m.PaymentMethod == "FREE FROM BUYER") && (m.PaymentType == "FREE" || m.PaymentType == "EX MASTER FREE"))
                         {
+                            m.IsOverBudget = false;
+                            item.IsOverBudget = false;
                             item.UsedBudget = 0;
                         }
                         else
@@ -213,6 +215,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                                 if ((m.PaymentMethod == "CMT" || m.PaymentMethod == "FREE FROM BUYER") && (m.PaymentType == "FREE" || m.PaymentType== "EX MASTER FREE"))
                                 {
+                                    m.IsOverBudget = false;
+                                    item.IsOverBudget = false;
                                     item.UsedBudget = 0;
                                 }
                                 else
@@ -238,6 +242,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                 var ipoItems = this.dbContext.GarmentInternalPurchaseOrderItems.Where(a => a.GPRItemId.Equals(IPOItem.GPRItemId) && a.ProductId.Equals(item.ProductId.ToString())).ToList();
                                 if ((m.PaymentMethod == "CMT" || m.PaymentMethod == "FREE FROM BUYER") && (m.PaymentType == "FREE" || m.PaymentType == "EX MASTER FREE"))
                                 {
+                                    m.IsOverBudget = false;
+                                    item.IsOverBudget = false;
                                     item.UsedBudget = 0;
                                 }
                                 else

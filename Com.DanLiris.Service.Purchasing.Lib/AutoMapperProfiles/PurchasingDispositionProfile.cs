@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Currency._id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.Currency.code, opt => opt.MapFrom(s => s.CurrencyCode))
                 .ForPath(d => d.Currency.rate, opt => opt.MapFrom(s => s.CurrencyRate))
+                .ForPath(d => d.Currency.description, opt => opt.MapFrom(s => s.CurrencyDescription))
                 .ReverseMap();
 
             CreateMap<PurchasingDispositionItem, PurchasingDispositionItemViewModel>()

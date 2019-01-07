@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190103040652_changing_PurchasingDisposition")]
+    partial class changing_PurchasingDisposition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3093,9 +3094,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Status");
 
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
-
                     b.Property<string>("UomId")
                         .HasMaxLength(255);
 
@@ -3118,10 +3116,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Article");
 
-                    b.Property<long>("CorrectionId");
-
-                    b.Property<string>("CorrectionNo");
-
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3131,10 +3125,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<long>("DOId");
-
-                    b.Property<string>("DONo");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -3167,12 +3157,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("StorageId");
 
                     b.Property<string>("StorageName");
-
-                    b.Property<string>("StorageRequestCode");
-
-                    b.Property<long>("StorageRequestId");
-
-                    b.Property<string>("StorageRequestName");
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);
@@ -3228,8 +3212,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DesignColor");
 
                     b.Property<long>("EPOItemId");
 
