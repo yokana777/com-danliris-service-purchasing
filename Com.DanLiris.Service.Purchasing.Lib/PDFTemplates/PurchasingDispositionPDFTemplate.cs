@@ -43,8 +43,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
 
+            string fmString = "FM-PB-00-06-011";
+            Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT};
+
             string titleString = "DISPOSISI PEMBAYARAN";
             Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            
             document.Add(title);
             bold_font.SetStyle(Font.NORMAL);
 
@@ -59,11 +63,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #region Identity
 
             PdfPTable tableIdentity = new PdfPTable(5);
-            tableIdentity.SetWidths(new float[] { 5f, 0.5f, 1f, 4f,7f });
+            tableIdentity.SetWidths(new float[] { 5f, 0.5f, 1f,7f,4f });
 
-            double ppn = (viewModel.Amount * 0.1);
+            double dpp = 0;
+            foreach (var item in viewModel.Items)
+            {
+                foreach(var detail in item.Details)
+                {
+                    dpp += detail.PaidPrice;
+                }
+            }
+
+            double ppn = (dpp * 0.1);
             string pph = "";
             double pphRate = 0;
+
             foreach(var item in viewModel.Items)
             {
                 if (!item.UseVat)
@@ -73,20 +87,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 if (item.UseIncomeTax)
                 {
                     pph = item.IncomeTax.name;
-                    pphRate = viewModel.Amount * (Convert.ToDouble(item.IncomeTax.rate)/100);
+                    pphRate = dpp * (Convert.ToDouble(item.IncomeTax.rate)/100);
                 }
                 break;
             }
 
-            double amount = viewModel.Amount + ppn;
-
-            cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembelian", normal_font);
+            double amount = dpp + ppn + pphRate;
+            cellLeftNoBorder.SetLeading(13f, 0f);
+            cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code, normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod , normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{amount.ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{amount.ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
@@ -95,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(amount) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(amount) }"+" " + viewModel.Currency.description.ToLower(), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -173,13 +187,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
 
+            double paidToSupp = dpp+ppn - pphRate;
+            if(viewModel.IncomeTaxBy=="Dan Liris")
+            {
+                paidToSupp = dpp+ppn + pphRate;
+            }
             cellLeftNoBorder.Phrase = new Phrase("Jumlah dibayar ke Supplier ", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code, normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{(amount-pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{(paidToSupp).ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
@@ -231,14 +250,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Satuan", bold_font);
             tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Harga", bold_font);
+            cellCenter.Phrase = new Phrase("Harga Satuan", bold_font);
             cellCenter.Colspan = 2;
             tableContent.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Total Harga", bold_font);
+            cellCenter.Phrase = new Phrase("Harga yang dibayar", bold_font);
             cellCenter.Colspan = 2;
             tableContent.AddCell(cellCenter);
 
             double total = 0;
+            double totalPurchase = 0;
             foreach (PurchasingDispositionItemViewModel item in viewModel.Items)
             {
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
@@ -269,7 +289,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.code}", smaller_font);
                     tableContent.AddCell(cellLeftMerge);
 
-                    cellRightMerge.Phrase = new Phrase($"{detail.PaidPrice.ToString("N", new CultureInfo("id-ID"))}", smaller_font);
+                    cellRightMerge.Phrase = new Phrase($"{detail.PricePerDealUnit.ToString("N", new CultureInfo("id-ID"))}", smaller_font);
                     tableContent.AddCell(cellRightMerge);
 
                     double subtotalPrice = detail.PaidPrice * detail.PaidQuantity;
@@ -277,10 +297,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.code}", smaller_font);
                     tableContent.AddCell(cellLeftMerge);
 
-                    cellRightMerge.Phrase = new Phrase($"{subtotalPrice.ToString("N", new CultureInfo("id-ID"))}", smaller_font);
+                    cellRightMerge.Phrase = new Phrase($"{detail.PaidPrice.ToString("N", new CultureInfo("id-ID"))}", smaller_font);
                     tableContent.AddCell(cellRightMerge);
 
-                    total += subtotalPrice;
+                    total += detail.PaidPrice;
+
+                    totalPurchase += (detail.PricePerDealUnit * detail.DealQuantity);
                 }
             }
 
@@ -325,12 +347,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(viewModel.ConfirmationOrderNo, normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase("No Invoice", normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.InvoiceNo, normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase("No Invoice", normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase(viewModel.InvoiceNo, normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("No Proforma", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
@@ -339,12 +361,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(viewModel.ProformaNo, normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase("Investasi", normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.Investation, normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase("Investasi", normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase(viewModel.Investation, normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Mohon dibayar Tanggal", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
@@ -365,6 +387,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Remark, normal_font);
+            tableNote.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase("Total Pembelian", normal_font);
+            tableNote.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableNote.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{totalPurchase.ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove

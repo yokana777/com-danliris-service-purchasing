@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                         case "S3":
                             result += "." + UNIT_SPINNING3;
                             break;
-                        case "MS":
+                        case "S4":
                             result += "." + UNIT_SPINNINGMS;
                             break;
                         default:

@@ -25,7 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
         public async Task<string> GenerateDocumentNumber(string Type, string BankCode, string Username)
         {
             string result = "";
-            BankDocumentNumber lastData = await dbSet.Where(w => w.BankCode.Equals(BankCode) && w.Type.Equals(Type)).FirstOrDefaultAsync();
+            BankDocumentNumber lastData = await dbSet.Where(w => w.BankCode.Equals(BankCode) && w.Type.Equals(Type)).OrderByDescending(o => o.LastModifiedUtc).FirstOrDefaultAsync();
 
             DateTime Now = DateTime.Now;
 

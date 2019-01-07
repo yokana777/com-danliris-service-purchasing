@@ -14,13 +14,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public CurrencyViewModel Currency { get; set; }
         public string Bank { get; set; }
         public string ConfirmationOrderNo { get; set; }
-        public string InvoiceNo { get; set; }
+        public string IncomeTaxBy { get; set; }
         public string PaymentMethod { get; set; }
         public DateTimeOffset PaymentDueDate { get; set; }
         public string Calculation { get; set; }
         public string Remark { get; set; }
         public string ProformaNo { get; set; }
-        public string Investation { get; set; }
         public double Amount { get; set; }
         public int Position { get; set; }
         public virtual List<PurchasingDispositionItemViewModel> Items { get; set; }
@@ -47,15 +46,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
                 yield return new ValidationResult("No Order Confirmation harus diisi", new List<string> { "ConfirmationOrderNo" });
             }
 
-            if (string.IsNullOrWhiteSpace(Investation) || Investation == null)
-            {
-                yield return new ValidationResult("Investasi harus diisi", new List<string> { "Investation" });
-            }
+            //if (string.IsNullOrWhiteSpace(Investation) || Investation == null)
+            //{
+            //    yield return new ValidationResult("Investasi harus diisi", new List<string> { "Investation" });
+            //}
 
-            if (string.IsNullOrWhiteSpace(InvoiceNo) || InvoiceNo == null)
-            {
-                yield return new ValidationResult("No Invoice harus diisi", new List<string> { "InvoiceNo" });
-            }
+            //if (string.IsNullOrWhiteSpace(InvoiceNo) || InvoiceNo == null)
+            //{
+            //    yield return new ValidationResult("No Invoice harus diisi", new List<string> { "InvoiceNo" });
+            //}
 
             if (string.IsNullOrWhiteSpace(PaymentMethod) || PaymentMethod == null)
             {

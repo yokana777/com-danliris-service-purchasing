@@ -612,12 +612,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 		[Fact]
         public void Should_Success_Validate_Data()
         {
-            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                }
+            };
             Assert.True(nullViewModel.Validate(null).Count() > 0);
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
-                supplier = new SupplierViewModel(),
+                supplier = new SupplierViewModel {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name ="test"
+                },
 
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
@@ -626,14 +640,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public void Should_Success_Validate_Data_Where_DoDate_GreaterThan_ArrivalDate()
         {
-            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                }
+            };
             Assert.True(nullViewModel.Validate(null).Count() > 0);
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
                 doDate = new DateTimeOffset(DateTime.Today).AddDays(7),
                 arrivalDate = new DateTimeOffset(DateTime.Today).AddDays(1),
-                supplier = new SupplierViewModel(),
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                },
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
@@ -641,12 +670,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public void Should_Success_Validate_Data_Item()
         {
-            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                }
+            };
             Assert.True(nullViewModel.Validate(null).Count() > 0);
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
-                supplier = new SupplierViewModel(),
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                },
                 internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
@@ -693,12 +737,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public void Should_Success_Validate_Data_Fulfillment_Null()
         {
-            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                }
+            };
             Assert.True(nullViewModel.Validate(null).Count() > 0);
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
-                supplier = new SupplierViewModel(),
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                },
                 internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
@@ -726,12 +785,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         [Fact]
         public void Should_Success_Validate_Data_Fulfillment_With_Conversion_0()
         {
-            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel();
+            GarmentDeliveryOrderViewModel nullViewModel = new GarmentDeliveryOrderViewModel
+            {
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                }
+            };
             Assert.True(nullViewModel.Validate(null).Count() > 0);
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
-                supplier = new SupplierViewModel(),
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                },
                 internNo = "test",
                 billNo = "test",
                 paymentBill = "test",
@@ -776,7 +850,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             GarmentDeliveryOrderViewModel viewModel = new GarmentDeliveryOrderViewModel
             {
-                supplier = new SupplierViewModel(),
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                },
                 incomeTax = new IncomeTaxViewModel(),
                 docurrency = new CurrencyViewModel(),
             };
@@ -939,6 +1019,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
+            AccuracyOfArrivalReportViewModel viewModelAccuracy = new AccuracyOfArrivalReportViewModel
+            {
+                supplier = new SupplierViewModel(),
+                product = new GarmentProductViewModel(),
+            };
+            viewModelAccuracy.Id = 1;
+            viewModelAccuracy.doNo = data.DONo;
+            viewModelAccuracy.supplier.Id = data.SupplierId;
+            viewModelAccuracy.supplier.Code = data.SupplierCode;
+            viewModelAccuracy.supplier.Name = data.SupplierName;
+            viewModelAccuracy.doDate = data.DODate;
+            viewModelAccuracy.poSerialNumber = nowTicksA;
+            viewModelAccuracy.product.Id = nowTicks;
+            viewModelAccuracy.product.Code = nowTicksA;
+            viewModelAccuracy.prDate = DateTimeOffset.Now;
+            viewModelAccuracy.poDate = DateTimeOffset.Now;
+            viewModelAccuracy.epoDate = DateTimeOffset.Now;
+            viewModelAccuracy.article = nowTicksA;
+            viewModelAccuracy.roNo = nowTicksA;
+            viewModelAccuracy.shipmentDate = DateTimeOffset.Now;
+            viewModelAccuracy.status = nowTicksA;
+            viewModelAccuracy.staff = nowTicksA;
+            viewModelAccuracy.category = nowTicksA;
+            viewModelAccuracy.dateDiff = (int)nowTicks;
+            viewModelAccuracy.ok_notOk = nowTicksA;
+            viewModelAccuracy.percentOk_notOk = (int)nowTicks;
+            viewModelAccuracy.jumlahOk = (int)nowTicks;
+            viewModelAccuracy.jumlah = (int)nowTicks;
+
             var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.NotNull(Response2.Item1);
         }

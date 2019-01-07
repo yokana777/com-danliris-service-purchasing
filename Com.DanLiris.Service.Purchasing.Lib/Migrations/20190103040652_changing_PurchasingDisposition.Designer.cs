@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190103040652_changing_PurchasingDisposition")]
+    partial class changing_PurchasingDisposition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3092,9 +3093,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("Quantity");
 
                     b.Property<string>("Status");
-
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
 
                     b.Property<string>("UomId")
                         .HasMaxLength(255);
