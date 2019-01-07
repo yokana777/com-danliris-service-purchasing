@@ -32,6 +32,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
 
         public double PricePerDealUnit { get; set; }
         public string FabricType { get; set; }
+
+        public string DesignColor { get; set; }
+
         public virtual long UnitDOId { get; set; }
         [ForeignKey("UnitDOId")]
         public virtual GarmentUnitDeliveryOrder GarmentUnitDeliveryOrder { get; set; }

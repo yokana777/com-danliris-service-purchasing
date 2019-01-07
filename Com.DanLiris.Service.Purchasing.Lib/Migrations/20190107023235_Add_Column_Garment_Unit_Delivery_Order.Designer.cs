@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190107023235_Add_Column_Garment_Unit_Delivery_Order")]
+    partial class Add_Column_Garment_Unit_Delivery_Order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3093,9 +3094,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Status");
 
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
-
                     b.Property<string>("UomId")
                         .HasMaxLength(255);
 
@@ -3859,11 +3857,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("CurrencyCode");
 
-                    b.Property<string>("CurrencyDescription");
-
                     b.Property<string>("CurrencyId");
 
-                    b.Property<double>("CurrencyRate");
+                    b.Property<string>("CurrencyRate");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -3877,7 +3873,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("DispositionNo");
 
-                    b.Property<string>("IncomeTaxBy");
+                    b.Property<string>("Investation");
+
+                    b.Property<string>("InvoiceNo");
 
                     b.Property<bool>("IsDeleted");
 

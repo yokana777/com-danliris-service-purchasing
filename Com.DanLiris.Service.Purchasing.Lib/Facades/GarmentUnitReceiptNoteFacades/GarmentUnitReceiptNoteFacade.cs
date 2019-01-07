@@ -69,6 +69,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 ReceiptDate = m.ReceiptDate,
                 SupplierName = m.SupplierName,
                 DONo = m.DONo,
+                Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
+                {
+                    Id = i.Id,
+                    RONo = i.RONo
+                }).ToList(),
                 CreatedBy = m.CreatedBy,
                 LastModifiedUtc = m.LastModifiedUtc
             });
@@ -520,5 +525,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
+
+        //public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
+        //{
+        //    Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+        //    var readForUnitDO = dbSet.Where(x => !FilterDictionary.ContainsKey("UnitId") ? true : x.UnitId == long.Parse(FilterDictionary["UnitId"]) && x.IsDeleted == false).
+        //        SelectMany(x => x.Items.Select(y => new {
+        //        y.Id,
+        //        y.RONo,
+        //        y.DODetailId,
+        //        y.EPOItemId,
+        //        y.POItemId,
+        //        y.PRItemId,
+        //        y.URNId,
+        //        y.ProductId,
+        //        y.ProductName,
+        //        y.ProductCode,
+        //        y.ProductRemark,
+        //        y.OrderQuantity,
+        //        y.SmallQuantity,
+        //        y.SmallUomId,
+        //        y.SmallUomUnit,
+        //        y.POSerialNumber,
+        //        y.PricePerDealUnit,
+        //        URNNo = dbContext.GarmentUnitReceiptNotes.Where(u => u.Id == y.URNId).Select(s=>s.URNNo).FirstOrDefault(),
+        //        Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m=>m.Id == y.EPOItemId).Select(d=>d.Article).FirstOrDefault()
+        //    })).ToList();
+        //    var coba = readForUnitDO.GroupBy(g => g.RONo);
+        //    var test = coba.Select(c => new
+        //    {
+        //        Article = c.Select(s => s.Article).FirstOrDefault(),
+        //        RONo = c.Key,
+        //        Items = c.ToList()
+        //    });
+        //    List<object> result = new List<object>(test);
+        //    return result;
+        //}
+
+        //public List<object> ReadForUnitDOHeader(string Keyword = null)
+        //{
+        //    var readForUnitDO = dbSet.SelectMany(x => x.Items.Select(y => new {
+        //            y.Id,
+        //            y.RONo,
+        //            y.ProductId,
+        //            y.ProductName,
+        //            y.ProductCode,
+        //            y.ProductRemark,
+        //            y.OrderQuantity,
+        //            y.SmallQuantity,
+        //            y.SmallUomId,
+        //            y.SmallUomUnit,
+        //        })).ToList();
+        //    var coba = readForUnitDO.GroupBy(g => new { g.RONo, g.ProductName, g.ProductRemark });
+        //    var test = coba.Select(c => new
+        //    {
+        //        RONo = c.Key,
+        //        Items = c.ToList()
+        //    });
+        //    List<object> result = new List<object>(readForUnitDO);
+        //    return result;
+        //}
     }
 }
