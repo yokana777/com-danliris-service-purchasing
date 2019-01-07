@@ -14,7 +14,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.0-rc1-final" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0" />
     <PackageReference Include="MlkPwgen" Version="0.3.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.6.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.7.2" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Com.DanLiris.Service.Purchasing.Mongo.Lib\Com.DanLiris.Service.Purchasing.Mongo.Lib.csproj" />
   </ItemGroup>
 </Project>

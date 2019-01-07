@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Com.DanLiris.Service.Purchasing.Data.Migration.Lib\Com.DanLiris.Service.Purchasing.Data.Migration.Lib.csproj" />
     <ProjectReference Include="..\Com.DanLiris.Service.Purchasing.Lib\Com.DanLiris.Service.Purchasing.Lib.csproj" />
   </ItemGroup>
 

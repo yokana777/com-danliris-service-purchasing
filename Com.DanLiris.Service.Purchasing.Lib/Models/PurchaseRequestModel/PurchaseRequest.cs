@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels;
 using Com.Moonlay.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel
 {
     public class PurchaseRequest : BaseModel
     {
+        public PurchaseRequest()
+        {
+        }
+
+        public PurchaseRequest(PurchaseRequestMongo mongoPurchaseRequest)
+        {
+            Active = mongoPurchaseRequest._active;
+            BudgetCode = mongoPurchaseRequest.budget.code;
+            BudgetName = mongoPurchaseRequest.budget.name;
+            CategoryCode = mongoPurchaseRequest.category.name;
+        }
+
         [MaxLength(255)]
         public string No { get; set; }
         public DateTimeOffset Date { get; set; }
