@@ -188,6 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchasingItems = new List<JournalTransactionItem>();
             var stockItems = new List<JournalTransactionItem>();
             var debtItems = new List<JournalTransactionItem>();
+            var incomeTaxPaidItems = new List<JournalTransactionItem>();
             var incomeTaxItems = new List<JournalTransactionItem>();
             var productListRemark = new List<string>();
             foreach (var item in model.Items)
@@ -205,7 +206,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     purchasingCOACode = COAGenerator.GetPurchasingCOA(purchaseRequest.DivisionName, purchaseRequest.UnitCode, purchaseRequest.CategoryName);
                     stockCOACode = COAGenerator.GetStockCOA(purchaseRequest.DivisionName, purchaseRequest.UnitCode, purchaseRequest.CategoryName);
                     debtCOACode = COAGenerator.GetDebtCOA(model.SupplierIsImport, purchaseRequest.DivisionName, purchaseRequest.UnitCode);
-                    incomeTaxCOACode = COAGenerator.GetIncomeTaxCOA(poExternal.IncomeTaxName, purchaseRequest.DivisionName, purchaseRequest.UnitCode); 
+                    if (poExternal.UseIncomeTax && double.Parse(poExternal.IncomeTaxRate) > 0)
+                        incomeTaxCOACode = COAGenerator.GetIncomeTaxCOA(poExternal.IncomeTaxName, purchaseRequest.DivisionName, purchaseRequest.UnitCode); 
                 }
 
                 var journalPurchasingItem = new JournalTransactionItem()
@@ -249,6 +251,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         Credit = item.PricePerDealUnit * item.ReceiptQuantity * double.Parse(poExternal.IncomeTaxRate) / 100
                     };
                     incomeTaxItems.Add(pphItem);
+
+                    var incomeTaxPaid = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = debtCOACode
+                        },
+                        Debit = item.PricePerDealUnit * item.ReceiptQuantity * double.Parse(poExternal.IncomeTaxRate) / 100
+                    };
+                    incomeTaxPaidItems.Add(incomeTaxPaid);
                 }
                 
 
@@ -275,6 +287,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 Credit = s.Sum(sum => sum.Credit)
             }).ToList();
             items.AddRange(debtItems);
+
+            incomeTaxPaidItems = incomeTaxPaidItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Debit = s.Sum(sum => sum.Debit)
+            }).ToList();
+            if (incomeTaxPaidItems.Count > 0)
+                items.AddRange(incomeTaxPaidItems);
+
+            incomeTaxItems = incomeTaxItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Credit = s.Sum(sum => sum.Credit)
+            }).ToList();
+            if (incomeTaxItems.Count > 0)
+                items.AddRange(incomeTaxItems);
 
             stockItems = stockItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
             {

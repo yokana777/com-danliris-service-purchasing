@@ -208,11 +208,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
 
             /* Update Database */
-            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            //{
-            //    PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
-            //    context.Database.Migrate();
-            //}
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
+                context.Database.Migrate();
+            }
 
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);
