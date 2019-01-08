@@ -6,5 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib
     public interface IMongoDbContext
     {
         IMongoCollection<PurchaseRequestMongo> PurchaseRequests { get; }
+        IMongoCollection<PurchaseOrderMongo> PurchaseOrderInternals { get; }
+        IMongoCollection<PurchaseOrderExternalMongo> PurchaseOrderExternals { get; }
     }
 }

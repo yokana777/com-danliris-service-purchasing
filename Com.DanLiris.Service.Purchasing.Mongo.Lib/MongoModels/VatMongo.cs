@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
     {
         public string name { get; set; }
 
-        public int rate { get; set; }
+        public double rate { get; set; }
 
         public string description { get; set; }
     }

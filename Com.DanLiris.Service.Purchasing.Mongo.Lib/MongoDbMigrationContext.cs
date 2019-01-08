@@ -14,5 +14,9 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib
         }
 
         public IMongoCollection<PurchaseRequestMongo> PurchaseRequests => _db.GetCollection<PurchaseRequestMongo>("purchase-requests");
+
+        public IMongoCollection<PurchaseOrderMongo> PurchaseOrderInternals => _db.GetCollection<PurchaseOrderMongo>("purchase-orders");
+
+        public IMongoCollection<PurchaseOrderExternalMongo> PurchaseOrderExternals => _db.GetCollection<PurchaseOrderExternalMongo>("purchase-order-externals");
     }
 }

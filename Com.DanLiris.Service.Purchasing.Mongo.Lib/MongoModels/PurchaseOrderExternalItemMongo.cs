@@ -14,11 +14,11 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public PurchaseRequestMongo purchaseRequest { get; set; }
 
-        public object purchaseOrderExternalId { get; set; }
+        public dynamic purchaseOrderExternalId { get; set; }
 
-        public object purchaseOrderExternal { get; set; }
+        public PurchaseOrderExternalMongo purchaseOrderExternal { get; set; }
 
-        public object supplierId { get; set; }
+        public dynamic supplierId { get; set; }
 
         public SupplierMongo supplier { get; set; }
 
@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public CurrencyMongo currency { get; set; }
 
-        public int currencyRate { get; set; }
+        public double currencyRate { get; set; }
 
         public string paymentMethod { get; set; }
 
@@ -44,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public bool useVat { get; set; }
 
-        public int vatRate { get; set; }
+        public double vatRate { get; set; }
 
         public bool useIncomeTax { get; set; }
 
@@ -60,9 +60,16 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public string remark { get; set; }
 
-        public List<PurchaseOrderExternalItemDetailMongo> items { get; set; }
+        public List<PurchaseOrderExternalDetailMongo> items { get; set; }
 
         public Status status { get; set; }
+        public string iso { get; set; }
+        public dynamic realizationOrderId { get; set; }
+        public dynamic realizationOrder { get; set; }
+        public dynamic buyerId { get; set; }
+        public dynamic buyer { get; set; }
+        public dynamic sourcePurchaseOrderId { get; set; }
+        public dynamic sourcePurchaseOrder { get; set; }
     }
     
 }

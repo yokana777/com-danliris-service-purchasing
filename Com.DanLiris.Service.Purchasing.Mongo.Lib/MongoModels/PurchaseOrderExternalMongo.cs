@@ -18,17 +18,17 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public CurrencyMongo currency { get; set; }
 
-        public int currencyRate { get; set; }
+        public double currencyRate { get; set; }
 
         public string paymentMethod { get; set; }
 
         public int paymentDueDays { get; set; }
 
-        public object vat { get; set; }
+        public VatMongo vat { get; set; }
 
         public bool useVat { get; set; }
 
-        public int vatRate { get; set; }
+        public double vatRate { get; set; }
 
         public bool useIncomeTax { get; set; }
 

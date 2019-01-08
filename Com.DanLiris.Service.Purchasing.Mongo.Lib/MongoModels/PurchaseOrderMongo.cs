@@ -12,11 +12,11 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public string iso { get; set; }
 
-        public object realizationOrderid { get; set; }
+        public BsonDocument realizationOrderId { get; set; }
 
-        public object realizationOrder { get; set; }
+        public BsonDocument realizationOrder { get; set; }
 
-        public ObjectId purchaseRequestId { get; set; }
+        public dynamic purchaseRequestId { get; set; }
 
         public PurchaseRequestMongo purchaseRequest { get; set; }
 
@@ -24,15 +24,15 @@ namespace Com.DanLiris.Service.Purchasing.Mongo.Lib.MongoModels
 
         public BuyerMongo buyer { get; set; }
 
-        public ObjectId purchaseOrderExternalId { get; set; }
+        public dynamic purchaseOrderExternalId { get; set; }
 
         public PurchaseOrderExternalMongo purchaseOrderExternal { get; set; }
 
-        public object sourcePurchaseOrderId { get; set; }
+        public dynamic sourcePurchaseOrderId { get; set; }
 
-        public object sourcePurchaseOrder { get; set; }
+        public dynamic sourcePurchaseOrder { get; set; }
 
-        public ObjectId supplierId { get; set; }
+        public dynamic supplierId { get; set; }
 
         public SupplierMongo supplier { get; set; }
 
