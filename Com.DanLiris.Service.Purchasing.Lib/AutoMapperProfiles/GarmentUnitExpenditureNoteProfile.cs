@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 {
-    public class GarmentUnitDeliveryOrderProfile : Profile
+    public class GarmentUnitExpenditureNoteProfile : Profile
     {
-        public GarmentUnitDeliveryOrderProfile()
+        public GarmentUnitExpenditureNoteProfile()
         {
-            CreateMap<GarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderViewModel>()
+            CreateMap<GarmentUnitExpenditureNote, GarmentUnitExpenditureNoteViewModel>()
                 .ForPath(d => d.UnitRequest.Id, opt => opt.MapFrom(s => s.UnitRequestId))
                 .ForPath(d => d.UnitRequest.Code, opt => opt.MapFrom(s => s.UnitSenderCode))
                 .ForPath(d => d.UnitRequest.Name, opt => opt.MapFrom(s => s.UnitRequestName))
@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ReverseMap();
 
-            CreateMap<GarmentUnitDeliveryOrderItem, GarmentUnitDeliveryOrderItemViewModel>()
+            CreateMap<GarmentUnitExpenditureNoteItem, GarmentUnitExpenditureNoteItemViewModel>()
                 .ForPath(d => d.ProductId, opt => opt.MapFrom(s => s.ProductId))
                 .ForPath(d => d.ProductCode, opt => opt.MapFrom(s => s.ProductCode))
                 .ForPath(d => d.ProductName, opt => opt.MapFrom(s => s.ProductName))
@@ -41,5 +41,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ReverseMap();
         }
+
     }
 }

@@ -64,10 +64,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 try
                 {
                     EntityExtension.FlagForCreate(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
-                    //garmentUnitExpenditureNote.URNNo = await GenerateNo(garmentUnitExpenditureNote);
-                    var garmentUnitDeliveryOrder = dbSetGarmentUnitDeliveryOrder.First(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
-                    EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
-                    garmentUnitDeliveryOrder.IsUsed = true;
+                    garmentUnitExpenditureNote.UENNo = await GenerateNo(garmentUnitExpenditureNote);
+                    //var garmentUnitDeliveryOrder = dbSetGarmentUnitDeliveryOrder.First(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
+                    //EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
+                    //garmentUnitDeliveryOrder.IsUsed = true;
 
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                     {
@@ -196,7 +196,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             List<string> searchAttributes = new List<string>()
             {
-                "URNNo", "UnitName", "SupplierName", "DONo"
+                "UENNo", "UnitDONo", "ExpenditureDate", "ExpenditureType", "ExpenditureTo", "CreatedAgent"
             };
 
             Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -364,7 +364,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             string Day = garmentUnitExpenditureNote.ExpenditureDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd");
 
             string no = "";
-            if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" && garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
+            if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
             }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")

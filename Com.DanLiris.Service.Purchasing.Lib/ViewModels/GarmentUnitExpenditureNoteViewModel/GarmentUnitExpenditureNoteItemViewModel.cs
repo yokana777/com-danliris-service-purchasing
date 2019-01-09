@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel
 {
-    public class GarmentUnitExpenditureNoteItemViewModel
+    public class GarmentUnitExpenditureNoteItemViewModel : BaseViewModel
     {
         public long UENId { get; set; }
         public long UnitDOItemId { get; set; }
