@@ -245,6 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
             {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
                 DateTimeOffset shipmentFrom;
                 DateTimeOffset shipmentTo;
                 if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
@@ -257,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                     }
                 }
 
-                var data = facade.ReadByTags(category, tags, shipmentFrom, shipmentTo);
+                var data = facade.ReadByTags(category, tags, shipmentFrom, shipmentTo, identityService.Username);
                 var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
 
                 var info = new Dictionary<string, object>
