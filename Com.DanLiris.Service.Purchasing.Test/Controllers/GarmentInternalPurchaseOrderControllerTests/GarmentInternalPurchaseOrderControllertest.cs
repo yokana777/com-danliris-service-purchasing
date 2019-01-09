@@ -344,7 +344,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
         {
             var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
 
-            mockFacade.Setup(x => x.ReadByTags(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
+            mockFacade.Setup(x => x.ReadByTags(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
                 .Returns(new List<GarmentInternalPurchaseOrder>());
 
             var mockMapper = new Mock<IMapper>();
