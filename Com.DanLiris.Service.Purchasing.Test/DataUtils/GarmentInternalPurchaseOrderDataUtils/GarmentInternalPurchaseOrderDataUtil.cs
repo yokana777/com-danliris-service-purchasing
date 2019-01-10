@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchase
             var testData = await GetTestData();
             var data = GetNewData();
             await facade.CreateMultiple(data, "Unit Test");
-            return facade.ReadByTags("accessories", null, DateTimeOffset.MinValue, DateTimeOffset.MinValue);
+            return facade.ReadByTags("accessories", null, DateTimeOffset.MinValue, DateTimeOffset.MinValue, "Unit Test");
         }
 
     }
