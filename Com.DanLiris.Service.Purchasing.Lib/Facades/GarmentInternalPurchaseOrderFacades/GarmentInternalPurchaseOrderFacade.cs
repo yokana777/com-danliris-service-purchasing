@@ -239,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             return Deleted;
         }
 
-        public List<GarmentInternalPurchaseOrder> ReadByTags(string category, string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
+        public List<GarmentInternalPurchaseOrder> ReadByTags(string category, string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo, string username)
         {
             IQueryable<GarmentInternalPurchaseOrder> Models = this.dbSet.AsQueryable();
 
@@ -285,7 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                     (string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
                     (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
                     //m.Items.Any(i => i.IsUsed == false) &&
-                    m.IsPosted == false
+                    m.IsPosted == false && m.CreatedBy==username
                     )
                 .Select(m => new GarmentInternalPurchaseOrder
                 {
