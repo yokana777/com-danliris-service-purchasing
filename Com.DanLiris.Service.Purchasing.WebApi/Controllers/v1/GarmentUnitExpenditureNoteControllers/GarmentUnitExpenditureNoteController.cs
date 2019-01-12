@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -24,14 +26,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
         private readonly IGarmentUnitExpenditureNoteFacade facade;
+        private readonly IGarmentUnitDeliveryOrder facadeUnitDO;
         private readonly IdentityService identityService;
 
-        public GarmentUnitExpenditureNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitExpenditureNoteFacade facade)
+        public GarmentUnitExpenditureNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitExpenditureNoteFacade facade, IGarmentUnitDeliveryOrder facadeUnitDO)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
             this.facade = facade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            this.facadeUnitDO = facadeUnitDO;
         }
 
         [HttpGet]
@@ -78,6 +82,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 {
                     throw new Exception("Invalid Id");
                 }
+                else
+                {
+                    foreach (var item in viewModel.Items)
+                    {
+                        GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = facadeUnitDO.ReadById((int)viewModel.UnitDOId);
+                        if (garmentUnitDeliveryOrder!=null)
+                        {
+                            GarmentUnitDeliveryOrderViewModel garmentUnitDeliveryOrderViewModel = mapper.Map<GarmentUnitDeliveryOrderViewModel>(garmentUnitDeliveryOrder);
+                            var garmentUnitDOItem = garmentUnitDeliveryOrder.Items.First(i => i.Id == item.UnitDOItemId);
+                            if (garmentUnitDOItem != null)
+                            {
+                                item.DesignColor = garmentUnitDOItem.DesignColor;
+                            }
+                        }
+
+                    }
+                }
 
                 //if (indexAcceptPdf < 0)
                 //{
@@ -113,6 +134,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                viewModel.Items = viewModel.Items.Where(s => s.IsSave).ToList();
+
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));

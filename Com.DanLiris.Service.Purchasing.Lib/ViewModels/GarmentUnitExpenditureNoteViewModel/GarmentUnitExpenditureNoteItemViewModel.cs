@@ -27,5 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public string FabricType { get; set; }
         public long BuyerId { get; set; }
         public string BuyerCode { get; set; }
+        public string DesignColor { get; set; }
+        public bool IsSave { get; set; }
     }
 }
