@@ -135,7 +135,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                viewModel.Items = viewModel.Items.Where(s => s.IsSave).ToList();
+                if (viewModel.Items!=null)
+                {
+                    viewModel.Items = viewModel.Items.Where(s => s.IsSave).ToList();
+                }
 
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
