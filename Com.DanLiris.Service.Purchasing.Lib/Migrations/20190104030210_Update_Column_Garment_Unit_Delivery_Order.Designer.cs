@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190104030210_Update_Column_Garment_Unit_Delivery_Order")]
+    partial class Update_Column_Garment_Unit_Delivery_Order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3093,9 +3094,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Status");
 
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
-
                     b.Property<string>("UomId")
                         .HasMaxLength(255);
 
@@ -3168,12 +3166,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("StorageName");
 
-                    b.Property<string>("StorageRequestCode");
-
-                    b.Property<long>("StorageRequestId");
-
-                    b.Property<string>("StorageRequestName");
-
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
@@ -3228,8 +3220,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DesignColor");
 
                     b.Property<long>("EPOItemId");
 
@@ -3382,8 +3372,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<decimal>("Conversion")
-                        .HasColumnType("decimal(38, 20)");
+                    b.Property<decimal>("Conversion");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -3860,11 +3849,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("CurrencyCode");
 
-                    b.Property<string>("CurrencyDescription");
-
                     b.Property<string>("CurrencyId");
 
-                    b.Property<double>("CurrencyRate");
+                    b.Property<string>("CurrencyRate");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -3878,7 +3865,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("DispositionNo");
 
-                    b.Property<string>("IncomeTaxBy");
+                    b.Property<string>("Investation");
+
+                    b.Property<string>("InvoiceNo");
 
                     b.Property<bool>("IsDeleted");
 

@@ -50,6 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
 
         public bool IsCorrection { get; set; }
 
+        [Column(TypeName = "decimal(38, 20)")]
         public decimal Conversion { get; set; }
 
         public decimal SmallQuantity { get; set; }

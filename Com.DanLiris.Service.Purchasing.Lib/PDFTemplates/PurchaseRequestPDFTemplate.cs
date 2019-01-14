@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeft.Phrase = new Phrase(item.product.code, normal_font2);
                 tableContent.AddCell(cellLeft);
 
-                cellLeft.Phrase = new Phrase(item.product.name, normal_font2);
+                cellLeft.Phrase = new Phrase(item.product.name + Environment.NewLine + item.remark, normal_font2);
                 tableContent.AddCell(cellLeft);
 
                 cellCenter.Phrase = new Phrase(string.Format("{0:n2}",item.quantity) + $" {item.product.uom.unit}", normal_font2);

@@ -84,8 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    //m.UnitDONo = await GenerateNo(m, isImport, clientTimeZoneOffset);
-                    //m.UnitDODate = DateTimeOffset.Now;
+                    m.UnitDONo = await GenerateNo(m, clientTimeZoneOffset);
 
                     foreach (var item in m.Items)
                     {
@@ -147,6 +146,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
         public Task<int> Update(int id, GarmentUnitDeliveryOrder m, string user, int clientTimeZoneOffset = 7)
         {
             throw new NotImplementedException();
+        }
+
+        async Task<string> GenerateNo(GarmentUnitDeliveryOrder model, int clientTimeZoneOffset)
+        {
+            GarmentUnitReceiptNote garmentUnitReceiptNote = (from data in dbContext.GarmentUnitReceiptNotes select data).FirstOrDefault();
+            DateTimeOffset dateTimeOffsetNow = garmentUnitReceiptNote.ReceiptDate;
+            string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
+            string Year = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy");
+            string Day = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd");
+
+            string no = string.Concat("DO",garmentUnitReceiptNote.UnitCode,Year,Month,Day);
+            int Padding = 4;
+
+            var lastNo = await this.dbSet.Where(w => w.UnitDONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UnitDONo).FirstOrDefaultAsync();
+
+            if (lastNo == null)
+            {
+                return no + "1".PadLeft(Padding, '0');
+            }
+            else
+            {
+                //int lastNoNumber = Int32.Parse(lastNo.INNo.Replace(no, "")) + 1;
+                int.TryParse(lastNo.UnitDONo.Replace(no, ""), out int lastno1);
+                int lastNoNumber = lastno1 + 1;
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+            }
         }
     }
 }
