@@ -1,10 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
-using Com.Moonlay.Models;
-using System;
-using System.Collections.Generic;
+﻿using Com.Moonlay.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
 {
@@ -23,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
 
         public double DefaultQuantity { get; set; }
         public double DealQuantity { get; set; }
-        
+
         public string DefaultUomId { get; set; }
         public string DefaultUomUnit { get; set; }
         public string DealUomId { get; set; }

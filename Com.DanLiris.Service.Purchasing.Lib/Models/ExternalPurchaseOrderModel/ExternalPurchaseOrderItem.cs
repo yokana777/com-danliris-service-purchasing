@@ -1,16 +1,12 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
-using Com.Moonlay.Models;
-using System;
+﻿using Com.Moonlay.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
 {
     public class ExternalPurchaseOrderItem : StandardEntity<long>
     {
-
         public long POId { get; set; }
         [MaxLength(255)]
         public string PONo { get; set; }
