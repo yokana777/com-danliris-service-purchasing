@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -75,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
         {
             try
             {
-                //var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
                 var viewModel = facade.ReadById(id);
                 if (viewModel == null)
@@ -100,24 +102,24 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                     }
                 }
 
-                //if (indexAcceptPdf < 0)
-                //{
-                Dictionary<string, object> Result =
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                     .Ok(viewModel);
-                return Ok(Result);
-                //}
-                //else
-                //{
-                //    identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                //    var stream = facade.GeneratePdf(viewModel);
+                    var stream = GarmentUnitExpenditureNotePDFTemplate.GeneratePdfTemplate(serviceProvider, viewModel);
 
-                //    return new FileStreamResult(stream, "application/pdf")
-                //    {
-                //        FileDownloadName = $"{viewModel.URNNo}.pdf"
-                //    };
-                //}
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.UENNo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -179,6 +181,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
+
+                if (ViewModel.Items != null)
+                {
+                    ViewModel.Items = ViewModel.Items.Where(s => s.IsSave).ToList();
+                }
 
                 validateService.Validate(ViewModel);
 

@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel
@@ -18,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public long UnitDOId { get; set; }
         public string UnitDONo { get; set; }
 
+        //public GarmentUnitDeliveryOrderViewModel GarmentUnitDO { get; set; }
 
         public UnitViewModel UnitRequest { get; set; }
 
@@ -54,19 +56,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                 {
                     itemError += "{";
                     var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
+                    var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
                     if (item.Quantity <= 0)
                     {
                         itemErrorCount++;
                         itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                     }
-
-                    foreach (var itemDO in unitDO.Items)
+                    else if(item.Quantity > unitDOItem.Quantity)
                     {
-                        if (item.Quantity > itemDO.Quantity)
-                        {
-                            itemErrorCount++;
-                            itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
-                        }
+                        itemErrorCount++;
+                        itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
                     }
                     
                     itemError += "}, ";
@@ -75,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                 itemError += "]";
 
                 if (itemErrorCount > 0)
-                    yield return new ValidationResult(itemError, new List<string> { "items" });
+                    yield return new ValidationResult(itemError, new List<string> { "Items" });
             }
         }
     }
