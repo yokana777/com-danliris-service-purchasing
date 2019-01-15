@@ -237,7 +237,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             GarmentInternalPurchaseOrderFacade facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             GarmentInternalPurchaseOrder data = model.FirstOrDefault();
-            var Response = facade.ReadByTags("Accessories",$"#{data.UnitName} #{data.BuyerName}", data.ShipmentDate.AddDays(-1), data.ShipmentDate.AddDays(1),USERNAME);
+          
+            var Response = facade.ReadByTags("Accessories",$"#{data.UnitName} #{data.BuyerName}", data.ShipmentDate.AddDays(-1), data.ShipmentDate.AddDays(1), USERNAME);
             Assert.NotNull(Response);
 
             var ResponseWhiteSpace = facade.ReadByTags("Accessories", "", DateTimeOffset.MinValue, DateTimeOffset.MinValue, USERNAME);
