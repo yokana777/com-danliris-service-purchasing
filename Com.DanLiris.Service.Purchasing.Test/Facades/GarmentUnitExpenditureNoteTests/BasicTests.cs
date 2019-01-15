@@ -197,16 +197,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(Response.Id, 0);
         }
 
-        //[Fact]
-        //public async void Should_Success_Generate_Pdf()
-        //{
-        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-        //    var dataViewModel = facade.ReadById((int)data.Id);
-        //    var Response = facade.GeneratePdf(dataViewModel);
-        //    Assert.IsType<MemoryStream>(Response);
-        //}
-
         [Fact]
         public async void Should_Success_Create_Data()
         {

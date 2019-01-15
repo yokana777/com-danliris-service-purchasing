@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpenditureNoteControllers;
@@ -28,9 +30,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             {
                 return new GarmentUnitExpenditureNoteViewModel
                 {
+                    UENNo = "UENO1234",
+                    ExpenditureType = "PROSES",
+                    ExpenditureTo = "PROSES",
+                    UnitDOId = It.IsAny<int>(),
+                    UnitDONo = "UnitDONo",
                     Items = new List<GarmentUnitExpenditureNoteItemViewModel>
                     {
-                        new GarmentUnitExpenditureNoteItemViewModel()
+                        new GarmentUnitExpenditureNoteItemViewModel
+                        {
+                            UENId = It.IsAny<int>(),
+                            URNItemId = It.IsAny<int>(),
+                            DODetailId = It.IsAny<int>(),
+                            UnitDOItemId = It.IsAny<int>(),
+                            POItemId = It.IsAny<int>(),
+                            PRItemId = It.IsAny<int>(),
+                            POSerialNumber = "POSerial1234",
+                            ProductCode = "Code",
+                            ProductName = "Name",
+                            ProductRemark = "remark",
+                            RONo = "RONO",
+                            UomUnit = "units",
+                            PricePerDealUnit = It.IsAny<int>(),
+                            FabricType = "SLICK",
+                            BuyerId = It.IsAny<int>(),
+                            BuyerCode = "COdes",
+                            DesignColor = "design"
+                        }
                     }
                 };
             }
@@ -296,6 +322,61 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
 
             var response = controller.Delete(It.IsAny<int>()).Result;
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_By_Id()
+        {
+            Test_Get_PDF_By_Id();
+        }
+
+        private void Test_Get_PDF_By_Id()
+        {
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ViewModel);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitExpenditureNoteViewModel>(It.IsAny<GarmentUnitExpenditureNote>()))
+                .Returns(ViewModel);
+            
+
+            var garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
+            {
+                Id = It.IsAny<int>(),
+                UnitDONo = "unitdono",
+                Items = new List<GarmentUnitDeliveryOrderItem>
+                {
+                    new GarmentUnitDeliveryOrderItem
+                    {
+                        Id = It.IsAny<int>(),
+                        RONo = "RONO",
+                    }
+                }
+            };
+
+            var mockGarmentUnitDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrder>();
+            mockGarmentUnitDeliveryOrderFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrder { });
+
+            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderViewModel>(It.IsAny<GarmentUnitDeliveryOrder>()))
+                .Returns(new GarmentUnitDeliveryOrderViewModel {
+                    Id = It.IsAny<int>(),
+                    Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                    {
+                        new GarmentUnitDeliveryOrderItemViewModel
+                        {
+                            Id = It.IsAny<int>()
+                        }
+                    }
+                });
+
+            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockGarmentUnitDeliveryOrderFacade, null, mockMapper);
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
     }
 }

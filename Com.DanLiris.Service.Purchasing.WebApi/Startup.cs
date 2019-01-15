@@ -21,6 +21,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
@@ -41,16 +42,6 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson.Serialization;
 using Newtonsoft.Json.Serialization;
 using System.Text;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
