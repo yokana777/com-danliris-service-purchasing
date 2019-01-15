@@ -239,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
                 tableContent.AddCell(cellLeftMerge);
 
-                cellRightMerge.Phrase = new Phrase(string.Format("{0:n2}", item.PricePerDealUnit), table_font);
+                cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", item.PricePerDealUnit), table_font);
                 tableContent.AddCell(cellRightMerge);
 
                 cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
