@@ -1,10 +1,7 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
-using Com.DanLiris.Service.Purchasing.Lib.Utilities;
-using Com.Moonlay.Models;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
 {
@@ -20,7 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public string PRNo { get; set; }
         public DateTimeOffset PRDate { get; set; }
         public DateTimeOffset ExpectedDeliveryDate { get; set; }
-        
+
         /*Budget*/
         [MaxLength(255)]
         public string BudgetId { get; set; }

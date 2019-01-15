@@ -257,7 +257,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                     }
                 }
 
-                var data = facade.ReadByTags(category, tags, shipmentFrom, shipmentTo);
+                var data = facade.ReadByTags(category, tags, shipmentFrom, shipmentTo, identityService.Username);
                 var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
 
                 var info = new Dictionary<string, object>
