@@ -313,7 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 Setup(x => x.GetService(typeof(IGarmentUnitDeliveryOrder)))
                 .Returns(garmentUnitDeliveryOrderFacadeMock.Object);
 
-            var garmentUnitDO = new GarmentUnitExpenditureNoteViewModel
+            var garmentUnitExpenditureNote = new GarmentUnitExpenditureNoteViewModel
             {
                 UnitDOId = 1,
                 Items = new List<GarmentUnitExpenditureNoteItemViewModel>
@@ -333,8 +333,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
                 }
             };
-            System.ComponentModel.DataAnnotations.ValidationContext garmentUnitDeliveryOrderValidate = new System.ComponentModel.DataAnnotations.ValidationContext(garmentUnitDO, serviceProvider.Object, null);
-            Assert.True(garmentUnitDO.Validate(garmentUnitDeliveryOrderValidate).Count() > 0);
+
+
+            Mock<IGarmentUnitExpenditureNoteFacade> garmentUnitExpenditreMock = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            garmentUnitExpenditreMock.Setup(s => s.ReadById(It.IsAny<int>()))
+                .Returns(garmentUnitExpenditureNote);
+
+            serviceProvider.
+                Setup(x => x.GetService(typeof(IGarmentUnitExpenditureNoteFacade)))
+                .Returns(garmentUnitExpenditreMock.Object);
+            System.ComponentModel.DataAnnotations.ValidationContext garmentUnitDeliveryOrderValidate = new System.ComponentModel.DataAnnotations.ValidationContext(garmentUnitExpenditureNote, serviceProvider.Object, null);
+            Assert.True(garmentUnitExpenditureNote.Validate(garmentUnitDeliveryOrderValidate).Count() > 0);
         }
     }
 }
