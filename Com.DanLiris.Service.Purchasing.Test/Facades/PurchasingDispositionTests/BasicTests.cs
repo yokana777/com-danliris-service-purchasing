@@ -138,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                        {
                             new PurchasingDispositionDetail
                             {
-                                //EPODetailId=modelDetail.EPODetailId,
+                                EPODetailId=modelDetail.EPODetailId,
                                 
                                 DealQuantity=10,
                                 PaidQuantity=1000,
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                     };
             var dispoDetail = new PurchasingDispositionDetail
             {
-                //EPODetailId = modelDetail.EPODetailId,
+                EPODetailId = modelDetail.EPODetailId,
                 
                 DealQuantity = 10,
                 PaidQuantity = 1000,

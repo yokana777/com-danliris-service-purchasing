@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                        {
                             new PurchasingDispositionDetail
                             {
-                                //EPODetailId=detailData.Id.ToString(),
+                                EPODetailId=detailData.Id.ToString(),
                                 
                                 DealQuantity=10,
                                 PaidQuantity=1000,
