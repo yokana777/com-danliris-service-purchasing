@@ -348,6 +348,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                 Position = x.Position,
                 ProformaNo = x.ProformaNo,
                 Remark = x.Remark,
+                IncomeTaxValue=1000,
+                VatValue=100,
+                DPP=100000,
                 Category = new Lib.ViewModels.IntegrationViewModel.CategoryViewModel()
                 {
                     code = x.CategoryCode,
