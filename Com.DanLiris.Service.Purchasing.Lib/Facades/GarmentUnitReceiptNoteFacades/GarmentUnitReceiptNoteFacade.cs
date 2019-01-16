@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -35,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentUnitReceiptNote> dbSet;
         private readonly DbSet<GarmentDeliveryOrderDetail> dbSetGarmentDeliveryOrderDetail;
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetGarmentExternalPurchaseOrderItems;
+        private readonly DbSet<GarmentInternalPurchaseOrderItem> dbSetGarmentInternalPurchaseOrderItems;
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
@@ -50,6 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSet = dbContext.Set<GarmentUnitReceiptNote>();
             dbSetGarmentDeliveryOrderDetail = dbContext.Set<GarmentDeliveryOrderDetail>();
             dbSetGarmentExternalPurchaseOrderItems = dbContext.Set<GarmentExternalPurchaseOrderItem>();
+            dbSetGarmentInternalPurchaseOrderItems = dbContext.Set<GarmentInternalPurchaseOrderItem>();
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
@@ -159,6 +162,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var garmentExternalPurchaseOrderItem = dbSetGarmentExternalPurchaseOrderItems.First(d => d.Id == garmentUnitReceiptNoteItem.EPOItemId);
                         EntityExtension.FlagForUpdate(garmentExternalPurchaseOrderItem, identityService.Username, USER_AGENT);
                         garmentExternalPurchaseOrderItem.ReceiptQuantity = (double)((decimal)garmentExternalPurchaseOrderItem.ReceiptQuantity + garmentUnitReceiptNoteItem.ReceiptQuantity);
+
+                        var garmentInternalPurchaseOrderItem = dbSetGarmentInternalPurchaseOrderItems.First(d => d.Id == garmentUnitReceiptNoteItem.POItemId);
+                        EntityExtension.FlagForUpdate(garmentInternalPurchaseOrderItem, identityService.Username, USER_AGENT);
+                        garmentInternalPurchaseOrderItem.Status = "Barang sudah diterima Unit";
                     }
 
                     dbSet.Add(garmentUnitReceiptNote);
