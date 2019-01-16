@@ -71,7 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                             itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
                         }
 
-                    }else if (unitDO!=null)
+                    }
+                    if (unitDO!=null)
                     {
                         var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
 

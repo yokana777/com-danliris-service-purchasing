@@ -301,10 +301,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                             Id = 1,
                             Quantity = 4
                         },
-                        new GarmentUnitDeliveryOrderItem
-                        {
-                            Id = 2
-                        }
                     }
                 });
 
@@ -324,18 +320,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         UnitDOItemId = 1,
                         Quantity = 10
                     },
+
                     new GarmentUnitExpenditureNoteItemViewModel
                     {
-                        Id = 2,
-                        UnitDOItemId = 2,
-                        Quantity = 0
-                    }
+                        Id = 1,
+                        UnitDOItemId = 1,
+                        Quantity = 100
+                    },
 
+                    new GarmentUnitExpenditureNoteItemViewModel
+                    {
+                        Id = 1,
+                        UnitDOItemId = 1,
+                        Quantity = 0
+                    },
                 }
             };
 
-
             Mock<IGarmentUnitExpenditureNoteFacade> garmentUnitExpenditreMock = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            garmentUnitExpenditreMock.Setup(s => s.ReadById(1))
+                .Returns(garmentUnitExpenditureNote);
             garmentUnitExpenditreMock.Setup(s => s.ReadById(It.IsAny<int>()))
                 .Returns(garmentUnitExpenditureNote);
 
