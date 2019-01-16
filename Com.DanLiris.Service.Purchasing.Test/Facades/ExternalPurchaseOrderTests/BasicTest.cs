@@ -1,7 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel.EPODispositionLoader;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
@@ -191,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadDisposition();
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotNull(Response);
         }
     }
 }
