@@ -3826,6 +3826,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Calculation");
 
+                    b.Property<string>("CategoryCode");
+
+                    b.Property<string>("CategoryId");
+
+                    b.Property<string>("CategoryName");
+
                     b.Property<string>("ConfirmationOrderNo");
 
                     b.Property<string>("CreatedAgent")
@@ -3846,6 +3852,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("CurrencyRate");
 
+                    b.Property<double>("DPP");
+
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3858,7 +3866,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("DispositionNo");
 
+                    b.Property<string>("DivisionCode");
+
+                    b.Property<string>("DivisionId");
+
+                    b.Property<string>("DivisionName");
+
                     b.Property<string>("IncomeTaxBy");
+
+                    b.Property<double>("IncomeTaxValue");
 
                     b.Property<bool>("IsDeleted");
 
@@ -3871,6 +3887,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("LastModifiedUtc");
+
+                    b.Property<double>("PaymentCorrection");
 
                     b.Property<DateTimeOffset>("PaymentDueDate");
 
@@ -3891,6 +3909,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
+                    b.Property<double>("VatValue");
+
                     b.HasKey("Id");
 
                     b.ToTable("PurchasingDispositions");
@@ -3902,12 +3922,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Active");
-
-                    b.Property<string>("CategoryCode");
-
-                    b.Property<string>("CategoryId");
-
-                    b.Property<string>("CategoryName");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -3935,11 +3949,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DivisionCode");
-
-                    b.Property<string>("DivisionId");
-
-                    b.Property<string>("DivisionName");
+                    b.Property<string>("EPODetailId");
 
                     b.Property<bool>("IsDeleted");
 
