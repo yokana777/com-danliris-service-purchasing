@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(GarmentUnitDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentUnitDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
         int Delete(int id, string username);
+        ReadResponse<object> ReadForUnitExpenditureNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
+
     }
 }

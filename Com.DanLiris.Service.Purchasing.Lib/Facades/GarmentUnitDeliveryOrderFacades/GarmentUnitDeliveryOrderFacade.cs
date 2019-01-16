@@ -1,7 +1,10 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +23,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentUnitDeliveryOrder> dbSet;
+        private readonly IMapper mapper;
 
         public GarmentUnitDeliveryOrderFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
             this.serviceProvider = serviceProvider;
             dbSet = dbContext.Set<GarmentUnitDeliveryOrder>();
+            mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
         public Tuple<List<GarmentUnitDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -38,9 +43,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 UnitDONo = m.UnitDONo,
                 UnitDODate = m.UnitDODate,
                 UnitDOType = m.UnitDOType,
+                UnitRequestCode = m.UnitRequestCode,
                 UnitRequestName = m.UnitRequestName,
+                UnitSenderCode = m.UnitSenderCode,
                 UnitSenderName = m.UnitSenderName,
                 StorageName = m.StorageName,
+                StorageCode = m.StorageCode,
+                StorageRequestCode = m.StorageRequestCode,
+                StorageRequestName = m.StorageRequestName,
+                IsUsed = m.IsUsed,
                 RONo = m.RONo,
                 Article = m.Article,
                 CreatedBy = m.CreatedBy,
@@ -172,6 +183,109 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 int lastNoNumber = lastno1 + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
+        }
+
+        public ReadResponse<object> ReadForUnitExpenditureNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            IQueryable<GarmentUnitDeliveryOrder> Query = dbSet
+                .Select(m => new GarmentUnitDeliveryOrder
+                {
+                    Id = m.Id,
+                    UnitDONo = m.UnitDONo,
+                    UnitDOType = m.UnitDOType,
+                    UnitSenderId = m.UnitSenderId,
+                    UnitSenderCode = m.UnitSenderCode,
+                    UnitSenderName = m.UnitSenderName,
+                    UnitRequestId = m.UnitRequestId,
+                    UnitRequestCode = m.UnitRequestCode,
+                    UnitRequestName = m.UnitRequestName,
+                    StorageId = m.StorageId,
+                    StorageCode = m.StorageCode,
+                    StorageName = m.StorageName,
+                    StorageRequestId = m.StorageRequestId,
+                    StorageRequestCode = m.StorageRequestCode,
+                    StorageRequestName = m.StorageRequestName,
+                    IsUsed = m.IsUsed,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Items = m.Items.Select(i => new GarmentUnitDeliveryOrderItem
+                    {
+                        Id = i.Id,
+                        ProductId = i.ProductId,
+                        ProductCode = i.ProductCode,
+                        ProductName = i.ProductName,
+                        ProductRemark = i.ProductRemark,
+                        PRItemId = i.PRItemId,
+                        EPOItemId = i.EPOItemId,
+                        DODetailId = i.DODetailId,
+                        POItemId = i.POItemId,
+                        POSerialNumber = i.POSerialNumber,
+                        PricePerDealUnit = i.PricePerDealUnit,
+                        Quantity = i.Quantity,
+                        RONo = i.RONo,
+                        URNItemId = i.URNItemId,
+                        UomId = i.UomId,
+                        UomUnit = i.UomUnit,
+                        FabricType = i.FabricType,
+                        DesignColor = i.DesignColor
+                    }).ToList()
+                });
+
+            Query = QueryHelper<GarmentUnitDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentUnitDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentUnitDeliveryOrder> pageable = new Pageable<GarmentUnitDeliveryOrder>(Query, Page - 1, Size);
+            List<GarmentUnitDeliveryOrder> DataModel = pageable.Data.ToList();
+            int Total = pageable.TotalCount;
+
+            List<GarmentUnitDeliveryOrderViewModel> DataViewModel = mapper.Map<List<GarmentUnitDeliveryOrderViewModel>>(DataModel);
+
+            List<dynamic> listData = new List<dynamic>();
+            listData.AddRange(
+                DataViewModel.Select(s => new
+                {
+                    s.Id,
+                    s.UnitDONo,
+                    s.UnitDOType,
+                    s.IsUsed,
+                    s.Storage,
+                    s.StorageRequest,
+                    s.UnitRequest,
+                    s.UnitSender,
+                    s.CreatedBy,
+                    s.LastModifiedUtc,
+                    Items = s.Items.Select(i => new
+                    {
+                        i.Id,
+                        i.ProductId,
+                        i.ProductCode,
+                        i.ProductName,
+                        i.ProductRemark,
+                        i.Quantity,
+                        i.DODetailId,
+                        i.EPOItemId,
+                        i.FabricType,
+                        i.PricePerDealUnit,
+                        i.POSerialNumber,
+                        i.POItemId,
+                        i.PRItemId,
+                        i.UomId,
+                        i.UomUnit,
+                        i.RONo,
+                        i.URNItemId,
+                        i.DesignColor,
+                        Buyer = new
+                        {
+                            Id = dbContext.GarmentInternalPurchaseOrders.Where(m => m.Items.Any(k => k.Id == i.POItemId)).Select(m => m.BuyerId).FirstOrDefault(),
+                            Code = dbContext.GarmentInternalPurchaseOrders.Where(m => m.Items.Any(k => k.Id == i.POItemId)).Select(m => m.BuyerCode).FirstOrDefault()
+                        },
+                    }).ToList()
+                }).ToList()
+            );
+            return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
     }
 }

@@ -21,6 +21,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
@@ -89,26 +90,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<MonitoringPriceFacade>()
                 .AddTransient<IUnitReceiptNoteFacade, UnitReceiptNoteFacade>()
-                .AddTransient<TotalPurchaseFacade>()
-                .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
-                .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
-                .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
-                .AddTransient<PurchaseOrderMonitoringAllFacade>()
-                .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
-                .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
-                .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
-                .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
-                .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
-                .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
-                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
-                .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
-                .AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
-                .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
-                .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
-                .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
-                .AddTransient<IMonitoringUnitReceiptAllFacade, MonitoringUnitReceiptAllFacade>()
-                .AddTransient<IGarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderFacade>();
+				.AddTransient<TotalPurchaseFacade>()
+				.AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
+				.AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
+				.AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+				.AddTransient<PurchaseOrderMonitoringAllFacade>()
+				.AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
+				.AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
+				.AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
+				.AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
+				.AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
+				.AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
+				.AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+				.AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
+				.AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
+				.AddTransient<IGarmentBeacukaiFacade, GarmentBeacukaiFacade>()
+				.AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
+				.AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
+				.AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
+				.AddTransient<IMonitoringUnitReceiptAllFacade,MonitoringUnitReceiptAllFacade>()
+                .AddTransient<IGarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderFacade>()
+                .AddTransient<IGarmentUnitExpenditureNoteFacade, GarmentUnitExpenditureNoteFacade>();
 
         }
 
