@@ -3,7 +3,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
@@ -19,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
@@ -217,6 +220,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             Assert.NotNull(errorDuplicatePO_SerialNumber);
         }
 		//monitoring purchase all
+		private Mock<IServiceProvider> GetServiceProvider()
+		{
+			HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+			message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+			var HttpClientService = new Mock<IHttpClientService>();
+			HttpClientService
+				.Setup(x => x.GetAsync(It.IsAny<string>()))
+				.ReturnsAsync(message);
+
+			var serviceProvider = new Mock<IServiceProvider>();
+			serviceProvider
+				.Setup(x => x.GetService(typeof(IdentityService)))
+				.Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+			serviceProvider
+				.Setup(x => x.GetService(typeof(IHttpClientService)))
+				.Returns(HttpClientService.Object);
+
+			return serviceProvider;
+		}
 		private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
 		{
 			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
@@ -233,8 +256,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		[Fact]
 		public async void Should_Success_Get_Report_Purchase_All_Data()
 		{
-			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData2();
 			await facade.Create(data, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
@@ -245,8 +268,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		[Fact]
 		public async void Should_Success_Get_Report_Purchase_All_Excel()
 		{
-			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
-			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData2();
 			await facade.Create(data, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade( _dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
