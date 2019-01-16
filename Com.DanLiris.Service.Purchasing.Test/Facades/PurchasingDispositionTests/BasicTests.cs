@@ -139,9 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                             new PurchasingDispositionDetail
                             {
                                 //EPODetailId=modelDetail.EPODetailId,
-                                CategoryCode="test",
-                                CategoryId="1",
-                                CategoryName="test",
+                                
                                 DealQuantity=10,
                                 PaidQuantity=1000,
                                 DealUomId="1",
@@ -164,9 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var dispoDetail = new PurchasingDispositionDetail
             {
                 //EPODetailId = modelDetail.EPODetailId,
-                CategoryCode = "test",
-                CategoryId = "1",
-                CategoryName = "test",
+                
                 DealQuantity = 10,
                 PaidQuantity = 1000,
                 DealUomId = "1",
@@ -352,6 +348,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                 Position = x.Position,
                 ProformaNo = x.ProformaNo,
                 Remark = x.Remark,
+                Category = new Lib.ViewModels.IntegrationViewModel.CategoryViewModel()
+                {
+                    code = x.CategoryCode,
+                    name = x.CategoryName,
+                    _id = x.CategoryId
+                },
                 Supplier = new Lib.ViewModels.IntegrationViewModel.SupplierViewModel()
                 {
                     code = x.SupplierCode,
@@ -384,12 +386,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                         Active = z.Active,
                         IsDeleted = z.IsDeleted,
                         LastModifiedAgent = z.LastModifiedAgent,
-                        Category = new Lib.ViewModels.IntegrationViewModel.CategoryViewModel()
-                        {
-                            code = z.CategoryCode,
-                            name = z.CategoryName,
-                            _id = z.CategoryId
-                        },
+                        
                         Unit = new Lib.ViewModels.IntegrationViewModel.UnitViewModel()
                         {
                             name = z.UnitName,

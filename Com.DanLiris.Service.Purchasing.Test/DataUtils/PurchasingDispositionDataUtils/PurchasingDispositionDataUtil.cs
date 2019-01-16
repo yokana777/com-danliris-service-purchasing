@@ -52,8 +52,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                 PaymentMethod="Test",
 
                 Remark = "Remark1",
-                
-                
+                CategoryCode = "test",
+                CategoryId = "1",
+                CategoryName = "test",
+
 
                 Items = new List<PurchasingDispositionItem>
                 {
@@ -71,9 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                             new PurchasingDispositionDetail
                             {
                                 //EPODetailId=detailData.Id.ToString(),
-                                CategoryCode="test",
-                                CategoryId="1",
-                                CategoryName="test",
+                                
                                 DealQuantity=10,
                                 PaidQuantity=1000,
                                 DealUomId="1",
