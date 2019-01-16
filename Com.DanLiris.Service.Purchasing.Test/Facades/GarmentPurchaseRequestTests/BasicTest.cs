@@ -276,5 +276,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 
 		}
+
+		[Fact]
+		public async void Should_Success_Get_Data_By_Name()
+		{
+			var facade = new GarmentPurchaseRequestFacade( _dbContext(GetCurrentMethod()));
+			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+			var Responses = await facade.Create(data, USERNAME);
+			var Response = facade.ReadName(data.CreatedBy);
+			Assert.NotNull(Response);
+		}
 	}
 }
