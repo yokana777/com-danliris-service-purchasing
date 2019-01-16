@@ -1,8 +1,14 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -210,5 +216,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var errorDuplicatePO_SerialNumber = errorItemsMessage.FirstOrDefault(m => m.ContainsValue("PO_SerialNumber sudah ada"));
             Assert.NotNull(errorDuplicatePO_SerialNumber);
         }
-    }
+		//monitoring purchase all
+		private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+		{
+			var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+			var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+			var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+			var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+			var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+			var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+		}
+		[Fact]
+		public async void Should_Success_Get_Report_Purchase_All_Data()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.NotNull(Response.Item1);
+
+		}
+
+		[Fact]
+		public async void Should_Success_Get_Report_Purchase_All_Excel()
+		{
+			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
+			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, USERNAME);
+			var Facade = new GarmentPurchaseRequestFacade( _dbContext(GetCurrentMethod()));
+			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+		}
+	}
 }
