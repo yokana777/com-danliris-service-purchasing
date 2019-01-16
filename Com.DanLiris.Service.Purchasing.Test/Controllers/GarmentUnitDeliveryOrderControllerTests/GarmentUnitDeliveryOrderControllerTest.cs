@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -386,5 +387,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         //    var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentUnitDeliveryOrderViewModel>()).Result;
         //    Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         //}
+
+        [Fact]
+        public void Should_Success_Get_All_Data_For_GarmentUnitDeliveryOrder()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrder>();
+
+            mockFacade.Setup(x => x.ReadForUnitExpenditureNote(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetForUnitExpenditureNote();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_For_GarmentUnitDeliveryOrder()
+        {
+            GarmentUnitDeliveryOrderControllers controller = new GarmentUnitDeliveryOrderControllers(GetServiceProvider().Object, null, null);
+            var response = controller.GetForUnitExpenditureNote();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }

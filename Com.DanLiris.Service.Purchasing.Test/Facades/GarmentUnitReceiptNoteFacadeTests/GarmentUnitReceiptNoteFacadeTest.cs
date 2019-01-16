@@ -141,6 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
 			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
 		}
+
 		[Fact]
         public async void Should_Success_Get_All_Data()
         {
