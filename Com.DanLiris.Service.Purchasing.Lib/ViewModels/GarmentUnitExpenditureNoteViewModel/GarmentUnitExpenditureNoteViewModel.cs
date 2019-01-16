@@ -32,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             IGarmentUnitDeliveryOrder unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentUnitDeliveryOrder)validationContext.GetService(typeof(IGarmentUnitDeliveryOrder));
+            IGarmentUnitExpenditureNoteFacade unitExpenditureNoteFacade = validationContext == null ? null : (IGarmentUnitExpenditureNoteFacade)validationContext.GetService(typeof(IGarmentUnitExpenditureNoteFacade));
 
             if (ExpenditureDate.Equals(DateTimeOffset.MinValue) || ExpenditureDate == null)
             {
@@ -66,16 +67,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                             itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
                         }
                     }
-                    if (item.Quantity <= 0)
+                    var expenditureNote = unitExpenditureNoteFacade.ReadById((int)Id);
+                    if (expenditureNote!=null)
                     {
-                        itemErrorCount++;
-                        itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
+                        var exxpenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);
+                        if (item.Quantity <= 0)
+                        {
+                            itemErrorCount++;
+                            itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
+                        }
+                        else if (item.Quantity > exxpenditureNoteItem.Quantity)
+                        {
+                            itemErrorCount++;
+                            itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                        }
+
                     }
-                    //else if (item.Quantity > item.OldQuantity)
-                    //{
-                    //    itemErrorCount++;
-                    //    itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
-                    //}
                     itemError += "}, ";
                 }
 

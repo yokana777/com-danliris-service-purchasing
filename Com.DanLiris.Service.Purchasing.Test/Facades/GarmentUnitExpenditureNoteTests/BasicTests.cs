@@ -300,6 +300,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         {
                             Id = 1,
                             Quantity = 4
+                        },
+                        new GarmentUnitDeliveryOrderItem
+                        {
+                            Id = 2
                         }
                     }
                 });
@@ -316,12 +320,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 {
                     new GarmentUnitExpenditureNoteItemViewModel
                     {
+                        Id = 1,
                         UnitDOItemId = 1,
                         Quantity = 10
                     },
                     new GarmentUnitExpenditureNoteItemViewModel
                     {
                         Id = 2,
+                        UnitDOItemId = 2,
                         Quantity = 0
                     }
 
