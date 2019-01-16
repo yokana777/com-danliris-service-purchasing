@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel.EPODispositionLoader;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
@@ -22,18 +24,83 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
 
         public  PurchasingDisposition GetNewData()
         {
-            var datas = Task.Run(() =>  externalPurchaseOrderDataUtil.GetTestData("unit-test")).Result;
-            var itemData = datas.Items;
-            ExternalPurchaseOrderDetail detailData= new ExternalPurchaseOrderDetail();
-            ExternalPurchaseOrderItem itemdata = new ExternalPurchaseOrderItem();
+            var s = Task.Run(() =>  externalPurchaseOrderDataUtil.GetTestData("unit-test")).Result;
+            ExternalPurchaseOrderDetail d = new ExternalPurchaseOrderDetail();
+            ExternalPurchaseOrderItem i = new ExternalPurchaseOrderItem();
+            var itemData = s.Items;
             foreach (var item in itemData)
             {
-                itemdata = item;break;
+                i = item; break;
             }
-            foreach(var detail in itemdata.Details)
+            foreach (var detail in i.Details)
             {
-                detailData = detail;break;
+                d = detail; break;
             }
+
+            EPODetailViewModel detailEPO = new EPODetailViewModel
+            {
+                _id = d.Id,
+                poItemId = d.POItemId,
+                prItemId = d.PRItemId,
+                product = new ProductViewModel
+                {
+                    _id = d.ProductId,
+                    code = d.ProductCode,
+                    name = d.ProductName,
+                },
+
+                dealQuantity = d.DealQuantity,
+                dealUom = new UomViewModel
+                {
+                    _id = d.DealUomId,
+                    unit = d.DealUomUnit,
+                },
+                doQuantity = d.DOQuantity,
+                dispositionQuantity = d.DispositionQuantity,
+                productRemark = d.ProductRemark,
+                priceBeforeTax = d.PriceBeforeTax,
+                pricePerDealUnit = d.PricePerDealUnit,
+            };
+
+            EPOItemViewModel itemEPO = new EPOItemViewModel
+            {
+                _id = i.Id,
+                IsDeleted = i.IsDeleted,
+                prId = i.PRId,
+                poId = i.POId,
+                prNo = i.PRNo,
+                category = new CategoryViewModel
+                    {
+                        _id = "CategoryId",
+                        code = "CategoryCode",
+                        name = "CategoryName"
+                    },
+                details= new List<EPODetailViewModel>() { detailEPO}
+            };
+
+            EPOViewModel dataEPO = new EPOViewModel
+            {
+                _id = s.Id,
+                no = s.EPONo,
+                unit = new UnitViewModel
+                {
+                    _id = s.UnitId,
+                    name = s.UnitName,
+                    code = s.UnitCode,
+                },
+                useVat = s.UseVat,
+                useIncomeTax = s.UseIncomeTax,
+                incomeTax = new IncomeTaxViewModel
+                {
+                    _id = s.IncomeTaxId,
+                    name = s.IncomeTaxName,
+                    rate = s.IncomeTaxRate,
+                },
+                items = new List<EPOItemViewModel>() { itemEPO}
+
+            };
+            
+            
             return new PurchasingDisposition
             {
                 SupplierId = "1",
@@ -61,8 +128,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                 {
                     new PurchasingDispositionItem
                     {
-                       EPOId=datas.Id.ToString(),
-                       EPONo=datas.EPONo,
+                       EPOId=dataEPO._id.ToString(),
+                       EPONo=dataEPO.no,
                        IncomeTaxId="1",
                        IncomeTaxName="tax",
                        IncomeTaxRate=1,
@@ -72,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
                        {
                             new PurchasingDispositionDetail
                             {
-                                EPODetailId=detailData.Id.ToString(),
+                                EPODetailId=detailEPO._id.ToString(),
                                 
                                 DealQuantity=10,
                                 PaidQuantity=1000,
