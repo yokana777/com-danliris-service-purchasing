@@ -33,6 +33,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         public string StorageRequestCode { get; set; }
         public string StorageRequestName { get; set; }
 
-        public virtual ICollection<GarmentUnitDeliveryOrderItem> Items { get; set; }
+        public virtual List<GarmentUnitDeliveryOrderItem> Items { get; set; }
     }
 }

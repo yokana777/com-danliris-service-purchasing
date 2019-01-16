@@ -10,6 +10,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Migrations;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
@@ -273,6 +274,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data_For_GarmentUnitExpenditureNote()
+        {
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(m => m.Map<List<GarmentUnitDeliveryOrderViewModel>>(It.IsAny<List<GarmentUnitDeliveryOrder>>()))
+                .Returns(new List<GarmentUnitDeliveryOrderViewModel>
+                {
+                    new GarmentUnitDeliveryOrderViewModel
+                    {
+                        Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                        {
+                            new GarmentUnitDeliveryOrderItemViewModel()
+                        }
+                    }
+                });
+
+            var serviceProvider = GetServiceProvider();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMapper)))
+                .Returns(mapper.Object);
+
+            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), serviceProvider.Object);
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadForUnitExpenditureNote();
+            Assert.NotEqual(Response.Data.Count, 0);
         }
     }
 }
