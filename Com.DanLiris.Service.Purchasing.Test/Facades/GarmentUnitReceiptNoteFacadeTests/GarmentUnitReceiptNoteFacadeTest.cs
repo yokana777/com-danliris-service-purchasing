@@ -142,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 			return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
 		}
 
-		[Fact]
+        [Fact]
         public async void Should_Success_Get_All_Data()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -334,5 +334,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 			Assert.IsType(typeof(System.IO.MemoryStream), Response1);
 		}
 
-	}
+        [Fact]
+        public async void Should_Success_ReadForUnitDO()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var Response = facade.ReadForUnitDO();
+            Assert.NotEqual(Response.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_ReadForUnitDO_With_Filter()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var filter = new
+            {
+                data.UnitId,
+            };
+            var Response = facade.ReadForUnitDO("", JsonConvert.SerializeObject(filter));
+            Assert.NotEqual(Response.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_ReadForUnitDOHeader()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var Response = facade.ReadForUnitDOHeader();
+            Assert.NotEqual(Response.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_ReadForUnitDOHeader_With_Filter()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var filter = new
+            {
+                data.UnitId,
+                RONo = "xxx"
+            };
+            var Response = facade.ReadForUnitDOHeader("", JsonConvert.SerializeObject(filter));
+            Assert.NotEqual(Response.Count, 0);
+        }
+    }
 }

@@ -121,7 +121,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             return serviceProvider;
         }
 
-        private GarmentUnitExpenditureNoteController GetController(Mock<IGarmentUnitExpenditureNoteFacade> facadeM, Mock<IGarmentUnitDeliveryOrder> facadeUnitDO, Mock<IValidateService> validateM, Mock<IMapper> mapper)
+        private GarmentUnitExpenditureNoteController GetController(Mock<IGarmentUnitExpenditureNoteFacade> facadeM, Mock<IGarmentUnitDeliveryOrderFacade> facadeUnitDO, Mock<IValidateService> validateM, Mock<IMapper> mapper)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -141,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             if (facadeUnitDO != null)
             {
                 servicePMock
-                    .Setup(x => x.GetService(typeof(IGarmentUnitDeliveryOrder)))
+                    .Setup(x => x.GetService(typeof(IGarmentUnitDeliveryOrderFacade)))
                     .Returns(facadeUnitDO.Object);
             }
 
@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNoteViewModel>>(It.IsAny<List<GarmentUnitExpenditureNote>>()))
@@ -187,7 +187,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
         [Fact]
         public void Should_Error_Get_All_Data()
         {
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
             var mockMapper = new Mock<IMapper>();
             GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
@@ -198,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
         [Fact]
         public void Should_Success_Get_Data_By_Id()
         {
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
             mockFacadeUnitDO.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(ModelUnitDO);
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
@@ -230,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns((GarmentUnitExpenditureNoteViewModel)null);
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var mockMapper = new Mock<IMapper>();
 
@@ -254,7 +254,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             mockFacade.Setup(x => x.Create(It.IsAny<GarmentUnitExpenditureNote>()))
                .ReturnsAsync(1);
 
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
 
@@ -269,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitExpenditureNoteViewModel>())).Throws(GetServiceValidationExeption());
 
             var mockMapper = new Mock<IMapper>();
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
 
             var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
@@ -282,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
         public void Should_Error_Create_Data()
         {
             var mockMapper = new Mock<IMapper>();
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
 
             var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
@@ -306,7 +306,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentUnitExpenditureNote>()))
                .ReturnsAsync(1);
 
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
 
@@ -322,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
 
             var mockMapper = new Mock<IMapper>();
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
 
@@ -335,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
         {
             var mockMapper = new Mock<IMapper>();
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
 
@@ -352,7 +352,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Delete(It.IsAny<int>()))
                .ReturnsAsync(1);
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
 
@@ -404,7 +404,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                 }
             };
 
-            var mockGarmentUnitDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockGarmentUnitDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
             mockGarmentUnitDeliveryOrderFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(garmentUnitDeliveryOrder);
 

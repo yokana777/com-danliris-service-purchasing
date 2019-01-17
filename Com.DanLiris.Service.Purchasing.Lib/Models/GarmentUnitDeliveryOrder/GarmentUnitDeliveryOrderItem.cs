@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
     {
         public long URNId { get; set; }
         public string URNNo { get; set; }
+
         public long URNItemId { get; set; }
         public long DODetailId { get; set; }
         public long EPOItemId { get; set; }
@@ -34,6 +35,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         public string FabricType { get; set; }
 
         public string DesignColor { get; set; }
+
+        [NotMapped]
+        public bool IsSave { get; set; }
 
         public virtual long UnitDOId { get; set; }
         [ForeignKey("UnitDOId")]
