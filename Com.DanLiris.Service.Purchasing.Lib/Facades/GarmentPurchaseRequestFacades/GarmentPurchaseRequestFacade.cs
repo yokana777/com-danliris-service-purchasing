@@ -383,7 +383,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 from correction in cor.DefaultIfEmpty()
 						 join y in dbContext.GarmentCorrectionNoteItems on correction.Id equals y.GCorrectionId into oo
 						 from corrItem in oo.DefaultIfEmpty()
-						 where epo.Id == dodetail.EPOItemId && a.IsDeleted == false && b.IsDeleted == false && dos.IsDeleted == false && doitem.IsDeleted == false &&
+						 where unititem.DODetailId == dodetail.Id && epo.Id == dodetail.EPOItemId && a.IsDeleted == false && b.IsDeleted == false && dos.IsDeleted == false && doitem.IsDeleted == false &&
 						 correction.IsDeleted == false && corrItem.IsDeleted == false &&
 						 ipoitem.IsDeleted == false && ipo.IsDeleted == false &&
 						 epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
@@ -399,9 +399,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 && epos.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? epos.SupplierId.ToString() : supplier)
 						 && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
 						 && a.CreatedBy == (string.IsNullOrWhiteSpace(username) ? a.CreatedBy : username)
-						 && a.IsUsed == (ipoStatus == "SUDAH" ? true : ipoStatus == "BELUM" ? false : a.IsUsed)
+						 && a.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true : ipoStatus == "" ? a.IsUsed : a.IsUsed)
 						 //&& a.IsUsed == (ipoStatus == "BELUM" ? false : true)
-						
+
 						 && ipoitem.Status == (string.IsNullOrWhiteSpace(status) ? ipoitem.Status : status)
 						 && ((d1 != new DateTime(1970, 1, 1)) ? (a.Date.Date >= d1 && a.Date.Date <= d2) : true)
 						 //&& (a.Date.Date >= d1 && a.Date.Date <= d2)
@@ -409,7 +409,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 {
 
 							 poextNo = epos != null ? epos.EPONo : "",
-							 poExtDate = epos != null ? epos.OrderDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 poExtDate = epos != null ? epos.OrderDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 deliveryDate = epos != null ? epos.DeliveryDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 supplierCode = epos != null ? epos.SupplierCode : "",
 							 supplierName = epos != null ? epos.SupplierName : "",
@@ -431,39 +431,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 prBudgetPrice = b.BudgetPrice,
 							 poPricePerDealUnit = epo != null ? epo.PricePerDealUnit : 0,
 							 incomeTaxRate = epos != null ? (epos.IncomeTaxRate).ToString() : "",
-							 totalNominalPO = epo != null ? (epo.DealQuantity * epo.PricePerDealUnit) : 0,
+							 totalNominalPO = epo != null ? String.Format("{0:N2}", (epo.DealQuantity * epo.PricePerDealUnit)) : "",
 							 poCurrencyCode = epos != null ? epos.CurrencyCode : "",
 							 poCurrencyRate = epos != null ? epos.CurrencyRate : 0,
-							 totalNominalRp = epo != null && epos != null ? (epo.DealQuantity * epo.PricePerDealUnit * epos.CurrencyRate) : 0,
+							 totalNominalRp = epo != null && epos != null ? String.Format("{0:N2}", (epo.DealQuantity * epo.PricePerDealUnit * epos.CurrencyRate)).ToString() : "",
 							 ipoDate = ipo != null ? ipo.CreatedUtc.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 username = a.CreatedBy,
+							 username = ipo != null ? ipo.CreatedBy : "",
 							 useIncomeTax = epos != null ? epos.IsIncomeTax.Equals(true) ? "YA" : "TIDAK" : "",
 							 useVat = epos != null ? epos.IsUseVat.Equals(true) ? "YA" : "TIDAK" : "",
-							 useInternalPO = ipo != null ? "SUDAH" : "BELUM",
+							 useInternalPO = a.IsUsed == true ? "SUDAH" : "BELUM",
 							 status = ipoitem != null ? ipoitem.Status : "",
 							 doNo = dos != null ? dos.DONo : "",
-							 doDate = dos != null ? dos.DODate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 arrivalDate = dos != null ? dos.ArrivalDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 doDate = dos != null ? dos.DODate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 arrivalDate = dos != null ? dos.ArrivalDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 doQty = dodetail != null ? dodetail.DOQuantity : 0,
 							 doUomUnit = dodetail != null ? dodetail.UomUnit : "",
 							 remainingDOQty = dodetail != null ? dodetail.DealQuantity - dodetail.DOQuantity : 0,
 							 bcNo = bc != null ? bc.BeacukaiNo : "",
 							 bcDate = bc != null ? bc.BeacukaiDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 receiptNo = receipt != null ? receipt.URNNo : "",
-							 receiptDate = receipt != null ? receipt.ReceiptDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 receiptQty = unititem != null ? String.Format("{0:N2}", unititem.ReceiptQuantity) :"",
+							 receiptDate = receipt != null ? receipt.ReceiptDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 receiptQty = unititem != null ? String.Format("{0:N2}", unititem.ReceiptQuantity) : "",
 							 receiptUomUnit = unititem != null ? unititem.UomUnit : "",
 							 invoiceNo = inv != null ? inv.InvoiceNo : "",
-							 invoiceDate = inv != null ? inv.InvoiceDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 incomeTaxDate = inv != null ? inv.IncomeTaxDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 invoiceDate = inv != null ? inv.InvoiceDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 incomeTaxDate = inv != null ? inv.IncomeTaxDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 incomeTaxNo = inv != null ? inv.IncomeTaxNo : "",
 							 incomeTaxType = inv != null ? inv.IncomeTaxName : "",
 							 incomeTaxtRate = inv != null ? (inv.IncomeTaxRate).ToString() : "",
+							 incomeTaxtValue = inv != null ? String.Format("{0:N2}", dodetail.DOQuantity * dodetail.PricePerDealUnit * inv.IncomeTaxRate / 100) : "",
 							 vatNo = inv != null ? inv.VatNo : "",
-							 vatDate = inv != null ? inv.VatDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 vatDate = inv != null ? inv.VatDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 vatValue = inv != null ? String.Format("{0:N2}", dodetail.DOQuantity * dodetail.PricePerDealUnit * 10 / 100) : "",
 							 internNo = internnote != null ? internnote.INNo : "",
 							 internDate = internnote != null ? internnote.INDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 maturityDate = internotedetail != null ? internotedetail.PaymentDueDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 maturityDate = internotedetail != null ? internotedetail.PaymentDueDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 internTotal = inv != null ? String.Format("{0:N2}", dodetail.DOQuantity * dodetail.PricePerDealUnit * inv.IncomeTaxRate):"",
 							 dodetailId = correction != null ? correction.DOId : 0,
 							 correctionNoteNo = correction != null ? correction.CorrectionNo : "",
 							 correctionDate = correction != null ? correction.CorrectionDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
@@ -530,10 +533,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						incomeTaxDate = item.incomeTaxDate,
 						incomeTaxNo = item.incomeTaxNo,
 						incomeTaxType = item.incomeTaxType,
+						incomeTaxtValue=item.incomeTaxtValue,
 						vatNo = item.vatNo,
 						vatDate = item.vatDate,
+						vatValue=item.vatValue,
 						internNo = item.internNo,
 						internDate = item.internDate,
+						internTotal=item.internTotal,
 						maturityDate = item.maturityDate,
 						dodetailId = item.dodetailId,
 						correctionNoteNo = item.correctionNoteNo,
@@ -615,7 +621,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			}
 
 			//var op = qry;
-			return listData.AsQueryable();
+			return listData.AsQueryable().OrderBy(s=>s.prDate);
 			//return listEPO.AsQueryable();
 
 		}
@@ -659,6 +665,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			result.Columns.Add(new DataColumn() { ColumnName = "Target Datang", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Kena PPN", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Kena PPH", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = " PPH", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
@@ -680,7 +687,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			result.Columns.Add(new DataColumn() { ColumnName = "Tgl Datang Barang", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Qty Datang", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Satuan SJ", DataType = typeof(String) });
-			result.Columns.Add(new DataColumn() { ColumnName = "Qty Sisa", DataType = typeof(String) });
+			//result.Columns.Add(new DataColumn() { ColumnName = "Qty Sisa", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "No Beacukai", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Tgl Beacukai", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Terima", DataType = typeof(String) });
@@ -717,9 +724,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 				{
 					index++;
 
-					result.Rows.Add(item.index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.useVat, item.useIncomeTax, item.supplierCode, item.supplierName, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark,item.poDealQty,item.poDealUomUnit,item.prBudgetPrice,
-					item.poPricePerDealUnit,item.totalNominalPO,item.poCurrencyCode,item.poCurrencyRate,item.totalNominalRp,item.ipoDate,item.doNo,item.doDate,item.arrivalDate,item.doQty,item.doUomUnit,
-					item.remainingDOQty,item.bcNo,item.bcDate,item.receiptNo,item.receiptDate, item.receiptQty,item.receiptUomUnit,item.invoiceNo, item.invoiceDate,item.vatNo,item.vatDate,item.vatValue,item.incomeTaxType,item.incomeTaxtValue,item.incomeTaxNo,item.incomeTaxDate,item.incomeTaxtValue,item.internNo,item.internDate,item.internTotal,item.maturityDate,item.correctionNoteNo,item.correctionDate,item.correctionRemark,item.username);
+					result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.supplierCode, item.supplierName, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark, item.poDealQty,
+						item.poDealUomUnit, item.prBudgetPrice, item.poPricePerDealUnit, item.totalNominalPO, item.poCurrencyCode, item.poCurrencyRate, item.totalNominalRp, item.ipoDate, item.doNo,
+						item.doDate, item.arrivalDate, item.doQty, item.doUomUnit, item.bcNo, item.bcDate, item.receiptNo, item.receiptDate, item.receiptQty, item.receiptUomUnit,
+						item.invoiceNo, item.invoiceDate, item.vatNo, item.vatDate, item.vatValue, item.incomeTaxType, item.incomeTaxtRate, item.incomeTaxNo, item.incomeTaxDate, item.incomeTaxtValue,
+						item.internNo, item.internDate, item.internTotal, item.maturityDate, item.correctionNoteNo, item.correctionDate, item.valueCorrection, item.correctionRemark, item.username);
 				}
 			}
 
