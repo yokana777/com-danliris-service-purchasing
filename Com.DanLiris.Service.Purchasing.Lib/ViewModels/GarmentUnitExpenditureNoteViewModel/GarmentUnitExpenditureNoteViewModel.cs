@@ -57,25 +57,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                     var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
                     var expenditureNote = unitExpenditureNoteFacade.ReadById((int)Id);
 
-                    if (expenditureNote != null)
-                    {
-                        var exxpenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);                        
-                        if (item.Quantity > exxpenditureNoteItem.Quantity)
-                        {
-                            itemErrorCount++;
-                            itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
-                        }
-
-                    }
-                    if (unitDO!=null)
+                    if (expenditureNote != null || unitDO != null)
                     {
                         var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
-
-                        if (item.Quantity > unitDOItem.Quantity)
+                        var expenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);                        
+                        if (item.Quantity > expenditureNoteItem.Quantity || item.Quantity> unitDOItem.Quantity)
                         {
                             itemErrorCount++;
                             itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
                         }
+
                     }
                     if (item.Quantity <= 0)
                     {
