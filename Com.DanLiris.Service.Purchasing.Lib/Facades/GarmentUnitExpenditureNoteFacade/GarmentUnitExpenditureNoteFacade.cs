@@ -195,9 +195,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     var garmentUnitExpenditureNote = dbSet.Include(m => m.Items).Single(m => m.Id == id);
 
                     EntityExtension.FlagForDelete(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
-                    var garmentUnitDeliveryOrder = dbSetGarmentUnitDeliveryOrder.First(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
-                    EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
-                    garmentUnitDeliveryOrder.IsUsed = false;
+
+                    var garmentUnitDeliveryOrder = dbSetGarmentUnitDeliveryOrder.FirstOrDefault(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
+                    if (garmentUnitDeliveryOrder != null)
+                    {
+                        EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
+                        garmentUnitDeliveryOrder.IsUsed = false;
+
+                    }
 
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                     {
@@ -259,7 +264,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             List<string> searchAttributes = new List<string>()
             {
-                "UENNo", "UnitDONo", "ExpenditureDate", "ExpenditureType", "ExpenditureTo", "CreatedAgent"
+                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedAgent"
             };
 
             Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -334,7 +339,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         GarmentUnitExpenditureNoteViewModel garmentUENViewModel = mapper.Map<GarmentUnitExpenditureNoteViewModel>(garmentUnitExpenditureNote);
                         foreach (var item in garmentUENViewModel.Items)
                         {
-                            if (!item.IsSave)
+                            if (item.IsSave == false)
                             {
                                 EntityExtension.FlagForUpdate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
                                 garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)garmentUnitExpenditureNoteItem.Quantity;

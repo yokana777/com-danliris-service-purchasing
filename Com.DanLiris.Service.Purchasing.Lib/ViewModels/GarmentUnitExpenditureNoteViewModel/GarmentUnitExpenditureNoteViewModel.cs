@@ -19,8 +19,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public long UnitDOId { get; set; }
         public string UnitDONo { get; set; }
 
-        //public GarmentUnitDeliveryOrderViewModel GarmentUnitDO { get; set; }
-
         public UnitViewModel UnitRequest { get; set; }
 
         public UnitViewModel UnitSender { get; set; }
@@ -32,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             IGarmentUnitDeliveryOrder unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentUnitDeliveryOrder)validationContext.GetService(typeof(IGarmentUnitDeliveryOrder));
+            IGarmentUnitExpenditureNoteFacade unitExpenditureNoteFacade = validationContext == null ? null : (IGarmentUnitExpenditureNoteFacade)validationContext.GetService(typeof(IGarmentUnitExpenditureNoteFacade));
 
             if (ExpenditureDate.Equals(DateTimeOffset.MinValue) || ExpenditureDate == null)
             {
@@ -51,23 +50,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
             else
             {
                 string itemError = "[";
-
+                
                 foreach (var item in Items)
                 {
                     itemError += "{";
                     var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
-                    var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
+                    var expenditureNote = unitExpenditureNoteFacade.ReadById((int)Id);
+
+                    if (expenditureNote != null || unitDO != null)
+                    {
+                        var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
+                        var expenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);                        
+                        if (item.Quantity > expenditureNoteItem.Quantity || item.Quantity> unitDOItem.Quantity)
+                        {
+                            itemErrorCount++;
+                            itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                        }
+
+                    }
                     if (item.Quantity <= 0)
                     {
                         itemErrorCount++;
                         itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                     }
-                    else if(item.Quantity > unitDOItem.Quantity)
-                    {
-                        itemErrorCount++;
-                        itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
-                    }
-                    
                     itemError += "}, ";
                 }
 
