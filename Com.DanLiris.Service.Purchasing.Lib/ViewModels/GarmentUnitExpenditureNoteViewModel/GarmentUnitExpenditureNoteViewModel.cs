@@ -59,13 +59,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
 
                     if (expenditureNote != null)
                     {
-                        var exxpenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);
-                        if (item.Quantity <= 0)
-                        {
-                            itemErrorCount++;
-                            itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
-                        }
-                        else if (item.Quantity > exxpenditureNoteItem.Quantity)
+                        var exxpenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);                        
+                        if (item.Quantity > exxpenditureNoteItem.Quantity)
                         {
                             itemErrorCount++;
                             itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
@@ -81,6 +76,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                             itemErrorCount++;
                             itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
                         }
+                    }
+                    if (item.Quantity <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                     }
                     itemError += "}, ";
                 }
