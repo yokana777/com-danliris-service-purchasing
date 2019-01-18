@@ -25,7 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
 
-            IGarmentUnitDeliveryOrder garmentUnitDeliveryOrderFacade = (IGarmentUnitDeliveryOrder)serviceProvider.GetService(typeof(IGarmentUnitDeliveryOrder));
+            IGarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = (IGarmentUnitDeliveryOrderFacade)serviceProvider.GetService(typeof(IGarmentUnitDeliveryOrderFacade));
             var garmentUnitDeliveryOrder = garmentUnitDeliveryOrderFacade.ReadById((int)viewModel.UnitDOId);
 
             IdentityService identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
