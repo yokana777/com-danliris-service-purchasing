@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -131,6 +132,71 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         public void Should_Success_Get_COA_IncomeTaxGarmentOther()
         {
             var result = COAGenerator.GetIncomeTaxCOA("PASAL26", "GARMENT", "other");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Set_Purchase_Order_Delivery_Order_Duration_Report_ViewModel()
+        {
+            var result = new GarmentExternalPurchaseOrderDeliveryOrderDurationReportViewModel()
+            {
+                artikelNo = "",
+                buyerName = "",
+                category = "",
+                dateDiff = 0,
+                deliveryOrderNo = "",
+                doCreatedDate = DateTime.Now,
+                expectedDate = DateTime.Now,
+                planPO = "",
+                poEksCreatedDate = DateTime.Now,
+                poEksNo = "",
+                poIntCreatedDate = DateTime.Now,
+                poIntNo = "",
+                productCode = "",
+                productName = "",
+                productPrice = 0,
+                productQuantity = 0,
+                productUom = "",
+                roNo = "",
+                staff = "",
+                supplierCode = "",
+                supplierDoDate = DateTime.Now,
+                supplierName = "",
+                unit = ""
+            };
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Set_Garment_External_Purchase_Order_Over_Budget_Monitoring_ViewModel()
+        {
+            var result = new GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel()
+            {
+                budgetPrice = 0,
+                no = 1,
+                overBudgetRemark = "",
+                overBudgetValue = 0,
+                overBudgetValuePercentage = 0,
+                poExtDate = "",
+                poExtNo = "",
+                prDate = "",
+                prNo = "",
+                prRefNo = "",
+                price = 0,
+                productCode = "",
+                productDesc = "",
+                productName = "",
+                quantity = 0,
+                status = "",
+                supplierCode = "",
+                supplierName = "",
+                totalBudgetPrice = 0,
+                totalPrice = 0,
+                unit = "",
+                uom = "",
+            };
+
             Assert.NotNull(result);
         }
     }
