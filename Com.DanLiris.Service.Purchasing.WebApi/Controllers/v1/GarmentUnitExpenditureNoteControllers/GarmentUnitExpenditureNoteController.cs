@@ -28,10 +28,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
         private readonly IGarmentUnitExpenditureNoteFacade facade;
-        private readonly IGarmentUnitDeliveryOrder facadeUnitDO;
+        private readonly IGarmentUnitDeliveryOrderFacade facadeUnitDO;
         private readonly IdentityService identityService;
 
-        public GarmentUnitExpenditureNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitExpenditureNoteFacade facade, IGarmentUnitDeliveryOrder facadeUnitDO)
+        public GarmentUnitExpenditureNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitExpenditureNoteFacade facade, IGarmentUnitDeliveryOrderFacade facadeUnitDO)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;

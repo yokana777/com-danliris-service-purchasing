@@ -76,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                     }
                 });
 
-            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrder>();
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
             mockGarmentDeliveryOrderFacade
                 .Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentUnitDeliveryOrder());
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             GarmentUnitExpenditureNoteViewModel viewModelCheckItemsCount = new GarmentUnitExpenditureNoteViewModel { UnitDOId = 1 };
             Assert.True(viewModelCheckItemsCount.Validate(null).Count() > 0);
 
-            Mock<IGarmentUnitDeliveryOrder> garmentUnitDeliveryOrderFacadeMock = new Mock<IGarmentUnitDeliveryOrder>();
+            Mock<IGarmentUnitDeliveryOrderFacade> garmentUnitDeliveryOrderFacadeMock = new Mock<IGarmentUnitDeliveryOrderFacade>();
             garmentUnitDeliveryOrderFacadeMock.Setup(s => s.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentUnitDeliveryOrder {
                     Id = 1,
@@ -306,7 +306,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.
-                Setup(x => x.GetService(typeof(IGarmentUnitDeliveryOrder)))
+                Setup(x => x.GetService(typeof(IGarmentUnitDeliveryOrderFacade)))
                 .Returns(garmentUnitDeliveryOrderFacadeMock.Object);
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNoteViewModel

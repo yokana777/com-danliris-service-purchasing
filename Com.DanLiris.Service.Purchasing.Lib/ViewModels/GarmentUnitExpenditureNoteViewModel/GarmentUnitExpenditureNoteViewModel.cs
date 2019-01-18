@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            IGarmentUnitDeliveryOrder unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentUnitDeliveryOrder)validationContext.GetService(typeof(IGarmentUnitDeliveryOrder));
+            IGarmentUnitDeliveryOrderFacade unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentUnitDeliveryOrderFacade)validationContext.GetService(typeof(IGarmentUnitDeliveryOrderFacade));
             IGarmentUnitExpenditureNoteFacade unitExpenditureNoteFacade = validationContext == null ? null : (IGarmentUnitExpenditureNoteFacade)validationContext.GetService(typeof(IGarmentUnitExpenditureNoteFacade));
 
             if (ExpenditureDate.Equals(DateTimeOffset.MinValue) || ExpenditureDate == null)
