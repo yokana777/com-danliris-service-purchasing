@@ -18,288 +18,288 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
 {
-    public class GarmentPurchaseRequestFacade : IGarmentPurchaseRequestFacade
-    {
-        private string USER_AGENT = "Facade";
+	public class GarmentPurchaseRequestFacade : IGarmentPurchaseRequestFacade
+	{
+		private string USER_AGENT = "Facade";
 
-        private readonly PurchasingDbContext dbContext;
-        private readonly DbSet<GarmentPurchaseRequest> dbSet;
+		private readonly PurchasingDbContext dbContext;
+		private readonly DbSet<GarmentPurchaseRequest> dbSet;
 
-        public GarmentPurchaseRequestFacade(PurchasingDbContext dbContext)
-        {
-            this.dbContext = dbContext;
-            this.dbSet = dbContext.Set<GarmentPurchaseRequest>();
-        }
+		public GarmentPurchaseRequestFacade(PurchasingDbContext dbContext)
+		{
+			this.dbContext = dbContext;
+			this.dbSet = dbContext.Set<GarmentPurchaseRequest>();
+		}
 
-        public Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
-        {
-            IQueryable<GarmentPurchaseRequest> Query = this.dbSet;
+		public Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+		{
+			IQueryable<GarmentPurchaseRequest> Query = this.dbSet;
 
-            Query = Query.Select(s => new GarmentPurchaseRequest
-            {
-                Id = s.Id,
-                UId = s.UId,
-                RONo = s.RONo,
-                PRNo = s.PRNo,
-                Article = s.Article,
-                Date = s.Date,
-                ExpectedDeliveryDate = s.ExpectedDeliveryDate,
-                ShipmentDate = s.ShipmentDate,
-                BuyerId = s.BuyerId,
-                BuyerCode = s.BuyerCode,
-                BuyerName = s.BuyerName,
-                UnitId = s.UnitId,
-                UnitCode = s.UnitCode,
-                UnitName = s.UnitName,
-                IsPosted = s.IsPosted,
-                CreatedBy = s.CreatedBy,
-                LastModifiedUtc = s.LastModifiedUtc
-            });
+			Query = Query.Select(s => new GarmentPurchaseRequest
+			{
+				Id = s.Id,
+				UId = s.UId,
+				RONo = s.RONo,
+				PRNo = s.PRNo,
+				Article = s.Article,
+				Date = s.Date,
+				ExpectedDeliveryDate = s.ExpectedDeliveryDate,
+				ShipmentDate = s.ShipmentDate,
+				BuyerId = s.BuyerId,
+				BuyerCode = s.BuyerCode,
+				BuyerName = s.BuyerName,
+				UnitId = s.UnitId,
+				UnitCode = s.UnitCode,
+				UnitName = s.UnitName,
+				IsPosted = s.IsPosted,
+				CreatedBy = s.CreatedBy,
+				LastModifiedUtc = s.LastModifiedUtc
+			});
 
-            List<string> searchAttributes = new List<string>()
-            {
-                "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
-            };
+			List<string> searchAttributes = new List<string>()
+			{
+				"PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
+			};
 
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
+			Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
 
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
 
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+			Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
 
-            Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
-            List<GarmentPurchaseRequest> Data = pageable.Data.ToList<GarmentPurchaseRequest>();
-            int TotalData = pageable.TotalCount;
+			Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
+			List<GarmentPurchaseRequest> Data = pageable.Data.ToList<GarmentPurchaseRequest>();
+			int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData, OrderDictionary);
-        }
+			return Tuple.Create(Data, TotalData, OrderDictionary);
+		}
 
-        public GarmentPurchaseRequest ReadById(int id)
-        {
-            var a = this.dbSet.Where(p => p.Id == id)
-                .Include(p => p.Items)
-                .FirstOrDefault();
-            return a;
-        }
+		public GarmentPurchaseRequest ReadById(int id)
+		{
+			var a = this.dbSet.Where(p => p.Id == id)
+				.Include(p => p.Items)
+				.FirstOrDefault();
+			return a;
+		}
 
-        public GarmentPurchaseRequest ReadByRONo(string rono)
-        {
-            var a = this.dbSet.Where(p => p.RONo.Equals(rono))
-                .Include(p => p.Items)
-                .FirstOrDefault();
-            return a;
-        }
+		public GarmentPurchaseRequest ReadByRONo(string rono)
+		{
+			var a = this.dbSet.Where(p => p.RONo.Equals(rono))
+				.Include(p => p.Items)
+				.FirstOrDefault();
+			return a;
+		}
 
-        public async Task<int> Create(GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
-        {
-            int Created = 0;
+		public async Task<int> Create(GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
+		{
+			int Created = 0;
 
-            using(var transaction = this.dbContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    EntityExtension.FlagForCreate(m, user, USER_AGENT);
+			using (var transaction = this.dbContext.Database.BeginTransaction())
+			{
+				try
+				{
+					EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    m.PRNo = $"PR{m.RONo}";
-                    m.IsPosted = true;
-                    m.IsUsed = false;
+					m.PRNo = $"PR{m.RONo}";
+					m.IsPosted = true;
+					m.IsUsed = false;
 
-                    foreach (var item in m.Items)
-                    {
-                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+					foreach (var item in m.Items)
+					{
+						EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
-                        item.Status = "Belum diterima Pembelian";
-                    }
+						item.Status = "Belum diterima Pembelian";
+					}
 
-                    this.dbSet.Add(m);
+					this.dbSet.Add(m);
 
-                    Created = await dbContext.SaveChangesAsync();
-                    transaction.Commit();
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    throw new Exception(e.Message);
-                }
-            }
+					Created = await dbContext.SaveChangesAsync();
+					transaction.Commit();
+				}
+				catch (Exception e)
+				{
+					transaction.Rollback();
+					throw new Exception(e.Message);
+				}
+			}
 
-            return Created;
-        }
+			return Created;
+		}
 
-        public async Task<int> Update(int id, GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
-        {
-            int Updated = 0;
+		public async Task<int> Update(int id, GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
+		{
+			int Updated = 0;
 
-            using (var transaction = dbContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    var oldM = this.dbSet.AsNoTracking()
-                        .Include(d => d.Items)
-                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+			using (var transaction = dbContext.Database.BeginTransaction())
+			{
+				try
+				{
+					var oldM = this.dbSet.AsNoTracking()
+						.Include(d => d.Items)
+						.SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
 
-                    if (oldM != null && oldM.Id == id)
-                    {
-                        EntityExtension.FlagForUpdate(m, user, USER_AGENT);
+					if (oldM != null && oldM.Id == id)
+					{
+						EntityExtension.FlagForUpdate(m, user, USER_AGENT);
 
-                        foreach (var item in m.Items)
-                        {
-                            if (item.Id == 0)
-                            {
-                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
-                                item.Status = "Belum diterima Pembelian";
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
-                            }
-                        }
+						foreach (var item in m.Items)
+						{
+							if (item.Id == 0)
+							{
+								EntityExtension.FlagForCreate(item, user, USER_AGENT);
+								item.Status = "Belum diterima Pembelian";
+							}
+							else
+							{
+								EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+							}
+						}
 
-                        dbSet.Update(m);
+						dbSet.Update(m);
 
-                        foreach (var oldItem in oldM.Items)
-                        {
-                            var newItem = oldM.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
-                            if (newItem == null)
-                            {
-                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
-                                dbContext.GarmentPurchaseRequestItems.Update(oldItem);
-                            }
-                        }
+						foreach (var oldItem in oldM.Items)
+						{
+							var newItem = oldM.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+							if (newItem == null)
+							{
+								EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
+								dbContext.GarmentPurchaseRequestItems.Update(oldItem);
+							}
+						}
 
-                        Updated = await dbContext.SaveChangesAsync();
-                        transaction.Commit();
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid Id");
-                    }
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    throw new Exception(e.Message);
-                }
-            }
+						Updated = await dbContext.SaveChangesAsync();
+						transaction.Commit();
+					}
+					else
+					{
+						throw new Exception("Invalid Id");
+					}
+				}
+				catch (Exception e)
+				{
+					transaction.Rollback();
+					throw new Exception(e.Message);
+				}
+			}
 
-            return Updated;
-        }
+			return Updated;
+		}
 
-        public List<GarmentInternalPurchaseOrder> ReadByTags(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
-        {
-            IQueryable<GarmentPurchaseRequest> Models = this.dbSet.AsQueryable();
+		public List<GarmentInternalPurchaseOrder> ReadByTags(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
+		{
+			IQueryable<GarmentPurchaseRequest> Models = this.dbSet.AsQueryable();
 
-            if (shipmentDateFrom != DateTimeOffset.MinValue && shipmentDateTo != DateTimeOffset.MinValue)
-            {
-                Models = Models.Where(m => m.ShipmentDate >= shipmentDateFrom && m.ShipmentDate <= shipmentDateTo);
-            }
+			if (shipmentDateFrom != DateTimeOffset.MinValue && shipmentDateTo != DateTimeOffset.MinValue)
+			{
+				Models = Models.Where(m => m.ShipmentDate >= shipmentDateFrom && m.ShipmentDate <= shipmentDateTo);
+			}
 
-            string[] stringKeywords = new string[3];
+			string[] stringKeywords = new string[3];
 
-            if (tags != null)
-            {
-                List<string> Keywords = new List<string>();
+			if (tags != null)
+			{
+				List<string> Keywords = new List<string>();
 
-                if (tags.Contains("#"))
-                {
-                    Keywords = tags.Split("#").ToList();
-                    Keywords.RemoveAt(0);
-                    Keywords = Keywords.Take(stringKeywords.Length).ToList();
-                }
-                else
-                {
-                    Keywords.Add(tags);
-                }
+				if (tags.Contains("#"))
+				{
+					Keywords = tags.Split("#").ToList();
+					Keywords.RemoveAt(0);
+					Keywords = Keywords.Take(stringKeywords.Length).ToList();
+				}
+				else
+				{
+					Keywords.Add(tags);
+				}
 
-                for (int n = 0; n < Keywords.Count; n++)
-                {
-                    stringKeywords[n] = Keywords[n].Trim().ToLower();
-                }
-            }
+				for (int n = 0; n < Keywords.Count; n++)
+				{
+					stringKeywords[n] = Keywords[n].Trim().ToLower();
+				}
+			}
 
-            Models = Models
-                .Where(m =>
-                    (string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
-                    (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
-                    m.Items.Any(i => i.IsUsed == false) &&
-                    m.IsUsed == false
-                    )
-                .Select(m => new GarmentPurchaseRequest
-                {
-                    Id = m.Id,
-                    Date = m.Date,
-                    PRNo = m.PRNo,
-                    RONo = m.RONo,
-                    BuyerId = m.BuyerId,
-                    BuyerCode = m.BuyerCode,
-                    BuyerName = m.BuyerName,
-                    Article = m.Article,
-                    ExpectedDeliveryDate = m.ExpectedDeliveryDate,
-                    ShipmentDate = m.ShipmentDate,
-                    UnitId = m.UnitId,
-                    UnitCode = m.UnitCode,
-                    UnitName = m.UnitName,
-                    Items = m.Items
-                        .Where(i =>
-                            i.IsUsed == false &&
-                            (string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2]))
-                            )
-                        .ToList()
-                })
-                .Where(m => m.Items.Count > 0);
+			Models = Models
+				.Where(m =>
+					(string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
+					(string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
+					m.Items.Any(i => i.IsUsed == false) &&
+					m.IsUsed == false
+					)
+				.Select(m => new GarmentPurchaseRequest
+				{
+					Id = m.Id,
+					Date = m.Date,
+					PRNo = m.PRNo,
+					RONo = m.RONo,
+					BuyerId = m.BuyerId,
+					BuyerCode = m.BuyerCode,
+					BuyerName = m.BuyerName,
+					Article = m.Article,
+					ExpectedDeliveryDate = m.ExpectedDeliveryDate,
+					ShipmentDate = m.ShipmentDate,
+					UnitId = m.UnitId,
+					UnitCode = m.UnitCode,
+					UnitName = m.UnitName,
+					Items = m.Items
+						.Where(i =>
+							i.IsUsed == false &&
+							(string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2]))
+							)
+						.ToList()
+				})
+				.Where(m => m.Items.Count > 0);
 
-            var IPOModels = new List<GarmentInternalPurchaseOrder>();
+			var IPOModels = new List<GarmentInternalPurchaseOrder>();
 
-            foreach (var model in Models)
-            {
-                foreach (var item in model.Items)
-                {
-                    var IPOModel = new GarmentInternalPurchaseOrder
-                    {
-                        PRId = model.Id,
-                        PRDate = model.Date,
-                        PRNo = model.PRNo,
-                        RONo = model.RONo,
-                        BuyerId = model.BuyerId,
-                        BuyerCode = model.BuyerCode,
-                        BuyerName = model.BuyerName,
-                        Article = model.Article,
-                        ExpectedDeliveryDate = model.ExpectedDeliveryDate,
-                        ShipmentDate = model.ShipmentDate,
-                        UnitId = model.UnitId,
-                        UnitCode = model.UnitCode,
-                        UnitName = model.UnitName,
-                        //IsPosted = false,
-                        //IsClosed = false,
-                        //Remark = "",
-                        Items = new List<GarmentInternalPurchaseOrderItem>
-                        {
-                            new GarmentInternalPurchaseOrderItem
-                            {
-                                GPRItemId = item.Id,
-                                PO_SerialNumber = item.PO_SerialNumber,
-                                ProductId = item.ProductId,
-                                ProductCode = item.ProductCode,
-                                ProductName = item.ProductName,
-                                Quantity = item.Quantity,
-                                BudgetPrice = item.BudgetPrice,
-                                UomId = item.UomId,
-                                UomUnit = item.UomUnit,
-                                CategoryId = item.CategoryId,
-                                CategoryName = item.CategoryName,
-                                ProductRemark = item.ProductRemark,
+			foreach (var model in Models)
+			{
+				foreach (var item in model.Items)
+				{
+					var IPOModel = new GarmentInternalPurchaseOrder
+					{
+						PRId = model.Id,
+						PRDate = model.Date,
+						PRNo = model.PRNo,
+						RONo = model.RONo,
+						BuyerId = model.BuyerId,
+						BuyerCode = model.BuyerCode,
+						BuyerName = model.BuyerName,
+						Article = model.Article,
+						ExpectedDeliveryDate = model.ExpectedDeliveryDate,
+						ShipmentDate = model.ShipmentDate,
+						UnitId = model.UnitId,
+						UnitCode = model.UnitCode,
+						UnitName = model.UnitName,
+						//IsPosted = false,
+						//IsClosed = false,
+						//Remark = "",
+						Items = new List<GarmentInternalPurchaseOrderItem>
+						{
+							new GarmentInternalPurchaseOrderItem
+							{
+								GPRItemId = item.Id,
+								PO_SerialNumber = item.PO_SerialNumber,
+								ProductId = item.ProductId,
+								ProductCode = item.ProductCode,
+								ProductName = item.ProductName,
+								Quantity = item.Quantity,
+								BudgetPrice = item.BudgetPrice,
+								UomId = item.UomId,
+								UomUnit = item.UomUnit,
+								CategoryId = item.CategoryId,
+								CategoryName = item.CategoryName,
+								ProductRemark = item.ProductRemark,
                                 //Status = "PO Internal belum diorder"
                             }
-                        }
-                    };
-                    IPOModels.Add(IPOModel);
-                }
-            }
+						}
+					};
+					IPOModels.Add(IPOModel);
+				}
+			}
 
-            return IPOModels;
-        }
+			return IPOModels;
+		}
 		#region monitoringpurchasealluser
 		public List<GarmentPurchaseRequest> ReadName(string Keyword = null, string Filter = "{}")
 		{
@@ -325,13 +325,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			return Query.ToList();
 		}
 
-		public IQueryable<MonitoringPurchaseAllUserViewModel> GetMonitoringPurchaseAllReportQuery(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status,  DateTime? dateFrom, DateTime? dateTo, int offset)
+		public IQueryable<MonitoringPurchaseAllUserViewModel> GetMonitoringPurchaseAllReportQuery(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 
 
 			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-
+			offset = 7;
 
 			List<MonitoringPurchaseAllUserViewModel> listEPO = new List<MonitoringPurchaseAllUserViewModel>();
 			var Query = (from
@@ -350,13 +350,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 join g in dbContext.GarmentExternalPurchaseOrders on epo.GarmentEPOId equals g.Id into gg
 						 from epos in gg.DefaultIfEmpty()
 							 //do
-						 join j in dbContext.GarmentDeliveryOrderItems on epos.Id equals j.EPOId into hh
+						 join h in dbContext.GarmentDeliveryOrderDetails on epo.Id equals h.EPOItemId into ii
+						 from dodetail in ii.DefaultIfEmpty()
+
+						 join j in dbContext.GarmentDeliveryOrderItems on dodetail.GarmentDOItemId equals j.Id into hh
 						 from doitem in hh.DefaultIfEmpty()
 
 						 join k in dbContext.GarmentDeliveryOrders on doitem.GarmentDOId equals k.Id into kk
 						 from dos in kk.DefaultIfEmpty()
-						 join h in dbContext.GarmentDeliveryOrderDetails on doitem.Id equals h.GarmentDOItemId into ii
-						 from dodetail in ii.DefaultIfEmpty()
+
 
 							 //bc
 						 join m in dbContext.GarmentBeacukais on dos.CustomsId equals m.Id into n
@@ -383,28 +385,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 from correction in cor.DefaultIfEmpty()
 						 join y in dbContext.GarmentCorrectionNoteItems on correction.Id equals y.GCorrectionId into oo
 						 from corrItem in oo.DefaultIfEmpty()
-						 where unititem.DODetailId == dodetail.Id && epo.Id == dodetail.EPOItemId && a.IsDeleted == false && b.IsDeleted == false && dos.IsDeleted == false && doitem.IsDeleted == false &&
-						 correction.IsDeleted == false && corrItem.IsDeleted == false &&
-						 ipoitem.IsDeleted == false && ipo.IsDeleted == false &&
+						 //where unititem.DODetailId == dodetail.Id /*&& epo.Id == dodetail.EPOItemId*/ && a.IsDeleted == false && b.IsDeleted == false && dos.IsDeleted == false && doitem.IsDeleted == false &&
+						 //correction.IsDeleted == false && corrItem.IsDeleted == false &&
+						where ipoitem.IsDeleted == false && ipo.IsDeleted == false &&
 						 epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
 						 && inv.IsDeleted == false && invoiceitem.IsDeleted == false && receipt.IsDeleted == false && unititem.IsDeleted == false && bc.IsDeleted == false
-						 && a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
-
-						 //&& a.IsApproved == (string.IsNullOrWhiteSpace(status) ? a.IsApproved : _status)
-						 && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
-						  && a.Article == (string.IsNullOrWhiteSpace(article) ? a.Article : article)
+						 &&  a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
+						 //&& ipoitem.PO_SerialNumber == "PA18200012"
+						 //&& a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
+						 // && a.Article == (string.IsNullOrWhiteSpace(article) ? a.Article : article)
 						 && epos.EPONo == (string.IsNullOrWhiteSpace(epono) ? epos.EPONo : epono)
 						 && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poSerialNumber) ? b.PO_SerialNumber : poSerialNumber)
 						 && dos.DONo == (string.IsNullOrWhiteSpace(doNo) ? dos.DONo : doNo)
 						 && epos.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? epos.SupplierId.ToString() : supplier)
 						 && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
 						 && a.CreatedBy == (string.IsNullOrWhiteSpace(username) ? a.CreatedBy : username)
-						 && a.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true : ipoStatus == "" ? a.IsUsed : a.IsUsed)
-						 //&& a.IsUsed == (ipoStatus == "BELUM" ? false : true)
-
+						 && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true :  a.IsUsed)
 						 && ipoitem.Status == (string.IsNullOrWhiteSpace(status) ? ipoitem.Status : status)
 						 && ((d1 != new DateTime(1970, 1, 1)) ? (a.Date.Date >= d1 && a.Date.Date <= d2) : true)
-						 //&& (a.Date.Date >= d1 && a.Date.Date <= d2)
+
 						 select new MonitoringPurchaseAllUserViewModel
 						 {
 
@@ -416,12 +415,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 prNo = a.PRNo,
 							 poSerialNumber = b.PO_SerialNumber,
 							 prDate = a.Date.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+							 PrDate = a.Date,
 							 unitName = a.UnitName,
 							 buyerCode = a.BuyerCode,
 							 buyerName = a.BuyerName,
 							 ro = a.RONo,
 							 article = a.Article,
-							 shipmentDate = a.ShipmentDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+							 shipmentDate = a.ShipmentDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
 							 productCode = b.ProductCode,
 							 productName = b.ProductName,
 							 prProductRemark = b.ProductRemark,
@@ -439,7 +439,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 username = ipo != null ? ipo.CreatedBy : "",
 							 useIncomeTax = epos != null ? epos.IsIncomeTax.Equals(true) ? "YA" : "TIDAK" : "",
 							 useVat = epos != null ? epos.IsUseVat.Equals(true) ? "YA" : "TIDAK" : "",
-							 useInternalPO = a.IsUsed == true ? "SUDAH" : "BELUM",
+							 useInternalPO = b.IsUsed == true ? "SUDAH" : "BELUM",
 							 status = ipoitem != null ? ipoitem.Status : "",
 							 doNo = dos != null ? dos.DONo : "",
 							 doDate = dos != null ? dos.DODate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
@@ -466,7 +466,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 internNo = internnote != null ? internnote.INNo : "",
 							 internDate = internnote != null ? internnote.INDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 maturityDate = internotedetail != null ? internotedetail.PaymentDueDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 internTotal = inv != null ? String.Format("{0:N2}", dodetail.DOQuantity * dodetail.PricePerDealUnit * inv.IncomeTaxRate):"",
+							 internTotal = inv != null ? String.Format("{0:N2}", dodetail.DOQuantity * dodetail.PricePerDealUnit * inv.IncomeTaxRate) : "",
 							 dodetailId = correction != null ? correction.DOId : 0,
 							 correctionNoteNo = correction != null ? correction.CorrectionNo : "",
 							 correctionDate = correction != null ? correction.CorrectionDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
@@ -474,9 +474,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 correctionTotal = correction == null ? 0 : correction.CorrectionType == "Harga Total" ? corrItem.PriceTotalAfter - corrItem.PriceTotalBefore : correction.CorrectionType == "Harga Satuan" ? (corrItem.PricePerDealUnitAfter - corrItem.PricePerDealUnitBefore) * corrItem.Quantity : correction.CorrectionType == "Jumlah" ? corrItem.PriceTotalAfter : 0,
 
 
-						 }).Distinct().OrderBy(s => s.prDate);
+						 }).Distinct().OrderBy(s => s.PrDate);
 			int i = 1;
-			foreach (var item in Query)
+			foreach (var item in Query.Distinct())
 			{
 				listEPO.Add(
 					new MonitoringPurchaseAllUserViewModel
@@ -490,6 +490,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						prNo = item.prNo,
 						poSerialNumber = item.poSerialNumber,
 						prDate = item.prDate,
+						PrDate = item.PrDate,
 						unitName = item.unitName,
 						buyerCode = item.buyerCode,
 						buyerName = item.buyerName,
@@ -508,7 +509,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						poCurrencyCode = item.poCurrencyCode,
 						poCurrencyRate = item.poCurrencyRate,
 						totalNominalRp = item.totalNominalRp,
-						incomeTaxRate=item.incomeTaxRate,
+						incomeTaxRate = item.incomeTaxRate,
 						ipoDate = item.ipoDate,
 						username = item.username,
 						useIncomeTax = item.useIncomeTax,
@@ -533,13 +534,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						incomeTaxDate = item.incomeTaxDate,
 						incomeTaxNo = item.incomeTaxNo,
 						incomeTaxType = item.incomeTaxType,
-						incomeTaxtValue=item.incomeTaxtValue,
+						incomeTaxtValue = item.incomeTaxtValue,
 						vatNo = item.vatNo,
 						vatDate = item.vatDate,
-						vatValue=item.vatValue,
+						vatValue = item.vatValue,
 						internNo = item.internNo,
 						internDate = item.internDate,
-						internTotal=item.internTotal,
+						internTotal = item.internTotal,
 						maturityDate = item.maturityDate,
 						dodetailId = item.dodetailId,
 						correctionNoteNo = item.correctionNoteNo,
@@ -562,7 +563,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 			var index = 0;
 			List<string> corNo = new List<string>();
-			foreach (MonitoringPurchaseAllUserViewModel data in listEPO.ToList())
+			foreach (MonitoringPurchaseAllUserViewModel data in listEPO.OrderByDescending(s => s.prDate))
 			{
 				string value;
 				if (data.dodetailId != 0)
@@ -573,8 +574,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						if (qry.TryGetValue(data.dodetailId, out value))
 						{
 							var isexist = (from a in corNo
-										  where a == data.correctionNoteNo
-										  select a).FirstOrDefault();
+										   where a == data.correctionNoteNo
+										   select a).FirstOrDefault();
 							if (isexist == null)
 							{
 								qry[data.dodetailId] += (index).ToString() + ". " + data.correctionNoteNo + "\n";
@@ -584,7 +585,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 								index++;
 								corNo.Add(data.correctionNoteNo);
 							}
-							 
+
 						}
 						else
 						{
@@ -612,7 +613,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 					{
 						data.correctionNoteNo = qry[data.dodetailId];
 						data.correctionRemark = qryType[data.dodetailId];
-						data.valueCorrection = ( qryQty[data.dodetailId]);
+						data.valueCorrection = (qryQty[data.dodetailId]);
 						data.correctionDate = qryDate[data.dodetailId];
 						listData.Add(data);
 						break;
@@ -621,7 +622,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			}
 
 			//var op = qry;
-			return listData.AsQueryable().OrderBy(s=>s.prDate);
+			return listData.AsQueryable().OrderBy(s => s.PrDate);
 			//return listEPO.AsQueryable();
 
 		}
@@ -629,12 +630,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 		public Tuple<List<MonitoringPurchaseAllUserViewModel>, int> GetMonitoringPurchaseReport(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
-			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit,category,roNo,article,poSerialNumber,username,doNo,ipoStatus, supplier, status, dateFrom, dateTo, offset);
+			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, category, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
 
 			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
 			//if (OrderDictionary.Count.Equals(0))
 			//{
-			//	Query = Query.OrderByDescending(b => b.poExtDate);
+			//	Query = Query.OrderByDescending(b => b.prDate);
 			//}
 
 			Pageable<MonitoringPurchaseAllUserViewModel> pageable = new Pageable<MonitoringPurchaseAllUserViewModel>(Query, page - 1, size);
@@ -646,7 +647,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 		public MemoryStream GenerateExcelPurchase(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
 			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, category, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
-			Query = Query.OrderByDescending(b => b.poExtDate);
+			Query = Query.OrderByDescending(b => b.prDate);
 			DataTable result = new DataTable();
 
 			result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
