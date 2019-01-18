@@ -9,6 +9,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
     public class COAGeneratorTest
     {
         [Fact]
+        public void Should_Success_Generate_UnitAndDivision()
+        {
+            var result = COAGenerator.GetDivisionAndUnitCOACode("", "");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
         public void Should_Success_Get_COA_Spinning1()
         {
             var result = COAGenerator.GetDebtCOA(false, "SPINNING", "S1");
