@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public long id { get; set; }
 		public int index { get; set; }
 		public string prNo { get; set; }
+		public DateTimeOffset PrDate { get; set; }
 		public string prDate { get; set; }
 		public string poextNo { get; set; }
 		public string poExtDate { get; set; }
