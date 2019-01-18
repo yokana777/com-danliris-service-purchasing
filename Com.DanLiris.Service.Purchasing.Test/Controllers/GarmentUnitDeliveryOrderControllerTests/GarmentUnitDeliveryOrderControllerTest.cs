@@ -178,6 +178,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         }
 
         [Fact]
+        public void Should_Success_Get_All_Data_By_User()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 1, new Dictionary<string, string>()));
+
+            GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade);
+
+            var response = controller.GetByUser();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_By_User()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            GarmentUnitDeliveryOrderControllers controller = new GarmentUnitDeliveryOrderControllers(GetServiceProvider().Object, mockFacade.Object);
+
+            var response = controller.GetByUser();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Sucscess_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
