@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code, normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Amount.ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.DPP.ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);

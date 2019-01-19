@@ -347,6 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         foreach (var a in ipoItems)
                         {
                             a.RemainingBudget += item.UsedBudget;
+                            a.Status = "PO Internal belum diorder";
                         }
 
                         EntityExtension.FlagForDelete(item, user, "Facade");
