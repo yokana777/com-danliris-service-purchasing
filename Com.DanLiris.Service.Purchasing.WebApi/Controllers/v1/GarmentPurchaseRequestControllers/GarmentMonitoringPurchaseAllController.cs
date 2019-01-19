@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
 		[HttpGet]
-		public IActionResult GetReport(string epono, string unit, string category,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetReport(string epono, string unit,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
 		{
 			int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
 			string accept = Request.Headers["Accept"];
@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			try
 			{
 
-				var data = facade.GetMonitoringPurchaseReport(epono, unit, category, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, page, size, Order, offset);
+				var data = facade.GetMonitoringPurchaseReport(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, page, size, Order, offset);
 
 				return Ok(new
 				{
@@ -58,14 +58,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			}
 		}
 		[HttpGet("download")]
-		public IActionResult GetXls(string epono, string unit, string category,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetXls(string epono, string unit,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
 		{
 			try
 			{
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcelPurchase(epono, unit, category, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, page, size, Order, offset);
+				var xls = facade.GenerateExcelPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, page, size, Order, offset);
 
 				string filename = "Laporan Pembelian Garment";
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");

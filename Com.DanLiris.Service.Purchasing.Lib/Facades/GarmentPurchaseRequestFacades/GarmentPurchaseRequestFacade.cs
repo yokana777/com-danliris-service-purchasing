@@ -325,7 +325,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			return Query.ToList();
 		}
 
-		public IQueryable<MonitoringPurchaseAllUserViewModel> GetMonitoringPurchaseAllReportQuery(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int offset)
+		public IQueryable<MonitoringPurchaseAllUserViewModel> GetMonitoringPurchaseAllReportQuery(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int offset)
 		{
 
 
@@ -361,46 +361,52 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 
 							 //bc
-						 join m in dbContext.GarmentBeacukais on dos.CustomsId equals m.Id into n
+							 join bcs in dbContext.GarmentBeacukaiItems on dos.Id equals bcs.GarmentDOId into bb
+							 from beacukai in bb.DefaultIfEmpty()
+						 join m in dbContext.GarmentBeacukais on beacukai.BeacukaiId equals m.Id into n
 						 from bc in n.DefaultIfEmpty()
 							 //urn
-						 join o in dbContext.GarmentUnitReceiptNotes on dos.Id equals o.DOId into p
-						 from receipt in p.DefaultIfEmpty()
-						 join q in dbContext.GarmentUnitReceiptNoteItems on receipt.Id equals q.URNId into qq
+						 join q in dbContext.GarmentUnitReceiptNoteItems on  dodetail.Id equals q.DODetailId into qq
 						 from unititem in qq.DefaultIfEmpty()
+
+						 join o in dbContext.GarmentUnitReceiptNotes on unititem.URNId equals o.Id into p
+						 from receipt in p.DefaultIfEmpty()
+						
 							 //inv
-						 join inv in dbContext.GarmentInvoiceItems on dos.Id equals inv.DeliveryOrderId into r
+							 join invd in dbContext.GarmentInvoiceDetails on dodetail.Id equals invd.DODetailId into rr
+							 from invoicedetail in rr.DefaultIfEmpty()
+						 join inv in dbContext.GarmentInvoiceItems on invoicedetail.InvoiceItemId equals inv.Id into r
 						 from invoiceitem in r.DefaultIfEmpty()
 						 join s in dbContext.GarmentInvoices on invoiceitem.InvoiceId equals s.Id into ss
 						 from inv in ss.DefaultIfEmpty()
 							 //intern
-						 join t in dbContext.GarmentInternNoteItems on inv.Id equals t.InvoiceId into u
+						 join w in dbContext.GarmentInternNoteDetails on invoicedetail.Id equals w.InvoiceDetailId into ww
+						 from internotedetail in ww.DefaultIfEmpty()
+						 join t in dbContext.GarmentInternNoteItems on internotedetail.GarmentItemINId equals t.Id into u
 						 from intern in u.DefaultIfEmpty()
 						 join v in dbContext.GarmentInternNotes on intern.GarmentINId equals v.Id into vv
 						 from internnote in vv.DefaultIfEmpty()
-						 join w in dbContext.GarmentInternNoteDetails on intern.Id equals w.GarmentItemINId into ww
-						 from internotedetail in ww.DefaultIfEmpty()
+						
 							 //corr
 						 join x in dbContext.GarmentCorrectionNotes on dos.Id equals x.DOId into cor
 						 from correction in cor.DefaultIfEmpty()
 						 join y in dbContext.GarmentCorrectionNoteItems on correction.Id equals y.GCorrectionId into oo
 						 from corrItem in oo.DefaultIfEmpty()
-						 //where unititem.DODetailId == dodetail.Id /*&& epo.Id == dodetail.EPOItemId*/ && a.IsDeleted == false && b.IsDeleted == false && dos.IsDeleted == false && doitem.IsDeleted == false &&
-						 //correction.IsDeleted == false && corrItem.IsDeleted == false &&
-						where unititem.DODetailId == dodetail.Id  && ipoitem.IsDeleted == false && ipo.IsDeleted == false &&
-						 epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
+						 
+						 where ipoitem.IsDeleted == false && ipo.IsDeleted == false && epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
 						 && inv.IsDeleted == false && invoiceitem.IsDeleted == false && receipt.IsDeleted == false && unititem.IsDeleted == false && bc.IsDeleted == false
-						 &&  a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
+						 
+						  &&  a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
 						 //&& ipoitem.PO_SerialNumber == "PA18200012"
-						 //&& a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
-						 // && a.Article == (string.IsNullOrWhiteSpace(article) ? a.Article : article)
+						 && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
+						  && a.Article == (string.IsNullOrWhiteSpace(article) ? a.Article : article)
 						 && epos.EPONo == (string.IsNullOrWhiteSpace(epono) ? epos.EPONo : epono)
 						 && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poSerialNumber) ? b.PO_SerialNumber : poSerialNumber)
 						 && dos.DONo == (string.IsNullOrWhiteSpace(doNo) ? dos.DONo : doNo)
 						 && epos.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? epos.SupplierId.ToString() : supplier)
 						 && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
 						 && a.CreatedBy == (string.IsNullOrWhiteSpace(username) ? a.CreatedBy : username)
-						// && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true :b.IsUsed)
+						 && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true : b.IsUsed)
 						 && ipoitem.Status == (string.IsNullOrWhiteSpace(status) ? ipoitem.Status : status)
 						 && ((d1 != new DateTime(1970, 1, 1)) ? (a.Date.Date >= d1 && a.Date.Date <= d2) : true)
 
@@ -628,9 +634,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 		}
 
 
-		public Tuple<List<MonitoringPurchaseAllUserViewModel>, int> GetMonitoringPurchaseReport(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		public Tuple<List<MonitoringPurchaseAllUserViewModel>, int> GetMonitoringPurchaseReport(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
-			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, category, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
+			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
 
 			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
 			//if (OrderDictionary.Count.Equals(0))
@@ -644,9 +650,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 			return Tuple.Create(Data, TotalData);
 		}
-		public MemoryStream GenerateExcelPurchase(string epono, string unit, string category, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		public MemoryStream GenerateExcelPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
-			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, category, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
+			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
 			Query = Query.OrderByDescending(b => b.prDate);
 			DataTable result = new DataTable();
 
