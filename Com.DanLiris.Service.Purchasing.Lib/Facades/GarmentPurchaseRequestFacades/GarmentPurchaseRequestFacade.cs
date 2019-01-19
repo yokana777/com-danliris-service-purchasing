@@ -387,7 +387,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 from corrItem in oo.DefaultIfEmpty()
 						 //where unititem.DODetailId == dodetail.Id /*&& epo.Id == dodetail.EPOItemId*/ && a.IsDeleted == false && b.IsDeleted == false && dos.IsDeleted == false && doitem.IsDeleted == false &&
 						 //correction.IsDeleted == false && corrItem.IsDeleted == false &&
-						where ipoitem.IsDeleted == false && ipo.IsDeleted == false &&
+						where unititem.DODetailId == dodetail.Id  && ipoitem.IsDeleted == false && ipo.IsDeleted == false &&
 						 epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
 						 && inv.IsDeleted == false && invoiceitem.IsDeleted == false && receipt.IsDeleted == false && unititem.IsDeleted == false && bc.IsDeleted == false
 						 &&  a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
@@ -400,7 +400,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 && epos.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? epos.SupplierId.ToString() : supplier)
 						 && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
 						 && a.CreatedBy == (string.IsNullOrWhiteSpace(username) ? a.CreatedBy : username)
-						 && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true :  a.IsUsed)
+						// && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true :b.IsUsed)
 						 && ipoitem.Status == (string.IsNullOrWhiteSpace(status) ? ipoitem.Status : status)
 						 && ((d1 != new DateTime(1970, 1, 1)) ? (a.Date.Date >= d1 && a.Date.Date <= d2) : true)
 
@@ -436,7 +436,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 poCurrencyRate = epos != null ? epos.CurrencyRate : 0,
 							 totalNominalRp = epo != null && epos != null ? String.Format("{0:N2}", (epo.DealQuantity * epo.PricePerDealUnit * epos.CurrencyRate)).ToString() : "",
 							 ipoDate = ipo != null ? ipo.CreatedUtc.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 username = ipo != null ? ipo.CreatedBy : "",
+							 username = a != null ? a.CreatedBy : "",
 							 useIncomeTax = epos != null ? epos.IsIncomeTax.Equals(true) ? "YA" : "TIDAK" : "",
 							 useVat = epos != null ? epos.IsUseVat.Equals(true) ? "YA" : "TIDAK" : "",
 							 useInternalPO = b.IsUsed == true ? "SUDAH" : "BELUM",
