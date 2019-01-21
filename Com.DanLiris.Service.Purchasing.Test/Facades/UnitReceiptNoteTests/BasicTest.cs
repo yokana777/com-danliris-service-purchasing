@@ -173,6 +173,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotNull(response);
         }
 
+        [Fact]
+        public void Should_Success_Get_By_No()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var response = facade.ReadByNoFiltered(1, 25, "{}", null, "{ no : ['" + dataUtil.URNNo + "']}");
+            Assert.NotNull(response);
+        }
+
         //[Fact]
         //public async void Should_Success_Update_Data()
         //{

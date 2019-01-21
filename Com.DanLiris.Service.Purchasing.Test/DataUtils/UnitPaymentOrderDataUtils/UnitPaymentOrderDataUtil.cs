@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
                 UseVat = false,
                 VatNo = null,
                 VatDate = new DateTimeOffset(),
-
+                Position = 1,
                 Remark = null,
 
                 DueDate = new DateTimeOffset(), // ???

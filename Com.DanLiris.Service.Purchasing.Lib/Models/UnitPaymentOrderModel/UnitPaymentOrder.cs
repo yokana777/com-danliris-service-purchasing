@@ -76,6 +76,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public bool IsCorrection { get; set; }
         public bool IsPaid { get; set; }
 
+        public int Position { get; set; }
+
         public virtual ICollection<UnitPaymentOrderItem> Items { get; set; }
     }
 }
