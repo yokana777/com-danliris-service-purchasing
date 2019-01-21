@@ -137,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                if (viewModel.Items!=null)
+                if (viewModel.Items!=null)    
                 {
                     viewModel.Items = viewModel.Items.Where(s => s.IsSave).ToList();
                 }
