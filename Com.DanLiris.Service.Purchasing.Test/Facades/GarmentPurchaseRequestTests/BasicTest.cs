@@ -321,8 +321,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		public async void Should_Success_Get_Report_Purchase_By_User_Data()
 		{
 			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
-			await facade.Create(data, false, USERNAME);
+		 
+			var datas = dataUtil(facade, GetCurrentMethod()).GetNewDoubleCorrectionData(USERNAME);
+		
 			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
 			Assert.NotNull(Response.Item1);
