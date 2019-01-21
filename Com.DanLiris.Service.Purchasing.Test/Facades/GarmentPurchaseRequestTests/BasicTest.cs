@@ -341,5 +341,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
 		}
 
+		[Fact]
+		public async void Should_Success_Get_Report_Purchase_By_User_noData_Excel()
+		{
+			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+			await facade.Create(data, false, USERNAME);
+			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+			var Response = Facade.GenerateExcelByUserPurchase("coba", null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+
+		}
+
 	}
 }
