@@ -361,20 +361,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 
 							 //bc
-							 join bcs in dbContext.GarmentBeacukaiItems on dos.Id equals bcs.GarmentDOId into bb
-							 from beacukai in bb.DefaultIfEmpty()
+						 join bcs in dbContext.GarmentBeacukaiItems on dos.Id equals bcs.GarmentDOId into bb
+						 from beacukai in bb.DefaultIfEmpty()
 						 join m in dbContext.GarmentBeacukais on beacukai.BeacukaiId equals m.Id into n
 						 from bc in n.DefaultIfEmpty()
 							 //urn
-						 join q in dbContext.GarmentUnitReceiptNoteItems on  dodetail.Id equals q.DODetailId into qq
+						 join q in dbContext.GarmentUnitReceiptNoteItems on dodetail.Id equals q.DODetailId into qq
 						 from unititem in qq.DefaultIfEmpty()
 
 						 join o in dbContext.GarmentUnitReceiptNotes on unititem.URNId equals o.Id into p
 						 from receipt in p.DefaultIfEmpty()
-						
+
 							 //inv
-							 join invd in dbContext.GarmentInvoiceDetails on dodetail.Id equals invd.DODetailId into rr
-							 from invoicedetail in rr.DefaultIfEmpty()
+						 join invd in dbContext.GarmentInvoiceDetails on dodetail.Id equals invd.DODetailId into rr
+						 from invoicedetail in rr.DefaultIfEmpty()
 						 join inv in dbContext.GarmentInvoiceItems on invoicedetail.InvoiceItemId equals inv.Id into r
 						 from invoiceitem in r.DefaultIfEmpty()
 						 join s in dbContext.GarmentInvoices on invoiceitem.InvoiceId equals s.Id into ss
@@ -386,26 +386,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						 from intern in u.DefaultIfEmpty()
 						 join v in dbContext.GarmentInternNotes on intern.GarmentINId equals v.Id into vv
 						 from internnote in vv.DefaultIfEmpty()
-						
+
 							 //corr
-						 join x in dbContext.GarmentCorrectionNotes on dos.Id equals x.DOId into cor
-						 from correction in cor.DefaultIfEmpty()
-						 join y in dbContext.GarmentCorrectionNoteItems on correction.Id equals y.GCorrectionId into oo
+						 join y in dbContext.GarmentCorrectionNoteItems on dodetail.Id equals y.DODetailId into oo
 						 from corrItem in oo.DefaultIfEmpty()
-						 
-						 where ipoitem.IsDeleted == false && ipo.IsDeleted == false && epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
+
+						 join x in dbContext.GarmentCorrectionNotes on corrItem.GCorrectionId equals x.Id into cor
+						 from correction in cor.DefaultIfEmpty()
+						
+						 where
+						 ipoitem.IsDeleted == false && ipo.IsDeleted == false && epo.IsDeleted == false && epos.IsDeleted == false && intern.IsDeleted == false && internnote.IsDeleted == false && internotedetail.IsDeleted == false
 						 && inv.IsDeleted == false && invoiceitem.IsDeleted == false && receipt.IsDeleted == false && unititem.IsDeleted == false && bc.IsDeleted == false
-						 
-						  &&  a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
-						 //&& ipoitem.PO_SerialNumber == "PA18200012"
+
+						  && a.IsDeleted == false && b.IsDeleted == false && ipo.IsDeleted == false && ipoitem.IsDeleted == false
+						
 						 && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
-						  && a.Article == (string.IsNullOrWhiteSpace(article) ? a.Article : article)
-						 && epos.EPONo == (string.IsNullOrWhiteSpace(epono) ? epos.EPONo : epono)
+						  && a.Article == (string.IsNullOrWhiteSpace(article) ? a.Article : article) &&
+						 epos.EPONo == (string.IsNullOrWhiteSpace(epono) ? epos.EPONo : epono)
 						 && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poSerialNumber) ? b.PO_SerialNumber : poSerialNumber)
 						 && dos.DONo == (string.IsNullOrWhiteSpace(doNo) ? dos.DONo : doNo)
 						 && epos.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? epos.SupplierId.ToString() : supplier)
 						 && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
-						 && a.CreatedBy == (string.IsNullOrWhiteSpace(username) ? a.CreatedBy : username)
+						 && ipo.CreatedBy == (string.IsNullOrWhiteSpace(username) ? ipo.CreatedBy : username)
 						 && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true : b.IsUsed)
 						 && ipoitem.Status == (string.IsNullOrWhiteSpace(status) ? ipoitem.Status : status)
 						 && ((d1 != new DateTime(1970, 1, 1)) ? (a.Date.Date >= d1 && a.Date.Date <= d2) : true)
@@ -415,7 +417,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 							 poextNo = epos != null ? epos.EPONo : "",
 							 poExtDate = epos != null ? epos.OrderDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
-							 deliveryDate = epos != null ? epos.DeliveryDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
+							 deliveryDate = epos != null ? epos.DeliveryDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 supplierCode = epos != null ? epos.SupplierCode : "",
 							 supplierName = epos != null ? epos.SupplierName : "",
 							 prNo = a.PRNo,
@@ -473,7 +475,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 							 internDate = internnote != null ? internnote.INDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 maturityDate = internotedetail != null ? internotedetail.PaymentDueDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 internTotal = inv != null ? String.Format("{0:N2}", dodetail.DOQuantity * dodetail.PricePerDealUnit * inv.IncomeTaxRate) : "",
-							 dodetailId = correction != null ? correction.DOId : 0,
+							 dodetailId = corrItem != null ? corrItem.DODetailId : 0,
 							 correctionNoteNo = correction != null ? correction.CorrectionNo : "",
 							 correctionDate = correction != null ? correction.CorrectionDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : "",
 							 correctionRemark = correction != null ? correction.CorrectionType : "",

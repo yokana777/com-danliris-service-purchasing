@@ -317,9 +317,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
             return Models.ToList();
         }
+		public List<GarmentInternalPurchaseOrder> ReadName(string Keyword = null, string Filter = "{}")
+		{
+			IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet;
 
-        #region Duration InternalPO-POEks
-        public IQueryable<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> GetIPOEPODurationReportQuery(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
+			List<string> searchAttributes = new List<string>()
+			{
+				"CreatedBy",
+			};
+
+			Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+
+			Query = Query
+				.Where(m => m.IsPosted == true && m.IsDeleted == false && m.CreatedBy.Contains(Keyword))
+				.Select(s => new GarmentInternalPurchaseOrder
+				{
+					CreatedBy = s.CreatedBy
+				}).Distinct();
+
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+			return Query.ToList();
+		}
+		#region Duration InternalPO-POEks
+		public IQueryable<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> GetIPOEPODurationReportQuery(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;

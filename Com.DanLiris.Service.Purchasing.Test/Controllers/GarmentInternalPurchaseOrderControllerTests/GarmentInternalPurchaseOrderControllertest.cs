@@ -355,5 +355,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
             var response = controller.GetByTags(null, null, "2018-10-31", "2018-10-31");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
-    }
+
+		[Fact]
+		public void Should_Success_Get_All_Data_ByName()
+		{
+			var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+			mockFacade.Setup(x => x.ReadName(null,"{}"))
+				.Returns(new List<GarmentInternalPurchaseOrder>());
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<GarmentInternalPurchaseOrderViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
+				.Returns(new List<GarmentInternalPurchaseOrderViewModel>());
+
+			GarmentInternalPurchaseOrderController controller = GetController(mockFacade, null, mockMapper);
+			var response = controller.ByName(null, null);
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+		}
+	}
 }
