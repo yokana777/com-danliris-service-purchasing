@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 			return serviceProvider;
 		}
 
-		private GarmentMonitoringPurchaseAllController GetController(Mock<IGarmentPurchaseRequestFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> facadeDO)
+		private GarmentMonitoringPurchaseController GetController(Mock<IGarmentPurchaseRequestFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> facadeDO)
 		{
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 					.Returns(validateM.Object);
 			}
 
-			var controller = new GarmentMonitoringPurchaseAllController(servicePMock.Object, facadeM.Object)
+			var controller = new GarmentMonitoringPurchaseController(servicePMock.Object, facadeM.Object)
 			{
 				ControllerContext = new ControllerContext()
 				{
@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 				new Claim("username", "unittestusername")
 			};
 			user.Setup(u => u.Claims).Returns(claims);
-			GarmentMonitoringPurchaseAllController controller = new GarmentMonitoringPurchaseAllController(GetServiceProvider().Object, mockFacade.Object);
+			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
 			controller.ControllerContext = new ControllerContext()
 			{
 				HttpContext = new DefaultHttpContext()
@@ -126,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 				new Claim("username", "unittestusername")
 			};
 			user.Setup(u => u.Claims).Returns(claims);
-			GarmentMonitoringPurchaseAllController controller = new GarmentMonitoringPurchaseAllController(GetServiceProvider().Object, mockFacade.Object);
+			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
 			controller.ControllerContext = new ControllerContext()
 			{
 				HttpContext = new DefaultHttpContext()
@@ -138,6 +138,64 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 			var response = controller.GetXls(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
- 
+		[Fact]
+		public void Should_Error_Get_Report_By_User_Data()
+		{
+			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+			mockFacade.Setup(x => x.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
+				.Returns(Tuple.Create(new List<MonitoringPurchaseAllUserViewModel> { ViewModel }, 25));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<MonitoringPurchaseAllUserViewModel>>(It.IsAny<List<GarmentPurchaseRequestViewModel>>()))
+				.Returns(new List<MonitoringPurchaseAllUserViewModel> { ViewModel });
+
+			var user = new Mock<ClaimsPrincipal>();
+			var claims = new Claim[]
+			{
+				new Claim("username", "unittestusername")
+			};
+			user.Setup(u => u.Claims).Returns(claims);
+			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
+			controller.ControllerContext = new ControllerContext()
+			{
+				HttpContext = new DefaultHttpContext()
+				{
+					User = user.Object
+				}
+			};
+			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+			var response = controller.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+		}
+
+		[Fact]
+		public void Should_Error_Get_Report_By_User_Xls_Data()
+		{
+			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+			mockFacade.Setup(x => x.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
+				.Returns(Tuple.Create(new List<MonitoringPurchaseAllUserViewModel> { ViewModel }, 25));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<MonitoringPurchaseAllUserViewModel>>(It.IsAny<List<GarmentPurchaseRequestViewModel>>()))
+				.Returns(new List<MonitoringPurchaseAllUserViewModel> { ViewModel });
+
+			var user = new Mock<ClaimsPrincipal>();
+			var claims = new Claim[]
+			{
+				new Claim("username", "unittestusername")
+			};
+			user.Setup(u => u.Claims).Returns(claims);
+			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
+			controller.ControllerContext = new ControllerContext()
+			{
+				HttpContext = new DefaultHttpContext()
+				{
+					User = user.Object
+				}
+			};
+			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+			var response = controller.GetXls(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+		}
 	}
 }
