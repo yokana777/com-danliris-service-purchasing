@@ -655,7 +655,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 		public MemoryStream GenerateExcelPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
 			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
-			Query = Query.OrderByDescending(b => b.prDate);
+			Query = Query.OrderBy(b => b.PrDate);
 			DataTable result = new DataTable();
 
 			result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -1077,7 +1077,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 		public MemoryStream GenerateExcelByUserPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 		{
 			var Query = GetMonitoringPurchaseAllReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset);
-			Query = Query.OrderByDescending(b => b.prDate);
+			Query = Query.OrderBy(b => b.PrDate);
 			DataTable result = new DataTable();
 
 			result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
