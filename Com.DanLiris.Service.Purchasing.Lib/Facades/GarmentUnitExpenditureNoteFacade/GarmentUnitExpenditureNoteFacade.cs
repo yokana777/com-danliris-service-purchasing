@@ -2,7 +2,6 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Migrations;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
@@ -17,7 +16,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade
@@ -37,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
         private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItem;
+        private readonly DbSet<GarmentUnitReceiptNote> dbSetGarmentUnitReceiptNote;
 
         private readonly IMapper mapper;
 
@@ -69,6 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
                     garmentUnitDeliveryOrder.IsUsed = true;
 
+                    //garmentUnitExpenditureNote.Items = garmentUnitExpenditureNote.Items.Where(x => x.IsSave).ToList();
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                     {
                         EntityExtension.FlagForCreate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
@@ -84,15 +84,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             }
                         }
-                        
-                        GarmentUnitExpenditureNoteViewModel garmentUENViewModel = mapper.Map<GarmentUnitExpenditureNoteViewModel>(garmentUnitExpenditureNote);
-                        foreach (var item in garmentUENViewModel.Items)
+                    }
+
+                    var garmentUENIsSaveFalse = garmentUnitExpenditureNote.Items.Where(d => d.IsSave == false).ToList();
+                    if (garmentUENIsSaveFalse.Count() > 0)
+                    {
+                        foreach (var itemFalseIsSave in garmentUENIsSaveFalse)
                         {
-                            if (!item.IsSave)
-                            {
-                                EntityExtension.FlagForUpdate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
-                                garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)garmentUnitExpenditureNoteItem.Quantity;
-                            }
+                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == itemFalseIsSave.URNItemId);
+                            EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
+                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)itemFalseIsSave.Quantity;
                         }
                     }
 
@@ -153,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                         {
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
 
                             var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
@@ -336,14 +337,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             }
                         }
-                        GarmentUnitExpenditureNoteViewModel garmentUENViewModel = mapper.Map<GarmentUnitExpenditureNoteViewModel>(garmentUnitExpenditureNote);
-                        foreach (var item in garmentUENViewModel.Items)
+                    }
+
+                    var garmentUENIsSaveFalse = garmentUnitExpenditureNote.Items.Where(d => d.IsSave == false).ToList();
+                    if (garmentUENIsSaveFalse.Count() > 0)
+                    {
+                        foreach (var itemFalseIsSave in garmentUENIsSaveFalse)
                         {
-                            if (item.IsSave == false)
-                            {
-                                EntityExtension.FlagForUpdate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
-                                garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)garmentUnitExpenditureNoteItem.Quantity;
-                            }
+                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == itemFalseIsSave.URNItemId);
+                            EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
+                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)itemFalseIsSave.Quantity;
                         }
                     }
 
