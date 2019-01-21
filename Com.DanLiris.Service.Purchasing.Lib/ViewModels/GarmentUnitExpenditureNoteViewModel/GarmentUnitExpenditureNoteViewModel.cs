@@ -54,20 +54,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                 foreach (var item in Items)
                 {
                     itemError += "{";
-                    var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
-                    var expenditureNote = unitExpenditureNoteFacade.ReadById((int)Id);
 
-                    if (expenditureNote != null || unitDO != null)
+                    var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
+
+                    if (unitDO != null)
                     {
                         var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
-                        var expenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);                        
-                        if (item.Quantity > expenditureNoteItem.Quantity || item.Quantity> unitDOItem.Quantity)
+                        if (unitDOItem != null)
                         {
-                            itemErrorCount++;
-                            itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                            if (item.Quantity > unitDOItem.Quantity)
+                            {
+                                itemErrorCount++;
+                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                            }
                         }
-
                     }
+
+                    var expenditureNote = unitExpenditureNoteFacade.ReadById((int)Id);
+
+                    if (expenditureNote != null)
+                    {
+                        var expenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);
+                        if (expenditureNoteItem != null)
+                        {
+                            if (item.Quantity > expenditureNoteItem.Quantity)
+                            {
+                                itemErrorCount++;
+                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                            }
+                        }
+                    }
+
                     if (item.Quantity <= 0)
                     {
                         itemErrorCount++;

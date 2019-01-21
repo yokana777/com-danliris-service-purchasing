@@ -324,7 +324,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         //}
 
         [Fact]
-        public void Should_Success_Get_All_Data_For_GarmentUnitDeliveryOrder()
+        public void Should_Success_Get_All_Data_For_GarmentUnitExpenditureNote()
         {
             var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
@@ -340,7 +340,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         }
 
         [Fact]
-        public void Should_Error_Get_All_Data_For_GarmentUnitDeliveryOrder()
+        public void Should_Error_Get_All_Data_For_GarmentUnitExpenditureNote()
         {
             GarmentUnitDeliveryOrderControllers controller = new GarmentUnitDeliveryOrderControllers(GetServiceProvider().Object, null);
             var response = controller.GetForUnitExpenditureNote();
