@@ -56,6 +56,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Unit yang mengirim harus diisi", new List<string> { "UnitSender" });
             }
 
+            if (UnitDOType == "TRANSFER" && UnitRequest == UnitSender)
+            {
+                yield return new ValidationResult("Unit yang mengirim harus diisi", new List<string> { "UnitRequest" });
+            }
+
             if (Storage == null)
             {
                 yield return new ValidationResult("Gudang yang mengirim harus diisi", new List<string> { "Storage" });

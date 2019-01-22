@@ -546,7 +546,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var readForUnitDO = Query.Where(x => 
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (!isPROSES ? true : (i.RONo.EndsWith("S") || i.RONo.EndsWith("W"))))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
@@ -595,7 +595,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var readForUnitDO = Query.Where(x =>
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (!isPROSES ? true : (i.RONo.EndsWith("S") || i.RONo.EndsWith("W"))))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
