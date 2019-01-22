@@ -222,7 +222,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         [Fact]
         public async void Should_Success_Validate_Data()
         {
-            GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel { UnitDOType = "TRANSFER" };
+            GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
+                UnitRequest = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitDOType = "TRANSFER" };
             Assert.True(viewModel.Validate(null).Count() > 0);
 
             GarmentUnitDeliveryOrderViewModel viewModelNullItems = new GarmentUnitDeliveryOrderViewModel

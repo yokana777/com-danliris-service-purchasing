@@ -540,13 +540,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
             long unitId = 0;
+            long storageId = 0;
             bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
             bool isPROSES = FilterDictionary.ContainsKey("Type") && FilterDictionary["Type"] == "PROSES";
 
             var readForUnitDO = Query.Where(x => 
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
+                    (!hasStorageFilter ? true : x.StorageId == storageId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (!isPROSES ? true : (i.RONo.EndsWith("S") || i.RONo.EndsWith("W"))))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
@@ -566,6 +569,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.SmallQuantity,
                     y.SmallUomId,
                     y.SmallUomUnit,
+                    y.DesignColor,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
                     Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
@@ -595,7 +599,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var readForUnitDO = Query.Where(x =>
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (!isPROSES ? true : (i.RONo.EndsWith("S") || i.RONo.EndsWith("W"))))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
