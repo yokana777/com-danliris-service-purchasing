@@ -34,8 +34,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public bool IsCorrection { get; set; }
         public bool isPaid { get; set; }
 
-        public int position { get; set; }
-
         public List<UnitPaymentOrderItemViewModel> items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

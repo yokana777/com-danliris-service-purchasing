@@ -479,37 +479,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             var response = controller.GetSpb(1, 25, "{}", null, "{}");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
-
-        [Fact]
-        public void Should_Success_Get_Data_By_Position()
-        {
-            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
-
-            mockFacade.Setup(x => x.ReadPositionFiltered(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
-
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<UnitPaymentOrderViewModel>>(It.IsAny<List<UnitPaymentOrder>>()))
-                .Returns(new List<UnitPaymentOrderViewModel> { ViewModel });
-
-            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            var response = controller.GetByPosition(1, 25, "{}", null, "{}");
-            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-        }
-
-        [Fact]
-        public void Should_Error_Get_Data_By_Position()
-        {
-            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
-
-            mockFacade.Setup(x => x.ReadPositionFiltered(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
-
-            var mockMapper = new Mock<IMapper>();
-
-            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            var response = controller.GetByPosition(1, 25, "{}", null, "{}");
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
-        }
     }
 }

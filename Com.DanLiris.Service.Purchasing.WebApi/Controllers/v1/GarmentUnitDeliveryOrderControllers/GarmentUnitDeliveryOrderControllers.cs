@@ -22,18 +22,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
     {
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
-        private readonly IGarmentUnitDeliveryOrderFacade facade;
+        private readonly IMapper mapper;
+        private readonly IGarmentUnitDeliveryOrder facade;
         private readonly IdentityService identityService;
 
-        private readonly IMapper mapper;
-
-        public GarmentUnitDeliveryOrderControllers(IServiceProvider serviceProvider, IGarmentUnitDeliveryOrderFacade facade)
+        public GarmentUnitDeliveryOrderControllers(IServiceProvider serviceProvider, IMapper mapper, IGarmentUnitDeliveryOrder facade)
         {
             this.serviceProvider = serviceProvider;
+            this.mapper = mapper;
             this.facade = facade;
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
-
-            mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
         [HttpGet]
@@ -41,52 +39,41 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
         {
             try
             {
-                var model = facade.Read(page, size, order, keyword, filter);
-
-                var info = new Dictionary<string, object>
-                    {
-                        { "count", model.Data.Count },
-                        { "total", model.TotalData },
-                        { "order", model.Order },
-                        { "page", page },
-                        { "size", size }
-                    };
-
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(model.Data, info);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-
-        [HttpGet("by-user")]
-        public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
-        {
-            try
-            {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var model = facade.Read(page, size, order, keyword, filter);
+                var Data = facade.Read(page, size, order, keyword, filter);
+
+                var viewModel = mapper.Map<List<GarmentUnitDeliveryOrderViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    viewModel.AsQueryable().Select(s => new
+                    {
+                        s.Id,
+                        s.UnitDONo,
+                        s.UnitDODate,
+                        s.UnitDOType,
+                        s.RONo,
+                        s.Article,
+                        s.UnitRequest.Name,
+                        s.Storage.name,
+                        s.CreatedBy,
+                        s.LastModifiedUtc
+                    }).ToList()
+                );
 
                 var info = new Dictionary<string, object>
                     {
-                        { "count", model.Data.Count },
-                        { "total", model.TotalData },
-                        { "order", model.Order },
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
                         { "page", page },
                         { "size", size }
                     };
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(model.Data, info);
+                    .Ok(listData, info);
                 return Ok(Result);
             }
             catch (Exception e)
@@ -104,9 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
             try
             {
                 var model = facade.ReadById(id);
-
                 var viewModel = mapper.Map<GarmentUnitDeliveryOrderViewModel>(model);
-
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
@@ -131,7 +116,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -139,7 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
 
                 var model = mapper.Map<GarmentUnitDeliveryOrder>(ViewModel);
 
-                await facade.Create(model);
+                await facade.Create(model, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -161,14 +145,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody]GarmentUnitDeliveryOrderViewModel ViewModel)
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -176,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
 
                 var model = mapper.Map<GarmentUnitDeliveryOrder>(ViewModel);
 
-                await facade.Update(id, model);
+                await facade.Update(id, model, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -200,54 +182,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute]int id)
+        public IActionResult Delete([FromRoute]int id)
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-
-                await facade.Delete(id);
+                facade.Delete(id, identityService.Username);
                 return NoContent();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
-
-        [HttpGet("unit-expenditure-note")]
-        public IActionResult GetForUnitExpenditureNote(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
-        {
-            try
-            {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
-                var result = facade.ReadForUnitExpenditureNote(page, size, order, keyword, filter);
-
-                var info = new Dictionary<string, object>
-                    {
-                        { "count", result.Data.Count },
-                        { "total", result.TotalData },
-                        { "order", result.Order },
-                        { "page", page },
-                        { "size", size }
-                    };
-
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(result.Data, info);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
     }

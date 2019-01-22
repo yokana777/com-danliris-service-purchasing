@@ -9,7 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public long id { get; set; }
 		public int index { get; set; }
 		public string prNo { get; set; }
-		public DateTimeOffset PrDate { get; set; }
 		public string prDate { get; set; }
 		public string poextNo { get; set; }
 		public string poExtDate { get; set; }
@@ -29,10 +28,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string poDealUomUnit { get; set; }
 		public double prBudgetPrice { get; set; }
 		public double poPricePerDealUnit { get; set; }
-		public string totalNominalPO { get; set; }
+		public double totalNominalPO { get; set; }
 		public string poCurrencyCode { get; set; }
 		public double poCurrencyRate { get; set; }
-		public string totalNominalRp { get; set; }
+		public double totalNominalRp { get; set; }
 		public string supplierCode { get; set; }
 		public string supplierName { get; set; }
 		public string epoNo { get; set; }
@@ -47,11 +46,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string incomeTaxDate { get; set; }
 		public string incomeTaxtRate { get; set; }
 		public string incomeTaxRate { get; set; }
-		public string incomeTaxtValue { get; set; }
+		public decimal incomeTaxtValue { get; set; }
 		public string incomeTaxType { get; set; }
 		public string vatNo { get; set; }
 		public string vatDate { get; set; }
-		public string vatValue { get; set; }
+		public decimal vatValue { get; set; }
 		public long dodetailId { get; set; }
 		public string doNo { get; set; }
 		public string doDate { get; set; }
@@ -67,11 +66,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string receiptUomUnit { get; set; }
 		public string internNo { get; set; }
 		public string internDate { get; set; }
-		public string internTotal { get; set; }
+		public decimal internTotal { get; set; }
 		public string maturityDate { get; set; }
 		public string correctionNoteNo { get; set; }
 		public string correctionDate { get; set; }
-		public decimal correctionTotal { get; set; }
+		public decimal  correctionTotal { get; set; }
 		public string  valueCorrection { get; set; }
 		public string correctionRemark { get; set; }
 		public string username { get; set; }

@@ -12,8 +12,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public string DispositionNo { get; set; }
         public SupplierViewModel Supplier { get; set; }
         public CurrencyViewModel Currency { get; set; }
-        public CategoryViewModel Category { get; set; }
-        public DivisionViewModel Division { get; set; }
         public string Bank { get; set; }
         public string ConfirmationOrderNo { get; set; }
         public string IncomeTaxBy { get; set; }
@@ -24,11 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public string ProformaNo { get; set; }
         public double Amount { get; set; }
         public int Position { get; set; }
-        public double PaymentCorrection { get; set; }
-        public double IncomeTaxValue { get; set; }
-        public double VatValue { get; set; }
-        public double DPP { get; set; }
-        public UnitViewModel Unit { get; set; }
         public virtual List<PurchasingDispositionItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -41,16 +34,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
             if (this.Supplier == null || string.IsNullOrWhiteSpace(Supplier._id))
             {
                 yield return new ValidationResult("Supplier harus diisi", new List<string> { "Supplier" });
-            }
-
-            if (this.Division == null || string.IsNullOrWhiteSpace(Division._id))
-            {
-                yield return new ValidationResult("Divisi harus diisi", new List<string> { "Division" });
-            }
-
-            if (this.Category == null || string.IsNullOrWhiteSpace(Category._id))
-            {
-                yield return new ValidationResult("Kategori harus diisi", new List<string> { "Category" });
             }
 
             if (this.Currency == null || string.IsNullOrWhiteSpace(Currency._id))

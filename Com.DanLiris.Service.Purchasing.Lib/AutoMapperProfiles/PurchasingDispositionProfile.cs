@@ -19,12 +19,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Currency.code, opt => opt.MapFrom(s => s.CurrencyCode))
                 .ForPath(d => d.Currency.rate, opt => opt.MapFrom(s => s.CurrencyRate))
                 .ForPath(d => d.Currency.description, opt => opt.MapFrom(s => s.CurrencyDescription))
-                .ForPath(d => d.Category._id, opt => opt.MapFrom(s => s.CategoryId))
-                .ForPath(d => d.Category.code, opt => opt.MapFrom(s => s.CategoryCode))
-                .ForPath(d => d.Category.name, opt => opt.MapFrom(s => s.CategoryName))
-                .ForPath(d => d.Division._id, opt => opt.MapFrom(s => s.DivisionId))
-                .ForPath(d => d.Division.code, opt => opt.MapFrom(s => s.DivisionCode))
-                .ForPath(d => d.Division.name, opt => opt.MapFrom(s => s.DivisionName))
                 .ReverseMap();
 
             CreateMap<PurchasingDispositionItem, PurchasingDispositionItemViewModel>()
@@ -39,9 +33,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Product.name, opt => opt.MapFrom(s => s.ProductName))
                 .ForPath(d => d.DealUom._id, opt => opt.MapFrom(s => s.DealUomId))
                 .ForPath(d => d.DealUom.unit, opt => opt.MapFrom(s => s.DealUomUnit))
+                .ForPath(d => d.Category._id, opt => opt.MapFrom(s => s.CategoryId))
+                .ForPath(d => d.Category.code, opt => opt.MapFrom(s => s.CategoryCode))
+                .ForPath(d => d.Category.name, opt => opt.MapFrom(s => s.CategoryName))
                 .ForPath(d => d.Unit._id, opt => opt.MapFrom(s => s.UnitId))
                 .ForPath(d => d.Unit.code, opt => opt.MapFrom(s => s.UnitCode))
                 .ForPath(d => d.Unit.name, opt => opt.MapFrom(s => s.UnitName))
+                .ForPath(d => d.Unit.division._id, opt => opt.MapFrom(s => s.DivisionId))
+                .ForPath(d => d.Unit.division.code, opt => opt.MapFrom(s => s.DivisionCode))
+                .ForPath(d => d.Unit.division.name, opt => opt.MapFrom(s => s.DivisionName))
                 .ReverseMap();
         }
     }

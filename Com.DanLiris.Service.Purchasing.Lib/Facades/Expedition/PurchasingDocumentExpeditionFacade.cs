@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     this.dbSet.Update(purchasingDocumentExpedition);
                     Count = await this.dbContext.SaveChangesAsync();
 
-                    UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.PURCHASING_DIVISION, identityService.Username);
+                    UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.PURCHASING_DIVISION);
 
                     transaction.Commit();
                 }
@@ -263,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
 
 
-                    UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION, username);
+                    UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
 
                     transaction.Commit();
                 }
@@ -318,7 +318,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.VERIFICATION_DIVISION, username);
+                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.VERIFICATION_DIVISION);
                     }
                     #endregion Verification
                     #region Cashier
@@ -347,7 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.CASHIER_DIVISION, username);
+                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.CASHIER_DIVISION);
                     }
                     #endregion Cashier
                     /*
@@ -431,7 +431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
 
                         Count = await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION, identityService.Username);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION);
                     }
                     else if (purchasingDocumentExpedition.Position == ExpeditionPosition.CASHIER_DIVISION)
                     {
@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
 
                         Count = await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION, identityService.Username);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
                     }
                     /*
                     else if (purchasingDocumentExpedition.Position == ExpeditionPosition.FINANCE_DIVISION)
@@ -540,7 +540,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedUtc).IsModified = true;
 
                         await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_PURCHASING_DIVISION, username);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_PURCHASING_DIVISION);
                     }
                     else if (data.Position.Equals(ExpeditionPosition.SEND_TO_CASHIER_DIVISION))
                     {
@@ -565,7 +565,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedUtc).IsModified = true;
 
                         await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION, username);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_CASHIER_DIVISION);
 
                     }
 
@@ -594,7 +594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(purchasingDocumentExpedition).Property(x => x.LastModifiedUtc).IsModified = true;
 
                         await dbContext.SaveChangesAsync();
-                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION, username);
+                        UpdateUnitPaymentOrderPosition(new List<string>() { purchasingDocumentExpedition.UnitPaymentOrderNo }, ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION);
 
                     }
 
@@ -617,20 +617,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Count;
         }
 
-        public void UpdateUnitPaymentOrderPosition(List<string> unitPaymentOrders, ExpeditionPosition position, string username)
+        public void UpdateUnitPaymentOrderPosition(List<string> unitPaymentOrders, ExpeditionPosition position)
         {
-            //foreach(var item in unitPaymentOrders)
-            //{
-            //    var upo = dbContext.UnitPaymentOrders.FirstOrDefault(x => x.UPONo == item);
-            //    if(upo != null)
-            //    {
-
-            //        upo.Position = (int) position;
-            //        EntityExtension.FlagForUpdate(upo, username, "Facade");
-            //    }
-            //}
-
-            //dbContext.SaveChanges();
             string unitPaymentOrderUri = "unit-payment-orders/update/position";
 
             var data = new

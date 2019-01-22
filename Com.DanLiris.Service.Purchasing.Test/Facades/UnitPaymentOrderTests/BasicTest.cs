@@ -183,14 +183,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             var Response = facade.ReadSpb();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
-
-        [Fact]
-        public async void Should_Success_Get_Data_By_Position()
-        {
-            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.ReadPositionFiltered(1, 25, "{}", null, "{position : [1,6]}");
-            Assert.NotEqual(Response.Item1.Count, 0);
-        }
     }
 }

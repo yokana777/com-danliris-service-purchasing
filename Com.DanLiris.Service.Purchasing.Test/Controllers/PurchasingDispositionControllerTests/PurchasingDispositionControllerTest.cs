@@ -49,7 +49,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                         //EPODetailId = It.IsAny<string>(),
                         PRId = It.IsAny<string>(),
                         PRNo = "test",
-                        
+                        Category = new CategoryViewModel
+                        {
+                            _id = "1",
+                            name = "Test",
+                            code = "test"
+                        },
                         PricePerDealUnit = 1000,
                         PriceTotal = 10000,
                         DealQuantity = 10,
@@ -75,12 +80,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                     Remark = "Test",
                     Calculation = "axa",
                     Amount = 1000,
-                    Category = new CategoryViewModel
-                    {
-                        _id = "1",
-                        name = "Test",
-                        code = "test"
-                    },
                     Currency = new CurrencyViewModel
                     {
                         code = "test",

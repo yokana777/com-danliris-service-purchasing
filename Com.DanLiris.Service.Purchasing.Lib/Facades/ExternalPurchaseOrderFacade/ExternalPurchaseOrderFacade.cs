@@ -6,7 +6,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel.EPODispositionLoader;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -628,7 +627,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Query.ToList();
         }
 
-        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "")
+        public List<ExternalPurchaseOrder> ReadDisposition(string Keyword = null, string Filter = "{}")
         {
             IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
 
@@ -638,95 +637,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             };
 
             Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
-            List<EPOViewModel> list = new List<EPOViewModel>();
-            list = Query
-                .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false
-                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId)
-                .Select(s => new EPOViewModel
+
+            Query = Query
+                .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false)
+                .Select(s => new ExternalPurchaseOrder
                 {
-                    _id = s.Id,
-                    no = s.EPONo,
-                    unit = new UnitViewModel
-                    {
-                        _id = s.UnitId,
-                        name = s.UnitName,
-                        code = s.UnitCode,
-                    },
-                    useVat = s.UseVat,
-                    useIncomeTax = s.UseIncomeTax,
-                    incomeTax = new IncomeTaxViewModel
-                    {
-                        _id = s.IncomeTaxId,
-                        name = s.IncomeTaxName,
-                        rate = s.IncomeTaxRate,
-                    },
-                    items = s.Items.Join(dbContext.InternalPurchaseOrders, 
-                                          i => i.POId,        
-                                          j => j.Id,   
-                                          (i, j) => new EPOItemViewModel
-                                          {
-                                              _id = i.Id,
-                                              IsDeleted=i.IsDeleted,
-                                              prId = i.PRId,
-                                              poId = i.POId,
-                                              prNo = i.PRNo,
-                                              ipoIsdeleted=j.IsDeleted,
-                                              category = new CategoryViewModel
-                                              {
-                                                  _id = j.CategoryId,
-                                                  code = j.CategoryCode,
-                                                  name = j.CategoryName
-                                              },
-                                              details = i.Details
-                                                        .Where(d => d.IsDeleted == false)
-                                                        .Select(d => new EPODetailViewModel
-                                                        {
-                                                            _id = d.Id,
-                                                            poItemId = d.POItemId,
-                                                            prItemId = d.PRItemId,
-                                                            product= new ProductViewModel
-                                                            {
-                                                                _id = d.ProductId,
-                                                                code = d.ProductCode,
-                                                                name = d.ProductName,
-                                                            },
-                                                            
-                                                            dealQuantity = d.DealQuantity,
-                                                            dealUom= new UomViewModel
-                                                            {
-                                                                _id = d.DealUomId,
-                                                                unit = d.DealUomUnit,
-                                                            },
-                                                            doQuantity = d.DOQuantity,
-                                                            dispositionQuantity = d.DispositionQuantity,
-                                                            productRemark = d.ProductRemark,
-                                                            priceBeforeTax = d.PriceBeforeTax,
-                                                            pricePerDealUnit = d.PricePerDealUnit,
+                    Id = s.Id,
+                    EPONo = s.EPONo,
+                    CurrencyCode = s.CurrencyCode,
+                    CurrencyRate = s.CurrencyRate,
+                    OrderDate = s.OrderDate,
+                    DeliveryDate = s.DeliveryDate,
+                    SupplierId = s.SupplierId,
+                    SupplierCode = s.SupplierCode,
+                    SupplierName = s.SupplierName,
+                    DivisionId = s.DivisionId,
+                    DivisionCode = s.DivisionCode,
+                    DivisionName = s.DivisionName,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    UnitId = s.UnitId,
+                    UnitName = s.UnitName,
+                    UnitCode = s.UnitCode,
+                    CreatedBy = s.CreatedBy,
+                    IsPosted = s.IsPosted,
+                    UseVat=s.UseVat,
+                    UseIncomeTax=s.UseIncomeTax,
+                    IncomeTaxId=s.IncomeTaxId,
+                    IncomeTaxName=s.IncomeTaxName,
+                    IncomeTaxRate=s.IncomeTaxRate,
+                    Items = s.Items
+                        .Select(i => new ExternalPurchaseOrderItem
+                        {
+                            Id = i.Id,
+                            PRId = i.PRId,
+                            POId=i.POId,
+                            PRNo = i.PRNo,
+                            Details = i.Details
+                                .Where(d => d.IsDeleted == false)
+                                .Select(d => new ExternalPurchaseOrderDetail
+                                {
+                                    Id = d.Id,
+                                    POItemId = d.POItemId,
+                                    PRItemId = d.PRItemId,
+                                    ProductId = d.ProductId,
+                                    ProductCode = d.ProductCode,
+                                    ProductName = d.ProductName,
+                                    DealQuantity = d.DealQuantity,
+                                    DealUomId = d.DealUomId,
+                                    DealUomUnit = d.DealUomUnit,
+                                    DOQuantity = d.DOQuantity,
+                                    DispositionQuantity=d.DispositionQuantity,
+                                    ProductRemark = d.ProductRemark,
+                                    PriceBeforeTax=d.PriceBeforeTax,
+                                    PricePerDealUnit=d.PricePerDealUnit
+                                })
+                                .ToList()
+                        })
+                        .Where(i => i.Details.Count > 0)
+                        .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
 
-                                                        })
-                                                        .ToList()
-                                          })
-                                          .Where(a=>a.category._id==categoryId && a.ipoIsdeleted==false && a.IsDeleted==false)
-                                          .ToList()
-                        
-                 })
-                .Where(m => m.items.Count > 0).ToList();
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
 
-            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            //Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
-            
-            //foreach(var data in Query)
-            //{
-            //    ExternalPurchaseOrderViewModel epo = new ExternalPurchaseOrderViewModel()
-            //    {
-                    
-            //    };
-            //    foreach (var item in data.Items)
-            //    {
-
-            //    }
-            //}
-            return list;
+            return Query.ToList();
         }
 
         public ProductViewModel GetProduct(string productId)
