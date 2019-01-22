@@ -21,6 +21,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Serializers;
@@ -108,7 +109,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
                 .AddTransient<IMonitoringUnitReceiptAllFacade, MonitoringUnitReceiptAllFacade>()
-                .AddTransient<IGarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderFacade>();
+                .AddTransient<IGarmentUnitDeliveryOrderFacade, GarmentUnitDeliveryOrderFacade>()
+                .AddTransient<IGarmentUnitExpenditureNoteFacade, GarmentUnitExpenditureNoteFacade>();
 
         }
 

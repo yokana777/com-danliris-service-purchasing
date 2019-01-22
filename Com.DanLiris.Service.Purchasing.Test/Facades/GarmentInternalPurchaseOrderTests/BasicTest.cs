@@ -289,5 +289,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var Response1 = Facade.GenerateExcelIPOEPODuration("", "0-7 hari", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response1);
         }
-    }
+
+
+		[Fact]
+		public async void Should_Success_Get_Data_By_Name()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facade = new GarmentInternalPurchaseOrderFacade(dbContext);
+			var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+			var data = dbContext.GarmentInternalPurchaseOrders.AsNoTracking().Include(m => m.Items).Single(m => m.Id == listData.First().Id);
+
+			var Response = facade.ReadName(data.CreatedBy);
+			Assert.NotNull(Response);
+		}
+	}
 }

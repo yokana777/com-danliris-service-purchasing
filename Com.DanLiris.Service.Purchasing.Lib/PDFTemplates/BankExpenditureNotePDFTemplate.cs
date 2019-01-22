@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cellHeaderBody.Phrase = new Phrase("Tanggal", normal_font);
             headerTable2.AddCell(cellHeaderBody);
-            cellHeaderBody.Phrase = new Phrase(": " + DateTimeOffset.UtcNow.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy"), normal_font);
+            cellHeaderBody.Phrase = new Phrase(": " + model.CreatedUtc.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy"), normal_font);
             headerTable2.AddCell(cellHeaderBody);
 
             cellHeaderBody.Phrase = new Phrase("NO", normal_font);

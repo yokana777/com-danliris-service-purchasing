@@ -72,5 +72,49 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 },
             });
         }
+
+        [HttpGet("by-no")]
+        public IActionResult GetByNo(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            var Data = _facade.ReadByNoFiltered(page, size, order, keyword, filter);
+
+            var newData = _mapper.Map<List<UnitReceiptNoteViewModel>>(Data.Data);
+
+            List<object> listData = new List<object>();
+            listData.AddRange(
+                newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.no,
+                    s.date,
+                    s.supplier,
+                    s.doNo,
+                    unit = new
+                    {
+                        division = new { s.unit.division.name },
+                        s.unit.name
+                    },
+                    s.items
+                }).ToList()
+            );
+
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                statusCode = General.OK_STATUS_CODE,
+                message = General.OK_MESSAGE,
+                data = listData,
+                info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                    { "total", Data.TotalData },
+                    { "order", Data.Order },
+                    { "page", page },
+                    { "size", size }
+                },
+            });
+        }
     }
 }

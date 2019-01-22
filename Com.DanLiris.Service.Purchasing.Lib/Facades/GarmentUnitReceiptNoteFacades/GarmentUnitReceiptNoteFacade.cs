@@ -534,65 +534,93 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
         }
 
-        //public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
-        //{
-        //    Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+        public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = dbSet;
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
-        //    var readForUnitDO = dbSet.Where(x => !FilterDictionary.ContainsKey("UnitId") ? true : x.UnitId == long.Parse(FilterDictionary["UnitId"]) && x.IsDeleted == false).
-        //        SelectMany(x => x.Items.Select(y => new {
-        //        y.Id,
-        //        y.RONo,
-        //        y.DODetailId,
-        //        y.EPOItemId,
-        //        y.POItemId,
-        //        y.PRItemId,
-        //        y.URNId,
-        //        y.ProductId,
-        //        y.ProductName,
-        //        y.ProductCode,
-        //        y.ProductRemark,
-        //        y.OrderQuantity,
-        //        y.SmallQuantity,
-        //        y.SmallUomId,
-        //        y.SmallUomUnit,
-        //        y.POSerialNumber,
-        //        y.PricePerDealUnit,
-        //        URNNo = dbContext.GarmentUnitReceiptNotes.Where(u => u.Id == y.URNId).Select(s=>s.URNNo).FirstOrDefault(),
-        //        Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m=>m.Id == y.EPOItemId).Select(d=>d.Article).FirstOrDefault()
-        //    })).ToList();
-        //    var coba = readForUnitDO.GroupBy(g => g.RONo);
-        //    var test = coba.Select(c => new
-        //    {
-        //        Article = c.Select(s => s.Article).FirstOrDefault(),
-        //        RONo = c.Key,
-        //        Items = c.ToList()
-        //    });
-        //    List<object> result = new List<object>(test);
-        //    return result;
-        //}
+            long unitId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool isPROSES = FilterDictionary.ContainsKey("Type") && FilterDictionary["Type"] == "PROSES";
 
-        //public List<object> ReadForUnitDOHeader(string Keyword = null)
-        //{
-        //    var readForUnitDO = dbSet.SelectMany(x => x.Items.Select(y => new {
-        //            y.Id,
-        //            y.RONo,
-        //            y.ProductId,
-        //            y.ProductName,
-        //            y.ProductCode,
-        //            y.ProductRemark,
-        //            y.OrderQuantity,
-        //            y.SmallQuantity,
-        //            y.SmallUomId,
-        //            y.SmallUomUnit,
-        //        })).ToList();
-        //    var coba = readForUnitDO.GroupBy(g => new { g.RONo, g.ProductName, g.ProductRemark });
-        //    var test = coba.Select(c => new
-        //    {
-        //        RONo = c.Key,
-        //        Items = c.ToList()
-        //    });
-        //    List<object> result = new List<object>(readForUnitDO);
-        //    return result;
-        //}
+            var readForUnitDO = Query.Where(x => 
+                    (!hasUnitFilter ? true : x.UnitId == unitId) &&
+                    x.IsDeleted == false &&
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (!isPROSES ? true : (i.RONo.EndsWith("S") || i.RONo.EndsWith("W"))))
+                )
+                .SelectMany(x => x.Items.Select(y => new
+                {
+                    x.URNNo,
+                    y.URNId,
+                    y.Id,
+                    y.RONo,
+                    y.DODetailId,
+                    y.EPOItemId,
+                    y.POItemId,
+                    y.PRItemId,
+                    y.ProductId,
+                    y.ProductName,
+                    y.ProductCode,
+                    y.ProductRemark,
+                    y.OrderQuantity,
+                    y.SmallQuantity,
+                    y.SmallUomId,
+                    y.SmallUomUnit,
+                    y.POSerialNumber,
+                    y.PricePerDealUnit,
+                    Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+                })).ToList();
+            var coba = readForUnitDO.GroupBy(g => g.RONo);
+            var test = coba.Select(c => new
+            {
+                Article = c.Select(s => s.Article).FirstOrDefault(),
+                RONo = c.Key,
+                Items = c.ToList()
+            });
+            List<object> result = new List<object>(test);
+            return result;
+        }
+
+        public List<object> ReadForUnitDOHeader(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = dbSet;
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long unitId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool isPROSES = FilterDictionary.ContainsKey("Type") && FilterDictionary["Type"] == "PROSES";
+            bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+
+            var readForUnitDO = Query.Where(x =>
+                    (!hasUnitFilter ? true : x.UnitId == unitId) &&
+                    x.IsDeleted == false &&
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (!isPROSES ? true : (i.RONo.EndsWith("S") || i.RONo.EndsWith("W"))))
+                )
+                .SelectMany(x => x.Items.Select(y => new
+                {
+                    x.URNNo,
+                    y.URNId,
+                    y.Id,
+                    y.RONo,
+                    y.DODetailId,
+                    y.EPOItemId,
+                    y.POItemId,
+                    y.PRItemId,
+                    y.ProductId,
+                    y.ProductName,
+                    y.ProductCode,
+                    y.ProductRemark,
+                    y.OrderQuantity,
+                    y.SmallQuantity,
+                    y.SmallUomId,
+                    y.SmallUomUnit,
+                    y.POSerialNumber,
+                    y.PricePerDealUnit,
+                    Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+                })).ToList();
+            List<object> result = new List<object>(readForUnitDO);
+            return result;
+        }
     }
 }
