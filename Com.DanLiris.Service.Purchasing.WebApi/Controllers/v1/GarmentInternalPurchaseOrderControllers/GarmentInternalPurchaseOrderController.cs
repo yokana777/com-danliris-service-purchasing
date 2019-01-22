@@ -287,22 +287,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
 
 				var Data = facade.ReadName(keyword, Filter);
 
-				var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(Data);
+				//var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(Data);
 
-				List<object> listData = new List<object>();
-				listData.AddRange(
-					newData.AsQueryable().Select(s => new
-					{
-						s.CreatedBy
-					}).ToList()
-				);
+				//List<object> listData = new List<object>();
+				//listData.AddRange(
+				//	newData.AsQueryable().Select(s => new
+				//	{
+				//		s.CreatedBy
+				//	}).ToList()
+				//);
 
 				return Ok(new
 				{
 					apiVersion = ApiVersion,
 					statusCode = General.OK_STATUS_CODE,
 					message = General.OK_MESSAGE,
-					data = listData
+					data = Data
 				});
 			}
 			catch (Exception e)
