@@ -329,7 +329,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 			Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
 
 			Query = Query
-				.Where(m => m.IsPosted == true && m.IsDeleted == false && m.CreatedBy.Contains(Keyword))
+				.Where(m =>m.IsDeleted == false && m.CreatedBy.Contains(Keyword))
 				.Select(s => new GarmentInternalPurchaseOrder
 				{
 					CreatedBy = s.CreatedBy
