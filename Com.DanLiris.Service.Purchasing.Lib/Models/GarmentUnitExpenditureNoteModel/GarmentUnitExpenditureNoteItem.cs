@@ -32,5 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
         public long BuyerId { get; set; }
         public string BuyerCode { get; set; }
 
+        [NotMapped]
+        public bool IsSave { get; set; }
     }
 }
