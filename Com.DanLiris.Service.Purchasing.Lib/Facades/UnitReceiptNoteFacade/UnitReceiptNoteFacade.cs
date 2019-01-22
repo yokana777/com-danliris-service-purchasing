@@ -82,6 +82,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
         }
 
+        public ReadResponse<UnitReceiptNote> ReadByNoFiltered(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<UnitReceiptNote> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "URNNo", "UnitName", "SupplierName", "DONo","Items.PRNo"
+            };
+
+            Query = QueryHelper<UnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Select(s => new UnitReceiptNote
+            {
+                Id = s.Id,
+                UId = s.UId,
+                URNNo = s.URNNo,
+                ReceiptDate = s.ReceiptDate,
+                UnitName = s.UnitName,
+                DivisionName = s.DivisionName,
+                SupplierName = s.SupplierName,
+                DONo = s.DONo,
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items.ToList()
+            });
+
+
+
+            Dictionary<string, List<string>> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(Filter);
+            if (FilterDictionary.Keys.FirstOrDefault() == "no")
+            {
+                List<string> filteredPosition = FilterDictionary.GetValueOrDefault("no");
+                Query = Query.Where(x => filteredPosition.Any(y => y == x.URNNo));
+            }
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<UnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<UnitReceiptNote> pageable = new Pageable<UnitReceiptNote>(Query, Page - 1, Size);
+            List<UnitReceiptNote> Data = pageable.Data.ToList<UnitReceiptNote>();
+            int TotalData = pageable.TotalCount;
+
+            return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
+        }
+
         public UnitReceiptNote ReadById(int id)
         {
             var a = this.dbSet.Where(p => p.Id == id)
