@@ -14,6 +14,7 @@ using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -143,15 +144,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotEqual(response, 0);
         }
 
-        //[Fact]
-        //public void Should_Success_Read_DataBySupplier()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-        //    var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
-        //    var response = facade.ReadBySupplierUnit();
-        //    Assert.NotEqual(response.Data.Count, 0);
-        //}
+        [Fact]
+        public void Should_Success_Read_DataBySupplier()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var filter = JsonConvert.SerializeObject(new
+            {
+                DivisionId = "DivisionId",
+                SupplierId = "supId",
+                PaymentMethod = "test",
+                CurrencyCode = "CurrencyCode",
+                UseIncomeTax = true,
+                UseVat = false,
+                CategoryId = "CategoryId"
+            });
+            var response = facade.ReadBySupplierUnit(Filter:filter);
+            Assert.NotEqual(response.Data.Count, 0);
+        }
 
         [Fact]
         public void Should_Success_GetReport()
