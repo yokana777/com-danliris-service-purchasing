@@ -605,6 +605,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var ViewModelFabric = this.ViewModelFabric;
             ViewModelFabric.Supplier.Import = false;
+            foreach(var item in ViewModel.Items)
+            {
+                item.IsOverBudget = true;break;
+            }
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))
