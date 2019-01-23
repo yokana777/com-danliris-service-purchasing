@@ -619,6 +619,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                                 useVat  =  true,
                                 useIncomeTax = true,
                                 totalAmount=2000,
+                                isPayTax = false,
                             },
 
                             details= new List<GarmentInternNoteDetailViewModel>
@@ -702,7 +703,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 });
 
             mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
-                .Returns(new GarmentInvoiceViewModel { Id = It.IsAny<int>(), useIncomeTax = true, useVat = true, incomeTaxId = It.IsAny<int>(), incomeTaxRate = 2 });
+                .Returns(new GarmentInvoiceViewModel { Id = It.IsAny<int>(), useIncomeTax = true, useVat = true, incomeTaxId = It.IsAny<int>(), incomeTaxRate = 2, isPayTax = false });
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
