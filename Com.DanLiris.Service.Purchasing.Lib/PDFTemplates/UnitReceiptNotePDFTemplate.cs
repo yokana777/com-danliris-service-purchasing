@@ -14,11 +14,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
     {
         public MemoryStream GeneratePdfTemplate(UnitReceiptNoteViewModel viewModel)
         {
-            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
-            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 12);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            Document document = new Document(PageSize.A4, 40, 40, 40, 40);
+            Document document = new Document(PageSize.A6.Rotate(), 15,15,15,15);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellHeader = new PdfPCell(tableHeader);
             tableHeader.ExtendLastRow = false;
-            tableHeader.SpacingAfter = 20f;
+            tableHeader.SpacingAfter = 10f;
             document.Add(tableHeader);
 
             LineSeparator lineSeparator = new LineSeparator(1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, 1);
@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellIdentity = new PdfPCell(tableIdentity);
             tableIdentity.ExtendLastRow = false;
             tableIdentity.SpacingAfter = 10f;
-            tableIdentity.SpacingBefore = 20f;
+            tableIdentity.SpacingBefore = 10f;
             document.Add(tableIdentity);
 
             #endregion
@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             PdfPTable tableContent = new PdfPTable(5);
-            tableContent.SetWidths(new float[] { 1f, 4f, 7f, 3f, 4f });
+            tableContent.SetWidths(new float[] { 1.5f, 9f, 2.5f, 2.5f, 5f });
 
             cellCenter.Phrase = new Phrase("No", bold_font);
             tableContent.AddCell(cellCenter);
@@ -131,7 +131,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellContent = new PdfPCell(tableContent);
             tableContent.ExtendLastRow = false;
-            tableContent.SpacingAfter = 20f;
+            tableContent.SpacingAfter = 10f;
             document.Add(tableContent);
 
             #endregion
@@ -145,16 +145,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableSignature = new PdfPTable(2);
 
             PdfPCell cellSignatureContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
-            cellSignatureContent.Phrase = new Phrase("Mengetahui\n\n\n\n\n\n\n(  _____________________  )", bold_font);
+            cellSignatureContent.Phrase = new Phrase("Mengetahui\n\n\n\n\n(  _____________________  )", bold_font);
             tableSignature.AddCell(cellSignatureContent);
-            cellSignatureContent.Phrase = new Phrase("Yang Menerima\n\n\n\n\n\n\n(  _____________________  )", bold_font);
+            cellSignatureContent.Phrase = new Phrase("Yang Menerima\n\n\n\n\n(  _____________________  )", bold_font);
             tableSignature.AddCell(cellSignatureContent);
 
 
             PdfPCell cellSignature = new PdfPCell(tableSignature); // dont remove
             tableSignature.ExtendLastRow = false;
-            tableSignature.SpacingBefore = 20f;
-            tableSignature.SpacingAfter = 20f;
+            tableSignature.SpacingBefore = 10f;
             document.Add(tableSignature);
 
             #endregion
