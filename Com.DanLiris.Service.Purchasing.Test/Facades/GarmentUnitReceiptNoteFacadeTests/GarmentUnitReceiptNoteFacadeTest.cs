@@ -351,6 +351,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var filter = new
             {
                 data.UnitId,
+                data.StorageId,
             };
             var Response = facade.ReadForUnitDO("", JsonConvert.SerializeObject(filter));
             Assert.NotEqual(Response.Count, 0);
@@ -373,6 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var filter = new
             {
                 data.UnitId,
+                data.StorageId,
                 RONo = "xxx"
             };
             var Response = facade.ReadForUnitDOHeader("", JsonConvert.SerializeObject(filter));
