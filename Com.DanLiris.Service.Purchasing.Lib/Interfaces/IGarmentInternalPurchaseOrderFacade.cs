@@ -15,8 +15,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> CreateMultiple(List<GarmentInternalPurchaseOrder> listModel, string user, int clientTimeZoneOffset = 7);
         Task<int> Split(int id, GarmentInternalPurchaseOrder model, string user, int clientTimeZoneOffset = 7);
         Task<int> Delete(int id, string username);
+		List<GarmentInternalPurchaseOrder> ReadName(string Keyword = null, string Filter = "{}");
 
-        List<GarmentInternalPurchaseOrder> ReadByTags(string category, string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo, string username);
+		List<GarmentInternalPurchaseOrder> ReadByTags(string category, string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo, string username);
 
         Tuple<List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>, int> GetIPOEPODurationReport(string unit, string duration, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
 
