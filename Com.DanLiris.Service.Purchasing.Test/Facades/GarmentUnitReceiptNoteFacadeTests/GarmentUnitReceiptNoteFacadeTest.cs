@@ -217,16 +217,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
-        public async void Should_Error_Update_Data_Null_Items()
+        public async void Should_Error_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), dbContext);
 
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            dbContext.Entry(data).State = EntityState.Detached;
-            data.Items = null;
-
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, new GarmentUnitReceiptNote()));
             Assert.NotNull(e.Message);
         }
 
