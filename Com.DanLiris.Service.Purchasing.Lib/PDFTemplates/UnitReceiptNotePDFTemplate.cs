@@ -18,7 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            Document document = new Document(PageSize.A6.Rotate(), 15,15,15,15);
+            Document document = new Document(PageSize.A6.Rotate(), 15, 15, 15, 15);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeft.Phrase = new Phrase(item.product.uom.unit, normal_font);
                 tableContent.AddCell(cellLeft);
 
-                cellCenter.Phrase = new Phrase(item.prNo+"\n"+item.productRemark, normal_font);
+                cellCenter.Phrase = new Phrase(item.prNo + "\n" + item.productRemark, normal_font);
                 tableContent.AddCell(cellCenter);
             }
 
@@ -136,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #endregion
 
-            
+
             Paragraph date = new Paragraph($"Sukoharjo, {viewModel.date.ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font) { Alignment = Element.ALIGN_RIGHT };
             document.Add(date);
 
