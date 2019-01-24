@@ -160,7 +160,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
                 UseVat = false,
                 CategoryId = "CategoryId"
             });
+
             var response = facade.ReadBySupplierUnit(Filter: filter);
+
             Assert.NotEqual(response.Data.Count, 0);
         }
 
