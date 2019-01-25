@@ -222,6 +222,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     productRemark = item.Product.Code + "-" + item.Product.Name + "\n" + item.Remark + "\n" + item.PRNo + "-" + item.PO_SerialNumber;
                 }
 
+                if (item.IsOverBudget)
+                {
+                    productRemark = productRemark + "-OB";
+                }
 
                 cellLeft.Phrase = new Phrase(index.ToString(), table_font);
                 tableContent.AddCell(cellLeft);
