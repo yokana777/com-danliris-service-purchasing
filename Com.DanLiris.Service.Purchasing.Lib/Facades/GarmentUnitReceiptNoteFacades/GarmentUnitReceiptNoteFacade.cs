@@ -359,8 +359,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             garmentInventorySummary.Quantity = garmentInventoryMovement.After;
 
-            garmentInventorySummary.UomId = garmentUnitReceiptNoteItem.SmallUomId;
-            garmentInventorySummary.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
+            garmentInventorySummary.UomId = garmentUnitReceiptNoteItem.UomId;
+            garmentInventorySummary.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
 
             garmentInventorySummary.StockPlanning = 0;
 
@@ -396,8 +396,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             garmentInventoryMovement.Quantity = garmentUnitReceiptNoteItem.SmallQuantity * ((type ?? "").ToUpper() == "OUT" ? -1 : 1);
             garmentInventoryMovement.After = garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
 
-            garmentInventoryMovement.UomId = garmentUnitReceiptNoteItem.SmallUomId;
-            garmentInventoryMovement.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
+            garmentInventoryMovement.UomId = garmentUnitReceiptNoteItem.UomId;
+            garmentInventoryMovement.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
 
             garmentInventoryMovement.Remark = garmentUnitReceiptNoteItem.ProductRemark;
 
@@ -441,8 +441,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                 garmentInventoryDocumentItem.Quantity = garmentUnitReceiptNoteItem.SmallQuantity;
 
-                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.SmallUomId;
-                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
+                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.UomId;
+                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
 
                 garmentInventoryDocumentItem.ProductRemark = garmentUnitReceiptNoteItem.ProductRemark;
 
