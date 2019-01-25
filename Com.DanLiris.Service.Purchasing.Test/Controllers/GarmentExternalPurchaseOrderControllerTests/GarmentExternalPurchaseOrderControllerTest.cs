@@ -605,7 +605,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var ViewModelFabric = this.ViewModelFabric;
             ViewModelFabric.Supplier.Import = false;
-            foreach(var item in ViewModel.Items)
+            foreach(var item in ViewModelFabric.Items)
             {
                 item.IsOverBudget = true;break;
             }
