@@ -99,7 +99,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.Position,
                         s.Items,
                         s.Category,
-                        s.Division
+                        s.Division,
+                        s.DPP,
+                        s.IncomeTaxValue,
+                        s.IncomeTaxBy,
+                        s.VatValue
                     }).ToList()
                 );
 
