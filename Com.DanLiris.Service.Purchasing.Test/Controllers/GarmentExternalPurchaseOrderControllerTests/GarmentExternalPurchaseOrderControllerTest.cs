@@ -46,9 +46,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                 {
                     Category = "FABRIC",
                     FreightCostBy = "penjual",
+                    IsIncomeTax = true,
                     IncomeTax= new IncomeTaxViewModel
                     {
-                        Id= It.IsAny<int>(),
+                        Id= 1,
                         Name="tax",
                         Rate=1
                     },
