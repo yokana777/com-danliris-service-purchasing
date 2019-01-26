@@ -227,8 +227,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseUpdateStorage, 0);
 
-            var ResponseRestoreStorage = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseRestoreStorage, 0);
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
+
+            var newItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
+            newItem.Id = 0;
+            newItem.IsSave = true;
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseUpdate, 0);
 
             var ResponseAddStorage = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseAddStorage, 0);
@@ -269,7 +279,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public void Should_Success_Validate_Data()
+        public async void Should_Success_Validate_Data()
         {
             GarmentUnitExpenditureNoteViewModel viewModel = new GarmentUnitExpenditureNoteViewModel { };
             Assert.True(viewModel.Validate(null).Count() > 0);
@@ -283,7 +293,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             GarmentUnitExpenditureNoteViewModel viewModelCheckUnitDeliveryOrder = new GarmentUnitExpenditureNoteViewModel
             {
                 ExpenditureDate = DateTimeOffset.Now,
-                UnitDONo = "UnitDONO123"
+                UnitDONo = "UnitDONO123",
+                
             };
             Assert.True(viewModelCheckUnitDeliveryOrder.Validate(null).Count() > 0);
             
@@ -291,9 +302,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.True(viewModelCheckItemsCount.Validate(null).Count() > 0);
 
             Mock<IGarmentUnitDeliveryOrderFacade> garmentUnitDeliveryOrderFacadeMock = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            Mock<IGarmentUnitExpenditureNoteFacade> garmentUnitExpenditureNoteFacadeMock = new Mock<IGarmentUnitExpenditureNoteFacade>();
             garmentUnitDeliveryOrderFacadeMock.Setup(s => s.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentUnitDeliveryOrder {
                     Id = 1,
+                    
                     Items = new List<GarmentUnitDeliveryOrderItem>
                     {
                         new GarmentUnitDeliveryOrderItem
@@ -304,11 +318,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                     }
                 });
 
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.
                 Setup(x => x.GetService(typeof(IGarmentUnitDeliveryOrderFacade)))
                 .Returns(garmentUnitDeliveryOrderFacadeMock.Object);
-
+            serviceProvider.Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var item = data.Items.First();
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNoteViewModel
             {
                 UnitDOId = 1,
@@ -316,23 +334,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 {
                     new GarmentUnitExpenditureNoteItemViewModel
                     {
-                        Id = 1,
+                        Id = item.Id,
                         UnitDOItemId = 1,
-                        Quantity = 10
+                        Quantity = 10,
+                        IsSave = true,
                     },
 
                     new GarmentUnitExpenditureNoteItemViewModel
                     {
-                        Id = 1,
+                        Id = item.Id,
                         UnitDOItemId = 1,
-                        Quantity = 100
+                        Quantity = 100,
+                        IsSave = true,
+                        
                     },
 
                     new GarmentUnitExpenditureNoteItemViewModel
                     {
-                        Id = 1,
+                        Id = item.Id,
                         UnitDOItemId = 1,
-                        Quantity = 0
+                        Quantity = 0,
+                        IsSave = true
                     },
                 }
             };

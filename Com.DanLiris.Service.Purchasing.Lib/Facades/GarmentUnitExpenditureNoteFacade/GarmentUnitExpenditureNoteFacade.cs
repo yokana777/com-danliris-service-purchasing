@@ -349,15 +349,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             oldGarmentUnitExpenditureNoteItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
                         }
-                        else
-                        {
-                            EntityExtension.FlagForCreate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
-                            oldGarmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);
-
-                            GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitExpenditureNoteItem.URNItemId);
-                            EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)garmentUnitExpenditureNoteItem.Quantity;
-                        }
                     }
 
                     foreach (var oldGarmentUnitExpenditureNoteItem in oldGarmentUnitExpenditureNote.Items)
