@@ -72,7 +72,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     CategoryCode = s.CategoryCode,
                     CategoryId = s.CategoryId,
                     CategoryName = s.CategoryName,
-
+                    DPP=s.DPP,
+                    IncomeTaxValue=s.IncomeTaxValue,
+                    VatValue=s.VatValue,
+                    IncomeTaxBy=s.IncomeTaxBy,
                     DivisionCode = s.DivisionCode,
                     DivisionId = s.DivisionId,
                     DivisionName = s.DivisionName,
