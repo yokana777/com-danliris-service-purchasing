@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -30,7 +31,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             IGarmentUnitDeliveryOrderFacade unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentUnitDeliveryOrderFacade)validationContext.GetService(typeof(IGarmentUnitDeliveryOrderFacade));
-            IGarmentUnitExpenditureNoteFacade unitExpenditureNoteFacade = validationContext == null ? null : (IGarmentUnitExpenditureNoteFacade)validationContext.GetService(typeof(IGarmentUnitExpenditureNoteFacade));
 
             if (ExpenditureDate.Equals(DateTimeOffset.MinValue) || ExpenditureDate == null)
             {
@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
 
             int itemErrorCount = 0;
 
-            if (this.Items == null || Items.Count <= 0)
+            if (this.Items == null || Items.Count(i => i.IsSave) <= 0)
             {
                 yield return new ValidationResult("Item is required", new List<string> { "ItemsCount" });
             }
@@ -55,41 +55,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                 {
                     itemError += "{";
 
-                    var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
-
-                    if (unitDO != null)
+                    if (item.IsSave)
                     {
-                        var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
-                        if (unitDOItem != null)
+                        var unitDO = unitDeliveryOrderFacade.ReadById((int)UnitDOId);
+                        if (unitDO != null)
                         {
-                            if (item.Quantity > unitDOItem.Quantity)
+                            var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
+                            if (unitDOItem != null)
                             {
-                                itemErrorCount++;
-                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                                if (item.Quantity > unitDOItem.Quantity)
+                                {
+                                    itemErrorCount++;
+                                    itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + unitDOItem.Quantity + "', ";
+                                }
                             }
                         }
-                    }
 
-                    var expenditureNote = unitExpenditureNoteFacade.ReadById((int)Id);
 
-                    if (expenditureNote != null)
-                    {
-                        var expenditureNoteItem = expenditureNote.Items.FirstOrDefault(f => f.Id == item.Id);
-                        if (expenditureNoteItem != null)
+                        PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+                        var UENItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
+                        if (UENItem != null)
                         {
-                            if (item.Quantity > expenditureNoteItem.Quantity)
+                            if (item.Quantity > UENItem.Quantity)
                             {
                                 itemErrorCount++;
-                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari yang ditampilkan', ";
+                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + UENItem.Quantity + "', ";
                             }
+
+                        }
+                        if (item.Quantity <= 0)
+                        {
+                            itemErrorCount++;
+                            itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                         }
                     }
-
-                    if (item.Quantity <= 0)
-                    {
-                        itemErrorCount++;
-                        itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
-                    }
+                    
                     itemError += "}, ";
                 }
 
