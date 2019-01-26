@@ -231,11 +231,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             foreach (var item in data.Items)
             {
                 dbContext.Entry(item).State = EntityState.Detached;
+                item.Quantity = 5;
             }
 
             var newItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
             newItem.Id = 0;
             newItem.IsSave = true;
+            newItem.Quantity = 5;
 
             var ResponseUpdate = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseUpdate, 0);
