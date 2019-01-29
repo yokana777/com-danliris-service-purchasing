@@ -335,7 +335,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 double grandTotal = ppn + total - pph;
 
-
                 cellRight.Colspan = 4;
                 cellRight.Phrase = new Phrase("Grand Total", bold_font);
                 tableContent.AddCell(cellRight);

@@ -606,9 +606,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var ViewModelFabric = this.ViewModelFabric;
             ViewModelFabric.Supplier.Import = false;
-            foreach(var item in ViewModelFabric.Items)
+            foreach (var item in ViewModelFabric.Items)
             {
-                item.IsOverBudget = true;break;
+                item.IsOverBudget = true; break;
             }
 
             var mockMapper = new Mock<IMapper>();
