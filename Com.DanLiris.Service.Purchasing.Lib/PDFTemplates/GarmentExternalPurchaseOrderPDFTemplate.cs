@@ -314,6 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellRightMerge.Phrase = new Phrase($"{ppn.ToString("N2", new CultureInfo("id-ID"))}", table_font);
                 tableContent.AddCell(cellRightMerge);
 
+                double pph = 0;
                 if (viewModel.IsIncomeTax && viewModel.IncomeTax != null && viewModel.IncomeTax.Id != 0)
                 {
                     cellRight.Colspan = 4;
@@ -327,12 +328,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
                     tableContent.AddCell(cellLeftMerge);
 
-                    cellRightMerge.Phrase = new Phrase($"{(total * viewModel.IncomeTax.Rate).ToString("N2", new CultureInfo("id-ID"))}", table_font);
+                    pph = total * viewModel.IncomeTax.Rate / 100;
+                    cellRightMerge.Phrase = new Phrase($"{pph.ToString("N2", new CultureInfo("id-ID"))}", table_font);
                     tableContent.AddCell(cellRightMerge);
                 }
 
-                double grandTotal = ppn + total;
-
+                double grandTotal = ppn + total - pph;
 
                 cellRight.Colspan = 4;
                 cellRight.Phrase = new Phrase("Grand Total", bold_font);
