@@ -162,7 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code, normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{amount.ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{(dpp+ppn).ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
@@ -293,10 +293,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
                 {
                     PurchasingDispositionDetailViewModel detail = item.Details[indexItem];
+                    cellLeft.Colspan = 0;
+                    cellLeft.Phrase = new Phrase($"{detail.Product.name}", smaller_font);
+                    tableContent.AddCell(cellLeft);
                     cellCenter.Colspan = 0;
-                    cellCenter.Phrase = new Phrase($"{detail.Product.name}", smaller_font);
-                    tableContent.AddCell(cellCenter);
-
                     cellCenter.Phrase = new Phrase($"{detail.PRNo}", smaller_font);
                     tableContent.AddCell(cellCenter);
 

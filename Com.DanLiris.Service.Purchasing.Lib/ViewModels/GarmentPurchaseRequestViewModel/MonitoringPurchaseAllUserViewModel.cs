@@ -30,9 +30,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public double prBudgetPrice { get; set; }
 		public double poPricePerDealUnit { get; set; }
 		public string totalNominalPO { get; set; }
+		public double TotalNominalPO { get; set; }
 		public string poCurrencyCode { get; set; }
 		public double poCurrencyRate { get; set; }
 		public string totalNominalRp { get; set; }
+		public double TotalNominalRp { get; set; }
 		public string supplierCode { get; set; }
 		public string supplierName { get; set; }
 		public string epoNo { get; set; }
@@ -64,10 +66,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string receiptNo { get; set; }
 		public string receiptDate { get; set; }
 		public string receiptQty { get; set; }
+		public decimal ReceiptQty { get; set; }
 		public string receiptUomUnit { get; set; }
 		public string internNo { get; set; }
 		public string internDate { get; set; }
 		public string internTotal { get; set; }
+		public double InternTotal { get; set; }
 		public string maturityDate { get; set; }
 		public string correctionNoteNo { get; set; }
 		public string correctionDate { get; set; }

@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                         if (garmentUnitDeliveryOrder!=null)
                         {
                             GarmentUnitDeliveryOrderViewModel garmentUnitDeliveryOrderViewModel = mapper.Map<GarmentUnitDeliveryOrderViewModel>(garmentUnitDeliveryOrder);
-                            var garmentUnitDOItem = garmentUnitDeliveryOrder.Items.First(i => i.Id == item.UnitDOItemId);
+                            var garmentUnitDOItem = garmentUnitDeliveryOrder.Items.FirstOrDefault(i => i.Id == item.UnitDOItemId);
                             if (garmentUnitDOItem != null)
                             {
                                 item.DesignColor = garmentUnitDOItem.DesignColor;
@@ -178,14 +178,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
-
-                if (ViewModel.Items != null)
-                {
-                    ViewModel.Items = ViewModel.Items.Where(s => s.IsSave).ToList();
-                }
 
                 validateService.Validate(ViewModel);
 

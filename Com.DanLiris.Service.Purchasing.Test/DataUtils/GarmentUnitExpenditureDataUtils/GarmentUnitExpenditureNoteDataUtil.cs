@@ -75,6 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     ProductCode = item.ProductCode,
                     ProductName = item.ProductName,
                     ProductRemark = item.ProductRemark,
+                    Quantity = 5,
 
                     RONo = item.RONo,
 

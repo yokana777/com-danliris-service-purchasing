@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         [MaxLength(255)]
         public string ProductName { get; set; }
 
-        public long Quantity { get; set; }
+        public double Quantity { get; set; }
 
         /* Unit */
         [MaxLength(255)]
