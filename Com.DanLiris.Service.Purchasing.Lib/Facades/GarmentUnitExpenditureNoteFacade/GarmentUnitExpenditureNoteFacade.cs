@@ -354,7 +354,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
 
                             var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "OUT");
-                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
 
                             //Buat OUT untuk gudang yang mengeluarkan
                             var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
@@ -363,13 +363,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovementInRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
                             garmentInventoryMovementInRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                             garmentInventoryMovementInRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementInRequest);
 
                             var garmentInventoryMovementOutRequest = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
                             garmentInventoryMovementOutRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
                             garmentInventoryMovementOutRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                             garmentInventoryMovementOutRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOutRequest);
 
                             EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
                             oldGarmentInventorySummaryExisting.Quantity = garmentInventoryMovementOut.After;
