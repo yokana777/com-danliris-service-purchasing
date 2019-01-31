@@ -280,8 +280,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
         public ReadResponse<object> ReadForUnitExpenditureNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-
+            string unitDOType = "";
+            bool hasUnitDOTypeFilter = FilterDictionary.ContainsKey("UnitDOType");
             IQueryable<GarmentUnitDeliveryOrder> Query = dbSet
+                .Where(x => x.UnitDONo.Contains(Keyword ?? ""))
                 .Select(m => new GarmentUnitDeliveryOrder
                 {
                     Id = m.Id,
