@@ -542,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     (!hasStorageFilter ? true : x.StorageId == storageId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
