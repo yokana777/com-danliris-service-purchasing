@@ -331,17 +331,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         var garmentInventoryDocumentOut = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOut);
 
-                        var garmentInventoryDocumentInRequest = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
+                        var garmentInventoryDocumentInRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "IN");
                         garmentInventoryDocumentInRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
                         garmentInventoryDocumentInRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                         garmentInventoryDocumentInRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentInRequest);
 
                         var garmentInventoryDocumentOutRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
                         garmentInventoryDocumentOutRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
                         garmentInventoryDocumentOutRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                         garmentInventoryDocumentOutRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOut);
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOutRequest);
 
                         foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                         {
@@ -353,8 +353,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             var garmentInventoryMovementIn = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "IN");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
 
-                            var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "OUT");
+                            var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
+
+                            EntityExtension.FlagForUpdate(oldGarmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                            oldGarmentInventorySummaryExisting.Quantity = garmentInventoryMovementOut.After;
 
                             //Buat OUT untuk gudang yang mengeluarkan
                             var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
@@ -370,9 +373,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovementOutRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                             garmentInventoryMovementOutRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOutRequest);
-
-                            EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
-                            oldGarmentInventorySummaryExisting.Quantity = garmentInventoryMovementOut.After;
 
                             if (garmentInventorySummaryExisting == null)
                             {
