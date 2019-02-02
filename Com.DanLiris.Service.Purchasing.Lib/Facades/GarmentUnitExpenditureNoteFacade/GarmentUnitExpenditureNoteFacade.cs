@@ -353,7 +353,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             var garmentInventoryMovementIn = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "IN");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
 
-                            var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "OUT");
+                            var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
 
                             EntityExtension.FlagForUpdate(oldGarmentInventorySummaryExisting, identityService.Username, USER_AGENT);
