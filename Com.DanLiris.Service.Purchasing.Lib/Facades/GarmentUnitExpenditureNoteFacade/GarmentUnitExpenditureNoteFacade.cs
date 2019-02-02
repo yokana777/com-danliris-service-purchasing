@@ -394,20 +394,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         var garmentInventoryDocumentOut = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOut);
 
-                        foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
+                        foreach (var oldGarmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                         {
-                            var oldGarmentUnitExpenditureNoteItem = oldGarmentUnitExpenditureNote.Items.Single(i => i.Id == garmentUnitExpenditureNoteItem.Id);
+                            //var oldGarmentUnitExpenditureNoteItem = oldGarmentUnitExpenditureNote.Items.Single(i => i.Id == garmentUnitExpenditureNoteItem.Id);
 
                             //Buat IN untuk gudang yang mengeluarkan
-                            var oldGarmentInventorySummaryExisting = dbSetGarmentInventorySummary.Single(s => s.ProductId == oldGarmentUnitExpenditureNoteItem.ProductId && s.StorageId == oldGarmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+                            var oldGarmentInventorySummaryExisting = dbSetGarmentInventorySummary.Single(s => s.ProductId == oldGarmentUnitExpenditureNoteItem.ProductId && s.StorageId == oldGarmentUnitExpenditureNote.StorageId && s.UomId == oldGarmentUnitExpenditureNoteItem.UomId);
 
                             var garmentInventoryMovementIn = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "IN");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
 
                             //Buat OUT untuk gudang yang mengeluarkan
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == oldGarmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == oldGarmentUnitExpenditureNoteItem.UomId);
 
-                            var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
+                            var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
 
                             EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
@@ -415,7 +415,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             if (garmentInventorySummaryExisting == null)
                             {
-                                var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovementIn);
+                                var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, garmentInventoryMovementIn);
                                 dbSetGarmentInventorySummary.Add(garmentInventorySummary);
                             }
                             else

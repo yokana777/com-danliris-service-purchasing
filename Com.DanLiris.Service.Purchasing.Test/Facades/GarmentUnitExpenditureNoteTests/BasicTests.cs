@@ -221,11 +221,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
-
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var data = await dataUtil.GetTestData();
-            var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseUpdateStorage, 0);
 
             dbContext.Entry(data).State = EntityState.Detached;
             foreach (var item in data.Items)
@@ -239,11 +236,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             newItem.IsSave = true;
             newItem.Quantity = 5;
 
+            data.Items.Add(newItem);
+
             var ResponseUpdate = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseUpdate, 0);
 
-            var ResponseAddStorage = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseAddStorage, 0);
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Items.First().Id);
+            
+            newData.Items = newData.Items.Take(1).ToList();
+            newData.Items.First().IsSave = true;
+
+            var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
+            Assert.NotEqual(ResponseUpdateRemoveItem, 0);
         }
 
         [Fact]
