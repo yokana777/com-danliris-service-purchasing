@@ -382,7 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         {
             if (externalPurchaseOrderDetail.ReceiptQuantity == 0)
             {
-                if (dbContext.UnitPaymentOrderDetails.SingleOrDefault(d => d.POItemId == externalPurchaseOrderDetail.POItemId) == null)
+                if (dbContext.UnitPaymentOrderDetails.FirstOrDefault(d => d.POItemId == externalPurchaseOrderDetail.POItemId) == null)
                 {
 
                     //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.SingleOrDefault(i => i.Id == detail.PRItemId);
