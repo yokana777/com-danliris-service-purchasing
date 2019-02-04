@@ -62,6 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 {
                     Id = 1,
                     UnitDONo = "UnitDONO1234",
+                    ExpenditureType = "TRANSFER",
                     Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     StorageRequest = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     UnitSender = new UnitViewModel(),
@@ -254,6 +255,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdateRemoveItem, 0);
+
+            var dataTransfer = await dataUtil.GetTestDataAcc();
+            var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
+            Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
+
         }
 
         [Fact]
