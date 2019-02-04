@@ -60,6 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.Map<GarmentUnitExpenditureNoteViewModel>(It.IsAny<GarmentUnitExpenditureNote>()))
                 .Returns(new GarmentUnitExpenditureNoteViewModel
                 {
+                    Id = 1,
                     UnitDONo = "UnitDONO1234",
                     Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     StorageRequest = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
