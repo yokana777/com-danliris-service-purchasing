@@ -99,17 +99,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             await facade.Create(data);
             return data;
         }
-
-        public async Task<GarmentUnitExpenditureNote> GetTestDataAddItems()
-        {
-            var data = GetNewData();
-            foreach (var item in data.Items)
-            {
-                item.IsSave = true;
-                item.Quantity = 999;
-            }
-            await facade.Create(data);
-            return data;
-        }
     }
 }

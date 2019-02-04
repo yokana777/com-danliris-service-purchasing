@@ -60,8 +60,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.Map<GarmentUnitExpenditureNoteViewModel>(It.IsAny<GarmentUnitExpenditureNote>()))
                 .Returns(new GarmentUnitExpenditureNoteViewModel
                 {
-                    Id = 1,
-                    UnitDOId = 1,
                     UnitDONo = "UnitDONO1234",
                     Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     StorageRequest = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
@@ -113,7 +111,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
                 .Returns(new GarmentUnitReceiptNoteViewModel
                 {
-                    Id = 1,
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
                         new GarmentUnitReceiptNoteItemViewModel()
@@ -228,7 +225,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             foreach (var item in data.Items)
             {
                 dbContext.Entry(item).State = EntityState.Detached;
-                item.Quantity = 5;
             }
 
             var newItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
@@ -241,11 +237,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var ResponseUpdate = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseUpdate, 0);
 
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
+
             var newData = dbContext.GarmentUnitExpenditureNotes
                 .AsNoTracking()
                 .Include(x => x.Items)
                 .Single(m => m.Id == data.Items.First().Id);
-            
+
             newData.Items = newData.Items.Take(1).ToList();
             newData.Items.First().IsSave = true;
 
