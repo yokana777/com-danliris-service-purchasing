@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 division_name = "G";
             }
 
-            string no = $"{Year}-{Month}-{supplier_imp}-{division_name}-";
+            string no = $"{Year}-{Month}-{division_name}-{supplier_imp}-";
             int Padding = 3;
 
             var lastNo = await this.dbSet.Where(w => w.UPCNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UPCNo).FirstOrDefaultAsync();

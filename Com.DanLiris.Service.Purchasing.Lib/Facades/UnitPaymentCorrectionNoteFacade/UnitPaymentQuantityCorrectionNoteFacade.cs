@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
 
 
-            string no = $"{Year}-{Month}-{supplier_imp}-{division_name}-";
+            string no = $"{Year}-{Month}-{division_name}-{supplier_imp}-";
             int Padding = 3;
             var upcno = "";
 
