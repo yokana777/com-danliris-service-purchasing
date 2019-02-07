@@ -61,8 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Returns(new GarmentUnitExpenditureNoteViewModel
                 {
                     Id = 1,
-                    UnitDOId = 1,
                     UnitDONo = "UnitDONO1234",
+                    ExpenditureType = "TRANSFER",
                     Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     StorageRequest = new Lib.ViewModels.IntegrationViewModel.StorageViewModel(),
                     UnitSender = new UnitViewModel(),
@@ -113,7 +113,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
                 .Returns(new GarmentUnitReceiptNoteViewModel
                 {
-                    Id = 1,
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
                         new GarmentUnitReceiptNoteItemViewModel()
@@ -221,17 +220,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
-
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var data = await dataUtil.GetTestData();
-            var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseUpdateStorage, 0);
 
             dbContext.Entry(data).State = EntityState.Detached;
             foreach (var item in data.Items)
             {
                 dbContext.Entry(item).State = EntityState.Detached;
-                item.Quantity = 5;
             }
 
             var newItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
@@ -239,11 +234,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             newItem.IsSave = true;
             newItem.Quantity = 5;
 
+            data.Items.Add(newItem);
+
             var ResponseUpdate = await facade.Update((int)data.Id, data);
             Assert.NotEqual(ResponseUpdate, 0);
 
-            var ResponseAddStorage = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseAddStorage, 0);
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
+
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Items.First().Id);
+
+            newData.Items = newData.Items.Take(1).ToList();
+            newData.Items.First().IsSave = true;
+
+            var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
+            Assert.NotEqual(ResponseUpdateRemoveItem, 0);
+
+            var dataTransfer = await dataUtil.GetTestDataAcc();
+            var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
+            Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
+
         }
 
         [Fact]

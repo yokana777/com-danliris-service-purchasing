@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     .ThenInclude(i => i.Details)
                 .FirstOrDefault();
 
-            List<long> unitReceiptNoteIds = dbContext.UnitReceiptNotes.Where(m => (m.DOId == id || m.DONo.Equals(Result.DONo)) && m.IsDeleted == false).Select(m => m.Id).ToList();
+            List<long> unitReceiptNoteIds = dbContext.UnitReceiptNotes.Where(m => m.DOId == id && m.IsDeleted == false).Select(m => m.Id).ToList();
 
             return Tuple.Create(Result, unitReceiptNoteIds);
         }
@@ -382,7 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         {
             if (externalPurchaseOrderDetail.ReceiptQuantity == 0)
             {
-                if (dbContext.UnitPaymentOrderDetails.SingleOrDefault(d => d.POItemId == externalPurchaseOrderDetail.POItemId) == null)
+                if (dbContext.UnitPaymentOrderDetails.FirstOrDefault(d => d.POItemId == externalPurchaseOrderDetail.POItemId) == null)
                 {
 
                     //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.SingleOrDefault(i => i.Id == detail.PRItemId);

@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         EntityExtension.FlagForUpdate(garmentInternalPurchaseOrderItem, identityService.Username, USER_AGENT);
                         garmentInternalPurchaseOrderItem.Status = "Barang sudah diterima Unit";
 
-                        var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.UomId);
+                        var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
 
                         var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting);
                         dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         foreach (var oldGarmentUnitReceiptNoteItem in oldGarmentUnitReceiptNote.Items)
                         {
                             // Buat OUT untuk Gudang yang lama
-                            var oldGarmentInventorySummary = dbSetGarmentInventorySummary.Single(s => s.ProductId == oldGarmentUnitReceiptNoteItem.ProductId && s.StorageId == oldGarmentUnitReceiptNote.StorageId && s.UomId == oldGarmentUnitReceiptNoteItem.UomId);
+                            var oldGarmentInventorySummary = dbSetGarmentInventorySummary.Single(s => s.ProductId == oldGarmentUnitReceiptNoteItem.ProductId && s.StorageId == oldGarmentUnitReceiptNote.StorageId && s.UomId == oldGarmentUnitReceiptNoteItem.SmallUomId);
 
                             var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(oldGarmentUnitReceiptNote, oldGarmentUnitReceiptNoteItem, oldGarmentInventorySummary, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
@@ -231,7 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             oldGarmentInventorySummary.Quantity = garmentInventoryMovementOut.After;
 
                             // Buat IN untuk Gudang yang baru
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == oldGarmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == oldGarmentUnitReceiptNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == oldGarmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == oldGarmentUnitReceiptNoteItem.SmallUomId);
 
                             var garmentInventoryMovementIn = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, oldGarmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "IN");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
@@ -359,8 +359,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             garmentInventorySummary.Quantity = garmentInventoryMovement.After;
 
-            garmentInventorySummary.UomId = garmentUnitReceiptNoteItem.UomId;
-            garmentInventorySummary.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+            garmentInventorySummary.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+            garmentInventorySummary.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
             garmentInventorySummary.StockPlanning = 0;
 
@@ -396,8 +396,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             garmentInventoryMovement.Quantity = garmentUnitReceiptNoteItem.SmallQuantity * ((type ?? "").ToUpper() == "OUT" ? -1 : 1);
             garmentInventoryMovement.After = garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
 
-            garmentInventoryMovement.UomId = garmentUnitReceiptNoteItem.UomId;
-            garmentInventoryMovement.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+            garmentInventoryMovement.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+            garmentInventoryMovement.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
             garmentInventoryMovement.Remark = garmentUnitReceiptNoteItem.ProductRemark;
 
@@ -441,8 +441,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                 garmentInventoryDocumentItem.Quantity = garmentUnitReceiptNoteItem.SmallQuantity;
 
-                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.UomId;
-                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.UomUnit;
+                garmentInventoryDocumentItem.UomId = garmentUnitReceiptNoteItem.SmallUomId;
+                garmentInventoryDocumentItem.UomUnit = garmentUnitReceiptNoteItem.SmallUomUnit;
 
                 garmentInventoryDocumentItem.ProductRemark = garmentUnitReceiptNoteItem.ProductRemark;
 
@@ -542,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     (!hasStorageFilter ? true : x.StorageId == storageId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
