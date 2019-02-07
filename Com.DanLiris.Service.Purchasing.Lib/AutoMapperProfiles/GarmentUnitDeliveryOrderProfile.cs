@@ -24,6 +24,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Storage.code, opt => opt.MapFrom(s => s.StorageCode))
                 .ForPath(d => d.Storage.name, opt => opt.MapFrom(s => s.StorageName))
 
+                .ForPath(d => d.StorageRequest._id, opt => opt.MapFrom(s => s.StorageRequestId))
+                .ForPath(d => d.StorageRequest.code, opt => opt.MapFrom(s => s.StorageRequestCode))
+                .ForPath(d => d.StorageRequest.name, opt => opt.MapFrom(s => s.StorageRequestName))
+
                 .ReverseMap();
 
             CreateMap<GarmentUnitDeliveryOrderItem, GarmentUnitDeliveryOrderItemViewModel>()

@@ -279,5 +279,40 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-    }
+		[HttpGet("by-name")]
+		public IActionResult ByName(string keyword = null, string Filter = "{}")
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+				var Data = facade.ReadName(keyword, Filter);
+
+				//var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(Data);
+
+				//List<object> listData = new List<object>();
+				//listData.AddRange(
+				//	newData.AsQueryable().Select(s => new
+				//	{
+				//		s.CreatedBy
+				//	}).ToList()
+				//);
+
+				return Ok(new
+				{
+					apiVersion = ApiVersion,
+					statusCode = General.OK_STATUS_CODE,
+					message = General.OK_MESSAGE,
+					data = Data
+				});
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+	}
 }

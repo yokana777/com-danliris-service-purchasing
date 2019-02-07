@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 UnitName = $"UnitName{nowTicksA}",
 
                 Remark = $"Remark{nowTicksA}",
-
+				CreatedBy="CreatedBy",
                 Items = new List<GarmentPurchaseRequestItem>
                 {
                     new GarmentPurchaseRequestItem
