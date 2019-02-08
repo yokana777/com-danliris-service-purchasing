@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              priceTotalAfter = corrItem == null ? 0 : corrItem.PriceTotalAfter,
                              priceTotalBefore = corrItem == null ? 0 : corrItem.PricePerDealUnitBefore,
                              qtyCorrection = corrItem == null ? 0 : corrItem.Quantity,
-                             remark = epo != null ? epo.IsPosted == true?epo.Remark : "" : "",
+                             remark = epo != null ?epo.Remark : "",
                              status = b.Status,
                              staff = a.CreatedBy,
                              LastModifiedUtc = a.LastModifiedUtc,
