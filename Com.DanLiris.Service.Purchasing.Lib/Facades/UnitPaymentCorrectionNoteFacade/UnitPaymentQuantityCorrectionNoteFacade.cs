@@ -168,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             {
                 supplier_imp = "NRL";
             }
-            if (divisionName == "GARMENT")
+            if (divisionName.ToUpper() == "GARMENT")
             {
                 division_name = 'G';
             }
