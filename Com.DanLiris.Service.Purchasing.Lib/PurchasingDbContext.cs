@@ -32,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
     {
         public PurchasingDbContext(DbContextOptions<PurchasingDbContext> options) : base(options)
         {
+            base.Database.SetCommandTimeout(300);
         }
 
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
