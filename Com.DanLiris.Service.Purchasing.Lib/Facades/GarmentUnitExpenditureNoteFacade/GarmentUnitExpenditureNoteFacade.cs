@@ -96,8 +96,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         }
                     }
 
-                    dbSet.Add(garmentUnitExpenditureNote);
-
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
                         var garmentInventoryDocumentTransferOutStorage = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
@@ -165,6 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 EntityExtension.FlagForUpdate(garmentInventorySummaryExistingRequest, identityService.Username, USER_AGENT);
                                 garmentInventorySummaryExistingRequest.Quantity = garmentInventoryMovementRequestOut.After;
                             }
+                            await dbContext.SaveChangesAsync();
                         }
                     }
                     else
@@ -189,8 +188,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
                                 garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
                             }
+                            await dbContext.SaveChangesAsync();
                         }
                     }
+
+                    dbSet.Add(garmentUnitExpenditureNote);
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -341,7 +343,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             {
                 try
                 {
-                    var oldGarmentUnitExpenditureNote = dbSet.AsNoTracking()
+                    var oldGarmentUnitExpenditureNote = dbSet
                         .Include(d => d.Items)
                         .Single(m => m.Id == id);
 
@@ -447,37 +449,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovementOut.After = garmentInventoryMovementOut.Before -(decimal) garmentUnitExpenditureNoteItem.Quantity;
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
 
-                            if (oldGarmentInventorySummaryExisting == null)
-                            {
-                                var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, garmentInventoryMovementOut);
-                                dbSetGarmentInventorySummary.Add(garmentInventorySummary);
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(oldGarmentInventorySummaryExisting, identityService.Username, USER_AGENT);
-                                oldGarmentInventorySummaryExisting.Quantity = garmentInventoryMovementOut.After;
-                            }
+                            EntityExtension.FlagForUpdate(oldGarmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                            oldGarmentInventorySummaryExisting.Quantity = garmentInventoryMovementOut.After;
                         }
                     }
 
-                    EntityExtension.FlagForUpdate(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
-
-                    foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
-                    {
-                        EntityExtension.FlagForUpdate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
-
-                        var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == garmentUnitExpenditureNoteItem.UnitDOItemId);
-                        var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == garmentUnitExpenditureNoteItem.URNItemId);
-
-                        if (garmentUnitDeliveryOrderItem != null && garmentUnitReceiptNoteItem != null)
-                        {
-                            if (garmentUnitDeliveryOrderItem.Quantity != garmentUnitExpenditureNoteItem.Quantity)
-                            {
-                                EntityExtension.FlagForUpdate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
-                                garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNoteItem.Quantity);
-                            }
-                        }
-                    }
+                    EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNote, identityService.Username, USER_AGENT);
 
                     foreach (var oldGarmentUnitExpenditureNoteItem in oldGarmentUnitExpenditureNote.Items)
                     {
@@ -490,9 +467,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitExpenditureNoteItem.Quantity;
                         }
+                        else
+                        {
+                            EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
+
+                            var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == oldGarmentUnitExpenditureNoteItem.UnitDOItemId);
+                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == oldGarmentUnitExpenditureNoteItem.URNItemId);
+
+                            if (garmentUnitDeliveryOrderItem != null && garmentUnitReceiptNoteItem != null)
+                            {
+                                if (garmentUnitDeliveryOrderItem.Quantity != oldGarmentUnitExpenditureNoteItem.Quantity)
+                                {
+                                    EntityExtension.FlagForUpdate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
+                                    garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)oldGarmentUnitExpenditureNoteItem.Quantity);
+                                }
+                            }
+                            oldGarmentUnitExpenditureNoteItem.Quantity = garmentUnitExpenditureNote.Items.FirstOrDefault(i => i.Id == oldGarmentUnitExpenditureNoteItem.Id).Quantity;
+
+                        }
                     }
 
-                    dbSet.Update(garmentUnitExpenditureNote);
+                    //dbSet.Update(garmentUnitExpenditureNote);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -543,7 +538,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             {
                 garmentInventoryMovement.No = CodeGenerator.Generate();
             }
-            while (dbSetGarmentInventorySummary.Any(m => m.No == garmentInventoryMovement.No));
+            while (dbSetGarmentInventoryMovement.Any(m => m.No == garmentInventoryMovement.No));
 
             garmentInventoryMovement.Date = garmentInventoryMovement.CreatedUtc;
 

@@ -223,43 +223,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var data = await dataUtil.GetTestData();
 
-            dbContext.Entry(data).State = EntityState.Detached;
-            foreach (var item in data.Items)
+            var newData = new GarmentUnitExpenditureNote {
+                Id = data.Id,
+                Items = new List<GarmentUnitExpenditureNoteItem>
+                {
+                    new GarmentUnitExpenditureNoteItem
+                    {
+                        Id = data.Items.First().Id
+                    }
+                }
+            };
+            foreach (var item in newData.Items)
             {
-                dbContext.Entry(item).State = EntityState.Detached;
+                item.Quantity = 1;
             }
 
-            var newItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
-            newItem.Id = 0;
-            newItem.IsSave = true;
-            newItem.Quantity = 5;
-
-            data.Items.Add(newItem);
-
-            var ResponseUpdate = await facade.Update((int)data.Id, data);
+            var ResponseUpdate = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdate, 0);
+        }
 
-            dbContext.Entry(data).State = EntityState.Detached;
-            foreach (var item in data.Items)
-            {
-                dbContext.Entry(item).State = EntityState.Detached;
-            }
-
-            var newData = dbContext.GarmentUnitExpenditureNotes
-                .AsNoTracking()
-                .Include(x => x.Items)
-                .Single(m => m.Id == data.Items.First().Id);
-
-            newData.Items = newData.Items.Take(1).ToList();
-            newData.Items.First().IsSave = true;
-
-            var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
-            Assert.NotEqual(ResponseUpdateRemoveItem, 0);
-
+        [Fact]
+        public async void Should_Success_Update_Data_Type_Transfer()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var dataTransfer = await dataUtil.GetTestDataAcc();
+
+            var newData = new GarmentUnitExpenditureNote
+            {
+                Id = dataTransfer.Id,
+                Items = new List<GarmentUnitExpenditureNoteItem>
+                {
+                    new GarmentUnitExpenditureNoteItem
+                    {
+                        Id = dataTransfer.Items.First().Id
+                    }
+                }
+            };
+            foreach (var item in newData.Items)
+            {
+                item.Quantity = 1;
+            }
             var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
             Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
-
         }
 
         [Fact]

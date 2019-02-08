@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem()).Result;
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                 {
                     IsSave = true,
                     DODetailId = item.DODetailId,
-
+                    
                     EPOItemId = item.EPOItemId,
 
                     URNItemId = item.URNItemId,
@@ -85,6 +85,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
                     PricePerDealUnit = item.PricePerDealUnit,
                 };
+                new GarmentUnitExpenditureNoteItem
+                {
+                    Id = 0,
+                    IsSave = true,
+                    DODetailId = item.DODetailId,
+
+                    EPOItemId = item.EPOItemId,
+
+                    URNItemId = item.URNItemId,
+                    UnitDOItemId = item.Id,
+                    PRItemId = item.PRItemId,
+
+                    FabricType = item.FabricType,
+                    POItemId = item.POItemId,
+                    POSerialNumber = item.POSerialNumber,
+
+                    ProductId = item.ProductId,
+                    ProductCode = item.ProductCode,
+                    ProductName = item.ProductName,
+                    ProductRemark = item.ProductRemark,
+                    Quantity = item.Quantity,
+
+                    RONo = item.RONo,
+
+                    UomId = item.UomId,
+                    UomUnit = item.UomUnit,
+
+                    PricePerDealUnit = item.PricePerDealUnit,
+
+                };
 
                 garmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);
 
@@ -97,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem()).Result;
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
@@ -150,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     ProductCode = item.ProductCode,
                     ProductName = item.ProductName,
                     ProductRemark = item.ProductRemark,
-                    Quantity = 5,
+                    Quantity = item.Quantity,
 
                     RONo = item.RONo,
 
