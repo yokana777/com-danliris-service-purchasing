@@ -390,7 +390,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             }
 
                             //Buat OUT untuk gudang yang mengeluarkan
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.Single(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
 
                             var garmentInventoryMovementInRequest = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "IN");
                             garmentInventoryMovementInRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
@@ -412,6 +412,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             if (garmentInventorySummaryExisting == null)
                             {
                                 var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovementOutRequest);
+                                garmentInventorySummary.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                                garmentInventorySummary.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                                garmentInventorySummary.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+
                                 dbSetGarmentInventorySummary.Add(garmentInventorySummary);
                             }
                             else
