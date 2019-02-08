@@ -196,6 +196,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
             return garmentUnitExpenditureNote;
         }
+        public void SetDataWithStorage(GarmentUnitExpenditureNote garmentUnitExpenditureNote, long? unitId = null)
+        {
+            long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
+
+            garmentUnitExpenditureNote.StorageId = nowTicks;
+            garmentUnitExpenditureNote.StorageCode = string.Concat("StorageCode", nowTicks);
+            garmentUnitExpenditureNote.StorageName = string.Concat("StorageName", nowTicks);
+        }
+
+
+        public GarmentUnitExpenditureNote GetNewDataWithStorage(long? ticks = null)
+        {
+            var data = GetNewDataTypeTransfer();
+            SetDataWithStorage(data, ticks);
+
+            return data;
+        }
 
         public async Task<GarmentUnitExpenditureNote> GetTestData()
         {

@@ -206,6 +206,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_Type_Transfer()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+            var Response = await facade.Create(data);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -267,6 +276,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             }
             var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
             Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
+
+            var newData2 = new GarmentUnitExpenditureNote
+            {
+                Id = dataTransfer.Id,
+                StorageId = 0,
+                Items = new List<GarmentUnitExpenditureNoteItem>
+                {
+                    new GarmentUnitExpenditureNoteItem
+                    {
+                        Id = dataTransfer.Items.First().Id
+                    }
+                }
+            };
+            foreach (var item in newData2.Items)
+            {
+                item.Quantity = 1;
+            }
+
+            var ResponseUpdate2 = await facade.Update((int)newData2.Id, newData2);
+            Assert.NotEqual(ResponseUpdate2, 0);
         }
 
         [Fact]
