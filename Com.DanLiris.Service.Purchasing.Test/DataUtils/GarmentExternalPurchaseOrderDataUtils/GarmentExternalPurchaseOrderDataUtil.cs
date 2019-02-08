@@ -1,8 +1,10 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -359,6 +361,93 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
         {
             var data = GetDataForDo2();
             await facade.Create(data, "Unit Test");
+            return data;
+        }
+
+        public (GarmentExternalPurchaseOrder garmentExternalPurchaseOrder, GarmentInternalPurchaseOrder garmentInternalPurchaseOrder) GetNewTotalData()
+        {
+            var data = Task.Run(() => garmentPurchaseOrderDataUtil.GetTestData()).Result.First();
+            var GarmentExternalPurchaseOrder = new GarmentExternalPurchaseOrder
+            {
+                SupplierId = 1,
+                SupplierCode = "Supplier1",
+                SupplierImport = true,
+                SupplierName = "supplier1",
+
+                Category = "FABRIC",
+                DarkPerspiration = "dark",
+                WetRubbing = "wet",
+                DryRubbing = "dry",
+                LightMedPerspiration = "light",
+                Washing = "wash",
+                Shrinkage = "shrink",
+                QualityStandardType = "quality",
+                PieceLength = "piece",
+                PaymentMethod = "T/T PAYMENT",
+                PaymentType = "payType",
+                IncomeTaxId = "1",
+                IncomeTaxName = "income1",
+                IncomeTaxRate = "1",
+
+                DeliveryDate = new DateTimeOffset(),
+                OrderDate = new DateTime(1970, 1, 1),
+
+                CurrencyId = 1,
+                CurrencyCode = "currency1",
+                CurrencyRate = 1,
+
+                IsApproved = true,
+                IsOverBudget = true,
+                IsPosted = true,
+                IsCanceled = false,
+                IsDeleted = false,
+
+                Remark = "Remark1",
+
+                Items = new List<GarmentExternalPurchaseOrderItem>
+                {
+                    new GarmentExternalPurchaseOrderItem
+                    {
+                        IsDeleted = false,
+                        PO_SerialNumber = "PO_SerialNumber1",
+                        POId=(int)data.Id,
+                        PONo=data.PONo,
+                        PRNo=data.PRNo,
+                        PRId=1,
+                        ProductId = 1,
+                        ProductCode = "FAB001",
+                        ProductName = "FABRIC",
+
+                        DealQuantity = 5,
+                        BudgetPrice = 5,
+
+                        DealUomId = 1,
+                        DealUomUnit = "UomUnit1",
+
+                        DefaultQuantity=5,
+                        DefaultUomId=1,
+                        DefaultUomUnit="unit1",
+
+                        SmallUomId = 1,
+                        SmallUomUnit = "UomUnit1",
+
+                        UsedBudget=1,
+
+                        PricePerDealUnit=1,
+                        Conversion=1,
+                        RONo=data.RONo,
+
+                        Remark = "ProductRemark"
+                    }
+                }
+            };
+            return (GarmentExternalPurchaseOrder, data);
+        }
+
+        public async Task<(GarmentExternalPurchaseOrder garmentExternalPurchaseOrder, GarmentInternalPurchaseOrder garmentInternalPurchaseOrder)> GetTestData()
+        {
+            var data = GetNewTotalData();
+            await facade.Create(data.garmentExternalPurchaseOrder, "Unit Test");
             return data;
         }
     }

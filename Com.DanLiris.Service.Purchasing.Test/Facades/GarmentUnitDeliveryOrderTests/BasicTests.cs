@@ -10,6 +10,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Migrations;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
@@ -22,13 +23,16 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
 
+//[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderTests
 {
     public class BasicTests
@@ -36,7 +40,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         private const string ENTITY = "GarmentUnitDeliveryOrder";
 
         private const string USERNAME = "Unit Test";
-        private IServiceProvider ServiceProvider { get; set; }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetCurrentMethod()
@@ -57,6 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             return dbContext;
         }
+
         private Mock<IServiceProvider> GetServiceProvider()
         {
             HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
@@ -77,202 +81,229 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             return serviceProvider;
         }
-        private IServiceProvider GetServiceProviderUnitReceiptNote()
+
+        private GarmentUnitReceiptNoteDataUtil garmentUnitReceiptNoteDataUtil(GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade, string testName)
         {
-            HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-            httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
-
-            var httpClientService = new Mock<IHttpClientService>();
-            httpClientService
-                .Setup(x => x.GetAsync(It.IsAny<string>()))
-                .ReturnsAsync(httpResponseMessage);
-
-            var mapper = new Mock<IMapper>();
-            mapper
-                .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
-                .Returns(new GarmentUnitReceiptNoteViewModel
-                {
-                    Id = 1,
-                    Items = new List<GarmentUnitReceiptNoteItemViewModel>
-                    {
-                        new GarmentUnitReceiptNoteItemViewModel()
-                    }
-                });
-
-            var serviceProviderMock = new Mock<IServiceProvider>();
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IdentityService)))
-                .Returns(new IdentityService { Username = "Username" });
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IHttpClientService)))
-                .Returns(httpClientService.Object);
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IMapper)))
-                .Returns(mapper.Object);
-
-            return serviceProviderMock.Object;
-        }
-
-        private GarmentUnitDeliveryOrderDataUtil dataUtil(GarmentUnitDeliveryOrderFacade facade, string testName)
-        {
-
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
             var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
 
-            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
             var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
-            var garmentUnitDeliveryOrderFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(testName));
-            var garmentInvoieDataUtil = new GarmentUnitReceiptNoteDataUtil(garmentUnitDeliveryOrderFacade, garmentDeliveryOrderDataUtil);
+            return new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
+        }
 
-            return new GarmentUnitDeliveryOrderDataUtil(facade, garmentInvoieDataUtil);
+        private GarmentUnitDeliveryOrderDataUtil dataUtil(GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade, string testName)
+        {
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(testName));
+            var garmentUnitReceiptNoteDataUtil = this.garmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, testName);
+
+            return new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDataUtil);
         }
 
         [Fact]
         public async void Should_Success_Create_Data()
         {
-            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
-            var Response = await facade.Create(model, USERNAME);
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+
+            var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
         public async void Should_Error_Create_Data()
         {
-            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(null, USERNAME));
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(null));
             Assert.NotNull(e.Message);
         }
 
-        //[Fact]
-        //public async void Should_Success_Update_Data()
-        //{
-        //    var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-        //    var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-        //    GarmentUnitDeliveryOrder data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+        [Fact]
+        public async void Should_Success_Update_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitDeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-        //    var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-        //    Assert.NotEqual(ResponseUpdate, 0);
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
 
-        //    List<GarmentUnitDeliveryOrderItem> Newitems = new List<GarmentUnitDeliveryOrderItem>(data.Items);
-        //    Newitems.Add(item);
-        //    data.Items = Newitems;
+            var newItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
+            newItem.Id = 0;
+            newItem.IsSave = true;
 
-        //    var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-        //    Assert.NotEqual(ResponseUpdate1, 0);
-        //}
+            data.Items.Add(newItem);
 
-        //[Fact]
-        //public async void Should_Success_Update_Data2()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    var facade = new GarmentUnitDeliveryOrderFacade(dbContext, ServiceProvider);
-        //    var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
-        //    GarmentUnitDeliveryOrder data = dataUtil(facade, GetCurrentMethod()).GetNewData();
-        //    GarmentUnitDeliveryOrderItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
+            var ResponseUpdate = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(ResponseUpdate, 0);
 
-        //    var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-        //    Assert.NotEqual(ResponseUpdate, 0);
+            var newData = dbContext.GarmentUnitDeliveryOrders
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Items.First().Id);
 
-        //    List<GarmentUnitDeliveryOrderItem> Newitems = new List<GarmentUnitDeliveryOrderItem>(data.Items);
-        //    Newitems.Add(item);
-        //    data.Items = Newitems;
+            newData.Items = newData.Items.Take(1).ToList();
+            newData.Items.First().IsSave = true;
 
-        //    var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-        //    Assert.NotEqual(ResponseUpdate, 0);
+            var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
+            Assert.NotEqual(ResponseUpdateRemoveItem, 0);
+        }
 
-        //    dbContext.Entry(data).State = EntityState.Detached;
-        //    foreach (var items in data.Items)
-        //    {
-        //        dbContext.Entry(items).State = EntityState.Detached;
-        //        foreach (var detail in items.Details)
-        //        {
-        //            dbContext.Entry(detail).State = EntityState.Detached;
-        //        }
-        //    }
+        [Fact]
+        public async void Should_Error_Update_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitDeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-        //    var newData = dbContext.GarmentUnitDeliveryOrders.AsNoTracking()
-        //        .Include(m => m.Items)
-        //            .ThenInclude(i => i.Details)
-        //        .FirstOrDefault(m => m.Id == data.Id);
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
 
-        //    newData.Items = newData.Items.Take(1).ToList();
+            data.Items = null;
 
-        //    var ResponseUpdate2 = await facade.Update((int)newData.Id, newData, USERNAME);
-        //    Assert.NotEqual(ResponseUpdate2, 0);
-        //}
-        //[Fact]
-        //public async void Should_Error_Update_Data()
-        //{
-        //    var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-        //    GarmentUnitDeliveryOrder data = dataUtil(facade, GetCurrentMethod()).GetNewData();
-        //    List<GarmentUnitDeliveryOrderItem> item = new List<GarmentUnitDeliveryOrderItem>(data.Items);
-
-        //    data.Items.Add(new GarmentUnitDeliveryOrderItem
-        //    {
-        //        URNId = It.IsAny<int>(),
-        //        URNItemId = It.IsAny<int>(),
-        //        URNNo = "urnno",
-        //    });
-
-        //    var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-        //    Assert.NotEqual(ResponseUpdate, 0);
-        //    var newItem = new GarmentUnitDeliveryOrderItem
-        //    {
-        //        URNId = It.IsAny<int>(),
-        //        URNItemId = It.IsAny<int>(),
-        //        URNNo = "urnno",
-        //    };
-        //    List<GarmentUnitDeliveryOrderItem> Newitems = new List<GarmentUnitDeliveryOrderItem>(data.Items);
-        //    Newitems.Add(newItem);
-        //    data.Items = Newitems;
-
-        //    Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data, USERNAME));
-        //    Assert.NotNull(errorNullItems.Message);
-        //}
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
+            Assert.NotNull(errorNullItems.Message);
+        }
 
         [Fact]
         public async void Should_Success_Delete_Data()
         {
-            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.Delete((int)model.Id, USERNAME);
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.Delete((int)data.Id);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
         public async void Should_Error_Delete_Data()
         {
-            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
 
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0, USERNAME));
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0));
             Assert.NotNull(e.Message);
         }
 
         [Fact]
         public async void Should_Success_Get_All_Data()
         {
-            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEqual(Response.Data.Count, 0);
         }
 
         [Fact]
         public async void Should_Success_Get_Data_By_Id()
         {
-            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.ReadById((int)model.Id);
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.ReadById((int)data.Id);
             Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Validate_Data()
+        {
+            GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
+                UnitRequest = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitDOType = "TRANSFER" };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModelNullItems = new GarmentUnitDeliveryOrderViewModel
+            {
+                RONo = "RONo"
+            };
+            Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModelWithItems = new GarmentUnitDeliveryOrderViewModel
+            {
+                RONo = "RONo",
+                Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                {
+                    new GarmentUnitDeliveryOrderItemViewModel
+                    {
+                        IsSave = true,
+                        Quantity = 0
+                    }
+                }
+            };
+            Assert.True(viewModelWithItems.Validate(null).Count() > 0);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await garmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, GetCurrentMethod()).GetTestData();
+            var item = data.Items.First();
+
+            var serviceProvider = GetServiceProvider();
+            serviceProvider.Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
+
+            GarmentUnitDeliveryOrderViewModel viewModelWithItemsQuantityOver = new GarmentUnitDeliveryOrderViewModel
+            {
+                RONo = "RONo",
+                Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                {
+                    new GarmentUnitDeliveryOrderItemViewModel
+                    {
+                        URNItemId = item.Id,
+                        IsSave = true,
+                        Quantity = (double)(item.SmallQuantity - item.OrderQuantity + 1)
+                    }
+                }
+            };
+            System.ComponentModel.DataAnnotations.ValidationContext validationDuplicateContext = new System.ComponentModel.DataAnnotations.ValidationContext(viewModelWithItemsQuantityOver, serviceProvider.Object, null);
+            Assert.True(viewModelWithItemsQuantityOver.Validate(validationDuplicateContext).Count() > 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Data_For_GarmentUnitExpenditureNote()
+        {
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(m => m.Map<List<GarmentUnitDeliveryOrderViewModel>>(It.IsAny<List<GarmentUnitDeliveryOrder>>()))
+                .Returns(new List<GarmentUnitDeliveryOrderViewModel>
+                {
+                    new GarmentUnitDeliveryOrderViewModel
+                    {
+                        Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                        {
+                            new GarmentUnitDeliveryOrderItemViewModel()
+                        }
+                    }
+                });
+
+            var serviceProvider = GetServiceProvider();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMapper)))
+                .Returns(mapper.Object);
+
+            GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), serviceProvider.Object);
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadForUnitExpenditureNote();
+            Assert.NotEqual(Response.Data.Count, 0);
         }
     }
 }

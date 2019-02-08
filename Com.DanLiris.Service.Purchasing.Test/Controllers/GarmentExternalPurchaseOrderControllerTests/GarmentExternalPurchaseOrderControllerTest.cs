@@ -46,9 +46,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                 {
                     Category = "FABRIC",
                     FreightCostBy = "penjual",
+                    IsIncomeTax = true,
                     IncomeTax= new IncomeTaxViewModel
                     {
-                        Id= It.IsAny<int>(),
+                        Id= 1,
                         Name="tax",
                         Rate=1
                     },
@@ -605,6 +606,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var ViewModelFabric = this.ViewModelFabric;
             ViewModelFabric.Supplier.Import = false;
+            foreach (var item in ViewModelFabric.Items)
+            {
+                item.IsOverBudget = true; break;
+            }
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))

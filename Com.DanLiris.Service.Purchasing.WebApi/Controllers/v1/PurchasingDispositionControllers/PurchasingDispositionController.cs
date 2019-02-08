@@ -97,7 +97,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.CreatedUtc,
                         s.PaymentDueDate,
                         s.Position,
-                        s.Items
+                        s.Items,
+                        s.Category,
+                        s.Division,
+                        s.DPP,
+                        s.IncomeTaxValue,
+                        s.IncomeTaxBy,
+                        s.VatValue
                     }).ToList()
                 );
 

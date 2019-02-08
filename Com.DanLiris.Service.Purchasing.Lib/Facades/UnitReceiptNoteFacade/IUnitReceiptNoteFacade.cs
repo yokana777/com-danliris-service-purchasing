@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
     public interface IUnitReceiptNoteFacade
     {
         ReadResponse<UnitReceiptNote> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        ReadResponse<UnitReceiptNote> ReadByNoFiltered(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         UnitReceiptNote ReadById(int id);
         Task<int> Create(UnitReceiptNote m, string user);
         Task<int> Update(int id, UnitReceiptNote unitReceiptNote, string user);

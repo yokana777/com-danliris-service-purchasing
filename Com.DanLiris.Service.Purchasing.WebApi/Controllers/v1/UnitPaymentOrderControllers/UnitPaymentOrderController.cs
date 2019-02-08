@@ -313,5 +313,72 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+
+        [HttpGet("by-position")]
+        public IActionResult GetByPosition(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var Data = facade.ReadPositionFiltered(page, size, order, keyword, filter);
+                var newData = mapper.Map<List<UnitPaymentOrderViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(newData.AsQueryable().Select(s => new
+                {
+                    s._id,
+                    s.supplier,
+                    s.division,
+                    s.date,
+                    s.dueDate,
+                    s.no,
+                    s.useIncomeTax,
+                    s.useVat,
+                    s.category,
+                    s.currency,
+                    s.incomeTax,
+                    s.incomeTaxDate,
+                    s.incomeTaxNo,
+                    s.IsCorrection,
+                    s.invoiceDate,
+                    s.paymentMethod,
+                    s.invoiceNo,
+                    items = s.items.Select(i => new
+                    {
+                        unitReceiptNote = new
+                        {
+                            i.unitReceiptNote._id,
+                            i.unitReceiptNote.no,
+                            i.unitReceiptNote.deliveryOrder,
+                            i.unitReceiptNote.items
+                        }
+                    }),
+                    s.LastModifiedUtc,
+                }));
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    },
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }

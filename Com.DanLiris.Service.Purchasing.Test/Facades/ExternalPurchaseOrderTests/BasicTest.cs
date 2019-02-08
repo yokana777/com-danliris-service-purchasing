@@ -184,5 +184,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, "Unit test");
             Assert.NotEqual(ResponseRemoveItemDetail, 0);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Data_Disposition()
+        {
+            await DataUtil.GetTestData("Unit test");
+            var Response = Facade.ReadDisposition();
+            Assert.NotNull(Response);
+        }
     }
 }
