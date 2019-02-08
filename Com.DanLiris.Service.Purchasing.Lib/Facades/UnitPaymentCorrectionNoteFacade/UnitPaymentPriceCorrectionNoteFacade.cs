@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
             string divisionName = model.DivisionName;
             string division_name = "T";
-            if (divisionName == "GARMENT")
+            if (divisionName.ToUpper() == "GARMENT")
             {
                 division_name = "G";
             }
