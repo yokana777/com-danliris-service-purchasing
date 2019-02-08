@@ -375,7 +375,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 garmentInventoryMovement.No = CodeGenerator.Generate();
             }
-            while (dbSetGarmentInventorySummary.Any(m => m.No == garmentInventoryMovement.No));
+            while (dbSetGarmentInventoryMovement.Any(m => m.No == garmentInventoryMovement.No));
 
             garmentInventoryMovement.Date = garmentInventoryMovement.CreatedUtc;
 
