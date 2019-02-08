@@ -383,19 +383,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovementOut.After = garmentInventoryMovementOut.Before - (decimal)garmentUnitExpenditureNoteItem.Quantity;
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
 
-                            if (oldGarmentInventorySummaryExisting == null)
-                            {
-                                var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovementOut);
-                                dbSetGarmentInventorySummary.Add(garmentInventorySummary);
-                            }
-                            else
+                            if (oldGarmentInventorySummaryExisting != null)
                             {
                                 EntityExtension.FlagForUpdate(oldGarmentInventorySummaryExisting, identityService.Username, USER_AGENT);
                                 oldGarmentInventorySummaryExisting.Quantity = garmentInventoryMovementOut.After;
                             }
 
                             //Buat OUT untuk gudang yang mengeluarkan
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.Single(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
 
                             var garmentInventoryMovementInRequest = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "IN");
                             garmentInventoryMovementInRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;

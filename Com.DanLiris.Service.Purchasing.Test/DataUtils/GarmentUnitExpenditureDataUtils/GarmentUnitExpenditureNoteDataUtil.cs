@@ -213,6 +213,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
             return data;
         }
+        public void SetDataWithStorageRequest(GarmentUnitExpenditureNote garmentUnitExpenditureNote, long? unitId = null)
+        {
+            long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
+
+            garmentUnitExpenditureNote.StorageRequestId = nowTicks;
+            garmentUnitExpenditureNote.StorageRequestCode = string.Concat("StorageCode", nowTicks);
+            garmentUnitExpenditureNote.StorageRequestName = string.Concat("StorageName", nowTicks);
+        }
+
+
+        public GarmentUnitExpenditureNote GetNewDataWithStorageRequest(long? ticks = null)
+        {
+            var data = GetNewDataTypeTransfer();
+            SetDataWithStorageRequest(data, ticks);
+
+            return data;
+        }
 
         public async Task<GarmentUnitExpenditureNote> GetTestData()
         {
@@ -224,6 +241,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         public async Task<GarmentUnitExpenditureNote> GetTestDataAcc()
         {
             var data = GetNewDataTypeTransfer();
+            await facade.Create(data);
+            return data;
+        }
+
+        public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorage(long? ticks = null)
+        {
+            var data = GetNewDataWithStorage(ticks);
+            await facade.Create(data);
+            return data;
+        }
+        public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorageReqeust(long? ticks = null)
+        {
+            var data = GetNewDataWithStorageRequest(ticks);
             await facade.Create(data);
             return data;
         }

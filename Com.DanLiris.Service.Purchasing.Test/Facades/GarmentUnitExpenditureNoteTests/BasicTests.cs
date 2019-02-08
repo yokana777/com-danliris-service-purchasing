@@ -206,6 +206,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_Null_Summary()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            var Response = await facade.Create(data);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Success_Create_Data_Type_Transfer()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -276,11 +285,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             }
             var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
             Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Update_Data_Type_Transfer_null_Summary()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var dataTransfer = await dataUtil.GetTestDataWithStorageReqeust();
 
             var newData2 = new GarmentUnitExpenditureNote
             {
                 Id = dataTransfer.Id,
-                StorageId = 0,
                 Items = new List<GarmentUnitExpenditureNoteItem>
                 {
                     new GarmentUnitExpenditureNoteItem
@@ -289,12 +306,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                     }
                 }
             };
-            foreach (var item in newData2.Items)
+            foreach (var item in dataTransfer.Items)
             {
                 item.Quantity = 1;
             }
 
-            var ResponseUpdate2 = await facade.Update((int)newData2.Id, newData2);
+            var ResponseUpdate2 = await facade.Update((int)dataTransfer.Id, dataTransfer);
             Assert.NotEqual(ResponseUpdate2, 0);
         }
 
