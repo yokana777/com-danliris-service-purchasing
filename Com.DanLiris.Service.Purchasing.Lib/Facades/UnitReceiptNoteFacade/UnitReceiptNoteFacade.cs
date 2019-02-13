@@ -144,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             string no = $"{Year}-{Month}-{model.URNNo}-{model.UnitCode}-";
             int Padding = 3;
 
-            var lastNo = await this.dbSet.Where(w => w.URNNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.URNNo).FirstOrDefaultAsync();
+            var lastNo = await this.dbSet.Where(w => w.URNNo.StartsWith(no) && !w.URNNo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.URNNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -152,7 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
             else
             {
-                int lastNoNumber = Int32.Parse(lastNo.URNNo.Replace(no, "")) + 1;
+                int lastNoNumber = int.Parse(lastNo.URNNo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
