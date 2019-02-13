@@ -194,7 +194,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         pph = 0;
                     }
 
-                    maxtotal = totalPriceTotal + ppn - pph;
 
                     var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
 
@@ -204,6 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         koreksi.Add(detail.deliveryOrder.Id, correctionNotes.Sum(s => s.TotalCorrection));
                     }
 
+                    maxtotal = (totalPriceTotal + ppn - pph) + (double)totalcorrection;
                 }
             }
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
