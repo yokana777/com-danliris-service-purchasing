@@ -152,7 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var newData = dbContext.GarmentUnitDeliveryOrders
                 .AsNoTracking()
                 .Include(x => x.Items)
-                .Single(m => m.Id == data.Items.First().Id);
+                .Single(m => m.Id == data.Id);
 
             newData.Items = newData.Items.Take(1).ToList();
             newData.Items.First().IsSave = true;

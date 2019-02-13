@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem()).Result;
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                 {
                     IsSave = true,
                     DODetailId = item.DODetailId,
-
+                    
                     EPOItemId = item.EPOItemId,
 
                     URNItemId = item.URNItemId,
@@ -85,6 +85,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
                     PricePerDealUnit = item.PricePerDealUnit,
                 };
+                new GarmentUnitExpenditureNoteItem
+                {
+                    Id = 0,
+                    IsSave = true,
+                    DODetailId = item.DODetailId,
+
+                    EPOItemId = item.EPOItemId,
+
+                    URNItemId = item.URNItemId,
+                    UnitDOItemId = item.Id,
+                    PRItemId = item.PRItemId,
+
+                    FabricType = item.FabricType,
+                    POItemId = item.POItemId,
+                    POSerialNumber = item.POSerialNumber,
+
+                    ProductId = item.ProductId,
+                    ProductCode = item.ProductCode,
+                    ProductName = item.ProductName,
+                    ProductRemark = item.ProductRemark,
+                    Quantity = item.Quantity,
+
+                    RONo = item.RONo,
+
+                    UomId = item.UomId,
+                    UomUnit = item.UomUnit,
+
+                    PricePerDealUnit = item.PricePerDealUnit,
+
+                };
 
                 garmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);
 
@@ -97,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem()).Result;
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
@@ -150,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     ProductCode = item.ProductCode,
                     ProductName = item.ProductName,
                     ProductRemark = item.ProductRemark,
-                    Quantity = 5,
+                    Quantity = item.Quantity,
 
                     RONo = item.RONo,
 
@@ -166,6 +196,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
             return garmentUnitExpenditureNote;
         }
+        public void SetDataWithStorage(GarmentUnitExpenditureNote garmentUnitExpenditureNote, long? unitId = null)
+        {
+            long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
+
+            garmentUnitExpenditureNote.StorageId = nowTicks;
+            garmentUnitExpenditureNote.StorageCode = string.Concat("StorageCode", nowTicks);
+            garmentUnitExpenditureNote.StorageName = string.Concat("StorageName", nowTicks);
+        }
+
+
+        public GarmentUnitExpenditureNote GetNewDataWithStorage(long? ticks = null)
+        {
+            var data = GetNewDataTypeTransfer();
+            SetDataWithStorage(data, ticks);
+
+            return data;
+        }
+        public void SetDataWithStorageRequest(GarmentUnitExpenditureNote garmentUnitExpenditureNote, long? unitId = null)
+        {
+            long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
+
+            garmentUnitExpenditureNote.StorageRequestId = nowTicks;
+            garmentUnitExpenditureNote.StorageRequestCode = string.Concat("StorageCode", nowTicks);
+            garmentUnitExpenditureNote.StorageRequestName = string.Concat("StorageName", nowTicks);
+        }
+
+
+        public GarmentUnitExpenditureNote GetNewDataWithStorageRequest(long? ticks = null)
+        {
+            var data = GetNewDataTypeTransfer();
+            SetDataWithStorageRequest(data, ticks);
+
+            return data;
+        }
 
         public async Task<GarmentUnitExpenditureNote> GetTestData()
         {
@@ -177,6 +241,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         public async Task<GarmentUnitExpenditureNote> GetTestDataAcc()
         {
             var data = GetNewDataTypeTransfer();
+            await facade.Create(data);
+            return data;
+        }
+
+        public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorage(long? ticks = null)
+        {
+            var data = GetNewDataWithStorage(ticks);
+            await facade.Create(data);
+            return data;
+        }
+        public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorageReqeust(long? ticks = null)
+        {
+            var data = GetNewDataWithStorageRequest(ticks);
             await facade.Create(data);
             return data;
         }
