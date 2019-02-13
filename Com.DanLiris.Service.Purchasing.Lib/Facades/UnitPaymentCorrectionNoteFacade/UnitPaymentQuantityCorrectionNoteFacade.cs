@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
@@ -135,7 +136,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                             foreach(var detailSpb in itemSpb.Details)
                             {
                                 if (item.UPODetailId == detailSpb.Id)
+                                {
                                     detailSpb.QuantityCorrection = detailSpb.QuantityCorrection - item.Quantity;
+                                    ExternalPurchaseOrderDetail epoDetail = dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(a => a.Id.Equals(detailSpb.EPODetailId));
+                                    epoDetail.DOQuantity -= item.Quantity;
+                                }
+                                
                             }
                         }
                     }
