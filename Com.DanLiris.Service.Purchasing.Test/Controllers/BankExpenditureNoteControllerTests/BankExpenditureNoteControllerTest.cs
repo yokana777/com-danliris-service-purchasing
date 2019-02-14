@@ -468,5 +468,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             var response = controller.GetById(It.IsAny<int>()).Result;
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
+
+        [Fact]
+        public void Should_Success_Get_Document_By_Period()
+        {
+            var mockFacade = new Mock<IBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.GetByPeriod(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new List<ExpenditureInfo>());
+            var mockMapper = new Mock<IMapper>();
+
+            BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            var response = controller.GetBGCheckAndDocumentNoByPeriod(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
     }
 }

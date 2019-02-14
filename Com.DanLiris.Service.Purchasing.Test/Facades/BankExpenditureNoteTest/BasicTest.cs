@@ -291,5 +291,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var Response = await facade.Create(model, identityService);
             Assert.NotEqual(Response, 0);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_ByPeriod()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            var result = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetByPeriod(result.Date.Month, result.Date.Year, 0);
+            Assert.NotEqual(Response.Count, 0);
+        }
     }
 }

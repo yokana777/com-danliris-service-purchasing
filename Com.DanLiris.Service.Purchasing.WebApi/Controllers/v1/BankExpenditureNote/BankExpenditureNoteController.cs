@@ -236,6 +236,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             });
         }
 
+        [HttpGet("get-documentno/by-period")]
+        public ActionResult GetBGCheckAndDocumentNoByPeriod([FromQuery] int month = 0, [FromQuery] int year = 0, [FromQuery] int timeoffset = 0)
+        {
+            var result = facade.GetByPeriod(month, year, timeoffset);
+
+            return Ok(new
+            {
+                apiVersion = "1.0.0",
+                data = result,
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
+        }
+
         [HttpGet("reports/list")]
         public ActionResult GetReport(string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Size = 25, int Page = 1)
         {
