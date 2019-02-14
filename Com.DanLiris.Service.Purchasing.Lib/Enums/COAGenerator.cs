@@ -211,6 +211,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
 
     public class JournalTransaction
     {
+        public JournalTransaction()
+        {
+            Status = "POSTED";
+        }
+        
+        public string Status { get; set; }
         public string Description { get; set; }
         public DateTimeOffset? Date { get; set; }
         public string ReferenceNo { get; set; }
