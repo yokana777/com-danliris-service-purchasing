@@ -103,7 +103,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                         s.DPP,
                         s.IncomeTaxValue,
                         s.IncomeTaxBy,
-                        s.VatValue
+                        s.VatValue,
+                        s.PaymentCorrection
                     }).ToList()
                 );
 
