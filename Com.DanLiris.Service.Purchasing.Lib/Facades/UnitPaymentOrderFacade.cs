@@ -304,7 +304,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             string no = $"{Year}-{Month}-{TG}{Supplier}-";
             int Padding = isImport ? 3 : 4;
 
-            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
+            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.UPONo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -312,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
             else
             {
-                int lastNoNumber = Int32.Parse(lastNo.UPONo.Replace(no, "")) + 1;
+                int lastNoNumber = int.Parse(lastNo.UPONo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
