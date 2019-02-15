@@ -35,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public string ProductRemark { get; set; }
 
         public double DOQuantity { get; set; }
+        public double ReturQuantity { get; set; }
         public double DealQuantity { get; set; }
 
         public double Conversion { get; set; }
