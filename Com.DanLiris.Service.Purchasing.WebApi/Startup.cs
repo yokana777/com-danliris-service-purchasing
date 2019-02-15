@@ -108,7 +108,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 				.AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
 				.AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
 				.AddTransient<IMonitoringUnitReceiptAllFacade,MonitoringUnitReceiptAllFacade>()
-                .AddTransient<IGarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderFacade>();
+                .AddTransient<IGarmentUnitDeliveryOrder, GarmentUnitDeliveryOrderFacade>()
+                .AddTransient<IGarmentReturnCorrectionNoteFacade, GarmentReturnCorrectionNoteFacade>();
 
 		}
 
