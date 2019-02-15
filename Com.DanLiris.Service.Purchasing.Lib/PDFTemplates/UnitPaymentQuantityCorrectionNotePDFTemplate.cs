@@ -301,7 +301,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                 } else
                 {
-                    cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total)} {currencyDesc.ToLower()}", terbilang_bold_font);
+                    cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn)} {currencyDesc.ToLower()}", terbilang_bold_font);
                     cellIdentityTotalContentLeft.Colspan = 7;
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                 }
