@@ -666,7 +666,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             d.product,
 
                             d.rONo,
-
+                            d.doQuantity,
                             d.purchaseOrderUom,
                             d.quantityCorrection,
                             d.priceTotalCorrection,

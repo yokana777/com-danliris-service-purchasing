@@ -84,12 +84,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
                                 itemError += "PriceTotal: 'Harga Total tidak berubah', ";
                             }
                         }
-                        else if(CorrectionType.ToUpper() == "JUMLAH" || CorrectionType.ToUpper() == "RETUR")
+                        else if(CorrectionType.ToUpper() == "JUMLAH" )
                         {
                             if (item.Quantity == 0)
                             {
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah Tidak Boleh 0', ";
+                            }
+                        }
+                        else if( CorrectionType.ToUpper() == "RETUR")
+                        {
+                            if (item.Quantity <= 0)
+                            {
+                                itemErrorCount++;
+                                itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
+                            }
+                            if(item.Quantity> item.QuantityCheck)
+                            {
+                                itemErrorCount++;
+                                itemError += $"Quantity: 'Jumlah tidak boleh lebih dari {item.QuantityCheck} ', ";
                             }
                         }
 

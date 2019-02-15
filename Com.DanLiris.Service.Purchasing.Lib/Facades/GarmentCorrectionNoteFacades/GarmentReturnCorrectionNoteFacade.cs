@@ -137,6 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     foreach (var item in garmentCorrectionNote.Items)
                     {
                         item.Quantity = item.Quantity * (-1);
+                        item.PriceTotalAfter = item.Quantity * item.PricePerDealUnitAfter;
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                         var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
