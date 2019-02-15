@@ -422,10 +422,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 11);
             Font smaller_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
-            Font smallest_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font smallest_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
             Font smaller_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
-            Font smallest_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font smallest_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
             double totalPPn = 0;
             double total = 0;
@@ -478,10 +478,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 Paragraph seller = new Paragraph("Kepada Penjual", smaller_bold_font) { Alignment = Element.ALIGN_LEFT };
                 document.Add(seller);
 
-                Paragraph sellerName = new Paragraph($"Nama     :  {viewModel.supplier.name}", smaller_bold_font) { Alignment = Element.ALIGN_LEFT };
+                Paragraph sellerName = new Paragraph($"Nama     :  {viewModel.supplier.name}", smaller_font) { Alignment = Element.ALIGN_LEFT };
                 document.Add(sellerName);
 
-                Paragraph sellerAddress = new Paragraph($"Alamat     :  {viewModelSpb.supplier.address}", smaller_bold_font) { Alignment = Element.ALIGN_LEFT };
+                Paragraph sellerAddress = new Paragraph($"Alamat     :  {viewModelSpb.supplier.address}", smaller_font) { Alignment = Element.ALIGN_LEFT };
                 document.Add(sellerAddress);
 
                 Paragraph sellerNPWP = new Paragraph($"N P W P  :  {viewModel.supplier.npwp}", smaller_font) { Alignment = Element.ALIGN_LEFT };
