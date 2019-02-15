@@ -210,11 +210,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReturnCorrectionNo
                 {
                     new GarmentCorrectionNoteItemViewModel
                     {
+                        QuantityCheck=100,
                         Quantity = 0
                     },
                 }
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
+
+            GarmentCorrectionNoteViewModel viewModel2 = new GarmentCorrectionNoteViewModel
+            {
+                CorrectionType = "Retur",
+                DONo = "DONo",
+                Items = new List<GarmentCorrectionNoteItemViewModel>
+                {
+                    new GarmentCorrectionNoteItemViewModel
+                    {
+                        QuantityCheck=100,
+                        Quantity = 500
+                    },
+                }
+            };
+            Assert.True(viewModel2.Validate(null).Count() > 0);
         }
     }
 }
