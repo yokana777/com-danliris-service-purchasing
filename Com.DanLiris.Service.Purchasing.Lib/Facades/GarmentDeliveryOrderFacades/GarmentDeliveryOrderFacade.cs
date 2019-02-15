@@ -674,6 +674,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             d.pricePerDealUnit,
                             d.pricePerDealUnitCorrection,
 
+                            d.returQuantity,
                             receiptCorrection = dbContext.GarmentUnitReceiptNoteItems.Where(m => m.DODetailId == d.Id && m.IsDeleted == false).Select(m => m.ReceiptCorrection).FirstOrDefault()
                         }).ToList()
                     }).ToList()
