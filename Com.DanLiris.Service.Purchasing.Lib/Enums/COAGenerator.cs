@@ -38,7 +38,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         public const string PEMBELIAN_BAHAN_EMBALASE = "5904";
         public const string PEMBELIAN_BARANG_DAGANGAN = "5906";
 
-        public const string PPH_YMH = "3310";
+        public const string PPH23_YMH = "3330";
+        public const string PPH_FINAL = "3331";
+        public const string PPH21_YMH = "3340";
+        public const string PPH26_YMH = "3350";
 
         public const string PERSEDIAAN_BAHAN_BAKU = "1403";
         public const string PERSEDIAAN_BARANG_JADI = "1401";
@@ -75,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                         case "S3":
                             result += "." + UNIT_SPINNING3;
                             break;
-                        case "MS":
+                        case "S4":
                             result += "." + UNIT_SPINNINGMS;
                             break;
                         default:
@@ -137,6 +140,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                             break;
                     }
                     break;
+                default:
+                    result = "0.00";
+                    break;
             }
 
             return result;
@@ -180,9 +186,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
             return result;
         }
 
-        public static string GetIncomeTaxCOA(string division, string unitCode)
+        public static string GetIncomeTaxCOA(string incomeTaxArticle, string division, string unitCode)
         {
-            return PPH_YMH + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+            var result = "";
+            switch (incomeTaxArticle.ToString().ToUpper().Replace(" ", ""))
+            {
+                case "FINAL":
+                    result = PPH_FINAL + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
+                case "PASAL21":
+                    result = PPH21_YMH + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
+                case "PASAL23":
+                    result = PPH23_YMH + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
+                case "PASAL26":
+                    result = PPH26_YMH + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
+            }
+
+            return result;
         }
     }
 

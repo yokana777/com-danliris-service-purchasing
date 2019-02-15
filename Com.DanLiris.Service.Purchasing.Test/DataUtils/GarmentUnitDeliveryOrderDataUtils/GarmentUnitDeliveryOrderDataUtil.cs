@@ -1,10 +1,10 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils
@@ -21,46 +21,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
         public GarmentUnitDeliveryOrder GetNewData()
         {
-            var GarmentUnitReceiptNote = Task.Run(() => UNDataUtil.GetTestData()).Result;
+            DateTimeOffset now = DateTimeOffset.Now;
+            long nowTicks = now.Ticks;
+
+            var garmentUnitReceiptNote = Task.Run(() => UNDataUtil.GetTestData()).Result;
+
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
-                UnitDONo = "NK1234L",
-                UnitDOType = "Jumlah",
+                UnitDOType = "SAMPLE",
                 UnitDODate = DateTimeOffset.Now,
-                UnitSenderId = 1,
-                UnitRequestCode = "unitno",
-                UnitRequestName = "unitname",
-                UnitRequestId = 1,
-                UnitSenderCode = "sendercode",
-                UnitSenderName = "sendername",
-                StorageId = 1,
-                StorageCode = "storagecode",
-                StorageName = "storagename",
-                RONo = "RONO",
-                Article = "Article",
+                UnitSenderId = garmentUnitReceiptNote.UnitId,
+                UnitRequestCode = garmentUnitReceiptNote.UnitCode,
+                UnitRequestName = garmentUnitReceiptNote.UnitName,
+                UnitRequestId = garmentUnitReceiptNote.UnitId,
+                UnitSenderCode = garmentUnitReceiptNote.UnitCode,
+                UnitSenderName = garmentUnitReceiptNote.UnitName,
+                StorageId = garmentUnitReceiptNote.StorageId,
+                StorageCode = garmentUnitReceiptNote.StorageCode,
+                StorageName = garmentUnitReceiptNote.StorageName,
+                RONo = garmentUnitReceiptNote.Items.Select(i => i.RONo).FirstOrDefault(),
+                Article = $"Article{nowTicks}",
                 Items = new List<GarmentUnitDeliveryOrderItem>()
             };
 
-            foreach (var item in GarmentUnitReceiptNote.Items)
+            foreach (var item in garmentUnitReceiptNote.Items)
             {
                 garmentUnitDeliveryOrder.Items.Add(
                     new GarmentUnitDeliveryOrderItem
                     {
+                        IsSave = true,
                         DODetailId = item.DODetailId,
                         EPOItemId = item.EPOItemId,
                         POItemId = item.POItemId,
                         PRItemId = item.PRItemId,
-                        FabricType = "fabric",
-                        URNId = GarmentUnitReceiptNote.Id,
+                        FabricType = "FABRIC",
+                        URNId = garmentUnitReceiptNote.Id,
                         URNItemId = item.Id,
-                        URNNo = GarmentUnitReceiptNote.URNNo,
+                        URNNo = garmentUnitReceiptNote.URNNo,
                         POSerialNumber = item.POSerialNumber,
                         RONo = item.RONo,
                         ProductId = item.ProductId,
                         ProductCode = item.ProductCode,
                         ProductName = item.ProductName,
-                        Quantity = 8,
-                        UomId = Convert.ToInt32(item.UomId),
+                        Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
+                        UomId = item.UomId,
                         UomUnit = item.UomUnit,
                     });
             }
@@ -71,7 +75,92 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
         public async Task<GarmentUnitDeliveryOrder> GetTestData()
         {
             var data = GetNewData();
-            await facade.Create(data, "Unit Test");
+            await facade.Create(data);
+            return data;
+        }
+        public GarmentUnitDeliveryOrder GetNewDataMultipleItem()
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+            long nowTicks = now.Ticks;
+
+            var garmentUnitReceiptNote1 = Task.Run(() => UNDataUtil.GetTestDataWithStorage()).Result;
+            var garmentUnitReceiptNote2 = Task.Run(() => UNDataUtil.GetTestDataWithStorage(garmentUnitReceiptNote1.UnitId)).Result;
+
+            GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
+            {
+                UnitDOType = "SAMPLE",
+                UnitDODate = DateTimeOffset.Now,
+                UnitSenderId = garmentUnitReceiptNote1.UnitId,
+                UnitRequestCode = garmentUnitReceiptNote1.UnitCode,
+                UnitRequestName = garmentUnitReceiptNote1.UnitName,
+                UnitRequestId = garmentUnitReceiptNote1.UnitId,
+                UnitSenderCode = garmentUnitReceiptNote1.UnitCode,
+                UnitSenderName = garmentUnitReceiptNote1.UnitName,
+                StorageId = garmentUnitReceiptNote1.StorageId,
+                StorageCode = garmentUnitReceiptNote1.StorageCode,
+                StorageName = garmentUnitReceiptNote1.StorageName,
+                RONo = garmentUnitReceiptNote1.Items.Select(i => i.RONo).FirstOrDefault(),
+                Article = $"Article{nowTicks}",
+                Items = new List<GarmentUnitDeliveryOrderItem>()
+            };
+
+            foreach (var item in garmentUnitReceiptNote1.Items)
+            {
+                garmentUnitDeliveryOrder.Items.Add(
+                    new GarmentUnitDeliveryOrderItem
+                    {
+                        IsSave = true,
+                        DODetailId = item.DODetailId,
+                        EPOItemId = item.EPOItemId,
+                        POItemId = item.POItemId,
+                        PRItemId = item.PRItemId,
+                        FabricType = "FABRIC",
+                        URNId = garmentUnitReceiptNote1.Id,
+                        URNItemId = item.Id,
+                        URNNo = garmentUnitReceiptNote1.URNNo,
+                        POSerialNumber = item.POSerialNumber,
+                        RONo = item.RONo,
+                        ProductId = item.ProductId,
+                        ProductCode = item.ProductCode,
+                        ProductName = item.ProductName,
+                        Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
+                        UomId = item.UomId,
+                        UomUnit = item.UomUnit,
+                    });
+            }
+            foreach (var item in garmentUnitReceiptNote2.Items)
+            {
+                garmentUnitDeliveryOrder.Items.Add(
+                    new GarmentUnitDeliveryOrderItem
+                    {
+                        IsSave = true,
+                        DODetailId = item.DODetailId,
+                        EPOItemId = item.EPOItemId,
+                        POItemId = item.POItemId,
+                        PRItemId = item.PRItemId,
+                        FabricType = "FABRIC",
+                        URNId = garmentUnitReceiptNote1.Id,
+                        URNItemId = item.Id,
+                        URNNo = garmentUnitReceiptNote1.URNNo,
+                        POSerialNumber = item.POSerialNumber,
+                        RONo = item.RONo,
+                        ProductId = item.ProductId,
+                        ProductCode = item.ProductCode,
+                        ProductName = item.ProductName,
+                        Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
+                        UomId = item.UomId,
+                        UomUnit = item.UomUnit,
+                    });
+            }
+
+
+            return garmentUnitDeliveryOrder;
+        }
+
+        public async Task<GarmentUnitDeliveryOrder> GetTestDataMultipleItem()
+        {
+            var data = GetNewDataMultipleItem();
+            await facade.Create(data);
             return data;
         }
 

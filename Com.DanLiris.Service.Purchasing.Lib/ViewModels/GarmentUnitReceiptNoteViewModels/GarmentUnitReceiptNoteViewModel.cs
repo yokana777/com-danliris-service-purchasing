@@ -50,13 +50,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 yield return new ValidationResult("Supplier tidak boleh kosong.", new List<string> { "Supplier" });
                 checkDO = false;
             }
-
-            if (IsStorage)
+            if (Storage == null || string.IsNullOrWhiteSpace(Storage._id))
             {
-                if (Storage == null || string.IsNullOrWhiteSpace(Storage._id))
-                {
-                    yield return new ValidationResult("Storage tidak boleh kosong.", new List<string> { "Storage" });
-                }
+                yield return new ValidationResult("Storage tidak boleh kosong.", new List<string> { "Storage" });
             }
 
             if (DOId == null || DOId == 0)

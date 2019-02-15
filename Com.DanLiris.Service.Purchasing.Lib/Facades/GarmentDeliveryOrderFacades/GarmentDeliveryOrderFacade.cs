@@ -183,7 +183,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                     m.DOCurrencyRate = garmentCurrencyViewModel.Rate;
                                     foreach (var vmDetail in vmItem.fulfillments)
                                     {
-                                        foreach (var modelDetail in modelItem.Details)
+                                        foreach (var modelDetail in modelItem.Details.Where(j => j.POId == vmDetail.pOId))
                                         {
                                             if (vmDetail.isSave)
                                             {
@@ -216,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                 modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
 
                                                 m.TotalAmount += modelDetail.PriceTotal;
-                                            }
+                                            } 
                                         }
                                     }
                                 }
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                         foreach (var oldItem in oldM.Items)
                         {
-                            var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            var newItem = m.Items.FirstOrDefault(i => i.EPOId.Equals(oldItem.EPOId));
                             foreach (var oldDetail in oldItem.Details)
                             {
                                 GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(oldDetail.EPOItemId));
@@ -688,11 +688,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
             List<string> Category = null;
-            if (category == "")
+            List<string> Product = null;
+            var Status = new[] { "" };
+            var Supplier = new[] { "MADEIRA", "MARATHON" };
+
+            switch (category)
             {
-                var categoryAll = "[\"BB\",\"BP\"]";
-                Category = JsonConvert.DeserializeObject<List<string>>(categoryAll);
+                case "BB":
+                    Status = new[] { "FABRIC", "INTERLINING" };
+                    break;
+                case "BP":
+                    Status = new[] { "FABRIC", "INTERLINING", "PLISKET", "PRINT", "QUILTING", "WASH" };
+                    break;
+                default:
+                    Status = new[] { "" };
+                    break;
             }
+            // if (category == "")
+            // {
+            //  var categoryAll = "[\"BB\",\"BP\"]";
+            //  Category = JsonConvert.DeserializeObject<List<string>>(categoryAll);
+            // }
 
             List<AccuracyOfArrivalReportViewModel> listAccuracyOfArrival = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -710,7 +726,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && f.IsDeleted == false
                              && h.IsDeleted == false
                              && ((DateFrom != new DateTime(1970, 1, 1)) ? (a.DODate.Date >= DateFrom && a.DODate.Date <= DateTo) : true)
-                             && (category == "" ? Category.Contains(c.CodeRequirment) : c.CodeRequirment==category)
+                             && (category == "BB" ? Status.Contains(c.ProductName) : (category == "BP" ? !Status.Contains(c.ProductName) || Supplier.Contains(a.SupplierName) : c.ProductName == c.ProductName))
+                             && !c.RONo.EndsWith("S")
+                         //  && (category == "" ? Category.Contains(c.CodeRequirment) : c.CodeRequirment==category)
                          select new AccuracyOfArrivalReportViewModel
                          {
                              supplier = new SupplierViewModel
@@ -756,7 +774,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                
                 if(item.category == "BB")
                 {
-                    if (datediff >= 30)
+                    if (datediff >= 27)
                     {
                         item.ok_notOk = "OK";
                     }
@@ -853,6 +871,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var QuerySupplier = GetReportQuery(ctg, dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
+            List<AccuracyOfArrivalReportViewModel> Data2 = new List<AccuracyOfArrivalReportViewModel>();
 
             var SuppTemp = "";
             foreach(var item in QuerySupplier.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.jumlah))
@@ -886,7 +905,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     Data.Add(_new);
                 }
             }
-            return Tuple.Create(Data, Data.Count);
+            foreach (var items in Data.OrderBy(b => b.percentOk_notOk).ThenByDescending(b => b.jumlah))
+            {
+                AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                {
+                    supplier = items.supplier,
+                    poSerialNumber = items.poSerialNumber,
+                    prDate = items.prDate,
+                    poDate = items.poDate,
+                    epoDate = items.epoDate,
+                    product = items.product,
+                    article = items.article,
+                    roNo = items.roNo,
+                    shipmentDate = items.shipmentDate,
+                    doDate = items.doDate,
+                    staff = items.staff,
+                    category = items.category,
+                    doNo = items.doNo,
+                    ok_notOk = items.ok_notOk,
+                    percentOk_notOk = items.percentOk_notOk,
+                    jumlah = items.jumlah,
+                    jumlahOk = items.jumlahOk,
+                    dateDiff = items.dateDiff,
+                    LastModifiedUtc = items.LastModifiedUtc
+                };
+                Data2.Add(_new);
+            }
+            return Tuple.Create(Data2, Data.Count);
         }
 
         public MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
@@ -903,6 +948,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var Query = GetReportQuery(ctg, dateFrom, dateTo, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
+            List<AccuracyOfArrivalReportViewModel> Data2 = new List<AccuracyOfArrivalReportViewModel>();
 
             var SuppTemp = "";
             foreach (var item in Query.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.jumlah))
@@ -936,6 +982,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     Data.Add(_new);
                 }
             }
+            foreach (var items in Data.OrderBy(b => b.percentOk_notOk).ThenByDescending(b => b.jumlah))
+            {
+                AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
+                {
+                    supplier = items.supplier,
+                    poSerialNumber = items.poSerialNumber,
+                    prDate = items.prDate,
+                    poDate = items.poDate,
+                    epoDate = items.epoDate,
+                    product = items.product,
+                    article = items.article,
+                    roNo = items.roNo,
+                    shipmentDate = items.shipmentDate,
+                    doDate = items.doDate,
+                    staff = items.staff,
+                    category = items.category,
+                    doNo = items.doNo,
+                    ok_notOk = items.ok_notOk,
+                    percentOk_notOk = items.percentOk_notOk,
+                    jumlah = items.jumlah,
+                    jumlahOk = items.jumlahOk,
+                    dateDiff = items.dateDiff,
+                    LastModifiedUtc = items.LastModifiedUtc
+                };
+                Data2.Add(_new);
+            }
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "NO", DataType = typeof(String) });
@@ -943,12 +1015,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "OK %", DataType = typeof(int) });
             result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(int) });
 
-            if (Data.ToArray().Count() == 0)
+            if (Data2.ToArray().Count() == 0)
                 result.Rows.Add("", "", 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
-                foreach (var item in Data)
+                foreach (var item in Data2)
                 {
                     index++;
                     result.Rows.Add(index, item.supplier.Name, item.percentOk_notOk, item.jumlah);
@@ -1088,6 +1160,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, int offset)
         {
+
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 

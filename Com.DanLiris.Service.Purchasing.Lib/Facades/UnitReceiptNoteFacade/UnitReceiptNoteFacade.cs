@@ -82,6 +82,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
         }
 
+        public ReadResponse<UnitReceiptNote> ReadByNoFiltered(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<UnitReceiptNote> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "URNNo", "UnitName", "SupplierName", "DONo","Items.PRNo"
+            };
+
+            Query = QueryHelper<UnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Select(s => new UnitReceiptNote
+            {
+                Id = s.Id,
+                UId = s.UId,
+                URNNo = s.URNNo,
+                ReceiptDate = s.ReceiptDate,
+                UnitName = s.UnitName,
+                DivisionName = s.DivisionName,
+                SupplierName = s.SupplierName,
+                DONo = s.DONo,
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc,
+                Items = s.Items.ToList()
+            });
+
+
+
+            Dictionary<string, List<string>> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(Filter);
+            if (FilterDictionary.Keys.FirstOrDefault() == "no")
+            {
+                List<string> filteredPosition = FilterDictionary.GetValueOrDefault("no");
+                Query = Query.Where(x => filteredPosition.Any(y => y == x.URNNo));
+            }
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<UnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<UnitReceiptNote> pageable = new Pageable<UnitReceiptNote>(Query, Page - 1, Size);
+            List<UnitReceiptNote> Data = pageable.Data.ToList<UnitReceiptNote>();
+            int TotalData = pageable.TotalCount;
+
+            return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
+        }
+
         public UnitReceiptNote ReadById(int id)
         {
             var a = this.dbSet.Where(p => p.Id == id)
@@ -89,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 .FirstOrDefault();
             return a;
         }
-        
+
         async Task<string> GenerateNo(UnitReceiptNote model)
         {
             string Year = model.ReceiptDate.ToString("yy");
@@ -99,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             string no = $"{Year}-{Month}-{model.URNNo}-{model.UnitCode}-";
             int Padding = 3;
 
-            var lastNo = await this.dbSet.Where(w => w.URNNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.URNNo).FirstOrDefaultAsync();
+            var lastNo = await this.dbSet.Where(w => w.URNNo.StartsWith(no) && !w.URNNo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.URNNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -107,7 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
             else
             {
-                int lastNoNumber = Int32.Parse(lastNo.URNNo.Replace(no, "")) + 1;
+                int lastNoNumber = int.Parse(lastNo.URNNo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
@@ -188,7 +233,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchasingItems = new List<JournalTransactionItem>();
             var stockItems = new List<JournalTransactionItem>();
             var debtItems = new List<JournalTransactionItem>();
+            var incomeTaxPaidItems = new List<JournalTransactionItem>();
             var incomeTaxItems = new List<JournalTransactionItem>();
+            var productListRemark = new List<string>();
             foreach (var item in model.Items)
             {
                 var purchaseRequest = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(item.PRId));
@@ -198,11 +245,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var purchasingCOACode = "";
                 var stockCOACode = "";
                 var debtCOACode = "";
+                var incomeTaxCOACode = "";
                 if (purchaseRequest != null)
                 {
                     purchasingCOACode = COAGenerator.GetPurchasingCOA(purchaseRequest.DivisionName, purchaseRequest.UnitCode, purchaseRequest.CategoryName);
                     stockCOACode = COAGenerator.GetStockCOA(purchaseRequest.DivisionName, purchaseRequest.UnitCode, purchaseRequest.CategoryName);
                     debtCOACode = COAGenerator.GetDebtCOA(model.SupplierIsImport, purchaseRequest.DivisionName, purchaseRequest.UnitCode);
+                    if (poExternal.UseIncomeTax && double.Parse(poExternal.IncomeTaxRate) > 0)
+                        incomeTaxCOACode = COAGenerator.GetIncomeTaxCOA(poExternal.IncomeTaxName, purchaseRequest.DivisionName, purchaseRequest.UnitCode); 
                 }
 
                 var journalPurchasingItem = new JournalTransactionItem()
@@ -211,7 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     {
                         Code = purchasingCOACode
                     },
-                    Debit = item.PricePerDealUnit * item.ReceiptQuantity
+                    Debit = item.PricePerDealUnit * item.ReceiptQuantity,
                 };
                 purchasingItems.Add(journalPurchasingItem);
 
@@ -221,7 +271,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     {
                         Code = stockCOACode
                     },
-                    Debit = item.PricePerDealUnit * item.ReceiptQuantity
+                    Debit = item.PricePerDealUnit * item.ReceiptQuantity,
                 };
                 stockItems.Add(journalStockItem);
 
@@ -234,6 +284,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     Credit = item.PricePerDealUnit * item.ReceiptQuantity
                 };
                 debtItems.Add(journalDebtItem);
+
+                if (poExternal.UseIncomeTax && double.Parse(poExternal.IncomeTaxRate) > 0)
+                {
+                    var pphItem = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = incomeTaxCOACode
+                        },
+                        Credit = item.PricePerDealUnit * item.ReceiptQuantity * double.Parse(poExternal.IncomeTaxRate) / 100
+                    };
+                    incomeTaxItems.Add(pphItem);
+
+                    var incomeTaxPaid = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = debtCOACode
+                        },
+                        Debit = item.PricePerDealUnit * item.ReceiptQuantity * double.Parse(poExternal.IncomeTaxRate) / 100
+                    };
+                    incomeTaxPaidItems.Add(incomeTaxPaid);
+                }
+                
+
+                productListRemark.Add($"- {item.ProductName}");
             }
 
             purchasingItems = purchasingItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
@@ -242,7 +318,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     Code = s.First().COA.Code
                 },
-                Debit = s.Sum(sum => sum.Debit)
+                Debit = s.Sum(sum => sum.Debit),
+                Remark = string.Join("\n", productListRemark)
             }).ToList();
             items.AddRange(purchasingItems);
 
@@ -256,13 +333,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }).ToList();
             items.AddRange(debtItems);
 
-            stockItems = stockItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            incomeTaxPaidItems = incomeTaxPaidItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
             {
                 COA = new COA()
                 {
                     Code = s.First().COA.Code
                 },
                 Debit = s.Sum(sum => sum.Debit)
+            }).ToList();
+            if (incomeTaxPaidItems.Count > 0)
+                items.AddRange(incomeTaxPaidItems);
+
+            incomeTaxItems = incomeTaxItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Credit = s.Sum(sum => sum.Credit)
+            }).ToList();
+            if (incomeTaxItems.Count > 0)
+                items.AddRange(incomeTaxItems);
+
+            stockItems = stockItems.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.First().COA.Code
+                },
+                Debit = s.Sum(sum => sum.Debit),
+                Remark = string.Join("\n", productListRemark)
             }).ToList();
             items.AddRange(stockItems);
 
@@ -627,7 +727,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             epo.PaymentMethod.Equals(FilterDictionary.GetValueOrDefault("PaymentMethod") ?? "") &&
                             epo.CurrencyCode.Equals(FilterDictionary.GetValueOrDefault("CurrencyCode") ?? "") &&
                             epo.UseIncomeTax == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseIncomeTax") ?? "false") &&
-                            string.Concat("", epo.IncomeTaxId).Equals(FilterDictionary.GetValueOrDefault("IncomeTaxId") ?? "") &&
+                            epo.IncomeTaxId == (FilterDictionary.GetValueOrDefault("IncomeTaxId") ?? epo.IncomeTaxId) &&
                             epo.UseVat == Boolean.Parse(FilterDictionary.GetValueOrDefault("UseVat") ?? "false") &&
                             epo.Items.Any(epoItem =>
                                 dbContext.InternalPurchaseOrders.Any(po =>

@@ -24,16 +24,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Storage.code, opt => opt.MapFrom(s => s.StorageCode))
                 .ForPath(d => d.Storage.name, opt => opt.MapFrom(s => s.StorageName))
 
+                .ForPath(d => d.StorageRequest._id, opt => opt.MapFrom(s => s.StorageRequestId))
+                .ForPath(d => d.StorageRequest.code, opt => opt.MapFrom(s => s.StorageRequestCode))
+                .ForPath(d => d.StorageRequest.name, opt => opt.MapFrom(s => s.StorageRequestName))
+
                 .ReverseMap();
 
             CreateMap<GarmentUnitDeliveryOrderItem, GarmentUnitDeliveryOrderItemViewModel>()
-                .ForPath(d => d.Product.Id, opt => opt.MapFrom(s => s.ProductId))
-                .ForPath(d => d.Product.Code, opt => opt.MapFrom(s => s.ProductCode))
-                .ForPath(d => d.Product.Name, opt => opt.MapFrom(s => s.ProductName))
-                .ForPath(d => d.Product.Remark, opt => opt.MapFrom(s => s.ProductRemark))
+                .ForPath(d => d.ProductId, opt => opt.MapFrom(s => s.ProductId))
+                .ForPath(d => d.ProductCode, opt => opt.MapFrom(s => s.ProductCode))
+                .ForPath(d => d.ProductName, opt => opt.MapFrom(s => s.ProductName))
+                .ForPath(d => d.ProductRemark, opt => opt.MapFrom(s => s.ProductRemark))
 
-                .ForPath(d => d.Uom.Id, opt => opt.MapFrom(s => s.UomId))
-                .ForPath(d => d.Uom.Unit, opt => opt.MapFrom(s => s.UomUnit))
+                .ForPath(d => d.UomId, opt => opt.MapFrom(s => s.UomId))
+                .ForPath(d => d.UomUnit, opt => opt.MapFrom(s => s.UomUnit))
 
                 .ReverseMap();
         }

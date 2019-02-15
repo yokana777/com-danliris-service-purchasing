@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         [Fact]
         public void Should_Success_Get_COA_SpinningMS()
         {
-            var result = COAGenerator.GetDebtCOA(false, "SPINNING", "MS");
+            var result = COAGenerator.GetDebtCOA(false, "SPINNING", "S4");
             Assert.NotNull(result);
         }
 
@@ -88,42 +88,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         [Fact]
         public void Should_Success_Get_COA_IncomeTaxGarmentC1A()
         {
-            var result = COAGenerator.GetIncomeTaxCOA("GARMENT", "C1A");
+            var result = COAGenerator.GetIncomeTaxCOA("Final", "GARMENT", "C1A");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_IncomeTaxGarmentC1B()
         {
-            var result = COAGenerator.GetIncomeTaxCOA("GARMENT", "C1B");
+            var result = COAGenerator.GetIncomeTaxCOA("PASAL21", "GARMENT", "C1B");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_IncomeTaxGarmentC2A()
         {
-            var result = COAGenerator.GetIncomeTaxCOA("GARMENT", "C2A");
+            var result = COAGenerator.GetIncomeTaxCOA("PASAL23", "GARMENT", "C2A");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_IncomeTaxGarmentC2B()
         {
-            var result = COAGenerator.GetIncomeTaxCOA("GARMENT", "C2B");
+            var result = COAGenerator.GetIncomeTaxCOA("PASAL26", "GARMENT", "C2B");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_IncomeTaxGarmentC2C()
         {
-            var result = COAGenerator.GetIncomeTaxCOA("GARMENT", "C2C");
+            var result = COAGenerator.GetIncomeTaxCOA("PASAL26", "GARMENT", "C2C");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_IncomeTaxGarmentOther()
         {
-            var result = COAGenerator.GetIncomeTaxCOA("GARMENT", "other");
+            var result = COAGenerator.GetIncomeTaxCOA("PASAL26", "GARMENT", "other");
             Assert.NotNull(result);
         }
     }

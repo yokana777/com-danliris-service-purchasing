@@ -68,7 +68,100 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
 
             return garmentCorrectionNote;
         }
-        public GarmentCorrectionNote GetNewDataWithTax()
+		public async Task<List<GarmentCorrectionNote>> GetNewDoubleCorrectionData(string user)
+		{
+			var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
+
+			GarmentCorrectionNote garmentCorrectionNote = new GarmentCorrectionNote
+			{
+				CorrectionNo = "NK1234L",
+				CorrectionType = "Jumlah",
+				CorrectionDate = DateTimeOffset.Now,
+				DOId = garmentDeliveryOrder.Id,
+				DONo = garmentDeliveryOrder.DONo,
+				SupplierId = garmentDeliveryOrder.SupplierId,
+				SupplierCode = garmentDeliveryOrder.SupplierCode,
+				SupplierName = garmentDeliveryOrder.SupplierName,
+				Remark = "Remark",
+				NKPH = "NKPH1234L",
+				NKPN = "NKPN1234L",
+				Items = new List<GarmentCorrectionNoteItem>()
+			};
+
+			foreach (var item in garmentDeliveryOrder.Items)
+			{
+				foreach (var detail in item.Details)
+				{
+					garmentCorrectionNote.Items.Add(
+						new GarmentCorrectionNoteItem
+						{
+							DODetailId = detail.Id,
+							EPOId = item.EPOId,
+							EPONo = item.EPONo,
+							PRId = detail.PRId,
+							PRNo = detail.PRNo,
+							POId = detail.POId,
+							POSerialNumber = detail.POSerialNumber,
+							RONo = detail.RONo,
+							ProductId = detail.ProductId,
+							ProductCode = detail.ProductCode,
+							ProductName = detail.ProductName,
+							Quantity = (decimal)detail.QuantityCorrection,
+							UomId = Convert.ToInt32(detail.UomId),
+							UomIUnit = detail.UomUnit,
+						});
+				}
+			}
+			GarmentCorrectionNote garmentCorrectionNotes = new GarmentCorrectionNote
+			{
+				CorrectionNo = "NK1234L",
+				CorrectionType = "HARGa total",
+				CorrectionDate = DateTimeOffset.Now,
+				DOId = garmentDeliveryOrder.Id,
+				DONo = garmentDeliveryOrder.DONo,
+				SupplierId = garmentDeliveryOrder.SupplierId,
+				SupplierCode = garmentDeliveryOrder.SupplierCode,
+				SupplierName = garmentDeliveryOrder.SupplierName,
+				Remark = "Remark",
+				NKPH = "NKPH1234L",
+				NKPN = "NKPN1234L",
+				Items = new List<GarmentCorrectionNoteItem>()
+			};
+
+			foreach (var item in garmentDeliveryOrder.Items)
+			{
+				foreach (var detail in item.Details)
+				{
+					garmentCorrectionNotes.Items.Add(
+						new GarmentCorrectionNoteItem
+						{
+							DODetailId = detail.Id,
+							EPOId = item.EPOId,
+							EPONo = item.EPONo,
+							PRId = detail.PRId,
+							PRNo = detail.PRNo,
+							POId = detail.POId,
+							POSerialNumber = detail.POSerialNumber,
+							RONo = detail.RONo,
+							ProductId = detail.ProductId,
+							ProductCode = detail.ProductCode,
+							ProductName = detail.ProductName,
+							Quantity = (decimal)detail.QuantityCorrection,
+							UomId = Convert.ToInt32(detail.UomId),
+							UomIUnit = detail.UomUnit,
+						});
+				}
+			}
+			var data1=await garmentCorrectionNoteQuantityFacade.Create(garmentCorrectionNote, false, user,7);
+			var data2=await garmentCorrectionNoteQuantityFacade.Create(garmentCorrectionNotes, false, user, 7);
+			List<GarmentCorrectionNote> lisdata = new List<GarmentCorrectionNote>();
+			lisdata.Add(garmentCorrectionNote);
+			lisdata.Add(garmentCorrectionNotes);
+			return lisdata;
+
+			//return garmentCorrectionNote;
+		}
+		public GarmentCorrectionNote GetNewDataWithTax()
         {
             var data = GetNewData();
 

@@ -304,7 +304,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             string no = $"{Year}-{Month}-{TG}{Supplier}-";
             int Padding = isImport ? 3 : 4;
 
-            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
+            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.UPONo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -312,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
             else
             {
-                int lastNoNumber = Int32.Parse(lastNo.UPONo.Replace(no, "")) + 1;
+                int lastNoNumber = int.Parse(lastNo.UPONo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
@@ -469,6 +469,103 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<UnitPaymentOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<UnitPaymentOrder> pageable = new Pageable<UnitPaymentOrder>(Query, Page - 1, Size);
+            List<UnitPaymentOrder> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> ReadPositionFiltered(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<UnitPaymentOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "UPONo", "DivisionName", "SupplierName", "Items.URNNo", "Items.DONo"
+            };
+
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Select(s => new UnitPaymentOrder
+            {
+                Id = s.Id,
+                DivisionId = s.DivisionId,
+                DivisionCode = s.DivisionCode,
+                DivisionName = s.DivisionName,
+                SupplierId = s.SupplierId,
+                SupplierCode = s.SupplierCode,
+                SupplierName = s.SupplierName,
+                CategoryId = s.CategoryId,
+                CategoryCode = s.CategoryCode,
+                CategoryName = s.CategoryName,
+                CurrencyId = s.CurrencyId,
+                CurrencyCode = s.CurrencyCode,
+                CurrencyRate = s.CurrencyRate,
+                CurrencyDescription = s.CurrencyDescription,
+                PaymentMethod = s.PaymentMethod,
+                InvoiceNo = s.InvoiceNo,
+                InvoiceDate = s.InvoiceDate,
+                PibNo = s.PibNo,
+                UseIncomeTax = s.UseIncomeTax,
+                IncomeTaxId = s.IncomeTaxId,
+                IncomeTaxName = s.IncomeTaxName,
+                IncomeTaxRate = s.IncomeTaxRate,
+                IncomeTaxNo = s.IncomeTaxNo,
+                IncomeTaxDate = s.IncomeTaxDate,
+                UseVat = s.UseVat,
+                VatNo = s.VatNo,
+                VatDate = s.VatDate,
+                Remark = s.Remark,
+                DueDate = s.DueDate,
+                Date = s.Date,
+                UPONo = s.UPONo,
+                Position = s.Position,
+                Items = s.Items.Select(i => new UnitPaymentOrderItem
+                {
+                    UPOId = i.UPOId,
+                    URNId = i.URNId,
+                    URNNo = i.URNNo,
+                    DOId = i.DOId,
+                    DONo = i.DONo,
+                    Details = i.Details.Select(j => new UnitPaymentOrderDetail
+                    {
+                        Id = j.Id,
+                        UPOItemId = j.UPOItemId,
+                        URNItemId = j.URNItemId,
+                        EPONo = j.EPONo,
+                        PRId = j.PRId,
+                        PRNo = j.PRNo,
+                        PRItemId = j.PRItemId,
+                        ProductId = j.ProductId,
+                        ProductCode = j.ProductCode,
+                        ProductName = j.ProductName,
+                        ProductRemark = j.ProductRemark,
+                        ReceiptQuantity = j.ReceiptQuantity,
+                        UomId = j.UomId,
+                        UomUnit = j.UomUnit,
+                        PricePerDealUnit = j.PricePerDealUnit,
+                        PriceTotal = j.PriceTotal,
+                        PricePerDealUnitCorrection = j.PricePerDealUnitCorrection,
+                        PriceTotalCorrection = j.PriceTotalCorrection,
+                        QuantityCorrection = j.QuantityCorrection,
+                        //Duedate = s.DueDate,
+                    }).ToList()
+                }).ToList(),
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc,
+            });
+
+            Dictionary<string, List<int>> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, List<int>>>(Filter);
+            if(FilterDictionary.Keys.FirstOrDefault() == "position")
+            {
+                List<int> filteredPosition = FilterDictionary.GetValueOrDefault("position");
+                Query = Query.Where(x => filteredPosition.Contains(x.Position));
+            }
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<UnitPaymentOrder>.ConfigureOrder(Query, OrderDictionary);

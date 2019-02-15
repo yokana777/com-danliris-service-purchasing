@@ -19,9 +19,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public GarmentUnitReceiptNote GetNewData()
+        public GarmentUnitReceiptNote GetNewData(long? ticks = null)
         {
-            long nowTicks = DateTimeOffset.Now.Ticks;
+            long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
 
             var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
 
@@ -101,24 +101,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
         }
 
 
-        public GarmentUnitReceiptNote GetNewDataWithStorage()
+        public GarmentUnitReceiptNote GetNewDataWithStorage(long? ticks = null)
         {
-            var data = GetNewData();
+            var data = GetNewData(ticks);
             SetDataWithStorage(data, data.UnitId);
 
             return data;
         }
 
-        public async Task<GarmentUnitReceiptNote> GetTestData()
+        public async Task<GarmentUnitReceiptNote> GetTestData(long? ticks = null)
         {
-            var data = GetNewData();
+            var data = GetNewData(ticks);
             await facade.Create(data);
             return data;
         }
 
-        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage()
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage(long? ticks = null)
         {
-            var data = GetNewDataWithStorage();
+            var data = GetNewDataWithStorage(ticks);
             await facade.Create(data);
             return data;
         }

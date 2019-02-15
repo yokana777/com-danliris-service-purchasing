@@ -58,35 +58,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableInternNoteHeader.SetWidths(new float[] { 4.5f, 4.5f });
             PdfPCell cellInternNoteHeaderLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             PdfPCell cellInternNoteHeaderRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
-            
-                cellInternNoteHeaderLeft.Phrase = new Phrase("No. Nota Intern" + "      : " + viewModel.inNo, normal_font);
-                tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
 
-                cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Nota Intern" + "       : " + viewModel.inDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
-                tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
+            cellInternNoteHeaderLeft.Phrase = new Phrase("No. Nota Intern" + "      : " + viewModel.inNo, normal_font);
+            tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
 
-                cellInternNoteHeaderLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, normal_font);
-                tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
-            
-                string paymentmethods = "";
-                List<DateTimeOffset> coba = new List<DateTimeOffset>();
-                foreach (GarmentInternNoteItemViewModel item in viewModel.items)
+            cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Nota Intern" + "       : " + viewModel.inDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
+
+            cellInternNoteHeaderLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, normal_font);
+            tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
+
+            string paymentmethods = "";
+            List<DateTimeOffset> coba = new List<DateTimeOffset>();
+            foreach (GarmentInternNoteItemViewModel item in viewModel.items)
+            {
+                foreach (GarmentInternNoteDetailViewModel detail in item.details)
                 {
-                    foreach (GarmentInternNoteDetailViewModel detail in item.details)
-                    {
                     coba.Add(detail.paymentDueDate);
-                        paymentmethods = detail.deliveryOrder.paymentMethod;
-                    }
+                    paymentmethods = detail.deliveryOrder.paymentMethod;
                 }
-                DateTimeOffset coba1 = coba.Max(p=> p);
-                cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
-                tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
+            }
+            DateTimeOffset coba1 = coba.Max(p => p);
+            cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
-                cellInternNoteHeaderLeft.Phrase = new Phrase("Nama Supplier" + "       : " + viewModel.supplier.Name, normal_font);
-                tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
+            cellInternNoteHeaderLeft.Phrase = new Phrase("Nama Supplier" + "       : " + viewModel.supplier.Name, normal_font);
+            tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
 
-                cellInternNoteHeaderRight.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, normal_font);
-                tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
+            cellInternNoteHeaderRight.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, normal_font);
+            tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
 
             PdfPCell cellInternNoteHeader = new PdfPCell(tableInternNoteHeader); // dont remove
@@ -94,30 +94,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableInternNoteHeader.SpacingAfter = 10f;
             document.Add(tableInternNoteHeader);
             #endregion
-            
+
             #region Table_Of_Content
             PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             PdfPTable tableContent = new PdfPTable(8);
-            tableContent.SetWidths(new float[] { 3f, 5f, 4.5f, 5.5f, 3.3f, 2.5f, 3f,4.5f });
-                cellCenter.Phrase = new Phrase("NO. Surat Jalan", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Tgl. Surat Jalan", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("No. Referensi PR", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Keterangan Barang", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Jumlah", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Satuan", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Harga Satuan", bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Harga Total", bold_font);
-                tableContent.AddCell(cellCenter);
+            tableContent.SetWidths(new float[] { 3f, 5f, 4.5f, 5.5f, 3.3f, 2.5f, 3f, 4.5f });
+            cellCenter.Phrase = new Phrase("NO. Surat Jalan", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Tgl. Surat Jalan", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("No. Referensi PR", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Keterangan Barang", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Jumlah", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Satuan", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Harga Satuan", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Harga Total", bold_font);
+            tableContent.AddCell(cellCenter);
 
             double totalPriceTotal = 0;
             double total = 0;
@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase(doDate, normal_font1);
                     tableContent.AddCell(cellLeft);
 
-                    cellLeft.Phrase = new Phrase(detail.poSerialNumber+" - "+detail.ePONo, normal_font1);
+                    cellLeft.Phrase = new Phrase(detail.poSerialNumber + " - " + detail.ePONo, normal_font1);
                     tableContent.AddCell(cellLeft);
 
                     cellLeft.Phrase = new Phrase(detail.product.Name, normal_font1);
@@ -175,27 +175,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     {
                         units.Add(detail.unit.Code, detail.priceTotal);
                     }
-                    
-                    if (item.garmentInvoice.useVat)
+
+                    if (item.garmentInvoice.useVat == true && item.garmentInvoice.isPayTax == true)
                     {
                         ppn = 0.1 * totalPriceTotal;
                     }
-                    
-                    if (item.garmentInvoice.useIncomeTax)
+                    else if (item.garmentInvoice.isPayTax == false)
                     {
-                        pph = (item.garmentInvoice.incomeTaxRate/100) * totalPriceTotal;
+                        ppn = 0;
                     }
 
-                    maxtotal =  totalPriceTotal + ppn - pph ;
+                    if (item.garmentInvoice.useIncomeTax == true && item.garmentInvoice.isPayTax == true)
+                    {
+                        pph = (item.garmentInvoice.incomeTaxRate / 100) * totalPriceTotal;
+                    }
+                    else if (item.garmentInvoice.isPayTax == false)
+                    {
+                        pph = 0;
+                    }
+
 
                     var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
-                    
+
                     if (!koreksi.ContainsKey(detail.deliveryOrder.Id))
                     {
-                        totalcorrection += correctionNotes.Sum(s=>s.TotalCorrection);
-                        koreksi.Add(detail.deliveryOrder.Id, correctionNotes.Sum(s=>s.TotalCorrection));
+                        totalcorrection += correctionNotes.Sum(s => s.TotalCorrection);
+                        koreksi.Add(detail.deliveryOrder.Id, correctionNotes.Sum(s => s.TotalCorrection));
                     }
 
+                    maxtotal = (totalPriceTotal + ppn - pph) + (double)totalcorrection;
                 }
             }
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
@@ -234,62 +242,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             }
 
             PdfPTable tableFooterRight = new PdfPTable(2);
-                tableFooterRight.SetWidths(new float[] { 5f, 5f });
+            tableFooterRight.SetWidths(new float[] { 5f, 5f });
 
-                cellLeftNoBorder.Phrase = new Phrase($"Total Harga Pokok (DPP)", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"Total Harga Pokok (DPP)", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($": " + totalPriceTotal.ToString("N", new CultureInfo("id-ID")), normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase("Mata Uang", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($": " + viewModel.currency.Code, normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase("Total Harga Pokok (Rp)", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($": " + total.ToString("N", new CultureInfo("id-ID")), normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase("Total Nota Koreksi", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            if (correctionNote != null)
+            {
+                cellLeftNoBorder.Phrase = new Phrase($": " + totalcorrection.ToString("N", new CultureInfo("id-ID")), normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
-
-                cellLeftNoBorder.Phrase = new Phrase($": " + totalPriceTotal.ToString("N", new CultureInfo("id-ID")), normal_font);
+            }
+            else
+            {
+                cellLeftNoBorder.Phrase = new Phrase($": " + 0, normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
+            }
 
-                cellLeftNoBorder.Phrase = new Phrase("Mata Uang" , normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase("Total Nota PPn", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase($": " + viewModel.currency.Code, normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase($": " + ppn.ToString("N", new CultureInfo("id-ID")), normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase("Total Harga Pokok (Rp)" , normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase("Total Nota PPh", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase($": " + total.ToString("N", new CultureInfo("id-ID")), normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase($": " + pph.ToString("N", new CultureInfo("id-ID")), normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase("Total Nota Koreksi", normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
-            
-                if (correctionNote != null)
-                {
-                    cellLeftNoBorder.Phrase = new Phrase($": " + totalcorrection.ToString("N", new CultureInfo("id-ID")), normal_font);
-                    tableFooterRight.AddCell(cellLeftNoBorder);
-                }
-                else
-                {
-                    cellLeftNoBorder.Phrase = new Phrase($": " + 0, normal_font);
-                    tableFooterRight.AddCell(cellLeftNoBorder);
-                }
+            cellLeftNoBorder.Phrase = new Phrase("Total yang Harus Dibayar", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase("Total Nota PPn" , normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase($": " + maxtotal.ToString("N", new CultureInfo("id-ID")), normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
-                cellLeftNoBorder.Phrase = new Phrase($": " + ppn.ToString("N", new CultureInfo("id-ID")), normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
-
-                cellLeftNoBorder.Phrase = new Phrase("Total Nota PPh", normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
-
-                cellLeftNoBorder.Phrase = new Phrase($": " + pph.ToString("N", new CultureInfo("id-ID")), normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
-
-                cellLeftNoBorder.Phrase = new Phrase("Total yang Harus Dibayar" , normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
-
-                cellLeftNoBorder.Phrase = new Phrase($": " + maxtotal.ToString("N", new CultureInfo("id-ID")), normal_font);
-                tableFooterRight.AddCell(cellLeftNoBorder);
-
-                PdfPCell cellFooterLeft = new PdfPCell(tableFooterLeft) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
-                tableFooter.AddCell(cellFooterLeft);
-                PdfPCell cellFooterRight = new PdfPCell(tableFooterRight) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
-                tableFooter.AddCell(cellFooterRight);
+            PdfPCell cellFooterLeft = new PdfPCell(tableFooterLeft) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
+            tableFooter.AddCell(cellFooterLeft);
+            PdfPCell cellFooterRight = new PdfPCell(tableFooterRight) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
+            tableFooter.AddCell(cellFooterRight);
 
 
             PdfPCell cellFooter = new PdfPCell(tableFooter); // dont remove
