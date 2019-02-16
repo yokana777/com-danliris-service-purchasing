@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (string.IsNullOrWhiteSpace(CorrectionType) || (CorrectionType.ToUpper() != "HARGA SATUAN" && CorrectionType.ToUpper() != "HARGA TOTAL" && CorrectionType.ToUpper() != "JUMLAH") )
+            if (string.IsNullOrWhiteSpace(CorrectionType) || (CorrectionType.ToUpper() != "HARGA SATUAN" && CorrectionType.ToUpper() != "HARGA TOTAL" && CorrectionType.ToUpper() != "JUMLAH" && CorrectionType.ToUpper() != "RETUR") )
             {
                 yield return new ValidationResult("Jenis Koreksi harus berupa 'Harga Satuan' atau 'Harga Total'", new List<string> { "CorrectionType" });
             } 
@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
             {
                 yield return new ValidationResult("Nomor Surat Jalan tidak boleh kosong", new List<string> { "DONo" });
             }
-            else if ((CorrectionType ?? "").ToUpper() == "HARGA SATUAN" || (CorrectionType ?? "").ToUpper() == "HARGA TOTAL" || (CorrectionType ?? "").ToUpper() == "JUMLAH")
+            else if ((CorrectionType ?? "").ToUpper() == "HARGA SATUAN" || (CorrectionType ?? "").ToUpper() == "HARGA TOTAL" || (CorrectionType ?? "").ToUpper() == "JUMLAH" || (CorrectionType ?? "").ToUpper() == "RETUR")
             {
                 if (Items == null || Items.Count < 1)
                 {
@@ -84,12 +84,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
                                 itemError += "PriceTotal: 'Harga Total tidak berubah', ";
                             }
                         }
-                        else if(CorrectionType.ToUpper() == "JUMLAH")
+                        else if(CorrectionType.ToUpper() == "JUMLAH" )
                         {
                             if (item.Quantity == 0)
                             {
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah Tidak Boleh 0', ";
+                            }
+                        }
+                        else if( CorrectionType.ToUpper() == "RETUR")
+                        {
+                            if (item.Quantity <= 0)
+                            {
+                                itemErrorCount++;
+                                itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
+                            }
+                            if(item.Quantity> item.QuantityCheck)
+                            {
+                                itemErrorCount++;
+                                itemError += $"Quantity: 'Jumlah tidak boleh lebih dari {item.QuantityCheck} ', ";
                             }
                         }
 

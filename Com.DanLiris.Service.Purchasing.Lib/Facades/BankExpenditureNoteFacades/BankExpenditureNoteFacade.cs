@@ -669,5 +669,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             response.EnsureSuccessStatusCode();
 
         }
+
+        public List<ExpenditureInfo> GetByPeriod(int month, int year, int timeoffset)
+        {
+            return dbSet.Where(w => w.Date.AddHours(timeoffset).Month.Equals(month) && w.Date.AddHours(timeoffset).Year.Equals(year)).Select(s => new ExpenditureInfo() { DocumentNo = s.DocumentNo, BankName = s.BankName, BGCheckNumber = s.BGCheckNumber }).ToList();
+        }
+    }
+
+    public class ExpenditureInfo
+    {
+        public string DocumentNo { get; set; }
+        public string BankName { get; set; }
+        public string BGCheckNumber { get; set; }
     }
 }
