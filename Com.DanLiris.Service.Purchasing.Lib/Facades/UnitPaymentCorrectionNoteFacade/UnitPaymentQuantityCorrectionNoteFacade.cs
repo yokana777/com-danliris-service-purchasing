@@ -141,7 +141,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                     ExternalPurchaseOrderDetail epoDetail = dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(a => a.Id.Equals(detailSpb.EPODetailId));
                                     epoDetail.DOQuantity -= item.Quantity;
                                 }
-                                
                             }
                         }
                     }
