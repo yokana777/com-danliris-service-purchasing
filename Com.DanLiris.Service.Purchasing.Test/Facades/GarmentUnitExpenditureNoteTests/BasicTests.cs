@@ -243,11 +243,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var newData = new GarmentUnitExpenditureNote {
                 Id = data.Id,
+                StorageCode = data.StorageCode,
+                StorageId = data.StorageId,
+                StorageName = data.StorageName,
                 Items = new List<GarmentUnitExpenditureNoteItem>
                 {
                     new GarmentUnitExpenditureNoteItem
                     {
-                        Id = data.Items.First().Id
+                        Id = 1,
+                        IsSave = true
+                    },
+                    new GarmentUnitExpenditureNoteItem
+                    {
+                        Id = 2,
+                        IsSave = false,
+                        UomId = data.Items.FirstOrDefault().UomId,
+                        UomUnit = data.Items.FirstOrDefault().UomUnit,
+                        ProductId = data.Items.FirstOrDefault().ProductId,
+                        ProductCode = data.Items.FirstOrDefault().ProductCode,
+                        ProductName = data.Items.FirstOrDefault().ProductName,
+                        ProductRemark = data.Items.FirstOrDefault().ProductRemark
                     }
                 }
             };
