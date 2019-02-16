@@ -251,6 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                     new GarmentUnitExpenditureNoteItem
                     {
                         Id = data.Items.First().Id,
+                        IsSave = true,
                         UomId = data.Items.First().UomId,
                         UomUnit = data.Items.First().UomUnit,
                         ProductId = data.Items.First().ProductId,
