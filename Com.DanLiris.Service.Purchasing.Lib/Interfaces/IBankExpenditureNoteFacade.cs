@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using System;
@@ -16,5 +17,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(BankExpenditureNoteModel model, IdentityService identityService);
         Task<int> Delete(int Id, IdentityService identityService);
         ReadResponse<object> GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
+        List<ExpenditureInfo> GetByPeriod(int month, int year, int timeoffset);
     }
 }
