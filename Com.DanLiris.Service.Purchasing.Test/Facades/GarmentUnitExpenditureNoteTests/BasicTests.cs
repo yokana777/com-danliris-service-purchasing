@@ -241,30 +241,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var data = await dataUtil.GetTestData();
 
-            var newData = new GarmentUnitExpenditureNote {
-                Id = data.Id,
-                StorageCode = data.StorageCode,
-                StorageId = data.StorageId,
-                StorageName = data.StorageName,
-                Items = new List<GarmentUnitExpenditureNoteItem>
-                {
-                    new GarmentUnitExpenditureNoteItem
-                    {
-                        Id = data.Items.First().Id,
-                        IsSave = true,
-                        UomId = data.Items.First().UomId,
-                        UomUnit = data.Items.First().UomUnit,
-                        ProductId = data.Items.First().ProductId,
-                        ProductCode = data.Items.First().ProductCode,
-                        ProductName = data.Items.First().ProductName,
-                        ProductRemark = data.Items.First().ProductRemark
-                    }
-                }
-            };
-            foreach (var item in newData.Items)
-            {
-                item.Quantity = 1;
-            }
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
+            
+            newData.Items.First().IsSave = true;
 
             var ResponseUpdate = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdate, 0);
