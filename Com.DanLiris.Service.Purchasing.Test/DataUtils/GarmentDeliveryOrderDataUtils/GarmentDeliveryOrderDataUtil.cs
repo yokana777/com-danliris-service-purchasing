@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 DOCurrencyId = datas.CurrencyId,
                 DOCurrencyCode = datas.CurrencyCode,
                 DOCurrencyRate = datas.CurrencyRate,
-
+                
                 TotalAmount = nowTicks,
 
                 Items = new List<GarmentDeliveryOrderItem>
@@ -111,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                                 CodeRequirment = $"{nowTicksA}",
+                                ReturQuantity=0
                             }
                         }
                     }
@@ -209,6 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                                 CodeRequirment = $"{nowTicksA}",
+                                ReturQuantity=0
                             }
                         }
                     }
@@ -307,6 +309,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                                 CodeRequirment = $"{nowTicksA}",
+                                ReturQuantity=0
                             }
                         }
                     }
@@ -405,6 +408,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                                 CodeRequirment = $"{nowTicksA}",
+                                ReturQuantity=0
                             }
                         }
                     },
@@ -449,6 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                                 PricePerDealUnitCorrection = EPOItem[0].PricePerDealUnit,
                                 PriceTotalCorrection = EPOItem[0].PricePerDealUnit,
                                 CodeRequirment = $"{nowTicksA}",
+                                ReturQuantity=0
                             }
                         }
                     }

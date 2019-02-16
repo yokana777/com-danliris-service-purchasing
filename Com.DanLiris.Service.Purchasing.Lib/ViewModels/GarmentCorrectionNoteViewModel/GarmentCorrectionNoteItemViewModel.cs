@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
         public ProductViewModel Product { get; set; }
 
         public decimal Quantity { get; set; }
+        public decimal QuantityCheck { get; set; }
 
         public UomViewModel Uom { get; set; }
 
