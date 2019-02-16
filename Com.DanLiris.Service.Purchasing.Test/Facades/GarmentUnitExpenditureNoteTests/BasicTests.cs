@@ -250,19 +250,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 {
                     new GarmentUnitExpenditureNoteItem
                     {
-                        Id = 1,
-                        IsSave = true
-                    },
-                    new GarmentUnitExpenditureNoteItem
-                    {
-                        Id = 2,
-                        IsSave = false,
-                        UomId = data.Items.FirstOrDefault().UomId,
-                        UomUnit = data.Items.FirstOrDefault().UomUnit,
-                        ProductId = data.Items.FirstOrDefault().ProductId,
-                        ProductCode = data.Items.FirstOrDefault().ProductCode,
-                        ProductName = data.Items.FirstOrDefault().ProductName,
-                        ProductRemark = data.Items.FirstOrDefault().ProductRemark
+                        Id = data.Items.First().Id,
+                        UomId = data.Items.First().UomId,
+                        UomUnit = data.Items.First().UomUnit,
+                        ProductId = data.Items.First().ProductId,
+                        ProductCode = data.Items.First().ProductCode,
+                        ProductName = data.Items.First().ProductName,
+                        ProductRemark = data.Items.First().ProductRemark
                     }
                 }
             };
