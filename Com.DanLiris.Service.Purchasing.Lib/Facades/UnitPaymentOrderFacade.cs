@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -304,7 +307,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             string no = $"{Year}-{Month}-{TG}{Supplier}-";
             int Padding = isImport ? 3 : 4;
 
-            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
+            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.UPONo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
@@ -312,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
             else
             {
-                int lastNoNumber = Int32.Parse(lastNo.UPONo.Replace(no, "")) + 1;
+                int lastNoNumber = int.Parse(lastNo.UPONo.Replace(no, "")) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
@@ -589,6 +592,143 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(EPONo));
         }
 
+        #endregion
+
+        #region MonitoringAll
+        public IQueryable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> GetReportQueryAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.UnitPaymentOrders
+                         join b in dbContext.UnitPaymentOrderItems on a.Id equals b.UPOId
+                         join c in dbContext.UnitPaymentOrderDetails on b.Id equals c.UPOItemId
+                         join d in dbContext.PurchaseRequests on c.PRId equals d.Id
+                         join e in dbContext.UnitReceiptNotes on b.URNNo equals e.URNNo
+                         join f in dbContext.ExternalPurchaseOrders on c.EPONo equals f.EPONo
+
+                         //Conditions
+                         where a.IsDeleted == false
+                                && b.IsDeleted == false
+                                && c.IsDeleted == false
+                                && d.IsDeleted == false
+                                && e.IsDeleted == false
+                                && f.IsDeleted == false
+                                && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
+                                && e.UnitId == (string.IsNullOrWhiteSpace(unitId) ? e.UnitId : unitId)
+                                && a.Date.AddHours(offset).Date >= DateFrom.Date
+                                && a.Date.AddHours(offset).Date <= DateTo.Date
+
+                         select new ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel
+                         {
+                             tglspb = a.Date,
+                             nospb = a.UPONo,
+                             namabrg = c.ProductName,
+                             satuan = c.UomUnit,
+                             jumlah = c.ReceiptQuantity,
+                             hrgsat = c.PricePerDealUnit,
+                             jumlahhrg = c.PriceTotal,
+                             ppn = a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0,
+                             total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0),
+                             pph = a.IncomeTaxRate * c.PriceTotal,
+                             tglpr = d.Date,
+                             nopr = c.PRNo,
+                             tglbon = e.ReceiptDate,
+                             nobon = b.URNNo,
+                             tglinv = a.InvoiceDate,
+                             noinv = a.InvoiceNo,
+                             kodesupplier = a.SupplierCode,
+                             supplier = a.SupplierName,
+                             div = a.DivisionName,
+                             adm = a.CreatedBy,
+                             matauang = a.CurrencyCode,
+                             kategori = a.CategoryName,
+                             unit = e.UnitName,
+                             jt = e.ReceiptDate.AddDays(Convert.ToDouble(f.PaymentDueDays)),
+                             qtycorrection = c.QuantityCorrection,
+                             pricecorrection = c.PricePerDealUnitCorrection,
+                             totalpricecorrection = c.PriceTotalCorrection,
+
+
+
+                         });
+            return Query;
+        }
+
+        public Tuple<List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>, int> GetReportAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportQueryAll(unitId, supplierId, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.no);
+            }
+
+            Pageable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> pageable = new Pageable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>(Query, page - 1, size);
+            List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> Data = pageable.Data.ToList<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQueryAll(unitId, supplierId, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.tglspb);
+            DataTable result = new DataTable();
+            //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TglSPB", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NoSPB", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NamaBrg", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Sat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jml", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "HrgSat", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JmlHrg", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Ppn", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Pph", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TglPR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NoPR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TglBon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NoBon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TglInv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NoInv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KdSupp", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supp", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Div", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "ADM", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "MtUang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "QtyKoreksi", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "HargaKoreksi", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TotalKoreksi", DataType = typeof(Double) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", 0, 0, 0, 0, 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, 0); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string tglspb = item.tglspb == null ? "-" : item.tglspb.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglpr = item.tglpr == null ? "-" : item.tglpr.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglbon = item.tglbon == null ? "-" : item.tglbon.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglinv = item.tglinv == null ? "-" : item.tglinv.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string jt = item.jt == null ? "-" : item.jt.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, tglspb, item.nospb, item.namabrg, item.satuan, item.jumlah, item.hrgsat, item.jumlahhrg, item.ppn, item.total, item.pph, tglpr, item.nopr, tglbon
+                       , item.nobon, tglinv, item.noinv, jt, item.kodesupplier, item.supplier, item.unit, item.div, item.adm, item.matauang, item.kategori, item.qtycorrection, item.pricecorrection, item.totalpricecorrection);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
         #endregion
     }
 }

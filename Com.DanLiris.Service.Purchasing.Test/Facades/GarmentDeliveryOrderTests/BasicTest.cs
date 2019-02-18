@@ -1213,5 +1213,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response1);
         }
+        #region Monitoring DeliveryOrder
+        [Fact]
+        public async void Should_Success_Get_Report_Data()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportDO(model.DONo, "", model.SupplierId, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Null_Parameter()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportDO("", "", 0, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcelDO(model.DONo, "", model.SupplierId, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_Null_parameter()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcelDO("", "", 0, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+        #endregion
     }
 }

@@ -79,6 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     DivisionCode = s.DivisionCode,
                     DivisionId = s.DivisionId,
                     DivisionName = s.DivisionName,
+                    PaymentCorrection=s.PaymentCorrection,
                     Items = s.Items.Select(x => new PurchasingDispositionItem()
                     {
                         EPOId = x.EPOId,
@@ -407,6 +408,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     CreatedBy = s.CreatedBy,
                     LastModifiedUtc = s.LastModifiedUtc,
                     CreatedUtc = s.CreatedUtc,
+                    PaymentCorrection=s.PaymentCorrection,
                     Items = s.Items
                         .Select(i => new PurchasingDispositionItem
                         {

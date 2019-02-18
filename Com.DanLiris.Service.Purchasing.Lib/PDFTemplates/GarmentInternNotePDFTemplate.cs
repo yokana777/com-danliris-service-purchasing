@@ -14,6 +14,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class GarmentInternNotePDFTemplate
     {
+        private class TableContent
+        {
+            public string DONo { get; set; }
+            public string DODate { get; set; }
+            public string RefNo { get; set; }
+            public string Product { get; set; }
+            public string Quantity { get; set; }
+            public string UomUnit { get; set; }
+            public string PricePerdealUnit { get; set; }
+            public string PriceTotal { get; set; }
+        }
+
         public MemoryStream GeneratePdfTemplate(GarmentInternNoteViewModel viewModel, IServiceProvider serviceProvider, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
         {
             IGarmentCorrectionNoteQuantityFacade correctionNote = (IGarmentCorrectionNoteQuantityFacade)serviceProvider.GetService(typeof(IGarmentCorrectionNoteQuantityFacade));
@@ -133,35 +145,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             units.Add("C2C", 0);
             Dictionary<long, decimal> koreksi = new Dictionary<long, decimal>();
             Dictionary<long, double> kurs = new Dictionary<long, double>();
+
+            List<TableContent> TableContents = new List<TableContent>();
+
             foreach (GarmentInternNoteItemViewModel item in viewModel.items)
             {
                 foreach (GarmentInternNoteDetailViewModel detail in item.details)
                 {
-                    cellLeft.Phrase = new Phrase(detail.deliveryOrder.doNo, normal_font1);
-                    tableContent.AddCell(cellLeft);
-
-                    string doDate = detail.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
-
-                    cellLeft.Phrase = new Phrase(doDate, normal_font1);
-                    tableContent.AddCell(cellLeft);
-
-                    cellLeft.Phrase = new Phrase(detail.poSerialNumber + " - " + detail.ePONo, normal_font1);
-                    tableContent.AddCell(cellLeft);
-
-                    cellLeft.Phrase = new Phrase(detail.product.Name, normal_font1);
-                    tableContent.AddCell(cellLeft);
-
-                    cellRight.Phrase = new Phrase(detail.quantity.ToString("N", new CultureInfo("id-ID")), normal_font1);
-                    tableContent.AddCell(cellRight);
-
-                    cellRight.Phrase = new Phrase(detail.uomUnit.Unit, normal_font1);
-                    tableContent.AddCell(cellRight);
-
-                    cellRight.Phrase = new Phrase(detail.pricePerDealUnit.ToString("N", new CultureInfo("id-ID")), normal_font1);
-                    tableContent.AddCell(cellRight);
-
-                    cellRight.Phrase = new Phrase(detail.priceTotal.ToString("N", new CultureInfo("id-ID")), normal_font1);
-                    tableContent.AddCell(cellRight);
+                    TableContents.Add(new TableContent
+                    {
+                        DONo = detail.deliveryOrder.doNo,
+                        DODate = detail.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")),
+                        RefNo = detail.poSerialNumber + " - " + detail.ePONo,
+                        Product = detail.product.Name,
+                        Quantity = detail.quantity.ToString("N", new CultureInfo("id-ID")),
+                        UomUnit = detail.uomUnit.Unit,
+                        PricePerdealUnit = detail.pricePerDealUnit.ToString("N", new CultureInfo("id-ID")),
+                        PriceTotal = detail.priceTotal.ToString("N", new CultureInfo("id-ID"))
+                    });
 
                     totalPriceTotal += detail.priceTotal;
 
@@ -194,7 +195,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         pph = 0;
                     }
 
-
                     var correctionNotes = correctionNote.ReadByDOId((int)detail.deliveryOrder.Id);
 
                     if (!koreksi.ContainsKey(detail.deliveryOrder.Id))
@@ -206,6 +206,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     maxtotal = (totalPriceTotal + ppn - pph) + (double)totalcorrection;
                 }
             }
+
+            foreach (TableContent c in TableContents.OrderBy(o => o.DONo))
+            {
+                cellLeft.Phrase = new Phrase(c.DONo, normal_font1);
+                tableContent.AddCell(cellLeft);
+
+                cellLeft.Phrase = new Phrase(c.DODate, normal_font1);
+                tableContent.AddCell(cellLeft);
+
+                cellLeft.Phrase = new Phrase(c.RefNo, normal_font1);
+                tableContent.AddCell(cellLeft);
+
+                cellLeft.Phrase = new Phrase(c.Product, normal_font1);
+                tableContent.AddCell(cellLeft);
+
+                cellRight.Phrase = new Phrase(c.Quantity, normal_font1);
+                tableContent.AddCell(cellRight);
+
+                cellRight.Phrase = new Phrase(c.UomUnit, normal_font1);
+                tableContent.AddCell(cellRight);
+
+                cellRight.Phrase = new Phrase(c.PricePerdealUnit, normal_font1);
+                tableContent.AddCell(cellRight);
+
+                cellRight.Phrase = new Phrase(c.PriceTotal, normal_font1);
+                tableContent.AddCell(cellRight);
+            }
+
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
             tableContent.SpacingAfter = 20f;
