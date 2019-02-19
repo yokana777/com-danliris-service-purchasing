@@ -192,5 +192,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             var Response = facade.ReadPositionFiltered(1, 25, "{}", null, "{position : [1,6]}");
             Assert.NotEqual(Response.Item1.Count, 0);
         }
+        #region Monitoring All 
+        [Fact]
+        public async void Should_Success_Get_Report_All()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportAll(null, model.SupplierId, DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_All_Null_Parameter()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportAll("", "", DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Generate_Data_Excel()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcel(null, model.SupplierId, DateTime.MinValue, DateTime.MaxValue, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Generate_Data_Excel_Null_Parameter()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcel("", "", DateTime.MinValue, DateTime.MaxValue, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+        #endregion 
     }
 }
