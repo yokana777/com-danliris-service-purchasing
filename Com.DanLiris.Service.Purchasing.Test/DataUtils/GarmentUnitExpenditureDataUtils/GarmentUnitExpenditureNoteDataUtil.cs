@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             {
                 var garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
                 {
-                    IsSave = true,
+                    IsSave = false,
                     DODetailId = item.DODetailId,
                     
                     EPOItemId = item.EPOItemId,
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                 new GarmentUnitExpenditureNoteItem
                 {
                     Id = 0,
-                    IsSave = true,
+                    IsSave = false,
                     DODetailId = item.DODetailId,
 
                     EPOItemId = item.EPOItemId,
