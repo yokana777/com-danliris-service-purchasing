@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
@@ -41,6 +42,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
             get { return (PurchaseRequestFacade)ServiceProvider.GetService(typeof(PurchaseRequestFacade)); }
         }
 
+        private PurchaseRequestGenerateDataFacade FacadeGenerateData
+        {
+            get { return (PurchaseRequestGenerateDataFacade)ServiceProvider.GetService(typeof(PurchaseRequestGenerateDataFacade)); }
+        }
 
         [Fact]
         public async void Should_Success_Get_Report_Data()
@@ -136,6 +141,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GenerateExcelPREPODuration("", "15-30 hari", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Generate_Data_Excel()
+        {
+            PurchaseRequest model = await DataUtil.GetTestData("Unit test");
+            var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
+        {
+            PurchaseRequest model = await DataUtil.GetTestData("Unit test");
+            var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
