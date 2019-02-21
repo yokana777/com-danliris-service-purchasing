@@ -22,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         ExternalPurchaseOrder GetExternalPurchaseOrder(string EPONo);
         Tuple<List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>, int> GetReportAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcel(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
+        MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }

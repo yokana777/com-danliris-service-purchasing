@@ -22,6 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         IQueryable<UnitPaymentPriceCorrectionNoteReportViewModel> GetReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset);
         Tuple<List<UnitPaymentPriceCorrectionNoteReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
-
+        MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }
