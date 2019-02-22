@@ -352,6 +352,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
+                        var oldItemIsSave = oldGarmentUnitExpenditureNote.Items;
+                        var itemIsSave = garmentUnitExpenditureNote.Items;
+                        var oldItemsIsSave = oldGarmentUnitExpenditureNote.Items.Where(d => d.Id == garmentUnitExpenditureNote.Items.First().Id);
+                        if (oldItemIsSave != itemIsSave)
+                        {
+                            oldGarmentUnitExpenditureNote.Items = oldItemsIsSave.ToList();
+                        }
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
 
@@ -435,10 +442,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     {
                         var oldItemIsSave = oldGarmentUnitExpenditureNote.Items;
                         var itemIsSave = garmentUnitExpenditureNote.Items;
-                        var coba = oldGarmentUnitExpenditureNote.Items.Where(d => d.Id == garmentUnitExpenditureNote.Items.First().Id);
+                        var oldItemsIsSave = oldGarmentUnitExpenditureNote.Items.Where(d => d.Id == garmentUnitExpenditureNote.Items.First().Id);
                         if (oldItemIsSave != itemIsSave)
                         {
-                            oldGarmentUnitExpenditureNote.Items = coba.ToList();
+                            oldGarmentUnitExpenditureNote.Items = oldItemsIsSave.ToList();
                         }
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
