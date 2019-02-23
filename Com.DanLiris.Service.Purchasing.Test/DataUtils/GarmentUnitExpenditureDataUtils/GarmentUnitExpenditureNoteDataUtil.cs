@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     ProductCode = item.ProductCode,
                     ProductName = item.ProductName,
                     ProductRemark = item.ProductRemark,
-                    Quantity = item.Quantity,
+                    Quantity = 10,
 
                     RONo = item.RONo,
 

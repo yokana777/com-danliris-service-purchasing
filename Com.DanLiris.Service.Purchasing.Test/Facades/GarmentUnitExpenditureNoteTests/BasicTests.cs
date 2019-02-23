@@ -260,9 +260,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var dataTransfer = await dataUtil.GetTestDataAcc();
 
-            dataTransfer.Items.First().IsSave = true;
-            dataTransfer.Items.First().Quantity = 10;
-            var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == dataTransfer.Id);
+
+            newData.Items.First().IsSave = true;
+            var ResponseUpdateTypeTransfer = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
         }
 
