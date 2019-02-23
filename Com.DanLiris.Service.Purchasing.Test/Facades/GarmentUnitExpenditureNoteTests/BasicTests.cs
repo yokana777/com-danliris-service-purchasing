@@ -261,6 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dataTransfer = await dataUtil.GetTestDataAcc();
 
             dataTransfer.Items.First().IsSave = true;
+            dataTransfer.Items.First().Quantity = 10;
             var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
             Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
         }
