@@ -352,13 +352,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
-                        var oldItemIsSave = oldGarmentUnitExpenditureNote.Items;
-                        var itemIsSave = garmentUnitExpenditureNote.Items;
-                        var oldItemsIsSave = oldGarmentUnitExpenditureNote.Items.Where(d => d.Id == garmentUnitExpenditureNote.Items.First().Id);
-                        if (oldItemIsSave != itemIsSave)
-                        {
-                            oldGarmentUnitExpenditureNote.Items = oldItemsIsSave.ToList();
-                        }
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
 
@@ -440,13 +433,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
                     else
                     {
-                        var oldItemIsSave = oldGarmentUnitExpenditureNote.Items;
-                        var itemIsSave = garmentUnitExpenditureNote.Items;
-                        var oldItemsIsSave = oldGarmentUnitExpenditureNote.Items.Where(d => d.Id == garmentUnitExpenditureNote.Items.First().Id);
-                        if (oldItemIsSave != itemIsSave)
-                        {
-                            oldGarmentUnitExpenditureNote.Items = oldItemsIsSave.ToList();
-                        }
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
 
@@ -482,25 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         {
                             var coba = dbContext.GarmentUnitExpenditureNotes.AsNoTracking().FirstOrDefault(d => d.Id == id);
                             coba.Items = itemIsSaveFalse;
-
-                            var garmentInventoryDocument = GenerateGarmentInventoryDocument(coba, "IN");
-                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
-
-                            foreach (var garmentUnitExpenditureNoteItem in itemIsSaveFalse)
-                            {
-                                var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
-
-                                var garmentInventoryMovement = GenerateGarmentInventoryMovement(coba, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "IN");
-                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
-
-                                if (garmentInventorySummaryExisting != null)
-                                {
-                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
-                                    garmentInventorySummaryExisting.Quantity = garmentInventorySummaryExisting.Quantity + (decimal)garmentUnitExpenditureNoteItem.Quantity;
-                                    garmentInventoryMovement.After = garmentInventorySummaryExisting.Quantity;
-                                }
-                            }
-
+                            
                             EntityExtension.FlagForDelete(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitExpenditureNoteItem.URNItemId);
@@ -642,6 +610,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
             {
+
                 var garmentInventoryDocumentItem = new GarmentInventoryDocumentItem();
                 EntityExtension.FlagForCreate(garmentInventoryDocumentItem, identityService.Username, USER_AGENT);
 

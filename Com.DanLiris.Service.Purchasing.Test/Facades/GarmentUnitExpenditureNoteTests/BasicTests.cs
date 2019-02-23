@@ -240,11 +240,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var data = await dataUtil.GetTestData();
-            
-            
-            data.Items.First().IsSave = true;
 
-            var ResponseUpdate = await facade.Update((int)data.Id, data);
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
+
+            newData.Items.First().IsSave = true;
+
+            var ResponseUpdate = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdate, 0);
         }
 
