@@ -565,7 +565,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
             {
                 garmentInventoryMovement.Before = garmentInventorySummary == null ? 0 : garmentInventorySummary.Quantity;
-                garmentInventoryMovement.Quantity = (decimal)garmentUnitExpenditureNoteItem.Quantity * ((type.ToUpper() == "OUT" ? -1 : 1);
+                garmentInventoryMovement.Quantity = (decimal)garmentUnitExpenditureNoteItem.Quantity * (type.ToUpper() == "OUT" ? -1 : 1);
                 garmentInventoryMovement.After = garmentInventorySummary == null || garmentInventorySummary.Quantity == 0  ? garmentInventoryMovement.Quantity : garmentInventoryMovement.Before - garmentInventoryMovement.Quantity;
             }
             else
