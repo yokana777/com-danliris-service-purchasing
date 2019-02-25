@@ -54,6 +54,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             get { return (MonitoringPriceFacade)ServiceProvider.GetService(typeof(MonitoringPriceFacade)); }
         }
 
+        private ExternalPurchaseOrderGenerateDataFacade FacadeGenerateData
+        {
+            get { return (ExternalPurchaseOrderGenerateDataFacade)ServiceProvider.GetService(typeof(ExternalPurchaseOrderGenerateDataFacade)); }
+        }
+
         //Duration PO EX-DO
         [Fact]
         public async void Should_Success_Get_Report_POExDODuration_Data()
@@ -135,6 +140,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
             var Response = FacadeMP.GenerateExcel("", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Generate_Data_Excel()
+        {
+            ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestData("Unit test");
+            var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
+        {
+            ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestData("Unit test");
+            var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
