@@ -245,7 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .AsNoTracking()
                 .Include(x => x.Items)
                 .Single(m => m.Id == data.Id);
-            
+
             newData.Items.First().IsSave = true;
 
             var ResponseUpdate = await facade.Update((int)newData.Id, newData);
@@ -260,22 +260,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dataUtil = this.dataUtil(facade, GetCurrentMethod());
             var dataTransfer = await dataUtil.GetTestDataAcc();
 
-            var newData = new GarmentUnitExpenditureNote
-            {
-                Id = dataTransfer.Id,
-                Items = new List<GarmentUnitExpenditureNoteItem>
-                {
-                    new GarmentUnitExpenditureNoteItem
-                    {
-                        Id = dataTransfer.Items.First().Id
-                    }
-                }
-            };
-            foreach (var item in newData.Items)
-            {
-                item.Quantity = 1;
-            }
-            var ResponseUpdateTypeTransfer = await facade.Update((int)dataTransfer.Id, dataTransfer);
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == dataTransfer.Id);
+
+            newData.Items.First().IsSave = true;
+            var ResponseUpdateTypeTransfer = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
         }
 
