@@ -126,5 +126,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
             var result = COAGenerator.GetIncomeTaxCOA("PASAL26", "GARMENT", "other");
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public void Should_Success_Get_COA_PurchasingNotExist()
+        {
+            var result = COAGenerator.GetPurchasingCOA("FINISHING&PRINTING", "F1", "BELUMADA");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_StockNotExist()
+        {
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "F1", "BELUMADA");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_TaxNotExist()
+        {
+            var result = COAGenerator.GetIncomeTaxCOA("BELUMADA", "FINISHING&PRINTING", "F1");
+            Assert.NotNull(result);
+        }
     }
 }
