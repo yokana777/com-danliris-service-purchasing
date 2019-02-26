@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             if (lastData == null)
             {
 
-                result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}001";
+                result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}0001";
                 BankDocumentNumber bankDocumentNumber = new BankDocumentNumber()
                 {
                     BankCode = BankCode,
@@ -41,14 +41,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 };
                 EntityExtension.FlagForCreate(bankDocumentNumber, Username, USER_AGENT);
 
-                dbSet.Add(bankDocumentNumber);
+                dbContext.BankDocumentNumbers.Add(bankDocumentNumber);
                 await dbContext.SaveChangesAsync();
             }
             else
             {
                 if (lastData.LastModifiedUtc.Month != Now.Month)
                 {
-                    result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}001";
+                    result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}0001";
 
                     lastData.LastDocumentNumber = 1;
                 }
@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                     result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}{lastData.LastDocumentNumber.ToString().PadLeft(4, '0')}";
                 }
                 EntityExtension.FlagForUpdate(lastData, Username, USER_AGENT);
-                dbSet.Update(lastData);
+                dbContext.BankDocumentNumbers.Update(lastData);
                 //dbContext.Entry(lastData).Property(x => x.LastDocumentNumber).IsModified = true;
                 //dbContext.Entry(lastData).Property(x => x.LastModifiedAgent).IsModified = true;
                 //dbContext.Entry(lastData).Property(x => x.LastModifiedBy).IsModified = true;
