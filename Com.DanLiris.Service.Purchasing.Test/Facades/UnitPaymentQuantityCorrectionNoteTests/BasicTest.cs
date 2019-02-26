@@ -287,7 +287,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+        #region Monitoring Koreksi Jumlah 
+        [Fact]
+        public async void Should_Success_Get_Report_Data()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
+            await _dataUtil(facade, dbContext).GetTestData();
+            var Response = facade.GetReport(DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
 
+        [Fact]
+        public async void Should_Success_Get_Generate_Excel()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
+            await _dataUtil(facade, dbContext).GetTestData();
+            var Response = facade.GenerateExcel(DateTime.MinValue, DateTime.MaxValue, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Generate_Excel_Null_parameter()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
+            await _dataUtil(facade, dbContext).GetTestData();
+            var Response = facade.GenerateExcel(null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+
+        #endregion
 
     }
 }

@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
@@ -348,6 +351,108 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
         //    return Deleted;
         //}
+        #region Monitoring Correction Jumlah 
+        public IQueryable<UnitPaymentQuantityCorrectionNoteReportViewModel> GetReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.UnitPaymentCorrectionNotes
+                         join i in dbContext.UnitPaymentCorrectionNoteItems on a.Id equals i.UPCId
+                         join j in dbContext.UnitReceiptNotes on i.URNNo equals j.URNNo
+                         where a.IsDeleted == false
+                             && a.CorrectionType == "Jumlah"
+                             && i.IsDeleted == false
+                             // && (a.CorrectionType == "Harga Total" || a.CorrectionType == "Harga Satuan")
+                             && a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                         select new UnitPaymentQuantityCorrectionNoteReportViewModel
+                         {
+                             upcNo = a.UPCNo,
+                             epoNo = i.EPONo,
+                             upoNo = a.UPONo,
+                             prNo = i.PRNo,
+                             notaRetur = a.ReturNoteNo,
+                             vatTaxCorrectionNo = a.VatTaxCorrectionNo,
+                             vatTaxCorrectionDate = a.VatTaxCorrectionDate,
+                             correctionDate = a.CorrectionDate,
+                             unit = j.UnitName,
+                             category = a.CategoryName,
+                             supplier = a.SupplierName,
+                             productCode = i.ProductCode,
+                             productName = i.ProductName,
+                             jumlahKoreksi = i.Quantity,
+                             satuanKoreksi = i.UomUnit,
+                             hargaSatuanKoreksi = i.PricePerDealUnitAfter,
+                             hargaTotalKoreksi = i.PriceTotalAfter,
+                             user = a.CreatedBy,
+                             jenisKoreksi = a.CorrectionType,
+
+                         });
+            return Query;
+        }
+
+        public Tuple<List<UnitPaymentQuantityCorrectionNoteReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportQuery(dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            }
+
+
+            Pageable<UnitPaymentQuantityCorrectionNoteReportViewModel> pageable = new Pageable<UnitPaymentQuantityCorrectionNoteReportViewModel>(Query, page - 1, size);
+            List<UnitPaymentQuantityCorrectionNoteReportViewModel> Data = pageable.Data.ToList<UnitPaymentQuantityCorrectionNoteReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQuery(dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.LastModifiedUtc);
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Nota Debet", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Debet", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No SPB", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO Eks", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nota Retur", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Faktur Pajak PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Faktur Pajak PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kd Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nm Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Koreksi", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Koreksi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuan Koreksi", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Total Koreksi", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "User Input", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jenis Koreksi", DataType = typeof(String) });
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0, "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string correctionDate = item.correctionDate == null ? "-" : item.correctionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    DateTimeOffset date = item.vatTaxCorrectionDate ?? new DateTime(1970, 1, 1);
+                    string vatDate = date == new DateTime(1970, 1, 1) ? "-" : date.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, item.upcNo, correctionDate, item.upoNo, item.epoNo, item.prNo, item.notaRetur, item.vatTaxCorrectionNo, vatDate, item.unit, item.category, item.supplier, item.productCode, item.productName, item.jumlahKoreksi, item.satuanKoreksi, item.hargaSatuanKoreksi, item.hargaTotalKoreksi, item.user, item.jenisKoreksi);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        #endregion 
 
     }
 }
