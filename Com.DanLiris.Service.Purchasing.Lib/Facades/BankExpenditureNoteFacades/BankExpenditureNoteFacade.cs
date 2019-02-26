@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         public BankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
-            this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
+            this.bankDocumentNumberGenerator = new BankDocumentNumberGenerator(dbContext);
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
             this.serviceProvider = serviceProvider;
