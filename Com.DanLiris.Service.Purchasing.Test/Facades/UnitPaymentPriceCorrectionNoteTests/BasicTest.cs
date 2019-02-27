@@ -193,5 +193,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             var Response = facade.GenerateExcel(null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.GenerateDataExcel(null, null, 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_Not_Found()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.GenerateDataExcel(DateTime.MinValue, DateTime.MinValue, 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
     }
 }

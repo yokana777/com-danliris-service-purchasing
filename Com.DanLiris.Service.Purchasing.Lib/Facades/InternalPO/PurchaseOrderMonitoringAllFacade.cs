@@ -58,10 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          join o in dbContext.DeliveryOrders on doItem.DOId equals o.Id into p
                          from DO in p.DefaultIfEmpty()
                              //URN
-                         join q in dbContext.UnitReceiptNotes on DO.Id equals q.DOId into r
-                         from urn in r.DefaultIfEmpty()
                          join s in dbContext.UnitReceiptNoteItems on doDetail.Id equals s.DODetailId into t
                          from urnItem in t.DefaultIfEmpty()
+                         join q in dbContext.UnitReceiptNotes on urnItem.URNId equals q.Id into r
+                         from urn in r.DefaultIfEmpty()
                              //UPO
                          join u in dbContext.UnitPaymentOrderItems on urn.Id equals u.URNId into v
                          from upoItem in v.DefaultIfEmpty()
