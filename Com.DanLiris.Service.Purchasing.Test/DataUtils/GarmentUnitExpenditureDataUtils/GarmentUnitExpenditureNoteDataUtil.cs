@@ -163,7 +163,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             {
                 var garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
                 {
-                    IsSave = true,
+                    IsSave = false,
+                    DODetailId = item.DODetailId,
+
+                    EPOItemId = item.EPOItemId,
+
+                    URNItemId = item.URNItemId,
+                    UnitDOItemId = item.Id,
+                    PRItemId = item.PRItemId,
+
+                    FabricType = item.FabricType,
+                    POItemId = item.POItemId,
+                    POSerialNumber = item.POSerialNumber,
+
+                    ProductId = item.ProductId,
+                    ProductCode = item.ProductCode,
+                    ProductName = item.ProductName,
+                    ProductRemark = item.ProductRemark,
+                    Quantity = 10,
+
+                    RONo = item.RONo,
+
+                    UomId = item.UomId,
+                    UomUnit = item.UomUnit,
+
+                    PricePerDealUnit = item.PricePerDealUnit,
+                };
+                new GarmentUnitExpenditureNoteItem
+                {
+                    Id = 0,
+                    IsSave = false,
                     DODetailId = item.DODetailId,
 
                     EPOItemId = item.EPOItemId,
@@ -188,6 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     UomUnit = item.UomUnit,
 
                     PricePerDealUnit = item.PricePerDealUnit,
+
                 };
 
                 garmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);

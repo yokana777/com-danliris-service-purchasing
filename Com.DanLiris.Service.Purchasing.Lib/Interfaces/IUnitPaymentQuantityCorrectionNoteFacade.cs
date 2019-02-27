@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,5 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         UnitReceiptNote ReadByURNNo(string uRNno);
         //Task<int> Update(int id, UnitPaymentCorrectionNote model, string user);
         //Task<int> Delete(int id, string username);
+        Tuple<List<UnitPaymentQuantityCorrectionNoteReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }

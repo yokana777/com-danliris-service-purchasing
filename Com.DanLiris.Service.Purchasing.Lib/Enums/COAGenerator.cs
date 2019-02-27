@@ -5,6 +5,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
 {
     public static class COAGenerator
     {
+        public const string TEMP_COA_CODE = "99";
+
         public const string HUTANG_USAHA_LOKAL = "3010";
         public const string HUTANG_USAHA_IMPOR = "3020";
 
@@ -45,6 +47,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
 
         public const string PERSEDIAAN_BAHAN_BAKU = "1403";
         public const string PERSEDIAAN_BARANG_JADI = "1401";
+
+        public const string PPN_KELUARAN = "3320";
+        public const string PPN_MASUKAN = "1509";
+
+        private const string DEFAULT_COA_IF_EMPTY = "9999";
 
         public static string GetDebtCOA(bool isImport, string division, string unitCode)
         {
@@ -166,6 +173,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                 case "BARANGJADI":
                     result += PEMBELIAN_BARANG_JADI + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
                     break;
+                default:
+                    result += DEFAULT_COA_IF_EMPTY + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
             }
             return result;
         }
@@ -181,6 +191,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                     break;
                 case "BARANGJADI":
                     result += PERSEDIAAN_BARANG_JADI + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
+                default:
+                    result += DEFAULT_COA_IF_EMPTY + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
                     break;
             }
             return result;
@@ -203,10 +216,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                 case "PASAL26":
                     result = PPH26_YMH + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
                     break;
+                default:
+                    result = DEFAULT_COA_IF_EMPTY + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
             }
 
             return result;
         }
+
+        //public static string GetVATCOA(string division, string unitCode)
+        //{
+        //    return "";
+        //}
     }
 
     public class JournalTransaction
@@ -215,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         {
             Status = "POSTED";
         }
-        
+
         public string Status { get; set; }
         public string Description { get; set; }
         public DateTimeOffset? Date { get; set; }

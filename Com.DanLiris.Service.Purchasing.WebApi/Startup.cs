@@ -43,6 +43,7 @@ using MongoDB.Bson.Serialization;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacade.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchaseRequestFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -92,6 +93,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<MonitoringPriceFacade>()
                 .AddTransient<IUnitReceiptNoteFacade, UnitReceiptNoteFacade>()
                 .AddTransient<TotalPurchaseFacade>()
+                .AddTransient<PurchaseRequestGenerateDataFacade>()
+                .AddTransient<ExternalPurchaseOrderGenerateDataFacade>()
+                .AddTransient<UnitReceiptNoteGenerateDataFacade>()
                 .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<IUnitPaymentQuantityCorrectionNoteFacade, UnitPaymentQuantityCorrectionNoteFacade>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()

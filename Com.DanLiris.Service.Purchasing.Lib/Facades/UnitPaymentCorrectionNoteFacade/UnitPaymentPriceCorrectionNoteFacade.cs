@@ -312,5 +312,116 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        public IQueryable<UnitPaymentCorrectionNoteGenerateDataViewModel> GetDataReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Query = (from a in dbContext.UnitPaymentCorrectionNotes
+                         join b in dbContext.UnitPaymentCorrectionNoteItems on a.Id equals b.UPCId
+                         join c in dbContext.UnitReceiptNotes on b.URNNo equals c.URNNo
+
+                         where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false &&
+                               a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date &&
+                               a.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                         select new UnitPaymentCorrectionNoteGenerateDataViewModel
+                         {
+                             UPCNo = a.UPCNo,
+                             UPCDate = a.CorrectionDate,
+                             CorrectionType = a.CorrectionType,
+                             UPONo = a.UPONo,
+                             InvoiceCorrectionNo = a.InvoiceCorrectionNo,
+                             InvoiceCorrectionDate = a.InvoiceCorrectionDate.GetValueOrDefault(),
+                             VatTaxCorrectionNo = a.VatTaxCorrectionNo,
+                             VatTaxCorrectionDate = a.VatTaxCorrectionDate.GetValueOrDefault(),
+                             IncomeTaxCorrectionNo = a.IncomeTaxCorrectionNo,
+                             IncomeTaxCorrectionDate = a.InvoiceCorrectionDate.GetValueOrDefault(),
+                             SupplierCode = a.SupplierCode,
+                             SupplierName = a.SupplierName,
+                             SupplierAddress = "",
+                             ReleaseOrderNoteNo = a.ReleaseOrderNoteNo,
+                             UPCRemark = a.Remark,
+                             EPONo = b.EPONo,
+                             PRNo = b.PRNo,
+                             AccountNo = "-",
+                             ProductCode = b.ProductCode,
+                             ProductName = b.ProductName,
+                             Quantity = b.Quantity,
+                             UOMUnit = b.UomUnit,
+                             PricePerDealUnit = b.PricePerDealUnitAfter,
+                             CurrencyCode = b.CurrencyCode,
+                             CurrencyRate = b.CurrencyRate,
+                             PriceTotal = b.PriceTotalAfter,
+                             URNNo = b.URNNo,
+                             URNDate = c.ReceiptDate,
+                             UserCreated = a.CreatedBy,
+                             UseVat = a.useVat ? "YA " : "TIDAK",
+                             UseIncomeTax = a.useIncomeTax ? "YA " : "TIDAK",
+                         }
+                         );
+            return Query;
+        }
+
+        public MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetDataReportQuery(dateFrom, dateTo, offset);
+            Query = Query.OrderBy(b => b.UPCNo);
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR NOTA KOREKSI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL NOTA KOREKSI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JENIS RETUR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR NOTA KREDIT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR INVOICE KOREKSI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL INVOICE KOREKSI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "FAKTUR PAJAK KOREKSI PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL FAKTUR PAJAK KOREKSI PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "FAKTUR PAJAK KOREKSI PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL FAKTUR PAJAK KOREKSI PPH", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "ALAMAT SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR SURAT PENGANTAR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR PO EXTERNAL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR PURCHASE REQUEST", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR ACCOUNT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH BARANG", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SATUAN BARANG", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "HARGA SATUAN BARANG", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "MATA UANG", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "HARGA TOTAL BARANG", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR BON TERIMA UNIT", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL BON TERIMA UNIT", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "USER INPUT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                var index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string UPCDate = item.UPCDate == new DateTime(1970, 1, 1) ? "-" : item.UPCDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string InvoiceCorrectionDate = item.InvoiceCorrectionDate == DateTimeOffset.MinValue ? "-" : item.InvoiceCorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string VatTaxCorrectionDate = item.VatTaxCorrectionDate == DateTimeOffset.MinValue ? "-" : item.VatTaxCorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string IncomeTaxCorrectionDate = item.IncomeTaxCorrectionDate == DateTimeOffset.MinValue ? "-" : item.IncomeTaxCorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string URNDate = item.URNDate == null ? "-" : item.URNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(item.UPCNo, UPCDate, item.CorrectionType, item.UPONo, item.InvoiceCorrectionNo, InvoiceCorrectionDate, item.VatTaxCorrectionNo, VatTaxCorrectionDate, item.IncomeTaxCorrectionNo,
+                                    IncomeTaxCorrectionDate, item.SupplierCode, item.SupplierName, item.SupplierAddress, item.ReleaseOrderNoteNo, item.UPCRemark, item.EPONo, item.PRNo, item.AccountNo, item.ProductCode,
+                                    item.ProductName, item.Quantity, item.UOMUnit, item.PricePerDealUnit, item.CurrencyCode, item.CurrencyRate, item.PriceTotal, item.URNNo, URNDate, item.UserCreated, item.UseVat, item.UseIncomeTax);
+                }
+            }
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
+        }
     }
 }
