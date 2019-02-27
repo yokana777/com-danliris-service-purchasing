@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
             return result;
         }
 
-        private static string GetDivisionAndUnitCOACode(string division, string unitCode)
+        public static string GetDivisionAndUnitCOACode(string division, string unitCode)
         {
             var result = "";
             switch (division.ToUpper().Replace(" ", ""))

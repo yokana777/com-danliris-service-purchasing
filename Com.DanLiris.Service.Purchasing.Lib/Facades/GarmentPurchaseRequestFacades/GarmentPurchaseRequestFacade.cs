@@ -661,7 +661,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         }
         public MemoryStream GenerateExcelPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset, page, size);
+            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset, 1, int.MaxValue);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -877,54 +877,54 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var queryResult = Query.Distinct().OrderByDescending(o => o.PRDate).Skip((page - 1) * size).Take(size).ToList();
 
             var purchaseRequestIds = queryResult.Select(s => s.PRId).Distinct().ToList();
-            var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).ToList();
+            var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.PRNo, s.Date, s.UnitName, s.BuyerCode, s.BuyerName, s.RONo, s.Article, s.ShipmentDate, s.IsUsed }).ToList();
             var purchaseRequestItemIds = queryResult.Select(s => s.PRItemId).Distinct().ToList();
-            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).ToList();
+            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice }).ToList();
 
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
-            var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).ToList();
+            var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).Select(s => new { s.Id, s.CreatedUtc, s.CreatedBy }).ToList();
             var purchaseOrderInternalItemIds = queryResult.Select(s => s.POItemId).Distinct().ToList();
-            var purchaseOrderInternalItems = dbContext.GarmentInternalPurchaseOrderItems.Where(w => purchaseOrderInternalItemIds.Contains(w.Id));
+            var purchaseOrderInternalItems = dbContext.GarmentInternalPurchaseOrderItems.Where(w => purchaseOrderInternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Status }).ToList();
 
             var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
-            var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).ToList();
+            var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo, s.OrderDate, s.DeliveryDate, s.SupplierCode, s.SupplierName, s.CurrencyCode, s.CurrencyRate, s.IncomeTaxRate, s.IsIncomeTax, s.IsUseVat }).ToList();
             var purchaseOrderExternalItemIds = queryResult.Select(s => s.EPOItemId).Distinct().ToList();
-            var purchaseOrderExternalItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => purchaseOrderExternalItemIds.Contains(w.Id));
+            var purchaseOrderExternalItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => purchaseOrderExternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Remark, s.DealQuantity, s.DealUomUnit, s.PricePerDealUnit }).ToList();
 
             var deliveryOrderIds = queryResult.Select(s => s.DOId).Distinct().ToList();
-            var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id));
-            var deliveryOrderItemIds = queryResult.Select(s => s.DOItemId).Distinct().ToList();
-            var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id));
+            var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.DONo, s.DODate, s.ArrivalDate }).ToList();
+            //var deliveryOrderItemIds = queryResult.Select(s => s.DOItemId).Distinct().ToList();
+            //var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
             var deliveryOrderDetailIds = queryResult.Select(s => s.DODetailId).Distinct().ToList();
-            var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).ToList();
+            var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.DOQuantity, s.UomUnit, s.DealQuantity, s.PricePerDealUnit }).ToList();
 
             var customIds = queryResult.Select(s => s.BCId).Distinct().ToList();
-            var customs = dbContext.GarmentBeacukais.Where(w => customIds.Contains(w.Id)).ToList();
-            var customItemIds = queryResult.Select(s => s.BCItemId).Distinct().ToList();
-            var customItems = dbContext.GarmentBeacukaiItems.Where(w => customItemIds.Contains(w.Id)).ToList();
+            var customs = dbContext.GarmentBeacukais.Where(w => customIds.Contains(w.Id)).Select(s => new { s.Id, s.BeacukaiNo, s.BeacukaiDate }).ToList();
+            //var customItemIds = queryResult.Select(s => s.BCItemId).Distinct().ToList();
+            //var customItems = dbContext.GarmentBeacukaiItems.Where(w => customItemIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
 
             var unitReceiptNoteIds = queryResult.Select(s => s.URNId).Distinct().ToList();
-            var unitReceiptNotes = dbContext.GarmentUnitReceiptNotes.Where(w => unitReceiptNoteIds.Contains(w.Id)).ToList();
+            var unitReceiptNotes = dbContext.GarmentUnitReceiptNotes.Where(w => unitReceiptNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.URNNo, s.ReceiptDate }).ToList();
             var unitReceiptNoteItemIds = queryResult.Select(s => s.URNItemId).Distinct().ToList();
-            var unitReceiptNoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id));
+            var unitReceiptNoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ReceiptQuantity, s.UomUnit }).ToList();
 
             var invoiceIds = queryResult.Select(s => s.INVId).Distinct().ToList();
-            var invoices = dbContext.GarmentInvoices.Where(w => invoiceIds.Contains(w.Id)).ToList();
-            var invoiceItemIds = queryResult.Select(s => s.INVItemId).Distinct().ToList();
-            var invoiceItems = dbContext.GarmentInvoiceItems.Where(w => invoiceItemIds.Contains(w.Id)).ToList();
-            var invoiceDetailIds = queryResult.Select(s => s.INVDetailId).Distinct().ToList();
-            var invoiceDetails = dbContext.GarmentInvoiceDetails.Where(w => invoiceDetailIds.Contains(w.Id));
+            var invoices = dbContext.GarmentInvoices.Where(w => invoiceIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceNo, s.InvoiceDate, s.IncomeTaxDate, s.IncomeTaxNo, s.IncomeTaxName, s.IncomeTaxRate, s.IsPayTax, s.VatDate, s.VatNo }).ToList();
+            //var invoiceItemIds = queryResult.Select(s => s.INVItemId).Distinct().ToList();
+            //var invoiceItems = dbContext.GarmentInvoiceItems.Where(w => invoiceItemIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
+            //var invoiceDetailIds = queryResult.Select(s => s.INVDetailId).Distinct().ToList();
+            //var invoiceDetails = dbContext.GarmentInvoiceDetails.Where(w => invoiceDetailIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
 
             var internNoteIds = queryResult.Select(s => s.INId).Distinct().ToList();
-            var internNotes = dbContext.GarmentInternNotes.Where(w => internNoteIds.Contains(w.Id)).ToList();
-            var internNoteItemIds = queryResult.Select(s => s.INItemId).Distinct().ToList();
-            var internNoteItems = dbContext.GarmentInternNoteItems.Where(w => internNoteItemIds.Contains(w.Id)).ToList();
+            var internNotes = dbContext.GarmentInternNotes.Where(w => internNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.INNo, s.INDate }).ToList();
+            //var internNoteItemIds = queryResult.Select(s => s.INItemId).Distinct().ToList();
+            //var internNoteItems = dbContext.GarmentInternNoteItems.Where(w => internNoteItemIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
             var internNoteDetailIds = queryResult.Select(s => s.INDetailId).Distinct().ToList();
-            var internNoteDetails = dbContext.GarmentInternNoteDetails.Where(w => internNoteDetailIds.Contains(w.Id)).ToList();
+            var internNoteDetails = dbContext.GarmentInternNoteDetails.Where(w => internNoteDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.Quantity, s.PricePerDealUnit, s.PaymentDueDate }).ToList();
 
-            var corrections = dbContext.GarmentCorrectionNotes.Where(w => deliveryOrderIds.Contains(w.DOId)).ToList();
+            var corrections = dbContext.GarmentCorrectionNotes.Where(w => deliveryOrderIds.Contains(w.DOId)).Select(s => new { s.Id, s.DOId, s.CorrectionNo, s.CorrectionType, s.CorrectionDate }).ToList();
             var correctionIds = corrections.Select(s => s.Id).ToList();
-            var correctionItems = dbContext.GarmentCorrectionNoteItems.Where(w => correctionIds.Contains(w.GCorrectionId)).ToList();
+            var correctionItems = dbContext.GarmentCorrectionNoteItems.Where(w => correctionIds.Contains(w.GCorrectionId)).Select(s => new { s.GCorrectionId, s.DODetailId, s.PriceTotalAfter, s.PriceTotalBefore, s.Quantity }).ToList();
 
             int i = ((page - 1) * size) + 1;
             foreach (var item in queryResult)
@@ -939,21 +939,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 var purchaseOrderExternalItem = purchaseOrderExternalItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
 
                 var deliveryOrder = deliveryOrders.FirstOrDefault(f => f.Id.Equals(item.DOId));
-                var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(f => f.Id.Equals(item.DOItemId));
+                //var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(f => f.Id.Equals(item.DOItemId));
                 var deliveryOrderDetail = deliveryOrderDetails.FirstOrDefault(f => f.Id.Equals(item.DODetailId));
 
                 var custom = customs.FirstOrDefault(f => f.Id.Equals(item.BCId));
-                var customItem = customItems.FirstOrDefault(f => f.Id.Equals(item.BCItemId));
+                //var customItem = customItems.FirstOrDefault(f => f.Id.Equals(item.BCItemId));
 
                 var unitReceiptNote = unitReceiptNotes.FirstOrDefault(f => f.Id.Equals(item.URNId));
                 var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
 
                 var invoice = invoices.FirstOrDefault(f => f.Id.Equals(item.INVId));
-                var invoiceItem = invoiceItems.FirstOrDefault(f => f.Id.Equals(item.INVItemId));
-                var invoiceDetail = invoiceDetails.FirstOrDefault(f => f.Id.Equals(item.INVDetailId));
+                //var invoiceItem = invoiceItems.FirstOrDefault(f => f.Id.Equals(item.INVItemId));
+                //var invoiceDetail = invoiceDetails.FirstOrDefault(f => f.Id.Equals(item.INVDetailId));
 
                 var internNote = internNotes.FirstOrDefault(f => f.Id.Equals(item.INId));
-                var internNoteItem = internNoteItems.FirstOrDefault(f => f.Id.Equals(item.INItemId));
+                //var internNoteItem = internNoteItems.FirstOrDefault(f => f.Id.Equals(item.INItemId));
                 var internNoteDetail = internNoteDetails.FirstOrDefault(f => f.Id.Equals(item.INDetailId));
 
                 var selectedCorrections = corrections.Where(w => w.DOId.Equals(item.DOId)).ToList();
@@ -1115,7 +1115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
         public MemoryStream GenerateExcelByUserPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset, page, size);
+            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, offset, 1, int.MaxValue);
             //Query = Query.OrderBy(b => b.PrDate);
             DataTable result = new DataTable();
 
