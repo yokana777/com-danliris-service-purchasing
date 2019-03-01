@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
 
         public string RONo { get; set; }
         public double Quantity { get; set; }
+        public double DefaultDOQuantity { get; set; }
 
         /*UOM*/
         public long UomId { get; set; }
