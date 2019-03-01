@@ -317,6 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         POSerialNumber = i.POSerialNumber,
                         PricePerDealUnit = i.PricePerDealUnit,
                         Quantity = i.Quantity,
+                        DefaultDOQuantity = i.DefaultDOQuantity,
                         RONo = i.RONo,
                         URNItemId = i.URNItemId,
                         UomId = i.UomId,
