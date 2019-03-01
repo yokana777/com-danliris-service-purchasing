@@ -92,6 +92,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 break;
             }
 
+            //Jumlah dibayar ke Supplier
+            double paidToSupp = dpp + ppn - pphRate;
+            if (viewModel.IncomeTaxBy == "Dan Liris")
+            {
+                paidToSupp = dpp + ppn;
+            }
+
             double amount = dpp + ppn;
 
             if(viewModel.IncomeTaxBy=="Dan Liris")
@@ -105,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod , normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{amount.ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection).ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
@@ -184,11 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
 
-            double paidToSupp = dpp+ppn - pphRate;
-            if(viewModel.IncomeTaxBy=="Dan Liris")
-            {
-                paidToSupp = dpp+ppn;
-            }
+            
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("Jumlah dibayar ke Supplier ", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
