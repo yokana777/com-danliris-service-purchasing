@@ -360,6 +360,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         i.ProductName,
                         i.ProductRemark,
                         i.Quantity,
+                        i.DefaultDOQuantity,
                         i.DODetailId,
                         i.EPOItemId,
                         i.FabricType,
