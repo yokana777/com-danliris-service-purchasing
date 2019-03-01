@@ -54,14 +54,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         [Fact]
         public void Should_Success_Get_COA_PurchasingWeavingKK()
         {
-            var result = COAGenerator.GetPurchasingCOA("WEAVING", "KK", "EMBALAGE");
+            var result = COAGenerator.GetPurchasingCOA("WEAVING", "W1", "EMBALAGE");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_PurchasingWeavingE()
         {
-            var result = COAGenerator.GetPurchasingCOA("WEAVING", "E", "BAHANBAKU");
+            var result = COAGenerator.GetPurchasingCOA("WEAVING", "W2", "BAHANBAKU");
             Assert.NotNull(result);
         }
 
