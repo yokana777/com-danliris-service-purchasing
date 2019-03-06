@@ -97,10 +97,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                     result = DIVISI_WEAVING;
                     switch (unitCode)
                     {
-                        case "KK":
+                        case "W2":
                             result += "." + UNIT_WEAVING2;
                             break;
-                        case "E":
+                        case "W1":
                             result += "." + UNIT_WEAVING1;
                             break;
                         default:
