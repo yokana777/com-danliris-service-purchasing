@@ -101,12 +101,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     foreach(var unitDOItem in garmentUnitDeliveryOrder.Items)
                     {
-                        var unitExNotSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId != unitDOItem.Id);
-                        if (unitExNotSaved != null)
+                        var unitExSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId == unitDOItem.Id);
+                        if (unitExSaved == null)
                         {
-                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitExNotSaved.URNItemId);
+                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitDOItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitExNotSaved.Quantity;
+                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitDOItem.Quantity;
                             unitDOItem.Quantity = 0;
                         }
                     }
