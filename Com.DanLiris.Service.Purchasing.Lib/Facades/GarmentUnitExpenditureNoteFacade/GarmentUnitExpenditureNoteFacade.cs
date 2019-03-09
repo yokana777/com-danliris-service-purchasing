@@ -85,16 +85,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         }
                     }
 
-                    var garmentUENIsSaveFalse = garmentUnitExpenditureNote.Items.Where(d => d.IsSave == false).ToList();
-                    if (garmentUENIsSaveFalse.Count() > 0)
+                    //var garmentUENIsSaveFalse = garmentUnitExpenditureNote.Items.Where(d => d.IsSave == false).ToList();
+                    
+                    //if (garmentUENIsSaveFalse.Count > 0)
+                    //{
+                    //    foreach (var itemFalseIsSave in garmentUENIsSaveFalse)
+                    //    {
+                    //        var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == itemFalseIsSave.UnitDOItemId);
+                    //        var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == itemFalseIsSave.URNItemId);
+                    //        EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
+                    //        garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)itemFalseIsSave.Quantity;
+                    //        garmentUnitDeliveryOrderItem.Quantity = 0;
+                    //    }
+                    //}
+
+                    foreach(var unitDOItem in garmentUnitDeliveryOrder.Items)
                     {
-                        foreach (var itemFalseIsSave in garmentUENIsSaveFalse)
+                        var unitExNotSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId != unitDOItem.Id);
+                        if (unitExNotSaved != null)
                         {
-                            var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == itemFalseIsSave.UnitDOItemId);
-                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == itemFalseIsSave.URNItemId);
+                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitExNotSaved.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                            garmentUnitReceiptNoteItem.OrderQuantity -= (decimal)itemFalseIsSave.Quantity;
-                            garmentUnitDeliveryOrderItem.Quantity = 0;
+                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitExNotSaved.Quantity;
+                            unitDOItem.Quantity = 0;
                         }
                     }
 
@@ -139,17 +152,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovementRequestIn.StorageId = garmentUnitExpenditureNote.StorageRequestId;
                             garmentInventoryMovementRequestIn.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                             garmentInventoryMovementRequestIn.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                            garmentInventoryMovementRequestIn.After = garmentInventoryMovementRequestIn.Before + (decimal)garmentUnitExpenditureNoteItem.Quantity;
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestIn);
 
                             var garmentInventoryMovementRequestOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExistingRequest, "OUT");
                             garmentInventoryMovementRequestOut.StorageId = garmentUnitExpenditureNote.StorageRequestId;
                             garmentInventoryMovementRequestOut.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
                             garmentInventoryMovementRequestOut.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                            if (garmentInventorySummaryExistingRequest == null || garmentInventorySummaryExistingRequest.Quantity == 0)
-                            {
-                                garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
-                                garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestIn.Before;
-                            }
+                            garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
+                            garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestOut.Before - (decimal)garmentUnitExpenditureNoteItem.Quantity;
+
+                            //if (garmentInventorySummaryExistingRequest == null || garmentInventorySummaryExistingRequest.Quantity == 0)
+                            //{
+                            //    garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
+                            //    garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestIn.Before;
+                            //}
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestOut);
 
                             if (garmentInventorySummaryExistingRequest == null)
@@ -295,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             List<string> searchAttributes = new List<string>()
             {
-                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedAgent"
+                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedBy"
             };
 
             Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -486,6 +503,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         {
                             var coba = dbContext.GarmentUnitExpenditureNotes.AsNoTracking().FirstOrDefault(d => d.Id == id);
                             coba.Items = itemIsSaveFalse;
+                            
                             
                             EntityExtension.FlagForDelete(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
 
