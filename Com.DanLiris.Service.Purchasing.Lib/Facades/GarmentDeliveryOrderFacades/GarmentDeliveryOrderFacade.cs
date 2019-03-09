@@ -698,7 +698,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     Status = new[] { "FABRIC", "INTERLINING" };
                     break;
                 case "BP":
-                    Status = new[] { "FABRIC", "INTERLINING", "PLISKET", "PRINT", "QUILTING", "WASH" };
+                    Status = new[] { "FABRIC", "INTERLINING", "PLISKET", "PRINT", "QUILTING", "WASH", "EMBROIDERY", "PROCESS" };
                     break;
                 default:
                     Status = new[] { "" };
