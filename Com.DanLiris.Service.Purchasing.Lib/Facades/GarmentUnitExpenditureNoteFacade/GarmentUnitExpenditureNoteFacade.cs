@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
 
                     //var garmentUENIsSaveFalse = garmentUnitExpenditureNote.Items.Where(d => d.IsSave == false).ToList();
-
+                    
                     //if (garmentUENIsSaveFalse.Count > 0)
                     //{
                     //    foreach (var itemFalseIsSave in garmentUENIsSaveFalse)
@@ -98,29 +98,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     //        garmentUnitDeliveryOrderItem.Quantity = 0;
                     //    }
                     //}
-                    List<GarmentUnitDeliveryOrderItem> garmentUENIsSaveFalse = new List<GarmentUnitDeliveryOrderItem>();
-                    foreach (var unitDOItem in garmentUnitDeliveryOrder.Items)
+
+                    foreach(var unitDOItem in garmentUnitDeliveryOrder.Items)
                     {
                         var unitExSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId == unitDOItem.Id);
-                        if(unitExSaved == null)
+                        if (unitExSaved == null)
                         {
-                            garmentUENIsSaveFalse.Add(unitDOItem);
+                            var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitDOItem.URNItemId);
+                            EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
+                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitDOItem.Quantity;
+                            unitDOItem.Quantity = 0;
                         }
-                        //var unitExSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId == unitDOItem.Id);
-                        //if (unitExSaved == null)
-                        //{
-                        //    var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitDOItem.URNItemId);
-                        //    EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                        //    garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitDOItem.Quantity;
-                        //    unitDOItem.Quantity = 0;
-                        //}
-                    }
-                    foreach(var notSaved in garmentUENIsSaveFalse)
-                    {
-                        var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == notSaved.URNItemId);
-                        EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                        garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)notSaved.Quantity;
-                        notSaved.Quantity = 0;
                     }
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
