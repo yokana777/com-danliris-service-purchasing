@@ -491,7 +491,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     x.IsDeleted == false &&
                     x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
-                .SelectMany(x => x.Items.Select(y => new
+                .SelectMany(x => x.Items
+                .Where(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
+                .Select(y => new
                 {
                     x.URNNo,
                     y.URNId,
