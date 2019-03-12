@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             {
                 var garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
                 {
-                    IsSave = false,
+                    IsSave = true,
                     DODetailId = item.DODetailId,
                     
                     EPOItemId = item.EPOItemId,
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                 new GarmentUnitExpenditureNoteItem
                 {
                     Id = 0,
-                    IsSave = false,
+                    IsSave = true,
                     DODetailId = item.DODetailId,
 
                     EPOItemId = item.EPOItemId,
@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             {
                 var garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
                 {
-                    IsSave = false,
+                    IsSave = true,
                     DODetailId = item.DODetailId,
 
                     EPOItemId = item.EPOItemId,
@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                 new GarmentUnitExpenditureNoteItem
                 {
                     Id = 0,
-                    IsSave = false,
+                    IsSave = true,
                     DODetailId = item.DODetailId,
 
                     EPOItemId = item.EPOItemId,
