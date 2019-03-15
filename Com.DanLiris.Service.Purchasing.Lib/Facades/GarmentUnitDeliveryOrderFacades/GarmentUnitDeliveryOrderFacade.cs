@@ -214,6 +214,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitDeliveryOrderItem.Quantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
 
                             oldGarmentUnitDeliveryOrderItem.Quantity = garmentUnitDeliveryOrderItem.Quantity;
+                            oldGarmentUnitDeliveryOrderItem.DefaultDOQuantity = garmentUnitDeliveryOrderItem.DefaultDOQuantity;
                         }
                         else
                         {
@@ -317,6 +318,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         POSerialNumber = i.POSerialNumber,
                         PricePerDealUnit = i.PricePerDealUnit,
                         Quantity = i.Quantity,
+                        DefaultDOQuantity = i.DefaultDOQuantity,
                         RONo = i.RONo,
                         URNItemId = i.URNItemId,
                         UomId = i.UomId,
@@ -359,6 +361,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         i.ProductName,
                         i.ProductRemark,
                         i.Quantity,
+                        i.DefaultDOQuantity,
                         i.DODetailId,
                         i.EPOItemId,
                         i.FabricType,

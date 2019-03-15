@@ -80,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             {
                                 EntityExtension.FlagForUpdate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
                                 garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNoteItem.Quantity);
-
+                                garmentUnitDeliveryOrderItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
                             }
                         }
                     }
@@ -90,9 +90,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     {
                         foreach (var itemFalseIsSave in garmentUENIsSaveFalse)
                         {
+                            var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == itemFalseIsSave.UnitDOItemId);
                             var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == itemFalseIsSave.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                            garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)itemFalseIsSave.Quantity;
+                            garmentUnitReceiptNoteItem.OrderQuantity -= (decimal)itemFalseIsSave.Quantity;
+                            garmentUnitDeliveryOrderItem.Quantity = 0;
                         }
                     }
 
@@ -350,6 +352,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         .Include(d => d.Items)
                         .Single(m => m.Id == id);
 
+                    foreach(var uncheck in itemIsSaveFalse)
+                    {
+                        var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == uncheck.ProductId && s.StorageId == oldGarmentUnitExpenditureNote.StorageId && s.UomId == uncheck.UomId);
+
+                        var garmentInventoryMovement = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, uncheck, garmentInventorySummaryExisting, "IN");
+                        dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                        if (garmentInventorySummaryExisting != null)
+                        {
+                            EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                            garmentInventorySummaryExisting.Quantity = garmentInventorySummaryExisting.Quantity + (decimal)uncheck.Quantity;
+                            garmentInventoryMovement.After = garmentInventorySummaryExisting.Quantity;
+                        }
+                    }
+
+
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
@@ -471,6 +489,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             
                             EntityExtension.FlagForDelete(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
 
+                            var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == oldGarmentUnitExpenditureNoteItem.UnitDOItemId);
+                            garmentUnitDeliveryOrderItem.Quantity = 0;
+
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitExpenditureNoteItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitExpenditureNoteItem.Quantity;
@@ -485,8 +506,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             if (garmentUnitDeliveryOrderItem != null && garmentUnitReceiptNoteItem != null)
                             {
                                 EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
-                                garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNote.Items.FirstOrDefault().Quantity);
-                                
+                                garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)oldGarmentUnitExpenditureNoteItem.Quantity - (decimal)newGarmentUnitExpenditureNoteItem.Quantity);
+                                garmentUnitDeliveryOrderItem.Quantity = newGarmentUnitExpenditureNoteItem.Quantity;
                             }
                             oldGarmentUnitExpenditureNoteItem.Quantity = garmentUnitExpenditureNote.Items.FirstOrDefault(i => i.Id == oldGarmentUnitExpenditureNoteItem.Id).Quantity;
 
@@ -566,7 +587,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             {
                 garmentInventoryMovement.Before = garmentInventorySummary == null ? 0 : garmentInventorySummary.Quantity;
                 garmentInventoryMovement.Quantity = (decimal)garmentUnitExpenditureNoteItem.Quantity * (type.ToUpper() == "OUT" ? -1 : 1);
-                garmentInventoryMovement.After = garmentInventorySummary == null || garmentInventorySummary.Quantity == 0  ? garmentInventoryMovement.Quantity : garmentInventoryMovement.Before - garmentInventoryMovement.Quantity;
+                garmentInventoryMovement.After = garmentInventorySummary == null || garmentInventorySummary.Quantity == 0  ? garmentInventoryMovement.Quantity : garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
             }
             else
             {
