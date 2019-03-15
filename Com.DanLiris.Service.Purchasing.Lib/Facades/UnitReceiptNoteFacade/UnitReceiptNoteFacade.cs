@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    // CreateJournalTransactionUnitReceiptNote(model);
+                    CreateJournalTransactionUnitReceiptNote(model);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -562,8 +562,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
-                        // ReverseJournalTransaction(m.URNNo);
-                        // CreateJournalTransactionUnitReceiptNote(m);
+                        ReverseJournalTransaction(m.URNNo);
+                        CreateJournalTransactionUnitReceiptNote(m);
                         transaction.Commit();
                     }
                     else
@@ -654,7 +654,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
 
                     Deleted = dbContext.SaveChanges();
-                    // ReverseJournalTransaction(m.URNNo);
+                    ReverseJournalTransaction(m.URNNo);
                     transaction.Commit();
                 }
                 catch (Exception e)
