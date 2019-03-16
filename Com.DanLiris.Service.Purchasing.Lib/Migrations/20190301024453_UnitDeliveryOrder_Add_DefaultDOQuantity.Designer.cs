@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190301024453_UnitDeliveryOrder_Add_DefaultDOQuantity")]
+    partial class UnitDeliveryOrder_Add_DefaultDOQuantity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -928,9 +929,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<string>("FreightCostBy");
-
-                    b.Property<string>("IncomeTaxBy")
-                        .HasMaxLength(255);
 
                     b.Property<string>("IncomeTaxId")
                         .HasMaxLength(255);
