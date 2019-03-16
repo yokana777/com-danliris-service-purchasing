@@ -113,6 +113,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                     m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
 
+                    if (m.IncomeTaxBy == null)
+                    {
+                        m.IncomeTaxBy = "";
+                    }
+
                     foreach (var item in m.Items)
                     {
                         
@@ -161,7 +166,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     if (existingModel != null && id == externalPurchaseOrder.Id)
                     {
                         EntityExtension.FlagForUpdate(externalPurchaseOrder, user, "Facade");
-
+                        if (externalPurchaseOrder.IncomeTaxBy == null)
+                        {
+                            externalPurchaseOrder.IncomeTaxBy = "";
+                        }
                         foreach (var item in externalPurchaseOrder.Items.ToList())
                         {
                             var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
