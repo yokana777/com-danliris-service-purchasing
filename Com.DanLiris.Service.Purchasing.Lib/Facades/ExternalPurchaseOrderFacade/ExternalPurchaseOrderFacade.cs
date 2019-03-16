@@ -628,7 +628,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Query.ToList();
         }
 
-        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "")
+        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "", string incomeTaxBy= "")
         {
             IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
 
@@ -641,7 +641,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             List<EPOViewModel> list = new List<EPOViewModel>();
             list = Query
                 .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false
-                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId)
+                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId && m.IncomeTaxBy== incomeTaxBy)
                 .Select(s => new EPOViewModel
                 {
                     _id = s.Id,
