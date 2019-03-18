@@ -206,6 +206,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async void Should_Success_Create_Data_one_Item()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            //List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
+            //items.Add(data.Items.First());
+            //data.Items = items;
+            data.Items.First().IsSave = false;
+            var Response = await facade.Create(data);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async void Should_Success_Create_Data_Null_Summary()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -246,7 +259,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Include(x => x.Items)
                 .Single(m => m.Id == data.Id);
 
-            newData.Items.First().IsSave = true;
+            newData.Items.First().IsSave = false;
 
             var ResponseUpdate = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdate, 0);
