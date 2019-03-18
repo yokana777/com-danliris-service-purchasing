@@ -26,10 +26,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font terbilang_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
             Font small_bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            double totalPPn=0;
+            double totalPPn = 0;
             double totalPPh = 0;
             double totalDibayar = 0;
-            double total=0;
+            double total = 0;
             string currencyCodePPn = "";
             string currencyCodeTotal = "";
             string currencyDesc = "";
@@ -175,7 +175,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
                     tableContent.AddCell(cellLeftMerge);
-                    
+
                     cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", item.pricePerDealUnitAfter), normal_font);
                     tableContent.AddCell(cellRightMerge);
 
@@ -299,13 +299,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(totalDibayar)} {currencyDesc.ToLower()}", terbilang_bold_font);
                     cellIdentityTotalContentLeft.Colspan = 7;
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                } else
+                }
+                else
                 {
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn)} {currencyDesc.ToLower()}", terbilang_bold_font);
                     cellIdentityTotalContentLeft.Colspan = 7;
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                 }
-                
+
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -435,7 +436,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Document document = new Document(PageSize.A5, 20, 20, 17, 20);
             //document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate())
             MemoryStream stream = new MemoryStream();
-            
+
             try
             {
                 PdfWriter writer = PdfWriter.GetInstance(document, stream);
@@ -452,9 +453,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 Paragraph nomor = new Paragraph($"Nomor : {viewModel.returNoteNo}", smaller_font) { Alignment = Element.ALIGN_CENTER };
                 document.Add(nomor);
 
-                Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModel.vatTaxCorrectionNo} Tanggal : {viewModel.vatTaxCorrectionDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
+                Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModel.vatTaxCorrectionNo} Tanggal : {viewModel.vatTaxCorrectionDate.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
                 document.Add(pajakNomorString);
-            
+
                 document.Add(space);
                 LineSeparator lineSeparator = new LineSeparator(1f, 100f, BaseColor.Black, Element.ALIGN_CENTER, 1);
                 document.Add(lineSeparator);
@@ -500,7 +501,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 PdfPCell cellLeftBorderless = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
                 PdfPTable tableContent = new PdfPTable(7);
-                tableContent.SetWidths(new float[] { 2f, 6f, 4f, 2f, 3f, 2f, 3f});
+                tableContent.SetWidths(new float[] { 2f, 5f, 4f, 1.5f, 4f, 1.5f, 4f });
 
                 cellCenter.Phrase = new Phrase("No.", smallest_bold_font);
                 tableContent.AddCell(cellCenter);
@@ -590,7 +591,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 document.Add(tableContent);
 
                 #endregion
-            
+
                 document.Close();
                 byte[] byteInfo = stream.ToArray();
                 stream.Write(byteInfo, 0, byteInfo.Length);
