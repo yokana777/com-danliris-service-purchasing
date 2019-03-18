@@ -242,6 +242,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
 
             var response = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            ExternalPurchaseOrderViewModel viewModel2 = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            viewModel2.useIncomeTax = true;
+            viewModel2.incomeTax = new Lib.ViewModels.IntegrationViewModel.IncomeTaxViewModel
+            {
+                name = "income",
+                _id = "1",
+                rate = "2"
+            };
+            viewModel2.incomeTaxBy = "";
+
+            var response2 = await this.Client.PutAsync($"{URI}/{model.Id}", new StringContent(JsonConvert.SerializeObject(viewModel2).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response2.StatusCode);
         }
 
         [Fact]
