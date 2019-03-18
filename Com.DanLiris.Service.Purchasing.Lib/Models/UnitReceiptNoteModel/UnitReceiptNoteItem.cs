@@ -37,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel
         public double PricePerDealUnit { get; set; }
         public bool IsCorrection { get; set; }
         public string ProductRemark { get; set; }
+        public bool IsPaid { get; set; }
 
         public long URNId { get; set; }
         [ForeignKey("URNId")]

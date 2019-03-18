@@ -25,5 +25,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public double currencyRate { get; set; }
         public ProductViewModel product { get; set; }
         public PurchaseOrderViewModel purchaseOrder { get; set; }
+        public bool isPaid { get; set; }
     }
 }
