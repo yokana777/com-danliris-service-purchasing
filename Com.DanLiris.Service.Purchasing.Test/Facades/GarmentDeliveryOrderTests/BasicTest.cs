@@ -1050,6 +1050,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.NotNull(Response2.Item1);
+
+            var Response3 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", "Bahan Pendukung", null, null, 7);
+            Assert.NotNull(Response3.Item1);
         }
 
         [Fact]
