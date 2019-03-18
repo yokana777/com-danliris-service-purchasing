@@ -7,6 +7,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
     public class UnitReceiptNoteItemViewModel : BaseViewModel
     {
         public long epoDetailId { get; set; }
+        public long epoId { get; set; }
+        public string epoNo { get; set; }
+        public string incomeTaxBy { get; set; }
         public long doDetailId { get; set; }
         public long poId { get; set; }
         public string prNo { get; set; }
