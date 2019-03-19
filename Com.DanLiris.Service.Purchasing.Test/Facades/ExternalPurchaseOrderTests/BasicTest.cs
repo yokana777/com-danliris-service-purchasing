@@ -122,13 +122,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var Response = await Facade.Update((int)model.Id, model, "Unit test");
             Assert.NotEqual(Response, 0);
 
-            //ExternalPurchaseOrder model2 = await DataUtil.GetTestData("Unit test");
-            //model2.UseIncomeTax = false;
-            //model2.IncomeTaxId = null;
-            //model2.IncomeTaxName = null;
-            //model2.IncomeTaxRate = null;
-            //var Response2 = await Facade.Update((int)model2.Id, model, "Unit test");
-            //Assert.NotEqual(Response2, 0);
+            ExternalPurchaseOrder model2 = await DataUtil.GetTestData("Unit test");
+            model2.UseIncomeTax = false;
+            var Response2 = await Facade.Update((int)model2.Id, model, "Unit test");
+            Assert.NotEqual(Response2, 0);
 
             ExternalPurchaseOrderItem oldItem = model.Items.FirstOrDefault();
             ExternalPurchaseOrderDetail oldDetail = oldItem.Details.FirstOrDefault();
