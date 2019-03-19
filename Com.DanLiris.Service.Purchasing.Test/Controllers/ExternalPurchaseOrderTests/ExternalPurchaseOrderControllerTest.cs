@@ -272,6 +272,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result["data"].GetType().Name.Equals("JObject"));
 
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
+            viewModel.incomeTax = new Lib.ViewModels.IntegrationViewModel.IncomeTaxViewModel
+            {
+                _id = "1",
+                name = "test",
+                rate = "1"
+            };
+            viewModel.incomeTaxBy = null;
             foreach (var item in viewModel.items)
             {
                 foreach (var detail in item.details)
