@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public string paymentDueDays { get; set; }
         public bool useVat { get; set; }
         public IncomeTaxViewModel incomeTax { get; set; }
+        public string incomeTaxBy { get; set; }
         public bool useIncomeTax { get; set; }
         public bool isPosted { get; set; }
         public bool isClosed { get; set; }
@@ -65,6 +66,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
             else if (this.deliveryDate != null && this.orderDate > this.deliveryDate)
             {
                 yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "deliveryDate" });
+            }
+
+            if (this.incomeTax != null)
+            {
+                if (string.IsNullOrEmpty(incomeTaxBy))
+                {
+                    yield return new ValidationResult("Income tax by is required", new List<string> { "incomeTaxBy" });
+                }
             }
 
             int itemErrorCount = 0;

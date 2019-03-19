@@ -27,7 +27,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                 PRId= doDetail[0].PRId,
                 PRNo= doDetail[0].PRNo,
                 EPODetailId= doDetail[0].EPODetailId,
-                DODetailId=doDetail[0].Id
+                EPOId = deliveryOrderItem[0].EPOId,
+                EPONo = deliveryOrderItem[0].EPONo,
+                IncomeTaxBy = "Supplier",
+                DODetailId =doDetail[0].Id
             };
         }
 
@@ -37,6 +40,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
 
             return new UnitReceiptNoteItemViewModel
             {
+                epoId = deliveryOrderItem[0].EPOId,
+                epoNo = deliveryOrderItem[0].EPONo,
+                incomeTaxBy = "Supplier",
                 prId = doDetail[0].PRId,
                 prNo = doDetail[0].PRNo,
                 prItemId= doDetail[0].PRItemId,

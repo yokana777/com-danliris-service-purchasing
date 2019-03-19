@@ -112,6 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         public async void Should_Success_Update_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            model.UseIncomeTax = false;
             foreach (var item in model.Items)
             {
                 foreach (var detail in item.Details)
@@ -121,6 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             }
             var Response = await Facade.Update((int)model.Id, model, "Unit test");
             Assert.NotEqual(Response, 0);
+
 
             ExternalPurchaseOrderItem oldItem = model.Items.FirstOrDefault();
             ExternalPurchaseOrderDetail oldDetail = oldItem.Details.FirstOrDefault();

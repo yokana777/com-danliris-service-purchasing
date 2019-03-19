@@ -452,7 +452,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 Paragraph nomor = new Paragraph($"Nomor : {viewModel.returNoteNo}", smaller_font) { Alignment = Element.ALIGN_CENTER };
                 document.Add(nomor);
 
-                Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModel.vatTaxCorrectionNo} Tanggal : {viewModel.vatTaxCorrectionDate.GetValueOrDefault().ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
+                Paragraph pajakNomorString = new Paragraph($"Atas Faktur Pajak Nomor : {viewModel.vatTaxCorrectionNo} Tanggal : {viewModel.vatTaxCorrectionDate.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", smaller_font) { Alignment = Element.ALIGN_CENTER };
                 document.Add(pajakNomorString);
             
                 document.Add(space);
@@ -500,7 +500,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 PdfPCell cellLeftBorderless = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
                 PdfPTable tableContent = new PdfPTable(7);
-                tableContent.SetWidths(new float[] { 2f, 6f, 4f, 2f, 3f, 2f, 3f});
+                tableContent.SetWidths(new float[] { 2f, 5f, 4f, 1.5f, 4f, 1.5f, 4f});
 
                 cellCenter.Phrase = new Phrase("No.", smallest_bold_font);
                 tableContent.AddCell(cellCenter);

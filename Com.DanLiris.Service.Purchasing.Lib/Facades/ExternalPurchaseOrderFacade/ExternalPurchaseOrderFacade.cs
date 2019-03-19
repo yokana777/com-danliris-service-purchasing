@@ -113,6 +113,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                     m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
 
+                    if (m.UseIncomeTax == false)
+                    {
+                        m.IncomeTaxBy = "";
+                    }
+
                     foreach (var item in m.Items)
                     {
                         
@@ -161,7 +166,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     if (existingModel != null && id == externalPurchaseOrder.Id)
                     {
                         EntityExtension.FlagForUpdate(externalPurchaseOrder, user, "Facade");
-
+                        if (externalPurchaseOrder.UseIncomeTax == false)
+                        {
+                            externalPurchaseOrder.IncomeTaxBy = "";
+                        }
                         foreach (var item in externalPurchaseOrder.Items.ToList())
                         {
                             var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
@@ -628,7 +636,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Query.ToList();
         }
 
-        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "")
+        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "", string incomeTaxBy= "")
         {
             IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
 
@@ -641,7 +649,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             List<EPOViewModel> list = new List<EPOViewModel>();
             list = Query
                 .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false
-                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId)
+                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId && m.IncomeTaxBy== incomeTaxBy)
                 .Select(s => new EPOViewModel
                 {
                     _id = s.Id,
