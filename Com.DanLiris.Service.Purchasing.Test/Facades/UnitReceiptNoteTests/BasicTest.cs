@@ -198,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         //[Fact]
-        //public async void Should_Success_Update_Data()
+        //public async Task Should_Success_Update_Data()
         //{
         //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
         //    var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -211,7 +211,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         //}
 
         //[Fact]
-        //public async void Should_Success_Delete_Data()
+        //public async Task Should_Success_Delete_Data()
         //{
         //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
         //    var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         //}
 
         //[Fact]
-        //public async void Should_Success_Get_Data_Spb()
+        //public async Task Should_Success_Get_Data_Spb()
         //{
         //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
         //    await _dataUtil(facade, GetCurrentMethod()).GetTestData();

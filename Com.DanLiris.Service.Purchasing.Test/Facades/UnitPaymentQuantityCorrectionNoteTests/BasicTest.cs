@@ -25,6 +25,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrectionNoteTests
 {
@@ -96,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -107,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -118,7 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Error_Get_Null_Data_UnitReceiptNote()
+        public async Task Should_Error_Get_Null_Data_UnitReceiptNote()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -129,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         //[Fact]
-        //public async void Should_Success_Get_Null_Data_UnitReceiptNote()
+        //public async Task Should_Success_Get_Null_Data_UnitReceiptNote()
         //{
         //    var serviceProvider = new Mock<IServiceProvider>();
         //    var dbContext = _dbContext(GetCurrentMethod());
@@ -140,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         //}
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -155,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_garment()
+        public async Task Should_Success_Create_Data_garment()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -167,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_when_Supplier_IsNull()
+        public async Task Should_Success_Create_Data_when_Supplier_IsNull()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -179,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_when_Supplier_Is_not_Null()
+        public async Task Should_Success_Create_Data_when_Supplier_Is_not_Null()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -191,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Error_Create_Data_Null_Parameter()
+        public async Task Should_Error_Create_Data_Null_Parameter()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
@@ -202,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
 
 
         //[Fact]
-        //public async void Should_Success_Update_Data()
+        //public async Task Should_Success_Update_Data()
         //{
         //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
         //    var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -215,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         //}
 
         //[Fact]
-        //public async void Should_Success_Delete_Data()
+        //public async Task Should_Success_Delete_Data()
         //{
         //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
         //    var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -289,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
         #region Monitoring Koreksi Jumlah 
         [Fact]
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -300,7 +301,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Get_Generate_Excel()
+        public async Task Should_Success_Get_Generate_Excel()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
@@ -311,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         }
 
         [Fact]
-        public async void Should_Success_Get_Generate_Excel_Null_parameter()
+        public async Task Should_Success_Get_Generate_Excel_Null_parameter()
         {
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());

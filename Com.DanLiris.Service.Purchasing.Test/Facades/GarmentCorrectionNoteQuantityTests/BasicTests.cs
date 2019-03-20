@@ -25,6 +25,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuantityTests
@@ -122,7 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         
 
         [Fact]
-        public async void Should_Success_Get_All_Data()
+        public async Task Should_Success_Get_All_Data()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
@@ -131,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
@@ -140,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -149,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_With_Tax()
+        public async Task Should_Success_Create_Data_With_Tax()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
@@ -162,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
-        public async void Should_Error_Create_Data_Null_Items()
+        public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -190,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Supplier()
+        public async Task Should_Success_Get_Data_By_Supplier()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -200,7 +201,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_DOId()
+        public async Task Should_Success_Get_Data_By_DOId()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             GarmentCorrectionNote data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);

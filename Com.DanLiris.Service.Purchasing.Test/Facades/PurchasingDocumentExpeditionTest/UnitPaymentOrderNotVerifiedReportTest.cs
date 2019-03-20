@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpeditionTest
@@ -40,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
 
 
         [Fact]
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             PurchasingDocumentExpedition model = await DataUtil.GetTestData();
             model.Position = (ExpeditionPosition)6;

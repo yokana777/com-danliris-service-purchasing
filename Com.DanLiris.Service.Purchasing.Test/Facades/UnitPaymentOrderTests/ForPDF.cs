@@ -18,6 +18,7 @@ using Moq;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
@@ -87,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         }
 
         [Fact]
-        public async void Should_Success_GetUnitReceiptNote()
+        public async Task Should_Success_GetUnitReceiptNote()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -102,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         }
 
         [Fact]
-        public async void Should_Success_GetExternalPurchaseOrder()
+        public async Task Should_Success_GetExternalPurchaseOrder()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();

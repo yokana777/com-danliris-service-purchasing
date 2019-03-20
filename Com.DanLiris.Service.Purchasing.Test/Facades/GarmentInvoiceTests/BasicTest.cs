@@ -104,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		}
 
 		[Fact]
-		public async void Should_Success_Create_Data()
+		public async Task Should_Success_Create_Data()
 		{
 			 
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
@@ -120,7 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		}
 
 		[Fact]
-		public async void Should_Validate_Double_Data()
+		public async Task Should_Validate_Double_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice model = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
@@ -148,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			Assert.NotNull(errorDuplicate);
 		}
 		[Fact]
-		public async void Should_Error_Create_Data()
+		public async Task Should_Error_Create_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice model =await  dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
@@ -159,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 
 
 		[Fact]
-		public async void Should_Success_Get_All_Data()
+		public async Task Should_Success_Get_All_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		}
 
 		[Fact]
-		public async void Should_Success_Get_Data_By_Id()
+		public async Task Should_Success_Get_Data_By_Id()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			Assert.NotNull(Response);
 		}
 		[Fact]
-		public async void Should_Success_Update_Data()
+		public async Task Should_Success_Update_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
         }
 
 		[Fact]
-		public async void Should_Success_Update_Data2()
+		public async Task Should_Success_Update_Data2()
 		{
 			var dbContext = _dbContext(GetCurrentMethod());
 			var facade = new GarmentInvoiceFacade(dbContext, ServiceProvider);
@@ -242,7 +242,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		}
 
 		[Fact]
-		public async void Should_Error_Update_Data()
+		public async Task Should_Error_Update_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
@@ -278,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
         }
 
 		[Fact]
-		public async void Should_Success_Delete_Data()
+		public async Task Should_Success_Delete_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
@@ -288,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		}
 
 		[Fact]
-		public async void Should_Error_Delete_Data()
+		public async Task Should_Error_Delete_Data()
 		{
 			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
@@ -398,7 +398,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_DOId()
+        public async Task Should_Success_Get_Data_By_DOId()
         {
             var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);

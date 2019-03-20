@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //}
 
         [Fact]
-        //public async void Should_Success_Get_Report_Data()
+        //public async Task Should_Success_Get_Report_Data()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             Assert.Equal(Response.Item2, 0);
         }
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_No_Parameter()
+        //public async Task Should_Success_Get_Report_Data_No_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -194,7 +194,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	Assert.NotEqual(Response.Item2, 0);
         //}
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_Unit_Parameter()
+        //public async Task Should_Success_Get_Report_Data_Unit_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -208,7 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	Assert.NotEqual(Response.Item2, 0);
         //}
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_Category_Parameter()
+        //public async Task Should_Success_Get_Report_Data_Category_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -228,7 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //    }
         //}
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_No_Parameter()
+        //public async Task Should_Success_Get_Report_Data_No_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -241,7 +241,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	var Response = IPRFacade.GetReport("18-08-BPI-001-unitcode-001", null, null, DateFrom, DateTo);
         //	Assert.NotEqual(Response.Item2, 0);
         //
-        //public async void Should_Success_Get_Report_Data_Unit_Parameter()
+        //public async Task Should_Success_Get_Report_Data_Unit_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -255,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	Assert.NotEqual(Response.Item2, 0);
         //}
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_Category_Parameter()
+        //public async Task Should_Success_Get_Report_Data_Category_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -286,7 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
         //[Fact]
-        //public async void Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
+        //public async Task Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
         //{
         //          ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
         //          DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");

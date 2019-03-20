@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
@@ -35,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Mongo_Data()
+        public async Task Should_Success_Get_Mongo_Data()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();
@@ -46,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             var data = DataUtil.GetTestData();
             var result = await this.Facade.GetReport(25, 1, "{}", GetBsonValue.ToString(data.Item1, "no"), GetBsonValue.ToString(data.Item1, "supplier.code"), null, null,7);
@@ -56,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Mongo_Data_Parm()
+        public async Task Should_Success_Get_Mongo_Data_Parm()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();
@@ -67,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Parm()
+        public async Task Should_Success_Get_Report_Data_Parm()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();
@@ -78,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Parm_Order()
+        public async Task Should_Success_Get_Report_Data_Parm_Order()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();
@@ -89,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Parm_Order_From()
+        public async Task Should_Success_Get_Report_Data_Parm_Order_From()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();
@@ -100,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Parm_Order_To()
+        public async Task Should_Success_Get_Report_Data_Parm_Order_To()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();
@@ -111,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Parm_All()
+        public async Task Should_Success_Get_Report_Data_Parm_All()
         {
             var data = DataUtil.GetTestData();
             var date = data.Item1["dueDate"].ToUniversalTime();

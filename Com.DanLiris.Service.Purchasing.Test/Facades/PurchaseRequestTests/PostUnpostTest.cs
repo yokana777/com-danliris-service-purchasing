@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
@@ -32,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_PRPost()
+        public async Task Should_Success_PRPost()
         {
             List<PurchaseRequest> modelList = new List<PurchaseRequest>();
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
@@ -42,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_PRUnpost()
+        public async Task Should_Success_PRUnpost()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.PRUnpost((int)model.Id, "Unit Test");
