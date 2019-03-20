@@ -24,6 +24,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePriceTests
@@ -92,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         }
 
         [Fact]
-        public async void Should_Success_Get_All_Data_Koreksi_Harga_Satuan()
+        public async Task Should_Success_Get_All_Data_Koreksi_Harga_Satuan()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan();
@@ -101,7 +102,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         }
 
         [Fact]
-        public async void Should_Success_Get_All_Data_Koreksi_Harga_Total()
+        public async Task Should_Success_Get_All_Data_Koreksi_Harga_Total()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal();
@@ -110,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id_Koreksi_Harga_Satuan()
+        public async Task Should_Success_Get_Data_By_Id_Koreksi_Harga_Satuan()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaSatuan();
@@ -119,7 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id_Koreksi_Harga_Total()
+        public async Task Should_Success_Get_Data_By_Id_Koreksi_Harga_Total()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiHargaTotal();
@@ -128,39 +129,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData().GarmentCorrectionNote;
+            var datautil = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = datautil.GarmentCorrectionNote;
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_With_Tax()
+        public async Task Should_Success_Create_Data_With_Tax()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
 
-            var data2nd = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var data2nd = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response2nd = await facade.Create(data2nd);
             Assert.NotEqual(Response2nd, 0);
         }
 
         [Fact]
-        public async void Should_Error_Create_Data_Null_Items()
+        public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData().GarmentCorrectionNote;
+            var datautil = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = datautil.GarmentCorrectionNote;
             data.Items = null;
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
             Assert.NotNull(e.Message);
         }
 
         [Fact]
-        public async void Should_Error_Create_Data_Failed_Get_Supplier()
+        public async Task Should_Error_Create_Data_Failed_Get_Supplier()
         {
             var httpClientService = new Mock<IHttpClientService>();
             httpClientService
@@ -176,7 +179,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
                 .Returns(httpClientService.Object);
 
             var facade = new GarmentCorrectionNotePriceFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData().GarmentCorrectionNote;
+            var datautil = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = datautil.GarmentCorrectionNote;
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
             Assert.NotNull(e.Message);
         }

@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
@@ -48,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport(model.No,model.UnitId,model.CategoryId,model.BudgetId,"","",null,null, 1,25,"{}",7, "Unit Test");
@@ -56,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport("", null,null, null, "", "", null, null, 1, 25, "{}", 7, "Unit Test");
@@ -64,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel()
+        public async Task Should_Success_Get_Report_Data_Excel()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel(model.No, model.UnitId, model.CategoryId, model.BudgetId, "", "", null, null, 7, "Unit Test");
@@ -72,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel("", "", "", "", "", "", null, null, 7, "Unit Test");
@@ -80,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
         //Duration PR
         [Fact]
-        public async void Should_Success_Get_Report_PRDuration_Data()
+        public async Task Should_Success_Get_Report_PRDuration_Data()
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
 			var Response = Facade.GetPRDurationReport( model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
@@ -88,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		}
 
 		[Fact]
-		public async void Should_Success_Get_Report_PRDuration_Null_Parameter()
+		public async Task Should_Success_Get_Report_PRDuration_Null_Parameter()
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
 			var Response = Facade.GetPRDurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
@@ -96,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		}
 
 		[Fact]
-		public async void Should_Success_Get_Report_PRDuration_Excel()
+		public async Task Should_Success_Get_Report_PRDuration_Excel()
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
 			var Response = Facade.GenerateExcelPRDuration(model.UnitId, "8-14 hari", null, null, 7);
@@ -104,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		}
 
 		[Fact]
-		public async void Should_Success_Get_Report_PRDuration_Excel_Null_Parameter()
+		public async Task Should_Success_Get_Report_PRDuration_Excel_Null_Parameter()
 		{
 			var model = await IPODataUtil.GetTestData3("Unit test");
 			var Response = Facade.GenerateExcelPRDuration("", "15-30 hari", null, null, 7);
@@ -113,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 
         //Duration PR-PO Ex
         [Fact]
-        public async void Should_Success_Get_Report_PRPOExDuration_Data()
+        public async Task Should_Success_Get_Report_PRPOExDuration_Data()
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetPREPODurationReport(model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
@@ -121,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_PRPOExDuration_Null_Parameter()
+        public async Task Should_Success_Get_Report_PRPOExDuration_Null_Parameter()
         {
             var model = await IPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetPREPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
@@ -129,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_PRPOEDuration_Excel()
+        public async Task Should_Success_Get_Report_PRPOEDuration_Excel()
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GenerateExcelPREPODuration(model.UnitId, "8-14 hari", null, null, 7);
@@ -137,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_PRPOEDuration_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_PRPOEDuration_Excel_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GenerateExcelPREPODuration("", "15-30 hari", null, null, 7);
@@ -145,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Generate_Data_Excel()
+        public async Task Should_Success_Get_Report_Generate_Data_Excel()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
@@ -153,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
+        public async Task Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);

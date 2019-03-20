@@ -35,6 +35,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteTests
 {
@@ -179,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Get_All_Data()
+        public async Task Should_Success_Get_All_Data()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -188,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -197,19 +198,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_one_Item()
+        public async Task Should_Success_Create_Data_one_Item()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             //List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
             //items.Add(data.Items.First());
             //data.Items = items;
@@ -219,35 +220,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_Null_Summary()
+        public async Task Should_Success_Create_Data_Null_Summary()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_Type_Transfer()
+        public async Task Should_Success_Create_Data_Type_Transfer()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Error_Create_Data_Null_Items()
+        public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             data.Items = null;
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
             Assert.NotNull(e.Message);
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
@@ -266,7 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Update_Data_Type_Transfer()
+        public async Task Should_Success_Update_Data_Type_Transfer()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
@@ -284,7 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Update_Data_Type_Transfer_null_Summary()
+        public async Task Should_Success_Update_Data_Type_Transfer_null_Summary()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
@@ -312,7 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Error_Update_Data_Null_Items()
+        public async Task Should_Error_Update_Data_Null_Items()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
@@ -326,7 +327,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -336,7 +337,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Error_Delete_Data_Invalid_Id()
+        public async Task Should_Error_Delete_Data_Invalid_Id()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -346,7 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
-        public async void Should_Success_Validate_Data()
+        public async Task Should_Success_Validate_Data()
         {
             GarmentUnitExpenditureNoteViewModel viewModel = new GarmentUnitExpenditureNoteViewModel { };
             Assert.True(viewModel.Validate(null).Count() > 0);

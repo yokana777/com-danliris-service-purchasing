@@ -19,12 +19,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             this.UNDataUtil = UNDataUtil;
         }
 
-        public GarmentUnitDeliveryOrder GetNewData()
+        public async Task<GarmentUnitDeliveryOrder> GetNewData()
         {
             DateTimeOffset now = DateTimeOffset.Now;
             long nowTicks = now.Ticks;
 
-            var garmentUnitReceiptNote = Task.Run(() => UNDataUtil.GetTestData()).Result;
+            var garmentUnitReceiptNote = await Task.Run(() => UNDataUtil.GetTestData());
 
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
@@ -74,17 +74,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
         public async Task<GarmentUnitDeliveryOrder> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.Create(data);
             return data;
         }
-        public GarmentUnitDeliveryOrder GetNewDataMultipleItem()
+        public async Task<GarmentUnitDeliveryOrder> GetNewDataMultipleItem()
         {
             DateTimeOffset now = DateTimeOffset.Now;
             long nowTicks = now.Ticks;
 
-            var garmentUnitReceiptNote1 = Task.Run(() => UNDataUtil.GetTestDataWithStorage()).Result;
-            var garmentUnitReceiptNote2 = Task.Run(() => UNDataUtil.GetTestDataWithStorage(garmentUnitReceiptNote1.UnitId)).Result;
+            var garmentUnitReceiptNote1 = await Task.Run(() => UNDataUtil.GetTestDataWithStorage());
+            var garmentUnitReceiptNote2 = await Task.Run(() => UNDataUtil.GetTestDataWithStorage(garmentUnitReceiptNote1.UnitId));
 
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
@@ -159,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
         public async Task<GarmentUnitDeliveryOrder> GetTestDataMultipleItem()
         {
-            var data = GetNewDataMultipleItem();
+            var data = await GetNewDataMultipleItem();
             await facade.Create(data);
             return data;
         }

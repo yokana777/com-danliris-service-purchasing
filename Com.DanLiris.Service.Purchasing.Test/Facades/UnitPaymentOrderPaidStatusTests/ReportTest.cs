@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatusTests
@@ -99,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             numberGeneratorMock.Setup(p => p.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))

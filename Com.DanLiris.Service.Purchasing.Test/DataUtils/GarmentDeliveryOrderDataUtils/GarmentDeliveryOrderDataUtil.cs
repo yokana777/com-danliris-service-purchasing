@@ -20,9 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             this.garmentExternalPurchaseOrderDataUtil = garmentExternalPurchaseOrderDataUtil;
         }
 
-        public GarmentDeliveryOrder GetNewData()
+        public async Task<GarmentDeliveryOrder> GetNewData()
         {
-            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataFabric()).Result;
+            var datas = await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataFabric());
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
@@ -119,9 +119,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             };
         }
 
-        public GarmentDeliveryOrder GetNewData2()
+        public async Task<GarmentDeliveryOrder> GetNewData2()
         {
-            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo()).Result;
+            var datas = await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo());
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
@@ -218,9 +218,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             };
         }
 
-        public GarmentDeliveryOrder GetNewData3()
+        public async Task<GarmentDeliveryOrder> GetNewData3()
         {
-            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2()).Result;
+            var datas = await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2());
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
@@ -317,9 +317,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             };
         }
 
-        public GarmentDeliveryOrder GetNewData4()
+        public async Task<GarmentDeliveryOrder> GetNewData4()
         {
-            var datas = Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2()).Result;
+            var datas = await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2());
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
@@ -463,41 +463,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 
         public async Task<GarmentDeliveryOrder> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
         public async Task<GarmentDeliveryOrder> GetTestData2()
         {
-            var data = GetNewData2();
+            var data = await GetNewData2();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
         public async Task<GarmentDeliveryOrder> GetTestData3()
         {
-            var data = GetNewData3();
+            var data = await GetNewData3();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
         public async Task<GarmentDeliveryOrder> GetTestData4()
         {
-            var data = GetNewData4();
+            var data = await GetNewData4();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
         public async Task<GarmentDeliveryOrder> GetNewData(string user)
 		{
-			var data = GetNewData();
+			var data = await GetNewData();
 			await facade.Create(data, "Unit Test");
 			return data;
 		}
 		public async Task<GarmentDeliveryOrder> GetDatas(string user)
 		{
-			GarmentDeliveryOrder garmentDeliveryOrder =  GetNewData();
+			GarmentDeliveryOrder garmentDeliveryOrder =  await GetNewData();
 			garmentDeliveryOrder.IsInvoice = false;
 			foreach (var item in garmentDeliveryOrder.Items)
 			{

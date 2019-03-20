@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUt
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests
@@ -33,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_EPOPost()
+        public async Task Should_Success_EPOPost()
         {
             List<ExternalPurchaseOrder> modelList = new List<ExternalPurchaseOrder>();
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
@@ -43,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_EPOUnpost()
+        public async Task Should_Success_EPOUnpost()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.EPOUnpost((int)model.Id, "Unit Test");
@@ -51,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_EPOClose()
+        public async Task Should_Success_EPOClose()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.EPOClose((int)model.Id, "Unit Test");
@@ -59,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_EPOCancel()
+        public async Task Should_Success_EPOCancel()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.EPOCancel((int)model.Id, "Unit Test");

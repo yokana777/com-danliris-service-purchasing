@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTests
@@ -81,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -90,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -99,25 +100,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseLocalSupplier, 0);
 
-            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
+            var datautil = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelItem = datautil.Items.First();
             var modelDetail = modelItem.Details.First();
             //model.Items.Clear();
             modelItem.EPONo = "test";
@@ -201,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -215,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -224,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Update_Position()
+        public async Task Should_Success_Update_Position()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var prepData = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -241,7 +243,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Error_Delete_Data()
+        public async Task Should_Error_Delete_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
@@ -291,10 +293,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_Disposition()
+        public async Task Should_Success_Get_Data_Disposition()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseCreate = await facade.Create(model, USERNAME, 7);
             var epoId = "";
             foreach (var epo in model.Items)
@@ -306,7 +308,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_DispositonNo()
+        public async Task Should_Success_Get_Data_By_DispositonNo()
         {
             var facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -315,7 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_TotalPaidPrice()
+        public async Task Should_Success_Get_Data_TotalPaidPrice()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();

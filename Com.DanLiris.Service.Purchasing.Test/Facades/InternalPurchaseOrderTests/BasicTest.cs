@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTests
@@ -32,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             await DataUtil.GetTestData("Unit test");
             Tuple<List<InternalPurchaseOrder>, int, Dictionary<string, string>> Response = Facade.Read();
@@ -40,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadById((int)model.Id);
@@ -48,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetNewData("Unit test");
             var Response = await Facade.Create(model, "Unit Test");
@@ -56,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = await Facade.Update((int)model.Id, model, "Unit Test");
@@ -64,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");
@@ -72,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_CountPRNo()
+        public async Task Should_Success_Get_Data_CountPRNo()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadByPRNo(model.PRNo);
