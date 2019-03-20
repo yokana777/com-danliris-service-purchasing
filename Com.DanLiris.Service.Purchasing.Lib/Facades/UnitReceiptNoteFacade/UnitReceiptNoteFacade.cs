@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    CreateJournalTransactionUnitReceiptNote(model);
+                    await CreateJournalTransactionUnitReceiptNote(model);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -226,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Created;
         }
 
-        public void CreateJournalTransactionUnitReceiptNote(UnitReceiptNote model)
+        public async Task CreateJournalTransactionUnitReceiptNote(UnitReceiptNote model)
         {
             var items = new List<JournalTransactionItem>();
 
@@ -386,7 +386,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             string journalTransactionUri = "journal-transactions";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
             response.EnsureSuccessStatusCode();
         }
 
