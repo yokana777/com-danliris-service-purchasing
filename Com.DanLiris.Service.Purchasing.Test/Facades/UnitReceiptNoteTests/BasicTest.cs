@@ -105,11 +105,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
-        public void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var Response = facade.ReadById((int)dataUtil.Id);
             Assert.NotNull(Response);
         }

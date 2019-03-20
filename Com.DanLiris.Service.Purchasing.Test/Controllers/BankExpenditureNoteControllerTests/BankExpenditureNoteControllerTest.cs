@@ -449,7 +449,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         }
 
         [Fact]
-        public void Should_Success_Get_PDF_By_Id()
+        public async Task Should_Success_Get_PDF_By_Id()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -466,7 +466,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
-            var response = controller.GetById(It.IsAny<int>());
+            var response = await controller.GetById(It.IsAny<int>());
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
 

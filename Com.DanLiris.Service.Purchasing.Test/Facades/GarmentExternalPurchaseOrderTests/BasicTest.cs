@@ -152,10 +152,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public void Should_Success_Get_All_Data()
+        public async Task Should_Success_Get_All_Data()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
