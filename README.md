@@ -1,2 +1,1 @@
 # com-danliris-purchasing
-purchasing
