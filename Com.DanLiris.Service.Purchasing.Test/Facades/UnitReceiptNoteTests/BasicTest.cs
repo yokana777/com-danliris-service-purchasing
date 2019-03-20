@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
@@ -135,12 +136,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
-        public void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
-            var response = facade.Delete((int)dataUtil.Id, dataUtil.CreatedBy);
+            var response = await facade.Delete((int)dataUtil.Id, dataUtil.CreatedBy);
             Assert.NotEqual(response, 0);
         }
 

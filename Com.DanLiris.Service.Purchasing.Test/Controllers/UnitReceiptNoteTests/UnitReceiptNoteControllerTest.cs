@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
@@ -540,22 +541,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         }
 
         [Fact]
-        public void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
             mockFacade
                 .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
-                .Returns(1);
+                .ReturnsAsync(1);
 
             var mockMapper = new Mock<IMapper>();
 
             UnitReceiptNoteController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.Delete(It.IsAny<int>());
+            var response = await controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_ThrowException_Delete_Data()
+        public async Task Should_ThrowException_Delete_Data()
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
             mockFacade
@@ -565,7 +566,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             var mockMapper = new Mock<IMapper>();
 
             UnitReceiptNoteController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.Delete(It.IsAny<int>());
+            var response = await controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }
