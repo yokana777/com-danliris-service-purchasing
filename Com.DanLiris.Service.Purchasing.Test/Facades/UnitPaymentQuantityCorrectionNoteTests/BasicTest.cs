@@ -146,11 +146,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, dbContext).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseLocalSupplier, 0);
 
-            var modelImportSupplier = _dataUtil(facade, dbContext).GetNewData();
+            var modelImportSupplier = await _dataUtil(facade, dbContext).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
         }
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, dbContext).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             modelLocalSupplier.DivisionName = "GARMENT";
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, dbContext).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             modelLocalSupplier.SupplierId = null;
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
@@ -185,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, dbContext).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             modelLocalSupplier.SupplierId = "670";
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);

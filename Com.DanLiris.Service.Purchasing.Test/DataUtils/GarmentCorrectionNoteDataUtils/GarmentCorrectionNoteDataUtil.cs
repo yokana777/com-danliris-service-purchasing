@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public (GarmentCorrectionNote GarmentCorrectionNote, GarmentDeliveryOrder GarmentDeliveryOrder) GetNewData()
+        public async Task<(GarmentCorrectionNote GarmentCorrectionNote, GarmentDeliveryOrder GarmentDeliveryOrder)> GetNewData()
         {
-            var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
             GarmentCorrectionNote garmentCorrectionNote = new GarmentCorrectionNote
             {
@@ -65,9 +65,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             return (garmentCorrectionNote, garmentDeliveryOrder);
         }
 
-        public GarmentCorrectionNote GetNewDataKoreksiHargaSatuan()
+        public async Task<GarmentCorrectionNote> GetNewDataKoreksiHargaSatuan()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
 
             data.GarmentCorrectionNote.CorrectionType = "Harga Satuan";
 
@@ -86,9 +86,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             return data.GarmentCorrectionNote;
         }
 
-        public GarmentCorrectionNote GetNewDataKoreksiHargaTotal()
+        public async Task<GarmentCorrectionNote> GetNewDataKoreksiHargaTotal()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
 
             data.GarmentCorrectionNote.CorrectionType = "Harga Total";
 
@@ -107,9 +107,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             return data.GarmentCorrectionNote;
         }
 
-        public GarmentCorrectionNote GetNewDataWithTax()
+        public async Task<GarmentCorrectionNote> GetNewDataWithTax()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
 
             data.GarmentCorrectionNote.UseVat = true;
             data.GarmentCorrectionNote.UseIncomeTax = true;
@@ -122,14 +122,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
 
         public async Task<GarmentCorrectionNote> GetTestDataKoreksiHargaSatuan()
         {
-            var data = GetNewDataKoreksiHargaSatuan();
+            var data = await GetNewDataKoreksiHargaSatuan();
             await garmentCorrectionNoteFacade.Create(data);
             return data;
         }
 
         public async Task<GarmentCorrectionNote> GetTestDataKoreksiHargaTotal()
         {
-            var data = GetNewDataKoreksiHargaTotal();
+            var data = await GetNewDataKoreksiHargaTotal();
             await garmentCorrectionNoteFacade.Create(data);
             return data;
         }

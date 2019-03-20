@@ -144,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(data,false, USERNAME);
             Assert.NotEqual(Response, 0);
         }
@@ -153,11 +153,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         public async Task Should_Success_Create_Data_With_Tax()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response = await facade.Create(data,false,USERNAME);
             Assert.NotEqual(Response, 0);
 
-            var data2nd = dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
+            var data2nd = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response2nd = await facade.Create(data2nd,false,USERNAME);
             Assert.NotEqual(Response2nd, 0);
         }
@@ -166,7 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             data.Items = null;
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data,false, USERNAME));
             Assert.NotNull(e.Message);
@@ -194,7 +194,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
         public async Task Should_Success_Get_Data_By_Supplier()
         {
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Responses = await facade.Create(data,false, USERNAME);
             var Response = facade.GetSupplier(data.SupplierId);
             Assert.NotNull(Response);

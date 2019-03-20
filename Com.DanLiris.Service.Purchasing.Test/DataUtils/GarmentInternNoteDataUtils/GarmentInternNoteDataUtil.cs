@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
             this.facade = facade;
         }
 
-        public GarmentInternNote GetNewData()
+        public async Task<GarmentInternNote> GetNewData()
         {
-            var garmentInvoice = Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User")).Result;
+            var garmentInvoice = await Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User"));
             List<GarmentInternNoteDetail> garmentInternNoteDetails = new List<GarmentInternNoteDetail>();
             foreach (var item in garmentInvoice.Items)
             {
@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
 
         public async Task<GarmentInternNoteItem> GetNewDataItem(string user)
         {
-            var garmentInvoice = Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User")).Result;
+            var garmentInvoice = await Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User"));
             List<GarmentInternNoteDetail> garmentInternNoteDetails = new List<GarmentInternNoteDetail>();
             foreach (var item in garmentInvoice.Items)
             {
@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
 
         public async Task<GarmentInternNote> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.Create(data,false, "Unit Test");
             return data;
         }

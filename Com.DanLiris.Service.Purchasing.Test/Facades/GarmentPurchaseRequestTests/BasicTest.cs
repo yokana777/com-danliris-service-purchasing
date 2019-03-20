@@ -288,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		public async Task Should_Success_Get_Report_Purchase_All_Data()
 		{
 			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data,false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
@@ -300,7 +300,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		public async Task Should_Success_Get_Report_Purchase_All_Excel()
 		{
 			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade( _dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
@@ -335,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		public async Task Should_Success_Get_Report_Purchase_By_User_Excel()
 		{
 			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelByUserPurchase(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
@@ -347,7 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		public async Task Should_Success_Get_Report_Purchase_By_User_noData_Excel()
 		{
 			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelByUserPurchase("coba", null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);

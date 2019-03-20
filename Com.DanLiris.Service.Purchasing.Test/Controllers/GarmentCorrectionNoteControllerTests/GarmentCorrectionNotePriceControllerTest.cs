@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNoteControllerTests
@@ -238,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentCorrectionNote>>(It.IsAny<List<GarmentCorrectionNoteViewModel>>()))
@@ -254,12 +255,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -269,19 +270,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var mockMapper = new Mock<IMapper>();
             var mockFacade = new Mock<IGarmentCorrectionNotePriceFacade>();
 
             var controller = new GarmentCorrectionNotePriceController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
-            var response = controller.Post(new GarmentCorrectionNoteViewModel()).Result;
+            var response = await controller.Post(new GarmentCorrectionNoteViewModel());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

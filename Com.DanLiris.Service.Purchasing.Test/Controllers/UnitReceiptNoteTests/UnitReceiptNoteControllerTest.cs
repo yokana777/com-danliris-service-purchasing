@@ -151,7 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         ////    UnitReceiptNote model = await DataUtil.GetTestData("dev2");
 
         ////    var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-        ////    var json = responseGetById.Content.ReadAsStringAsync().Result;
+        ////    var json = responseGetById.Content.ReadAsStringAsync();
 
         ////    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
         ////    Assert.True(result.ContainsKey("apiVersion"));
@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         //    UnitReceiptNote model = await DataUtil.GetTestData("dev2");
 
         //    var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-        //    var json = responseGetById.Content.ReadAsStringAsync().Result;
+        //    var json = responseGetById.Content.ReadAsStringAsync();
 
         //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
         //    Assert.True(result.ContainsKey("apiVersion"));
@@ -379,7 +379,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock
@@ -401,12 +401,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_ThrowBadRequest_Create_Data()
+        public async Task Should_ThrowBadRequest_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock
@@ -428,12 +428,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_ThrowException_Create_Data()
+        public async Task Should_ThrowException_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock
@@ -455,12 +455,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock
@@ -482,12 +482,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
 
-            var response = controller.Put(1, ViewModel).Result;
+            var response = await controller.Put(1, ViewModel);
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_ThrowBadRequest_Update_Data()
+        public async Task Should_ThrowBadRequest_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock
@@ -509,12 +509,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
 
-            var response = controller.Put(1, ViewModel).Result;
+            var response = await controller.Put(1, ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_ThrowException_Update_Data()
+        public async Task Should_ThrowException_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock
@@ -536,7 +536,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
 
-            var response = controller.Put(1, ViewModel).Result;
+            var response = await controller.Put(1, ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

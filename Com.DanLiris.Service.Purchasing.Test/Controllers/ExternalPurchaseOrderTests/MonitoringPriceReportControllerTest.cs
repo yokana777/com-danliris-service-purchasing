@@ -41,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.GetAsync(URI + "/display?page=1&size=50");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var json = response.Content.ReadAsStringAsync().Result;
+            var json = response.Content.ReadAsStringAsync();
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
 
             Assert.True(result.ContainsKey("apiVersion"));
@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.GetAsync(URI + "/display");
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            //var json = response.Content.ReadAsStringAsync().Result;
+            //var json = response.Content.ReadAsStringAsync();
             //Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
 
             //Assert.True(result.ContainsKey("apiVersion"));

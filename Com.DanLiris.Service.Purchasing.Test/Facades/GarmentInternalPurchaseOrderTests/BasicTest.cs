@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         public async Task Should_Success_Create_Multiple_Data()
         {
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
-            var listData = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.CreateMultiple(listData, USERNAME);
             Assert.NotEqual(Response, 0);
         }
@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         public async Task Should_Error_Create_Multiple_Data()
         {
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
-            var listData = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var listData = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             foreach (var data in listData)
             {
                 data.Items = null;
@@ -250,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         public async Task Should_Success_Create_Data_Fabric()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            var data = await EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             await facade.Create(data, USERNAME);
 
 
@@ -260,7 +260,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         public async Task Should_Success_Get_Report_POIPOExDuration_Data()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            var data = await EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             await facade.Create(data, USERNAME);
             GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var Response = Facade.GetIPOEPODurationReport("", "0-7 hari", null, null, 1, 25, "{}", 7);
@@ -280,7 +280,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         public async Task Should_Success_Get_Report_POIPOEDuration_Excel()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            var data = await EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             await facade.Create(data, USERNAME);
             GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
 

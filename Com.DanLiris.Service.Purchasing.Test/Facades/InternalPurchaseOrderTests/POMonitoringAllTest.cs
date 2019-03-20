@@ -196,7 +196,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var serviceProvider = new Mock<IServiceProvider>();
             
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             var prNo = "";
             foreach(var item in modelLocalSupplier.Items)
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var serviceProvider = new Mock<IServiceProvider>();
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             var today = DateTime.Now;
             var tomorrow = today.AddDays(1);

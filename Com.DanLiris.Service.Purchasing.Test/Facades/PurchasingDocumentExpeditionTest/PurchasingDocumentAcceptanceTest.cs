@@ -37,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         [Fact]
         private async Task Should_Success_Accept_Document_With_Verification_Role()
         {
-            PurchasingDocumentAcceptanceViewModel vModel = DataUtil.GetVerificationNewData();
+            PurchasingDocumentAcceptanceViewModel vModel = await DataUtil.GetVerificationNewData();
             int AffectedRows = await Facade.PurchasingDocumentAcceptance(vModel, "Unit Test");
             Assert.True(AffectedRows > 0);
         }
@@ -45,7 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         [Fact]
         private async Task Should_Success_Accept_Document_With_Cashier_Role()
         {
-            PurchasingDocumentAcceptanceViewModel vModel = DataUtil.GetCashierNewData();
+            PurchasingDocumentAcceptanceViewModel vModel = await DataUtil.GetCashierNewData();
             int AffectedRows = await Facade.PurchasingDocumentAcceptance(vModel, "Unit Test");
             Assert.True(AffectedRows > 0);
         }

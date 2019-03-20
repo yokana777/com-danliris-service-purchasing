@@ -175,7 +175,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
         }
@@ -184,7 +184,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             data.Items = null;
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
             Assert.NotNull(e.Message);
@@ -302,10 +302,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 		public async Task Should_Success_Get_Report_Data()
 		{
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, USERNAME);
 			var uFacade= new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-			var datas = dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
+			var datas = await dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
 			var Responses = await uFacade.Create(datas);
 			Assert.NotEqual(Responses, 0);
 			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
@@ -322,10 +322,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 		public async Task Should_Success_Get_Report_Excel()
 		{
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, USERNAME);
 			var uFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-			var datas = dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
+			var datas = await dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
 			var Responses = await uFacade.Create(datas);
 			Assert.NotEqual(Responses, 0);
 			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));

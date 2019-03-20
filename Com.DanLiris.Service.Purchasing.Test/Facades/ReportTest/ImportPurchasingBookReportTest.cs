@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             //DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
             var DateFrom = DateTime.Now.AddDays(-1);
             DateFrom = DateFrom.Date;
@@ -274,7 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
             var DateFrom = DateTime.Now;
             DateFrom = DateFrom.Date;

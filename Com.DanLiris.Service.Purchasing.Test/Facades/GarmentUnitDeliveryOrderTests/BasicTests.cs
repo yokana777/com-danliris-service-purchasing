@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);

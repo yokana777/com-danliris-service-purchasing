@@ -19,9 +19,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
             this.pdaDataUtil = pdaDataUtil;
         }
 
-        public PPHBankExpenditureNoteItem GetItemNewData()
+        public async Task<PPHBankExpenditureNoteItem> GetItemNewData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             return new PPHBankExpenditureNoteItem()
             {
@@ -31,10 +31,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
             };
         }
 
-        public PPHBankExpenditureNote GetNewData()
+        public async Task<PPHBankExpenditureNote> GetNewData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition1 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
-            PurchasingDocumentExpedition purchasingDocumentExpedition2 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
             
             List<PPHBankExpenditureNoteItem> Items = new List<PPHBankExpenditureNoteItem>()
             {
@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
 
         public async Task<PPHBankExpenditureNote> GetTestData()
         {
-            PPHBankExpenditureNote model = GetNewData();
+            PPHBankExpenditureNote model = await GetNewData();
             await Facade.Create(model, "Unit Test");
             return await Facade.ReadById(model.Id);
         }

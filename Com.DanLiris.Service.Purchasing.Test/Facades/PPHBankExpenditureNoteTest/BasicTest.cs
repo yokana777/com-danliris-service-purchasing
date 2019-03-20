@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
-            PPHBankExpenditureNote model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            PPHBankExpenditureNoteItem modelItem = _dataUtil(facade, GetCurrentMethod()).GetItemNewData();
+            PPHBankExpenditureNoteItem modelItem = await _dataUtil(facade, GetCurrentMethod()).GetItemNewData();
             model.Items.Clear();
             model.Items.Add(modelItem);
             var Response = await facade.Update((int)model.Id, model, "Unit Test");

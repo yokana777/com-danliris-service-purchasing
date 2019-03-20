@@ -22,9 +22,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             this.sendToVerificationDataUtil = sendToVerificationDataUtil;
         }
 
-        public PurchasingDocumentAcceptanceViewModel GetNewData()
+        public async Task<PurchasingDocumentAcceptanceViewModel> GetNewData()
         {
-            purchasingDocumentExpedition = Task.Run(() => this.sendToVerificationDataUtil.GetTestData()).Result;
+            purchasingDocumentExpedition = await Task.Run(() => this.sendToVerificationDataUtil.GetTestData());
 
             PurchasingDocumentAcceptanceItem item = new PurchasingDocumentAcceptanceItem()
             {
@@ -40,16 +40,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             return TestData;
         }
 
-        public PurchasingDocumentAcceptanceViewModel GetVerificationNewData()
+        public async Task<PurchasingDocumentAcceptanceViewModel> GetVerificationNewData()
         {
-            PurchasingDocumentAcceptanceViewModel TestData = GetNewData();
+            PurchasingDocumentAcceptanceViewModel TestData = await GetNewData();
             TestData.Role = "VERIFICATION";
             return TestData;
         }
 
-        public PurchasingDocumentAcceptanceViewModel GetCashierNewData()
+        public async Task<PurchasingDocumentAcceptanceViewModel> GetCashierNewData()
         {
-            PurchasingDocumentAcceptanceViewModel TestData = GetNewData();
+            PurchasingDocumentAcceptanceViewModel TestData = await GetNewData();
             TestData.Role = "CASHIER";
             return TestData;
         }
@@ -65,14 +65,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
 
         public async Task<PurchasingDocumentExpedition> GetVerificationTestData()
         {
-            PurchasingDocumentAcceptanceViewModel vModel = GetVerificationNewData();
+            PurchasingDocumentAcceptanceViewModel vModel = await GetVerificationNewData();
             await Task.Run(() => Facade.PurchasingDocumentAcceptance(vModel, "Unit Test"));
             return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }
 
         public async Task<PurchasingDocumentExpedition> GetCashierTestData()
         {
-            PurchasingDocumentAcceptanceViewModel vModel = GetCashierNewData();
+            PurchasingDocumentAcceptanceViewModel vModel = await GetCashierNewData();
             await Task.Run(() => Facade.PurchasingDocumentAcceptance(vModel, "Unit Test"));
             return await Facade.ReadModelById(purchasingDocumentExpedition.Id);
         }

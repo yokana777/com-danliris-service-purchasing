@@ -99,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var Response = facade.Read();
             Assert.NotEqual(Response.Data.Count, 0);
         }
@@ -109,29 +109,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var Response = facade.ReadById((int)dataUtil.Id);
             Assert.NotNull(Response);
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var model = _dataUtil(facade, dbContext).GetNewData(USERNAME).Result;
+            var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
             model.IsStorage = true;
-            var response = facade.Create(model, USERNAME).Result;
+            var response = await facade.Create(model, USERNAME);
             Assert.NotEqual(response, 0);
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
-            var response = facade.Update((int)dataUtil.Id, dataUtil, dataUtil.CreatedBy).Result;
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var response = await facade.Update((int)dataUtil.Id, dataUtil, dataUtil.CreatedBy);
             Assert.NotEqual(response, 0);
         }
 
@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = await facade.Delete((int)dataUtil.Id, dataUtil.CreatedBy);
             Assert.NotEqual(response, 0);
         }
@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var filter = JsonConvert.SerializeObject(new
             {
                 DivisionId = "DivisionId",
@@ -168,31 +168,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
-        public void Should_Success_GetReport()
+        public async Task Should_Success_GetReport()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1, 25, "{}", 1);
             Assert.NotEqual(response.Data.Count, 0);
         }
 
         [Fact]
-        public void Should_Success_GenerateExcel()
+        public async Task Should_Success_GenerateExcel()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = facade.GenerateExcel(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1);
             Assert.NotNull(response);
         }
 
         [Fact]
-        public void Should_Success_Get_By_No()
+        public async Task Should_Success_Get_By_No()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = facade.ReadByNoFiltered(1, 25, "{}", null, "{ no : ['" + dataUtil.URNNo + "']}");
             Assert.NotNull(response);
         }

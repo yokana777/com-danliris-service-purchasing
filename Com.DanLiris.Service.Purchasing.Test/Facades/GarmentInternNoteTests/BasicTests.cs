@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         public async Task Should_Success_Create_Data()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, false, USERNAME);
             Assert.NotEqual(Response, 0);
         }
@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         {
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNote data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentInternNoteFacades(dbContext, ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
-            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNote data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
@@ -186,7 +186,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         public async Task Should_Error_Update_Data()
         {
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
-            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNote data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             List<GarmentInternNoteItem> item = new List<GarmentInternNoteItem>(data.Items);
 
             data.Items.Add(new GarmentInternNoteItem

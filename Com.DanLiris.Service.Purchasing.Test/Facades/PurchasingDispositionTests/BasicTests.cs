@@ -103,11 +103,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         public async Task Should_Success_Create_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseLocalSupplier, 0);
 
-            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(ResponseImportSupplier, 0);
         }
@@ -118,7 +118,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
+            var datautil = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelItem = datautil.Items.First();
             var modelDetail = modelItem.Details.First();
             //model.Items.Clear();
             modelItem.EPONo = "test";
@@ -295,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         public async Task Should_Success_Get_Data_Disposition()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseCreate = await facade.Create(model, USERNAME, 7);
             var epoId = "";
             foreach (var epo in model.Items)

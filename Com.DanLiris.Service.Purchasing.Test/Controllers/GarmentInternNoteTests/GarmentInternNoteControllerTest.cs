@@ -310,7 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
@@ -328,12 +328,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -348,12 +348,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data_Empty()
+        public async Task Should_Validate_Create_Data_Empty()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -372,7 +372,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
@@ -432,7 +432,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
@@ -451,12 +451,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
@@ -475,7 +475,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -500,7 +500,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
@@ -519,7 +519,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
@@ -564,7 +564,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         }
 
         [Fact]
-        public void Should_Validate_Update_Data()
+        public async Task Should_Validate_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -579,7 +579,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
         private GarmentInternNoteViewModel ViewModelPDF

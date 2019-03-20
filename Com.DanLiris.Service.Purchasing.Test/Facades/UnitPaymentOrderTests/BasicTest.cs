@@ -113,11 +113,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         public async Task Should_Success_Create_Data()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, false);
             Assert.NotEqual(ResponseLocalSupplier, 0);
 
-            var modelImportSupplier = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, true);
             Assert.NotEqual(ResponseImportSupplier, 0);
         }
@@ -128,7 +128,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var modelItem = _dataUtil(facade, GetCurrentMethod()).GetNewData().Items.First();
+            var datautil = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var modelItem = datautil.Items.First();
             //model.Items.Clear();
             model.Items.Add(modelItem);
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);

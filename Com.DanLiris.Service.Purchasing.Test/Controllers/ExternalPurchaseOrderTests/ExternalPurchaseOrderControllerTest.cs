@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
             
-            var json = responseGetById.Content.ReadAsStringAsync().Result;
+            var json = responseGetById.Content.ReadAsStringAsync();
             
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -225,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync().Result;
+            var json = responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -250,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync().Result;
+            var json = responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -278,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync().Result;
+            var json = responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
