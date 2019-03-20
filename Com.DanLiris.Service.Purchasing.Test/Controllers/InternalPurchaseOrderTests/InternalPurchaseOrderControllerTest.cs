@@ -107,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync();
+            var json = await responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync();
+            var json = await responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -160,7 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             InternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync();
+            var json = await responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
