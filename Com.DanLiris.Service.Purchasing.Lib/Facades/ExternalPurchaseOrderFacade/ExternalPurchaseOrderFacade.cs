@@ -649,7 +649,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             List<EPOViewModel> list = new List<EPOViewModel>();
             list = Query
                 .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false
-                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId && m.IncomeTaxBy== incomeTaxBy)
+                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId && m.IncomeTaxBy== (incomeTaxBy==null? "" : incomeTaxBy))
                 .Select(s => new EPOViewModel
                 {
                     _id = s.Id,

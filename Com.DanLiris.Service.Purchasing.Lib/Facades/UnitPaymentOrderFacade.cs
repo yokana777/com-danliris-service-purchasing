@@ -331,9 +331,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         private void SetPaid(UnitPaymentOrderItem item, bool isPaid, string username)
         {
             UnitReceiptNote unitReceiptNote = dbContext.UnitReceiptNotes.Include(a=>a.Items).Single(m => m.Id == item.URNId);
-            foreach(var itemURN in unitReceiptNote.Items)
+            
+            foreach (var itemURN in unitReceiptNote.Items)
             {
-                itemURN.IsPaid = isPaid;
+                var detail = item.Details.FirstOrDefault(a => a.URNItemId == itemURN.Id);
+                if (detail!=null)
+                {
+                    itemURN.IsPaid = isPaid;
+                }
             }
             bool flagIsPaid = true;
             foreach (var itemURNPaid in unitReceiptNote.Items)

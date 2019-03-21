@@ -68,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                 yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "deliveryDate" });
             }
 
-            if (this.incomeTax != null)
+            if (this.useIncomeTax)
             {
                 if (string.IsNullOrEmpty(incomeTaxBy))
                 {
