@@ -155,7 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			#endregion
 			#region TableSignature
 
-			PdfPTable tableSignature = new PdfPTable(2);
+			PdfPTable tableSignature = new PdfPTable(3);
 
 			PdfPCell cellSignatureContent = new PdfPCell() { Border  = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
 			 
