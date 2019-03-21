@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOrderTests
@@ -102,38 +103,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_Fabric()
+        public async Task Should_Success_Create_Data_Fabric()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             var Response = await facade.Create(data, USERNAME);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_Fabric_OB()
+        public async Task Should_Success_Create_Data_Fabric_OB()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             
             var Response = await facade.Create(data, USERNAME);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_Acc()
+        public async Task Should_Success_Create_Data_Acc()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             var Response = await facade.Create(data, USERNAME);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Success_Create_Data_Acc_FREE()
+        public async Task Should_Success_Create_Data_Acc_FREE()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             data.PaymentMethod = "CMT";
             data.PaymentType = "FREE";
             var Response = await facade.Create(data, USERNAME);
@@ -141,36 +142,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
-            var model = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var model = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             model.Items = null;
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
             Assert.NotNull(e.Message);
         }
 
         [Fact]
-        public void Should_Success_Get_All_Data()
+        public async Task Should_Success_Get_All_Data()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             var Responses = await facade.Create(data, USERNAME);
             var Response = facade.ReadById((int)data.Id);
             Assert.NotNull(Response);
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataFabric();
@@ -250,7 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider,_dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -264,7 +265,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_EPOPost()
+        public async Task Should_Success_EPOPost()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             List<GarmentExternalPurchaseOrder> modelList = new List<GarmentExternalPurchaseOrder>();
@@ -275,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_EPOApprove()
+        public async Task Should_Success_EPOApprove()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             List<GarmentExternalPurchaseOrder> modelList = new List<GarmentExternalPurchaseOrder>();
@@ -286,7 +287,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_EPOUnpost()
+        public async Task Should_Success_EPOUnpost()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -295,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_EPOCancel()
+        public async Task Should_Success_EPOCancel()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -304,7 +305,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_EPOClose()
+        public async Task Should_Success_EPOClose()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -314,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
 
         [Fact]
-        public async void Should_Error_EPOUnpost()
+        public async Task Should_Error_EPOUnpost()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -324,7 +325,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Error_EPOCancel()
+        public async Task Should_Error_EPOCancel()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -334,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Error_EPOClose()
+        public async Task Should_Error_EPOClose()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -344,7 +345,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
@@ -353,7 +354,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Error_Delete_Data()
+        public async Task Should_Error_Delete_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
@@ -385,10 +386,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Supplier()
+        public async Task Should_Success_Get_Data_By_Supplier()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             var Responses = await facade.Create(data, USERNAME);
             var Response = facade.ReadBySupplier(data.SupplierCode);
             Assert.NotNull(Response);
@@ -396,10 +397,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
         //Duration
         [Fact]
-        public async void Should_Success_Get_Report_POEDODuration_Data()
+        public async Task Should_Success_Get_Report_POEDODuration_Data()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GetEPODODurationReport("","", "0-30 hari", null, null, 1, 25, "{}", 7);
@@ -414,10 +415,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POEDODuration_Excel()
+        public async Task Should_Success_Get_Report_POEDODuration_Excel()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+            var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GenerateExcelEPODODuration("", "", "0-30 hari", null, null, 7);
@@ -429,10 +430,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
 		//OVER BUDGET
 		[Fact]
-		public async void Should_Success_Get_Report_POOverBudget_Data()
+		public async Task Should_Success_Get_Report_POOverBudget_Data()
 		{
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, USERNAME);
 			var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetEPOOverBudgetReport(null,null,null,null,null,null,1,25,"{}",7);
@@ -441,10 +442,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 		}
 
 		[Fact]
-		public async void Should_Success_Get_Report_POOverBudget_Excel()
+		public async Task Should_Success_Get_Report_POOverBudget_Excel()
 		{
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+			var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, USERNAME);
 			var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelEPOOverBudget(null, null, null, null, null, null, 1, 25, "{}", 7);
@@ -453,7 +454,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 		}
 
         [Fact]
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             TotalGarmentPurchaseFacade facadetotal = new TotalGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
@@ -467,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel()
+        public async Task Should_Success_Get_Report_Data_Excel()
         {
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             TotalGarmentPurchaseFacade facadetotal = new TotalGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));

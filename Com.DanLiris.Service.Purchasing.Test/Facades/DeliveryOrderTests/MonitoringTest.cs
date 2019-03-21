@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
@@ -32,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             get { return (DeliveryOrderFacade)ServiceProvider.GetService(typeof(DeliveryOrderFacade)); }
         }
 
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             DeliveryOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport( model.DONo, model.SupplierId, null, null, 1, 25, "{}", 7);
@@ -40,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             DeliveryOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport("", null, null, null, 1, 25, "{}", 7);
@@ -48,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Null_Parameter_Using_Two_Test_Data()
+        public async Task Should_Success_Get_Report_Data_Null_Parameter_Using_Two_Test_Data()
         {
             DeliveryOrder model_1 = await DataUtil.GetTestDataDummy("Unit test");
             DeliveryOrder model_2 = await DataUtil.GetTestDataDummy("Unit test");
@@ -57,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel()
+        public async Task Should_Success_Get_Report_Data_Excel()
         {
             DeliveryOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel(model.DONo, model.SupplierId, null, null, 7);
@@ -65,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             DeliveryOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel("", "", null, null, 7);

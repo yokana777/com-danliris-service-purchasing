@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
@@ -35,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             DeliveryOrder model = await DataUtil.GetNewData(USERNAME);
             var Response = await Facade.Create(model, USERNAME);
@@ -43,14 +44,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Error_Create_Data_Null_Parameter()
+        public async Task Should_Error_Create_Data_Null_Parameter()
         {
             Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Create(null, USERNAME));
             Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             var model = await DataUtil.GetTestData(USERNAME);
             Tuple<List<DeliveryOrder>, int, Dictionary<string, string>> Response = Facade.Read(Keyword:model.DONo);
@@ -58,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             DeliveryOrder model = await DataUtil.GetTestData(USERNAME);
             var Response = Facade.ReadById((int)model.Id);
@@ -66,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             DeliveryOrder model = await DataUtil.GetTestData(USERNAME);
             foreach (var item in model.Items)
@@ -143,14 +144,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
-        public async void Should_Error_Update_Data_Invalid_Id()
+        public async Task Should_Error_Update_Data_Invalid_Id()
         {
             Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Update(0, new DeliveryOrder(), USERNAME));
             Assert.Equal(exception.Message, "Invalid Id");
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             var model = await DataUtil.GetTestData(USERNAME);
             var Response = Facade.Delete((int)model.Id, USERNAME);

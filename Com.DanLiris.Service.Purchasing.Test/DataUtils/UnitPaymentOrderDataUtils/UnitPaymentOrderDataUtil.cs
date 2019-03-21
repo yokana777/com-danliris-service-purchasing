@@ -18,9 +18,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
             this.facade = facade;
         }
 
-        public UnitPaymentOrder GetNewData()
+        public async Task<UnitPaymentOrder> GetNewData()
         {
-            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = Task.Run(() => this.unitReceiptNoteDataUtil.GetTestData("Unit Test")).Result;
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await Task.Run(() => this.unitReceiptNoteDataUtil.GetTestData("Unit Test"));
 
             List<UnitPaymentOrderDetail> unitPaymentOrderDetails = new List<UnitPaymentOrderDetail>();
             foreach (var item in unitReceiptNote.Items)
@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
 
         public async Task<UnitPaymentOrder> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.Create(data, "Unit Test", false);
             return data;
         }

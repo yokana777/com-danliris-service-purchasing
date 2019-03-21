@@ -18,6 +18,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNoteControllerTests
 {
@@ -189,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNote>>(It.IsAny<List<GarmentUnitReceiptNoteViewModel>>()))
@@ -205,12 +206,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitReceiptNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -220,24 +221,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(ViewModel).Result;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var mockMapper = new Mock<IMapper>();
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
 
             var controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
-            var response = controller.Post(new GarmentUnitReceiptNoteViewModel()).Result;
+            var response = await controller.Post(new GarmentUnitReceiptNoteViewModel());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNote>>(It.IsAny<List<GarmentUnitReceiptNoteViewModel>>()))
@@ -253,12 +254,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), ViewModel).Result;
+            var response = await controller.Put(It.IsAny<int>(), ViewModel);
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Update_Data()
+        public async Task Should_Validate_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitReceiptNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -268,24 +269,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), ViewModel).Result;
+            var response = await controller.Put(It.IsAny<int>(), ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             var mockMapper = new Mock<IMapper>();
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
 
             var controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
-            var response = controller.Put(It.IsAny<int>(), new GarmentUnitReceiptNoteViewModel()).Result;
+            var response = await controller.Put(It.IsAny<int>(), new GarmentUnitReceiptNoteViewModel());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             var mockMapper = new Mock<IMapper>();
             var validateMock = new Mock<IValidateService>();
@@ -296,16 +297,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Delete(It.IsAny<int>()).Result;
+            var response = await controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Delete_Data()
+        public async Task Should_Error_Delete_Data()
         {
             var controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, null, null);
 
-            var response = controller.Delete(It.IsAny<int>()).Result;
+            var response = await controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
