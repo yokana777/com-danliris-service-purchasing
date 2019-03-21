@@ -459,7 +459,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -480,11 +480,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             this.ViewModel.correctionType = "Jumlah";
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
         [Fact]
-        public void Should_Success_Create_Data_with_null_Correction_Type()
+        public async Task Should_Success_Create_Data_with_null_Correction_Type()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -503,12 +503,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Create_Data_with_null_Correction_Type_2()
+        public async Task Should_Success_Create_Data_with_null_Correction_Type_2()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -535,12 +535,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Create_Data_with_null_Correction_Type_3()
+        public async Task Should_Success_Create_Data_with_null_Correction_Type_3()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -567,12 +567,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data_Item()
+        public async Task Should_Validate_Create_Data_Item()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -596,12 +596,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -618,12 +618,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -641,7 +641,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Post(null).Result;
+            var response = await controller.Post(null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -877,7 +877,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
         //    var controller = GetController(mockFacade, validateMock, mockMapper);
 
-        //    var response = controller.Put(1, this.ViewModel).Result;
+        //    var response = controller.Put(1, this.ViewModel);
         //    Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         //}
 
@@ -895,7 +895,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
         //    var controller = GetController(mockFacade, validateMock, mockMapper);
 
-        //    var response = controller.Put(1, this.ViewModel).Result;
+        //    var response = controller.Put(1, this.ViewModel);
         //    Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         //}
 
@@ -913,7 +913,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
         //    var controller = GetController(mockFacade, validateMock, mockMapper);
 
-        //    var response = controller.Put(0, this.ViewModel).Result;
+        //    var response = controller.Put(0, this.ViewModel);
         //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         //}
 
@@ -931,7 +931,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
         //    var controller = GetController(mockFacade, validateMock, mockMapper);
 
-        //    var response = controller.Delete(1).Result;
+        //    var response = controller.Delete(1);
         //    Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         //}
 
@@ -949,7 +949,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
         //    var controller = GetController(mockFacade, validateMock, mockMapper);
 
-        //    var response = controller.Delete(1).Result;
+        //    var response = controller.Delete(1);
         //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         //}
     }

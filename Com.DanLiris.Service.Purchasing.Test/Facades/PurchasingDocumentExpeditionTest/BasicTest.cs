@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpeditionTest
@@ -34,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             await DataUtil.GetTestData();
             var Response = this.Facade.Read();
@@ -42,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_With_Arguments()
+        public async Task Should_Success_Get_Data_With_Arguments()
         {
             string order = "{\"UnitPaymentOrderNo\":\"desc\"}";
             string filter = "{\"Position\":2, \"IsPaidPPH\":\"false\"}";
@@ -54,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             PurchasingDocumentExpedition Data = await DataUtil.GetTestData();
             int AffectedRows = await this.Facade.Delete(Data.Id);

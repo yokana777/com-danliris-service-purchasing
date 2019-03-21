@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public GarmentCorrectionNote GetNewData()
+        public async Task<GarmentCorrectionNote> GetNewData()
         {
-            var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
             GarmentCorrectionNote garmentCorrectionNote = new GarmentCorrectionNote
             {
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
         }
 		public async Task<List<GarmentCorrectionNote>> GetNewDoubleCorrectionData(string user)
 		{
-			var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
+			var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
 			GarmentCorrectionNote garmentCorrectionNote = new GarmentCorrectionNote
 			{
@@ -161,9 +161,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
 
 			//return garmentCorrectionNote;
 		}
-		public GarmentCorrectionNote GetNewDataWithTax()
+		public async Task<GarmentCorrectionNote> GetNewDataWithTax()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
 
             data.UseVat = true;
             data.UseIncomeTax = true;
@@ -176,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
 
         public async Task<GarmentCorrectionNote> GetTestData(string user)
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await garmentCorrectionNoteQuantityFacade.Create(data,false, user);
             return data;
         }

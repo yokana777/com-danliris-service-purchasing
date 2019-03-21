@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Helpers
@@ -38,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             BankDocumentNumberGenerator generator = new BankDocumentNumberGenerator(dbContext);

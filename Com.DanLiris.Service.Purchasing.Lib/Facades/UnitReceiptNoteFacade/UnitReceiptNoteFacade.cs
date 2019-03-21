@@ -213,7 +213,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+
                     await CreateJournalTransactionUnitReceiptNote(model);
+
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -226,7 +228,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Created;
         }
 
+
         public async Task CreateJournalTransactionUnitReceiptNote(UnitReceiptNote model)
+
         {
             var items = new List<JournalTransactionItem>();
 
@@ -386,7 +390,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             string journalTransactionUri = "journal-transactions";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
             var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+
             response.EnsureSuccessStatusCode();
         }
 
@@ -562,8 +568,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
-                        ReverseJournalTransaction(m.URNNo);
-                        CreateJournalTransactionUnitReceiptNote(m);
+
+                        await ReverseJournalTransaction(m.URNNo);
+                        await CreateJournalTransactionUnitReceiptNote(m);
+
                         transaction.Commit();
                     }
                     else
@@ -581,15 +589,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Updated;
         }
 
-        private void ReverseJournalTransaction(string referenceNo)
+
+        private async Task ReverseJournalTransaction(string referenceNo)
         {
             string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
+
             response.EnsureSuccessStatusCode();
         }
 
-        public int Delete(int id, string user)
+        public async Task<int> Delete(int id, string user)
         {
             int Deleted = 0;
 
@@ -654,7 +664,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
 
                     Deleted = dbContext.SaveChanges();
-                    ReverseJournalTransaction(m.URNNo);
+
+                    await ReverseJournalTransaction(m.URNNo);
+
                     transaction.Commit();
                 }
                 catch (Exception e)

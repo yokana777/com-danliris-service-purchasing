@@ -22,9 +22,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
             this.externalPurchaseOrderDataUtil = externalPurchaseOrderDataUtil;
         }
 
-        public  PurchasingDisposition GetNewData()
+        public async Task<PurchasingDisposition> GetNewData()
         {
-            var s = Task.Run(() =>  externalPurchaseOrderDataUtil.GetTestData("unit-test")).Result;
+            var s = await Task.Run(() =>  externalPurchaseOrderDataUtil.GetTestData("unit-test"));
             ExternalPurchaseOrderDetail d = new ExternalPurchaseOrderDetail();
             ExternalPurchaseOrderItem i = new ExternalPurchaseOrderItem();
             var itemData = s.Items;
@@ -168,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchasingDispositionDa
 
         public async Task<PurchasingDisposition> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.Create(data, "Unit Test",7);
             return data;
         }

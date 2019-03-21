@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTests
@@ -32,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Split_Data()
+        public async Task Should_Success_Split_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
 
@@ -47,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         //[Fact]
-        //public async void Should_Error_Split_Data_When_Quantity_After_Split_more_than_Quantity_Before_Split()
+        //public async Task Should_Error_Split_Data_When_Quantity_After_Split_more_than_Quantity_Before_Split()
         //{
         //    InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
         //    var error = false;
@@ -70,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         //}
 
         [Fact]
-        public async void Should_Success_Split_Data_When_Quantity_Before_Split_less_than_Quantity_After_Split()
+        public async Task Should_Success_Split_Data_When_Quantity_Before_Split_less_than_Quantity_After_Split()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
 

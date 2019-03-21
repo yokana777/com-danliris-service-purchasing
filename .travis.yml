@@ -22,7 +22,7 @@ before_script:
 script:
     - dotnet restore Com.DanLiris.Service.Purchasing.Test/Com.DanLiris.Service.Purchasing.Test.csproj
     - dotnet build Com.DanLiris.Service.Purchasing.Test/Com.DanLiris.Service.Purchasing.Test.csproj
-    - dotnet test Com.DanLiris.Service.Purchasing.Test/Com.DanLiris.Service.Purchasing.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=lcov
+    - dotnet test Com.DanLiris.Service.Purchasing.Test/Com.DanLiris.Service.Purchasing.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=lcov --verbosity=normal
 
 after_success:
     - curl -s https://codecov.io/bash > codecov

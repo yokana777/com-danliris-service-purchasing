@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUt
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTests
@@ -38,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             get { return (InternalPurchaseOrderFacade)ServiceProvider.GetService(typeof(InternalPurchaseOrderFacade)); }
         }
 
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport( model.UnitId, model.CategoryId, model.CreatedBy, null, null, 1, 25, "{}", 7);
@@ -46,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport("", null, null, null, null, 1, 25, "{}", 7);
@@ -54,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel()
+        public async Task Should_Success_Get_Report_Data_Excel()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel(model.UnitId, model.CategoryId, model.CreatedBy, null, null, 7);
@@ -62,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel("", "", "", null, null, 7);
@@ -71,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
 
         //Duration PO In-PO Ex
         [Fact]
-        public async void Should_Success_Get_Report_POIPOExDuration_Data()
+        public async Task Should_Success_Get_Report_POIPOExDuration_Data()
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetIPOEPODurationReport(model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
@@ -79,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POIPOExDuration_Null_Parameter()
+        public async Task Should_Success_Get_Report_POIPOExDuration_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GetIPOEPODurationReport("", "15-30 hari", null, null, 1, 25, "{}", 7);
@@ -87,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POIPOEDuration_Excel()
+        public async Task Should_Success_Get_Report_POIPOEDuration_Excel()
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GenerateExcelIPOEPODuration(model.UnitId, "8-14 hari", null, null, 7);
@@ -95,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POIPOEDuration_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_POIPOEDuration_Excel_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GenerateExcelIPOEPODuration("", "15-30 hari", null, null, 7);
