@@ -181,13 +181,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
 
+            var pphDanliris = pphRate;
+            if (viewModel.IncomeTaxBy == "Dan Liris")
+            {
+                pphDanliris = 0;
+            }
+
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("PPh pasal " + pph, normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Colspan = 3;
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{pphRate.ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{pphDanliris.ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
 
 
