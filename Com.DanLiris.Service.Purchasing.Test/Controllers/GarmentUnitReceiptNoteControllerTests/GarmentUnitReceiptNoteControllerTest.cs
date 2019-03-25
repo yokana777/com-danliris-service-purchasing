@@ -140,6 +140,57 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         }
 
         [Fact]
+        public void Should_Success_Get_All_Data_By_User()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                 .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
+                .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetByUser();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_All_Data_By_User_With_Filter()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
+                .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetByUser(filter: "{ 'IsPosted': false }");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_By_User()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
+                .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
+
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetByUser();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
