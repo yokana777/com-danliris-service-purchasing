@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpeditionTest
@@ -36,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         }
 
         [Fact]
-        private async void Should_Success_Send_To_Verification_Division()
+        private async Task Should_Success_Send_To_Verification_Division()
         {
             PurchasingDocumentExpedition model = DataUtil.GetNewData();
             int AffectedRows = await Facade.SendToVerification(new List<PurchasingDocumentExpedition>() { model }, "Unit Test");
@@ -44,7 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
         }
 
         [Fact]
-        public async void Should_Error_Send_To_Verification_Division_Same_Keys()
+        public async Task Should_Error_Send_To_Verification_Division_Same_Keys()
         {
             try
             {

@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         [Fact]
         public async Task Should_Success_Create_Data()
         {
-            PurchasingDocumentAcceptanceViewModel ViewModel = DataUtil.GetVerificationNewData();
+            PurchasingDocumentAcceptanceViewModel ViewModel = await DataUtil.GetVerificationNewData();
 
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(ViewModel).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);

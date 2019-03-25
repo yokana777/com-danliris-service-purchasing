@@ -18,6 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteControllerTests
@@ -139,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         }
 
         [Fact]
-        public void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -155,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
 
-            var response = controller.GetById(It.IsAny<int>()).Result;
+            var response = await controller.GetById(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
@@ -189,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         }
 
         [Fact]
-        public void Should_Not_Found_Get_Data_By_Id()
+        public async Task Should_Not_Found_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -205,12 +206,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
 
-            var response = controller.GetById(It.IsAny<int>()).Result;
+            var response = await controller.GetById(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.NotFound, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Get_Data_By_Id()
+        public async Task Should_Error_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -219,12 +220,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             var mockMapper = new Mock<IMapper>();
 
             BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
-            var response = controller.GetById(It.IsAny<int>()).Result;
+            var response = await controller.GetById(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -242,12 +243,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Return_Bad_Request_Create_Data()
+        public async Task Should_Return_Bad_Request_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -264,12 +265,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -287,12 +288,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -309,12 +310,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(0, this.ViewModel).Result;
+            var response = await controller.Put(0, this.ViewModel);
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Return_Bad_Request_Update_Data()
+        public async Task Should_Return_Bad_Request_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -331,12 +332,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(0, ViewModel).Result;
+            var response = await controller.Put(0, ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Return_Bad_Request_Id_Update_Data()
+        public async Task Should_Return_Bad_Request_Id_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -355,12 +356,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(1, ViewModel).Result;
+            var response = await controller.Put(1, ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -377,12 +378,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(0, this.ViewModel).Result;
+            var response = await controller.Put(0, this.ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -399,12 +400,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Delete(1).Result;
+            var response = await controller.Delete(1);
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Return_Not_Found_Delete_Data()
+        public async Task Should_Return_Not_Found_Delete_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -421,12 +422,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Delete(1).Result;
+            var response = await controller.Delete(1);
             Assert.Equal((int)HttpStatusCode.NotFound, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Delete_Data()
+        public async Task Should_Error_Delete_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<BankExpenditureNoteViewModel>())).Verifiable();
@@ -443,12 +444,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Delete(1).Result;
+            var response = await controller.Delete(1);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Success_Get_PDF_By_Id()
+        public async Task Should_Success_Get_PDF_By_Id()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -465,7 +466,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
-            var response = controller.GetById(It.IsAny<int>()).Result;
+            var response = await controller.GetById(It.IsAny<int>());
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
 

@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             this.garmentPurchaseOrderDataUtil = garmentPurchaseOrderDataUtil;
         }
 
-        public GarmentExternalPurchaseOrder GetNewDataFabric()
+        public async Task<GarmentExternalPurchaseOrder> GetNewDataFabric()
         {
-            var datas= Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags()).Result;
+            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
             return new GarmentExternalPurchaseOrder
             {
                 SupplierId = 1,
@@ -103,9 +103,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             };
         }
 
-        public GarmentExternalPurchaseOrder GetNewDataACC()
+        public async Task<GarmentExternalPurchaseOrder> GetNewDataACC()
         {
-            var datas = Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags()).Result;
+            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
             return new GarmentExternalPurchaseOrder
             {
                 SupplierId = 1,
@@ -114,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 SupplierName = "supplier1",
 
                 Category = "ACCESORIES",
-                
+
 
                 IncomeTaxId = "1",
                 IncomeTaxName = "income1",
@@ -172,9 +172,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             };
         }
 
-        public GarmentExternalPurchaseOrder GetDataForDo()
+        public async Task<GarmentExternalPurchaseOrder> GetDataForDo()
         {
-            var datas = Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags()).Result;
+            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
             return new GarmentExternalPurchaseOrder
             {
                 SupplierId = 1,
@@ -249,15 +249,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         ReceiptQuantity = 0,
                         DOQuantity = 1,
-                        
+
                     }
                 }
             };
         }
 
-        public GarmentExternalPurchaseOrder GetDataForDo2()
+        public async Task<GarmentExternalPurchaseOrder> GetDataForDo2()
         {
-            var datas = Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags()).Result;
+            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
             return new GarmentExternalPurchaseOrder
             {
                 SupplierId = 1,
@@ -339,32 +339,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
         public async Task<GarmentExternalPurchaseOrder> GetTestDataFabric()
         {
-            var data = GetNewDataFabric();
+            var data = await GetNewDataFabric();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
         public async Task<GarmentExternalPurchaseOrder> GetTestDataAcc()
         {
-            var data = GetNewDataACC();
+            var data = await GetNewDataACC();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
         public async Task<GarmentExternalPurchaseOrder> GetTestDataForDo()
         {
-            var data = GetDataForDo();
+            var data = await GetDataForDo();
             await facade.Create(data, "Unit Test");
             return data;
         }
         public async Task<GarmentExternalPurchaseOrder> GetTestDataForDo2()
         {
-            var data = GetDataForDo2();
+            var data = await GetDataForDo2();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
-        public (GarmentExternalPurchaseOrder garmentExternalPurchaseOrder, GarmentInternalPurchaseOrder garmentInternalPurchaseOrder) GetNewTotalData()
+        public async Task<(GarmentExternalPurchaseOrder garmentExternalPurchaseOrder, GarmentInternalPurchaseOrder garmentInternalPurchaseOrder)> GetNewTotalData()
         {
             var data = Task.Run(() => garmentPurchaseOrderDataUtil.GetTestData()).Result.First();
             var GarmentExternalPurchaseOrder = new GarmentExternalPurchaseOrder
@@ -446,7 +446,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
         public async Task<(GarmentExternalPurchaseOrder garmentExternalPurchaseOrder, GarmentInternalPurchaseOrder garmentInternalPurchaseOrder)> GetTestData()
         {
-            var data = GetNewTotalData();
+            var data = await GetNewTotalData();
             await facade.Create(data.garmentExternalPurchaseOrder, "Unit Test");
             return data;
         }

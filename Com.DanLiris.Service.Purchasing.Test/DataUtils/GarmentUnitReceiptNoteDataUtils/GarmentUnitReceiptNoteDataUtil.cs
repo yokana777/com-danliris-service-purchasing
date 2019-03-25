@@ -19,11 +19,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public GarmentUnitReceiptNote GetNewData(long? ticks = null)
+        public async Task<GarmentUnitReceiptNote> GetNewData(long? ticks = null)
         {
             long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
 
-            var garmentDeliveryOrder = Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData()).Result;
+            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
@@ -101,9 +101,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
         }
 
 
-        public GarmentUnitReceiptNote GetNewDataWithStorage(long? ticks = null)
+        public async Task<GarmentUnitReceiptNote> GetNewDataWithStorage(long? ticks = null)
         {
-            var data = GetNewData(ticks);
+            var data = await GetNewData(ticks);
             SetDataWithStorage(data, data.UnitId);
 
             return data;
@@ -111,14 +111,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
         public async Task<GarmentUnitReceiptNote> GetTestData(long? ticks = null)
         {
-            var data = GetNewData(ticks);
+            var data = await GetNewData(ticks);
             await facade.Create(data);
             return data;
         }
 
         public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage(long? ticks = null)
         {
-            var data = GetNewDataWithStorage(ticks);
+            var data = await GetNewDataWithStorage(ticks);
             await facade.Create(data);
             return data;
         }

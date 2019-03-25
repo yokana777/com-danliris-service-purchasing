@@ -218,14 +218,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute]int id)
+        public async Task<IActionResult> Delete([FromRoute]int id)
         {
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
             try
             {
-                _facade.Delete(id, identityService.Username);
+                await _facade.Delete(id, identityService.Username);
 
                 return NoContent();
             }

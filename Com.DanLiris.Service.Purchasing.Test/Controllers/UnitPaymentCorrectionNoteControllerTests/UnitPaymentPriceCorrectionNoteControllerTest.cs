@@ -361,7 +361,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -380,12 +380,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Create(this.ViewModel).Result;
+            var response = await controller.Create(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -402,12 +402,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Create(this.ViewModel).Result;
+            var response = await controller.Create(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data_Item()
+        public async Task Should_Validate_Create_Data_Item()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Throws(GetServiceValidationExeption());
@@ -430,12 +430,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Create(this.ViewModel).Result;
+            var response = await controller.Create(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
 
-            var response = controller.Create(null).Result;
+            var response = await controller.Create(null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

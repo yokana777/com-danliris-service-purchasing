@@ -20,9 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             this.pdaDataUtil = pdaDataUtil;
         }
 
-        public BankExpenditureNoteDetailModel GetNewDetailSpinningData()
+        public async Task<BankExpenditureNoteDetailModel> GetNewDetailSpinningData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
             foreach (var item in purchasingDocumentExpedition.Items)
@@ -62,9 +62,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             };
         }
 
-        public BankExpenditureNoteDetailModel GetNewDetailWeavingData()
+        public async Task<BankExpenditureNoteDetailModel> GetNewDetailWeavingData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
             foreach (var item in purchasingDocumentExpedition.Items)
@@ -104,9 +104,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             };
         }
 
-        public BankExpenditureNoteDetailModel GetNewDetailFinishingPrintingData()
+        public async Task<BankExpenditureNoteDetailModel> GetNewDetailFinishingPrintingData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
             foreach (var item in purchasingDocumentExpedition.Items)
@@ -146,9 +146,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             };
         }
 
-        public BankExpenditureNoteDetailModel GetNewDetailGarmentData()
+        public async Task<BankExpenditureNoteDetailModel> GetNewDetailGarmentData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             List<BankExpenditureNoteItemModel> Items = new List<BankExpenditureNoteItemModel>();
             foreach (var item in purchasingDocumentExpedition.Items)
@@ -188,17 +188,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             };
         }
 
-        public BankExpenditureNoteModel GetNewData()
+        public async Task<BankExpenditureNoteModel> GetNewData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition1 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
-            PurchasingDocumentExpedition purchasingDocumentExpedition2 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
             {
-                GetNewDetailSpinningData(),
-                GetNewDetailWeavingData(),
-                GetNewDetailFinishingPrintingData(),
-                GetNewDetailGarmentData()
+                await GetNewDetailSpinningData(),
+                await GetNewDetailWeavingData(),
+                await GetNewDetailFinishingPrintingData(),
+                await GetNewDetailGarmentData()
             };
 
             BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
@@ -221,17 +221,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             return TestData;
         }
 
-        public BankExpenditureNoteModel GetImportData()
+        public async Task<BankExpenditureNoteModel> GetImportData()
         {
-            PurchasingDocumentExpedition purchasingDocumentExpedition1 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
-            PurchasingDocumentExpedition purchasingDocumentExpedition2 = Task.Run(() => this.pdaDataUtil.GetCashierTestData()).Result;
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
 
             List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
             {
-                GetNewDetailSpinningData(),
-                GetNewDetailWeavingData(),
-                GetNewDetailFinishingPrintingData(),
-                GetNewDetailGarmentData()
+                await GetNewDetailSpinningData(),
+                await GetNewDetailWeavingData(),
+                await GetNewDetailFinishingPrintingData(),
+                await GetNewDetailGarmentData()
             };
 
             BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
@@ -261,7 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 Token = "Token",
                 Username = "Unit Test"
             };
-            BankExpenditureNoteModel model = GetNewData();
+            BankExpenditureNoteModel model = await GetNewData();
             await Facade.Create(model, identityService);
             return await Facade.ReadById((int)model.Id);
         }

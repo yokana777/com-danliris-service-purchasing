@@ -166,7 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             DeliveryOrder model = await DataUtil.GetTestData(USERNAME);
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync().Result;
+            var json = await responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             DeliveryOrder model = await DataUtil.GetTestData(USERNAME);
 
             var responseGetById = await this.Client.GetAsync($"{URI}/{model.Id}");
-            var json = responseGetById.Content.ReadAsStringAsync().Result;
+            var json = await responseGetById.Content.ReadAsStringAsync();
 
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
             Assert.True(result.ContainsKey("apiVersion"));
@@ -239,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             var response = await this.Client.GetAsync(URI + "/monitoring" + "?page=1&size=25");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var json = response.Content.ReadAsStringAsync().Result;
+            var json = await response.Content.ReadAsStringAsync();
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
 
             Assert.True(result.ContainsKey("apiVersion"));

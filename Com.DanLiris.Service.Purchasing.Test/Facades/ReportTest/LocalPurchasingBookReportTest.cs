@@ -159,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
             var DateFrom = DateTime.Now.AddDays(-1);
             DateFrom = DateFrom.Date;
@@ -176,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             //}
         }
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_No_Parameter()
+        //public async Task Should_Success_Get_Report_Data_No_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -190,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	Assert.NotEqual(Response.Item2, 0);
         //}
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_Unit_Parameter()
+        //public async Task Should_Success_Get_Report_Data_Unit_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -204,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //	Assert.NotEqual(Response.Item2, 0);
         //}
         //[Fact]
-        //public async void Should_Success_Get_Report_Data_Category_Parameter()
+        //public async Task Should_Success_Get_Report_Data_Category_Parameter()
         //{
         //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
         //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
@@ -223,7 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
             var DateFrom = DateTime.Now.AddDays(-1);
             DateFrom = DateFrom.Date;
@@ -244,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME).Result;
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
             var DateFrom = DateTime.Now.AddDays(-1);
             DateFrom = DateFrom.Date;

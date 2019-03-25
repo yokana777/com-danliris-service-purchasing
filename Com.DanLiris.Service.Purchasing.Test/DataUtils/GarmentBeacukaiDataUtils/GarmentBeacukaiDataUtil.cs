@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 		public async Task<GarmentBeacukai> GetNewData(string user)
 		{
 			long nowTicks = DateTimeOffset.Now.Ticks;
-			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
 			
 			return new GarmentBeacukai
 			{
@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 		public async Task<GarmentBeacukaiViewModel> GetViewModel(string user)
 		{
 			long nowTicks = DateTimeOffset.Now.Ticks;
-			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
 
 			return new GarmentBeacukaiViewModel
 			{

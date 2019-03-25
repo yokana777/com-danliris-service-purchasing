@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
         }
 		public async Task<GarmentInvoiceItem> GetNewDataItem(string user)
 		{
-			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
 			return new GarmentInvoiceItem
 			{
 
@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 		}
 			public async Task<GarmentInvoice> GetNewData(string user)
 		{
-			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User")).Result;
+			var garmentDO = Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
 			long nowTicks = DateTimeOffset.Now.Ticks;
 			return new GarmentInvoice
 			{

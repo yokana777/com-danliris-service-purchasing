@@ -18,6 +18,7 @@ using Moq;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
@@ -87,10 +88,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         }
 
         [Fact]
-        public async void Should_Success_GetUnitReceiptNote()
+        public async Task Should_Success_GetUnitReceiptNote()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME, true);
             Assert.NotEqual(Response, 0);
 
@@ -102,10 +103,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         }
 
         [Fact]
-        public async void Should_Success_GetExternalPurchaseOrder()
+        public async Task Should_Success_GetExternalPurchaseOrder()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
-            var model = _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME, true);
             Assert.NotEqual(Response, 0);
 

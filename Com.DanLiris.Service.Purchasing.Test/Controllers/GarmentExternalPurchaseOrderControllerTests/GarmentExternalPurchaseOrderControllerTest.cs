@@ -18,6 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurchaseOrderControllerTests
@@ -235,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
@@ -261,12 +262,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
@@ -279,12 +280,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data_Empty()
+        public async Task Should_Validate_Create_Data_Empty()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
@@ -301,12 +302,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data_Fabric()
+        public async Task Should_Validate_Create_Data_Fabric()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
@@ -326,12 +327,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
@@ -348,7 +349,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             GarmentExternalPurchaseOrderController controller = new GarmentExternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -486,7 +487,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
@@ -503,12 +504,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrderViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrderViewModel>());
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Update_Data()
+        public async Task Should_Validate_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Throws(GetServiceValidationExeption());
@@ -521,12 +522,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrderViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrderViewModel>());
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderViewModel>())).Verifiable();
@@ -543,7 +544,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = new GarmentExternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrderViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentExternalPurchaseOrderViewModel>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
