@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             var response = await this.Client.GetAsync(URI+"?page=1&size=25");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var json = response.Content.ReadAsStringAsync().Result;
+            var json = await response.Content.ReadAsStringAsync();
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
 
             Assert.True(result.ContainsKey("apiVersion"));
@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             var response = await this.Client.GetAsync(URI + "/by-user?page=1&size=25");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var json = response.Content.ReadAsStringAsync().Result;
+            var json = await response.Content.ReadAsStringAsync();
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
 
             Assert.True(result.ContainsKey("apiVersion"));

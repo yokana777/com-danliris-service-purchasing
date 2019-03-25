@@ -31,6 +31,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
@@ -106,16 +107,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var model = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, false, USERNAME);
             Assert.NotEqual(Response, 0);
         }
 
         [Fact]
-        public async void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
@@ -124,11 +125,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNote data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
@@ -143,12 +144,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Update_Data2()
+        public async Task Should_Success_Update_Data2()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentInternNoteFacades(dbContext, ServiceProvider);
             var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, dbContext);
-            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNote data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             GarmentInternNoteItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
@@ -182,10 +183,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             Assert.NotEqual(ResponseUpdate2, 0);
         }
         [Fact]
-        public async void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             var facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), ServiceProvider);
-            GarmentInternNote data = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentInternNote data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             List<GarmentInternNoteItem> item = new List<GarmentInternNoteItem>(data.Items);
 
             data.Items.Add(new GarmentInternNoteItem
@@ -216,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -225,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Error_Delete_Data()
+        public async Task Should_Error_Delete_Data()
         {
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
@@ -234,7 +235,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Get_All_Data()
+        public async Task Should_Success_Get_All_Data()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
@@ -243,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();

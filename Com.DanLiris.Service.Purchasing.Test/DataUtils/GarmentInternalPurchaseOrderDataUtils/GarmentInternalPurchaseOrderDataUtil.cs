@@ -19,14 +19,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchase
             this.garmentPurchaseRequestDataUtil = garmentPurchaseRequestDataUtil;
         }
 
-        public List<GarmentInternalPurchaseOrder> GetNewData()
+        public async Task<List<GarmentInternalPurchaseOrder>> GetNewData()
         {
-            return Task.Run(() => garmentPurchaseRequestDataUtil.GetTestDataByTags()).Result;
+            return await Task.Run(() => garmentPurchaseRequestDataUtil.GetTestDataByTags());
         }
 
         public async Task<List<GarmentInternalPurchaseOrder>> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.CreateMultiple(data, "Unit Test");
             return data;
         }
@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchase
         public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags()
         {
             var testData = await GetTestData();
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.CreateMultiple(data, "Unit Test");
             return facade.ReadByTags("accessories", null, DateTimeOffset.MinValue, DateTimeOffset.MinValue, "Unit Test");
         }

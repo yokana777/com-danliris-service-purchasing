@@ -19,11 +19,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             this.garmentUnitDeliveryOrderDataUtil = garmentUnitDeliveryOrderDataUtil;
         }
 
-        public GarmentUnitExpenditureNote GetNewData()
+        public async Task<GarmentUnitExpenditureNote> GetNewData()
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem()).Result;
+            var garmentUnitDeliveryOrder = await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem());
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
@@ -123,11 +123,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             return garmentUnitExpenditureNote;
         }
 
-        public GarmentUnitExpenditureNote GetNewDataTypeTransfer()
+        public async Task<GarmentUnitExpenditureNote> GetNewDataTypeTransfer()
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem()).Result;
+            var garmentUnitDeliveryOrder = await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem());
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
@@ -236,9 +236,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         }
 
 
-        public GarmentUnitExpenditureNote GetNewDataWithStorage(long? ticks = null)
+        public async Task<GarmentUnitExpenditureNote> GetNewDataWithStorage(long? ticks = null)
         {
-            var data = GetNewDataTypeTransfer();
+            var data = await GetNewDataTypeTransfer();
             SetDataWithStorage(data, ticks);
 
             return data;
@@ -253,9 +253,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         }
 
 
-        public GarmentUnitExpenditureNote GetNewDataWithStorageRequest(long? ticks = null)
+        public async Task<GarmentUnitExpenditureNote> GetNewDataWithStorageRequest(long? ticks = null)
         {
-            var data = GetNewDataTypeTransfer();
+            var data = await GetNewDataTypeTransfer();
             SetDataWithStorageRequest(data, ticks);
 
             return data;
@@ -263,27 +263,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
         public async Task<GarmentUnitExpenditureNote> GetTestData()
         {
-            var data = GetNewData();
+            var data = await GetNewData();
             await facade.Create(data);
             return data;
         }
 
         public async Task<GarmentUnitExpenditureNote> GetTestDataAcc()
         {
-            var data = GetNewDataTypeTransfer();
+            var data = await GetNewDataTypeTransfer();
             await facade.Create(data);
             return data;
         }
 
         public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorage(long? ticks = null)
         {
-            var data = GetNewDataWithStorage(ticks);
+            var data = await GetNewDataWithStorage(ticks);
             await facade.Create(data);
             return data;
         }
         public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorageReqeust(long? ticks = null)
         {
-            var data = GetNewDataWithStorageRequest(ticks);
+            var data = await GetNewDataWithStorageRequest(ticks);
             await facade.Create(data);
             return data;
         }

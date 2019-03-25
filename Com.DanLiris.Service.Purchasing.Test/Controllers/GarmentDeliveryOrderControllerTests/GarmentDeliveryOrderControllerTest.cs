@@ -21,6 +21,7 @@ using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderControllerTests
@@ -140,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         }
 
         [Fact]
-        public void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
@@ -155,12 +156,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Create_Data()
+        public async Task Should_Validate_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Throws(GetServiceValidationExeption());
@@ -171,12 +172,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Create_Data()
+        public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
@@ -191,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
-            var response = controller.Post(this.ViewModel).Result;
+            var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -296,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         }
 
         [Fact]
-        public void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
@@ -311,12 +312,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), this.ViewModel).Result;
+            var response = await controller.Put(It.IsAny<int>(), this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Validate_Update_Data()
+        public async Task Should_Validate_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Throws(GetServiceValidationExeption());
@@ -327,12 +328,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.Put(It.IsAny<int>(), this.ViewModel).Result;
+            var response = await controller.Put(It.IsAny<int>(), this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Update_Data()
+        public async Task Should_Error_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
             validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
@@ -347,7 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
-            var response = controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>()).Result;
+            var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentDeliveryOrderViewModel>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

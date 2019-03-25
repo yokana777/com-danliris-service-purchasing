@@ -10,6 +10,7 @@ using System.Text;
 using Xunit;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests
 {
@@ -61,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 
         //Duration PO EX-DO
         [Fact]
-        public async void Should_Success_Get_Report_POExDODuration_Data()
+        public async Task Should_Success_Get_Report_POExDODuration_Data()
         {
             var model = await EPODataUtil.GetTestData("Unit test");
             var model2 = await DataUtil.GetTestData("Unit test");
@@ -74,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POExDODuration_Null_Parameter()
+        public async Task Should_Success_Get_Report_POExDODuration_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData("Unit test");
             var model2 = await DataUtil.GetTestData("Unit test");
@@ -87,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POEDODuration_Excel()
+        public async Task Should_Success_Get_Report_POEDODuration_Excel()
         {
             var model = await EPODataUtil.GetTestData("Unit test");
             var model2 = await DataUtil.GetTestData("Unit test");
@@ -98,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_POEDODuration_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_POEDODuration_Excel_Null_Parameter()
         {
             var model = await EPODataUtil.GetTestData("Unit test");
             var model2 = await DataUtil.GetTestData("Unit test");
@@ -110,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 
         // Monitoring Price
         [Fact]
-        public async void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
             var EPODtl = modelEPO.Items.First().Details.First();
@@ -119,7 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
             var Response = FacadeMP.GetDisplayReport("", null, null, 1, 50, "{}", 7);
@@ -127,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel()
+        public async Task Should_Success_Get_Report_Data_Excel()
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
             var EPODtl = modelEPO.Items.First().Details.First();
@@ -136,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestDataMP("Unit test");
             var Response = FacadeMP.GenerateExcel("", null, null, 7);
@@ -144,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Generate_Data_Excel()
+        public async Task Should_Success_Get_Report_Generate_Data_Excel()
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
@@ -152,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
+        public async Task Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
         {
             ExternalPurchaseOrder modelEPO = await EPODataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);

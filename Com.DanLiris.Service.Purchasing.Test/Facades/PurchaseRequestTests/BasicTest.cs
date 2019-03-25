@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
@@ -33,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             await DataUtil.GetTestData("Unit test");
             Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.Read();
@@ -41,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_Posted()
+        public async Task Should_Success_Get_Data_Posted()
         {
             await DataUtil.GetTestDataPosted("Unit test");
             Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.ReadModelPosted();
@@ -49,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_With_Arguments()
+        public async Task Should_Success_Get_Data_With_Arguments()
         {
             string order = "{\"UnitCode\":\"desc\"}";
             string filter = "{\"CreatedBy\":\"Unit Test\"}";
@@ -61,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadById((int)model.Id);
@@ -69,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             PurchaseRequest model = DataUtil.GetNewData();
             var Response = await Facade.Create(model, "Unit Test");
@@ -77,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
 
@@ -95,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         }
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");

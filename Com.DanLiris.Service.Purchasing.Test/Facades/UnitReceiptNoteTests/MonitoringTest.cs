@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
 {
@@ -39,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
      
         [Fact]
-        public async void Should_Success_Get_Report_Generate_Data_Excel()
+        public async Task Should_Success_Get_Report_Generate_Data_Excel()
         {
             UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
@@ -47,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
-        public async void Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
+        public async Task Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
         {
             UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);

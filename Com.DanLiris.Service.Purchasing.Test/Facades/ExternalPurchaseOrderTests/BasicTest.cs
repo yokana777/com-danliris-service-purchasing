@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests
@@ -34,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data()
+        public async Task Should_Success_Get_Data()
         {
             await DataUtil.GetTestData("Unit test");
             Tuple<List<ExternalPurchaseOrder>, int, Dictionary<string, string>> Response = Facade.Read();
@@ -42,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_Unused()
+        public async Task Should_Success_Get_Data_Unused()
         {
             ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetTestDataUnused("Unit test");
             List<ExternalPurchaseOrder> Response = Facade.ReadUnused(Keyword:externalPurchaseOrder.EPONo);
@@ -50,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         //[Fact]
-        //public async void Should_Success_Get_Data_Posted()
+        //public async Task Should_Success_Get_Data_Posted()
         //{
         //    await DataUtil.GetTestDataPosted("Unit test");
         //    Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.ReadModelPosted();
@@ -58,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         //}
 
         [Fact]
-        public async void Should_Success_Get_Data_With_Arguments()
+        public async Task Should_Success_Get_Data_With_Arguments()
         {
             string order = "{\"UnitCode\":\"desc\"}";
             string filter = "{\"CreatedBy\":\"Unit Test\"}";
@@ -70,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_By_Id()
+        public async Task Should_Success_Get_Data_By_Id()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadModelById((int)model.Id);
@@ -78,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Create_Data()
+        public async Task Should_Success_Create_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetNewData("Unit Test");
             var Response = await Facade.Create(model, "Unit Test",7);
@@ -86,7 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         //[Fact]
-        //public async void Should_Success_Update_Data()
+        //public async Task Should_Success_Update_Data()
         //{
         //    ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
         //    var Response = await Facade.Update((int)model.Id, model, "Unit Test");
@@ -94,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         //}
 
         [Fact]
-        public async void Should_Success_Delete_Data()
+        public async Task Should_Success_Delete_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");
@@ -102,14 +103,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         //[Fact]
-        //public async void Should_Error_Update_Data_Invalid_Id()
+        //public async Task Should_Error_Update_Data_Invalid_Id()
         //{
         //    Exception exception = await Assert.ThrowsAsync<Exception>(() => Facade.Update(0, new ExternalPurchaseOrder(), "Unit Test"));
         //    Assert.Equal(exception.Message, "Invalid Id");
         //}
 
         [Fact]
-        public async void Should_Success_Update_Data()
+        public async Task Should_Success_Update_Data()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             model.UseIncomeTax = false;
@@ -188,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
-        public async void Should_Success_Get_Data_Disposition()
+        public async Task Should_Success_Get_Data_Disposition()
         {
             await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadDisposition();

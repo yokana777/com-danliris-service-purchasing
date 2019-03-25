@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUt
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTests.Reports
@@ -39,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			get { return (ExternalPurchaseOrderFacade)ServiceProvider.GetService(typeof(ExternalPurchaseOrderFacade)); }
 		}
 		[Fact]
-		public async void Should_Success_Get_Report_Total_Purchase_By_Supplier_Data_Null_Parameter()
+		public async Task Should_Success_Get_Report_Total_Purchase_By_Supplier_Data_Null_Parameter()
 		{
 			ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetNewData("unit-test");
 			await FacadeEPO.Create(externalPurchaseOrder, "unit-test", 7);
@@ -47,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			Assert.NotEqual(1, 0);
 		}
 		[Fact]
-		public async void Should_Success_Get_Report_Total_Purchase_By_Supplier_Data_Excel_Null_Parameter()
+		public async Task Should_Success_Get_Report_Total_Purchase_By_Supplier_Data_Excel_Null_Parameter()
 		{
 			ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetNewData("unit-test");
 			await FacadeEPO.Create(externalPurchaseOrder, "unit-test", 7);
@@ -55,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			Assert.IsType(typeof(System.IO.MemoryStream), Response);
 		}
 		[Fact]
-		public async void Should_Success_Get_Report_Total_Purchase_By_Supplier_null_Data_Excel()
+		public void Should_Success_Get_Report_Total_Purchase_By_Supplier_null_Data_Excel()
 		{
 			DateTime DateFrom = new DateTime(2018, 1, 1);
 			DateTime DateTo = new DateTime(2018, 1, 1);
