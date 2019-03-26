@@ -114,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		private string GenerateNPN()
 		{
 			string NPN = null;
-			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPN!=null
+			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPN!=null && data.NPN.StartsWith("NPN")
 												  orderby data.NPN descending
 												  select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		private string GenerateNPH()
 		{
 			string NPH = null;
-			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPH !=null
+			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPH !=null && data.NPH.StartsWith("NPH")
 											 orderby data.NPH descending
 											 select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
