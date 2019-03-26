@@ -54,42 +54,77 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         [Fact]
         public void Should_Success_Get_COA_PurchasingWeavingKK()
         {
-            var result = COAGenerator.GetPurchasingCOA("WEAVING", "W1", "EMBALAGE");
+            var result = COAGenerator.GetPurchasingCOA("WEAVING", "W1", "EM");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_PurchasingWeavingE()
         {
-            var result = COAGenerator.GetPurchasingCOA("WEAVING", "W2", "BAHANBAKU");
+            var result = COAGenerator.GetPurchasingCOA("WEAVING", "W2", "BB");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_PurchasingWeavingOther()
         {
-            var result = COAGenerator.GetPurchasingCOA("WEAVING", "other", "BAHANPEMBANTU");
+            var result = COAGenerator.GetPurchasingCOA("WEAVING", "other", "BP");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_FinishingPrintingF1()
         {
-            var result = COAGenerator.GetPurchasingCOA("FINISHING&PRINTING", "F1", "BARANGJADI");
+            var result = COAGenerator.GetPurchasingCOA("FINISHING&PRINTING", "F1", "BJ");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_StockFinishingPrintingF2()
         {
-            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "F2", "BAHANBAKU");
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "F2", "BB");
             Assert.NotNull(result);
         }
 
         [Fact]
         public void Should_Success_Get_COA_StockFinishingPrintingOther()
         {
-            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "BARANGJADI");
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "BJ");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_StockFinishingPrintingOther_Chemical()
+        {
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "E");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_StockFinishingPrintingOther_BahanBakar()
+        {
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "MM");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_StockFinishingPrintingOther_Pelumas()
+        {
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "PL");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_StockFinishingPrintingOther_SparePart()
+        {
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "SP");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_COA_StockFinishingPrintingOther_BahanPembantu()
+        {
+            var result = COAGenerator.GetStockCOA("FINISHING&PRINTING", "other", "BP");
             Assert.NotNull(result);
         }
 
