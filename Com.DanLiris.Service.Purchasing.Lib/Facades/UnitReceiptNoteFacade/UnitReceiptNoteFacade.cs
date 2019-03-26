@@ -763,7 +763,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     DONo = s.DONo,
                     CreatedBy = s.CreatedBy,
                     LastModifiedUtc = s.LastModifiedUtc,
-                    Items = s.Items.ToList()
+                    Items = s.Items.Where(a=>a.IsPaid==false).ToList()
                 });
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);

@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190316022700_add_incometaxby_UnitPaymentOrders")]
+    partial class add_incometaxby_UnitPaymentOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2522,8 +2523,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<int?>("MongoIndexItem");
-
                     b.Property<string>("ProductCode")
                         .HasMaxLength(255);
 
@@ -4884,19 +4883,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("EPODetailId");
 
-                    b.Property<long>("EPOId");
-
-                    b.Property<string>("EPONo")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("IncomeTaxBy")
-                        .HasMaxLength(255);
-
                     b.Property<bool>("IsCorrection");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsPaid");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()

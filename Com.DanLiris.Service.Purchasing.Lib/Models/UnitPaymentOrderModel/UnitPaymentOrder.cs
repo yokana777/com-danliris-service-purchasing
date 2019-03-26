@@ -65,6 +65,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         [MaxLength(255)]
         public string IncomeTaxNo { get; set; }
         public DateTimeOffset? IncomeTaxDate { get; set; }
+        [MaxLength(255)]
+        public string IncomeTaxBy { get; set; }
 
         public bool UseVat { get; set; }
         [MaxLength(255)]

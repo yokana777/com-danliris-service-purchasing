@@ -79,6 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 IncomeTaxName = "Final",
                 IncomeTaxRate = "1.5",
                 UseIncomeTax = true,
+                IncomeTaxBy="Supplier",
                 SupplierName = "Supplier",
                 PaymentMethod = "test",
                 Remark = "Remark",

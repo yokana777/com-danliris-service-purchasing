@@ -219,6 +219,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
                 {
                     new UnitReceiptNoteItemViewModel()
                     {
+                        epoDetailId= It.IsAny<long>(),
+                        epoId=It.IsAny<long>(),
+                        epoNo=It.IsAny<string>(),
+                        isPaid=false,
                         product = new ProductViewModel()
                         {
                             uom = new UomViewModel()
