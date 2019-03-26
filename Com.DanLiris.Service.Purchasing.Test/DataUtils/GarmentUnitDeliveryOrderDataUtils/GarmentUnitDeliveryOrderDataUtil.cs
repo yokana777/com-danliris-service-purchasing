@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             DateTimeOffset now = DateTimeOffset.Now;
             long nowTicks = now.Ticks;
 
-            var garmentUnitReceiptNote = await Task.Run(() => UNDataUtil.GetTestData());
+            var garmentUnitReceiptNote = await Task.Run(() => UNDataUtil.GetTestDataWithStorage(nowTicks));
 
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
@@ -84,8 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             long nowTicks = now.Ticks;
 
             var garmentUnitReceiptNote1 = await Task.Run(() => UNDataUtil.GetTestDataWithStorage());
-            var garmentUnitReceiptNote2 = await Task.Run(() => UNDataUtil.GetTestDataWithStorage(garmentUnitReceiptNote1.UnitId));
-
+            var garmentUnitReceiptNote2 = await Task.Run(() => UNDataUtil.GetTestDataWithStorage(nowTicks + 1));
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
                 UnitDOType = "SAMPLE",
@@ -128,6 +127,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         UomUnit = item.UomUnit,
                     });
             }
+
+
+            
+
             foreach (var item in garmentUnitReceiptNote2.Items)
             {
                 garmentUnitDeliveryOrder.Items.Add(
@@ -144,9 +147,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         URNNo = garmentUnitReceiptNote1.URNNo,
                         POSerialNumber = item.POSerialNumber,
                         RONo = item.RONo,
-                        ProductId = item.ProductId,
-                        ProductCode = item.ProductCode,
-                        ProductName = item.ProductName,
+                        ProductId = item.ProductId+1,
+                        ProductCode = item.ProductCode + $"{nowTicks}",
+                        ProductName = item.ProductName + $"{nowTicks}",
                         Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
                         UomId = item.UomId,
                         UomUnit = item.UomUnit,
