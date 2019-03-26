@@ -314,6 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         {
             var Model = this.Model;
             Model.IncomeTaxBy = "Supplier";
+            Model.UseVat = true;
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
