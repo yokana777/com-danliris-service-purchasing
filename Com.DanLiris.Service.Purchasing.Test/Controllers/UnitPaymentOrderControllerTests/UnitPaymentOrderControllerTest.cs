@@ -29,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
     {
         private UnitPaymentOrderViewModel ViewModel
         {
+            
             get
             {
                 List<UnitPaymentOrderItemViewModel> items = new List<UnitPaymentOrderItemViewModel>();
@@ -57,6 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
                 return new UnitPaymentOrderViewModel
                 {
+                    
                     supplier = new SupplierViewModel
                     {
                         import = false
@@ -299,6 +301,54 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     User = user.Object
                 }
             };
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_incomeTaxBy_Supplier()
+        {
+            var Model = this.Model;
+            Model.IncomeTaxBy = "Supplier";
+            Model.UseVat = true;
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+            mockFacade.Setup(x => x.GetUnitReceiptNote(It.IsAny<long>()))
+                .Returns(new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote { UnitName = "UnitName", ReceiptDate = DateTimeOffset.Now });
+            mockFacade.Setup(x => x.GetExternalPurchaseOrder(It.IsAny<string>()))
+                .Returns(new ExternalPurchaseOrder { PaymentDueDays = "0" });
+
+            //var mockMapper = new Mock<IMapper>();
+
+            var ViewModelSupp = this.ViewModel;
+            ViewModelSupp.incomeTaxBy = "Supplier";
+            ViewModelSupp.useIncomeTax = true;
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
+                .Returns(ViewModelSupp);
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
