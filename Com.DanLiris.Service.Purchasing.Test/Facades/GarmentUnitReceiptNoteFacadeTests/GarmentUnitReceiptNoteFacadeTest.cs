@@ -178,6 +178,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
+
+            //var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data1 = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data1.StorageId = data.StorageId;
+            data1.Items.First().UomId = data.Items.First().UomId;
+            data1.UnitId = data.UnitId;
+            var Response1 = await facade.Create(data1);
+            Assert.NotEqual(Response1, 0);
         }
 
         [Fact]
