@@ -375,7 +375,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             List<string> searchAttributes = new List<string>()
             {
-                "PRNo", "CreatedBy", "UnitName", "CategoryName", "DivisionName"
+                "PRNo", "CreatedBy", "UnitName", "CategoryName", "DivisionName", "PONo"
             };
 
             Query = QueryHelper<InternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -494,9 +494,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public InternalPurchaseOrder ReadByIdforSplit(int id)
         {
-            return this.dbSet.Where(p => p.Id == id)
+            var modelTemp =  this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
                 .FirstOrDefault();
+            var prNoChange = this.dbSet.Where(p => p.PRNo == modelTemp.PRNo)
+                .Select(s => new InternalPurchaseOrderViewModel
+                { poNo = s.PONo
+                })
+                .OrderByDescending(p => p.poNo)
+                .FirstOrDefault();
+            modelTemp.PONo = prNoChange.poNo;
+            return modelTemp;
         }
 
         public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
@@ -513,9 +521,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                     if (m != null)
                     {
-                        
+                        var poNoTemp = m.PONo;
                         EntityExtension.FlagForUpdate(UpdateData, user, "Facade");
-                        EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");                        
+                        EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");
 
                         foreach (var itemUpdate in UpdateData.Items)
                         {
@@ -548,7 +556,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         internalPurchaseOrder.UId = UpdateData.UId;
                         internalPurchaseOrder.UnitCode = UpdateData.UnitCode;
                         internalPurchaseOrder.UnitId = UpdateData.UnitId;
-
+                        UpdateData.PONo = poNoTemp;
                         this.dbContext.InternalPurchaseOrders.Add(internalPurchaseOrder);
                         this.dbContext.Update(UpdateData);
                         Splitted = await dbContext.SaveChangesAsync();
