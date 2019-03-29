@@ -29,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string epoExpectedDeliveryDate { get; set; }
         public string epoDeliveryDate { get; set; }
         public string epoNo { get; set; }
+        public string currencyCode { get; set; }
 
         //DO
         public string doDate { get; set; }
