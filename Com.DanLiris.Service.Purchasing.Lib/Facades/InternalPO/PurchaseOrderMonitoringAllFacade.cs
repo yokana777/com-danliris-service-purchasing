@@ -320,7 +320,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             //var purchaseRequestItems = dbContext.PurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
 
             var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
-            var purchaseOrderExternals = dbContext.ExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.IsPosted, s.OrderDate, s.DeliveryDate, s.SupplierCode, s.SupplierName, s.EPONo, s.CreatedUtc, s.PaymentDueDays, s.Remark }).ToList();
+            var purchaseOrderExternals = dbContext.ExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.IsPosted, s.OrderDate, s.DeliveryDate, s.CurrencyCode, s.SupplierCode, s.SupplierName, s.EPONo, s.CreatedUtc, s.PaymentDueDays, s.Remark }).ToList();
             //var purchaseOrderExternalItemIds = queryResult.Select(s => s.EPOItemId).Distinct().ToList();
             //var purchaseOrderExternalItems = dbContext.ExternalPurchaseOrderItems.Where(w => purchaseOrderExternalItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
             var purchaseOrderExternalDetailIds = queryResult.Select(s => s.EPODetailId).Distinct().ToList();
@@ -437,6 +437,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                         uom = purchaseOrderExternalDetail != null ? purchaseOrderExternalDetail.DealUomUnit : "-",
                                         pricePerDealUnit = purchaseOrderExternalDetail != null ? purchaseOrderExternal.IsPosted == true ? purchaseOrderExternalDetail.PricePerDealUnit : 0 : 0,
                                         priceTotal = purchaseOrderExternalDetail != null ? purchaseOrderExternal.IsPosted == true ? purchaseOrderExternalDetail.DealQuantity * purchaseOrderExternalDetail.PricePerDealUnit : 0 : 0,
+                                        currencyCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.CurrencyCode,
                                         supplierCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierCode,
                                         supplierName = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierName,
                                         receivedDatePO = purchaseOrderInternal.CreatedUtc.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
@@ -516,6 +517,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Barang", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Total", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Terima PO Internal", DataType = typeof(String) });
@@ -555,7 +557,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "","", "", "", "", "", "", 0, "",     0, 0, "", "","", "", "", "", "", "", "",     "", "", "", "", 0, "", "", "", "", "",     "", 0, "", "", "","", "", "", 0, "",     "","","","","","" ); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "","", "", "", "", "", "", 0, "",     0, 0, "", "", "","", "", "", "", "", "", "",     "", "", "", "", 0, "", "", "", "", "",     "", 0, "", "", "","", "", "", 0, "",     "","","","","","" ); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -585,7 +587,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     //string correctionDate = item.correctionDate == new DateTime(1970, 1, 1) ? "-" : item.correctionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     result.Rows.Add(index.ToString(), item.prDate, item.createdDatePR, item.prNo, item.category, item.budget, item.productName,item.productCode, item.quantity,item.uom, 
-                        item.pricePerDealUnit, item.priceTotal, item.supplierCode, item.supplierName, item.receivedDatePO, item.epoDate, item.epoCreatedDate, item.epoExpectedDeliveryDate, item.epoDeliveryDate, item.epoNo, item.doDate, 
+                        item.pricePerDealUnit, item.priceTotal, item.currencyCode,item.supplierCode, item.supplierName, item.receivedDatePO, item.epoDate, item.epoCreatedDate, item.epoExpectedDeliveryDate, item.epoDeliveryDate, item.epoNo, item.doDate, 
                         item.doDeliveryDate, item.doNo, item.urnDate, item.urnNo, item.urnQuantity, item.urnUom, item.paymentDueDays, item.invoiceDate, item.invoiceNo, item.upoDate, 
                         item.upoNo, item.upoPriceTotal, item.dueDate , item.vatDate , item.vatNo, item.vatValue , incomeTaxDate,item.incomeTaxNo , item.incomeTaxValue, item.correctionDates, 
                         item.correctionNo, item.correctionQtys, item.correctionType, item.remark, item.status,item.staff);
