@@ -413,7 +413,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s => s.IsInvoice == false && !string.IsNullOrWhiteSpace(s.BillNo));
+                    .ThenInclude(i => i.Details).Where(s => s.IsInvoice == false && s.CustomsId!=0);
             }
 
             return Query;
@@ -446,7 +446,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //{
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                .ThenInclude(i => i.Details).Where(s => s.BillNo == null);
+                .ThenInclude(i => i.Details).Where(s => s.CustomsId == 0);
             //}
 
             return Query;
@@ -597,7 +597,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
 
-                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
+                .Where(m => m.DONo.Contains(Keyword ?? "") && m.CustomsId != 0 && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,
