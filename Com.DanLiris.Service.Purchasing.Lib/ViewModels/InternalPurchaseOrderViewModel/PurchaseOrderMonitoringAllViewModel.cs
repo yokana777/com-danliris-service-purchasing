@@ -7,9 +7,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
 {
     public class PurchaseOrderMonitoringAllViewModel : BaseViewModel
     {
+        public int index { get; set; }
         public string prNo { get; set; }
-        public DateTimeOffset createdDatePR { get; set; }
-        public DateTimeOffset prDate { get; set; }
+        public string createdDatePR { get; set; }
+        public string prDate { get; set; }
         public string category { get; set; }
         public string budget { get; set; }
         public string productCode { get; set; }
@@ -20,42 +21,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public double? priceTotal { get; set; }
         public string supplierCode { get; set; }
         public string supplierName { get; set; }
-        public DateTimeOffset receivedDatePO { get; set; }
+        public string receivedDatePO { get; set; }
 
         //EPO
-        public DateTimeOffset epoDate { get; set; }
-        public DateTimeOffset epoCreatedDate { get; set; }
-        public DateTimeOffset epoExpectedDeliveryDate { get; set; }
-        public DateTimeOffset epoDeliveryDate { get; set; }
+        public string epoDate { get; set; }
+        public string epoCreatedDate { get; set; }
+        public string epoExpectedDeliveryDate { get; set; }
+        public string epoDeliveryDate { get; set; }
         public string epoNo { get; set; }
+        public string currencyCode { get; set; }
 
         //DO
-        public DateTimeOffset doDate { get; set; }
-        public DateTimeOffset doDeliveryDate { get; set; }
+        public string doDate { get; set; }
+        public string doDeliveryDate { get; set; }
         public string doNo { get; set; }
         public long doDetailId { get; set; }
 
         //URN
-        public DateTimeOffset urnDate { get; set; }
+        public string urnDate { get; set; }
         public string urnNo { get; set; }
         public double urnQuantity { get; set; }
         public string urnUom { get; set; }
         public string urnProductCode { get; set; }
 
         public string paymentDueDays { get; set; }
-        public DateTimeOffset invoiceDate { get; set; }
+        public string invoiceDate { get; set; }
         public string invoiceNo { get; set; }
 
         //UPO
-        public DateTimeOffset upoDate { get; set; }
+        public string upoDate { get; set; }
         public string upoNo { get; set; }
         public double upoPriceTotal { get; set; }
-        public DateTimeOffset dueDate { get; set; }
+        public string dueDate { get; set; }
 
         //vat
-        public DateTimeOffset vatDate { get; set; }
+        public string vatDate { get; set; }
         public string vatNo { get; set; }
-        public double vatValue { get; set; }
+        public string vatValue { get; set; }
 
         //incomeTax
         public DateTimeOffset? incomeTaxDate { get; set; }
@@ -63,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public double incomeTaxValue { get; set; }
 
         //correction
-        public DateTimeOffset correctionDate { get; set; }
+        public string correctionDate { get; set; }
         public string correctionNo { get; set; }
         public string correctionType { get; set; }
         public double priceBefore { get; set; }
@@ -71,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public double priceTotalAfter { get; set; }
         public double priceTotalBefore { get; set; }
         public double qtyCorrection { get; set; }
-        public double valueCorrection { get; set; }
+        public string valueCorrection { get; set; }
         public string correctionRemark { get; set; }
         public string correctionDates { get; set; }
         public string correctionQtys { get; set; }

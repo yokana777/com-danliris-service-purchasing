@@ -29,7 +29,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
     {
         private UnitPaymentOrderViewModel ViewModel
         {
-            
             get
             {
                 List<UnitPaymentOrderItemViewModel> items = new List<UnitPaymentOrderItemViewModel>();
@@ -39,26 +38,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                 items.Add(
                     new UnitPaymentOrderItemViewModel
                     {
-                        unitReceiptNote= new UnitReceiptNote
+                        unitReceiptNote = new UnitReceiptNote
                         {
-                            items=details
+                            items = details
                         }
                     });
 
                 details.Add(
-                    new UnitPaymentOrderDetailViewModel {
-                        pricePerDealUnit=1000,
-                        PricePerDealUnitCorrection=10000,
-                        QuantityCorrection=10,
-                        deliveredQuantity=10,
-                        PriceTotal=10000,
-                        PriceTotalCorrection=10000,
-                        
+                    new UnitPaymentOrderDetailViewModel
+                    {
+                        pricePerDealUnit = 1000,
+                        PricePerDealUnitCorrection = 10000,
+                        QuantityCorrection = 10,
+                        deliveredQuantity = 10,
+                        PriceTotal = 10000,
+                        PriceTotalCorrection = 10000,
+
                     });
 
                 return new UnitPaymentOrderViewModel
                 {
-                    
+
                     supplier = new SupplierViewModel
                     {
                         import = false
@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
 
             mockFacade.Setup(x => x.Read(1, 25, "{}", null, "{}"))
-                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new  Dictionary<string, string>()));
+                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<UnitPaymentOrderViewModel>>(It.IsAny<List<UnitPaymentOrder>>()))
