@@ -50,7 +50,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         [MaxLength(1000)]
         public string CategoryName { get; set; }
 
-        [MaxLength(255)]
         public string Remark { get; set; }
         public bool IsPosted { get; set; }
         public bool IsClosed { get; set; }
