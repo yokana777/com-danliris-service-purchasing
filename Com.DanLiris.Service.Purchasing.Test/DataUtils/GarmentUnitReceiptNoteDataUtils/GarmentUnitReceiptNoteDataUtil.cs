@@ -38,6 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                 DOId = garmentDeliveryOrder.Id,
                 DONo = garmentDeliveryOrder.DONo,
 
+                DeletedReason = nowTicks.ToString(),
+
                 ReceiptDate = DateTimeOffset.Now,
 
                 Items = new List<GarmentUnitReceiptNoteItem>()
