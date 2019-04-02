@@ -29,7 +29,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
     {
         private UnitPaymentOrderViewModel ViewModel
         {
-
             get
             {
                 List<UnitPaymentOrderItemViewModel> items = new List<UnitPaymentOrderItemViewModel>();

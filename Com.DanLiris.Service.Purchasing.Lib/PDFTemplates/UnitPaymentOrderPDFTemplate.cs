@@ -192,6 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var withoutIncomeTax = true;
 
+
             if(model.UseIncomeTax && model.IncomeTaxBy == "Supplier")
             {
                 withoutIncomeTax = false;
