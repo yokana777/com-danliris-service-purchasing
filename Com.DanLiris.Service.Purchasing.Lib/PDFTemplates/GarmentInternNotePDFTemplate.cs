@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
     {
         private class TableContent
         {
+            public string BillNo { get; set; }
             public string DONo { get; set; }
             public string DODate { get; set; }
             public string RefNo { get; set; }
@@ -112,8 +113,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
-            PdfPTable tableContent = new PdfPTable(8);
-            tableContent.SetWidths(new float[] { 3f, 5f, 4.5f, 5.5f, 3.3f, 2.5f, 3f, 4.5f });
+            PdfPTable tableContent = new PdfPTable(9);
+            tableContent.SetWidths(new float[] { 4f, 4f, 5f, 4.5f, 5.5f, 3.3f, 2.7f, 3f, 4.5f });
+            cellCenter.Phrase = new Phrase("NO. Bon Pusat", bold_font);
+            tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("NO. Surat Jalan", bold_font);
             tableContent.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Tgl. Surat Jalan", bold_font);
@@ -154,6 +157,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 {
                     TableContents.Add(new TableContent
                     {
+                        BillNo = detail.deliveryOrder.billNo,
                         DONo = detail.deliveryOrder.doNo,
                         DODate = detail.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")),
                         RefNo = detail.poSerialNumber + " - " + detail.ePONo,
@@ -209,6 +213,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (TableContent c in TableContents.OrderBy(o => o.DONo))
             {
+                cellLeft.Phrase = new Phrase(c.BillNo, normal_font1);
+                tableContent.AddCell(cellLeft);
+
                 cellLeft.Phrase = new Phrase(c.DONo, normal_font1);
                 tableContent.AddCell(cellLeft);
 
