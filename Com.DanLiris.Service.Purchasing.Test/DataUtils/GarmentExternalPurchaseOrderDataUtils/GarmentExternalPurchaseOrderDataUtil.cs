@@ -103,6 +103,88 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             };
         }
 
+        public async Task<GarmentExternalPurchaseOrder> GetNewDataFabric2()
+        {
+            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
+            return new GarmentExternalPurchaseOrder
+            {
+                SupplierId = 1,
+                SupplierCode = "Supplier1",
+                SupplierImport = true,
+                SupplierName = "supplier1",
+
+                Category = "FABRIC",
+                DarkPerspiration = "dark",
+                WetRubbing = "wet",
+                DryRubbing = "dry",
+                LightMedPerspiration = "light",
+                Washing = "wash",
+                Shrinkage = "shrink",
+                QualityStandardType = "quality",
+                PieceLength = "piece",
+                PaymentMethod = "pay",
+                PaymentType = "payType",
+                IncomeTaxId = "1",
+                IncomeTaxName = "income1",
+                IncomeTaxRate = "1",
+
+                DeliveryDate = new DateTimeOffset(),
+                OrderDate = new DateTimeOffset(),
+
+                CurrencyId = 1,
+                CurrencyCode = "currency1",
+                CurrencyRate = 1,
+
+                IsApproved = false,
+                IsOverBudget = false,
+                IsPosted = false,
+
+
+                Remark = "Remark1",
+
+                Items = new List<GarmentExternalPurchaseOrderItem>
+                {
+                    new GarmentExternalPurchaseOrderItem
+                    {
+                        PO_SerialNumber = "PO_SerialNumber1",
+                        POId=(int)datas[0].Id,
+                        PONo=datas[0].PONo,
+                        PRNo=datas[0].PRNo,
+                        PRId=1,
+                        ProductId = 1,
+                        ProductCode = "ProductCode1",
+                        ProductName = "ProductName1",
+
+                        DealQuantity = 20,
+                        BudgetPrice = 5,
+
+                        DealUomId = 1,
+                        DealUomUnit = "UomUnit1",
+
+                        DefaultQuantity=5,
+                        DefaultUomId=1,
+                        DefaultUomUnit="unit1",
+
+                        UsedBudget=1,
+
+                        PricePerDealUnit=1,
+                        Conversion=1,
+                        RONo=datas[0].RONo,
+
+                        Remark = "ProductRemark",
+                        IsOverBudget=true,
+                        OverBudgetRemark="TestRemarkOB",
+
+                        ReceiptQuantity = 0,
+                        DOQuantity = 5,
+
+                        SmallUomId = 1,
+                        SmallUomUnit = "UomUnit1",
+                    }
+                }
+            };
+        }
+
         public async Task<GarmentExternalPurchaseOrder> GetNewDataACC()
         {
             var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
@@ -340,6 +422,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
         public async Task<GarmentExternalPurchaseOrder> GetTestDataFabric()
         {
             var data = await GetNewDataFabric();
+            await facade.Create(data, "Unit Test");
+            return data;
+        }
+
+        public async Task<GarmentExternalPurchaseOrder> GetTestDataFabric2()
+        {
+            var data = await GetNewDataFabric2();
             await facade.Create(data, "Unit Test");
             return data;
         }

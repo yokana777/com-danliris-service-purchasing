@@ -30,6 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
         public bool IsUnitDO { get; set; }
 
+        public string DeletedReason { get; set; }
+
         public List<GarmentUnitReceiptNoteItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
