@@ -281,7 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return Updated;
         }
 
-        public async Task<int> Delete(int id)
+        public async Task<int> Delete(int id, string deletedReason)
         {
             int Deleted = 0;
 
@@ -291,6 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     var garmentUnitReceiptNote = dbSet.Include(m => m.Items).Single(m => m.Id == id);
 
+                    garmentUnitReceiptNote.DeletedReason = deletedReason;
                     EntityExtension.FlagForDelete(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
@@ -304,6 +305,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var garmentExternalPurchaseOrderItem = dbSetGarmentExternalPurchaseOrderItems.First(d => d.Id == garmentUnitReceiptNoteItem.EPOItemId);
                         EntityExtension.FlagForUpdate(garmentExternalPurchaseOrderItem, identityService.Username, USER_AGENT);
                         garmentExternalPurchaseOrderItem.ReceiptQuantity = (double)((decimal)garmentExternalPurchaseOrderItem.ReceiptQuantity - garmentUnitReceiptNoteItem.ReceiptQuantity);
+
+                        if(garmentExternalPurchaseOrderItem.ReceiptQuantity == 0)
+                        {
+                            var garmentInternalPurchaseOrderItem = dbSetGarmentInternalPurchaseOrderItems.First(d => d.Id == garmentUnitReceiptNoteItem.POItemId);
+                            if (garmentExternalPurchaseOrderItem.DOQuantity>0 && garmentExternalPurchaseOrderItem.DOQuantity < garmentExternalPurchaseOrderItem.DealQuantity)
+                            {
+                                garmentInternalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+                            } else if(garmentExternalPurchaseOrderItem.DOQuantity>0 && garmentExternalPurchaseOrderItem.DOQuantity >= garmentExternalPurchaseOrderItem.DealQuantity)
+                            {
+                                garmentInternalPurchaseOrderItem.Status = "Barang sudah datang semua";
+                            }
+                        }
                     }
 
                     if (garmentUnitReceiptNote.IsStorage)
@@ -313,7 +326,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
 
                             var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);

@@ -343,7 +343,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             //var unitPaymentOrderItemIds = queryResult.Select(s => s.UPOItemId).Distinct().ToList();
             //var unitPaymentOrderItems = dbContext.UnitPaymentOrderItems.Where(w => unitPaymentOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
             var unitPaymentOrderDetailIds = queryResult.Select(s => s.UPODetailId).Distinct().ToList();
-            var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(w => unitPaymentOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.PriceTotal }).ToList();
+            var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(w => unitReceiptNoteItemIds.Contains(w.URNItemId)).Select(s => new { s.Id, s.PriceTotal }).ToList();
 
             //var unitPaymentCorrectionNoteIds = queryResult.Select(s => s.UPCId).Distinct().ToList();
             //var unitPaymentCorrectionNotes = dbContext.UnitPaymentCorrectionNotes.Where(w => unitPaymentCorrectionNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.CorrectionDate, s.CorrectionType, s.UPCNo }).ToList();
@@ -427,6 +427,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                     new PurchaseOrderMonitoringAllViewModel
                                     {
                                         index = i,
+                                        createdDatePR = purchaseRequest.CreatedUtc.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                         prDate = purchaseOrderInternal.PRDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                         prNo = purchaseOrderInternal.PRNo,
                                         category = purchaseOrderInternal.CategoryName,
@@ -478,13 +479,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                     });
                 i++;
             }
-            return listEPO;
+            
+            return listEPO.Distinct().ToList();
         }
            
         public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order, int offset, string user)
         {
             var Data = GetReportQuery(prNo, supplierId, unitId, categoryId,budgetId,epoNo,  staff, dateFrom, dateTo,status, page, size, offset, user);
-
+            
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //if (OrderDictionary.Count.Equals(0))
             //{
