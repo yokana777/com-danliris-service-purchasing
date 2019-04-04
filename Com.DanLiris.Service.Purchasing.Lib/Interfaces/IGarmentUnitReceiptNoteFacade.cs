@@ -16,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote);
         Task<int> Create(GarmentUnitReceiptNote garmentUnitReceiptNote);
         Task<int> Update(int id, GarmentUnitReceiptNote garmentUnitReceiptNote);
-        Task<int> Delete(int id);
+        Task<int> Delete(int id, string deletedReason);
         List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}");
         List<object> ReadForUnitDOHeader(string Keyword = null, string Filter = "{}");
 
