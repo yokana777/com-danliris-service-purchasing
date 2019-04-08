@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190315070941_add_IncomeTaxBy_EPO")]
+    partial class add_IncomeTaxBy_EPO
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2522,8 +2523,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<int?>("MongoIndexItem");
-
                     b.Property<string>("ProductCode")
                         .HasMaxLength(255);
 
@@ -3226,8 +3225,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("DODetailId");
 
-                    b.Property<double>("DefaultDOQuantity");
-
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3494,8 +3491,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .IsRequired()
                         .HasMaxLength(255);
 
-                    b.Property<string>("DeletedReason");
-
                     b.Property<DateTime>("DeletedUtc");
 
                     b.Property<bool>("IsCorrection");
@@ -3748,7 +3743,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("Remark");
+                    b.Property<string>("Remark")
+                        .HasMaxLength(255);
 
                     b.Property<string>("Status")
                         .HasMaxLength(255);
@@ -4524,9 +4520,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
-                    b.Property<string>("IncomeTaxBy")
-                        .HasMaxLength(255);
-
                     b.Property<DateTimeOffset?>("IncomeTaxDate");
 
                     b.Property<string>("IncomeTaxId")
@@ -4885,19 +4878,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("EPODetailId");
 
-                    b.Property<long>("EPOId");
-
-                    b.Property<string>("EPONo")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("IncomeTaxBy")
-                        .HasMaxLength(255);
-
                     b.Property<bool>("IsCorrection");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsPaid");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()

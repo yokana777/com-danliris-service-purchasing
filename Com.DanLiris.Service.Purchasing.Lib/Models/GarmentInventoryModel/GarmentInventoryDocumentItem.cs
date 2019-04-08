@@ -26,5 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel
         public string UomUnit { get; set; }
 
         public string ProductRemark { get; set; }
+
+        public int? MongoIndexItem { get; set; }
     }
 }

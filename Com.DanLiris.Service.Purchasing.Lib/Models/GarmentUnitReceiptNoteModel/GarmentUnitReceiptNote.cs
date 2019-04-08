@@ -42,6 +42,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
 
         public bool IsUnitDO { get; set; }
 
+        public string DeletedReason { get; set; }
+
         public virtual ICollection<GarmentUnitReceiptNoteItem> Items { get; set; }
     }
 }

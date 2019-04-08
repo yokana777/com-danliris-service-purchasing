@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190319063758_GarmentInventoryDocumentItem_MongoIndexItem")]
+    partial class GarmentInventoryDocumentItem_MongoIndexItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3494,8 +3495,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .IsRequired()
                         .HasMaxLength(255);
 
-                    b.Property<string>("DeletedReason");
-
                     b.Property<DateTime>("DeletedUtc");
 
                     b.Property<bool>("IsCorrection");
@@ -3748,7 +3747,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("Remark");
+                    b.Property<string>("Remark")
+                        .HasMaxLength(255);
 
                     b.Property<string>("Status")
                         .HasMaxLength(255);

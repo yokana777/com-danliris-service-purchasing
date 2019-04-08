@@ -34,6 +34,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
+        [HttpGet("by-user")]
+        public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+                if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+                {
+                    filter = string.Concat("{", filterUser, "}");
+                }
+                else
+                {
+                    filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+                }
+
+                return Get(page, size, order, keyword, filter);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
@@ -177,16 +205,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
-        // tidak dipakai, tidak ada menu hapus
-        //[HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute]int id)
+        [HttpPut("deleted/{id}")]
+        public async Task<IActionResult> DeleteData([FromRoute]int id, [FromBody]GarmentUnitReceiptNoteViewModel ViewModel)
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                await facade.Delete(id);
+                await facade.Delete(id, ViewModel.DeletedReason);
                 return NoContent();
             }
             catch (Exception e)
@@ -197,6 +224,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> Delete([FromRoute]int id)
+        //{
+        //    try
+        //    {
+        //        identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        //        identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+        //        await facade.Delete(id);
+        //        return NoContent();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Dictionary<string, object> Result =
+        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+        //            .Fail();
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+        //    }
+        //}
 
         [HttpGet("unit-delivery-order")]
         public IActionResult GetForUnitDO(string keyword = null, string filter = "{}")

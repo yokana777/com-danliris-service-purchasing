@@ -413,7 +413,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
 
                 Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(s => s.IsInvoice == false && !string.IsNullOrWhiteSpace(s.BillNo));
+                    .ThenInclude(i => i.Details).Where(s => s.IsInvoice == false && s.CustomsId!=0);
             }
 
             return Query;
@@ -446,7 +446,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //{
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                .ThenInclude(i => i.Details).Where(s => s.BillNo == null);
+                .ThenInclude(i => i.Details).Where(s => s.CustomsId == 0);
             //}
 
             return Query;
@@ -514,7 +514,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             FilterDictionary.Remove("UnitId");
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
-                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.SupplierId == filterSupplierId) && m.BillNo != null && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId))))
+                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.SupplierId == filterSupplierId) && m.CustomsId != 0 && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId))))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,
@@ -597,7 +597,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet
 
-                .Where(m => m.DONo.Contains(Keyword ?? "") && m.BillNo !=null && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
+                .Where(m => m.DONo.Contains(Keyword ?? "") && m.CustomsId != 0 && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0 )))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,
@@ -1512,15 +1512,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var Query = (from a in dbContext.GarmentDeliveryOrders
                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
-                        
+                         join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
+                         join k in dbContext.GarmentUnitReceiptNotes on a.Id equals k.DOId into l
+                         from URN in l.DefaultIfEmpty()
                          where a.IsDeleted == false
                              && i.IsDeleted == false
                              && j.IsDeleted == false
-                            
-                             && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
-                           
-                            && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
-                            && a.DODate.AddHours(offset).Date >= DateFrom.Date
+                             && m.IsDeleted == false
+                             && URN.IsDeleted == false
+                             && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)                           
+                             && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
+                             && a.DODate.AddHours(offset).Date >= DateFrom.Date
                              && a.DODate.AddHours(offset).Date <= DateTo.Date
                              && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
                          select new GarmentDeliveryOrderReportViewModel
@@ -1528,6 +1530,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              no = a.DONo,
                              supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
                              date = a.ArrivalDate,
+                             URNNo = URN.URNNo ?? "-",
+                             URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
+                             UnitName = URN.UnitName ?? "-",
                              supplierName = a.SupplierName,
                              supplierCode = a.SupplierCode,
                              shipmentNo = a.ShipmentNo,
@@ -1548,7 +1553,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              dealQuantity = j.DealQuantity,
                              uomUnit = j.UomUnit,
                              createdUtc = j.CreatedUtc,
-                           
+                             EPOcreatedBy = m.CreatedBy,
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<GarmentDeliveryOrderReportViewModel> urn = new List<GarmentDeliveryOrderReportViewModel>();
@@ -1618,11 +1623,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Harga", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian (S/J)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian (P/O)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit Yang Membutuhkan", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", "", "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", "", "", "", "", "", "");
             else
             {
                 int index = 0;
@@ -1633,8 +1642,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string supplierDoDate = item.supplierDoDate == new DateTime(1970, 1, 1) ? "-" : item.supplierDoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string dikenakan = item.isCustoms == true ? "Ya" : "Tidak";
                     string jenissupp = item.shipmentType == "" ? "Local" : "Import";
+                    string URNDate = item.URNDate == new DateTime(1970, 1, 1) ? "-" : item.URNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
-                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentType, item.shipmentNo, dikenakan, item.ePONo, item.prNo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.productRemark, item.createdBy);
+                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentType, item.shipmentNo, dikenakan, item.ePONo, item.prNo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.productRemark, item.createdBy, item.EPOcreatedBy, item.URNNo, URNDate, item.UnitName);
                 }
             }
 

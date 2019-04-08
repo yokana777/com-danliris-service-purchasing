@@ -190,7 +190,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var pph = jumlah * model.IncomeTaxRate / 100;
             var totalWithPph = total - pph;
 
-            if (!model.UseIncomeTax)
+            var withoutIncomeTax = true;
+
+
+            if(model.UseIncomeTax && model.IncomeTaxBy == "Supplier")
+            {
+                withoutIncomeTax = false;
+            }
+
+            if (withoutIncomeTax)
             {
                 tableTax.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
             }
@@ -261,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #endregion
 
-            Paragraph paragraphTerbilang = new Paragraph($"Terbilang : {NumberToTextIDN.terbilang(model.UseIncomeTax ? totalWithPph : total)} {model.CurrencyDescription.ToLower()}", bold_font) { SpacingAfter = 15f };
+            Paragraph paragraphTerbilang = new Paragraph($"Terbilang : {NumberToTextIDN.terbilang(!withoutIncomeTax ? totalWithPph : total)} {model.CurrencyDescription.ToLower()}", bold_font) { SpacingAfter = 15f };
             document.Add(paragraphTerbilang);
 
             #region Footer

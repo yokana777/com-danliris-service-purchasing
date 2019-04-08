@@ -57,6 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
         public string IncomeTaxName { get; set; }
         [MaxLength(1000)]
         public string IncomeTaxRate { get; set; }
+        [MaxLength(255)]
+        public string IncomeTaxBy { get; set; }
 
         public bool UseVat { get; set; }
         public bool IsPosted { get; set; }

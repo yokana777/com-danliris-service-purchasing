@@ -501,7 +501,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 PdfPCell cellLeftBorderless = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
                 PdfPTable tableContent = new PdfPTable(7);
-                tableContent.SetWidths(new float[] { 2f, 5f, 4f, 1.5f, 4f, 1.5f, 4f });
+
+                tableContent.SetWidths(new float[] { 2f, 5f, 4f, 1.5f, 4f, 1.5f, 4f});
+
 
                 cellCenter.Phrase = new Phrase("No.", smallest_bold_font);
                 tableContent.AddCell(cellCenter);

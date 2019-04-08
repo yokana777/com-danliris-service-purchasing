@@ -119,11 +119,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
         }
 
         [HttpGet("disposition")]
-        public IActionResult Getdisposition(string keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "")
+        public IActionResult Getdisposition(string keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "", string incomeTaxBy="")
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-            var Data = _facade.ReadDisposition(keyword, currencyId, supplierId, categoryId, divisionId);
+            var Data = _facade.ReadDisposition(keyword, currencyId, supplierId, categoryId, divisionId, incomeTaxBy);
 
             //var newData = _mapper.Map<List<ExternalPurchaseOrderViewModel>>(Data);
 
