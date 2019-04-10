@@ -455,8 +455,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         public void Should_Success_Get_Report_Data_Arrival_Header()
         {
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportHeaderAccuracyofArrival(null, null, null, It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+            mockFacade.Setup(x => x.GetAccuracyOfArrivalHeader(null, null, null))
+                .Returns(new Lib.Facades.GarmentDeliveryOrderFacades.AccuracyOfArrivalReportHeaderResult());
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
