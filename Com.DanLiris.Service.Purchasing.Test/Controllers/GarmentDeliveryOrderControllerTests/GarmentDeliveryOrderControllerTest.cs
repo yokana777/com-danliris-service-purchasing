@@ -551,8 +551,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             string nowTicksA = $"{nowTicks}a";
 
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
+            mockFacade.Setup(x => x.GetAccuracyOfArrivalDetail($"BuyerCode{nowTicksA}", null, null, null))
+                .Returns(new List<Lib.Facades.GarmentDeliveryOrderFacades.AccuracyOfArrivalReportDetail>());
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<AccuracyOfArrivalReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
