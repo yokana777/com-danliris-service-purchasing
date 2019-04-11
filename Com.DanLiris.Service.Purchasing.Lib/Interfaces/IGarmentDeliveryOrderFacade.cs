@@ -42,5 +42,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
 
         AccuracyOfArrivalReportHeaderResult GetAccuracyOfArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo);
+        List<AccuracyOfArrivalReportDetail> GetAccuracyOfArrivalDetail(string supplierCode, string category, DateTime? dateFrom, DateTime? dateTo);
     }
 }
