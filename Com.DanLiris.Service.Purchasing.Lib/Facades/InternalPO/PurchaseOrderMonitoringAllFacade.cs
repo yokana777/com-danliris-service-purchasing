@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         {
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
+            this.dbContext.Database.SetCommandTimeout(600);
             this.dbSet = dbContext.Set<InternalPurchaseOrder>();
         }
 
@@ -262,7 +263,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              //from corrItem in dd.DefaultIfEmpty()
                              //join aa in dbContext.UnitPaymentCorrectionNotes on corrItem.UPCId equals aa.Id into bb
                              //from corr in bb.DefaultIfEmpty()
-                         where a.IsDeleted == false && b.IsDeleted == false
+                         where
+                         a.IsDeleted == false && b.IsDeleted == false
                              && c.IsDeleted == false
                              && d.IsDeleted == false
                              && epo.IsDeleted == false && epoDetail.IsDeleted == false && epoItem.IsDeleted == false
@@ -270,7 +272,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              && urn.IsDeleted == false && urnItem.IsDeleted == false
                              && upo.IsDeleted == false && upoItem.IsDeleted == false && upoDetail.IsDeleted == false
                              //&& corr.IsDeleted == false && corrItem.IsDeleted == false
-                             && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
+                             &&
+                             a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
                              && a.PRNo == (string.IsNullOrWhiteSpace(prNo) ? a.PRNo : prNo)
                              && a.CategoryId == (string.IsNullOrWhiteSpace(categoryId) ? a.CategoryId : categoryId)
                              && a.BudgetId == (string.IsNullOrWhiteSpace(budgetId) ? a.BudgetId : budgetId)
