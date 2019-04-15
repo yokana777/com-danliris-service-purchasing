@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         public static string GetDivisionAndUnitCOACode(string division, string unitCode)
         {
             var result = "";
-            switch (division.ToUpper().Replace(" ", ""))
+            switch (division?.ToUpper().Replace(" ", ""))
             {
                 case "SPINNING":
                     result = DIVISI_SPINNING;
