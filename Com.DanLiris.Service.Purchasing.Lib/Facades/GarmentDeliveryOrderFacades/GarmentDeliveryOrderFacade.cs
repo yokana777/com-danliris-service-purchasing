@@ -752,7 +752,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              roNo = c.RONo,
                              shipmentDate = f.ShipmentDate,
                              doDate = a.DODate,
-                             staff = a.CreatedBy,
+                             staff = h.CreatedBy,
                              category = category,
                              doNo = a.DONo,
                              ok_notOk = "NOT OK",
