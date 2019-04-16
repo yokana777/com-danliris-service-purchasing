@@ -297,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
             else if(model.DivisionName.ToUpper().Equals("UMUM") || 
                 model.DivisionName.ToUpper().Equals("SPINNING") ||
-                model.DivisionName.ToUpper().Equals("FINISHING & PRINTING") ||
+                model.DivisionName.ToUpper().Equals("DYEING & PRINTING") ||
                 model.DivisionName.ToUpper().Equals("UTILITY") ||
                 model.DivisionName.ToUpper().Equals("WEAVING"))
             {
