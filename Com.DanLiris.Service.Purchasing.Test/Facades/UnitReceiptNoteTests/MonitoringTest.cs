@@ -39,21 +39,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             get { return (UnitReceiptNoteGenerateDataFacade)ServiceProvider.GetService(typeof(UnitReceiptNoteGenerateDataFacade)); }
         }
      
-        [Fact]
-        public async Task Should_Success_Get_Report_Generate_Data_Excel()
-        {
-            UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
-            var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
-        }
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Generate_Data_Excel()
+        //{
+        //    UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
+        //    var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
+        //    Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        //}
 
-        [Fact]
-        public async Task Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
-        {
-            UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
-            var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
-        }
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Generate_Data_Excel_Not_Found()
+        //{
+        //    UnitReceiptNote model = await DataUtil.GetTestData("Unit test");
+        //    var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);
+        //    Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        //}
 
     }
 }
