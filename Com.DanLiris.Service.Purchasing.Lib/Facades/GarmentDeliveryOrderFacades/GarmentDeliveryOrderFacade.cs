@@ -752,7 +752,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              roNo = c.RONo,
                              shipmentDate = f.ShipmentDate,
                              doDate = a.DODate,
-                             staff = a.CreatedBy,
+                             staff = h.CreatedBy,
                              category = category,
                              doNo = a.DONo,
                              ok_notOk = "NOT OK",
@@ -1513,7 +1513,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
                          join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
-                         join k in dbContext.GarmentUnitReceiptNotes on a.Id equals k.DOId into l
+                         join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
+                         from URNItem in p.DefaultIfEmpty() 
+                         join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
                          from URN in l.DefaultIfEmpty()
                          where a.IsDeleted == false
                              && i.IsDeleted == false
