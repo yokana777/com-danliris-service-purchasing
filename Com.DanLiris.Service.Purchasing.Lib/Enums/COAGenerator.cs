@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         public static string GetDivisionAndUnitCOACode(string division, string unitCode)
         {
             var result = "";
-            switch (division.ToUpper().Replace(" ", ""))
+            switch (division?.ToUpper().Replace(" ", ""))
             {
                 case "SPINNING":
                     result = DIVISI_SPINNING;
@@ -212,6 +212,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                 case "BP":
                     result += PERSEDIAAN_BAHAN_PEMBANTU + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
                     break;
+                case "S":
+                    result += PERSEDIAAN_CHEMICAL + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
+                case "R":
+                    result += PERSEDIAAN_CHEMICAL + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
+                    break;
                 default:
                     result += DEFAULT_COA_IF_EMPTY + ".00." + GetDivisionAndUnitCOACode(division, unitCode);
                     break;
@@ -244,10 +250,74 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
             return result;
         }
 
+        public static List<string> LIST_OF_STOCK_COA = new List<string>() { "BP", "BB", "EM", "S", "R", "E", "PL", "MM", "SP" };
+
         //public static string GetVATCOA(string division, string unitCode)
         //{
         //    return "";
         //}
+
+        public static bool IsHavingStockCOA(string categoryCode)
+        {
+
+            return LIST_OF_STOCK_COA.Contains(categoryCode);
+        }
+
+        public static bool IsSparePart(string categoryCode)
+        {
+            return categoryCode.Equals("SP");
+        }
+
+        public static string GetCOAByCategoryCodeAndDivisionUnit(string categoryCode, string divisionName, string unitCode)
+        {
+            //var result = "";
+            if (new List<string>() { "Q", "L", "OB", "MT", "MN", "LL", "EF" }.Contains(categoryCode))
+            {
+                return $"6020.35.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "U", "P2" }.Contains(categoryCode))
+            {
+                return $"5510.02.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "F" }.Contains(categoryCode))
+            {
+                return $"5510.09.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "B" }.Contains(categoryCode))
+            {
+                return $"5510.07.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "O", "KD" }.Contains(categoryCode))
+            {
+                return $"6020.19.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "CT", "AT" }.Contains(categoryCode))
+            {
+                return $"6020.08.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "IV", "IT" }.Contains(categoryCode))
+            {
+                return $"2110.00.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "AK" }.Contains(categoryCode))
+            {
+                return $"6020.18.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "MS" }.Contains(categoryCode))
+            {
+                return $"2303.00.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else if (new List<string>() { "PY" }.Contains(categoryCode))
+            {
+                return $"2302.00.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+            else
+            {
+                return $"9999.00.{GetDivisionAndUnitCOACode(divisionName, unitCode)}";
+            }
+        }
+
+        //public static string 
     }
 
     public class JournalTransaction
