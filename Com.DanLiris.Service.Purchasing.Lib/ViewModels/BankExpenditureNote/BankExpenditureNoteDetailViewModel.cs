@@ -21,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public double TotalPaid { get; set; }
         public DateTimeOffset UPODate { get; set; }
         public string UnitPaymentOrderNo { get; set; }
+        public double IncomeTax { get; set; }
         public double Vat { get; set; }
     }
 }

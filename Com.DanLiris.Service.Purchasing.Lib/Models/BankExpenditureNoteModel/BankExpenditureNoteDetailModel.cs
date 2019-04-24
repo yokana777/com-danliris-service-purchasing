@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         public DateTimeOffset UPODate { get; set; }
         [MaxLength(255)]
         public string UnitPaymentOrderNo { get; set; }
+        public double IncomeTax { get; set; }
         public double Vat { get; set; }
         public virtual long BankExpenditureNoteId { get; set; }
         [ForeignKey("BankExpenditureNoteId")]

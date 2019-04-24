@@ -356,12 +356,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            var data = facade.GetReportHeaderAccuracyofArrival(category, dateFrom, dateTo, offset);
+            var data = facade.GetAccuracyOfArrivalHeader(category, dateFrom, dateTo);
             return Ok(new
             {
                 apiVersion = ApiVersion,
-                data = data.Item1,
-                info = new { total = data.Item2 },
+                data,
+                info = new { total = data.ReportHeader.Count },
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });
@@ -407,13 +407,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            var data = facade.GetReportDetailAccuracyofArrival(supplier, category, dateFrom, dateTo, offset);
+            var data = facade.GetAccuracyOfArrivalDetail(supplier, category, dateFrom, dateTo);
 
             return Ok(new
             {
                 apiVersion = ApiVersion,
-                data = data.Item1,
-                info = new { total = data.Item2 },
+                data,
+                info = new { total = data.Count },
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });
