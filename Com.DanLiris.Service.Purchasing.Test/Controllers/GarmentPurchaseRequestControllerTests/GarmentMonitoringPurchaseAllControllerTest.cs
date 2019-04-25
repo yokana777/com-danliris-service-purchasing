@@ -79,7 +79,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 		{
 			return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
 		}
-		[Fact]
+
+        [Fact]
 		public void Should_Error_Get_Report_Data()
 		{
 			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
@@ -164,7 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+			var response = controller.GetReportByUser(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 
@@ -194,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetXls(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+			var response = controller.GetXlsByUser(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 	}
