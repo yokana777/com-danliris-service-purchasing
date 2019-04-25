@@ -10,8 +10,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 {
 	public class GarmentBeacukaiViewModel : BaseViewModel, IValidatableObject
 	{
-		
-		public string beacukaiNo { get; set; }
+        public string UId { get; set; }
+        public string beacukaiNo { get; set; }
 		public string billNo { get; set; }
 		public DateTimeOffset beacukaiDate { get; set; }
 		public DateTimeOffset validationDate { get; set; }

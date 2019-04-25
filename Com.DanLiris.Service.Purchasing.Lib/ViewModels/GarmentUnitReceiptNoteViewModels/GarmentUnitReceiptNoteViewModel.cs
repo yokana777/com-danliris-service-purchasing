@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 {
     public class GarmentUnitReceiptNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string URNNo { get; set; }
 
         public NewIntegrationViewModel.UnitViewModel Unit { get; set; }
