@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             {
                 return new UnitPaymentCorrectionNoteViewModel
                 {
+                    UId = null,
                     division = new DivisionViewModel
                     {
                         _id = "DivisionId",

@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             {
                 return new GarmentUnitReceiptNoteViewModel
                 {
+                    UId = null,
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
                         new GarmentUnitReceiptNoteItemViewModel()

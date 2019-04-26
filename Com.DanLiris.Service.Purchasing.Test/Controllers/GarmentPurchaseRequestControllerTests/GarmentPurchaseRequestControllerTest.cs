@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             {
                 return new GarmentPurchaseRequestViewModel
                 {
+                    UId = null,
                     Buyer = new BuyerViewModel(),
                     Unit = new UnitViewModel()
                 };

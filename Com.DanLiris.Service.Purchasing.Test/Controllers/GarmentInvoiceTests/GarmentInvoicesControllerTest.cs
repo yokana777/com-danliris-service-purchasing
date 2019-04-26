@@ -42,7 +42,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			{
 				return new GarmentInvoiceViewModel
 				{
-					supplier = new SupplierViewModel {
+                    UId = null,
+                    supplier = new SupplierViewModel {
 						Name = "supplier",
 					},
 					items = new List<GarmentInvoiceItemViewModel>
