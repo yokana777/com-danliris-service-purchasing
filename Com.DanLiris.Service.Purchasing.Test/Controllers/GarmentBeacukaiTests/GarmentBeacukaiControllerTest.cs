@@ -38,7 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 			{
 				return new GarmentBeacukaiViewModel
 				{
-					supplier = new SupplierViewModel
+                    UId = null,
+                    supplier = new SupplierViewModel
 					{
 						Name = "supplier",
 					},

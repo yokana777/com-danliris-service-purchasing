@@ -232,6 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
                 return new UnitReceiptNoteViewModel
                 {
+                    UId = null,
                     storage = new StorageViewModel(),
                     supplier = new SupplierViewModel()
                     {

@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
             {
                 return new GarmentInternalPurchaseOrderViewModel
                 {
+                    UId = null,
                     Items = new List<GarmentInternalPurchaseOrderItemViewModel>
                     {
                         new GarmentInternalPurchaseOrderItemViewModel()

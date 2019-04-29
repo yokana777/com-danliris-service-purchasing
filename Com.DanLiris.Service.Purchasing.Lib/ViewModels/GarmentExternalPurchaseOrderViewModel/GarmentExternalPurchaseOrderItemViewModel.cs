@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 {
     public class GarmentExternalPurchaseOrderItemViewModel: BaseViewModel
     {
+        public string UId { get; set; }
         public string PRNo { get; set; }
         public int PRId { get; set; }
         public string PONo { get; set; }

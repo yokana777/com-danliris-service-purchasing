@@ -26,7 +26,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         {
             get
             {
-                return new GarmentUnitDeliveryOrderViewModel();
+                return new GarmentUnitDeliveryOrderViewModel
+                {
+                    UId = null
+                };
             }
         }
 

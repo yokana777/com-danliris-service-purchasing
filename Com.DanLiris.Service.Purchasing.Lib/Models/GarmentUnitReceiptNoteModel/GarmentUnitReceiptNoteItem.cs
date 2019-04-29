@@ -43,6 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         [MaxLength(1000)]
         public string UomUnit { get; set; }
 
+        [Column(TypeName = "decimal(20, 4)")]
         public decimal PricePerDealUnit { get; set; }
 
         [MaxLength(1000)]

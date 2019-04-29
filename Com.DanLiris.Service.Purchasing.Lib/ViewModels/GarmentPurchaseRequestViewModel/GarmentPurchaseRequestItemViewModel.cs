@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 {
     public class GarmentPurchaseRequestItemViewModel : BaseViewModel
     {
+        public string UId { get; set; }
         public string PO_SerialNumber { get; set; }
 
         public ProductViewModel Product { get; set; }

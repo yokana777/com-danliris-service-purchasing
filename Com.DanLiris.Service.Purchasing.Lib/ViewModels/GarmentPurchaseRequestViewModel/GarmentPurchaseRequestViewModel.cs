@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 {
     public class GarmentPurchaseRequestViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string PRNo { get; set; }
         public string RONo { get; set; }
 
