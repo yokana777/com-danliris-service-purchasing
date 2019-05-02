@@ -31,6 +31,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
         public string FabricType{ get; set; }
         public long BuyerId { get; set; }
         public string BuyerCode { get; set; }
+        public double? DOCurrencyRate { get; set; }
+        [Column(TypeName = "decimal(38, 20)")]
+        public decimal Conversion { get; set; }
+        [Column(TypeName = "decimal(38, 4)")]
+        public decimal BasicPrice { get; set; }
 
         [NotMapped]
         public bool IsSave { get; set; }

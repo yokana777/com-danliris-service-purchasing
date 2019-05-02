@@ -37,6 +37,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
 
         public string DesignColor { get; set; }
 
+        public double? DOCurrencyRate { get; set; }
+
         [NotMapped]
         public bool IsSave { get; set; }
 

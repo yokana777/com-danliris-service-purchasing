@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,5 +30,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public string BuyerCode { get; set; }
         public string DesignColor { get; set; }
         public bool IsSave { get; set; }
+        public CurrencyViewModel docurrency { get; set; }
     }
 }

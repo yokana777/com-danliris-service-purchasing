@@ -129,6 +129,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     {
                         EntityExtension.FlagForCreate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
 
+                        GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
                         EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
@@ -234,6 +237,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         if (newGarmentUnitDeliveryOrderItem == null)
                         {
                             EntityExtension.FlagForDelete(oldGarmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
+
+                            GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNId);
+                            oldGarmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
