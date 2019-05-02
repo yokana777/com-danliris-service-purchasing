@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
         public long? DOId { get; set; }
         public string DONo { get; set; }
+        public bool IsInvoice { get; set; }
 
         public DateTimeOffset? ReceiptDate { get; set; }
 

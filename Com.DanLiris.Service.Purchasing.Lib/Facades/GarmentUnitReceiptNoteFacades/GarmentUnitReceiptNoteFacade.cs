@@ -121,6 +121,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             .FirstOrDefault();
             var viewModel = mapper.Map<GarmentUnitReceiptNoteViewModel>(model);
 
+            viewModel.IsInvoice = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Select(gdo => gdo.IsInvoice).FirstOrDefault();
+
             foreach (var item in viewModel.Items)
             {
                 item.Buyer = new BuyerViewModel
