@@ -62,7 +62,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                             FabricType = "SLICK",
                             BuyerId = It.IsAny<int>(),
                             BuyerCode = "COdes",
-                            DesignColor = "design"
+                            DesignColor = "design",
+                            Conversion = 1,
+                            DOCurrency = new Lib.ViewModels.NewIntegrationViewModel.CurrencyViewModel()
+                            {
+                                Rate = 1,
+                            },
+                            BasicPrice = 1
                         }
                     }
                 };

@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
         public string DeletedReason { get; set; }
 
-        public CurrencyViewModel docurrency { get; set; }
+        public CurrencyViewModel DOCurrency { get; set; }
 
         public List<GarmentUnitReceiptNoteItemViewModel> Items { get; set; }
 

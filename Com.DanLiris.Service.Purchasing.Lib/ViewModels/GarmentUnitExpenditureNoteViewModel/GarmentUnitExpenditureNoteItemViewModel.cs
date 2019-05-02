@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public string BuyerCode { get; set; }
         public string DesignColor { get; set; }
         public bool IsSave { get; set; }
-        public CurrencyViewModel docurrency { get; set; }
+        public CurrencyViewModel DOCurrency { get; set; }
         public decimal Conversion { get; set; }
         public decimal BasicPrice { get; set; }
     }

@@ -331,7 +331,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         UomId = i.UomId,
                         UomUnit = i.UomUnit,
                         FabricType = i.FabricType,
-                        DesignColor = i.DesignColor
+                        DesignColor = i.DesignColor,
+                        DOCurrencyRate = i.DOCurrencyRate,
                     }).ToList()
                 });
 
@@ -381,6 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         i.RONo,
                         i.URNItemId,
                         i.DesignColor,
+                        i.DOCurrency,
                         Buyer = new
                         {
                             Id = dbContext.GarmentInternalPurchaseOrders.Where(m => m.Items.Any(k => k.Id == i.POItemId)).Select(m => m.BuyerId).FirstOrDefault(),
