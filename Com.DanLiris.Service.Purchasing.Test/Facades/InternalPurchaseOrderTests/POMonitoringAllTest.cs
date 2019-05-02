@@ -251,15 +251,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_Data_Staffs()
         {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReportStaff(DateTime.MinValue, DateTime.MinValue, model.DivisionId, 7);
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GetReportStaff(DateTime.MinValue, DateTime.MaxValue, null, 7);
             Assert.NotNull(Response);
         }
 
         [Fact]
         public async void Should_Success_Get_Report_Data_Staffs_Null_Parameter()
         {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var model = await DataUtilDO.GetTestData("Unit test");
             var Response = Facade.GetReportStaff(null, null, null, 0);
             Assert.NotNull(Response);
         }
@@ -268,15 +268,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_Data_SubStaffs()
         {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReportsubStaff(DateTime.MinValue, DateTime.MinValue, model.CreatedBy, model.DivisionId, 7);
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GetReportsubStaff(DateTime.MinValue, DateTime.MaxValue, model.CreatedBy, null, 7);
             Assert.NotNull(Response);
         }
 
         [Fact]
         public async void Should_Success_Get_Report_Data_SubStaffs_Null_Parameter()
         {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var model = await DataUtilDO.GetTestData("Unit test");
             var Response = Facade.GetReportsubStaff(null, null, null, null, 0);
             Assert.NotNull(Response);
         }
@@ -285,15 +285,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         [Fact]
         public async void Should_Success_Get_Report_Data_Excel_subStaffs()
         {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GenerateExcelSarmut(DateTime.MinValue, DateTime.MinValue, model.CreatedBy, model.DivisionId, 7);
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GenerateExcelSarmut(DateTime.MinValue, DateTime.MaxValue, model.CreatedBy, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
         [Fact]
         public async void Should_Success_Get_Report_Data_Excel_subStaffs_Null_Parameter()
         {
-            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var model = await DataUtilDO.GetTestData("Unit test");
             var Response = Facade.GenerateExcelSarmut(null, null, null, null, 0);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }

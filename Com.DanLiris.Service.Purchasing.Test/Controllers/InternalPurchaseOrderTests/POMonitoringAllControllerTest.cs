@@ -150,12 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        [Fact]
-        public async Task Should_Success_Get_Report_Excel_Empty_Data_StaffDetail()
-        {
-            var response = await this.Client.GetAsync($"{URI}/subStaffs/download?unitId=100000");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+       
 
         #endregion
     }
