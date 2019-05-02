@@ -123,6 +123,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             mockFacade.Setup(x => x.ReadBySupplierUnit(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new ReadResponse<UnitReceiptNote>(new List<UnitReceiptNote>() { Model }, 1, new Dictionary<string, string>()));
 
+            mockFacade.Setup(x => x.GetPurchaseRequestCategoryCode(It.IsAny<int>()))
+                .Returns("");
+
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<UnitReceiptNoteViewModel>>(It.IsAny<List<UnitReceiptNote>>()))
                 .Returns(new List<UnitReceiptNoteViewModel> { ViewModel });
