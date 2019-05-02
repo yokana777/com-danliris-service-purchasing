@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
+        private readonly DbSet<GarmentDeliveryOrder> dbsetGarmentDeliveryOrder;
 
         private readonly IMapper mapper;
 
@@ -56,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
+            dbsetGarmentDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
@@ -151,6 +153,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
                     garmentUnitReceiptNote.URNNo = await GenerateNo(garmentUnitReceiptNote);
                     garmentUnitReceiptNote.IsStorage = true;
+
+                    var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
@@ -269,6 +274,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         EntityExtension.FlagForUpdate(oldGarmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                     }
                     oldGarmentUnitReceiptNote.Remark = garmentUnitReceiptNote.Remark;
+
+                    var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();

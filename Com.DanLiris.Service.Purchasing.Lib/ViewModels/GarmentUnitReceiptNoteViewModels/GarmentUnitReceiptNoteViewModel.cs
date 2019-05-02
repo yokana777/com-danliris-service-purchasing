@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels
 {
@@ -33,6 +34,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public bool IsUnitDO { get; set; }
 
         public string DeletedReason { get; set; }
+
+        public CurrencyViewModel DOCurrency { get; set; }
 
         public List<GarmentUnitReceiptNoteItemViewModel> Items { get; set; }
 
