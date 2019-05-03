@@ -20,6 +20,7 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -67,6 +68,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             int TotalData = pageable.TotalCount;
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public ReadResponse<dynamic> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]")
+        {
+            IQueryable<GarmentDeliveryOrder> Query = dbSet;
+
+            List<string> SearchAttributes = JsonConvert.DeserializeObject<List<string>>(Search);
+            if (SearchAttributes.Count.Equals(0))
+            {
+                SearchAttributes = new List<string>() { "DONo" };
+            }
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, SearchAttributes, Keyword, SearchWith: "StartsWith");
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Dictionary<string, string> SelectDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Select);
+            var SelectedQuery = QueryHelper<GarmentDeliveryOrder>.ConfigureSelect(Query, SelectDictionary);
+
+            int TotalData = SelectedQuery.Count();
+
+            List<dynamic> Data = SelectedQuery
+                .Skip((Page - 1) * Size)
+                .Take(Size)
+                .ToDynamicList();
+
+            return new ReadResponse<dynamic>(Data, TotalData, OrderDictionary);
         }
 
         public GarmentDeliveryOrder ReadById(int id)
