@@ -278,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var model = await DataUtilDO.GetTestData("Unit test");
             var Response = Facade.GetReportsubStaff(null, null, null, null, 0);
-            Assert.NotEqual(Response.Item2,0);
+            Assert.NotNull(Response);
         }
 
 

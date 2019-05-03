@@ -21,6 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public DateTimeOffset tglpoint { get; set; }
         public DateTimeOffset tglpoeks { get; set; }
         public DateTimeOffset tgpr { get; set; }
-        public string ok_notOk { get; set; }
+      
     }
 }
