@@ -269,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Get_Report_Data_SubStaffs()
         {
             var model = await DataUtilDO.GetTestData("Unit test");
-            var Response = Facade.GetReportsubStaff(DateTime.MinValue, DateTime.MaxValue, model.CreatedBy, null, 7);
+            var Response = Facade.GetReportsubStaff(DateTime.MinValue, DateTime.MaxValue, null,model.CreatedBy, 7);
             Assert.NotNull(Response);
         }
 
@@ -278,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var model = await DataUtilDO.GetTestData("Unit test");
             var Response = Facade.GetReportsubStaff(null, null, null, null, 0);
-            Assert.NotNull(Response);
+            Assert.NotEqual(Response.Item2,0);
         }
 
 
@@ -286,7 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async void Should_Success_Get_Report_Data_Excel_subStaffs()
         {
             var model = await DataUtilDO.GetTestData("Unit test");
-            var Response = Facade.GenerateExcelSarmut(DateTime.MinValue, DateTime.MaxValue, model.CreatedBy, null, 7);
+            var Response = Facade.GenerateExcelSarmut(DateTime.MinValue, DateTime.MaxValue,null,model.CreatedBy, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
