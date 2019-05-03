@@ -245,5 +245,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var Response = Facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, 7,"");
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
+
+
+        #region Staff Sarmut 
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Staffs()
+        {
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GetReportStaff(DateTime.MinValue, DateTime.MaxValue, null, 7);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Staffs_Null_Parameter()
+        {
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GetReportStaff(null, null, null, 0);
+            Assert.NotNull(Response);
+        }
+
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_SubStaffs()
+        {
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GetReportsubStaff(DateTime.MinValue, DateTime.MaxValue, null,model.CreatedBy, 7);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_SubStaffs_Null_Parameter()
+        {
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GetReportsubStaff(null, null, null, null, 0);
+            Assert.NotNull(Response);
+        }
+
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_subStaffs()
+        {
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GenerateExcelSarmut(DateTime.MinValue, DateTime.MaxValue,null,model.CreatedBy, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_subStaffs_Null_Parameter()
+        {
+            var model = await DataUtilDO.GetTestData("Unit test");
+            var Response = Facade.GenerateExcelSarmut(null, null, null, null, 0);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+        #endregion
     }
 }
