@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 {
     public class GarmentExternalPurchaseOrderViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string EPONo { get; set; }
         public SupplierViewModel Supplier { get; set; }
 

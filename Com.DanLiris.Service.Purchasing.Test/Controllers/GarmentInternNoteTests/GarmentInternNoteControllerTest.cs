@@ -37,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             {
                 return new GarmentInternNoteViewModel
                 {
+                    UId = null,
                     supplier = new SupplierViewModel(),
                     currency = new CurrencyViewModel(),
                     items = new List<GarmentInternNoteItemViewModel>

@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                             break;
                     }
                     break;
-                case "FINISHING&PRINTING":
+                case "DYEING&PRINTING":
                     result = DIVISI_FINISHING_PRINTING;
                     switch (unitCode)
                     {

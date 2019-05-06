@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseRequestViewMode
 {
     public class PurchaseRequestViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string no { get; set; }
         public DateTimeOffset? date { get; set; }
         public DateTimeOffset? expectedDeliveryDate { get; set; }

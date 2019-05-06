@@ -57,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Returns(new GarmentUnitReceiptNoteViewModel {
                     Id = 1,
                     DOId = 1,
+                    DOCurrency = new CurrencyViewModel(),
                     Supplier = new SupplierViewModel(),
                     Unit = new UnitViewModel(),
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
@@ -167,6 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var dataViewModel = facade.ReadById((int)data.Id);
+            var temp = dataViewModel.DOCurrency.Rate + 1;
             var Response = facade.GeneratePdf(dataViewModel);
             Assert.IsType<MemoryStream>(Response);
         }

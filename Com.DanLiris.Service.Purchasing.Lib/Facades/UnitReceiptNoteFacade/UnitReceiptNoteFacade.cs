@@ -1110,6 +1110,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        public string GetPurchaseRequestCategoryCode(long prId)
+        {
+            return dbContext.PurchaseRequests.Where(pr => pr.Id == prId).Select(pr => pr.CategoryCode).FirstOrDefault();
+        }
     }
 }
 

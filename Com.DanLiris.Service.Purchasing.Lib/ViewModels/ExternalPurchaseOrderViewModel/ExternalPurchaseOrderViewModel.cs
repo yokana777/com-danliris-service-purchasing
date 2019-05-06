@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
 {
     public class ExternalPurchaseOrderViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string no { get; set; }
         public DivisionViewModel division { get; set; }
         public UnitViewModel unit { get; set; }

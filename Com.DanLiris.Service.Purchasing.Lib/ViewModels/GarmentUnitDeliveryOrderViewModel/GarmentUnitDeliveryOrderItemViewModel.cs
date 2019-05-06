@@ -37,6 +37,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
 
         public string DesignColor { get; set; }
 
+        public CurrencyViewModel DOCurrency { get;
+            set; }
+
         public bool IsSave { get; set; }
     }
 }

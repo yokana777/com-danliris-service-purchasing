@@ -340,5 +340,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        //Monitoring PO Internal Belum PO Eksternal
+        [Fact]
+        public async Task Should_Success_Get_Report_UnProcessed()
+        {
+            var response = await this.Client.GetAsync(URI + "/monitoring-unprocessed" + "?page=1&size=25");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var json = await response.Content.ReadAsStringAsync();
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Excel_UnProcessed()
+        {
+            var response = await this.Client.GetAsync(URI + "/monitoring-unprocessed/download");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Get_Report_Without_Page_UnProcessed()
+        {
+            var response = await this.Client.GetAsync(URI + "/monitoring-unprocessed");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Get_Report_Excel_UnProcessed()
+        {
+            var response = await this.Client.GetAsync(URI + "/monitoring-unprocessed");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
     }
 }
