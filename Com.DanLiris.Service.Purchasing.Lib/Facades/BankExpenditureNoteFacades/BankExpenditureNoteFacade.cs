@@ -422,6 +422,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Currency = s.Currency,
                     Position = s.Position,
                     VerifyDate = s.VerifyDate,
+                    IncomeTax = s.IncomeTax,
                     Vat = s.Vat,
                     IsPaid = s.IsPaid,
                     PaymentMethod = s.PaymentMethod,
@@ -468,8 +469,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.DivisionCode,
                 s.DivisionName,
                 s.Vat,
+                s.IncomeTax,
                 s.IsPaid,
-                s.TotalPaid,
+                TotalPaid = s.TotalPaid - s.IncomeTax,
                 s.Currency,
                 s.PaymentMethod,
                 Items = s.Items.Select(sl => new

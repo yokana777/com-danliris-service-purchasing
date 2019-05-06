@@ -108,5 +108,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.InternalPurchaseOrder
             var response = await this.Client.GetAsync($"{URI}/by-user/download?unitId=0");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
+
+
+        #region Sarmut Staff
+        [Fact]
+        public async Task Should_Success_Get_Report_Staffs()
+        {
+            var response = await this.Client.GetAsync(URI + "/staffs");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var json = response.Content.ReadAsStringAsync().Result;
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+        }
+
+
+
+        [Fact]
+        public async Task Should_Success_Get_Report_StaffsDetail()
+        {
+            var response = await this.Client.GetAsync(URI + "/subStaffs");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var json = response.Content.ReadAsStringAsync().Result;
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+
+            Assert.True(result.ContainsKey("apiVersion"));
+            Assert.True(result.ContainsKey("message"));
+            Assert.True(result.ContainsKey("data"));
+            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Excel_StaffDetail()
+        {
+            var response = await this.Client.GetAsync(URI + "/subStaffs/download");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+       
+
+        #endregion
     }
 }

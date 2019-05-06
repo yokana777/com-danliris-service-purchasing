@@ -231,6 +231,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         }
 
         [Fact]
+        public void Should_Success_Get_Loader()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadLoader(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new ReadResponse<dynamic>(new List<dynamic>(), 1, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetLoader();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Error_Get_All_Data()
         {
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
@@ -261,6 +276,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.GetByUser();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Loader()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadLoader(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception());
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentDeliveryOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetLoader();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

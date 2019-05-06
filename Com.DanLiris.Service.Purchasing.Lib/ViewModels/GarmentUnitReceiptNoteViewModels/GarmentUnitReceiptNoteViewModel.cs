@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels
 {
     public class GarmentUnitReceiptNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string URNNo { get; set; }
 
         public NewIntegrationViewModel.UnitViewModel Unit { get; set; }
@@ -18,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
         public long? DOId { get; set; }
         public string DONo { get; set; }
+        public bool IsInvoice { get; set; }
 
         public DateTimeOffset? ReceiptDate { get; set; }
 
@@ -31,6 +34,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public bool IsUnitDO { get; set; }
 
         public string DeletedReason { get; set; }
+
+        public CurrencyViewModel DOCurrency { get; set; }
 
         public List<GarmentUnitReceiptNoteItemViewModel> Items { get; set; }
 

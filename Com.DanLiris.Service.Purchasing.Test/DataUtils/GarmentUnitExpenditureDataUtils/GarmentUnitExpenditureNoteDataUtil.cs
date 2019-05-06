@@ -84,6 +84,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     UomUnit = item.UomUnit,
 
                     PricePerDealUnit = item.PricePerDealUnit,
+                    DOCurrencyRate = item.DOCurrencyRate,
+                    Conversion = 1,
                 };
                 new GarmentUnitExpenditureNoteItem
                 {
@@ -113,6 +115,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     UomUnit = item.UomUnit,
 
                     PricePerDealUnit = item.PricePerDealUnit,
+                    DOCurrencyRate = item.DOCurrencyRate,
+                    Conversion = 1,
+
 
                 };
 
@@ -188,6 +193,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     UomUnit = item.UomUnit,
 
                     PricePerDealUnit = item.PricePerDealUnit,
+                    DOCurrencyRate = item.DOCurrencyRate,
+                    Conversion = 1,
                 };
                 new GarmentUnitExpenditureNoteItem
                 {
@@ -217,6 +224,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     UomUnit = item.UomUnit,
 
                     PricePerDealUnit = item.PricePerDealUnit,
+                    DOCurrencyRate = item.DOCurrencyRate,
+                    Conversion = 1,
 
                 };
 

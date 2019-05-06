@@ -9,7 +9,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
 {
     public class GarmentDeliveryOrderViewModel : BaseViewModel, IValidatableObject
 	{
-		public long customsId { get; set; }
+        public string UId { get; set; }
+        public long customsId { get; set; }
 		public string doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
         public DateTimeOffset? arrivalDate { get; set; }

@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190425022703_GURNI_PricePerDealUnit_decimal(20, 4)")]
+    partial class GURNI_PricePerDealUnit_decimal204
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3226,8 +3227,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<double?>("DOCurrencyRate");
-
                     b.Property<long>("DODetailId");
 
                     b.Property<double>("DefaultDOQuantity");
@@ -3389,15 +3388,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<decimal>("BasicPrice")
-                        .HasColumnType("decimal(38, 4)");
-
                     b.Property<string>("BuyerCode");
 
                     b.Property<long>("BuyerId");
-
-                    b.Property<decimal>("Conversion")
-                        .HasColumnType("decimal(38, 20)");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -3408,8 +3401,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<double?>("DOCurrencyRate");
 
                     b.Property<long>("DODetailId");
 
@@ -3492,8 +3483,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<double?>("DOCurrencyRate");
 
                     b.Property<long>("DOId");
 

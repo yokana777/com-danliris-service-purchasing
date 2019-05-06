@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
 {
     public class InternalPurchaseOrderViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string poNo { get; set; }
         public string isoNo { get; set; }
         public string prId { get; set; }

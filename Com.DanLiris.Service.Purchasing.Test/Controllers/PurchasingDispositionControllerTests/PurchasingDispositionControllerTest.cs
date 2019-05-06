@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 items.Add(
                     new PurchasingDispositionItemViewModel
                     {
+                        UId = null,
                         IncomeTax = new IncomeTaxViewModel
                         {
                             name = "test",
@@ -47,6 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 details.Add(
                     new PurchasingDispositionDetailViewModel
                     {
+                        UId = null,
                         //EPODetailId = It.IsAny<string>(),
                         PRId = It.IsAny<string>(),
                         PRNo = "test",
@@ -73,6 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
                 return new PurchasingDispositionViewModel
                 {
+                    UId = null,
                     Remark = "Test",
                     Calculation = "axa",
                     Amount = 1000,

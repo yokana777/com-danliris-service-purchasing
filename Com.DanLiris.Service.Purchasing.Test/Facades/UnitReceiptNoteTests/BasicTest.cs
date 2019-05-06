@@ -197,6 +197,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotNull(response);
         }
 
+        [Fact]
+        public void Should_Success_Get_GetPurchaseRequestCategoryCode()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
+
+            var Response = facade.Read();
+            Assert.NotEqual(Response.Data.Count, 0);
+
+            foreach (var data in Response.Data)
+            {
+                foreach (var item in data.Items)
+                {
+                    var categoryCode = facade.GetPurchaseRequestCategoryCode(item.PRId);
+                    Assert.NotNull(categoryCode);
+                }
+            }
+        }
+
         //[Fact]
         //public async Task Should_Success_Update_Data()
         //{

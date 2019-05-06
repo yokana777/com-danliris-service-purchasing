@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
                 return new UnitPaymentOrderViewModel
                 {
-
+                    UId = null,
                     supplier = new SupplierViewModel
                     {
                         import = false

@@ -57,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 SupplierName = purchasingDocumentExpedition.SupplierName,
                 TotalPaid = purchasingDocumentExpedition.TotalPaid,
                 UPODate = purchasingDocumentExpedition.UPODate,
+                IncomeTax = purchasingDocumentExpedition.IncomeTax,
                 Vat = purchasingDocumentExpedition.Vat,
                 Items = Items
             };
