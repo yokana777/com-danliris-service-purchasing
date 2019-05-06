@@ -558,6 +558,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         }
 
         [Fact]
+        public async Task Should_Success_Get_Loader()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadLoader();
+            Assert.NotEmpty(Response.Data);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Loader_With_Params()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadLoader(Search: "[\"DONo\"]", Select: "{ \"doNO\" : \"DONo\", \"DODate\" : 1 }");
+            Assert.NotEmpty(Response.Data);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));

@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface IGarmentDeliveryOrderFacade
     {
         Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        ReadResponse<dynamic> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]");
         GarmentDeliveryOrder ReadById(int id);
         Task<int> Create(GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentDeliveryOrderViewModel vm, GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
