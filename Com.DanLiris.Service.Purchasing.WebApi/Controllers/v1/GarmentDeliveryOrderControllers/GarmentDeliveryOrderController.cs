@@ -153,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         {
             try
             {
-                var Data = facade.ReadLoader(page, size, order, keyword, filter, search, select);
+                var Data = facade.ReadLoader(page, size, order, keyword, filter, select, search);
 
                 var info = new Dictionary<string, object>
                     {
