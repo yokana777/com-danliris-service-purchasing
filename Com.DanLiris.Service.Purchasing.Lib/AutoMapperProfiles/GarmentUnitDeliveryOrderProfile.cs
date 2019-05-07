@@ -39,6 +39,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.UomId, opt => opt.MapFrom(s => s.UomId))
                 .ForPath(d => d.UomUnit, opt => opt.MapFrom(s => s.UomUnit))
 
+                .ForPath(d => d.DOCurrency.Rate, opt => opt.MapFrom(s => s.DOCurrencyRate))
+
                 .ReverseMap();
         }
     }

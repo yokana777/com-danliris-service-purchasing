@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 
             List<object> listData = new List<object>();
             listData.AddRange(
-                newData.AsQueryable().Select(s => new
+                newData.Select(s => new
                 {
                     s._id,
                     s.no,
@@ -51,7 +51,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                         division = new { s.unit.division.name },
                         s.unit.name
                     },
-                    s.items
+                    items = s.items.Select(i => {
+                        i.categoryCode = _facade.GetPurchaseRequestCategoryCode(i.prId);
+                        return i;
+                    })
                 }).ToList()
             );
 

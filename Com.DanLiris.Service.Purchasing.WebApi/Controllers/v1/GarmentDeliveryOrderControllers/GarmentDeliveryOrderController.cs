@@ -148,6 +148,36 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             }
         }
 
+		[HttpGet("loader")]
+        public IActionResult GetLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", string select = "{}", string search = "[]")
+        {
+            try
+            {
+                var Data = facade.ReadLoader(page, size, order, keyword, filter, select, search);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", Data.Data.Count },
+                        { "total", Data.TotalData },
+                        { "order", Data.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {

@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryViewModels
 {
     public class GarmentInventorySummaryViewModel : BaseViewModel
     {
+        //public string UId { get; set; }
         //public string No { get; set; }
 
         //public NewIntegrationViewModel.GarmentProductViewModel Product { get; set; }

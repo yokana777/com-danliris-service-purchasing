@@ -70,6 +70,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
+        // Monitoring PO Internal Belum Proses PO Eksternal
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_UnProcessed()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var Response = Facade.GetReportUnProcessed(model.UnitId, model.CategoryId, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_UnProcessed_Null_Parameter()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var Response = Facade.GetReportUnProcessed("", null, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item2, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_UnProcessed_Excel()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var Response = Facade.GenerateExcelUnProcessed(model.UnitId, model.CategoryId, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_Excel_UnProcessed_Null_Parameter()
+        {
+            InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
+            var Response = Facade.GenerateExcelUnProcessed("", "", null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
         //Duration PO In-PO Ex
         [Fact]
         public async Task Should_Success_Get_Report_POIPOExDuration_Data()

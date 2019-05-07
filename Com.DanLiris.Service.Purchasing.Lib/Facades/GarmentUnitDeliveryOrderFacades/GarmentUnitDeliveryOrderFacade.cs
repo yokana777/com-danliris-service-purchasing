@@ -129,6 +129,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     {
                         EntityExtension.FlagForCreate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
 
+                        GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
                         EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
@@ -235,6 +238,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         {
                             EntityExtension.FlagForDelete(oldGarmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
 
+                            GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNId);
+                            oldGarmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitDeliveryOrderItem.Quantity;
@@ -325,7 +331,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         UomId = i.UomId,
                         UomUnit = i.UomUnit,
                         FabricType = i.FabricType,
-                        DesignColor = i.DesignColor
+                        DesignColor = i.DesignColor,
+                        DOCurrencyRate = i.DOCurrencyRate,
                     }).ToList()
                 });
 
@@ -375,6 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         i.RONo,
                         i.URNItemId,
                         i.DesignColor,
+                        i.DOCurrency,
                         Buyer = new
                         {
                             Id = dbContext.GarmentInternalPurchaseOrders.Where(m => m.Items.Any(k => k.Id == i.POItemId)).Select(m => m.BuyerId).FirstOrDefault(),

@@ -642,5 +642,248 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
 
         }
+
+
+        #region PurchaseOrderStaffReport
+        public IQueryable<PurchaseOrderStaffReportViewModel> GetReportQueryStaff(DateTime? dateFrom, DateTime? dateTo, string divisi, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+
+
+            List<PurchaseOrderStaffReportViewModel> listAccuracyOfArrival = new List<PurchaseOrderStaffReportViewModel>();
+            var QueryJoin = from a in dbContext.InternalPurchaseOrders
+                            join b in dbContext.InternalPurchaseOrderItems on a.Id equals b.POId
+                            join c in dbContext.ExternalPurchaseOrderItems on a.Id equals c.POId
+                            join d in dbContext.ExternalPurchaseOrders on c.EPOId equals d.Id
+                            join e in dbContext.DeliveryOrderItems on c.EPOId equals e.EPOId
+                            join f in dbContext.DeliveryOrders on e.DOId equals f.Id
+
+
+                            where a.IsDeleted == false
+                                && d.IsDeleted == false
+                                && f.IsDeleted == false
+                               && ((DateFrom != new DateTime(1970, 1, 1)) ? (d.DeliveryDate.Date >= DateFrom && d.DeliveryDate.Date <= DateTo) : true)
+                                && a.DivisionId == (string.IsNullOrWhiteSpace(divisi) ? a.DivisionId : divisi)
+
+                            select new PurchaseOrderStaffReportViewModel
+                            {
+                                user = a.CreatedBy,
+                                divisi = a.DivisionName,
+                                unit = a.UnitName,
+                                nopr = a.PRNo,
+                                nmbarang = b.ProductName,
+                                nmsupp = d.SupplierName,
+                                tgltarget = d.DeliveryDate,
+                                tgldatang = f.ArrivalDate,
+                                tglpoint = a.CreatedUtc,
+                                tglpoeks = d.OrderDate,
+                                tgpr = a.PRDate,
+
+                            };
+            var Query = (from QueryJo in QueryJoin
+                         group QueryJo by QueryJo.nopr into g
+
+                         select new PurchaseOrderStaffReportViewModel
+                         {
+                             nopr = g.Key,
+                             tgpr = g.Select(gg => gg.tgpr).FirstOrDefault(),
+                             nmbarang = g.Select(gg => gg.nmbarang).FirstOrDefault(),
+                             user = g.Select(gg => gg.user).FirstOrDefault(),
+                             divisi = g.Select(gg => gg.divisi).FirstOrDefault(),
+                             unit = g.Select(gg => gg.unit).FirstOrDefault(),
+                             nmsupp = g.Select(gg => gg.nmsupp).FirstOrDefault(),
+                             tgltarget = g.Select(gg => gg.tgltarget).FirstOrDefault(),
+                             tgldatang = g.Select(gg => gg.tgldatang).FirstOrDefault(),
+                             tglpoint = g.Select(gg => gg.tglpoint).FirstOrDefault(),
+                             tglpoeks = g.Select(gg => gg.tglpoeks).FirstOrDefault(),
+
+                         }).Distinct();
+
+
+
+            Query = Query.OrderByDescending(b => b.user).ThenByDescending(b => b.tgltarget);
+
+
+            foreach (var item in Query)
+            {
+                var tgldatang = new DateTimeOffset(item.tgldatang.Date, TimeSpan.Zero);
+                var tgltarget = new DateTimeOffset(item.tgltarget.Date, TimeSpan.Zero);
+                var tglpoint = new DateTimeOffset(item.tglpoint.Date, TimeSpan.Zero);
+                var tglpoeks = new DateTimeOffset(item.tglpoeks.Date, TimeSpan.Zero);
+                var selisih = ((TimeSpan)(tgldatang - tgltarget)).Days;
+                var selisih2 = ((TimeSpan)(tglpoeks - tglpoint)).Days;
+
+
+                PurchaseOrderStaffReportViewModel _new = new PurchaseOrderStaffReportViewModel
+                {
+                    user = item.user,
+                    divisi = item.divisi,
+                    unit = item.unit,
+                    selisih = selisih,
+                    selisih2 = selisih2,
+                    nmbarang = item.nmbarang,
+                    nmsupp = item.nmsupp,
+                    nopr = item.nopr,
+                    tgltarget = item.tgltarget,
+                    tgldatang = item.tgldatang,
+                    tglpoint = item.tglpoint,
+                    tglpoeks = item.tglpoeks,
+                    tgpr = item.tgpr,
+                    jumpr = 1,
+
+
+                };
+
+
+                listAccuracyOfArrival.Add(_new);
+            }
+            return listAccuracyOfArrival.OrderByDescending(b => b.user).ThenByDescending(b => b.tgltarget).AsQueryable();
+        }
+
+        public Tuple<List<PurchaseOrderStaffReportViewModel>, int> GetReportStaff(DateTime? dateFrom, DateTime? dateTo, string divisi, int offset)
+        {
+
+            var QueryStaff = GetReportQueryStaff(dateFrom, dateTo, divisi, offset);
+
+            List<PurchaseOrderStaffReportViewModel> Data = new List<PurchaseOrderStaffReportViewModel>();
+            List<PurchaseOrderStaffReportViewModel> Data2 = new List<PurchaseOrderStaffReportViewModel>();
+
+            var SuppTemp = "";
+
+
+            var Group = (from a in QueryStaff
+                         group a by a.user into g
+
+                         select new PurchaseOrderStaffReportViewModel
+                         {
+                             user = g.Key,
+                             jumpr = g.Sum(gg => gg.jumpr),
+                         }).Distinct();
+
+
+            foreach (var item in Group.OrderByDescending(b => b.user).ThenByDescending(b => b.jumpr))
+            {
+
+
+                PurchaseOrderStaffReportViewModel _new = new PurchaseOrderStaffReportViewModel
+                {
+                    user = item.user,
+                    jumpr = item.jumpr,
+
+
+                };
+                Data.Add(_new);
+            }
+
+
+            return Tuple.Create(Data, Data.Count);
+        }
+
+
+
+        public Tuple<List<PurchaseOrderStaffReportViewModel>, int> GetReportsubStaff(DateTime? dateFrom, DateTime? dateTo, string divisi, string staff, int offset)
+        {
+
+            var QueryStaff = GetReportQueryStaff(dateFrom, dateTo, divisi, offset);
+
+            List<PurchaseOrderStaffReportViewModel> Data = new List<PurchaseOrderStaffReportViewModel>();
+
+            foreach (var item in QueryStaff.Where(b => b.user == staff).OrderByDescending(b => b.tgltarget))
+            {
+
+                PurchaseOrderStaffReportViewModel _new = new PurchaseOrderStaffReportViewModel
+                {
+                    user = item.user,
+                    divisi = item.divisi,
+                    unit = item.unit,
+                    selisih = item.selisih,
+                    selisih2 = item.selisih2,
+                    nmbarang = item.nmbarang,
+                    nmsupp = item.nmsupp,
+                    nopr = item.nopr,
+                    tgltarget = item.tgltarget,
+                    tgldatang = item.tgldatang,
+                    tglpoint = item.tglpoint,
+                    tglpoeks = item.tglpoeks,
+                    tgpr = item.tgpr,
+                    jumpr = item.jumpr,
+                };
+                Data.Add(_new);
+
+            }
+
+            return Tuple.Create(Data, Data.Count);
+        }
+
+
+        public MemoryStream GenerateExcelSarmut(DateTime? dateFrom, DateTime? dateTo, string divisi, string staff, int offset)
+        {
+            var QueryStaff = GetReportQueryStaff(dateFrom, dateTo, divisi, offset);
+            List<PurchaseOrderStaffReportViewModel> Data = new List<PurchaseOrderStaffReportViewModel>();
+
+            foreach (var item in QueryStaff.Where(b => b.user == staff).OrderByDescending(b => b.tgltarget))
+            {
+
+                PurchaseOrderStaffReportViewModel _new = new PurchaseOrderStaffReportViewModel
+                {
+                    user = item.user,
+                    divisi = item.divisi,
+                    unit = item.unit,
+                    selisih = item.selisih,
+                    selisih2 = item.selisih2,
+                    nmbarang = item.nmbarang,
+                    nmsupp = item.nmsupp,
+                    nopr = item.nopr,
+                    tgltarget = item.tgltarget,
+                    tgldatang = item.tgldatang,
+                    tglpoint = item.tglpoint,
+                    tglpoeks = item.tglpoeks,
+                    tgpr = item.tgpr,
+                    jumpr = item.jumpr,
+                };
+                Data.Add(_new);
+
+            }
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Divisi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Terima PO Int", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Terima PO Eks", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih 1", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Target", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Kedatangan ", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih 2", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+
+
+            if (Data.ToArray().Count() == 0)
+
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "");
+            else
+            {
+                int index = 0;
+                foreach (var item in Data)
+                {
+                    index++;
+                    string gpoint = item.tglpoint == null ? "-" : item.tglpoint.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string gpoeks = item.tglpoeks == null ? "-" : item.tglpoeks.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string gtarget = item.tgltarget == null ? "-" : item.tgltarget.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string gdatang = item.tgldatang == null ? "-" : item.tgldatang.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.divisi, item.user, item.nopr, item.nmbarang, item.nmsupp, gpoint, gpoeks, item.selisih2, gtarget, gdatang, item.selisih, item.unit);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+
+        #endregion
     }
 }

@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
 {
     public class UnitPaymentOrderViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string no { get; set; }
         public DivisionViewModel division { get; set; }
         public SupplierViewModel supplier { get; set; }

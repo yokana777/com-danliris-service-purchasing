@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 {
     public class GarmentInvoiceViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string invoiceNo { get; set; }
         public SupplierViewModel supplier { get; set; }
         public DateTimeOffset? invoiceDate { get; set; }

@@ -11,6 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
 {
     public class UnitReceiptNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public bool _deleted { get; set; }
         public SupplierViewModel supplier { get; set; }
         public string no { get; set; }

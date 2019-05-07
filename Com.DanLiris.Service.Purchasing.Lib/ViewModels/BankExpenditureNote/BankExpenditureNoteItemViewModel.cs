@@ -4,6 +4,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
 {
     public class BankExpenditureNoteItemViewModel : BaseViewModel
     {
+        public string UId { get; set; }
         public long UnitPaymentOrderItemId { get; set; }
         public double Price { get; set; }
         public string ProductCode { get; set; }

@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
 {
     public class PurchasingDispositionViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string DispositionNo { get; set; }
         public SupplierViewModel Supplier { get; set; }
         public CurrencyViewModel Currency { get; set; }

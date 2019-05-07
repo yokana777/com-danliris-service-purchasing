@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
 {
     public class BankExpenditureNoteDetailViewModel : BaseViewModel
     {
+        public string UId { get; set; }
         public long UnitPaymentOrderId { get; set; }
         public string Currency { get; set; }
         public string CategoryCode { get; set; }
@@ -21,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public double TotalPaid { get; set; }
         public DateTimeOffset UPODate { get; set; }
         public string UnitPaymentOrderNo { get; set; }
+        public double IncomeTax { get; set; }
         public double Vat { get; set; }
     }
 }

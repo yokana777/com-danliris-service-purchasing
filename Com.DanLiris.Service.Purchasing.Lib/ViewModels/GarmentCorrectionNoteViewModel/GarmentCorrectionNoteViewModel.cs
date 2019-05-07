@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
 {
     public class GarmentCorrectionNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string CorrectionNo { get; set; }
         public DateTimeOffset CorrectionDate { get; set; }
         public string CorrectionType { get; set; }

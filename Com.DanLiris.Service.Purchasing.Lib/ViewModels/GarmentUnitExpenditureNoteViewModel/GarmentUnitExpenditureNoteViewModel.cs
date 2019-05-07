@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
 {
     public class GarmentUnitExpenditureNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string UENNo { get; set; }
         public DateTimeOffset ExpenditureDate { get; set; }
         public string ExpenditureType { get; set; }
