@@ -222,8 +222,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         private List<PurchaseOrderMonitoringAllViewModel> GetReportQuery(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, int offset, string user)
         {
-            try
-            {
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
                 DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
                 DateTime date = new DateTime(1970, 1, 1);
@@ -493,14 +491,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 }
 
                 return listEPO.Distinct().ToList();
-            }
-            catch (Exception e)
-            {
-                var ab = listEPO2.Count();
-                var ac = listEPO2;
-                var Ee = e.Message;
-                return null;
-            }
         }
            
         public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order, int offset, string user)
