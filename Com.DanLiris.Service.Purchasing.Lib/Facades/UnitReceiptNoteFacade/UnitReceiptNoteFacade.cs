@@ -282,10 +282,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 }
             }
 
-            
+            foreach (var journalTransaction in journalTransactionsToPost)
+            {
+                if (journalTransaction.Items.Any(a => a.COA.Code.Split(".")[0] == "9999"))
+                {
+                    journalTransaction.Status = "DRAFT";
+                }
+            }
+
             string journalTransactionUri = "journal-transactions/many";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-
             var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionsToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
 
             response.EnsureSuccessStatusCode();
