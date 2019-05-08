@@ -14,5 +14,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Update(int id, GarmentInvoice m, string user, int clientTimeZoneOffset = 7);
         int Delete(int id, string username);
         GarmentInvoice ReadByDOId(int id);
+        List<GarmentInvoice> ReadForInternNote(List<long> garmentInvoiceIds);
     }
 }

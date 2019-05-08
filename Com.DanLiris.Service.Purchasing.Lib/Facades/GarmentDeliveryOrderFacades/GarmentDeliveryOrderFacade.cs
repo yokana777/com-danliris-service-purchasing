@@ -109,6 +109,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return model;
         }
 
+        public List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds)
+        {
+            var models = dbSet.Where(m => deliveryOrderIds.Contains(m.Id))
+                .Select(m => new GarmentDeliveryOrder
+                {
+                    Id = m.Id,
+                    Items = m.Items.Select(i => new GarmentDeliveryOrderItem
+                    {
+                        Details = i.Details.Select(d => new GarmentDeliveryOrderDetail
+                        {
+                            Id = d.Id,
+                            ReceiptQuantity = d.ReceiptQuantity
+                        }).ToList()
+                    }).ToList()
+                }).ToList();
+
+            return models;
+        }
+
         public async Task<int> Create(GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7)
         {
             int Created = 0;

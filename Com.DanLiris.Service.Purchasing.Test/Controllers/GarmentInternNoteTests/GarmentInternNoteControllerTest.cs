@@ -289,11 +289,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(Tuple.Create(new List<GarmentInternNote>(), 0, new Dictionary<string, string>()));
 
+            IPOmockFacade.Setup(x => x.ReadForInternNote(It.IsAny<List<long>>()))
+                 .Returns(new List<GarmentDeliveryOrder> { DeliveryOrderModel });
+
+            INVFacade.Setup(x => x.ReadForInternNote(It.IsAny<List<long>>()))
+                 .Returns(new List<GarmentInvoice> { garmentInvoiceModel });
+
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentInternNoteViewModel>>(It.IsAny<List<GarmentInternNote>>()))
                 .Returns(new List<GarmentInternNoteViewModel> { ViewModel });
             mockMapper.Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
                 .Returns(new GarmentDeliveryOrderViewModel());
+            mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(new GarmentInvoiceViewModel());
 
             GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper,INVFacade);
             var response = controller.GetByUser();
@@ -420,12 +428,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Returns(new GarmentInvoiceViewModel());
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            IPOmockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(DeliveryOrderModel);
+            IPOmockFacade.Setup(x => x.ReadForInternNote(It.IsAny<List<long>>()))
+                 .Returns(new List<GarmentDeliveryOrder> { DeliveryOrderModel });
 
             var INVFacade = new Mock<IGarmentInvoice>();
-            INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-                 .Returns(garmentInvoiceModel);
+            INVFacade.Setup(x => x.ReadForInternNote(It.IsAny<List<long>>()))
+                 .Returns(new List<GarmentInvoice> { garmentInvoiceModel });
 
             GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, null, mockMapper, INVFacade);
             var response = controller.Get();
