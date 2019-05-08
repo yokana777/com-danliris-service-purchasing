@@ -583,7 +583,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
         }
-		[Fact]
+
+        [Fact]
+        public async Task Should_Success_Get_Data_For_InternNote()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadForInternNote(new List<long> { model.Id });
+            Assert.NotEmpty(Response);
+        }
+
+        [Fact]
 		public async Task Should_Success_Get_Data_By_Supplier()
 		{
 			GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));

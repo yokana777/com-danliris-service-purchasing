@@ -405,5 +405,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
             var Response = facade.ReadByDOId((int)data.Items.First().DeliveryOrderId);
             Assert.NotNull(Response);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_For_InternNote()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+            var Responses = await facade.Create(data, USERNAME);
+            var Response = facade.ReadForInternNote(new List<long> { data.Id });
+            Assert.NotEmpty(Response);
+        }
     }
 }
