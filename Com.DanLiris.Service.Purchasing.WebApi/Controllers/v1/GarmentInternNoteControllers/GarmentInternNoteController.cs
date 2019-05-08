@@ -83,12 +83,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
 
                 var viewModel = mapper.Map<List<GarmentInternNoteViewModel>>(Data.Item1);
 
+                HashSet<long> garmentInvoiceIds = new HashSet<long>(viewModel.SelectMany(vm => vm.items.Select(i => i.garmentInvoice.Id)));
+                List<GarmentInvoice> garmentInvoices = invoiceFacade.ReadForInternNote(garmentInvoiceIds.ToList());
+
+                HashSet<long> deliveryOrderIds = new HashSet<long>(viewModel.SelectMany(vm => vm.items.SelectMany(i => i.details.Select(d => d.deliveryOrder.Id))));
+                List<GarmentDeliveryOrder> garmentDeliveryOrders = deliveryOrderFacade.ReadForInternNote(deliveryOrderIds.ToList());
+
                 foreach (var d in viewModel)
                 {
                     foreach (var item in d.items)
                     {
-                        GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
-                        if (garmentInvoice!=null)
+                        GarmentInvoice garmentInvoice = garmentInvoices.SingleOrDefault(gi => gi.Id == item.garmentInvoice.Id);
+                        if (garmentInvoice != null)
                         {
                             GarmentInvoiceViewModel invoiceViewModel = mapper.Map<GarmentInvoiceViewModel>(garmentInvoice);
 
@@ -96,13 +102,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         }
                         foreach (var detail in item.details)
                         {
-                            var deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
+                            var deliveryOrder = garmentDeliveryOrders.SingleOrDefault(gdo => gdo.Id == detail.deliveryOrder.Id);
                             if (deliveryOrder != null)
                             {
                                 var deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                                 detail.deliveryOrder.items = deliveryOrderViewModel.items;
                             }
-                            
                         }
                     }
                 }
@@ -116,10 +121,32 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         s.inDate,
                         supplier = new { s.supplier.Name },
                         items = s.items.Select(i => new {
-                            i.garmentInvoice,
+                            //i.garmentInvoice,
+                            garmentInvoice = new
+                            {
+                                i.garmentInvoice.invoiceNo,
+                                items = i.garmentInvoice.items == null ? null : i.garmentInvoice.items.Select(gii => new
+                                {
+                                    details = gii.details == null ? null : gii.details.Select(gid => new
+                                    {
+                                        gid.dODetailId
+                                    })
+                                })
+                            },
                             details = i.details.Select(d => new
                             {
-                                d.deliveryOrder
+                                //d.deliveryOrder
+                                deliveryOrder = new
+                                {
+                                    items = d.deliveryOrder.items == null ? null : d.deliveryOrder.items.Select(doi => new
+                                    {
+                                        fulfillments = doi.fulfillments == null ? null : doi.fulfillments.Select(dof => new
+                                        {
+                                            dof.Id,
+                                            dof.receiptQuantity
+                                        })
+                                    })
+                                }
                             }).ToList(),
                         }).ToList(),
                         s.CreatedBy,
