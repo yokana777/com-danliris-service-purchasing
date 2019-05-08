@@ -375,7 +375,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             List<string> searchAttributes = new List<string>()
             {
-                "PRNo", "CreatedBy", "UnitName", "CategoryName", "DivisionName"
+                "PRNo", "CreatedBy", "UnitName", "CategoryName", "DivisionName", "PONo"
             };
 
             Query = QueryHelper<InternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -494,9 +494,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public InternalPurchaseOrder ReadByIdforSplit(int id)
         {
-            return this.dbSet.Where(p => p.Id == id)
+            var modelTemp =  this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
                 .FirstOrDefault();
+            var prNoChange = this.dbSet.Where(p => p.PRNo == modelTemp.PRNo)
+                .Select(s => new InternalPurchaseOrderViewModel
+                { poNo = s.PONo
+                })
+                .OrderByDescending(p => p.poNo)
+                .FirstOrDefault();
+            modelTemp.PONo = prNoChange.poNo;
+            return modelTemp;
         }
 
         public async Task<int> Split(int id, InternalPurchaseOrder internalPurchaseOrder, string user)
@@ -513,9 +521,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                     if (m != null)
                     {
-                        
+                        var poNoTemp = m.PONo;
                         EntityExtension.FlagForUpdate(UpdateData, user, "Facade");
-                        EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");                        
+                        EntityExtension.FlagForCreate(internalPurchaseOrder, user, "Facade");
 
                         foreach (var itemUpdate in UpdateData.Items)
                         {
@@ -548,7 +556,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         internalPurchaseOrder.UId = UpdateData.UId;
                         internalPurchaseOrder.UnitCode = UpdateData.UnitCode;
                         internalPurchaseOrder.UnitId = UpdateData.UnitId;
-
+                        UpdateData.PONo = poNoTemp;
                         this.dbContext.InternalPurchaseOrders.Add(internalPurchaseOrder);
                         this.dbContext.Update(UpdateData);
                         Splitted = await dbContext.SaveChangesAsync();
@@ -646,6 +654,89 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             }
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+
+        public IQueryable<InternalPurchaseOrderUnProcessedReportViewModel> GetReportUnProcessedQuery(string unitId, string categoryId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            string StatusPO = "PO Internal belum diorder";
+
+            var Query = (from PO in dbContext.InternalPurchaseOrders
+                         join POItem in dbContext.InternalPurchaseOrderItems on PO.Id equals POItem.POId
+                         where PO.IsDeleted == false
+                               && POItem.IsDeleted == false
+                               && POItem.Status == StatusPO
+                               && PO.UnitId == (string.IsNullOrWhiteSpace(unitId) ? PO.UnitId : unitId)
+                               && PO.CategoryId == (string.IsNullOrWhiteSpace(categoryId) ? PO.CategoryId : categoryId)
+                               && PO.PRDate.AddHours(offset).Date >= DateFrom.Date
+                               && PO.PRDate.AddHours(offset).Date <= DateTo.Date
+                               && POItem.Quantity > 0
+                         select new InternalPurchaseOrderUnProcessedReportViewModel
+                         {
+                             CategoryName = PO.CategoryName,
+                             UnitName = PO.DivisionName + " - " + PO.UnitName,
+                             PRNo = PO.PRNo,
+                             PRDate = PO.PRDate,
+                             ExpectedDeliveryDate = PO.ExpectedDeliveryDate == null ? new DateTime(1970, 1, 1) : PO.ExpectedDeliveryDate,
+                             ProductCode = POItem.ProductCode,
+                             ProductName = POItem.ProductName,
+                             Quantity = POItem.Quantity,
+                             UOMUnit = POItem.UomUnit,
+                             StaffName = PO.CreatedBy
+                         });
+            return Query;
+        }
+
+        public Tuple<List<InternalPurchaseOrderUnProcessedReportViewModel>, int> GetReportUnProcessed(string unitId, string categoryId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportUnProcessedQuery(unitId, categoryId, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.PRDate);
+            }
+
+
+            Pageable<InternalPurchaseOrderUnProcessedReportViewModel> pageable = new Pageable<InternalPurchaseOrderUnProcessedReportViewModel>(Query, page - 1, size);
+            List<InternalPurchaseOrderUnProcessedReportViewModel> Data = pageable.Data.ToList<InternalPurchaseOrderUnProcessedReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcelUnProcessed(string unitId, string categoryId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportUnProcessedQuery(unitId, categoryId, dateFrom, dateTo, offset);
+            Query = Query.OrderBy(b => b.PRDate);
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal diminta datang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", 0, "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string PRDate = item.PRDate == null ? "-" : item.PRDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string EDDate = item.ExpectedDeliveryDate == new DateTime(1970, 1, 1) ? "-" : item.ExpectedDeliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, item.UnitName, item.CategoryName, item.PRNo, PRDate, EDDate, item.ProductCode, item.ProductName, item.Quantity, item.UOMUnit, item.StaffName);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
         }
 
         #region Duration InternalPO-POEks

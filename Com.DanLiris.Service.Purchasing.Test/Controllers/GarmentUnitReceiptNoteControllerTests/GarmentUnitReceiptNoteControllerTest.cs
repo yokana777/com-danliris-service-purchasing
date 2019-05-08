@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             {
                 return new GarmentUnitReceiptNoteViewModel
                 {
+                    UId = null,
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
                         new GarmentUnitReceiptNoteItemViewModel()
@@ -340,15 +341,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         public async Task Should_Success_Delete_Data()
         {
             var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNote>>(It.IsAny<List<GarmentUnitReceiptNoteViewModel>>()))
+                .Returns(new List<GarmentUnitReceiptNote>());
+
             var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitReceiptNoteViewModel>()))
+                .Verifiable();
 
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
-            mockFacade.Setup(x => x.Delete(It.IsAny<int>()))
+            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
                .ReturnsAsync(1);
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = await controller.Delete(It.IsAny<int>());
+            var response = await controller.DeleteData(It.IsAny<int>(), ViewModel);
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
@@ -357,7 +363,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         {
             var controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, null, null);
 
-            var response = await controller.Delete(It.IsAny<int>());
+            var response = await controller.DeleteData(It.IsAny<int>(), It.IsAny<GarmentUnitReceiptNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

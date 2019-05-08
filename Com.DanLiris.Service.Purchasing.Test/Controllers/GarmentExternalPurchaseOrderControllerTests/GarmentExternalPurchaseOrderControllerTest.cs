@@ -31,9 +31,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             {
                 return new GarmentExternalPurchaseOrderViewModel
                 {
+                    UId = null,
                     Items = new List<GarmentExternalPurchaseOrderItemViewModel>
                     {
-                        new GarmentExternalPurchaseOrderItemViewModel()
+                        new GarmentExternalPurchaseOrderItemViewModel
+                        {
+                            UId = null
+                        }
                     }
                 };
             }

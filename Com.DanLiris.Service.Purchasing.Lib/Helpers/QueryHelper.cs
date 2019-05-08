@@ -1,4 +1,5 @@
-﻿using Com.Moonlay.Models;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.Moonlay.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
     public static class QueryHelper<TModel>
         where TModel : IStandardEntity
     {
-        public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword, bool ToLowerCase = false)
+        public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword, bool ToLowerCase = false, string SearchWith = "Contains")
         {
             /* Search with Keyword */
             if (Keyword != null)
@@ -21,11 +22,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                     if (Attribute.Contains("."))
                     {
                         var Key = Attribute.Split(".");
-                        SearchQuery = string.Concat(SearchQuery, Key[0], $".Any({Key[1]}.Contains(@0)) OR ");
+                        SearchQuery = string.Concat(SearchQuery, Key[0], $".Any({Key[1]}.", SearchWith,"(@0)) OR ");
                     }
                     else
                     {
-                        SearchQuery = string.Concat(SearchQuery, Attribute, ".Contains(@0) OR ");
+                        SearchQuery = string.Concat(SearchQuery, Attribute, ".", SearchWith, "(@0) OR ");
                     }
                 }
 
@@ -33,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 
                 if (ToLowerCase)
                 {
-                    SearchQuery = SearchQuery.Replace(".Contains(@0)", ".ToLower().Contains(@0)");
+                    SearchQuery = SearchQuery.Replace("." + SearchWith + "(@0)", ".ToLower()." + SearchWith + "(@0)");
                     Keyword = Keyword.ToLower();
                 }
 
@@ -84,6 +85,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 
                 Query = Query.OrderBy(string.Concat(Key.Replace(".", ""), " ", OrderType));
             }
+            return Query;
+        }
+
+        public static IQueryable ConfigureSelect(IQueryable<TModel> Query, Dictionary<string, string> SelectDictionary)
+        {
+            /* Custom Select */
+            if (SelectDictionary != null && !SelectDictionary.Count.Equals(0))
+            {
+                string selectedColumns = string.Join(", ", SelectDictionary.Select(d => (d.Value == "1") ? d.Key : string.Concat(d.Value, " as ", d.Key)));
+
+                var SelectedQuery = Query.Select(string.Concat("new(", selectedColumns, ")"));
+
+                return SelectedQuery;
+            }
+
+            /* Default Select */
             return Query;
         }
     }

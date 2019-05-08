@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
+        private readonly DbSet<GarmentDeliveryOrder> dbsetGarmentDeliveryOrder;
 
         private readonly IMapper mapper;
 
@@ -56,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
+            dbsetGarmentDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
@@ -121,6 +123,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             .FirstOrDefault();
             var viewModel = mapper.Map<GarmentUnitReceiptNoteViewModel>(model);
 
+            viewModel.IsInvoice = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Select(gdo => gdo.IsInvoice).FirstOrDefault();
+
             foreach (var item in viewModel.Items)
             {
                 item.Buyer = new BuyerViewModel
@@ -149,6 +153,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
                     garmentUnitReceiptNote.URNNo = await GenerateNo(garmentUnitReceiptNote);
                     garmentUnitReceiptNote.IsStorage = true;
+
+                    var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
@@ -268,6 +275,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     }
                     oldGarmentUnitReceiptNote.Remark = garmentUnitReceiptNote.Remark;
 
+                    var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
+
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -281,7 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return Updated;
         }
 
-        public async Task<int> Delete(int id)
+        public async Task<int> Delete(int id, string deletedReason)
         {
             int Deleted = 0;
 
@@ -291,6 +301,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     var garmentUnitReceiptNote = dbSet.Include(m => m.Items).Single(m => m.Id == id);
 
+                    garmentUnitReceiptNote.DeletedReason = deletedReason;
                     EntityExtension.FlagForDelete(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
@@ -304,6 +315,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var garmentExternalPurchaseOrderItem = dbSetGarmentExternalPurchaseOrderItems.First(d => d.Id == garmentUnitReceiptNoteItem.EPOItemId);
                         EntityExtension.FlagForUpdate(garmentExternalPurchaseOrderItem, identityService.Username, USER_AGENT);
                         garmentExternalPurchaseOrderItem.ReceiptQuantity = (double)((decimal)garmentExternalPurchaseOrderItem.ReceiptQuantity - garmentUnitReceiptNoteItem.ReceiptQuantity);
+
+                        if(garmentExternalPurchaseOrderItem.ReceiptQuantity == 0)
+                        {
+                            var garmentInternalPurchaseOrderItem = dbSetGarmentInternalPurchaseOrderItems.First(d => d.Id == garmentUnitReceiptNoteItem.POItemId);
+                            if (garmentExternalPurchaseOrderItem.DOQuantity>0 && garmentExternalPurchaseOrderItem.DOQuantity < garmentExternalPurchaseOrderItem.DealQuantity)
+                            {
+                                garmentInternalPurchaseOrderItem.Status = "Barang sudah datang parsial";
+                            } else if(garmentExternalPurchaseOrderItem.DOQuantity>0 && garmentExternalPurchaseOrderItem.DOQuantity >= garmentExternalPurchaseOrderItem.DealQuantity)
+                            {
+                                garmentInternalPurchaseOrderItem.Status = "Barang sudah datang semua";
+                            }
+                        }
                     }
 
                     if (garmentUnitReceiptNote.IsStorage)
@@ -313,7 +336,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.UomId);
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
 
                             var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);

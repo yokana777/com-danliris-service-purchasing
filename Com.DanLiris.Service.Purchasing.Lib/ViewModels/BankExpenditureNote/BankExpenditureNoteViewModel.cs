@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
 {
     public class BankExpenditureNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public AccountBankViewModel Bank { get; set; }
         public string BGCheckNumber { get; set; }
         public DateTimeOffset? Date { get; set; }

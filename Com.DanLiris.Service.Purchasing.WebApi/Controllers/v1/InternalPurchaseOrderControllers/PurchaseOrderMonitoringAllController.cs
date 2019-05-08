@@ -151,5 +151,71 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             //}
         }
+
+        #region Sarmut Staff
+        [HttpGet("staffs")]
+        public IActionResult GetReportStaff(DateTime? dateFrom, DateTime? dateTo, string divisi)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+
+            var data = _facade.GetReportStaff(dateFrom, dateTo, divisi, offset);
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                data = data.Item1,
+                info = new { total = data.Item2 },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
+        }
+
+        [HttpGet("substaffs")]
+        public IActionResult GetReportsubStaff(DateTime? dateFrom, DateTime? dateTo, string divisi, string staff)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+
+            var data = _facade.GetReportsubStaff(dateFrom, dateTo, divisi, staff, offset);
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                data = data.Item1,
+                info = new { total = data.Item2 },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
+        }
+
+
+        [HttpGet("substaffs/download")]
+        public IActionResult GetXlsSarmut(DateTime? dateFrom, DateTime? dateTo, string divisi, string staff)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = _facade.GenerateExcelSarmut(dateFrom, dateTo, divisi, staff, offset);
+
+                string filename = String.Format("Staff - {0}.xlsx", staff);
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        #endregion
     }
 }

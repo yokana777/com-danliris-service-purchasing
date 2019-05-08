@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             {
                 return new GarmentCorrectionNoteViewModel
                 {
+                    UId = null,
                     Supplier = new SupplierViewModel(),
                     Items = new List<GarmentCorrectionNoteItemViewModel>
                     {

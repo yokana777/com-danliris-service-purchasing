@@ -21,6 +21,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Storage.code, opt => opt.MapFrom(s => s.StorageCode))
                 .ForPath(d => d.Storage.name, opt => opt.MapFrom(s => s.StorageName))
 
+                .ForPath(d => d.DOCurrency.Rate, opt => opt.MapFrom(s => s.DOCurrencyRate))
+
                 .ReverseMap();
 
             CreateMap<GarmentUnitReceiptNoteItem, GarmentUnitReceiptNoteItemViewModel>()

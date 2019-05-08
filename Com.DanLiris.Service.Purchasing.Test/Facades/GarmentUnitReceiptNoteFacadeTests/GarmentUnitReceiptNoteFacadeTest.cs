@@ -57,6 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Returns(new GarmentUnitReceiptNoteViewModel {
                     Id = 1,
                     DOId = 1,
+                    DOCurrency = new CurrencyViewModel(),
                     Supplier = new SupplierViewModel(),
                     Unit = new UnitViewModel(),
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
@@ -167,6 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var dataViewModel = facade.ReadById((int)data.Id);
+            var temp = dataViewModel.DOCurrency.Rate + 1;
             var Response = facade.GeneratePdf(dataViewModel);
             Assert.IsType<MemoryStream>(Response);
         }
@@ -246,7 +248,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
 
-            var Response = await facade.Delete((int)data.Id);
+            var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete_Data2()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage2();
+
+            var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
             Assert.NotEqual(Response, 0);
         }
 
@@ -256,7 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
 
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0));
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0,""));
             Assert.NotNull(e.Message);
         }
 

@@ -125,6 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
                         UomId = item.UomId,
                         UomUnit = item.UomUnit,
+                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate
                     });
             }
 
@@ -153,6 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
                         UomId = item.UomId,
                         UomUnit = item.UomUnit,
+                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate
                     });
             }
 

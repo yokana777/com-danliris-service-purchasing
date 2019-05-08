@@ -53,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellHeaderContentCenter = new PdfPCell() { Border = Rectangle.NO_BORDER };
             cellHeaderContentCenter.AddElement(new Paragraph("NOTA KREDIT", header_font) { Alignment = Element.ALIGN_CENTER });
-            cellHeaderContentCenter.AddElement(new Paragraph(model.PaymentMethod.ToUpper().Trim().Equals("CASH") ? "CASH" : "", normal_font) { Alignment = Element.ALIGN_CENTER });
+            cellHeaderContentCenter.AddElement(new Paragraph(model.PaymentMethod.ToUpper().Trim().Equals("KREDIT") ? "" : model.PaymentMethod, normal_font) { Alignment = Element.ALIGN_CENTER });
             tableHeader.AddCell(cellHeaderContentCenter);
 
             PdfPCell cellHeaderContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER };
@@ -191,6 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var totalWithPph = total - pph;
 
             var withoutIncomeTax = true;
+
 
             if(model.UseIncomeTax && model.IncomeTaxBy == "Supplier")
             {

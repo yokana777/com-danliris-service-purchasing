@@ -119,6 +119,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
+                    b.Property<double>("IncomeTax");
+
                     b.Property<string>("InvoiceNo")
                         .HasMaxLength(255);
 
@@ -3224,6 +3226,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
+                    b.Property<double?>("DOCurrencyRate");
+
                     b.Property<long>("DODetailId");
 
                     b.Property<double>("DefaultDOQuantity");
@@ -3385,9 +3389,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
+                    b.Property<decimal>("BasicPrice")
+                        .HasColumnType("decimal(38, 4)");
+
                     b.Property<string>("BuyerCode");
 
                     b.Property<long>("BuyerId");
+
+                    b.Property<decimal>("Conversion")
+                        .HasColumnType("decimal(38, 20)");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -3398,6 +3408,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
+
+                    b.Property<double?>("DOCurrencyRate");
 
                     b.Property<long>("DODetailId");
 
@@ -3481,6 +3493,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
+                    b.Property<double?>("DOCurrencyRate");
+
                     b.Property<long>("DOId");
 
                     b.Property<string>("DONo")
@@ -3493,6 +3507,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DeletedBy")
                         .IsRequired()
                         .HasMaxLength(255);
+
+                    b.Property<string>("DeletedReason");
 
                     b.Property<DateTime>("DeletedUtc");
 
@@ -3620,7 +3636,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);
 
-                    b.Property<decimal>("PricePerDealUnit");
+                    b.Property<decimal>("PricePerDealUnit")
+                        .HasColumnType("decimal(20, 4)");
 
                     b.Property<string>("ProductCode")
                         .HasMaxLength(255);
@@ -3746,8 +3763,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);
 
-                    b.Property<string>("Remark")
-                        .HasMaxLength(255);
+                    b.Property<string>("Remark");
 
                     b.Property<string>("Status")
                         .HasMaxLength(255);

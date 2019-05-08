@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 {
     public class GarmentInternNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string inNo { get; set; }
         public DateTimeOffset inDate { get; set; }
         public string remark { get; set; }

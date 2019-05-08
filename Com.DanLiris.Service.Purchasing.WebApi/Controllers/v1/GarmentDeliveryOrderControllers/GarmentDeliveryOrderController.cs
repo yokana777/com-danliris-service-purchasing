@@ -148,6 +148,36 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             }
         }
 
+		[HttpGet("loader")]
+        public IActionResult GetLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", string select = "{}", string search = "[]")
+        {
+            try
+            {
+                var Data = facade.ReadLoader(page, size, order, keyword, filter, select, search);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", Data.Data.Count },
+                        { "total", Data.TotalData },
+                        { "order", Data.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -356,12 +386,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            var data = facade.GetReportHeaderAccuracyofArrival(category, dateFrom, dateTo, offset);
+            var data = facade.GetAccuracyOfArrivalHeader(category, dateFrom, dateTo);
             return Ok(new
             {
                 apiVersion = ApiVersion,
-                data = data.Item1,
-                info = new { total = data.Item2 },
+                data,
+                info = new { total = data.ReportHeader.Count },
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });
@@ -407,13 +437,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            var data = facade.GetReportDetailAccuracyofArrival(supplier, category, dateFrom, dateTo, offset);
+            var data = facade.GetAccuracyOfArrivalDetail(supplier, category, dateFrom, dateTo);
 
             return Ok(new
             {
                 apiVersion = ApiVersion,
-                data = data.Item1,
-                info = new { total = data.Item2 },
+                data,
+                info = new { total = data.Count },
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });

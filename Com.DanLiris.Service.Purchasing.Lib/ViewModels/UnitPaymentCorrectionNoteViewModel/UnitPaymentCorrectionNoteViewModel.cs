@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
 {
     public class UnitPaymentCorrectionNoteViewModel : BaseViewModel, IValidatableObject
     {
+        public string UId { get; set; }
         public string uPCNo { get; set; }
         public DateTimeOffset correctionDate { get; set; }
         public string correctionType { get; set; }

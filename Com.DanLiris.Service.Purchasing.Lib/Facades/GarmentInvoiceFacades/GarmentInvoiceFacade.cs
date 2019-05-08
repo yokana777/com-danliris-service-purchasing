@@ -114,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		private string GenerateNPN()
 		{
 			string NPN = null;
-			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPN!=null
+			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPN!=null && data.NPN.StartsWith("NPN")
 												  orderby data.NPN descending
 												  select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 		private string GenerateNPH()
 		{
 			string NPH = null;
-			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPH !=null
+			GarmentInvoice garmentInvoice = (from data in dbSet where data.NPH !=null && data.NPH.StartsWith("NPH")
 											 orderby data.NPH descending
 											 select data).FirstOrDefault();
 			string year = DateTime.Now.Year.ToString().Substring(2, 2);
@@ -302,6 +302,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                      .ThenInclude(i => i.Details)
                  .FirstOrDefault();
             return model;
+        }
+
+        public List<GarmentInvoice> ReadForInternNote(List<long> garmentInvoiceIds)
+        {
+            var models = dbSet.Where(m => m.Items.Any(i => garmentInvoiceIds.Contains(m.Id)))
+                .Select(m => new GarmentInvoice
+                {
+                    Id = m.Id,
+                    Items = m.Items.Select(i => new GarmentInvoiceItem
+                    {
+                        Details = i.Details.Select(d => new GarmentInvoiceDetail
+                        {
+                            Id = d.Id,
+                            DODetailId = d.DODetailId
+                        }).ToList()
+                    }).ToList()
+                }).ToList();
+
+            return models;
         }
     }
 }

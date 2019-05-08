@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -13,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface IGarmentDeliveryOrderFacade
     {
         Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        ReadResponse<dynamic> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]");
         GarmentDeliveryOrder ReadById(int id);
         Task<int> Create(GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentDeliveryOrderViewModel vm, GarmentDeliveryOrder m, string user, int clientTimeZoneOffset = 7);
@@ -39,5 +41,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GenerateExcelDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, int offset);
         Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
+
+        AccuracyOfArrivalReportHeaderResult GetAccuracyOfArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo);
+        List<AccuracyOfArrivalReportDetail> GetAccuracyOfArrivalDetail(string supplierCode, string category, DateTime? dateFrom, DateTime? dateTo);
+        List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds);
     }
 }
