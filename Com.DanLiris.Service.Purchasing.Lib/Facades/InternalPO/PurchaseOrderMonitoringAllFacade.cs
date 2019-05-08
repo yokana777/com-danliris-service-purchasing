@@ -220,6 +220,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         List<PurchaseOrderMonitoringAllViewModel> listEPO2 = new List<PurchaseOrderMonitoringAllViewModel>();
 
+        List<PurchaseOrderMonitoringAllViewModel> listEPO2 = new List<PurchaseOrderMonitoringAllViewModel>();
+
         private List<PurchaseOrderMonitoringAllViewModel> GetReportQuery(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, int offset, string user)
         {
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
@@ -495,7 +497,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order, int offset, string user)
         {
+
             var Data = GetReportQuery(prNo, supplierId, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, page, size, offset, user);
+          
             //List<PurchaseOrderMonitoringAllViewModel> Query = Data.ToList();
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //if (OrderDictionary.Count.Equals(0))
