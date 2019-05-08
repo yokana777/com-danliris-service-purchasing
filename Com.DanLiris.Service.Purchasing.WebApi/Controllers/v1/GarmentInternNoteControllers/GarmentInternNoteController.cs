@@ -239,6 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpPost]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> Post([FromBody]GarmentInternNoteViewModel ViewModel)
         {
             try
