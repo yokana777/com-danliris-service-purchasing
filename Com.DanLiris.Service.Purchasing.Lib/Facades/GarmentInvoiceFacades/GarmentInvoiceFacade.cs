@@ -303,5 +303,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                  .FirstOrDefault();
             return model;
         }
+
+        public List<GarmentInvoice> ReadForInternNote(List<long> garmentInvoiceIds)
+        {
+            var models = dbSet.Where(m => m.Items.Any(i => garmentInvoiceIds.Contains(m.Id)))
+                .Select(m => new GarmentInvoice
+                {
+                    Id = m.Id,
+                    Items = m.Items.Select(i => new GarmentInvoiceItem
+                    {
+                        Details = i.Details.Select(d => new GarmentInvoiceDetail
+                        {
+                            Id = d.Id,
+                            DODetailId = d.DODetailId
+                        }).ToList()
+                    }).ToList()
+                }).ToList();
+
+            return models;
+        }
     }
 }
