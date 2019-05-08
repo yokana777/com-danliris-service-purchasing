@@ -44,5 +44,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         AccuracyOfArrivalReportHeaderResult GetAccuracyOfArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo);
         List<AccuracyOfArrivalReportDetail> GetAccuracyOfArrivalDetail(string supplierCode, string category, DateTime? dateFrom, DateTime? dateTo);
+        List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds);
     }
 }
