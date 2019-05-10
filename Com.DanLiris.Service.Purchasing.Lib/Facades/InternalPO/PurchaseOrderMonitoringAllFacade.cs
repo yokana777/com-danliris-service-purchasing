@@ -220,6 +220,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         List<PurchaseOrderMonitoringAllViewModel> listEPO2 = new List<PurchaseOrderMonitoringAllViewModel>();
 
+        List<PurchaseOrderMonitoringAllViewModel> listEPO2 = new List<PurchaseOrderMonitoringAllViewModel>();
+
         private List<PurchaseOrderMonitoringAllViewModel> GetReportQuery(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, int offset, string user)
         {
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
