@@ -28,11 +28,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         public const string UNIT_PRINTING = "02";
 
         public const string DIVISI_GARMENT = "4";
-        public const string UNI_CENTRAL1A = "01";
-        public const string UNI_CENTRAL1B = "02";
-        public const string UNI_CENTRAL2A = "03";
-        public const string UNI_CENTRAL2B = "04";
-        public const string UNI_CENTRAL2C = "05";
+        public const string UNIT_CENTRAL1A = "01";
+        public const string UNIT_CENTRAL1B = "02";
+        public const string UNIT_CENTRAL2A = "03";
+        public const string UNIT_CENTRAL2B = "04";
+        public const string UNIT_CENTRAL2C = "05";
 
         public const string PEMBELIAN_BAHAN_BAKU = "5901";
         public const string PEMBELIAN_BARANG_JADI = "5902";
@@ -133,19 +133,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
                     switch (unitCode)
                     {
                         case "C1A":
-                            result += "." + UNIT_FINISHING;
+                            result += "." + UNIT_CENTRAL1A;
                             break;
                         case "C1B":
-                            result += "." + UNIT_PRINTING;
+                            result += "." + UNIT_CENTRAL1B;
                             break;
                         case "C2A":
-                            result += "." + UNIT_FINISHING;
+                            result += "." + UNIT_CENTRAL2A;
                             break;
                         case "C2B":
-                            result += "." + UNIT_PRINTING;
+                            result += "." + UNIT_CENTRAL2B;
                             break;
                         case "C2C":
-                            result += "." + UNIT_PRINTING;
+                            result += "." + UNIT_CENTRAL2C;
                             break;
                         default:
                             result += ".00";
