@@ -309,6 +309,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
                     m.PONo = await this.GeneratePONo(m);
+                    PurchaseRequest purchaseRequest = this.dbContext.PurchaseRequests.FirstOrDefault(s => s.Id.ToString() == m.PRId);
+                    purchaseRequest.IsUsed = true;
                     foreach (var item in m.Items)
                     {
                         item.Status = "PO Internal belum diorder";
