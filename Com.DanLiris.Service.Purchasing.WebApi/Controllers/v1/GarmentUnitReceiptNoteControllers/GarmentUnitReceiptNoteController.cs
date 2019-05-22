@@ -284,5 +284,37 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("items")]
+        public IActionResult GetURNItem(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var model = facade.ReadURNItem(page, size, order, keyword, filter);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", model.Data.Count },
+                        { "total", model.TotalData },
+                        { "order", model.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(model.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }

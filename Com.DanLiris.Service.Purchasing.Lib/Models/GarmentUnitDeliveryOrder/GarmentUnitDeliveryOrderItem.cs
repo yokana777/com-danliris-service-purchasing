@@ -39,6 +39,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
 
         public double? DOCurrencyRate { get; set; }
 
+        /*RETUR*/
+        public double ReturQuantity { get; set; }
+        public string ReturUomUnit { get; set; }
+        public long? ReturUomId { get; set; }
+        
+
+
         [NotMapped]
         public bool IsSave { get; set; }
 
