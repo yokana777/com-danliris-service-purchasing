@@ -37,9 +37,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
 
         public string DesignColor { get; set; }
 
-        public CurrencyViewModel DOCurrency { get;
-            set; }
+        public CurrencyViewModel DOCurrency { get; set; }
 
         public bool IsSave { get; set; }
+
+        /*RETUR*/
+        public double? ReturQuantity { get; set; }
+        public string ReturUomUnit { get; set; }
+        public long? ReturUomId { get; set; }
     }
 }
