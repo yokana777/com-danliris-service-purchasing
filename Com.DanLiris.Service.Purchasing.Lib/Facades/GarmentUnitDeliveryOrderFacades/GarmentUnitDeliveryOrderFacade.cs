@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 Query = Query.Where(x => x.CreatedBy == identityService.Username);
             }
 
-            Query = Query.Select(m => new GarmentUnitDeliveryOrder
+            Query = Query.Where(m=>m.UnitDOType != "RETUR").Select(m => new GarmentUnitDeliveryOrder
             {
                 Id = m.Id,
                 UnitDONo = m.UnitDONo,
