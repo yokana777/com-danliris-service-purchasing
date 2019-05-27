@@ -77,9 +77,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 			return Ok(Result);
 		}
 		[HttpGet("forCustoms")]
-		public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}")
+		public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}", string BillNo = null)
 		{
-			var Data = facade.DOForCustoms(Keyword, Filter);
+			var Data = facade.DOForCustoms(Keyword, Filter, BillNo);
 			var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
 			Dictionary<string, object> Result =
 				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
