@@ -128,11 +128,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                         itemError += "DealQuantity: 'Quantity harus lebih dari 0', ";
                     }
 
-                    //if (item.BudgetPrice <= 0)
-                    //{
-                    //    itemErrorCount++;
-                    //    itemError += "BudgetPrice: 'BudgetPrice harus lebih dari 0', ";
-                    //}
+                    if (item.PricePerDealUnit <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "PricePerDealUnit: 'Harga harus lebih dari 0', ";
+                    }
 
                     if (item.DealUom == null)
                     {
