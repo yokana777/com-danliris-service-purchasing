@@ -76,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 ReceiptDate = m.ReceiptDate,
                 SupplierName = m.SupplierName,
                 DONo = m.DONo,
+                DOId=m.DOId,
                 Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
                 {
                     Id = i.Id,
@@ -106,6 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 s.Id,
                 s.URNNo,
+                s.DOId,
                 Unit = new { Name = s.UnitName },
                 s.ReceiptDate,
                 Supplier = new { Name = s.SupplierName },
@@ -622,6 +624,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             var data= Query.SelectMany(x => x.Items.Select(y => new
             {
+                x.DOId,
+                x.DONo,
                 x.URNNo,
                 y.URNId,
                 y.Id,
