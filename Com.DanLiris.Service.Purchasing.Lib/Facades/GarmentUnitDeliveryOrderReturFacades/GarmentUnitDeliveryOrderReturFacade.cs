@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitDONo", "UnitDOType","StorageName"
+                "UnitDONo", "UnitDOType","StorageName","UnitSenderCode","UnitSenderName"
             };
 
             Query = QueryHelper<GarmentUnitDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -116,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
 
                         GarmentDeliveryOrderDetail doDetail = dbContext.GarmentDeliveryOrderDetails.Single(s => s.Id.Equals(garmentUnitDeliveryOrderItem.DODetailId));
                         
-                        doDetail.ReturQuantity = doDetail.ReturQuantity - garmentUnitDeliveryOrderItem.ReturQuantity;
+                        doDetail.ReturQuantity = doDetail.ReturQuantity + garmentUnitDeliveryOrderItem.ReturQuantity;
 
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
                         EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
             string Year = dateTimeOffset.ToString("yy");
             string Day = dateTimeOffset.ToString("dd");
 
-            string no = string.Concat("DO", model.UnitRequestCode, Year, Month, Day);
+            string no = string.Concat("DO", model.UnitSenderCode, Year, Month, Day);
             int Padding = 3;
 
             var lastDataByNo = await dbSet.Where(w => w.UnitDONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UnitDONo).FirstOrDefaultAsync();
