@@ -301,6 +301,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var result = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetByPeriod(result.Date.Month, result.Date.Year, 0);
             Assert.NotEqual(Response.Count, 0);
+
+            var Response2 = facade.GetByPeriod(0, 0, 0);
+            Assert.NotEqual(Response2.Count, 0);
         }
     }
 }
