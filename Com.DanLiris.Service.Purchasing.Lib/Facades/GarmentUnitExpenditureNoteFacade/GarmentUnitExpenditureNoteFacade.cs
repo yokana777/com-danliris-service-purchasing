@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
@@ -9,6 +13,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +41,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
         private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItem;
 
+        //private GarmentReturnCorrectionNoteFacade garmentReturnCorrectionNoteFacade;
+        
+
         private readonly IMapper mapper;
 
         public GarmentUnitExpenditureNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -51,6 +59,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             dbSetGarmentUnitDeliveryOrderItem = dbContext.Set<GarmentUnitDeliveryOrderItem>();
             dbSetGarmentUnitReceiptNoteItem = dbContext.Set<GarmentUnitReceiptNoteItem>();
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
+
+            //this.garmentReturnCorrectionNoteFacade = (GarmentReturnCorrectionNoteFacade)serviceProvider.GetService(typeof(GarmentReturnCorrectionNoteFacade));
         }
 
         public async Task<int> Create(GarmentUnitExpenditureNote garmentUnitExpenditureNote)
@@ -217,10 +227,208 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         }
                     }
 
+                    GarmentCorrectionNote Correction = null;
+                    bool suppType = true;
+                    List<GarmentExternalPurchaseOrder> newEPOList = new List<GarmentExternalPurchaseOrder>();
+
+                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
+                    {
+                        List<long> epoItemIds = new List<long>();
+                        List<long> epoIds = new List<long>();
+                        GarmentDeliveryOrder garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.FirstOrDefault(d => d.Id.Equals(garmentUnitDeliveryOrder.DOId));
+
+                        List<GarmentCorrectionNoteItem> correctionNoteItems = new List<GarmentCorrectionNoteItem>();
+                        decimal totalPrice = 0;
+                        foreach (var item in garmentUnitExpenditureNote.Items)
+                        {
+                            GarmentUnitDeliveryOrderItem garmentUnitDeliveryOrderItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(d => d.Id == item.UnitDOItemId);
+                            GarmentDeliveryOrderDetail garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(d => d.Id.Equals(item.DODetailId));
+                            GarmentDeliveryOrderItem garmentDeliveryOrderItem = dbContext.GarmentDeliveryOrderItems.FirstOrDefault(d => d.Id.Equals(garmentDeliveryOrderDetail.GarmentDOItemId));
+                            GarmentCorrectionNoteItem correctionNoteItem = new GarmentCorrectionNoteItem
+                            {
+                                POId = garmentDeliveryOrderDetail.POId,
+                                EPOId = garmentDeliveryOrderItem.EPOId,
+                                DODetailId = item.DODetailId,
+                                EPONo = garmentDeliveryOrderItem.EPONo,
+                                PRId = garmentDeliveryOrderDetail.PRId,
+                                POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber,
+                                RONo = garmentDeliveryOrderDetail.RONo,
+                                PricePerDealUnitAfter = (decimal)garmentDeliveryOrderDetail.PricePerDealUnitCorrection,
+                                PricePerDealUnitBefore = (decimal)garmentDeliveryOrderDetail.PricePerDealUnitCorrection,
+                                PriceTotalBefore = (decimal)garmentDeliveryOrderDetail.PriceTotalCorrection,
+                                PriceTotalAfter = (decimal)(item.Quantity * garmentDeliveryOrderDetail.PricePerDealUnitCorrection),
+                                Quantity = (decimal)garmentUnitDeliveryOrderItem.ReturQuantity,
+                                UomId = (long)garmentUnitDeliveryOrderItem.ReturUomId,
+                                UomIUnit = garmentUnitDeliveryOrderItem.ReturUomUnit,
+                                PRNo = garmentDeliveryOrderDetail.PRNo,
+                                ProductCode = item.ProductCode,
+                                ProductId = item.ProductId,
+                                ProductName = item.ProductName
+                            };
+                            correctionNoteItems.Add(correctionNoteItem);
+                            totalPrice += correctionNoteItem.PriceTotalAfter;
+
+                            epoItemIds.Add(garmentUnitDeliveryOrderItem.EPOItemId);
+                            if (!epoIds.Contains(garmentDeliveryOrderItem.EPOId))
+                            {
+                                epoIds.Add(garmentDeliveryOrderItem.EPOId);
+                            }
+                        }
+
+                        List<string> listEpoNo = new List<string>();
+
+                        foreach (var epoId in epoIds)
+                        {
+                            GarmentExternalPurchaseOrder garmentExternalPurchaseOrder = dbContext.GarmentExternalPurchaseOrders.FirstOrDefault(p => p.Id.Equals(epoId));
+                            List<long> garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(p => p.GarmentEPOId.Equals(epoId)).Select(p => p.Id).ToList();
+                            List<GarmentExternalPurchaseOrderItem> epoItems = new List<GarmentExternalPurchaseOrderItem>();
+                            foreach (var garmentExternalPurchaseOrderItemId in garmentExternalPurchaseOrderItems)
+                            {
+                                if (epoItemIds.Contains(garmentExternalPurchaseOrderItemId))
+                                {
+                                    GarmentExternalPurchaseOrderItem garmentExternalPurchaseOrderItem = dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(p => p.Id.Equals(garmentExternalPurchaseOrderItemId));
+                                    GarmentExternalPurchaseOrderItem newItem = new GarmentExternalPurchaseOrderItem
+                                    {
+                                        BudgetPrice = garmentExternalPurchaseOrderItem.BudgetPrice,
+                                        Conversion = garmentExternalPurchaseOrderItem.Conversion,
+                                        DealQuantity = garmentExternalPurchaseOrderItem.DealQuantity,
+                                        DealUomId = garmentExternalPurchaseOrderItem.DealUomId,
+                                        DealUomUnit = garmentExternalPurchaseOrderItem.DealUomUnit,
+                                        DefaultQuantity = garmentExternalPurchaseOrderItem.DefaultQuantity,
+                                        DefaultUomId = garmentExternalPurchaseOrderItem.DefaultUomId,
+                                        DefaultUomUnit = garmentExternalPurchaseOrderItem.DefaultUomUnit,
+                                        DOQuantity = garmentExternalPurchaseOrderItem.DOQuantity,
+                                        IsOverBudget = garmentExternalPurchaseOrderItem.IsOverBudget,
+                                        OverBudgetRemark = garmentExternalPurchaseOrderItem.OverBudgetRemark,
+                                        POId = garmentExternalPurchaseOrderItem.POId,
+                                        PONo = garmentExternalPurchaseOrderItem.PONo,
+                                        PO_SerialNumber = garmentExternalPurchaseOrderItem.PO_SerialNumber,
+                                        PricePerDealUnit = garmentExternalPurchaseOrderItem.PricePerDealUnit,
+                                        PRId = garmentExternalPurchaseOrderItem.PRId,
+                                        PRNo = garmentExternalPurchaseOrderItem.PRNo,
+                                        ProductCode = garmentExternalPurchaseOrderItem.ProductCode,
+                                        ProductId = garmentExternalPurchaseOrderItem.ProductId,
+                                        ProductName = garmentExternalPurchaseOrderItem.ProductName,
+                                        ReceiptQuantity = garmentExternalPurchaseOrderItem.ReceiptQuantity,
+                                        Remark = garmentExternalPurchaseOrderItem.Remark,
+                                        RONo = garmentExternalPurchaseOrderItem.RONo,
+                                        SmallQuantity = garmentExternalPurchaseOrderItem.SmallQuantity,
+                                        SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
+                                        SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
+                                        UsedBudget = garmentExternalPurchaseOrderItem.UsedBudget,
+                                        Article = garmentExternalPurchaseOrderItem.Article
+
+                                    };
+                                    epoItems.Add(newItem);
+                                }
+                            }
+                            var EPONo = garmentExternalPurchaseOrder.EPONo + "-R";
+                            GarmentExternalPurchaseOrder existEPO = dbContext.GarmentExternalPurchaseOrders.Where(p => p.EPONo.StartsWith(EPONo)).OrderByDescending(o => o.EPONo).FirstOrDefault();
+                            if(listEpoNo.Count > 0)
+                            {
+                                string lastEpo = listEpoNo.Last();
+                                EPONo= lastEpo.Substring(lastEpo.IndexOf("R"));
+                                int lastNo= Int32.Parse(lastEpo.Replace(EPONo, string.Empty)) + 1;
+                                EPONo = EPONo + lastNo.ToString();
+                                listEpoNo.Add(EPONo);
+                            }
+                            else if (existEPO != null )
+                            {
+                                int lastNoNumber = Int32.Parse(existEPO.EPONo.Replace(EPONo, string.Empty)) + 1;
+                                EPONo = EPONo + lastNoNumber.ToString();
+                                listEpoNo.Add(EPONo);
+                            }
+                            else
+                            {
+                                EPONo = EPONo + "1";
+                                listEpoNo.Add(EPONo);
+                            }
+                            GarmentExternalPurchaseOrder newEpo = new GarmentExternalPurchaseOrder
+                            {
+                                EPONo = EPONo,
+                                Category = garmentExternalPurchaseOrder.Category,
+                                CurrencyCode = garmentExternalPurchaseOrder.CurrencyCode,
+                                CurrencyId = garmentExternalPurchaseOrder.CurrencyId,
+                                CurrencyRate = garmentExternalPurchaseOrder.CurrencyRate,
+                                DarkPerspiration = garmentExternalPurchaseOrder.DarkPerspiration,
+                                DeliveryDate = garmentExternalPurchaseOrder.DeliveryDate,
+                                DryRubbing = garmentExternalPurchaseOrder.DryRubbing,
+                                FreightCostBy = garmentExternalPurchaseOrder.FreightCostBy,
+                                IncomeTaxId = garmentExternalPurchaseOrder.IncomeTaxId,
+                                IncomeTaxName = garmentExternalPurchaseOrder.IncomeTaxName,
+                                IncomeTaxRate = garmentExternalPurchaseOrder.IncomeTaxRate,
+                                IsApproved = garmentExternalPurchaseOrder.IsApproved,
+                                IsCanceled = garmentExternalPurchaseOrder.IsCanceled,
+                                IsClosed = garmentExternalPurchaseOrder.IsClosed,
+                                IsIncomeTax = garmentExternalPurchaseOrder.IsIncomeTax,
+                                IsOverBudget = garmentExternalPurchaseOrder.IsOverBudget,
+                                IsPosted = false,
+                                IsUseVat = garmentExternalPurchaseOrder.IsUseVat,
+                                LightMedPerspiration = garmentExternalPurchaseOrder.LightMedPerspiration,
+                                OrderDate = garmentExternalPurchaseOrder.OrderDate,
+                                PaymentDueDays = garmentExternalPurchaseOrder.PaymentDueDays,
+                                PaymentMethod = garmentExternalPurchaseOrder.PaymentMethod,
+                                PaymentType = garmentExternalPurchaseOrder.PaymentType,
+                                PieceLength = garmentExternalPurchaseOrder.PieceLength,
+                                QualityStandardType = garmentExternalPurchaseOrder.QualityStandardType,
+                                Remark = garmentExternalPurchaseOrder.Remark,
+                                Shrinkage = garmentExternalPurchaseOrder.Shrinkage,
+                                SupplierCode = garmentExternalPurchaseOrder.SupplierCode,
+                                SupplierId = garmentExternalPurchaseOrder.SupplierId,
+                                SupplierImport = garmentExternalPurchaseOrder.SupplierImport,
+                                SupplierName = garmentExternalPurchaseOrder.SupplierName,
+                                Washing = garmentExternalPurchaseOrder.Washing,
+                                WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
+                                Items = epoItems
+                            };
+
+                            suppType = garmentExternalPurchaseOrder.SupplierImport;
+
+                            newEPOList.Add(newEpo);
+                        }
+
+                        Correction = new GarmentCorrectionNote
+                        {
+                            CorrectionDate = garmentUnitExpenditureNote.ExpenditureDate,
+                            CorrectionType = "Retur",
+                            DOId = garmentDeliveryOrder.Id,
+                            DONo = garmentDeliveryOrder.DONo,
+                            CurrencyCode = garmentDeliveryOrder.DOCurrencyCode,
+                            CurrencyId = (long)garmentDeliveryOrder.DOCurrencyId,
+                            IncomeTaxId = (long)garmentDeliveryOrder.IncomeTaxId,
+                            IncomeTaxName = garmentDeliveryOrder.IncomeTaxName,
+                            IncomeTaxRate = (decimal)garmentDeliveryOrder.IncomeTaxRate,
+                            SupplierCode = garmentDeliveryOrder.SupplierCode,
+                            SupplierId = garmentDeliveryOrder.SupplierId,
+                            SupplierName = garmentDeliveryOrder.SupplierName,
+                            UseIncomeTax = (bool)garmentDeliveryOrder.UseIncomeTax,
+                            UseVat = (bool)garmentDeliveryOrder.UseVat,
+                            TotalCorrection = totalPrice,
+                            Items = correctionNoteItems
+                        };
+
+                        
+                        //await this.garmentReturnCorrectionNoteFacade.Create(Correction, suppType, identityService.Username);
+
+                    }
+
+
                     dbSet.Add(garmentUnitExpenditureNote);
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
+
+                    var epoFacade = new GarmentExternalPurchaseOrderFacades.GarmentExternalPurchaseOrderFacade(serviceProvider, dbContext);
+                    var correctionFacade = new GarmentReturnCorrectionNoteFacade(this.serviceProvider, dbContext);
+
+                    if (Correction != null && garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && newEPOList.Count>0)
+                    {
+                        await correctionFacade.Create(Correction, suppType, identityService.Username);
+                        foreach(var epo in newEPOList)
+                        {
+                            await epoFacade.Create(epo, identityService.Username);
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -711,5 +919,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
+
+        
     }
 }
