@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitDONo", "UnitDOType","StorageName","UnitSenderCode","UnitSenderName"
+                "UnitDONo", "UnitDOType","StorageName","UnitSenderCode","UnitSenderName","DONo"
             };
 
             Query = QueryHelper<GarmentUnitDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
