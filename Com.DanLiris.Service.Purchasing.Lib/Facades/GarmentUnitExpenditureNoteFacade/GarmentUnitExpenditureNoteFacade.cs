@@ -71,6 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             {
                 try
                 {
+                    garmentUnitExpenditureNote.IsPreparing = false;
                     EntityExtension.FlagForCreate(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
                     garmentUnitExpenditureNote.UENNo = await GenerateNo(garmentUnitExpenditureNote);
                     var garmentUnitDeliveryOrder = dbSetGarmentUnitDeliveryOrder.First(d => d.Id == garmentUnitExpenditureNote.UnitDOId);

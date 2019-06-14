@@ -26,6 +26,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
         public string StorageRequestCode { get; set; }
         public string StorageRequestName { get; set; }
 
+        public bool IsPreparing { get; set; }
+
         public virtual ICollection<GarmentUnitExpenditureNoteItem> Items { get; set; }
 
     }

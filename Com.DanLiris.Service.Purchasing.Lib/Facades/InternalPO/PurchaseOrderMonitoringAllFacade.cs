@@ -495,7 +495,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order, int offset, string user)
         {
+
             var Data = GetReportQuery(prNo, supplierId, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, page, size, offset, user);
+
             //List<PurchaseOrderMonitoringAllViewModel> Query = Data.ToList();
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //if (OrderDictionary.Count.Equals(0))

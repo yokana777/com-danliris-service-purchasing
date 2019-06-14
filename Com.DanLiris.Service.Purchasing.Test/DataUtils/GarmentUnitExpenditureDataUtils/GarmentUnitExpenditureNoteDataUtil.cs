@@ -52,6 +52,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
 
                 ExpenditureDate = DateTimeOffset.Now,
 
+                IsPreparing = false,
+
                 Items = new List<GarmentUnitExpenditureNoteItem>()
             };
 

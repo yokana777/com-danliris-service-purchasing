@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190509081618_Add_Column_IsPreparing_on_GarmentUnitExpenditureNote")]
+    partial class Add_Column_IsPreparing_on_GarmentUnitExpenditureNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3279,12 +3280,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("Quantity");
 
                     b.Property<string>("RONo");
-
-                    b.Property<double>("ReturQuantity");
-
-                    b.Property<long?>("ReturUomId");
-
-                    b.Property<string>("ReturUomUnit");
 
                     b.Property<long>("URNId");
 
