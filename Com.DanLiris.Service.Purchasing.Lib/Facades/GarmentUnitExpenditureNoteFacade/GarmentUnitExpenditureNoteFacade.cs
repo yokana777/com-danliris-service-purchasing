@@ -327,8 +327,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             if(listEpoNo.Count > 0)
                             {
                                 string lastEpo = listEpoNo.Last();
-                                EPONo= lastEpo.Substring(lastEpo.IndexOf("R"));
-                                int lastNo= Int32.Parse(lastEpo.Replace(EPONo, string.Empty)) + 1;
+                                EPONo= lastEpo.Substring(lastEpo.IndexOf("R")+1);
+                                int lastNo= Int32.Parse(EPONo) + 1;
                                 EPONo = EPONo + lastNo.ToString();
                                 listEpoNo.Add(EPONo);
                             }
