@@ -302,7 +302,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         IsOverBudget = garmentExternalPurchaseOrderItem.IsOverBudget,
                                         OverBudgetRemark = garmentExternalPurchaseOrderItem.OverBudgetRemark,
                                         POId = garmentExternalPurchaseOrderItem.POId,
-                                        PONo = garmentExternalPurchaseOrderItem.PONo,
+                                        PONo = garmentExternalPurchaseOrderItem.PONo + "-R",
                                         PO_SerialNumber = garmentExternalPurchaseOrderItem.PO_SerialNumber,
                                         PricePerDealUnit = garmentExternalPurchaseOrderItem.PricePerDealUnit,
                                         PRId = garmentExternalPurchaseOrderItem.PRId,
