@@ -106,7 +106,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                             break;
                         }
                     }
-                    m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
+
+                    if(string.IsNullOrEmpty(m.EPONo))
+                        m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
 
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
