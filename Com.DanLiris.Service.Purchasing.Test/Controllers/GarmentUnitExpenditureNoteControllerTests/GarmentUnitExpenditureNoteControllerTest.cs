@@ -434,5 +434,106 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var response = controller.Get(It.IsAny<int>());
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
         }
+
+        [Fact]
+        public void Should_Success_Get_All_Data_UnitExpenditure_for_Preparing()
+        {
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadForGPreparing(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNoteViewModel>>(It.IsAny<List<GarmentUnitExpenditureNote>>()))
+                .Returns(new List<GarmentUnitExpenditureNoteViewModel> { ViewModel });
+
+            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
+            var response = controller.GetForGarmentPreparing();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data_UnitExpenditure_for_Preparing()
+        {
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            var mockMapper = new Mock<IMapper>();
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+            var response = controller.GetForGarmentPreparing();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_for_Preparing_Create()
+        {
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNote>>(It.IsAny<List<GarmentUnitExpenditureNoteViewModel>>()))
+                .Returns(new List<GarmentUnitExpenditureNote>());
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitExpenditureNoteViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentUnitExpenditureNote>()))
+               .ReturnsAsync(1);
+
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
+
+            var response = await controller.PutIsPreparingTrue(It.IsAny<int>(), ViewModel);
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_for_Preparing_Delete()
+        {
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNote>>(It.IsAny<List<GarmentUnitExpenditureNoteViewModel>>()))
+                .Returns(new List<GarmentUnitExpenditureNote>());
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitExpenditureNoteViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentUnitExpenditureNote>()))
+               .ReturnsAsync(1);
+
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
+
+            var response = await controller.PutIsPreparingFalse(It.IsAny<int>(), ViewModel);
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_for_Preparing_Create()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+
+            var response = await controller.PutIsPreparingTrue(It.IsAny<int>(), new GarmentUnitExpenditureNoteViewModel());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_for_Preparing_Delete()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+
+            var response = await controller.PutIsPreparingFalse(It.IsAny<int>(), new GarmentUnitExpenditureNoteViewModel());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
     }
 }
