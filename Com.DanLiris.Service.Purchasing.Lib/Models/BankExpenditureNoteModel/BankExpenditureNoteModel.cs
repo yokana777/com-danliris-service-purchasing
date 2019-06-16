@@ -9,8 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
     public class BankExpenditureNoteModel : BaseModel
     {
         #region Bank
-        [MaxLength(255)]
-        public string BankId { get; set; }
+        public int BankId { get; set; }
         [MaxLength(255)]
         public string BankCode { get; set; }
         [MaxLength(255)]
@@ -20,8 +19,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         [MaxLength(255)]
         public string BankAccountNumber { get; set; }
         public string BankName { get; set; }
-        [MaxLength(255)]
-        public string BankCurrencyId { get; set; }
+        //[MaxLength(255)]
+        public int BankCurrencyId { get; set; }
         [MaxLength(255)]
         public string BankCurrencyCode { get; set; }
         [MaxLength(255)]
@@ -35,8 +34,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         public string DocumentNo { get; set; }
         public double GrandTotal { get; set; }
         #region Supplier
-        [MaxLength(255)]
-        public string SupplierId { get; set; }
+        //[MaxLength(255)]
+        public int SupplierId { get; set; }
         [MaxLength(255)]
         public string SupplierCode { get; set; }
         [MaxLength(255)]
