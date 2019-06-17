@@ -225,5 +225,99 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("unit-expenditure-note")]
+        public IActionResult GetForGarmentPreparing(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var result = facade.ReadForGPreparing(page, size, order, keyword, filter);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("isPreparingTrue/{id}")]
+        public async Task<IActionResult> PutIsPreparingTrue(int id, [FromBody]GarmentUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                ViewModel.IsPreparing = true;
+
+                var model = mapper.Map<GarmentUnitExpenditureNote>(ViewModel);
+
+                await facade.UpdateIsPreparing(id, model);
+
+                return NoContent();
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("isPreparingFalse/{id}")]
+        public async Task<IActionResult> PutIsPreparingFalse(int id, [FromBody]GarmentUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                ViewModel.IsPreparing = false;
+
+                var model = mapper.Map<GarmentUnitExpenditureNote>(ViewModel);
+
+                await facade.UpdateIsPreparing(id, model);
+
+                return NoContent();
+            }
+            catch (ServiceValidationExeption e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
+                    .Fail(e);
+                return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
