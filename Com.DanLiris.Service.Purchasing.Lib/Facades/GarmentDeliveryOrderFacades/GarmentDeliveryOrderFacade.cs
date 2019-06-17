@@ -469,7 +469,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Query;
         }
 
-        public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter)
+        public IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword, string Filter, string BillNo = null)
         {
             IQueryable<GarmentDeliveryOrder> Query = this.dbSet;
 
@@ -495,8 +495,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //else
             //{
 
+            var DOCurrencyCodes = dbSet.Where(w => w.BillNo == BillNo).Select(s => s.DOCurrencyCode);
+
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                .ThenInclude(i => i.Details).Where(s => s.CustomsId == 0);
+                .ThenInclude(i => i.Details).Where(s => s.CustomsId == 0 && (DOCurrencyCodes.Count() == 0 || DOCurrencyCodes.Contains(s.DOCurrencyCode)));
             //}
 
             return Query;

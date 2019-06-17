@@ -258,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                             if (externalPOPriceTotal > 100000000)
                             {
-                                journalTransactionsToPost.Add(CreateIsSparePartJournalTransaction(item, model, externalPurchaseOrder.UseIncomeTax, double.TryParse(externalPurchaseOrder.IncomeTaxRate, out double incomeTax) ? double.Parse(externalPurchaseOrder.IncomeTaxRate) : 0, externalPurchaseOrder.IncomeTaxName, false));
+                                journalTransactionsToPost.Add(CreateIsSparePartJournalTransaction(item, model, externalPurchaseOrder.UseIncomeTax, double.TryParse(externalPurchaseOrder.IncomeTaxRate, out double incomeTax) ? double.Parse(externalPurchaseOrder.IncomeTaxRate) : 0, externalPurchaseOrder.IncomeTaxName, true));
                             }
                             else
                             {
@@ -284,7 +284,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             foreach (var journalTransaction in journalTransactionsToPost)
             {
-                if (journalTransaction.Items.Any(a => a.COA.Code.Split(".")[0] == "9999"))
+                if (journalTransaction.Items.Any(a => a.COA.Code.Split(".").First().Equals("9999")))
                 {
                     journalTransaction.Status = "DRAFT";
                 }

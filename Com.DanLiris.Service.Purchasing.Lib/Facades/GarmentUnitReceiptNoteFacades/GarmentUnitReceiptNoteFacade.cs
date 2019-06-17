@@ -65,6 +65,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<GarmentUnitReceiptNote> Query = dbSet;
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
 
             Query = Query.Select(m => new GarmentUnitReceiptNote
             {
@@ -74,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 ReceiptDate = m.ReceiptDate,
                 SupplierName = m.SupplierName,
                 DONo = m.DONo,
+                DOId=m.DOId,
                 Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
                 {
                     Id = i.Id,
@@ -90,8 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
+            
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
@@ -105,6 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 s.Id,
                 s.URNNo,
+                s.DOId,
                 Unit = new { Name = s.UnitName },
                 s.ReceiptDate,
                 Supplier = new { Name = s.SupplierName },
@@ -594,6 +597,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 })).ToList();
             List<object> result = new List<object>(readForUnitDO);
             return result;
+        }
+
+        public ReadResponse<object> ReadURNItem(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = dbSet;
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
+
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "URNNo", "UnitName", "SupplierName", "DONo"
+            };
+
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentUnitReceiptNote> pageable = new Pageable<GarmentUnitReceiptNote>(Query, Page - 1, Size);
+            List<GarmentUnitReceiptNote> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            var data= Query.SelectMany(x => x.Items.Select(y => new
+            {
+                x.DOId,
+                x.DONo,
+                x.URNNo,
+                y.URNId,
+                y.Id,
+                y.RONo,
+                y.DODetailId,
+                y.EPOItemId,
+                y.POItemId,
+                y.PRItemId,
+                y.ProductId,
+                y.ProductName,
+                y.ProductCode,
+                y.ProductRemark,
+                y.OrderQuantity,
+                y.SmallQuantity,
+                y.DesignColor,
+                y.SmallUomId,
+                y.SmallUomUnit,
+                y.POSerialNumber,
+                y.PricePerDealUnit,
+                x.DOCurrencyRate,
+                y.Conversion,
+                y.UomUnit,
+                y.UomId,
+                Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+            })).ToList();
+
+            List<object> ListData = new List<object>(data);
+
+            return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
     }
 }

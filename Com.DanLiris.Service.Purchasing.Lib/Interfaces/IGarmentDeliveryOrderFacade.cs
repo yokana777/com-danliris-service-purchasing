@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         Task<int> Delete(int id, string username);
         IQueryable<GarmentDeliveryOrder>  ReadBySupplier( string Keyword = null, string Filter = "{}");
-		IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword = null, string Filter = "{}");
+		IQueryable<GarmentDeliveryOrder> DOForCustoms(string Keyword = null, string Filter = "{}", string BillNo = null);
 		int IsReceived(List<int> Id);
         ReadResponse<object> ReadForUnitReceiptNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
 

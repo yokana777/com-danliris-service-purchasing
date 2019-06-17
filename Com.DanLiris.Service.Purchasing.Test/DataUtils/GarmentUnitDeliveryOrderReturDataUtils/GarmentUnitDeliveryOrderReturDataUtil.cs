@@ -1,19 +1,18 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderReturFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils
+namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderReturDataUtils
 {
-    public class GarmentUnitDeliveryOrderDataUtil
+    public class GarmentUnitDeliveryOrderReturDataUtil
     {
         private readonly GarmentUnitReceiptNoteDataUtil UNDataUtil;
-        private readonly GarmentUnitDeliveryOrderFacade facade;
-        public GarmentUnitDeliveryOrderDataUtil(GarmentUnitDeliveryOrderFacade facade, GarmentUnitReceiptNoteDataUtil UNDataUtil)
+        private readonly GarmentUnitDeliveryOrderReturFacade facade;
+        public GarmentUnitDeliveryOrderReturDataUtil(GarmentUnitDeliveryOrderReturFacade facade, GarmentUnitReceiptNoteDataUtil UNDataUtil)
         {
             this.facade = facade;
             this.UNDataUtil = UNDataUtil;
@@ -28,19 +27,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
-                UnitDOType = "SAMPLE",
+                UnitDOType = "RETUR",
                 UnitDODate = DateTimeOffset.Now,
                 UnitSenderId = garmentUnitReceiptNote.UnitId,
-                UnitRequestCode = garmentUnitReceiptNote.UnitCode,
-                UnitRequestName = garmentUnitReceiptNote.UnitName,
-                UnitRequestId = garmentUnitReceiptNote.UnitId,
                 UnitSenderCode = garmentUnitReceiptNote.UnitCode,
                 UnitSenderName = garmentUnitReceiptNote.UnitName,
                 StorageId = garmentUnitReceiptNote.StorageId,
                 StorageCode = garmentUnitReceiptNote.StorageCode,
                 StorageName = garmentUnitReceiptNote.StorageName,
-                RONo = garmentUnitReceiptNote.Items.Select(i => i.RONo).FirstOrDefault(),
-                Article = $"Article{nowTicks}",
+                DONo = garmentUnitReceiptNote.DONo,
                 Items = new List<GarmentUnitDeliveryOrderItem>()
             };
 
@@ -54,7 +49,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         EPOItemId = item.EPOItemId,
                         POItemId = item.POItemId,
                         PRItemId = item.PRItemId,
-                        FabricType = "FABRIC",
                         URNId = garmentUnitReceiptNote.Id,
                         URNItemId = item.Id,
                         URNNo = garmentUnitReceiptNote.URNNo,
@@ -66,8 +60,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
                         UomId = item.UomId,
                         UomUnit = item.UomUnit,
+                        ReturQuantity = 20,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
+                        DefaultDOQuantity = 20
+            
                     });
             }
 
@@ -89,20 +86,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             var garmentUnitReceiptNote2 = await Task.Run(() => UNDataUtil.GetTestDataWithStorage(nowTicks + 1));
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
-                UnitDOType = "SAMPLE",
-                DOId= garmentUnitReceiptNote1.DOId,
+                UnitDOType = "RETUR",
                 UnitDODate = DateTimeOffset.Now,
                 UnitSenderId = garmentUnitReceiptNote1.UnitId,
-                UnitRequestCode = garmentUnitReceiptNote1.UnitCode,
-                UnitRequestName = garmentUnitReceiptNote1.UnitName,
-                UnitRequestId = garmentUnitReceiptNote1.UnitId,
                 UnitSenderCode = garmentUnitReceiptNote1.UnitCode,
                 UnitSenderName = garmentUnitReceiptNote1.UnitName,
                 StorageId = garmentUnitReceiptNote1.StorageId,
                 StorageCode = garmentUnitReceiptNote1.StorageCode,
                 StorageName = garmentUnitReceiptNote1.StorageName,
-                RONo = garmentUnitReceiptNote1.Items.Select(i => i.RONo).FirstOrDefault(),
-                Article = $"Article{nowTicks}",
                 Items = new List<GarmentUnitDeliveryOrderItem>()
             };
 
@@ -116,7 +107,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         EPOItemId = item.EPOItemId,
                         POItemId = item.POItemId,
                         PRItemId = item.PRItemId,
-                        FabricType = "FABRIC",
                         URNId = garmentUnitReceiptNote1.Id,
                         URNItemId = item.Id,
                         URNNo = garmentUnitReceiptNote1.URNNo,
@@ -128,14 +118,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
                         UomId = item.UomId,
                         UomUnit = item.UomUnit,
+                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate,
+                        ReturQuantity = 20,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
-                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate
+                        DefaultDOQuantity = 20
                     });
             }
 
 
-            
+
 
             foreach (var item in garmentUnitReceiptNote2.Items)
             {
@@ -147,21 +139,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         EPOItemId = item.EPOItemId,
                         POItemId = item.POItemId,
                         PRItemId = item.PRItemId,
-                        FabricType = "FABRIC",
                         URNId = garmentUnitReceiptNote1.Id,
                         URNItemId = item.Id,
                         URNNo = garmentUnitReceiptNote1.URNNo,
                         POSerialNumber = item.POSerialNumber,
                         RONo = item.RONo,
-                        ProductId = item.ProductId+1,
+                        ProductId = item.ProductId + 1,
                         ProductCode = item.ProductCode + $"{nowTicks}",
                         ProductName = item.ProductName + $"{nowTicks}",
                         Quantity = (double)(item.SmallQuantity - item.OrderQuantity),
                         UomId = item.UomId,
                         UomUnit = item.UomUnit,
-                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate,
+                        ReturQuantity = 20,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
+                        DefaultDOQuantity = 20,
+                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate
                     });
             }
 
@@ -175,6 +168,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             await facade.Create(data);
             return data;
         }
-
     }
 }

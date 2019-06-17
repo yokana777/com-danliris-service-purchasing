@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190521090518_update_unit_DO_item")]
+    partial class update_unit_DO_item
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3339,8 +3340,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ExpenditureType");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsPreparing");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()

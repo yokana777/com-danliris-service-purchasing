@@ -402,5 +402,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var Response = facade.ReadForUnitDOHeader("", JsonConvert.SerializeObject(filter));
             Assert.NotEqual(Response.Count, 0);
         }
+
+        [Fact]
+        public async Task Should_Success_ReadItem_With_Filter()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var filter = new
+            {
+                data.UnitId,
+                data.StorageId,
+                data.DONo
+            };
+            var Response = facade.ReadURNItem();
+            Assert.NotEqual(Response.Data.Count, 0);
+        }
     }
 }

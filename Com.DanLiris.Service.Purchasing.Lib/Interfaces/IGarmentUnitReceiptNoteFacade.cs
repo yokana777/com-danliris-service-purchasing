@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Delete(int id, string deletedReason);
         List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}");
         List<object> ReadForUnitDOHeader(string Keyword = null, string Filter = "{}");
+        ReadResponse<object> ReadURNItem(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
 
     }
 }
