@@ -1,5 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public DateTimeOffset? Date { get; set; }
         public List<BankExpenditureNoteDetailViewModel> Details { get; set; }
         public string DocumentNo { get; set; }
-        public SupplierViewModel Supplier { get; set; }
+        public NewSupplierViewModel Supplier { get; set; }
         public double GrandTotal { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -23,12 +23,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
                 yield return new ValidationResult("Minimal 1 Surat Perintah Bayar", new List<string> { "Details" });
             }
 
-            if (Bank == null || string.IsNullOrWhiteSpace(Bank._id))
+            if (Bank == null || Bank.Id <= 0)
             {
                 yield return new ValidationResult("Bank harus diisi", new List<string> { "Bank" });
             }
 
-            if (Supplier == null || string.IsNullOrWhiteSpace(Supplier._id))
+            if (Supplier == null || Supplier._id <= 0)
             {
                 yield return new ValidationResult("Supplier harus diisi", new List<string> { "Supplier" });
             }
