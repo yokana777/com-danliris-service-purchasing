@@ -56,6 +56,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
             };
         }
 
+        public async Task<InternalPurchaseOrder> GetNewHavingStockData(string user)
+        {
+            PurchaseRequest purchaseRequest = await purchaserequestDataUtil.GetTestHavingStockDataPosted(user);
+
+            return new InternalPurchaseOrder
+            {
+                IsoNo = "",
+                PRId = purchaseRequest.Id.ToString(),
+                PRNo = purchaseRequest.No,
+                PRDate = purchaseRequest.Date,
+                ExpectedDeliveryDate = purchaseRequest.ExpectedDeliveryDate,
+                BudgetId = purchaseRequest.BudgetId,
+                BudgetCode = purchaseRequest.BudgetCode,
+                BudgetName = purchaseRequest.BudgetName,
+                UnitId = purchaseRequest.UnitId,
+                UnitCode = purchaseRequest.UnitCode,
+                UnitName = purchaseRequest.UnitName,
+                DivisionId = purchaseRequest.DivisionId,
+                DivisionCode = purchaseRequest.DivisionCode,
+                DivisionName = purchaseRequest.DivisionName,
+                CategoryId = purchaseRequest.CategoryId,
+                CategoryCode = purchaseRequest.CategoryCode,
+                CategoryName = purchaseRequest.CategoryName,
+                Remark = purchaseRequest.Remark,
+                Items = new List<InternalPurchaseOrderItem> { internalPurchaseOrderItemDataUtil.GetNewData(purchaseRequest.Items.ToList()) }
+            };
+        }
+
         public async Task<InternalPurchaseOrderViewModel> GetNewDataViewModel(string user)
         {
             PurchaseRequest purchaseRequest = await purchaserequestDataUtil.GetTestDataPosted(user);
@@ -102,7 +130,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
             return internalPurchaseOrder;
         }
-		public async Task<InternalPurchaseOrder> GetTestData2(string user)
+
+        public async Task<InternalPurchaseOrder> GetTestHavingStockData(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await GetNewHavingStockData(user);
+
+            await facade.Create(internalPurchaseOrder, user);
+
+            return internalPurchaseOrder;
+        }
+
+        public async Task<InternalPurchaseOrder> GetTestData2(string user)
 		{
 			InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
 			
