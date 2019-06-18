@@ -314,6 +314,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             };
 
             Assert.NotNull(expenditureInfo);
+            Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.BankName));
+            Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.BGCheckNumber));
+            Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.DocumentNo));
         }
     }
 }
