@@ -302,5 +302,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var Response = facade.GetByPeriod(result.Date.Month, result.Date.Year, 0);
             Assert.NotEqual(Response.Count, 0);
         }
+
+        [Fact]
+        public void Should_Success_InitiateExpenditureInfo()
+        {
+            var expenditureInfo = new ExpenditureInfo()
+            {
+                BankName = "",
+                BGCheckNumber = "",
+                DocumentNo = ""
+            };
+
+            Assert.NotNull(expenditureInfo);
+        }
     }
 }
