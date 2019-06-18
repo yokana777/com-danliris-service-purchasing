@@ -381,7 +381,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     COA = new COA()
                     {
-                        Code = COAGenerator.GetPurchasingCOA(model.DivisionName, model.UnitCode, categoryCode)
+                        Code = COAGenerator.GetCOAByCategoryCodeAndDivisionUnit(categoryCode, model.DivisionName, model.UnitCode)
                     },
                     Debit = item.PricePerDealUnit * item.ReceiptQuantity
                 },
@@ -406,7 +406,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     COA = new COA()
                     {
-                        Code = COAGenerator.GetPurchasingCOA(model.DivisionName, model.UnitCode, categoryCode)
+                        Code = COAGenerator.GetCOAByCategoryCodeAndDivisionUnit(categoryCode, model.DivisionName, model.UnitCode)
                     },
                     Credit = item.PricePerDealUnit * item.ReceiptQuantity
                 }
