@@ -87,6 +87,68 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             };
         }
 
+        public async Task<ExternalPurchaseOrder> GetNewHavingStockData(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await internalPurchaseOrderDataUtil.GetTestHavingStockData(user);
+            //List<ExternalPurchaseOrderDetail> detail = new List<ExternalPurchaseOrderDetail>();
+            //foreach (var POdetail in internalPurchaseOrder.Items)
+            //{
+            //    detail.Add(new ExternalPurchaseOrderDetail
+            //    {
+            //        POItemId = POdetail.Id,
+            //        PRItemId = Convert.ToInt64(POdetail.PRItemId),
+            //        ProductId = "ProductId",
+            //        ProductCode = "ProductCode",
+            //        ProductName = "ProductName",
+            //        DefaultQuantity = 10,
+            //        DealUomId = "UomId",
+            //        DealUomUnit = "Uom",
+            //        ProductRemark = "Remark",
+            //        PriceBeforeTax = 1000,
+            //        PricePerDealUnit = 200,
+            //        DealQuantity = POdetail.Quantity
+            //    });
+            //}
+            //List<ExternalPurchaseOrderItem> items = new List<ExternalPurchaseOrderItem>();
+            //items.Add(new ExternalPurchaseOrderItem
+            //{
+            //    POId = internalPurchaseOrder.Id,
+            //    PRId = Convert.ToInt64(internalPurchaseOrder.PRId),
+            //    PONo = internalPurchaseOrder.PONo,
+            //    PRNo = internalPurchaseOrder.PRNo,
+            //    UnitCode = "unitcode",
+            //    UnitName = "unit",
+            //    UnitId = "unitId",
+            //    Details = detail
+            //});
+
+            return new ExternalPurchaseOrder
+            {
+                CurrencyCode = "CurrencyCode",
+                CurrencyId = "CurrencyId",
+                CurrencyRate = 0.5,
+                UnitId = "UnitId",
+                UnitCode = "UnitCode",
+                UnitName = "UnitName",
+                DivisionId = "DivisionId",
+                DivisionCode = "DivisionCode",
+                DivisionName = "DivisionName",
+                FreightCostBy = "test",
+                DeliveryDate = DateTime.Now.AddDays(1),
+                OrderDate = DateTime.Now,
+                SupplierCode = "sup",
+                SupplierId = "supId",
+                IncomeTaxName = "Final",
+                IncomeTaxRate = "1.5",
+                UseIncomeTax = true,
+                IncomeTaxBy = "Supplier",
+                SupplierName = "Supplier",
+                PaymentMethod = "test",
+                Remark = "Remark",
+                Items = new List<ExternalPurchaseOrderItem> { externalPurchaseOrderItemDataUtil.GetNewData(internalPurchaseOrder) }
+            };
+        }
+
         public async Task<ExternalPurchaseOrderViewModel> GetNewDataViewModel(string user)
         {
             InternalPurchaseOrder internalPurchaseOrder = await internalPurchaseOrderDataUtil.GetTestData(user);
@@ -194,6 +256,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             }
 
             await facade.Create(externalPurchaseOrder, user,7);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestHavingStockDataUnused(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewHavingStockData(user);
+            externalPurchaseOrder.IsPosted = true;
+            foreach (var item in externalPurchaseOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.DOQuantity = 0;
+                    detail.DealQuantity = 2;
+                }
+            }
+
+            await facade.Create(externalPurchaseOrder, user, 7);
 
             return externalPurchaseOrder;
         }
