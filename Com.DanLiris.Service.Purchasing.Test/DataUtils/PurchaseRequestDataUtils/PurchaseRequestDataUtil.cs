@@ -43,6 +43,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
             };
         }
 
+        public PurchaseRequest GetNewHavingStockData()
+        {
+            return new PurchaseRequest
+            {
+                No = "No1",
+                Date = DateTimeOffset.Now,
+                ExpectedDeliveryDate = DateTimeOffset.Now,
+                BudgetId = "BudgetId",
+                BudgetCode = "BudgetCode",
+                BudgetName = "BudgetName",
+                UnitId = "UnitId",
+                UnitCode = "UnitCode",
+                UnitName = "UnitName",
+                DivisionId = "DivisionId",
+                DivisionCode = "DivisionCode",
+                DivisionName = "DivisionName",
+                CategoryId = "CategoryId",
+                CategoryCode = "BB",
+                CategoryName = "CategoryName",
+                Remark = "Remark",
+                Items = new List<PurchaseRequestItem> { purchaseRequestItemDataUtil.GetNewData() }
+            };
+        }
+
         public PurchaseRequestViewModel GetNewDataViewModel()
         {
             return new PurchaseRequestViewModel
@@ -91,6 +115,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
         public async Task<PurchaseRequest> GetTestDataPosted(string user)
         {
             PurchaseRequest purchaseRequest = GetNewData();
+            purchaseRequest.IsPosted = true;
+            await facade.Create(purchaseRequest, user);
+
+            return purchaseRequest;
+        }
+
+        public async Task<PurchaseRequest> GetTestHavingStockDataPosted(string user)
+        {
+            PurchaseRequest purchaseRequest = GetNewHavingStockData();
             purchaseRequest.IsPosted = true;
             await facade.Create(purchaseRequest, user);
 

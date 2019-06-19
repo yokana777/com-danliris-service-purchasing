@@ -305,5 +305,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var Response2 = facade.GetByPeriod(0, 0, 0);
             Assert.NotEqual(Response2.Count, 0);
         }
+
+        [Fact]
+        public void Should_Success_InitiateExpenditureInfo()
+        {
+            var expenditureInfo = new ExpenditureInfo()
+            {
+                BankName = "",
+                BGCheckNumber = "",
+                DocumentNo = ""
+            };
+
+            Assert.NotNull(expenditureInfo);
+            Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.BankName));
+            Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.BGCheckNumber));
+            Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.DocumentNo));
+        }
     }
 }

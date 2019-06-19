@@ -126,6 +126,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
+        public async Task Should_Success_Create_Having_Stock_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var model = await _dataUtil(facade, dbContext).GetNewHavingStockData(USERNAME);
+            model.IsStorage = true;
+            var response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(response, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());

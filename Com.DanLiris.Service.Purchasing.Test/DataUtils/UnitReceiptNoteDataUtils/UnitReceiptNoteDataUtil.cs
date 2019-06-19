@@ -23,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
             this.deliveryOrderDataUtil = deliveryOrderDataUtil;
             this.facade = facade;
         }
+
         public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewData(string user)
         {
             DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestData(user);
@@ -46,7 +47,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                 Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
             };
         }
-		public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewDatas(string user)
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewHavingStockData(string user)
+        {
+            DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestHavingStockData(user);
+            List<DeliveryOrderItem> doItem = new List<DeliveryOrderItem>(deliveryOrder.Items);
+            List<DeliveryOrderDetail> doDetail = new List<DeliveryOrderDetail>(doItem[0].Details);
+
+
+            doItem[0].Details = doDetail;
+            return new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote
+            {
+                UnitId = doDetail[0].UnitId,
+                UnitCode = doDetail[0].UnitCode,
+                UnitName = "UnitName",
+                Remark = "Test URN",
+                SupplierCode = deliveryOrder.SupplierCode,
+                SupplierId = deliveryOrder.SupplierId,
+                SupplierName = deliveryOrder.SupplierName,
+                ReceiptDate = DateTimeOffset.UtcNow,
+                DOId = deliveryOrder.Id,
+                DONo = deliveryOrder.DONo,
+                Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
+            };
+        }
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewDatas(string user)
 		{
 			DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestData(user);
 			List<DeliveryOrderItem> doItem = new List<DeliveryOrderItem>(deliveryOrder.Items);
