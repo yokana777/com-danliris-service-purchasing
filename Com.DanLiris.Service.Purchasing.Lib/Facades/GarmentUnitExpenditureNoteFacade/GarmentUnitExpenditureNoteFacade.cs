@@ -550,29 +550,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Created;
         }
 
-        async Task<string> GenerateNoCorrection(GarmentCorrectionNote model, bool isImport, int clientTimeZoneOffset)
-        {
-            DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
-            string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
-            string Year = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("yy");
-            string Supplier = isImport ? "I" : "L";
-
-            string no = $"NK{Year}{Month}";
-            int Padding = 4;
-
-            var lastNo = await this.dbSetGarmentCorrectionNote.Where(w => w.CorrectionNo.StartsWith(no) && w.CorrectionNo.EndsWith(Supplier) && !w.IsDeleted).OrderByDescending(o => o.CorrectionNo).FirstOrDefaultAsync();
-
-            if (lastNo == null)
-            {
-                return no + "1".PadLeft(Padding, '0') + Supplier;
-            }
-            else
-            {
-                int.TryParse(lastNo.CorrectionNo.Replace(no, "").Replace(Supplier, ""), out int lastno1);
-                int lastNoNumber = lastno1 + 1;
-                return no + lastNoNumber.ToString().PadLeft(Padding, '0') + Supplier;
-            }
-        }
+        
 
         public async Task<int> Delete(int id)
         {
