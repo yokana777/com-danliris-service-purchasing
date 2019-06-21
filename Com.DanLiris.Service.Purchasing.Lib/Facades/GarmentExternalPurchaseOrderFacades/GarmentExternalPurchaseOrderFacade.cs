@@ -107,8 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         }
                     }
 
-                    if(string.IsNullOrEmpty(m.EPONo))
-                        m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
+                    m.EPONo = await GenerateNo(m, clientTimeZoneOffset);
 
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
@@ -308,7 +307,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             string no = $"PO{Year}{Month}";
             int Padding = 5;
 
-            var lastNo = await this.dbSet.Where(w => w.EPONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.EPONo).FirstOrDefaultAsync();
+            var lastNo = await this.dbSet.Where(w => w.EPONo.StartsWith(no) && !w.IsDeleted && !w.EPONo.Contains("R")).OrderByDescending(o => o.EPONo).FirstOrDefaultAsync();
             no = $"{no}";
 
             if (lastNo == null)
