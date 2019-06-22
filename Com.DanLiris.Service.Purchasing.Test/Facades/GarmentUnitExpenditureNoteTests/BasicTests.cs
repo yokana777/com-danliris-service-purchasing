@@ -224,6 +224,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             data.ExpenditureType = "EXTERNAL";
             var Response = await facade.Create(data);
             Assert.NotEqual(Response, 0);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            data2.ExpenditureType = "EXTERNAL";
+            var Response2 = await facade.Create(data2);
+            Assert.NotEqual(Response2, 0);
         }
 
         [Fact]
