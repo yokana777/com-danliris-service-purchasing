@@ -223,11 +223,78 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             data.ExpenditureType = "EXTERNAL";
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
 
-            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData();
-            data2.ExpenditureType = "EXTERNAL";
+            List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
+            foreach (var item in data.Items)
+            {
+                var i = new GarmentUnitExpenditureNoteItem
+                {
+                    IsSave = true,
+                    DODetailId = item.DODetailId,
+
+                    EPOItemId = item.EPOItemId,
+
+                    URNItemId = item.URNItemId,
+                    UnitDOItemId = item.Id,
+                    PRItemId = item.PRItemId,
+
+                    FabricType = item.FabricType,
+                    POItemId = item.POItemId,
+                    POSerialNumber = item.POSerialNumber,
+
+                    ProductId = item.ProductId,
+                    ProductCode = item.ProductCode,
+                    ProductName = item.ProductName,
+                    ProductRemark = item.ProductRemark,
+                    Quantity = 5,
+
+                    RONo = item.RONo,
+
+                    UomId = item.UomId,
+                    UomUnit = item.UomUnit,
+
+                    PricePerDealUnit = item.PricePerDealUnit,
+                    DOCurrencyRate = item.DOCurrencyRate,
+                    Conversion = 1,
+                };
+                items.Add(i);
+            }
+
+            var data2 = new GarmentUnitExpenditureNote {
+                UnitSenderId = data.UnitSenderId,
+                UnitSenderCode = data.UnitSenderCode,
+                UnitSenderName = data.UnitSenderName,
+
+                UnitRequestId = data.UnitRequestId,
+                UnitRequestCode = data.UnitRequestCode,
+                UnitRequestName = data.UnitRequestName,
+
+                UnitDOId = data.Id,
+                UnitDONo = data.UnitDONo,
+
+                StorageId = data.StorageId,
+                StorageCode = data.StorageCode,
+                StorageName = data.StorageName,
+
+                StorageRequestId = data.StorageRequestId,
+                StorageRequestCode = data.StorageRequestCode,
+                StorageRequestName = data.StorageRequestName,
+
+                ExpenditureType = "EXTERNAL",
+                ExpenditureTo = "EXTERNAL",
+                UENNo = "UENNO12345",
+
+                ExpenditureDate = DateTimeOffset.Now,
+
+                IsPreparing = false,
+                Items=items
+
+            };
+            
+
             var Response2 = await facade.Create(data2);
+
+            Assert.NotEqual(Response, 0);
             Assert.NotEqual(Response2, 0);
         }
 
