@@ -224,6 +224,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             data.ExpenditureType = "EXTERNAL";
             var Response = await facade.Create(data);
 
+            Assert.NotEqual(Response, 0);
+
             List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
             foreach (var item in data.Items)
             {
@@ -293,8 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             
             var Response2 = await facade.Create(data2);
 
-            Assert.NotEqual(Response, 0);
-           // Assert.NotEqual(Response2, 0);
+            Assert.NotEqual(Response2, 0);
         }
 
         [Fact]
