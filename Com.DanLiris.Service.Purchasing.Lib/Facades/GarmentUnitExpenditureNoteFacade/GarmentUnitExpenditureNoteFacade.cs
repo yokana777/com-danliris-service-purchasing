@@ -426,22 +426,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         Correction.CorrectionNo = await correctionFacade.GenerateNo(Correction, suppType, 7);
                         //Correction.TotalCorrection = (garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter)) * (-1);
-
+                        Correction.NKPH = "";
+                        Correction.NKPN = "";
                         if (Correction.UseIncomeTax == true)
                         {
                             Correction.NKPH = await correctionFacade.GenerateNKPH(Correction, 7);
                         }
-                        else
-                        {
-                            Correction.NKPH = "";
-                        }
                         if (Correction.UseVat == true)
                         {
                             Correction.NKPN = await correctionFacade.GenerateNKPN(Correction, 7);
-                        }
-                        else
-                        {
-                            Correction.NKPN = "";
                         }
 
                         garmentDeliveryOrder.IsCorrection = true;
