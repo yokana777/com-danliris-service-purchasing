@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
@@ -133,6 +134,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             SetStatus(detail, user);
                         }
                     }
+
+                    model.Position = (int)ExpeditionPosition.PURCHASING_DIVISION;
 
                     await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -485,6 +488,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
                 LastModifiedUtc = s.LastModifiedUtc,
+                Position = s.Position
             });
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
