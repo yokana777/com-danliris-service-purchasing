@@ -226,11 +226,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             Assert.NotEqual(Response, 0);
 
-            var datas = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+           // var datas = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             //var Response = facade.ReadById((int)data.Id);
 
             List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
-            foreach (var item in datas.Items)
+            foreach (var item in data.Items)
             {
                 var i = new GarmentUnitExpenditureNoteItem
                 {
@@ -267,24 +267,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var data2 = new GarmentUnitExpenditureNote
             {
-                UnitSenderId = datas.UnitSenderId,
-                UnitSenderCode = datas.UnitSenderCode,
-                UnitSenderName = datas.UnitSenderName,
+                UnitSenderId = data.UnitSenderId,
+                UnitSenderCode = data.UnitSenderCode,
+                UnitSenderName = data.UnitSenderName,
 
-                UnitRequestId = datas.UnitRequestId,
-                UnitRequestCode = datas.UnitRequestCode,
-                UnitRequestName = datas.UnitRequestName,
+                UnitRequestId = data.UnitRequestId,
+                UnitRequestCode = data.UnitRequestCode,
+                UnitRequestName = data.UnitRequestName,
 
-                UnitDOId = datas.Id,
-                UnitDONo = datas.UnitDONo,
+                UnitDOId = data.Id,
+                UnitDONo = data.UnitDONo,
 
-                StorageId = datas.StorageId,
-                StorageCode = datas.StorageCode,
-                StorageName = datas.StorageName,
+                StorageId = data.StorageId,
+                StorageCode = data.StorageCode,
+                StorageName = data.StorageName,
 
-                StorageRequestId = datas.StorageRequestId,
-                StorageRequestCode = datas.StorageRequestCode,
-                StorageRequestName = datas.StorageRequestName,
+                StorageRequestId = data.StorageRequestId,
+                StorageRequestCode = data.StorageRequestCode,
+                StorageRequestName = data.StorageRequestName,
 
                 ExpenditureType = "EXTERNAL",
                 ExpenditureTo = "EXTERNAL",
