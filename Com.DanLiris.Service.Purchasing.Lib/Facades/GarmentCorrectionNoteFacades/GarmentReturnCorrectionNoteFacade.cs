@@ -165,7 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             return Created;
         }
 
-        async Task<string> GenerateNo(GarmentCorrectionNote model, bool isImport, int clientTimeZoneOffset)
+        public async Task<string> GenerateNo(GarmentCorrectionNote model, bool isImport, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0') + Supplier;
             }
         }
-        async Task<string> GenerateNKPN(GarmentCorrectionNote model, int clientTimeZoneOffset)
+        public async Task<string> GenerateNKPN(GarmentCorrectionNote model, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
@@ -209,7 +209,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
-        async Task<string> GenerateNKPH(GarmentCorrectionNote model, int clientTimeZoneOffset)
+        public async Task<string> GenerateNKPH(GarmentCorrectionNote model, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
