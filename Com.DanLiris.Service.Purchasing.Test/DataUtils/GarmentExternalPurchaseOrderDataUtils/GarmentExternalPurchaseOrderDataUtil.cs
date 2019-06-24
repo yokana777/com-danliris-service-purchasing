@@ -56,7 +56,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 IsApproved = false,
                 IsOverBudget = false,
                 IsPosted = false,
-
+                IsIncomeTax=true,
+                IsUseVat=true,
 
                 Remark = "Remark1",
 

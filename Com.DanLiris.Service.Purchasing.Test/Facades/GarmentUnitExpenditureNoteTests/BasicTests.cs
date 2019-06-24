@@ -229,83 +229,83 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             // var datas = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             //var Response = facade.ReadById((int)data.Id);
 
-            var dbContext = _dbContext(GetCurrentMethod());
-            var newData = dbContext.GarmentUnitExpenditureNotes
-                .AsNoTracking()
-                .Include(x => x.Items)
-                .Single(m => m.Id == data.Id);
+            //var dbContext = _dbContext(GetCurrentMethod());
+            //var newData = dbContext.GarmentUnitExpenditureNotes
+            //    .AsNoTracking()
+            //    .Include(x => x.Items)
+            //    .Single(m => m.Id == data.Id);
 
-            List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
-            foreach (var item in newData.Items)
-            {
-                var i = new GarmentUnitExpenditureNoteItem
-                {
-                    IsSave = true,
-                    DODetailId = item.DODetailId,
+            //List<GarmentUnitExpenditureNoteItem> items = new List<GarmentUnitExpenditureNoteItem>();
+            //foreach (var item in newData.Items)
+            //{
+            //    var i = new GarmentUnitExpenditureNoteItem
+            //    {
+            //        IsSave = true,
+            //        DODetailId = item.DODetailId,
 
-                    EPOItemId = item.EPOItemId,
+            //        EPOItemId = item.EPOItemId,
 
-                    URNItemId = item.URNItemId,
-                    UnitDOItemId = item.Id,
-                    PRItemId = item.PRItemId,
+            //        URNItemId = item.URNItemId,
+            //        UnitDOItemId = item.Id,
+            //        PRItemId = item.PRItemId,
 
-                    FabricType = item.FabricType,
-                    POItemId = item.POItemId,
-                    POSerialNumber = item.POSerialNumber,
+            //        FabricType = item.FabricType,
+            //        POItemId = item.POItemId,
+            //        POSerialNumber = item.POSerialNumber,
 
-                    ProductId = item.ProductId,
-                    ProductCode = item.ProductCode,
-                    ProductName = item.ProductName,
-                    ProductRemark = item.ProductRemark,
-                    Quantity = 5,
+            //        ProductId = item.ProductId,
+            //        ProductCode = item.ProductCode,
+            //        ProductName = item.ProductName,
+            //        ProductRemark = item.ProductRemark,
+            //        Quantity = 5,
 
-                    RONo = item.RONo,
+            //        RONo = item.RONo,
 
-                    UomId = item.UomId,
-                    UomUnit = item.UomUnit,
+            //        UomId = item.UomId,
+            //        UomUnit = item.UomUnit,
 
-                    PricePerDealUnit = item.PricePerDealUnit,
-                    DOCurrencyRate = item.DOCurrencyRate,
-                    Conversion = 1,
-                };
-                items.Add(i);
-            }
+            //        PricePerDealUnit = item.PricePerDealUnit,
+            //        DOCurrencyRate = item.DOCurrencyRate,
+            //        Conversion = 1,
+            //    };
+            //    items.Add(i);
+            //}
 
-            var data2 = new GarmentUnitExpenditureNote
-            {
-                UnitSenderId = newData.UnitSenderId,
-                UnitSenderCode = newData.UnitSenderCode,
-                UnitSenderName = newData.UnitSenderName,
+            //var data2 = new GarmentUnitExpenditureNote
+            //{
+            //    UnitSenderId = newData.UnitSenderId,
+            //    UnitSenderCode = newData.UnitSenderCode,
+            //    UnitSenderName = newData.UnitSenderName,
 
-                UnitRequestId = newData.UnitRequestId,
-                UnitRequestCode = newData.UnitRequestCode,
-                UnitRequestName = newData.UnitRequestName,
+            //    UnitRequestId = newData.UnitRequestId,
+            //    UnitRequestCode = newData.UnitRequestCode,
+            //    UnitRequestName = newData.UnitRequestName,
 
-                UnitDOId = newData.UnitDOId,
-                UnitDONo = newData.UnitDONo,
+            //    UnitDOId = newData.UnitDOId,
+            //    UnitDONo = newData.UnitDONo,
 
-                StorageId = newData.StorageId,
-                StorageCode = newData.StorageCode,
-                StorageName = newData.StorageName,
+            //    StorageId = newData.StorageId,
+            //    StorageCode = newData.StorageCode,
+            //    StorageName = newData.StorageName,
 
-                StorageRequestId = newData.StorageRequestId,
-                StorageRequestCode = newData.StorageRequestCode,
-                StorageRequestName = newData.StorageRequestName,
+            //    StorageRequestId = newData.StorageRequestId,
+            //    StorageRequestCode = newData.StorageRequestCode,
+            //    StorageRequestName = newData.StorageRequestName,
 
-                ExpenditureType = "EXTERNAL",
-                ExpenditureTo = "EXTERNAL",
-                UENNo = "UENNO12345",
+            //    ExpenditureType = "EXTERNAL",
+            //    ExpenditureTo = "EXTERNAL",
+            //    UENNo = "UENNO12345",
 
-                ExpenditureDate = DateTimeOffset.Now,
+            //    ExpenditureDate = DateTimeOffset.Now,
 
-                IsPreparing = false,
-                Items = items
+            //    IsPreparing = false,
+            //    Items = items
 
-            };
+            //};
 
-            var Response2 = await facade.Create(data2);
+            //var Response2 = await facade.Create(data2);
 
-            Assert.NotEqual(Response2, 0);
+            //Assert.NotEqual(Response2, 0);
         }
 
         [Fact]
