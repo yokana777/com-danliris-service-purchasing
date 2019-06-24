@@ -281,7 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 UnitRequestCode = newData.UnitRequestCode,
                 UnitRequestName = newData.UnitRequestName,
 
-                UnitDOId = newData.Id,
+                UnitDOId = newData.UnitDOId,
                 UnitDONo = newData.UnitDONo,
 
                 StorageId = newData.StorageId,
