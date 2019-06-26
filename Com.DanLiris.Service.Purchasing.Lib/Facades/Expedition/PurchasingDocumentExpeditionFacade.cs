@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -25,12 +26,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<PurchasingDocumentExpedition> dbSet;
+        private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
+
+        //var unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
+
 
         public PurchasingDocumentExpeditionFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<PurchasingDocumentExpedition>();
+            unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
         }
 
         public Tuple<List<object>, int, Dictionary<string, string>> Read(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
@@ -631,17 +637,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             //}
 
             //dbContext.SaveChanges();
-            string unitPaymentOrderUri = "unit-payment-orders/update/position";
 
-            var data = new
+
+            //unitPaymentOrder
+
+            var unitPaymentOrderModels = unitPaymentOrderDbSet.Where(w => unitPaymentOrders.Contains(w.UPONo)).ToList();
+            foreach (var unitPaymentOrder in unitPaymentOrderModels)
             {
-                position = position,
-                unitPaymentOrders = unitPaymentOrders
-            };
+                unitPaymentOrder.Position = (int)position;
+                EntityExtension.FlagForUpdate(unitPaymentOrder, username, "Facade");
+            }
 
-            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-            response.EnsureSuccessStatusCode();
+            dbContext.SaveChanges();
+
+            //unitPaymentOrderModels.UpdateRa
+
+
+
+            //string unitPaymentOrderUri = "unit-payment-orders/update/position";
+
+            //var data = new
+            //{
+            //    position = position,
+            //    unitPaymentOrders = unitPaymentOrders
+            //};
+
+            //IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            //var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            //response.EnsureSuccessStatusCode();
         }
     }
 }
