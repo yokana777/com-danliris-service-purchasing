@@ -127,6 +127,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataKoreksiKonversi();
             var Response = await facade.Create(data, USERNAME);
             Assert.NotEqual(Response, 0);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewDataKoreksiKonversi();
+            var dataItem = data.Items.First();
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            data2.Items.First().ProductId = nowTicks;
+            data2.Items.First().SmallUomId = dataItem.SmallUomId;
+            data2.StorageId = data.StorageId;
+            var Response2 = await facade.Create(data2, USERNAME);
+            Assert.NotEqual(Response2, 0);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewDataKoreksiJumlahPlus();
+            var dataItem1 = data.Items.First();
+            data3.Items.First().ProductId = nowTicks;
+            data3.Items.First().SmallUomId = dataItem.SmallUomId;
+            data3.StorageId = nowTicks;
+            var Response3 = await facade.Create(data3, USERNAME);
+            Assert.NotEqual(Response2, 0);
         }
 
         //[Fact]
@@ -172,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
 
 
         [Fact]
-        public void Should_Success_Validate_Data_Koreksi_Harga_Retur()
+        public void Should_Success_Validate_Data_Retur()
         {
             GarmentReceiptCorrectionViewModel viewModel = new GarmentReceiptCorrectionViewModel
             {
@@ -227,7 +244,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                         QuantityCheck=100,
                         Quantity = 500,
                         CorrectionQuantity=0,
-                        CorrectionConversion=0
+                        CorrectionConversion=0,
+                        IsSave=true,
                     },
                 }
             };
@@ -244,7 +262,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                         QuantityCheck=100,
                         Quantity = 500,
                         CorrectionQuantity=-200,
-                        
+                        IsSave=true,
+
                     },
                 }
             };
