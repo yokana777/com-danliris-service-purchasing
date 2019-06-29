@@ -183,6 +183,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                 Remark=It.IsAny<string>(),
                 Unit= It.IsAny<UnitViewModel>(),
                 Storage=It.IsAny<Lib.ViewModels.IntegrationViewModel.StorageViewModel>(),
+                URNId= It.IsAny<long>(),
                 Items = new List<GarmentReceiptCorrectionItemViewModel>
                 {
                     new GarmentReceiptCorrectionItemViewModel
