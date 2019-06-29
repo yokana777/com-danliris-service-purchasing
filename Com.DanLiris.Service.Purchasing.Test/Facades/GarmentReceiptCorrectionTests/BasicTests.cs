@@ -10,6 +10,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReceiptCorrectionViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -177,13 +178,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             {
                 CorrectionType = "Jumlah",
                 URNNo = "test",
+                CorrectionDate=It.IsAny<DateTime>(),
+                CorrectionNo="test",
+                Remark=It.IsAny<string>(),
+                Unit= It.IsAny<UnitViewModel>(),
+                Storage=It.IsAny<Lib.ViewModels.IntegrationViewModel.StorageViewModel>(),
                 Items = new List<GarmentReceiptCorrectionItemViewModel>
                 {
                     new GarmentReceiptCorrectionItemViewModel
                     {
                         QuantityCheck=100,
                         Quantity = 0,
-                        CorrectionQuantity=0
+                        CorrectionQuantity=0,
+                        Conversion=It.IsAny<double>(),
+                        CorrectionConversion=It.IsAny<double>(),
+                        DODetailId=It.IsAny<long>(),
+                        EPOItemId=It.IsAny<long>(),
+                        FabricType=It.IsAny<string>(),
+                        IsSave=true,
+                        PRItemId=It.IsAny<long>(),
+                        RONo=It.IsAny<string>(),
+                        POItemId=It.IsAny<long>(),
+                        DesignColor=It.IsAny<string>(),
+                        PricePerDealUnit=It.IsAny<double>(),
+                        POSerialNumber=It.IsAny<string>(),
+                        SmallQuantity=It.IsAny<double>(),
+                        URNItemId=It.IsAny<long>(),
+                        SmallUomId=It.IsAny<long>(),
+                        UomId=It.IsAny<long>(),
+                        UomUnit=It.IsAny<string>(),
+                        SmallUomUnit=It.IsAny<string>(),
+                        ProductRemark=It.IsAny<string>(),
+                        Product=It.IsAny<ProductViewModel>(),
                     },
                 }
             };
