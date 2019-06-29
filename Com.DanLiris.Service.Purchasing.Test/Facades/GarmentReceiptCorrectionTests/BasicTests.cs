@@ -195,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             {
                 CorrectionType = "Jumlah",
                 URNNo = "test",
-                CorrectionDate=It.IsAny<DateTime>(),
+                CorrectionDate=DateTimeOffset.Now,
                 CorrectionNo="test",
                 Remark=It.IsAny<string>(),
                 Unit= It.IsAny<UnitViewModel>(),
