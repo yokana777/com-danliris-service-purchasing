@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
 
             GarmentReceiptCorrectionViewModel viewModel2 = new GarmentReceiptCorrectionViewModel
             {
-                CorrectionType = "Retur",
+                CorrectionType = "Konversi",
                 URNNo = "test",
                 Items = new List<GarmentReceiptCorrectionItemViewModel>
                 {
@@ -225,11 +225,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                     {
                         QuantityCheck=100,
                         Quantity = 500,
-                        CorrectionQuantity=0
+                        CorrectionQuantity=0,
+                        CorrectionConversion=0
                     },
                 }
             };
             Assert.True(viewModel2.Validate(null).Count() > 0);
+
+            GarmentReceiptCorrectionViewModel viewModel3 = new GarmentReceiptCorrectionViewModel
+            {
+                CorrectionType = "Jumlah",
+                URNNo = "test",
+                Items = new List<GarmentReceiptCorrectionItemViewModel>
+                {
+                    new GarmentReceiptCorrectionItemViewModel
+                    {
+                        QuantityCheck=100,
+                        Quantity = 500,
+                        CorrectionQuantity=-200,
+                        
+                    },
+                }
+            };
+            Assert.True(viewModel3.Validate(null).Count() > 0);
         }
     }
 }
