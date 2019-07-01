@@ -40,6 +40,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
             };
         }
 
+        public async Task<DeliveryOrder> GetNewHavingStockData(string user)
+        {
+            var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestHavingStockDataUnused(user);
+            return new DeliveryOrder
+            {
+                DONo = DateTime.UtcNow.Ticks.ToString(),
+                DODate = DateTimeOffset.Now,
+                ArrivalDate = DateTimeOffset.Now,
+                SupplierId = externalPurchaseOrder.SupplierId,
+                SupplierCode = externalPurchaseOrder.SupplierCode,
+                SupplierName = externalPurchaseOrder.SupplierName,
+                Remark = "Ini Keterangan",
+                Items = new List<DeliveryOrderItem> { deliveryOrderItemDataUtil.GetNewData(externalPurchaseOrder) }
+            };
+        }
+
+
+
         public async Task<DeliveryOrderViewModel> GetNewDataViewModel(string user)
         {
             var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestDataUnused(user);
@@ -106,6 +124,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
         public async Task<DeliveryOrder> GetTestData(string user)
         {
             DeliveryOrder model = await GetNewData(user);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+
+        public async Task<DeliveryOrder> GetTestHavingStockData(string user)
+        {
+            DeliveryOrder model = await GetNewHavingStockData(user);
 
             await facade.Create(model, user);
 

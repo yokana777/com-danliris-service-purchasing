@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -126,6 +127,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
+        public async Task Should_Success_Create_Having_Stock_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var model = await _dataUtil(facade, dbContext).GetNewHavingStockData(USERNAME);
+            model.IsStorage = true;
+            var response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(response, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -216,6 +228,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
                 }
             }
         }
+
+        [Fact]
+        public async Task Should_Success_Get_By_List_Of_No()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var response = facade.GetByListOfNo(new List<string>() { dataUtil.URNNo });
+            Assert.NotEmpty(response);
+        }
+
+
 
         //[Fact]
         //public async Task Should_Success_Update_Data()

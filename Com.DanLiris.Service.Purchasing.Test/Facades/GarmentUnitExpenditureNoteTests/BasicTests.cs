@@ -541,5 +541,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             System.ComponentModel.DataAnnotations.ValidationContext garmentUnitDeliveryOrderValidate = new System.ComponentModel.DataAnnotations.ValidationContext(garmentUnitExpenditureNote, serviceProvider.Object, null);
             Assert.True(garmentUnitExpenditureNote.Validate(garmentUnitDeliveryOrderValidate).Count() > 0);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_For_Preparing()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataForPreparing();
+             var Response = facade.ReadForGPreparing();
+            Assert.NotEqual(Response.Data.Count, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_For_Preparing_Create()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var data = await dataUtil.GetTestData();
+
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
+
+            newData.Items.First().IsSave = false;
+
+            var ResponseUpdate = await facade.UpdateIsPreparing((int)newData.Id, newData);
+            Assert.NotEqual(ResponseUpdate, 0);
+        }
     }
 }

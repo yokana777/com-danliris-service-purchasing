@@ -13,4 +13,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
         public string PIC { get; set; }
         public string Contact { get; set; }
     }
+
+    public class NewSupplierViewModel
+    {
+        public long _id { get; set; }
+        public string code { get; set; }
+        public string name { get; set; }
+        public bool import { get; set; }
+        public string PIC { get; set; }
+        public string contact { get; set; }
+    }
 }

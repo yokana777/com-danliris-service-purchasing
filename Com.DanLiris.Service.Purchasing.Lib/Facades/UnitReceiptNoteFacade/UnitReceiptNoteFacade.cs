@@ -381,7 +381,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     COA = new COA()
                     {
-                        Code = COAGenerator.GetPurchasingCOA(model.DivisionName, model.UnitCode, categoryCode)
+                        Code = COAGenerator.GetCOAByCategoryCodeAndDivisionUnit(categoryCode, model.DivisionName, model.UnitCode)
                     },
                     Debit = item.PricePerDealUnit * item.ReceiptQuantity
                 },
@@ -406,7 +406,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     COA = new COA()
                     {
-                        Code = COAGenerator.GetPurchasingCOA(model.DivisionName, model.UnitCode, categoryCode)
+                        Code = COAGenerator.GetCOAByCategoryCodeAndDivisionUnit(categoryCode, model.DivisionName, model.UnitCode)
                     },
                     Credit = item.PricePerDealUnit * item.ReceiptQuantity
                 }
@@ -1120,6 +1120,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         public string GetPurchaseRequestCategoryCode(long prId)
         {
             return dbContext.PurchaseRequests.Where(pr => pr.Id == prId).Select(pr => pr.CategoryCode).FirstOrDefault();
+        }
+
+        public List<UnitReceiptNote> GetByListOfNo(List<string> urnNoList)
+        {
+            return dbSet.Where(w => urnNoList.Contains(w.URNNo)).Include(i => i.Items).ToList();
+
+            //throw new NotImplementedException();
         }
     }
 }

@@ -7,6 +7,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+//using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -571,18 +573,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             DailyBankTransactionViewModel modelToPost = new DailyBankTransactionViewModel()
             {
-                Bank = new AccountBankViewModel()
+                Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
                 {
-                    _id = model.BankId,
-                    code = model.BankCode,
-                    accountName = model.BankAccountName,
-                    accountNumber = model.BankAccountNumber,
-                    bankCode = model.BankCode,
-                    bankName = model.BankName,
-                    currency = new CurrencyViewModel()
+                    Id = model.BankId,
+                    Code = model.BankCode,
+                    AccountName = model.BankAccountName,
+                    AccountNumber = model.BankAccountNumber,
+                    BankCode = model.BankCode,
+                    BankName = model.BankName,
+                    Currency = new ViewModels.NewIntegrationViewModel.CurrencyViewModel()
                     {
-                        code = model.BankCurrencyCode,
-                        _id = model.BankCurrencyId,
+                        Code = model.BankCurrencyCode,
+                        Id = model.BankCurrencyId,
                     }
                 },
                 Date = model.Date,
@@ -591,11 +593,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 ReferenceType = "Bayar Hutang",
                 SourceType = "Operasional",
                 Status = "OUT",
-                Supplier = new SupplierViewModel()
+                Supplier = new ViewModels.NewIntegrationViewModel.SupplierViewModel()
                 {
-                    _id = model.SupplierId,
-                    code = model.SupplierCode,
-                    name = model.SupplierName
+                    Id = model.SupplierId,
+                    Code = model.SupplierCode,
+                    Name = model.SupplierName
                 }
             };
 

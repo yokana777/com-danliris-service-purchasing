@@ -5,7 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureNote;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 return new BankExpenditureNoteViewModel()
                 {
                     UId = null,
-                    Bank = new AccountBankViewModel() { currency = new CurrencyViewModel() },
+                    Bank = new AccountBankViewModel() { Currency = new CurrencyViewModel() },
                     Details = new List<BankExpenditureNoteDetailViewModel>() { new BankExpenditureNoteDetailViewModel() { Items = new List<BankExpenditureNoteItemViewModel>() { new BankExpenditureNoteItemViewModel() } } }
                 };
             }
@@ -171,14 +171,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                     BankAccountName = "",
                     BankAccountNumber = "",
                     BankCode = "",
-                    BankId = "",
+                    BankId = 0,
                     BankName = "",
                     BGCheckNumber = "",
                     CreatedAgent = "",
                     CreatedBy = "",
                     CreatedUtc = DateTime.UtcNow,
                     BankCurrencyCode = "",
-                    BankCurrencyId = "",
+                    BankCurrencyId = 0,
                     BankCurrencyRate = "",
                     DeletedAgent = "",
                     DeletedBy = "",

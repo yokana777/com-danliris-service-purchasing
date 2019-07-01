@@ -1030,6 +1030,160 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             }
         }
 
-        
+        public ReadResponse<object> ReadForGPreparing(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            IQueryable<GarmentUnitExpenditureNote> Query = dbSet
+                .Where(x => x.UENNo.Contains(Keyword ?? "") && x.IsPreparing == false && x.Items.Any(i => i.ProductName == "FABRIC"))
+                .Select(m => new GarmentUnitExpenditureNote
+                {
+                    Id = m.Id,
+                    UENNo = m.UENNo,
+                    ExpenditureDate = m.ExpenditureDate,
+                    ExpenditureType = m.ExpenditureType,
+                    UnitDOId = m.UnitDOId,
+                    UnitDONo = m.UnitDONo,
+
+                    UnitSenderId = m.UnitSenderId,
+                    UnitSenderCode = m.UnitSenderCode,
+                    UnitSenderName = m.UnitSenderName,
+                    UnitRequestId = m.UnitRequestId,
+                    UnitRequestCode = m.UnitRequestCode,
+                    UnitRequestName = m.UnitRequestName,
+                    StorageId = m.StorageId,
+                    StorageCode = m.StorageCode,
+                    StorageName = m.StorageName,
+                    StorageRequestId = m.StorageRequestId,
+                    StorageRequestCode = m.StorageRequestCode,
+                    StorageRequestName = m.StorageRequestName,
+                    IsPreparing = m.IsPreparing,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Items = m.Items.Where(x => x.ProductName == "FABRIC").Select(i => new GarmentUnitExpenditureNoteItem
+                    {
+                        Id = i.Id,
+                        UnitDOItemId = i.UnitDOItemId,
+                        URNItemId = i.URNItemId,
+                        ProductId = i.ProductId,
+                        ProductCode = i.ProductCode,
+                        ProductName = i.ProductName,
+                        ProductRemark = i.ProductRemark,
+
+                        PRItemId = i.PRItemId,
+                        EPOItemId = i.EPOItemId,
+                        DODetailId = i.DODetailId,
+                        POItemId = i.POItemId,
+                        POSerialNumber = i.POSerialNumber,
+                        PricePerDealUnit = i.PricePerDealUnit,
+                        Quantity = i.Quantity,
+                        RONo = i.RONo,
+                        UomId = i.UomId,
+                        UomUnit = i.UomUnit,
+                        FabricType = i.FabricType,
+                        DOCurrencyRate = i.DOCurrencyRate,
+                        Conversion = i.Conversion,
+                        BasicPrice = i.BasicPrice,
+                    }).OrderByDescending(i => i.LastModifiedUtc).ToList()
+                });
+
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentUnitExpenditureNote> pageable = new Pageable<GarmentUnitExpenditureNote>(Query, Page - 1, Size);
+            List<GarmentUnitExpenditureNote> DataModel = pageable.Data.ToList();
+            int Total = pageable.TotalCount;
+
+            //List<GarmentUnitExpenditureNote> DataViewModel = mapper.Map<List<GarmentUnitExpenditureNote>>(DataModel);
+
+            List<dynamic> listData = new List<dynamic>();
+            listData.AddRange(
+                DataModel.Select(s => new
+                {
+                    s.Id,
+                    s.UENNo,
+                    s.ExpenditureDate,
+                    s.ExpenditureType,
+                    s.UnitDOId,
+                    s.UnitDONo,
+                    s.UnitSenderId,
+                    s.UnitSenderCode,
+                    s.UnitSenderName,
+                    s.StorageId,
+                    s.StorageCode,
+                    s.StorageName,
+                    s.UnitRequestId,
+                    s.UnitRequestCode,
+                    s.UnitRequestName,
+                    s.StorageRequestId,
+                    s.StorageRequestCode,
+                    s.StorageRequestName,
+                    s.CreatedBy,
+                    s.LastModifiedUtc,
+                    Items = s.Items.Select(i => new
+                    {
+                        i.Id,
+                        i.UnitDOItemId,
+                        i.URNItemId,
+                        i.DODetailId,
+                        i.EPOItemId,
+                        i.POItemId,
+                        i.PRItemId,
+                        i.POSerialNumber,
+
+                        i.ProductId,
+                        i.ProductCode,
+                        i.ProductName,
+                        i.ProductRemark,
+                        i.RONo,
+                        i.UomId,
+                        i.UomUnit,
+                        i.PricePerDealUnit,
+                        i.FabricType,
+                        i.Quantity,
+                        i.DOCurrencyRate,
+                        i.Conversion,
+                        i.BasicPrice,
+                    }).ToList()
+                }).ToList()
+            );
+            return new ReadResponse<object>(listData, Total, OrderDictionary);
+        }
+
+        public async Task<int> UpdateIsPreparing(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var oldGarmentUnitExpenditureNote = dbSet
+                        .Include(d => d.Items)
+                        .Single(m => m.Id == id);
+
+                    oldGarmentUnitExpenditureNote.IsPreparing = garmentUnitExpenditureNote.IsPreparing;
+
+                    EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNote, identityService.Username, USER_AGENT);
+
+                    foreach (var oldGarmentUnitExpenditureNoteItem in oldGarmentUnitExpenditureNote.Items)
+                    {
+                        EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
+                    }
+
+                    //dbSet.Update(garmentUnitExpenditureNote);
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
     }
 }
