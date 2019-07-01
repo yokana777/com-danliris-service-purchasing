@@ -567,6 +567,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.DesignColor,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
+                    y.ReceiptCorrection,
+                    y.Conversion,
                     Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             var coba = readForUnitDO.GroupBy(g => g.RONo);
@@ -620,6 +622,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.SmallUomUnit,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
+                    y.ReceiptCorrection,
+                    y.Conversion,
                     Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             List<object> result = new List<object>(readForUnitDO);
@@ -676,6 +680,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 y.Conversion,
                 y.UomUnit,
                 y.UomId,
+                y.ReceiptCorrection,
                 Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
             })).ToList();
 
