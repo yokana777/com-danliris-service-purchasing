@@ -41,7 +41,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 				ValidationDate = DateTimeOffset.Now,
 				CurrencyId = It.IsAny<int>(),
 				CurrencyCode = "TEST",
-				Items = new List<GarmentBeacukaiItem>
+                ArrivalDate= DateTimeOffset.Now,
+                Items = new List<GarmentBeacukaiItem>
 					{
 						new GarmentBeacukaiItem
 						{
@@ -73,8 +74,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 				bruto = 0,
 				packaging = "",
 				currency = { },
-
-				items = new List<GarmentBeacukaiItemViewModel> {new  GarmentBeacukaiItemViewModel {
+                arrivalDate= DateTimeOffset.Now,
+                items = new List<GarmentBeacukaiItemViewModel> {new  GarmentBeacukaiItemViewModel {
 					selected=false,
 					deliveryOrder  =  new GarmentDeliveryOrderViewModel{
 						   Id=garmentDO.Id,

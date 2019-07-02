@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
 		public string BillNo { get; set; }
 		public DateTimeOffset BeacukaiDate { get; set; }
 		public DateTimeOffset ValidationDate { get; set; }
-		public long SupplierId { get; set; }
+        public long SupplierId { get; set; }
 		public string SupplierCode { get; set; }
 		public string SupplierName { get; set; }
 		public double PackagingQty { get; set; }
@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
 		public long CurrencyId { get; set; }
 		public string CurrencyCode { get; set; }
 		public string CustomsType { get; set; }
-		public virtual ICollection<GarmentBeacukaiItem> Items { get; set; }
+        public DateTimeOffset? ArrivalDate { get; set; }
+        public virtual ICollection<GarmentBeacukaiItem> Items { get; set; }
 	}
 }
