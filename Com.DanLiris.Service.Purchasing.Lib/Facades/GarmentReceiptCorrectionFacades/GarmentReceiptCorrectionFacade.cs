@@ -179,7 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                         dbSetGarmentInventoryDocument.Add(invOut);
 
                     }
-
+                    var type = "IN";
                     foreach (var item in m.Items)
                     {
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == item.URNItemId);
@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                         var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == item.ProductId && s.StorageId == m.StorageId && s.UomId == item.SmallUomId);
-                        var type = "IN";
+                        
                         if (item.CorrectionQuantity < 0)
                         {
                             type="OUT";
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                         await dbContext.SaveChangesAsync();
                     }
 
-                    var garmentInventoryDocument = GenerateGarmentInventoryDocument(m,"IN");
+                    var garmentInventoryDocument = GenerateGarmentInventoryDocument(m,type);
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                     this.dbSet.Add(m);
@@ -321,7 +321,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryMovement.StockPlanning = 0;
 
             garmentInventoryMovement.Before = garmentInventorySummary == null ? 0 : garmentInventorySummary.Quantity;
-            garmentInventoryMovement.Quantity = (decimal)garmentReceiptCorrectionItem.SmallQuantity * ((type ?? "").ToUpper() == "OUT" ? -1 : 1);
+            garmentInventoryMovement.Quantity = (decimal)garmentReceiptCorrectionItem.SmallQuantity ;
             garmentInventoryMovement.After = garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
 
             garmentInventoryMovement.UomId = garmentReceiptCorrectionItem.SmallUomId;
@@ -351,7 +351,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryDocument.ReferenceType = string.Concat("Koreksi Bon - ", garmentReceiptCorrection.UnitName);
 
             garmentInventoryDocument.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
-
+            garmentInventoryDocument.Date = DateTime.Now;
             garmentInventoryDocument.StorageId = garmentReceiptCorrection.StorageId;
             garmentInventoryDocument.StorageCode = garmentReceiptCorrection.StorageCode;
             garmentInventoryDocument.StorageName = garmentReceiptCorrection.StorageName;
