@@ -321,7 +321,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         ProductCode = garmentExternalPurchaseOrderItem.ProductCode,
                                         ProductId = garmentExternalPurchaseOrderItem.ProductId,
                                         ProductName = garmentExternalPurchaseOrderItem.ProductName,
-                                        ReceiptQuantity = garmentExternalPurchaseOrderItem.ReceiptQuantity,
+                                        ReceiptQuantity = 0,
                                         Remark = garmentExternalPurchaseOrderItem.Remark,
                                         RONo = garmentExternalPurchaseOrderItem.RONo,
                                         SmallQuantity = BUKItem.Quantity,
@@ -974,7 +974,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             garmentInventoryDocument.StorageId = garmentUnitExpenditureNote.StorageId;
             garmentInventoryDocument.StorageCode = garmentUnitExpenditureNote.StorageCode;
             garmentInventoryDocument.StorageName = garmentUnitExpenditureNote.StorageName;
-
+            
             garmentInventoryDocument.Remark = "";
 
             foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
