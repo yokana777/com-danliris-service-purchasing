@@ -12,7 +12,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
     {
         public string UId { get; set; }
         public string PRNo { get; set; }
+        public string PRType { get; set; }
         public string RONo { get; set; }
+
+        public long SCId { get; set; }
+        public string SCNo { get; set; }
 
         public BuyerViewModel Buyer { get; set; }
 
@@ -26,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
         public bool IsPosted { get; set; }
         public bool IsUsed { get; set; }
+        public bool IsValidate { get; set; }
         public string Remark { get; set; }
 
         public List<GarmentPurchaseRequestItemViewModel> Items { get; set; }
