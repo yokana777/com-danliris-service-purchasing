@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
     public class UnitPaymentOrderNotVerifiedReportTest
     {
         private const string MediaType = "application/json";
-        private readonly string URI = "v1/purchasing/unit-payment-orders-not-verified-report";
+        private readonly string URI = "v1/purchasing/unit-payment-orders-not-verified-report/history";
        
 
         private TestServerFixture TestFixture { get; set; }
