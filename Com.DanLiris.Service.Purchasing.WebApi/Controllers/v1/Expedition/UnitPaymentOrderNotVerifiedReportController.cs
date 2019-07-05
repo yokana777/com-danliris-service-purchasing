@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             this.unitPaymentOrderNotVerifiedReportFacade = unitPaymentOrderNotVerifiedReportFacade;
         }
 
-        [HttpGet]
+        [HttpGet("history")]
         public IActionResult Get(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-        [HttpGet("download")]
+        [HttpGet("history/download")]
         public IActionResult GetXls(string no, string supplier, string division, DateTime? dateFrom, DateTime? dateTo)
         {
 
