@@ -71,6 +71,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         }
 
         [Fact]
+        public async Task Should_Error_Get_All_Data_Not_History()
+        {
+            var yesterday = 0;
+            var tomorrow = 0;
+            string param = "?dateFrom=" + yesterday.ToString() + "&dateTo=" + tomorrow.ToString() + "&page=1&size=25";
+            var response = await this.Client.GetAsync(URINotHistory + param);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+            //var json = await response.Content.ReadAsStringAsync();
+            //Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
+
+            //Assert.True(result.ContainsKey("apiVersion"));
+            //Assert.True(result.ContainsKey("data"));
+            //Assert.True(result["data"].GetType().Name.Equals("JArray"));
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Report_Excel_Not_History()
         {
             var response = await this.Client.GetAsync(URINotHistory + "/download");
