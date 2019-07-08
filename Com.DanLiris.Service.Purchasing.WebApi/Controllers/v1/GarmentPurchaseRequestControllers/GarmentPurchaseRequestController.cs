@@ -99,7 +99,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         },
                         s.IsPosted,
                         s.CreatedBy, 
-                        s.LastModifiedUtc
+                        s.LastModifiedUtc,
+
+                        s.PRType,
+                        s.SCId,
+                        s.SCNo,
+                        s.IsValidate
                     }).ToList()
                 );
 

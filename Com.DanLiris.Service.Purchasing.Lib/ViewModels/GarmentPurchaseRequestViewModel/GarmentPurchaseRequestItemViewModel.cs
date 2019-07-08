@@ -25,5 +25,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public string Status { get; set; }
 
         public bool IsUsed { get; set; }
+
+        public long PriceUomId { get; set; }
+        public string PriceUomUnit { get; set; }
+        public double PriceConversion { get; set; }
     }
 }
