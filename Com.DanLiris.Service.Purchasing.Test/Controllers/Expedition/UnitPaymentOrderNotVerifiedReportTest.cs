@@ -47,6 +47,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         }
 
         [Fact]
+        public async Task Should_Error_Get_All_Data_History()
+        {
+            var yesterday = "aa";
+            var tomorrow = "aa";
+            string param = "?dateFrom=" + yesterday.ToString() + "&dateTo=" + tomorrow.ToString();
+            var response = await this.Client.GetAsync(URI + param);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Report_Excel()
         {
             var response = await this.Client.GetAsync(URI + "/download");
@@ -86,6 +97,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             //Assert.True(result.ContainsKey("data"));
             //Assert.True(result["data"].GetType().Name.Equals("JArray"));
         }
+
+       
 
         [Fact]
         public async Task Should_Success_Get_Report_Excel_Not_History()
