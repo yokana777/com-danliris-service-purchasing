@@ -52,9 +52,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         [HttpGet("history/download")]
         public IActionResult GetXls(string no, string supplier, string division, DateTime? dateFrom, DateTime? dateTo)
         {
-
-            try
-            {
                 byte[] xlsInBytes;
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
@@ -68,14 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
                 return file;
 
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
+            
         }
 
         [HttpGet]
