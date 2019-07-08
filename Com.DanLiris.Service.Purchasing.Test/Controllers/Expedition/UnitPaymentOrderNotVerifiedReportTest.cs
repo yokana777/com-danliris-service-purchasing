@@ -73,8 +73,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         [Fact]
         public async Task Should_Error_Get_All_Data_Not_History()
         {
-            var yesterday = 0;
-            var tomorrow = 0;
+            var yesterday = "aa";
+            var tomorrow = "aa";
             string param = "?dateFrom=" + yesterday.ToString() + "&dateTo=" + tomorrow.ToString() + "&page=1&size=25";
             var response = await this.Client.GetAsync(URINotHistory + param);
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
