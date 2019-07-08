@@ -237,32 +237,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                                                 .Include(d => d.Items)
                                                                 .FirstOrDefault(p => p.UnitPaymentOrderNo == purchasingDocumentExpedition.UnitPaymentOrderNo && p.IsDeleted == false);
 
-                        if (existing != null)
+                        purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        purchasingDocumentExpedition.Active = true;
+                        purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
+
+                        foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
                         {
-                            existing.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
-                            existing.Active = true;
-                            existing.SendToVerificationDivisionBy = username;
-                            EntityExtension.FlagForUpdate(existing, username, "Facade");
-                            this.dbSet.Update(existing);
+
+                            EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+
                         }
-                        else if (existing == null)
-                        {
-                            purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
-                            purchasingDocumentExpedition.Active = true;
-                            purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
 
-                            foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
-                            {
-
-                                EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
-
-                            }
-
-                            EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
+                        EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
 
 
-                            this.dbSet.Add(purchasingDocumentExpedition);
-                        }
+                        this.dbSet.Add(purchasingDocumentExpedition);
+
+                        //if (existing != null)
+                        //{
+                        //    existing.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        //    existing.Active = true;
+                        //    existing.SendToVerificationDivisionBy = username;
+                        //    EntityExtension.FlagForUpdate(existing, username, "Facade");
+                        //    this.dbSet.Update(existing);
+                        //}
+                        //else if (existing == null)
+                        //{
+                        //    purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        //    purchasingDocumentExpedition.Active = true;
+                        //    purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
+
+                        //    foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
+                        //    {
+
+                        //        EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+
+                        //    }
+
+                        //    EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
+
+
+                        //    this.dbSet.Add(purchasingDocumentExpedition);
+                        //}
                         Created = await dbContext.SaveChangesAsync();
 
                     }
