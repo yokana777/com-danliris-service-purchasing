@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         {
             var yesterday = "aa";
             var tomorrow = "aa";
-            string param = "?dateFrom=" + yesterday.ToString() + "&dateTo=" + tomorrow.ToString() + "&page=1&size=25";
+            string param = "?dateFrom=" + yesterday.ToString() + "&dateTo=" + tomorrow.ToString();
             var response = await this.Client.GetAsync(URINotHistory + param);
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
