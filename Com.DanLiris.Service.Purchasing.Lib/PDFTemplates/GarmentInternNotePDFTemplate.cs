@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     paymentmethods = detail.deliveryOrder.paymentMethod;
                 }
             }
-            DateTimeOffset coba1 = coba.Max(p => p);
+            DateTimeOffset coba1 = coba.Min(p => p);
             cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
