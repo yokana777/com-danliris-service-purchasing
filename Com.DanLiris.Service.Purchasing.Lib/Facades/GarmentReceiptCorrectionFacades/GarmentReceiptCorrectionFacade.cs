@@ -172,38 +172,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                                 garmentInventorySummaryExistingOut.Quantity = garmentInventoryMovementOut.After;
                             }
 
+                            
+
                             await dbContext.SaveChangesAsync();
                         }
-                        outCorrection.Items = itemsOut;
-                        var invOut = GenerateGarmentInventoryDocument(outCorrection, "OUT");
+
+                        var invOut = GenerateGarmentInventoryDocumentConv(outCorrection, "OUT");
                         dbSetGarmentInventoryDocument.Add(invOut);
+
+                        outCorrection.Items = itemsOut;
+                       
 
                     }
                     var type = "IN";
                     foreach (var item in m.Items)
                     {
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == item.URNItemId);
-                        
+
+                        if (item.CorrectionQuantity < 0)
+                        {
+                            type = "OUT";
+                        }
+
                         if (m.CorrectionType == "Jumlah")
                         {
                             item.CorrectionConversion = 0;
                             garmentUnitReceiptNoteItem.ReceiptCorrection += (decimal)item.CorrectionQuantity;
+
+                            var garmentInventoryDocument = GenerateGarmentInventoryDocument(m, item, type);
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
+
                         }
                         else
                         {
-                            decimal qty = (garmentUnitReceiptNoteItem.ReceiptQuantity - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.Conversion))* garmentUnitReceiptNoteItem.Conversion;
-                            decimal newQty = (garmentUnitReceiptNoteItem.ReceiptQuantity - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.Conversion)) * (decimal)item.CorrectionConversion;
+                            decimal qty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion))* garmentUnitReceiptNoteItem.CorrectionConversion;
+                            decimal newQty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion)) * (decimal)item.CorrectionConversion;
                             decimal diff = (newQty - qty)/(decimal)item.CorrectionConversion;
                             garmentUnitReceiptNoteItem.ReceiptCorrection += diff;
+                            garmentUnitReceiptNoteItem.CorrectionConversion = (decimal)item.CorrectionConversion;
                         }
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                         var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == item.ProductId && s.StorageId == m.StorageId && s.UomId == item.SmallUomId);
                         
-                        if (item.CorrectionQuantity < 0)
-                        {
-                            type="OUT";
-                        } 
+                        
                         var garmentInventoryMovement = GenerateGarmentInventoryMovement(m, item, garmentInventorySummaryExisting,type);
                         dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
 
@@ -219,11 +231,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
                         }
 
+                        
+
                         await dbContext.SaveChangesAsync();
                     }
 
-                    var garmentInventoryDocument = GenerateGarmentInventoryDocument(m,type);
-                    dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
+                    if(m.CorrectionType != "Jumlah")
+                    {
+                        var garmentInventoryDocumentConv = GenerateGarmentInventoryDocumentConv(m, type);
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentConv);
+                    }
 
                     this.dbSet.Add(m);
 
@@ -334,7 +351,70 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             return garmentInventoryMovement;
         }
 
-        private GarmentInventoryDocument GenerateGarmentInventoryDocument(GarmentReceiptCorrection garmentReceiptCorrection, string type)
+        private GarmentInventoryDocument GenerateGarmentInventoryDocument(GarmentReceiptCorrection garmentReceiptCorrection, GarmentReceiptCorrectionItem garmentReceiptCorrectionItem, string type)
+        {
+            var garmentInventoryDocument = new GarmentInventoryDocument
+            {
+                Items = new List<GarmentInventoryDocumentItem>()
+            };
+            EntityExtension.FlagForCreate(garmentInventoryDocument, identityService.Username, USER_AGENT);
+            do
+            {
+                garmentInventoryDocument.No = CodeGenerator.Generate();
+            }
+            while (dbSetGarmentInventoryDocument.Any(m => m.No == garmentInventoryDocument.No));
+
+            garmentInventoryDocument.ReferenceNo = garmentReceiptCorrection.CorrectionNo;
+            garmentInventoryDocument.ReferenceType = string.Concat("Koreksi Bon - ", garmentReceiptCorrection.UnitName);
+
+            garmentInventoryDocument.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryDocument.Date = DateTime.Now;
+            garmentInventoryDocument.StorageId = garmentReceiptCorrection.StorageId;
+            garmentInventoryDocument.StorageCode = garmentReceiptCorrection.StorageCode;
+            garmentInventoryDocument.StorageName = garmentReceiptCorrection.StorageName;
+
+            garmentInventoryDocument.Remark = garmentReceiptCorrection.Remark;
+
+            //1 item 1 doc
+            var garmentInventoryDocumentItem = new GarmentInventoryDocumentItem();
+            EntityExtension.FlagForCreate(garmentInventoryDocumentItem, identityService.Username, USER_AGENT);
+
+            garmentInventoryDocumentItem.ProductId = garmentReceiptCorrectionItem.ProductId;
+            garmentInventoryDocumentItem.ProductCode = garmentReceiptCorrectionItem.ProductCode;
+            garmentInventoryDocumentItem.ProductName = garmentReceiptCorrectionItem.ProductName;
+
+            garmentInventoryDocumentItem.Quantity = (type ?? "").ToUpper() == "IN" ? (decimal)garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity * (-1);
+
+            garmentInventoryDocumentItem.UomId = garmentReceiptCorrectionItem.SmallUomId;
+            garmentInventoryDocumentItem.UomUnit = garmentReceiptCorrectionItem.SmallUomUnit;
+
+            garmentInventoryDocumentItem.ProductRemark = garmentReceiptCorrectionItem.ProductRemark;
+
+            garmentInventoryDocument.Items.Add(garmentInventoryDocumentItem);
+
+            //foreach (var garmentReceiptCorrectionItem in garmentReceiptCorrection.Items)
+            //{
+            //    var garmentInventoryDocumentItem = new GarmentInventoryDocumentItem();
+            //    EntityExtension.FlagForCreate(garmentInventoryDocumentItem, identityService.Username, USER_AGENT);
+
+            //    garmentInventoryDocumentItem.ProductId = garmentReceiptCorrectionItem.ProductId;
+            //    garmentInventoryDocumentItem.ProductCode = garmentReceiptCorrectionItem.ProductCode;
+            //    garmentInventoryDocumentItem.ProductName = garmentReceiptCorrectionItem.ProductName;
+
+            //    garmentInventoryDocumentItem.Quantity = (type ?? "").ToUpper() == "IN" ? (decimal) garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity*(-1);
+
+            //    garmentInventoryDocumentItem.UomId = garmentReceiptCorrectionItem.SmallUomId;
+            //    garmentInventoryDocumentItem.UomUnit = garmentReceiptCorrectionItem.SmallUomUnit;
+
+            //    garmentInventoryDocumentItem.ProductRemark = garmentReceiptCorrectionItem.ProductRemark;
+
+            //    garmentInventoryDocument.Items.Add(garmentInventoryDocumentItem);
+            //}
+
+            return garmentInventoryDocument;
+        }
+
+        private GarmentInventoryDocument GenerateGarmentInventoryDocumentConv(GarmentReceiptCorrection garmentReceiptCorrection, string type)
         {
             var garmentInventoryDocument = new GarmentInventoryDocument
             {
@@ -367,7 +447,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                 garmentInventoryDocumentItem.ProductCode = garmentReceiptCorrectionItem.ProductCode;
                 garmentInventoryDocumentItem.ProductName = garmentReceiptCorrectionItem.ProductName;
 
-                garmentInventoryDocumentItem.Quantity =(decimal) garmentReceiptCorrectionItem.SmallQuantity;
+                garmentInventoryDocumentItem.Quantity = (type ?? "").ToUpper() == "IN" ? (decimal)garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity * (-1);
 
                 garmentInventoryDocumentItem.UomId = garmentReceiptCorrectionItem.SmallUomId;
                 garmentInventoryDocumentItem.UomUnit = garmentReceiptCorrectionItem.SmallUomUnit;
