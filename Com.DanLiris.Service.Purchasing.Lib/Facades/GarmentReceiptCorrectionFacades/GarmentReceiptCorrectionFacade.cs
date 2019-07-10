@@ -176,11 +176,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
 
                             await dbContext.SaveChangesAsync();
                         }
+                        outCorrection.Items = itemsOut;
 
                         var invOut = GenerateGarmentInventoryDocumentConv(outCorrection, "OUT");
                         dbSetGarmentInventoryDocument.Add(invOut);
-
-                        outCorrection.Items = itemsOut;
                        
 
                     }
