@@ -251,6 +251,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             GarmentUnitDeliveryOrderItem garmentUnitDeliveryOrderItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(d => d.Id == item.UnitDOItemId);
                             GarmentDeliveryOrderDetail garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(d => d.Id.Equals(item.DODetailId));
                             GarmentDeliveryOrderItem garmentDeliveryOrderItem = dbContext.GarmentDeliveryOrderItems.FirstOrDefault(d => d.Id.Equals(garmentDeliveryOrderDetail.GarmentDOItemId));
+
+                            double priceTotalAfter = Math.Round((Math.Round(garmentUnitDeliveryOrderItem.ReturQuantity,2) *(double) garmentDeliveryOrderDetail.PricePerDealUnitCorrection),2);
+
                             GarmentCorrectionNoteItem correctionNoteItem = new GarmentCorrectionNoteItem
                             {
                                 POId = garmentDeliveryOrderDetail.POId,
@@ -263,7 +266,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 PricePerDealUnitAfter = (decimal)garmentDeliveryOrderDetail.PricePerDealUnitCorrection,
                                 PricePerDealUnitBefore = (decimal)garmentDeliveryOrderDetail.PricePerDealUnitCorrection,
                                 PriceTotalBefore = (decimal)garmentDeliveryOrderDetail.PriceTotalCorrection,
-                                PriceTotalAfter = (decimal)(item.Quantity * garmentDeliveryOrderDetail.PricePerDealUnitCorrection),
+                                PriceTotalAfter = (decimal)priceTotalAfter,
                                 Quantity = (decimal)garmentUnitDeliveryOrderItem.ReturQuantity,
                                 UomId = (long)garmentUnitDeliveryOrderItem.ReturUomId,
                                 UomIUnit = garmentUnitDeliveryOrderItem.ReturUomUnit,
@@ -287,42 +290,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         foreach (var epoId in epoIds)
                         {
                             GarmentExternalPurchaseOrder garmentExternalPurchaseOrder = dbContext.GarmentExternalPurchaseOrders.FirstOrDefault(p => p.Id.Equals(epoId));
+                            
                             List<long> garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(p => p.GarmentEPOId.Equals(epoId)).Select(p => p.Id).ToList();
                             List<GarmentExternalPurchaseOrderItem> epoItems = new List<GarmentExternalPurchaseOrderItem>();
                             foreach (var garmentExternalPurchaseOrderItemId in garmentExternalPurchaseOrderItems)
                             {
                                 if (epoItemIds.Contains(garmentExternalPurchaseOrderItemId))
                                 {
+                                    var BUKItem = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.EPOItemId == garmentExternalPurchaseOrderItemId);
                                     GarmentExternalPurchaseOrderItem garmentExternalPurchaseOrderItem = dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(p => p.Id.Equals(garmentExternalPurchaseOrderItemId));
                                     GarmentExternalPurchaseOrderItem newItem = new GarmentExternalPurchaseOrderItem
                                     {
                                         BudgetPrice = garmentExternalPurchaseOrderItem.BudgetPrice,
                                         Conversion = garmentExternalPurchaseOrderItem.Conversion,
-                                        DealQuantity = garmentExternalPurchaseOrderItem.DealQuantity,
+                                        DealQuantity = BUKItem.Quantity/(double) BUKItem.Conversion,
                                         DealUomId = garmentExternalPurchaseOrderItem.DealUomId,
                                         DealUomUnit = garmentExternalPurchaseOrderItem.DealUomUnit,
-                                        DefaultQuantity = garmentExternalPurchaseOrderItem.DefaultQuantity,
+                                        DefaultQuantity = BUKItem.Quantity / (double)BUKItem.Conversion,
                                         DefaultUomId = garmentExternalPurchaseOrderItem.DefaultUomId,
                                         DefaultUomUnit = garmentExternalPurchaseOrderItem.DefaultUomUnit,
-                                        DOQuantity = garmentExternalPurchaseOrderItem.DOQuantity,
+                                        DOQuantity = 0,
                                         IsOverBudget = false,
                                         OverBudgetRemark = garmentExternalPurchaseOrderItem.OverBudgetRemark,
                                         POId = garmentExternalPurchaseOrderItem.POId,
-                                        PONo = garmentExternalPurchaseOrderItem.PONo + "-R",
-                                        PO_SerialNumber = garmentExternalPurchaseOrderItem.PO_SerialNumber,
+                                        PONo = garmentExternalPurchaseOrderItem.PONo,
+                                        PO_SerialNumber = garmentExternalPurchaseOrderItem.PO_SerialNumber + "-R",
                                         PricePerDealUnit = garmentExternalPurchaseOrderItem.PricePerDealUnit,
                                         PRId = garmentExternalPurchaseOrderItem.PRId,
                                         PRNo = garmentExternalPurchaseOrderItem.PRNo,
                                         ProductCode = garmentExternalPurchaseOrderItem.ProductCode,
                                         ProductId = garmentExternalPurchaseOrderItem.ProductId,
                                         ProductName = garmentExternalPurchaseOrderItem.ProductName,
-                                        ReceiptQuantity = garmentExternalPurchaseOrderItem.ReceiptQuantity,
+                                        ReceiptQuantity = 0,
                                         Remark = garmentExternalPurchaseOrderItem.Remark,
                                         RONo = garmentExternalPurchaseOrderItem.RONo,
-                                        SmallQuantity = garmentExternalPurchaseOrderItem.SmallQuantity,
+                                        SmallQuantity = BUKItem.Quantity,
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
-                                        UsedBudget = garmentExternalPurchaseOrderItem.UsedBudget,
+                                        UsedBudget = 0,
                                         Article = garmentExternalPurchaseOrderItem.Article
 
                                     };
@@ -441,10 +446,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         EntityExtension.FlagForUpdate(garmentDeliveryOrder, identityService.Username, USER_AGENT);
 
-                        foreach (var item in Correction.Items)
+                        foreach (var item in correctionNoteItems)
                         {
                             item.Quantity = item.Quantity * (-1);
-                            item.PriceTotalAfter = item.Quantity * item.PricePerDealUnitAfter;
+                            item.PriceTotalAfter = item.PriceTotalAfter *(-1);
                             EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
 
                             var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
@@ -970,7 +975,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             garmentInventoryDocument.StorageId = garmentUnitExpenditureNote.StorageId;
             garmentInventoryDocument.StorageCode = garmentUnitExpenditureNote.StorageCode;
             garmentInventoryDocument.StorageName = garmentUnitExpenditureNote.StorageName;
-
+            
             garmentInventoryDocument.Remark = "";
 
             foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)

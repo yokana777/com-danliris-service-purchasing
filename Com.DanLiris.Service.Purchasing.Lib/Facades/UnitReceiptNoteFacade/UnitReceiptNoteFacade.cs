@@ -1121,6 +1121,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         {
             return dbContext.PurchaseRequests.Where(pr => pr.Id == prId).Select(pr => pr.CategoryCode).FirstOrDefault();
         }
+
+        public List<UnitReceiptNote> GetByListOfNo(List<string> urnNoList)
+        {
+            return dbSet.Where(w => urnNoList.Contains(w.URNNo)).Include(i => i.Items).ToList();
+
+            //throw new NotImplementedException();
+        }
     }
 }
 
