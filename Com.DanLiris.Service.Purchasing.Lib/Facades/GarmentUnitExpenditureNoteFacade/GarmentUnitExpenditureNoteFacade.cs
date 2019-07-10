@@ -657,7 +657,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 s.UnitDONo,
                 s.CreatedAgent,
                 s.CreatedBy,
-                s.LastModifiedUtc
+                s.LastModifiedUtc,
+                s.Items
             }));
 
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
