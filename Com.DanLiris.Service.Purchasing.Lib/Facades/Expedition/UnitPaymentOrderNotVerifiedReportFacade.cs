@@ -27,8 +27,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
         public IQueryable<UnitPaymentOrderNotVerifiedReportViewModel> GetReportQuery(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset,string type)
         {
-            DateTimeOffset dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
-            DateTimeOffset dateToFilter = (dateTo == null ? DateTimeOffset.UtcNow.Date : dateTo.Value.Date);
+            DateTimeOffset dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.AddHours(offset).Date);
+            DateTimeOffset dateToFilter = (dateTo == null ? DateTimeOffset.UtcNow.Date : dateTo.Value.AddHours(offset).Date);
 
             var header = dbContext.PurchasingDocumentExpeditions.AsQueryable();
             if (type == "not-history")
