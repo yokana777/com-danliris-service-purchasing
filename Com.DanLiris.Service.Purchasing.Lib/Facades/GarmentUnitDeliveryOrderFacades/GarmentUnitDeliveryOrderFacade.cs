@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 Query = Query.Where(x => x.CreatedBy == identityService.Username);
             }
 
-            Query = Query.Where(m=>m.UnitDOType != "RETUR").Select(m => new GarmentUnitDeliveryOrder
+            Query = Query.Where(m => m.UnitDOType != "RETUR").Select(m => new GarmentUnitDeliveryOrder
             {
                 Id = m.Id,
                 UnitDONo = m.UnitDONo,
@@ -66,7 +66,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 RONo = m.RONo,
                 Article = m.Article,
                 CreatedBy = m.CreatedBy,
-                LastModifiedUtc = m.LastModifiedUtc
+                LastModifiedUtc = m.LastModifiedUtc,
+                Items = m.Items.Select(i => new GarmentUnitDeliveryOrderItem
+                {
+                    Id = i.Id,
+                    DesignColor = i.DesignColor
+                }).ToList()
             });
 
             List<string> searchAttributes = new List<string>()
@@ -97,7 +102,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 s.UnitRequestName,
                 s.StorageName,
                 s.CreatedBy,
-                s.LastModifiedUtc
+                s.LastModifiedUtc,
+                s.Items
             }));
 
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
