@@ -102,7 +102,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 s.UnitRequestName,
                 s.StorageName,
                 s.CreatedBy,
-                s.LastModifiedUtc
+                s.LastModifiedUtc,
+                s.Items
             }));
 
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
