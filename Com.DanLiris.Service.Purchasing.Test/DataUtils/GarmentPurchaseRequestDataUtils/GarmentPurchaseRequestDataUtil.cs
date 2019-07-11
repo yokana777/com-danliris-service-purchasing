@@ -43,6 +43,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
 
                 Remark = $"Remark{nowTicksA}",
 				CreatedBy="CreatedBy",
+
+                PRType = $"PRType{nowTicks}",
+                SCId = nowTicks,
+                SCNo = $"SCNo{nowTicks}",
+                IsValidate = true,
+
                 Items = new List<GarmentPurchaseRequestItem>
                 {
                     new GarmentPurchaseRequestItem
@@ -62,7 +68,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                         CategoryId = $"{nowTicksA}",
                         CategoryName = $"CategoryName{nowTicksA}",
 
-                        ProductRemark = $"ProductRemark{nowTicksA}"
+                        ProductRemark = $"ProductRemark{nowTicksA}",
+
+                        PriceUomId = nowTicks,
+                        PriceUomUnit = $"PriceUomUnit{nowTicks}",
+                        PriceConversion = 1
                     },
                     new GarmentPurchaseRequestItem
                     {
@@ -81,7 +91,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                         CategoryId = $"{nowTicksB}",
                         CategoryName = $"CategoryName{nowTicksB}",
 
-                        ProductRemark = $"ProductRemark{nowTicksB}"
+                        ProductRemark = $"ProductRemark{nowTicksB}",
+
+                        PriceUomId = nowTicks,
+                        PriceUomUnit = $"PriceUomUnit{nowTicks}",
+                        PriceConversion = 1
                     }
                 }
             };

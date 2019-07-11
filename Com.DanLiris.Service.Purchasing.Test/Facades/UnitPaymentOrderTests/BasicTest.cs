@@ -187,6 +187,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         }
 
         [Fact]
+        public async Task Should_Success_Get_Data_SpbForVerification()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadSpbForVerification();
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Position()
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));

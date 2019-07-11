@@ -52,7 +52,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 UnitName = s.UnitName,
                 IsPosted = s.IsPosted,
                 CreatedBy = s.CreatedBy,
-                LastModifiedUtc = s.LastModifiedUtc
+                LastModifiedUtc = s.LastModifiedUtc,
+
+                PRType = s.PRType,
+                SCId = s.SCId,
+                SCNo = s.SCNo,
+                IsValidate = s.IsValidate,
             });
 
             List<string> searchAttributes = new List<string>()
@@ -101,7 +106,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    m.PRNo = $"PR{m.RONo}";
+                    if (m.PRNo == null)
+                    {
+                        m.PRNo = $"PR{m.RONo}";
+                    }
                     m.IsPosted = true;
                     m.IsUsed = false;
 
@@ -245,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             i.IsUsed == false &&
                             (string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2]))
                             )
-                        .ToList()
+                        .ToList(),
                 })
                 .Where(m => m.Items.Count > 0);
 

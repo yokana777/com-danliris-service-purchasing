@@ -72,15 +72,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 Id = m.Id,
                 URNNo = m.URNNo,
+                UnitCode=m.UnitCode,
+                UnitId=m.UnitId,
                 UnitName = m.UnitName,
                 ReceiptDate = m.ReceiptDate,
                 SupplierName = m.SupplierName,
                 DONo = m.DONo,
                 DOId=m.DOId,
+                StorageName=m.StorageName,
+                StorageId=m.StorageId,
+                StorageCode=m.StorageCode,
                 Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
                 {
                     Id = i.Id,
-                    RONo = i.RONo
+                    RONo = i.RONo,
+                    ProductCode=i.ProductCode,
+                    ProductId = i.ProductId,
+                    ProductName=i.ProductName,
+                    ProductRemark=i.ProductRemark,
+                    OrderQuantity=i.OrderQuantity,
+                    ReceiptQuantity=i.ReceiptQuantity,
+                    SmallQuantity=i.SmallQuantity,
+                    UomId=i.UomId,
+                    UomUnit=i.UomUnit,
+                    Conversion=i.Conversion,
+                    DODetailId=i.DODetailId,
+                    EPOItemId=i.EPOItemId,
+                    POItemId=i.POItemId,
+                    PRItemId=i.PRItemId,
+                    POSerialNumber=i.POSerialNumber,
+                    SmallUomId=i.SmallUomId,
+                    SmallUomUnit=i.SmallUomUnit,
+                    PricePerDealUnit=i.PricePerDealUnit,
+                    DesignColor=i.DesignColor,
+                    ReceiptCorrection=i.ReceiptCorrection,
+                    CorrectionConversion=i.CorrectionConversion
                 }).ToList(),
                 CreatedBy = m.CreatedBy,
                 LastModifiedUtc = m.LastModifiedUtc
@@ -108,10 +134,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 s.Id,
                 s.URNNo,
                 s.DOId,
-                Unit = new { Name = s.UnitName },
+                Unit = new { Name = s.UnitName, Id=s.UnitId, Code=s.UnitCode },
+                Storage= new {name=s.StorageName, _id=s.StorageId, code=s.StorageCode},
                 s.ReceiptDate,
                 Supplier = new { Name = s.SupplierName },
                 s.DONo,
+                Items=new List<GarmentUnitReceiptNoteItem>(s.Items),
                 s.CreatedBy,
                 s.LastModifiedUtc
             }));
@@ -162,6 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
+                        garmentUnitReceiptNoteItem.CorrectionConversion = garmentUnitReceiptNoteItem.Conversion;
                         EntityExtension.FlagForCreate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.ReceiptCorrection = garmentUnitReceiptNoteItem.ReceiptQuantity;
 
@@ -540,6 +569,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.DesignColor,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
+                    y.ReceiptCorrection,
+                    y.Conversion,
+                    y.CorrectionConversion,
                     Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             var coba = readForUnitDO.GroupBy(g => g.RONo);
@@ -593,6 +625,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.SmallUomUnit,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
+                    y.ReceiptCorrection,
+                    y.Conversion,
+                    y.CorrectionConversion,
                     Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             List<object> result = new List<object>(readForUnitDO);
@@ -649,6 +684,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 y.Conversion,
                 y.UomUnit,
                 y.UomId,
+                y.ReceiptCorrection,
+                y.CorrectionConversion,
                 Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
             })).ToList();
 

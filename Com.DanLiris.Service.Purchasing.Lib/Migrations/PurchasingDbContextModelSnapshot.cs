@@ -266,14 +266,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("BankCurrencyCode")
                         .HasMaxLength(255);
 
-                    b.Property<string>("BankCurrencyId")
-                        .HasMaxLength(255);
+                    b.Property<int>("BankCurrencyId");
 
                     b.Property<string>("BankCurrencyRate")
                         .HasMaxLength(255);
 
-                    b.Property<string>("BankId")
-                        .HasMaxLength(255);
+                    b.Property<int>("BankId");
 
                     b.Property<string>("BankName");
 
@@ -319,8 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("SupplierCode")
                         .HasMaxLength(255);
 
-                    b.Property<string>("SupplierId")
-                        .HasMaxLength(255);
+                    b.Property<int>("SupplierId");
 
                     b.Property<bool>("SupplierImport");
 
@@ -1161,6 +1158,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Active");
+
+                    b.Property<DateTimeOffset?>("ArrivalDate");
 
                     b.Property<long>("BCIdTemp");
 
@@ -2997,6 +2996,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("IsUsed");
 
+                    b.Property<bool>("IsValidate");
+
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3010,9 +3011,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PRNo")
                         .HasMaxLength(255);
 
+                    b.Property<string>("PRType")
+                        .HasMaxLength(255);
+
                     b.Property<string>("RONo");
 
                     b.Property<string>("Remark");
+
+                    b.Property<long>("SCId");
+
+                    b.Property<string>("SCNo")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset>("ShipmentDate");
 
@@ -3087,6 +3096,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PO_SerialNumber")
                         .HasMaxLength(255);
 
+                    b.Property<double>("PriceConversion");
+
+                    b.Property<long>("PriceUomId");
+
+                    b.Property<string>("PriceUomUnit")
+                        .HasMaxLength(255);
+
                     b.Property<string>("ProductCode")
                         .HasMaxLength(255);
 
@@ -3116,6 +3132,180 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.HasIndex("GarmentPRId");
 
                     b.ToTable("GarmentPurchaseRequestItems");
+                });
+
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel.GarmentReceiptCorrection", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Active");
+
+                    b.Property<DateTimeOffset>("CorrectionDate");
+
+                    b.Property<string>("CorrectionNo")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CorrectionType")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CreatedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("CreatedUtc");
+
+                    b.Property<string>("DeletedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("DeletedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("DeletedUtc");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("LastModifiedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("LastModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("LastModifiedUtc");
+
+                    b.Property<string>("Remark");
+
+                    b.Property<string>("StorageCode")
+                        .HasMaxLength(255);
+
+                    b.Property<long>("StorageId");
+
+                    b.Property<string>("StorageName")
+                        .HasMaxLength(500);
+
+                    b.Property<string>("UId")
+                        .HasMaxLength(255);
+
+                    b.Property<long>("URNId");
+
+                    b.Property<string>("URNNo")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("UnitCode")
+                        .HasMaxLength(255);
+
+                    b.Property<long>("UnitId");
+
+                    b.Property<string>("UnitName")
+                        .HasMaxLength(255);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GarmentReceiptCorrections");
+                });
+
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel.GarmentReceiptCorrectionItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Active");
+
+                    b.Property<double>("Conversion");
+
+                    b.Property<double>("CorrectionConversion");
+
+                    b.Property<long>("CorrectionId");
+
+                    b.Property<double>("CorrectionQuantity");
+
+                    b.Property<string>("CreatedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("CreatedUtc");
+
+                    b.Property<long>("DODetailId");
+
+                    b.Property<string>("DeletedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("DeletedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("DeletedUtc");
+
+                    b.Property<string>("DesignColor")
+                        .HasMaxLength(500);
+
+                    b.Property<long>("EPOItemId");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("LastModifiedAgent")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("LastModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<DateTime>("LastModifiedUtc");
+
+                    b.Property<long>("POItemId");
+
+                    b.Property<string>("POSerialNumber")
+                        .HasMaxLength(500);
+
+                    b.Property<long>("PRItemId");
+
+                    b.Property<double>("PricePerDealUnit");
+
+                    b.Property<string>("ProductCode")
+                        .HasMaxLength(500);
+
+                    b.Property<long>("ProductId");
+
+                    b.Property<string>("ProductName");
+
+                    b.Property<string>("ProductRemark");
+
+                    b.Property<double>("Quantity");
+
+                    b.Property<string>("RONo")
+                        .HasMaxLength(255);
+
+                    b.Property<double>("SmallQuantity");
+
+                    b.Property<long>("SmallUomId");
+
+                    b.Property<string>("SmallUomUnit");
+
+                    b.Property<long>("URNItemId");
+
+                    b.Property<long>("UomId");
+
+                    b.Property<string>("UomUnit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrectionId");
+
+                    b.ToTable("GarmentReceiptCorrectionItems");
                 });
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel.GarmentUnitDeliveryOrder", b =>
@@ -3508,6 +3698,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DONo")
                         .HasMaxLength(255);
 
+                    b.Property<long>("DRId");
+
+                    b.Property<string>("DRNo");
+
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3558,11 +3752,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("SupplierName")
                         .HasMaxLength(1000);
 
+                    b.Property<long>("UENId");
+
+                    b.Property<string>("UENNo");
+
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
                     b.Property<string>("URNNo")
                         .HasMaxLength(255);
+
+                    b.Property<string>("URNType");
 
                     b.Property<string>("UnitCode")
                         .HasMaxLength(255);
@@ -3586,6 +3786,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<decimal>("Conversion")
                         .HasColumnType("decimal(38, 20)");
+
+                    b.Property<decimal>("CorrectionConversion");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -5129,6 +5331,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel.GarmentPurchaseRequest", "GarmentPurchaseRequest")
                         .WithMany("Items")
                         .HasForeignKey("GarmentPRId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel.GarmentReceiptCorrectionItem", b =>
+                {
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel.GarmentReceiptCorrection", "GarmentReceiptCorrection")
+                        .WithMany("Items")
+                        .HasForeignKey("CorrectionId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
