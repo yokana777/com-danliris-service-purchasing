@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                                 if (URNItem != null)
                                 {
                                     var UDOItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
-                                    var quantity =Math.Round( (URNItem.ReceiptCorrection * URNItem.Conversion) - URNItem.OrderQuantity + (decimal)(UDOItem != null ? UDOItem.Quantity : 0),2);
+                                    var quantity =Math.Round( (URNItem.ReceiptCorrection * URNItem.CorrectionConversion) - URNItem.OrderQuantity + (decimal)(UDOItem != null ? UDOItem.Quantity : 0),2);
                                     if ((decimal)item.Quantity > quantity)
                                     {
                                         itemErrorCount++;
