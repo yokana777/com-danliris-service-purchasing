@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         }
 
         [HttpGet]
-        public IActionResult GetReportAll(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order = "{}")
+        public IActionResult GetReportAll(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             try
             {
 
-                var data = _facade.GetReport(prNo, supplierId, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status,  page, size, Order, offset, "");
+                var data = _facade.GetReport(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status,  page, size, Order, offset, "");
 
                 return Ok(new
                 {
@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         }
 
         [HttpGet("download")]
-        public IActionResult GetXlsAll(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status)
+        public IActionResult GetXlsAll(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status)
         {
 
             try
@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = _facade.GenerateExcel(prNo, supplierId, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, offset, "");
+                var xls = _facade.GenerateExcel(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, offset, "");
 
                 string filename = String.Format("Monitoring Purchase Order All - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
@@ -93,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
 
 
         [HttpGet("by-user")]
-        public IActionResult GetReportByUser(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order = "{}")
+        public IActionResult GetReportByUser(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
             try
             {
 
-                var data = _facade.GetReport(prNo, supplierId, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, page, size, Order, offset, identityService.Username);
+                var data = _facade.GetReport(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, page, size, Order, offset, identityService.Username);
 
                 return Ok(new
                 {
@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
         }
 
         [HttpGet("by-user/download")]
-        public IActionResult GetXlsByUser(string prNo, string supplierId, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status)
+        public IActionResult GetXlsByUser(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status)
         {
 
             //try
@@ -134,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.InternalPurchase
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = _facade.GenerateExcel(prNo, supplierId, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, offset, identityService.Username);
+                var xls = _facade.GenerateExcel(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, offset, identityService.Username);
 
                 string filename = String.Format("Monitoring Purchase Order All - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
