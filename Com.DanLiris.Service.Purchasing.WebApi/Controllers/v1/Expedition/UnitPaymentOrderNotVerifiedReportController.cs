@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 
                 var xls = unitPaymentOrderNotVerifiedReportFacade.GenerateExcel(no, supplier, division, dateFrom, dateTo, offset,"history");
 
-                string filename = String.Format("Laporan SPB Not Verified - PO Internal - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.Format("History SPB Not Verified - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 
                 var xls = unitPaymentOrderNotVerifiedReportFacade.GenerateExcel(no, supplier, division, dateFrom, dateTo, offset,"not-history");
 
-                string filename = String.Format("Laporan SPB Not Verified - PO Internal - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.Format("Laporan SPB Not Verified - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
