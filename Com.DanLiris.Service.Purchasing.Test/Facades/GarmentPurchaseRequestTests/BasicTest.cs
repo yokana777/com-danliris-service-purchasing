@@ -9,12 +9,14 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
+//using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -23,7 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -75,6 +79,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Success_Create_Data_Master()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.PRType = "MASTER";
+            model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.PO_SerialNumber = null;
+            }
+            var Response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Data_Sampel()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.PRType = "SAMPLE";
+            model.UnitCode = "C2A";
+            model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.CategoryName = "FABRIC";
+                item.PO_SerialNumber = null;
+            }
+            var Response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Data()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
@@ -88,26 +124,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         public async Task Should_Success_Update_Data()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var item = model.Items.First();
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
 
-            model.Items.Add(new GarmentPurchaseRequestItem
+            GarmentPurchaseRequest newModel = dataUtil.CopyData(model);
+            newModel.Items = new List<GarmentPurchaseRequestItem>();
+            foreach (var item in model.Items)
             {
-                PO_SerialNumber = item.PO_SerialNumber,
-                ProductId = item.ProductId,
-                ProductCode = item.ProductCode,
-                ProductName = item.ProductName,
-                Quantity = item.Quantity,
-                BudgetPrice = item.BudgetPrice,
-                UomId = item.UomId,
-                UomUnit = item.UomUnit,
-                CategoryId = item.CategoryId,
-                CategoryName = item.CategoryName,
-                ProductRemark = item.ProductRemark,
-                Status = item.Status,
-            });
+                newModel.Items.Add(dataUtil.CopyDataItem(item));
+            }
+            var firstItem = newModel.Items.First();
+            firstItem.Id = 0;
+            firstItem.PO_SerialNumber = null;
 
-            var Response = await facade.Update((int)model.Id, model, USERNAME);
+            var Response = await facade.Update((int)newModel.Id, newModel, USERNAME);
             Assert.NotEqual(Response, 0);
         }
 
@@ -120,9 +150,67 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Update(0, model, USERNAME));
             Assert.NotNull(errorInvalidId.Message);
 
-            model.Items = null;
-            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)model.Id, model, USERNAME));
+            GarmentPurchaseRequest newModel = new GarmentPurchaseRequest();
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)model.Id, newModel, USERNAME));
             Assert.NotNull(errorNullItems.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.Delete((int)model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_Delete_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_PRPost_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.PRPost(new List<long> { model.Id }, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_PRPost_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.PRPost(new List<long> { 0 }, null));
+            Assert.NotNull(errorInvalidId.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_PRUnpost_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.PRUnpost(model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_PRUnpost_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.PRUnpost(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
         }
 
         [Fact]
@@ -166,6 +254,86 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public void Should_Success_GeneratePdf()
+        {
+            Mock<IGarmentPurchaseRequestFacade> garmentPurchaseRequestFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            garmentPurchaseRequestFacade
+                .Setup(x => x.GetGarmentPreSalesContract(It.IsAny<IServiceProvider>(), It.IsAny<long>()))
+                .Returns(new GarmentPreSalesContractViewModel());
+
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IGarmentPurchaseRequestFacade)))
+                .Returns(garmentPurchaseRequestFacade.Object);
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var Response = facade.GeneratePdf(serviceProvider.Object, new GarmentPurchaseRequestViewModel
+            {
+                Buyer = new BuyerViewModel(),
+                Items = new List<GarmentPurchaseRequestItemViewModel>
+                {
+                    new GarmentPurchaseRequestItemViewModel
+                    {
+                        Category = new CategoryViewModel(),
+                        Product = new ProductViewModel(),
+                        Uom = new UomViewModel(),
+                        PriceUom = new UomViewModel(),
+                        Quantity = 5,
+                        BudgetPrice = 2,
+                        PriceConversion = 1
+                    }
+                }
+            });
+
+            Assert.IsType<MemoryStream>(Response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_GarmentPreSalesContract()
+        {
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+
+            Mock<IHttpClientService> httpClientService = new Mock<IHttpClientService>();
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("merchandiser/garment-pre-sales-contracts"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentPreSalesContractDataUtil().GetResultFormatterOkString()) });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var garmentPreSalesContract = facade.GetGarmentPreSalesContract(serviceProvider.Object, It.IsAny<long>());
+
+            Assert.NotNull(garmentPreSalesContract);
+        }
+
+        [Fact]
+        public void Should_Error_Get_GarmentPreSalesContract()
+        {
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+
+            Mock<IHttpClientService> httpClientService = new Mock<IHttpClientService>();
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("merchandiser/garment-pre-sales-contracts"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError) { Content = new StringContent(string.Empty) });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+
+            Exception exception = Assert.Throws<Exception>(() => facade.GetGarmentPreSalesContract(serviceProvider.Object, It.IsAny<long>()));
+            Assert.NotNull(exception.Message);
+        }
+
+        [Fact]
         public void Should_Success_Validate_Data()
         {
             GarmentPurchaseRequestViewModel nullViewModel = new GarmentPurchaseRequestViewModel();
@@ -182,8 +350,55 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                     {
                         Product = new ProductViewModel(),
                         Uom = new UomViewModel(),
-                        Category = new CategoryViewModel()
+                        Category = new CategoryViewModel(),
+                        BudgetPrice = -1
                     }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+
+        [Fact]
+        public void Should_Success_Validate_Data_Master()
+        {
+            GarmentPurchaseRequestViewModel viewModel = new GarmentPurchaseRequestViewModel
+            {
+                PRType = "MASTER",
+                Buyer = new BuyerViewModel(),
+                Unit = new UnitViewModel(),
+                Items = new List<GarmentPurchaseRequestItemViewModel>
+                {
+                    new GarmentPurchaseRequestItemViewModel
+                    {
+                        Category = new CategoryViewModel { Name = "FABRIC" },
+                        PriceUom = new UomViewModel()
+                    },
+                    new GarmentPurchaseRequestItemViewModel
+                    {
+                        Category = new CategoryViewModel { Name = "FABRIC" },
+                        Composition = new GarmentProductViewModel { Composition = "Composition" },
+                    },
+                    new GarmentPurchaseRequestItemViewModel
+                    {
+                        Category = new CategoryViewModel { Name = "FABRIC" },
+                        Composition = new GarmentProductViewModel { Composition = "Composition" },
+                        Const = new GarmentProductViewModel { Const = "Const" }
+                    },
+                    new GarmentPurchaseRequestItemViewModel
+                    {
+                        Category = new CategoryViewModel { Name = "FABRIC" },
+                        Composition = new GarmentProductViewModel { Composition = "Composition" },
+                        Const = new GarmentProductViewModel { Const = "Const" },
+                        Yarn = new GarmentProductViewModel { Yarn = "Yarn" },
+                    },
+                    new GarmentPurchaseRequestItemViewModel
+                    {
+                        Category = new CategoryViewModel { Name = "FABRIC" },
+                        Composition = new GarmentProductViewModel { Composition = "Composition" },
+                        Const = new GarmentProductViewModel { Const = "Const" },
+                        Yarn = new GarmentProductViewModel { Yarn = "Yarn" },
+                        Width = new GarmentProductViewModel { Width = "Width" },
+                    },
                 }
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
@@ -220,9 +435,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var validationResultUpdate = viewModel.Validate(validationContext).ToList();
             var errorItems = validationResultUpdate.SingleOrDefault(r => r.MemberNames.Contains("Items"));
             List<Dictionary<string, object>> errorItemsMessage = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(errorItems.ErrorMessage);
-            var errorDuplicatePO_SerialNumber = errorItemsMessage.FirstOrDefault(m => m.ContainsValue("PO_SerialNumber sudah ada"));
+            var errorDuplicatePO_SerialNumber = errorItemsMessage.FirstOrDefault(m => m.ContainsValue("PO SerialNumber sudah ada"));
             Assert.NotNull(errorDuplicatePO_SerialNumber);
         }
+
 		//monitoring purchase all
 		private Mock<IServiceProvider> GetServiceProviderDO()
 		{

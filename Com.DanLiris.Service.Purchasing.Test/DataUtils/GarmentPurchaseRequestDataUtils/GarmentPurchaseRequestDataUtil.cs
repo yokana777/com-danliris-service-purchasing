@@ -101,6 +101,85 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
             };
         }
 
+        public GarmentPurchaseRequest CopyData(GarmentPurchaseRequest data)
+        {
+            return new GarmentPurchaseRequest
+            {
+                UId = data.UId,
+
+                Id = data.Id,
+                Active = data.Active,
+                CreatedUtc = data.CreatedUtc,
+                CreatedBy = data.CreatedBy,
+                CreatedAgent = data.CreatedAgent,
+                LastModifiedUtc = data.LastModifiedUtc,
+                LastModifiedBy = data.LastModifiedBy,
+                LastModifiedAgent = data.LastModifiedAgent,
+                IsDeleted = data.IsDeleted,
+                DeletedUtc = data.DeletedUtc,
+                DeletedBy = data.DeletedBy,
+                DeletedAgent = data.DeletedAgent,
+
+                PRNo = data.PRNo,
+                PRType = data.PRType,
+                RONo = data.RONo,
+                SCId = data.SCId,
+                SCNo = data.SCNo,
+                BuyerId = data.BuyerId,
+                BuyerCode = data.BuyerCode,
+                BuyerName = data.BuyerName,
+                Article = data.Article,
+                Date = data.Date,
+                ExpectedDeliveryDate = data.ExpectedDeliveryDate,
+                ShipmentDate = data.ShipmentDate,
+                UnitId = data.UnitId,
+                UnitCode = data.UnitCode,
+                UnitName = data.UnitName,
+                IsPosted = data.IsPosted,
+                IsUsed = data.IsUsed,
+                IsValidate = data.IsValidate,
+                Remark = data.Remark,
+            };
+        }
+
+        public GarmentPurchaseRequestItem CopyDataItem(GarmentPurchaseRequestItem data)
+        {
+            return new GarmentPurchaseRequestItem
+            {
+                UId = data.UId,
+
+                Id = data.Id,
+                Active = data.Active,
+                CreatedUtc = data.CreatedUtc,
+                CreatedBy = data.CreatedBy,
+                CreatedAgent = data.CreatedAgent,
+                LastModifiedUtc = data.LastModifiedUtc,
+                LastModifiedBy = data.LastModifiedBy,
+                LastModifiedAgent = data.LastModifiedAgent,
+                IsDeleted = data.IsDeleted,
+                DeletedUtc = data.DeletedUtc,
+                DeletedBy = data.DeletedBy,
+                DeletedAgent = data.DeletedAgent,
+
+                PO_SerialNumber = data.PO_SerialNumber,
+                ProductId = data.ProductId,
+                ProductCode = data.ProductCode,
+                ProductName = data.ProductName,
+                Quantity = data.Quantity,
+                BudgetPrice = data.BudgetPrice,
+                UomId = data.UomId,
+                UomUnit = data.UomUnit,
+                CategoryId = data.CategoryId,
+                CategoryName = data.CategoryName,
+                ProductRemark = data.ProductRemark,
+                Status = data.Status,
+                IsUsed = data.IsUsed,
+                PriceUomId = data.PriceUomId,
+                PriceUomUnit = data.PriceUomUnit,
+                PriceConversion = data.PriceConversion,
+            };
+        }
+
         public async Task<GarmentPurchaseRequest> GetTestData()
         {
             var data = GetNewData();
