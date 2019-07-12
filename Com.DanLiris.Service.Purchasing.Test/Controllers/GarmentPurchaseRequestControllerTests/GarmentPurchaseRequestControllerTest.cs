@@ -243,7 +243,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             mockMapper.Setup(x => x.Map<GarmentPurchaseRequestViewModel>(It.IsAny<GarmentPurchaseRequest>()))
                 .Returns(ViewModel);
 
-            GarmentPurchaseRequestController controller = new GarmentPurchaseRequestController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            GarmentPurchaseRequestController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -278,13 +278,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             mockMapper.Setup(x => x.Map<GarmentPurchaseRequestViewModel>(It.IsAny<GarmentPurchaseRequest>()))
                 .Returns(ViewModel);
 
-            GarmentPurchaseRequestController controller = new GarmentPurchaseRequestController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-
+            GarmentPurchaseRequestController controller = GetController(mockFacade, null, mockMapper);
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
-            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
             var response = controller.Get(It.IsAny<int>());
             Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
