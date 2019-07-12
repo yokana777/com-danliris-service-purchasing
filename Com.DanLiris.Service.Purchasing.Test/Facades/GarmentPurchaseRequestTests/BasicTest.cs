@@ -79,6 +79,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Success_Create_Data_Master()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.PRType = "MASTER";
+            model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.PO_SerialNumber = null;
+            }
+            var Response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Data_Sampel()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.PRType = "SAMPLE";
+            model.UnitCode = "C2A";
+            model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.CategoryName = "FABRIC";
+                item.PO_SerialNumber = null;
+            }
+            var Response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Data()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(_dbContext(GetCurrentMethod()));
