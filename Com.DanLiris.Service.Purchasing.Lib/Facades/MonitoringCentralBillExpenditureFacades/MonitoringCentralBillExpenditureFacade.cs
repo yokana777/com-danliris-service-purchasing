@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
         }
 
         #endregion
-        #region MonitoringCentralBillReceptionByUser
+        #region MonitoringCentralBillExpenditureByUser
         public int TotalCountReport { get; set; } = 0;
         private List<MonitoringCentralBillExpenditureViewModel> GetMonitoringKeluarBonPusatByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
         {
