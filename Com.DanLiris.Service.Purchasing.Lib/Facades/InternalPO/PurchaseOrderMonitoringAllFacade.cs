@@ -282,16 +282,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                  && a.DivisionCode == (string.IsNullOrWhiteSpace(divisionCode) ? a.DivisionCode : divisionCode)
                                  && epo.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? epo.SupplierId : supplierId)
                                  && epo.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? epo.EPONo : epoNo)
-                                 && epo.DivisionCode == (string.IsNullOrWhiteSpace(divisionCode) ? epo.DivisionCode : divisionCode)
                                  && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
-                                 && c.DivisionCode == (string.IsNullOrWhiteSpace(divisionCode) ? c.DivisionCode : divisionCode)
                                  && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
                                  && a.PRDate.AddHours(offset).Date >= DateFrom.Date
                                  && a.PRDate.AddHours(offset).Date <= DateTo.Date
                                  && b.Quantity > 0
                                  && a.CreatedBy == (string.IsNullOrWhiteSpace(user) ? a.CreatedBy : user)
-                                 && urn.DivisionCode == (string.IsNullOrWhiteSpace(divisionCode) ? urn.DivisionCode : divisionCode)
-                                 && upo.DivisionCode == (string.IsNullOrWhiteSpace(divisionCode) ? upo.DivisionCode : divisionCode)
+                                 
 
                              select new SelectedId
                              {
