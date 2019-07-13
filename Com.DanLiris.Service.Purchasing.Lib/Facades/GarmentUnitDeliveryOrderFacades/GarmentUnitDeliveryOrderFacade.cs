@@ -70,7 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 Items = m.Items.Select(i => new GarmentUnitDeliveryOrderItem
                 {
                     Id = i.Id,
-                    DesignColor = i.DesignColor
+                    DesignColor = i.DesignColor,
+                    ProductId = i.ProductId,
+                    ProductCode = i.ProductCode,
+                    ProductName = i.ProductName
                 }).ToList()
             });
 
