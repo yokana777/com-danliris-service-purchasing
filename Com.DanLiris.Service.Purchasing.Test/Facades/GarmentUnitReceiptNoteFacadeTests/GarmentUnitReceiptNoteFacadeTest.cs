@@ -741,15 +741,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
 
             var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
-            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
 
             MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
 
-            var dataDO = await datautilDO.GetTestData();
-            var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            //var dataDO = await datautilDO.GetTestData();
+            //var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
 
-            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
+            //var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(dataBon.ReceiptDate.DateTime.AddDays(-1), dataBon.ReceiptDate.DateTime.AddDays(1), 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(null, null, 1, 25, "{}", 7);
 
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
@@ -793,15 +794,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
 
             var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
-            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
 
             MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
 
-            var dataDO = await datautilDO.GetTestData();
-            var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            //var dataDO = await datautilDO.GetTestData();
+            //var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
 
-            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(null, null, 1, 25, "{}", 7);
 
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }

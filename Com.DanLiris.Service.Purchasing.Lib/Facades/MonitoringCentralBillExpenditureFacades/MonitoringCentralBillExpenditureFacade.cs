@@ -158,15 +158,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where
-                         a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false
-                         && f.IsDeleted == false && g.IsDeleted == false && Inv.IsDeleted == false && HInv.IsDeleted == false 
-                         && NI.IsDeleted == false && URN.IsDeleted == false && IURN.IsDeleted == false
-
-                         && ((d1 != new DateTime(1970, 1, 1)) ? (URN.ReceiptDate >= d1 && URN.ReceiptDate <= d2) : true)
-                         
+                         URN != null &&
+                         ((d1 != new DateTime(1970, 1, 1) && URN != null) ? (URN.ReceiptDate >= d1 && URN.ReceiptDate <= d2) : true)
+                                                                             
                          select new SelectedId
                          {
-                             URNDate = URN.ReceiptDate,
+                             URNDate = URN == null ? DateTimeOffset.MinValue : URN.ReceiptDate,
                              URNNo = URN.URNNo,
                              BCId = d == null ? 0 : d.Id,
                              DOId = a.Id,
