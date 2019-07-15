@@ -186,7 +186,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReport(model.PRNo, null, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
+            var Response = Facade.GetReport(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
             Assert.NotNull(Response);
         }
 
@@ -204,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
                 prNo = item.PRNo;
             }
 
-            var Response = Facade.GetReport(prNo, null, null, null, null , null , modelLocalSupplier.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
+            var Response = Facade.GetReport(prNo, null, null, null, null, null , null , modelLocalSupplier.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
             Assert.NotNull(Response);
         }
 
@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             var today = DateTime.Now;
             var tomorrow = today.AddDays(1);
-            var Response = Facade.GetReport(null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
+            var Response = Facade.GetReport(null, null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
 
             Assert.NotNull(Response);
         }
@@ -226,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReport(null, null, null, null, null,null,null,null,null,null, 1, 25, "{}", 7,"");
+            var Response = Facade.GetReport(null, null, null, null, null, null,null,null,null,null,null, 1, 25, "{}", 7,"");
             Assert.NotEqual(Response.Item2, 0);
         }
 
@@ -234,7 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data_Excel()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GenerateExcel(model.PRNo, null, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 7,"");
+            var Response = Facade.GenerateExcel(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 7,"");
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
@@ -242,7 +242,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, 7,"");
+            var Response = Facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, null, 7,"");
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 

@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string supplierCode { get; set; }
         public string supplierName { get; set; }
         public string receivedDatePO { get; set; }
+        public string division { get; set; }
 
         //EPO
         public string epoDate { get; set; }

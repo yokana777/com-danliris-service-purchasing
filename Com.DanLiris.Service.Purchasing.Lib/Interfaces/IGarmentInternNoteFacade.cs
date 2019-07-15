@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,5 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentInternNote m, string user, int clientTimeZoneOffset = 7);
         int Delete(int id, string username);
+        Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }
