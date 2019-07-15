@@ -355,5 +355,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             };
             Assert.True(viewModelNullDetail.Validate(null).Count() > 0);
         }
+        #region Monitoring
+        [Fact]
+        public async Task Should_Success_Get_Report()
+        {
+            GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReport(model.INNo, null, null, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count(), 0);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls()
+        {
+            GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var response = facade.GenerateExcelIn(model.INNo, null, null, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), response);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Report_Null_Parameters()
+        {
+            GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var response = facade.GetReport("", null, null, null, null, 1, 25, "{}", 7);
+            Assert.NotEqual(response.Item1.Count(), 0);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Null_Parameters()
+        {
+            GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var response = facade.GenerateExcelIn("", null, null, null, null, 8);
+            Assert.IsType(typeof(System.IO.MemoryStream), response);
+        }
+        #endregion
     }
 }

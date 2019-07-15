@@ -2,7 +2,9 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseRequestPDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -106,12 +108,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    if (m.PRNo == null)
+                    if (string.IsNullOrWhiteSpace(m.RONo))
                     {
-                        m.PRNo = $"PR{m.RONo}";
+                        m.RONo = GenerateRONo(m, clientTimeZoneOffset);
                     }
-                    m.IsPosted = true;
-                    m.IsUsed = false;
+
+                    if (m.Items.Count(i => string.IsNullOrWhiteSpace(i.PO_SerialNumber)) > 0)
+                    {
+                        GeneratePOSerialNumber(m, clientTimeZoneOffset);
+                    }
+
+                    m.PRNo = $"PR{m.RONo}";
 
                     foreach (var item in m.Items)
                     {
@@ -135,6 +142,101 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Created;
         }
 
+        private string GenerateRONo(GarmentPurchaseRequest m, int timeZone)
+        {
+            DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
+            string y = now.ToString("yy");
+
+            var prefix = string.Empty;
+            var padding = 5;
+            var suffix = string.Empty;
+
+            if (m.PRType == "MASTER")
+            {
+                prefix = $"{y}";
+                suffix = "M";
+            }
+            else if (m.PRType == "SAMPLE")
+            {
+                var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+                if (unitCode < 1)
+                {
+                    throw new Exception("UnitCode format is invalid when Generate RONo");
+                }
+                prefix = $"{y}{unitCode}";
+                suffix = "S";
+            }
+
+            var lastRONo = dbSet.Where(w => string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
+                .OrderByDescending(o => o.RONo)
+                .Select(s => int.Parse(s.RONo.Substring(prefix.Length, padding)))
+                .FirstOrDefault();
+
+            var RONo = $"{prefix}{(lastRONo + 1).ToString($"D{padding}")}{suffix}";
+
+            return RONo;
+        }
+
+        private void GeneratePOSerialNumber(GarmentPurchaseRequest m, int timeZone)
+        {
+            DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
+            string y = now.ToString("yy");
+
+            var prefix = string.Empty;
+            var padding = 6;
+            var suffix = string.Empty;
+
+            if (m.PRType == "MASTER")
+            {
+                prefix = string.Concat(prefix, y);
+                suffix = "M";
+            }
+            else if (m.PRType == "SAMPLE")
+            {
+                var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+                if (unitCode < 1)
+                {
+                    throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
+                }
+                prefix = string.Concat(prefix, y, unitCode);
+                suffix = "S";
+            }
+
+            var prefixPM = string.Concat("PM", prefix);
+            var prefixPA = string.Concat("PA", prefix);
+            int lasPM = 0, lasPA = 0;
+
+            if (m.Items.Count(i => i.Id == 0 && i.CategoryName == "FABRIC") > 0)
+            {
+                lasPM = dbContext.GarmentPurchaseRequestItems
+                    .Where(w => !string.IsNullOrWhiteSpace(w.PO_SerialNumber) && w.PO_SerialNumber.Length == prefixPM.Length + padding + suffix.Length && w.PO_SerialNumber.StartsWith(prefixPM) && w.PO_SerialNumber.EndsWith(suffix))
+                    .OrderByDescending(o => o.PO_SerialNumber)
+                    .Select(s => int.Parse(s.PO_SerialNumber.Substring(prefixPM.Length, padding)))
+                    .FirstOrDefault();
+            }
+
+            if (m.Items.Count(i => i.Id == 0 && i.CategoryName != "FABRIC") > 0)
+            {
+                lasPA = dbContext.GarmentPurchaseRequestItems
+                    .Where(w => !string.IsNullOrWhiteSpace(w.PO_SerialNumber) && w.PO_SerialNumber.Length == prefixPA.Length + padding + suffix.Length && w.PO_SerialNumber.StartsWith(prefixPA) && w.PO_SerialNumber.EndsWith(suffix))
+                    .OrderByDescending(o => o.PO_SerialNumber)
+                    .Select(s => int.Parse(s.PO_SerialNumber.Substring(prefixPA.Length, padding)))
+                    .FirstOrDefault();
+            }
+
+            foreach (var item in m.Items.Where(i => i.Id == 0 && string.IsNullOrWhiteSpace(i.PO_SerialNumber)))
+            {
+                if (item.CategoryName == "FABRIC")
+                {
+                    item.PO_SerialNumber = $"{prefixPM}{(++lasPM).ToString($"D{padding}")}{suffix}";
+                }
+                else
+                {
+                    item.PO_SerialNumber = $"{prefixPA}{(++lasPA).ToString($"D{padding}")}{suffix}";
+                }
+            }
+        }
+
         public async Task<int> Update(int id, GarmentPurchaseRequest m, string user, int clientTimeZoneOffset = 7)
         {
             int Updated = 0;
@@ -143,37 +245,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 try
                 {
-                    var oldM = this.dbSet.AsNoTracking()
+                    var oldM = this.dbSet
                         .Include(d => d.Items)
-                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+                        .SingleOrDefault(pr => pr.Id == id);
 
                     if (oldM != null && oldM.Id == id)
                     {
-                        EntityExtension.FlagForUpdate(m, user, USER_AGENT);
-
-                        foreach (var item in m.Items)
-                        {
-                            if (item.Id == 0)
-                            {
-                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
-                                item.Status = "Belum diterima Pembelian";
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
-                            }
-                        }
-
-                        dbSet.Update(m);
+                        EntityExtension.FlagForUpdate(oldM, user, USER_AGENT);
 
                         foreach (var oldItem in oldM.Items)
                         {
-                            var newItem = oldM.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
                             if (newItem == null)
                             {
                                 EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
-                                dbContext.GarmentPurchaseRequestItems.Update(oldItem);
                             }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(oldItem, user, USER_AGENT);
+
+                                oldItem.ProductRemark = newItem.ProductRemark;
+                                oldItem.Quantity = newItem.Quantity;
+                                oldItem.BudgetPrice = newItem.BudgetPrice;
+                                oldItem.PriceUomId = newItem.PriceUomId;
+                                oldItem.PriceUomUnit = newItem.PriceUomUnit;
+                                oldItem.PriceConversion = newItem.PriceConversion;
+                            }
+                        }
+
+                        if (m.Items.Count(i => i.Id == 0 && string.IsNullOrWhiteSpace(i.PO_SerialNumber)) > 0)
+                        {
+                            GeneratePOSerialNumber(m, clientTimeZoneOffset);
+                        }
+
+                        foreach (var item in m.Items.Where(i => i.Id == 0))
+                        {
+                            EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                            item.Status = "Belum diterima Pembelian";
+
+                            oldM.Items.Add(item);
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
@@ -307,6 +417,119 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             return IPOModels;
         }
+
+
+        public async Task<int> Delete(int id, string user)
+        {
+            int Deleted = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet
+                        .Include(m => m.Items)
+                        .SingleOrDefault(m => m.Id == id);
+
+                    EntityExtension.FlagForDelete(data, user, USER_AGENT);
+                    foreach (var item in data.Items)
+                    {
+                        EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                    }
+
+                    Deleted = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
+        }
+
+        public async Task<int> PRPost(List<long> listId, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var listData = dbSet.Include(i => i.Items)
+                        .Where(w => listId.Contains(w.Id))
+                        .ToList();
+
+                    foreach (var data in listData)
+                    {
+                        EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+                        data.IsPosted = true;
+
+                        foreach (var item in data.Items)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                        }
+                    }
+
+                    Updated = await dbContext.SaveChangesAsync();
+
+                    if (Updated < 1)
+                    {
+                        throw new Exception("No data updated");
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public async Task<int> PRUnpost(long id, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Include(i => i.Items)
+                        .Where(w => w.Id == id)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+                    data.IsPosted = false;
+
+                    foreach (var item in data.Items)
+                    {
+                        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                    }
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public MemoryStream GeneratePdf(IServiceProvider serviceProvider, GarmentPurchaseRequestViewModel viewModel)
+        {
+            return GarmentPurchaseRequestPDFTemplate.Generate(serviceProvider, viewModel);
+        }
+
         #region monitoringpurchasealluser
         public List<GarmentPurchaseRequest> ReadName(string Keyword = null, string Filter = "{}")
         {
@@ -1213,6 +1436,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
         #endregion
+
+        public GarmentPreSalesContractViewModel GetGarmentPreSalesContract(IServiceProvider serviceProvider, long Id)
+        {
+            var uri = "merchandiser/garment-pre-sales-contracts/";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.GetAsync(string.Concat(APIEndpoint.Sales, uri, Id)).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content) ?? new Dictionary<string, object>();
+            if (response.IsSuccessStatusCode)
+            {
+                GarmentPreSalesContractViewModel data = JsonConvert.DeserializeObject<GarmentPreSalesContractViewModel>(result.GetValueOrDefault("data").ToString());
+                return data;
+            }
+            else
+            {
+                throw new Exception(string.Concat("Error from '", uri, "' : ", (string)result.GetValueOrDefault("error") ?? "- ", ". Message : ", (string)result.GetValueOrDefault("message") ?? "- ", ". Status : ", response.StatusCode, "."));
+            }
+        }
     }
 
     public class SelectedId

@@ -627,7 +627,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 Items = m.Items.Select(i => new GarmentUnitExpenditureNoteItem
                 {
                     Id = i.Id,
-                    RONo = i.RONo
+                    UENId = i.UENId,
+                    ProductId = i.ProductId,
+                    ProductCode = i.ProductCode,
+                    ProductName = i.ProductName,
+                    RONo = i.RONo,
+                    Quantity = i.Quantity,
+                    UomId = i.UomId,
+                    UomUnit = i.UomUnit,
+
                 }).ToList(),
                 CreatedAgent = m.CreatedAgent,
                 CreatedBy = m.CreatedBy,

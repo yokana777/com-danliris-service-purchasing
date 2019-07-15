@@ -469,6 +469,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
                     EntityExtension.FlagForDelete(m, user, "Facade");
 
+                    PurchaseRequest purchaseReq = dbContext.PurchaseRequests.FirstOrDefault(a => a.Id.ToString() == m.PRId);
+
+                    purchaseReq.IsUsed = false;
+
                     foreach (var item in m.Items)
                     {
                         var n = this.dbContext.InternalPurchaseOrderItems
