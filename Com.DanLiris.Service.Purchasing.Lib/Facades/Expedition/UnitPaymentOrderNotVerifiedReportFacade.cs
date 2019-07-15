@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             DateTimeOffset dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
             DateTimeOffset dateToFilter = (dateTo == null ? DateTimeOffset.UtcNow.Date : dateTo.Value.Date);
 
+            
             var header = dbContext.PurchasingDocumentExpeditions.AsQueryable();
             if (type == "not-history")
             {
@@ -42,8 +43,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             p.UnitPaymentOrderNo == (string.IsNullOrWhiteSpace(no) ? p.UnitPaymentOrderNo : no) &&
                             p.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? p.SupplierCode : supplier) &&
                             p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
-                            p.VerifyDate >= dateFromFilter &&
-                            p.VerifyDate <= dateToFilter
+                            p.VerifyDate!=null &&
+                            p.VerifyDate.GetValueOrDefault().AddHours(offset).Date >= dateFromFilter &&
+                            p.VerifyDate.GetValueOrDefault().AddHours(offset).Date <= dateToFilter
                             && p.Position == (ExpeditionPosition)6
                          select new UnitPaymentOrderNotVerifiedReportViewModel
                          {
