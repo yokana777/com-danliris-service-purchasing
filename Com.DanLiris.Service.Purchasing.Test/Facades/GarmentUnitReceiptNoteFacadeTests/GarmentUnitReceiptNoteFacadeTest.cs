@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -626,6 +627,211 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
+        //Monitoring Keluar BP
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME);
+
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Data_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME);
+
+            DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
+            DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
+
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(d1, d2, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Data_By_User()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME);
+
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Data_By_User_Null_Pameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME);
+            DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
+            DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
+
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(d1, d2, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Excel()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            //var dataDO = await datautilDO.GetTestData();
+            //var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
+
+            //var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(dataBon.ReceiptDate.DateTime.AddDays(-1), dataBon.ReceiptDate.DateTime.AddDays(1), 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(null, null, 1, 25, "{}", 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Excel_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME);
+            DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
+            DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
+
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(d1, d2, 1, 25, "{}", 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Excel_By_User()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            //var dataDO = await datautilDO.GetTestData();
+            //var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
+
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(null, null, 1, 25, "{}", 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Keluar_BP_Report_Excel_By_User_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME);
+            DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
+            DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
+
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(d1, d2, 1, 25, "{}", 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
     }
 }
