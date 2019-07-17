@@ -58,6 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(httpResponseMessage);
 
+            httpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
+
             var mapper = new Mock<IMapper>();
             mapper
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
