@@ -36,6 +36,10 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -54,6 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             httpClientService
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(httpResponseMessage);
+
+            httpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
 
             var mapper = new Mock<IMapper>();
             mapper
@@ -431,6 +439,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
 
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
 
@@ -441,7 +451,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             var Response = TerimaBP.GetMonitoringTerimaBonPusatReport(null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
@@ -454,6 +464,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -465,7 +476,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);            
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30); 
@@ -481,6 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -492,7 +504,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             var Response = TerimaBP.GetMonitoringTerimaBonPusatByUserReport(null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
@@ -505,6 +517,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -516,7 +529,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
@@ -531,6 +544,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -542,7 +556,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             var Response = TerimaBP.GenerateExcelMonitoringTerimaBonPusat(null, null, 1, 25, "{}", 7);
 
@@ -556,6 +570,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -567,7 +582,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
@@ -583,6 +598,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -594,7 +610,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             var Response = TerimaBP.GenerateExcelMonitoringTerimaBonPusatByUser(null, null, 1, 25, "{}", 7);
 
@@ -608,6 +624,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -619,7 +636,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
@@ -635,6 +652,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -646,7 +664,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
@@ -659,6 +677,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -670,7 +689,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
@@ -686,6 +705,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -697,7 +717,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
             var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
@@ -710,6 +730,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -721,7 +742,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
@@ -745,11 +766,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
 
-            //var dataDO = await datautilDO.GetTestData();
-            //var dataBon = await datautilBon.GetTestData();
             var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
 
-            //var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(dataBon.ReceiptDate.DateTime.AddDays(-1), dataBon.ReceiptDate.DateTime.AddDays(1), 1, 25, "{}", 7);
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(null, null, 1, 25, "{}", 7);
 
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
@@ -762,6 +780,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -773,7 +792,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
@@ -798,8 +817,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
 
-            //var dataDO = await datautilDO.GetTestData();
-            //var dataBon = await datautilBon.GetTestData();
             var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
 
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(null, null, 1, 25, "{}", 7);
@@ -814,6 +831,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
             var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
@@ -825,11 +843,227 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataDO = await datautilDO.GetTestData();
             var dataBon = await datautilBon.GetTestData();
-            var dataBC = await datautilBC.GetTestData(USERNAME);
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(d1, d2, 1, 25, "{}", 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+        //Monitoring Terima Nota Koreksi
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            var Response = TerimaNK.GetMonitoringTerimaNKReport(dataNK.CorrectionDate.DateTime, dataNK.CorrectionDate.DateTime, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Data_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
+            DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
+
+            var Response = TerimaNK.GetMonitoringTerimaNKReport(d1, d2, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Data_By_User()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            var Response = TerimaNK.GetMonitoringTerimaNKByUserReport(dataNK.CorrectionDate.DateTime, dataNK.CorrectionDate.DateTime, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Data_By_User_Null_Pameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
+            DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
+
+            var Response = TerimaNK.GetMonitoringTerimaNKByUserReport(d1, d2, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Excel()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, datautilBon, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            var Response = TerimaNK.GenerateExcelMonitoringTerimaNK(null, null, 1, 25, "{}", 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Excel_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            MonitoringCentralBillExpenditureFacade KeluarBP = new MonitoringCentralBillExpenditureFacade(_dbContext(GetCurrentMethod()));
+
+            DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
+            DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
+
+            var Response = TerimaNK.GenerateExcelMonitoringTerimaNK(d1, d2, 1, 25, "{}", 7);
+
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Excel_By_User()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            var Response = TerimaNK.GenerateExcelMonitoringTerimaNKByUser(null, null, 1, 25, "{}", 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Terima_NK_Report_Excel_By_User_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            MonitoringCorrectionNoteReceptionFacade TerimaNK = new MonitoringCorrectionNoteReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+
+            DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
+            DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
+
+            var Response = TerimaNK.GenerateExcelMonitoringTerimaNKByUser(d1, d2, 1, 25, "{}", 7);
 
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
