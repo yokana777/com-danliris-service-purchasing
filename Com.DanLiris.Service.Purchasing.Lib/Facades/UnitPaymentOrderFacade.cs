@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 try
                 {
                     EntityExtension.FlagForCreate(model, user, USER_AGENT);
-                    model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
+                    //model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     foreach (var item in model.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
@@ -146,6 +146,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     throw new Exception(e.Message);
                 }
             }
+
+            model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
+            await dbContext.SaveChangesAsync();
 
             return Created;
         }
@@ -310,7 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             string no = $"{Year}-{Month}-{TG}{Supplier}-";
             int Padding = isImport ? 3 : 4;
 
-            var lastNo = await dbSet.Where(w => w.UPONo.StartsWith(no) && !w.UPONo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
+            var lastNo = await dbSet.Where(w => !string.IsNullOrWhiteSpace(w.UPONo) && w.UPONo.StartsWith(no) && !w.UPONo.EndsWith("L") && !w.IsDeleted).OrderByDescending(o => o.UPONo).FirstOrDefaultAsync();
 
             if (lastNo == null)
             {
