@@ -30,6 +30,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services
             return await _client.PostAsync(url, content);
         }
 
+        public async Task<HttpResponseMessage> PatchAsync(string url, HttpContent content)
+        {
+            var method = new HttpMethod("PATCH");
+
+            var request = new HttpRequestMessage(method, url)
+            {
+                Content = content
+            };
+
+            return await _client.SendAsync(request);
+        }
+
         public async Task<HttpResponseMessage> DeleteAsync(string url)
         {
             return await _client.DeleteAsync(url);
