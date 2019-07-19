@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
         private GarmentUnitExpenditureNoteDataUtil dataUtil(GarmentUnitExpenditureNoteFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));

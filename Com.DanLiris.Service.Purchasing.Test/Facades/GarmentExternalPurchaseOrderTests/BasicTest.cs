@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
         private GarmentExternalPurchaseOrderDataUtil dataUtil(GarmentExternalPurchaseOrderFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
@@ -90,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
         private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));

@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
 
             IdentityService identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
             IGarmentPurchaseRequestFacade garmentPurchaseRequestFacade = (IGarmentPurchaseRequestFacade)serviceProvider.GetService(typeof(IGarmentPurchaseRequestFacade));
-            var salesContract = garmentPurchaseRequestFacade.GetGarmentPreSalesContract(serviceProvider, viewModel.SCId);
+            var salesContract = garmentPurchaseRequestFacade.GetGarmentPreSalesContract(viewModel.SCId);
 
             #region Header
 
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
             #region TableContent
 
             PdfPTable tableContent = new PdfPTable(9);
-            tableContent.SetWidths(new float[] { 36f, 116f, 100f, 175f, 100f, 68f, 173f, 102f, 130f });
+            tableContent.SetWidths(new float[] { 36f, 116f, 100f, 175f, 90f, 68f, 153f, 132f, 130f });
 
             cellCenter.Phrase = new Phrase("NO", bold_font);
             tableContent.AddCell(cellCenter);

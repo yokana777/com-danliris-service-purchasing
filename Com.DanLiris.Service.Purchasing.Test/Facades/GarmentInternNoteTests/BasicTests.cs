@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         private GarmentInternNoteDataUtil dataUtil(GarmentInternNoteFacades facade, string testName)
         {
 
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));

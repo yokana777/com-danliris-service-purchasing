@@ -85,7 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
         private GarmentUnitReceiptNoteDataUtil garmentUnitReceiptNoteDataUtil(GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));

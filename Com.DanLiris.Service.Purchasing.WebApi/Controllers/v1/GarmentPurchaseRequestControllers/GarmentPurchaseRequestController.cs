@@ -157,7 +157,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                     identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    var stream = facade.GeneratePdf(serviceProvider, viewModel);
+                    var stream = facade.GeneratePdf(viewModel);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
@@ -205,6 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         {
             try
             {
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -277,6 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         {
             try
             {
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 await facade.Delete(id, identityService.Username);
