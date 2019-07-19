@@ -43,6 +43,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public bool IsValidate { get; set; }
         public string Remark { get; set; }
 
+        public string ValidatedBy { get; set; }
+        public DateTimeOffset? ValidatedDate { get; set; }
+
+
         public virtual ICollection<GarmentPurchaseRequestItem> Items { get; set; }
     }
 }

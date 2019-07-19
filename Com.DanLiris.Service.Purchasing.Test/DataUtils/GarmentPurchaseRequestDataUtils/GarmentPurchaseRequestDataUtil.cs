@@ -42,12 +42,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 UnitName = $"UnitName{nowTicksA}",
 
                 Remark = $"Remark{nowTicksA}",
-				CreatedBy="CreatedBy",
+                CreatedBy = "CreatedBy",
 
                 PRType = $"PRType{nowTicks}",
                 SCId = nowTicks,
                 SCNo = $"SCNo{nowTicks}",
                 IsValidate = true,
+                ValidatedBy = null,
+                ValidatedDate = null,
 
                 Items = new List<GarmentPurchaseRequestItem>
                 {
@@ -139,6 +141,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 IsUsed = data.IsUsed,
                 IsValidate = data.IsValidate,
                 Remark = data.Remark,
+                ValidatedBy = data.ValidatedBy,
+                ValidatedDate = data.ValidatedDate,
             };
         }
 
