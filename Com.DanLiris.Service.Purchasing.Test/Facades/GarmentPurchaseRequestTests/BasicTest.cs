@@ -213,6 +213,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Success_Delete_Data_With_Update_IsPR()
+        {
+            var mockHttpClient = new Mock<IHttpClientService>();
+            mockHttpClient
+                .Setup(x => x.PatchAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+
+            var mockServiceProvider = GetServiceProvider();
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClient.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+            model.PRType = "MASTER";
+
+            var Response = await facade.Delete((int)model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Error_Delete_Data()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
