@@ -341,7 +341,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     (string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
                     (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
                     m.Items.Any(i => i.IsUsed == false) &&
-                    m.IsUsed == false
+                    m.IsUsed == false &&
+                    m.IsValidate == true
                     )
                 .Select(m => new GarmentPurchaseRequest
                 {
