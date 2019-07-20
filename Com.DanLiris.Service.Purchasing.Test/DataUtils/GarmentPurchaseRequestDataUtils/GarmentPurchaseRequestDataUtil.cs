@@ -48,8 +48,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 SCId = nowTicks,
                 SCNo = $"SCNo{nowTicks}",
                 IsValidate = true,
-                ValidatedBy = null,
-                ValidatedDate = null,
+                ValidatedBy = nowTicksA,
+                ValidatedDate = DateTimeOffset.Now,
 
                 Items = new List<GarmentPurchaseRequestItem>
                 {
