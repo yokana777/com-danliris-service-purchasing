@@ -54,12 +54,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReceiptCorrectio
                     }
                     else if (CorrectionType.ToUpper() == "KONVERSI")
                     {
+                        double qty = item.Quantity * item.CorrectionConversion;
                         if (item.CorrectionConversion <= 0)
                         {
                             itemErrorCount++;
                             itemError += "CorrectionConversion: 'Konversi tidak boleh kurang dari 0', ";
                         }
-                    
+                        else if (qty<item.OrderQuantity)
+                        {
+                            itemErrorCount++;
+                            itemError += "CorrectionConversion: 'Konversi tidak Sesuai. Stok minus', ";
+                        }
                     }
 
                     itemError += "}, ";
