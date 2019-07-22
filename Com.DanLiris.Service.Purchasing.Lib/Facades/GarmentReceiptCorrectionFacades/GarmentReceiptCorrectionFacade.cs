@@ -346,7 +346,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
 
             garmentInventoryMovement.Remark = garmentReceiptCorrectionItem.ProductRemark;
 
-            garmentInventoryMovement.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryMovement.Type = type;
 
             return garmentInventoryMovement;
         }
@@ -367,7 +367,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryDocument.ReferenceNo = garmentReceiptCorrection.CorrectionNo;
             garmentInventoryDocument.ReferenceType = string.Concat("Koreksi Bon - ", garmentReceiptCorrection.UnitName);
 
-            garmentInventoryDocument.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryDocument.Type = type;
             garmentInventoryDocument.Date = DateTime.Now;
             garmentInventoryDocument.StorageId = garmentReceiptCorrection.StorageId;
             garmentInventoryDocument.StorageCode = garmentReceiptCorrection.StorageCode;
@@ -430,7 +430,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryDocument.ReferenceNo = garmentReceiptCorrection.CorrectionNo;
             garmentInventoryDocument.ReferenceType = string.Concat("Koreksi Bon - ", garmentReceiptCorrection.UnitName);
 
-            garmentInventoryDocument.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryDocument.Type = type;
             garmentInventoryDocument.Date = DateTime.Now;
             garmentInventoryDocument.StorageId = garmentReceiptCorrection.StorageId;
             garmentInventoryDocument.StorageCode = garmentReceiptCorrection.StorageCode;
