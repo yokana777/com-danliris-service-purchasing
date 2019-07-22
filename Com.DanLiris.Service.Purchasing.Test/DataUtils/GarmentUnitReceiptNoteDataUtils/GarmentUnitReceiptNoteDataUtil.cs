@@ -86,6 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         SmallUomId = long.Parse(detail.SmallUomId),
                         SmallUomUnit = detail.SmallUomUnit,
                         Conversion = (decimal)detail.Conversion,
+                        CorrectionConversion = (decimal)detail.Conversion
                     };
 
                 garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
@@ -159,7 +160,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
                         SmallUomId = long.Parse(detail.SmallUomId),
                         SmallUomUnit = detail.SmallUomUnit,
-                        Conversion = (decimal)detail.Conversion
+                        Conversion = (decimal)detail.Conversion,
+                        CorrectionConversion= (decimal)detail.Conversion
                     };
 
                     garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
