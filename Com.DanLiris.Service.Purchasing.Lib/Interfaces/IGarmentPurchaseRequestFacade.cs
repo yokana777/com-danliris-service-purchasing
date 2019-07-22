@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Delete(int id, string user);
         Task<int> PRPost(List<long> listId, string username);
         Task<int> PRUnpost(long id, string username);
-        MemoryStream GeneratePdf(IServiceProvider serviceProvider, GarmentPurchaseRequestViewModel viewModel);
-        GarmentPreSalesContractViewModel GetGarmentPreSalesContract(IServiceProvider serviceProvider, long Id);
+        MemoryStream GeneratePdf(GarmentPurchaseRequestViewModel viewModel);
+        GarmentPreSalesContractViewModel GetGarmentPreSalesContract(long Id);
     }
 }

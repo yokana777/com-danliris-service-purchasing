@@ -15,6 +15,8 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
@@ -25,9 +27,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentPurchaseRequest> dbSet;
+        private readonly IServiceProvider serviceProvider;
 
-        public GarmentPurchaseRequestFacade(PurchasingDbContext dbContext)
+        private readonly string GarmentPreSalesContractUri = "merchandiser/garment-pre-sales-contracts/";
+
+        public GarmentPurchaseRequestFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
+            this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentPurchaseRequest>();
         }
@@ -64,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             List<string> searchAttributes = new List<string>()
             {
-                "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
+                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
             };
 
             Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -131,6 +137,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
+
+                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
+                    {
+                        await SetIsPR(m.SCId, true);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -167,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 suffix = "S";
             }
 
-            var lastRONo = dbSet.Where(w => string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
+            var lastRONo = dbSet.Where(w => !string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
                 .OrderByDescending(o => o.RONo)
                 .Select(s => int.Parse(s.RONo.Substring(prefix.Length, padding)))
                 .FirstOrDefault();
@@ -437,6 +448,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         EntityExtension.FlagForDelete(item, user, USER_AGENT);
                     }
 
+                    if (data.PRType == "MASTER" || data.PRType == "SAMPLE")
+                    {
+                        var countPreSCinOtherPR = dbSet.Count(w => w.Id != data.Id && w.SCId == data.SCId);
+                        if (countPreSCinOtherPR == 0)
+                        {
+                            await SetIsPR(data.SCId, false);
+                        }
+                    }
+
                     Deleted = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -525,9 +545,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Updated;
         }
 
-        public MemoryStream GeneratePdf(IServiceProvider serviceProvider, GarmentPurchaseRequestViewModel viewModel)
+        public MemoryStream GeneratePdf(GarmentPurchaseRequestViewModel viewModel)
         {
             return GarmentPurchaseRequestPDFTemplate.Generate(serviceProvider, viewModel);
+        }
+
+        private async Task SetIsPR(long scId, bool isPR)
+        {
+            var stringContentRequest = JsonConvert.SerializeObject(new List<object>
+                        {
+                            new { op = "replace", path = "/ispr", value = isPR }
+                        });
+            var httpContentRequest = new StringContent(stringContentRequest, Encoding.UTF8, General.JsonMediaType);
+
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = await httpClient.PatchAsync(string.Concat(APIEndpoint.Sales, GarmentPreSalesContractUri, scId), httpContentRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var contentResponse = await response.Content.ReadAsStringAsync();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(contentResponse) ?? new Dictionary<string, object>();
+
+                throw new Exception(string.Concat("Error from '", GarmentPreSalesContractUri, "' : ", (string)result.GetValueOrDefault("error") ?? "- ", ". Message : ", (string)result.GetValueOrDefault("message") ?? "- ", ". Status : ", response.StatusCode, "."));
+            }
         }
 
         #region monitoringpurchasealluser
@@ -1437,11 +1478,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         }
         #endregion
 
-        public GarmentPreSalesContractViewModel GetGarmentPreSalesContract(IServiceProvider serviceProvider, long Id)
+        public GarmentPreSalesContractViewModel GetGarmentPreSalesContract(long Id)
         {
-            var uri = "merchandiser/garment-pre-sales-contracts/";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.GetAsync(string.Concat(APIEndpoint.Sales, uri, Id)).Result;
+
+            var response = httpClient.GetAsync(string.Concat(APIEndpoint.Sales, GarmentPreSalesContractUri, Id)).Result;
             var content = response.Content.ReadAsStringAsync().Result;
             Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content) ?? new Dictionary<string, object>();
             if (response.IsSuccessStatusCode)
@@ -1451,7 +1492,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             }
             else
             {
-                throw new Exception(string.Concat("Error from '", uri, "' : ", (string)result.GetValueOrDefault("error") ?? "- ", ". Message : ", (string)result.GetValueOrDefault("message") ?? "- ", ". Status : ", response.StatusCode, "."));
+                throw new Exception(string.Concat("Error from '", GarmentPreSalesContractUri, "' : ", (string)result.GetValueOrDefault("error") ?? "- ", ". Message : ", (string)result.GetValueOrDefault("message") ?? "- ", ". Status : ", response.StatusCode, "."));
             }
         }
     }

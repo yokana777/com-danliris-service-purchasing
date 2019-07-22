@@ -271,7 +271,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentPurchaseRequest());
 
-            mockFacade.Setup(x => x.GeneratePdf(It.IsAny<IServiceProvider>(), It.IsAny<GarmentPurchaseRequestViewModel>()))
+            mockFacade.Setup(x => x.GeneratePdf(It.IsAny<GarmentPurchaseRequestViewModel>()))
                 .Returns(new System.IO.MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
