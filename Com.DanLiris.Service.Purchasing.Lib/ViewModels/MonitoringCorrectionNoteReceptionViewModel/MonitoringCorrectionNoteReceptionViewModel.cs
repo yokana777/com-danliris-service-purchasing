@@ -12,9 +12,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringCorrectionNot
         public string CorrectionType { get; set; }
         public decimal CorrectionQuantity { get; set; }
         public string CorrectionUOMUnit { get; set; }
-        public string CorrectionCurrencyCode { get; set; }
         public decimal CorrectionAmount { get; set; }
         public string BillNo { get; set; }
+        public string PaymentBill { get; set; }
         public DateTimeOffset BillDate { get; set; }
         public string CustomsType { get; set; }
         public string BeaCukaiNo { get; set; }

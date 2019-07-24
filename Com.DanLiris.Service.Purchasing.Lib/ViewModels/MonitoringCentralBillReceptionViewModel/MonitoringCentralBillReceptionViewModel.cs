@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringCentralBillRe
     {
         public int index { get; set; }
         public string BillNo { get; set; }
+        public string PaymentBill { get; set; }
         public DateTimeOffset BillDate { get; set; }
         public string CustomsType { get; set; }
         public string BeaCukaiNo { get; set; }
