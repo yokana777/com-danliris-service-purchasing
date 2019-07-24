@@ -164,5 +164,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             var response = controller.GetByListOfNo(It.IsAny<List<string>>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
+
+        [Fact]
+        public async void Should_Success_GetForSubLedger()
+        {
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.GetUnitReceiptNoteForSubledger(It.IsAny<List<string>>()))
+                .ReturnsAsync(new List<SubLedgerUnitReceiptNoteViewModel>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<UnitReceiptNoteViewModel>>(It.IsAny<List<UnitReceiptNote>>()))
+                .Returns(new List<UnitReceiptNoteViewModel>());
+
+            UnitReceiptNoteAllController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = await controller.GetForSubLedger(It.IsAny<List<string>>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
     }
 }
