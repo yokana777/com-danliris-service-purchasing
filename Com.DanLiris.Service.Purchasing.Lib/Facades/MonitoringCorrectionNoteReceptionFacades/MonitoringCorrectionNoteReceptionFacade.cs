@@ -51,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
 
             result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Pusat", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bon Pusat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bea Cukai", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bukti BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bea Cukai", DataType = typeof(String) });
@@ -131,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
 
 
                     result.Rows.Add(
-                        index, item.CorrectionNo, CorrectionDate, item.CorrectionType, CorrectionQuantity, item.CorrectionUOMUnit, CorrectionAmount, item.BillNo, BillDate,
+                        index, item.CorrectionNo, CorrectionDate, item.CorrectionType, CorrectionQuantity, item.CorrectionUOMUnit, CorrectionAmount, item.BillNo, BillDate, item.PaymentBill,
                         item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom, item.SupplierCode, item.SupplierName, item.Article,
                         item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode, item.ProductName, item.ProductRemark, DOQuantity,
                         item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit, item.InternNo, INDate, item.URNNo, ReceiptDate,
@@ -420,7 +421,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                     string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
                     
                     result.Rows.Add(
-                        index, item.CorrectionNo, CorrectionDate, item.CorrectionType, CorrectionQuantity, item.CorrectionUOMUnit, CorrectionAmount, item.BillNo, BillDate, 
+                        index, item.CorrectionNo, CorrectionDate, item.CorrectionType, CorrectionQuantity, item.CorrectionUOMUnit, CorrectionAmount, item.BillNo, BillDate, item.PaymentBill, 
                         item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom, item.SupplierCode, item.SupplierName, item.Article, 
                         item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode, item.ProductName, item.ProductRemark, DOQuantity,
                         item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit, item.InternNo, INDate, item.URNNo, ReceiptDate,
