@@ -1078,7 +1078,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "BAHAN BAKU", 1, 25, "{}", 7);
+            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "Bahan Baku", 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_FlowReportt_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "Bahan Pendukung", 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_FlowReporttt_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "Bahan Embalase", 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item1.Count, 0);
         }
 
@@ -1096,7 +1114,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelLow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "BAHAN BAKU", 7);
+            var Response = facade.GenerateExcelLow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "Bahan Baku", 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
@@ -1105,7 +1123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelLow(null, null, "", "", 7);
+            var Response = facade.GenerateExcelLow(null, null, "0", "KK", 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
