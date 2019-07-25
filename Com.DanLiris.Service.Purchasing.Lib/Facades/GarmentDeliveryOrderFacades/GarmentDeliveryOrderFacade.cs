@@ -496,9 +496,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //{
 
             var DOCurrencyCodes = dbSet.Where(w => w.BillNo == BillNo).Select(s => s.DOCurrencyCode);
+            var SupplierIds = dbSet.Where(w => w.BillNo == BillNo).Select(s => s.SupplierId);
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
-                .ThenInclude(i => i.Details).Where(s => s.CustomsId == 0 && (DOCurrencyCodes.Count() == 0 || DOCurrencyCodes.Contains(s.DOCurrencyCode)));
+                .ThenInclude(i => i.Details)
+                .Where(s => s.CustomsId == 0
+                    && (DOCurrencyCodes.Count() == 0 || DOCurrencyCodes.Contains(s.DOCurrencyCode))
+                    && (SupplierIds.Count() == 0 || SupplierIds.Contains(s.SupplierId))
+                    );
             //}
 
             return Query;
