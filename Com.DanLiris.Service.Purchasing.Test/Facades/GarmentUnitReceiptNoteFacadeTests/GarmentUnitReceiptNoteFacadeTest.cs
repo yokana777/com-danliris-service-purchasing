@@ -1068,5 +1068,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
+
+
+
+        #region flow detail penerimaan 
+
+        [Fact]
+        public async void Should_Success_Get_FlowReport_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 1, 25, "{}", 7);
+            Assert.NotEqual(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_FlowReport_Data_Null_Parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportFlow(null, null, "", "Bahan Baku", 1, 25, "{}", 7);
+            Assert.Equal(Response.Item1.Count, 0);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_FlowReport_Data_Excel()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcelLow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Report_Data_Excel_Null_parameter()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcelLow(null, null, "0", "", 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        #endregion
     }
+
+
 }
