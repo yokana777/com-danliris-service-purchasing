@@ -44,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Pusat", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bon Pusat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bea Cukai", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bukti BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bea Cukai", DataType = typeof(String) });
@@ -68,13 +69,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Satuan Sbl Konv", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(String) });
 
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Sat Stl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Intern", DataType = typeof(String) });
@@ -82,16 +83,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl BUM", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "Konfeksi", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | QTY Sbl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | QTY Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KONF | Satuan Sbl Konv", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Harga", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Jumlah Harga", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Konversi", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Qty Stl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Jumlah Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Konversi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Qty Stl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KONF | Sat Stl Konv", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", 0, "", 0, 0, 0, 0, "", "", "", "", "", "", 0, "", 0, 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -105,11 +106,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                     string INDate = item.INDate == new DateTime(1970, 1, 1) ? "-" : item.INDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string ReceiptDate = item.ReceiptDate == new DateTime(1970, 1, 1) ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
+                    string DOQuantity = string.Format("{0:N2}", item.DOQuantity);
+                    string PricePerDealUnit = string.Format("{0:N2}", item.PricePerDealUnit);
+                    string PriceTotal = string.Format("{0:N2}", item.PriceTotal);
+                    string Conversion = string.Format("{0:N2}", item.Conversion);
+                    string SmallQuantity = string.Format("{0:N2}", item.SmallQuantity);
+
+                    string ReceiptQuantity = string.Format("{0:N2}", item.ReceiptQuantity);
+                    string URNPricePerDealUnit = string.Format("{0:N2}", item.URNPricePerDealUnit);
+                    string URNPriceTotal = string.Format("{0:N2}", item.URNPriceTotal);
+                    string URNConversion = string.Format("{0:N2}", item.URNConversion);
+                    string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
+
                     result.Rows.Add(
-                           index, item.BillNo, BillDate, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
-                           item.SupplierCode, item.SupplierName, item.Article, item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode,                     
-                           item.ProductName, item.ProductRemark, item.DOQuantity, item.UOMUnit, item.PricePerDealUnit, item.PriceTotal, item.Conversion, item.SmallQuantity, item.SmallUOMUnit, 
-                           item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, item.ReceiptQuantity, item.URNUOMUnit, item.URNPricePerDealUnit, item.URNPriceTotal, item.URNConversion, item.URNSmallQuantity, item.URNSmallUOMUnit);
+                        index, item.BillNo, BillDate, item.PaymentBill, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
+                        item.SupplierCode, item.SupplierName, item.Article, item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode,
+                        item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit,
+                        item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, ReceiptQuantity, item.URNUOMUnit, URNPricePerDealUnit, URNPriceTotal, URNConversion, URNSmallQuantity, item.URNSmallUOMUnit);
                 }
             }
 
@@ -183,11 +196,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             TotalCountReport = Query.Distinct().OrderByDescending(o => o.URNDate).Count();
             var queryResult = Query.Distinct().OrderByDescending(o => o.URNDate).Skip((page - 1) * size).Take(size).ToList();
             var deliveryOrderIds = queryResult.Select(s => s.DOId).Distinct().ToList();            
-            var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.PaymentMethod, s.SupplierCode, s.SupplierName, s.DONo, s.ArrivalDate, s.InternNo }).ToList();
+            var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.PaymentBill, s.DOCurrencyRate, s.PaymentMethod, s.SupplierCode, s.SupplierName, s.DONo, s.ArrivalDate, s.InternNo }).ToList();
             var deliveryOrderItemIds = queryResult.Select(s => s.DOItemId).Distinct().ToList();
             var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo}).ToList();
             var deliveryOrderDetailIds = queryResult.Select(s => s.DODetailId).Distinct().ToList();
-            var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.CodeRequirment, s.ProductCode, s.ProductName, s.DOQuantity, s.UomUnit, s.PricePerDealUnit, s.PriceTotal, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
+            var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.POSerialNumber, s.CodeRequirment, s.ProductCode, s.ProductName, s.DOQuantity, s.UomUnit, s.PricePerDealUnit, s.PriceTotal, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
             var beaCukaiIds = queryResult.Select(s => s.BCId).Distinct().ToList();
             var beaCukais = dbContext.GarmentBeacukais.Where(w => beaCukaiIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.BeacukaiDate, s.CustomsType, s.BeacukaiNo}).ToList();
             var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
@@ -224,6 +237,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
 
                 monitoringcentralbillexpenditureViewModel.index = i;
                 monitoringcentralbillexpenditureViewModel.BillNo = deliveryOrder.BillNo;
+                monitoringcentralbillexpenditureViewModel.PaymentBill = deliveryOrder.PaymentBill;            
                 monitoringcentralbillexpenditureViewModel.BillDate = beaCukai == null ? new DateTime(1970, 1, 1) : beaCukai.BeacukaiDate;
                 monitoringcentralbillexpenditureViewModel.CustomsType = beaCukai == null ? "-" : beaCukai.CustomsType;
                 monitoringcentralbillexpenditureViewModel.BeaCukaiNo = beaCukai == null ? "-" : beaCukai.BeacukaiNo;
@@ -231,7 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                 monitoringcentralbillexpenditureViewModel.PaymentType = deliveryOrder.PaymentMethod;
                 monitoringcentralbillexpenditureViewModel.CodeRequirement = deliveryOrderDetail.CodeRequirment;
                 monitoringcentralbillexpenditureViewModel.BuyerName = purchaseOrderInternal.BuyerName;
-                monitoringcentralbillexpenditureViewModel.ProductType = (deliveryOrderDetail.ProductCode != "PRC001" && deliveryOrderDetail.ProductCode != "WSH001" && deliveryOrderDetail.ProductCode != "EMB001") ? "BARANG" : "JASA";
+                monitoringcentralbillexpenditureViewModel.ProductType = beaCukai.CustomsType == "BC 262" ? "JASA" : "BARANG";
                 monitoringcentralbillexpenditureViewModel.ProductFrom = purchaseOrderExternal.SupplierImport ? "IMPORT" : "LOKAL";
                 monitoringcentralbillexpenditureViewModel.SupplierCode = deliveryOrder.SupplierCode;
                 monitoringcentralbillexpenditureViewModel.SupplierName = deliveryOrder.SupplierName;
@@ -242,14 +256,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                 monitoringcentralbillexpenditureViewModel.InvoiceNo = invoice == null ? "" : invoice.InvoiceNo;
                 monitoringcentralbillexpenditureViewModel.IncomeTaxNo = invoice == null ? "" : invoice.IncomeTaxNo;
                 monitoringcentralbillexpenditureViewModel.IncomeTaxDate = invoice == null ? new DateTime(1970, 1, 1) : invoice.IncomeTaxDate;
-                monitoringcentralbillexpenditureViewModel.EPONo = deliveryOrderItem.EPONo;
+                monitoringcentralbillexpenditureViewModel.EPONo = deliveryOrderDetail.POSerialNumber;
                 monitoringcentralbillexpenditureViewModel.ProductCode = deliveryOrderDetail.ProductCode;
                 monitoringcentralbillexpenditureViewModel.ProductName = deliveryOrderDetail.ProductName;
                 monitoringcentralbillexpenditureViewModel.ProductRemark = purchaseOrderInternalItem.ProductRemark;
                 monitoringcentralbillexpenditureViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcentralbillexpenditureViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
-                monitoringcentralbillexpenditureViewModel.PricePerDealUnit = deliveryOrderDetail.PricePerDealUnit;
-                monitoringcentralbillexpenditureViewModel.PriceTotal = deliveryOrderDetail.PriceTotal;
+                monitoringcentralbillexpenditureViewModel.PricePerDealUnit = (double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit;
+                monitoringcentralbillexpenditureViewModel.PriceTotal = (double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal;
                 monitoringcentralbillexpenditureViewModel.Conversion = deliveryOrderDetail.Conversion;
                 monitoringcentralbillexpenditureViewModel.SmallQuantity = deliveryOrderDetail.SmallQuantity;
                 monitoringcentralbillexpenditureViewModel.SmallUOMUnit = deliveryOrderDetail.SmallUomUnit;
@@ -257,11 +271,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                 monitoringcentralbillexpenditureViewModel.INDate = internNote == null ? new DateTime(1970, 1, 1) : internNote.INDate;
                 monitoringcentralbillexpenditureViewModel.URNNo = unitReceiptNote == null ? "-" : unitReceiptNote.URNNo;
                 monitoringcentralbillexpenditureViewModel.ReceiptDate = unitReceiptNote == null ? new DateTime(1970, 1, 1) : unitReceiptNote.ReceiptDate;
-                monitoringcentralbillexpenditureViewModel.UnitName = purchaseOrderInternal.UnitName;
+                monitoringcentralbillexpenditureViewModel.UnitName = unitReceiptNote == null ? "-" : unitReceiptNote.UnitName;
                 monitoringcentralbillexpenditureViewModel.ReceiptQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity;
                 monitoringcentralbillexpenditureViewModel.URNUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.UomUnit;
-                monitoringcentralbillexpenditureViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.PricePerDealUnit;
-                monitoringcentralbillexpenditureViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity;
+                monitoringcentralbillexpenditureViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : (decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit;
+                monitoringcentralbillexpenditureViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : (decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity;
                 monitoringcentralbillexpenditureViewModel.URNConversion = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.Conversion;
                 monitoringcentralbillexpenditureViewModel.URNSmallQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.SmallQuantity;
                 monitoringcentralbillexpenditureViewModel.URNSmallUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.SmallUomUnit;
@@ -290,6 +304,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Pusat", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bon Pusat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Kecil", DataType = typeof(String) });
+
             result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bea Cukai", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bukti BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bea Cukai", DataType = typeof(String) });
@@ -314,13 +330,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Satuan Sbl Konv", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(String) });
 
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Sat Stl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Intern", DataType = typeof(String) });
@@ -328,16 +344,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl BUM", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "Konfeksi", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | QTY Sbl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | QTY Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KONF | Satuan Sbl Konv", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Harga", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Jumlah Harga", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Konversi", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Qty Stl Konv", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Jumlah Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Konversi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Qty Stl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "KONF | Sat Stl Konv", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0, 0, 0, "", "", "", "", "", "", 0, "", 0, 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -352,12 +368,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                     string INDate = item.INDate == new DateTime(1970, 1, 1) ? "-" : item.INDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string ReceiptDate = item.ReceiptDate == new DateTime(1970, 1, 1) ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
+                    string DOQuantity = string.Format("{0:N2}", item.DOQuantity);
+                    string PricePerDealUnit = string.Format("{0:N2}", item.PricePerDealUnit);
+                    string PriceTotal = string.Format("{0:N2}", item.PriceTotal);
+                    string Conversion = string.Format("{0:N2}", item.Conversion);
+                    string SmallQuantity = string.Format("{0:N2}", item.SmallQuantity);
+
+                    string ReceiptQuantity = string.Format("{0:N2}", item.ReceiptQuantity);
+                    string URNPricePerDealUnit = string.Format("{0:N2}", item.URNPricePerDealUnit);
+                    string URNPriceTotal = string.Format("{0:N2}", item.URNPriceTotal);
+                    string URNConversion = string.Format("{0:N2}", item.URNConversion);
+                    string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
 
                     result.Rows.Add(
-                        index, item.BillNo, BillDate, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
+                        index, item.BillNo, BillDate, item.PaymentBill, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
                         item.SupplierCode, item.SupplierName, item.Article, item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode,
-                        item.ProductName, item.ProductRemark, item.DOQuantity, item.UOMUnit, item.PricePerDealUnit, item.PriceTotal, item.Conversion, item.SmallQuantity, item.SmallUOMUnit,
-                        item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, item.ReceiptQuantity, item.URNUOMUnit, item.URNPricePerDealUnit, item.URNPriceTotal, item.URNConversion, item.URNSmallQuantity, item.URNSmallUOMUnit);
+                        item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit,
+                        item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, ReceiptQuantity, item.URNUOMUnit, URNPricePerDealUnit, URNPriceTotal, URNConversion, URNSmallQuantity, item.URNSmallUOMUnit);
                 }
             }
 
