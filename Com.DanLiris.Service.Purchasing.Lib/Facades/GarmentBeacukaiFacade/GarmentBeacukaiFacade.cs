@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
 		}
 
-		public string GeneratePaymentBillNo()
+		public (string format, int counterId) GeneratePaymentBillNo()
 		{
 			string PaymentBill = null;
 			GarmentDeliveryOrder deliveryOrder = (from data in dbSetDeliveryOrder
@@ -114,9 +114,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			if (deliveryOrder.BillNo != null)
 			{
 				PaymentBill = deliveryOrder.PaymentBill;
-				string months = PaymentBill.Substring(4, 2);
+				string date = PaymentBill.Substring(2, 6);
 				string number = PaymentBill.Substring(8);
-				if (months == DateTimeOffset.Now.Month.ToString("D2"))
+				if (date == formatDate)
 				{
 					counterId = Convert.ToInt32(number) + 1;
 				}
@@ -129,9 +129,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			{
 				counterId = 1;
 			}
-			PaymentBill = "BB" + formatDate + counterId.ToString("D3");
+			//PaymentBill = "BB" + formatDate + counterId.ToString("D3");
 
-			return PaymentBill;
+			return (string.Concat("BB", formatDate), counterId);
 
 		}
 		public async Task<int> Create(GarmentBeacukai model, string username, int clientTimeZoneOffset = 7)
@@ -144,6 +144,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 				{
 
 					EntityExtension.FlagForCreate(model, username, USER_AGENT);
+
+                    var lastPaymentBill = GeneratePaymentBillNo();
 
 					foreach (GarmentBeacukaiItem item in model.Items)
 					{
@@ -161,9 +163,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 							{
 								deliveryOrder.BillNo = model.BillNo;
 							}
-							deliveryOrder.PaymentBill = GeneratePaymentBillNo();
-							//deliveryOrder.CustomsId = model.Id;
-							double qty = 0;
+                            deliveryOrder.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                            //deliveryOrder.CustomsId = model.Id;
+                            double qty = 0;
 							foreach (var deliveryOrderItem in deliveryOrder.Items)
 							{
 								foreach (var detail in deliveryOrderItem.Details)
