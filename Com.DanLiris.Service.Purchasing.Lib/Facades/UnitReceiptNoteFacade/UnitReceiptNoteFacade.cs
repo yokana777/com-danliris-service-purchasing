@@ -1128,6 +1128,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             //throw new NotImplementedException();
         }
+
+        public async Task<List<SubLedgerUnitReceiptNoteViewModel>> GetUnitReceiptNoteForSubledger(List<string> urnNoes)
+        {
+            List<SubLedgerUnitReceiptNoteViewModel> result = new List<SubLedgerUnitReceiptNoteViewModel>();
+            var urns = await dbSet.Where(x => urnNoes.Contains(x.URNNo)).ToListAsync();
+            var upos = await dbContext.UnitPaymentOrderItems.Include(x => x.UnitPaymentOrder).Where(x => urnNoes.Contains(x.URNNo)).ToListAsync();
+            foreach (var urnNo in urnNoes)
+            {
+                var urn = urns.FirstOrDefault(x => x.URNNo.Equals(urnNo, StringComparison.OrdinalIgnoreCase));
+                var upo = upos.FirstOrDefault(x => x.URNNo.Equals(urnNo, StringComparison.OrdinalIgnoreCase));
+                if (urn == null)
+                    continue;
+                result.Add(new SubLedgerUnitReceiptNoteViewModel()
+                {
+                    Supplier = urn.SupplierName,
+                    UPONo = upo?.UnitPaymentOrder?.UPONo,
+                    URNDate = urn.ReceiptDate,
+                    URNNo = urn.URNNo
+                });
+            }
+
+            return result;
+        }
     }
 }
 
