@@ -316,5 +316,67 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        #region Flow Detail Permintaan 
+        [HttpGet("laporan")]
+        public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var data = facade.GetReportFlow(dateFrom, dateTo, unit, category, page, size, Order, offset);
+
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+
+        [HttpGet("laporan/download")]
+        public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                var xls = facade.GenerateExcelLow(dateFrom, dateTo, unit, category, offset);
+
+                string filename = "Laporan Flow Detail Penerimaan";
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        #endregion 
+
+
     }
 }

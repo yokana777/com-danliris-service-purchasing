@@ -455,5 +455,86 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             var response = controller.GetByUser();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        #region Laporan FLow Penerimaan 
+
+        [Fact]
+        public void Should_Success_Get_Report_Flow()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.GetReportFlow(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<FlowDetailPenerimaanViewModels>(), 5));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportDO(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Report_All()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportDO(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Xls_All()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+
+        }
+
+
+        [Fact]
+        public void Should_Success_Get_Xls_DO()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.GenerateExcelLow( It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            //mockMapper.Setup(x => x.Map<List<GarmentDeliveryOrderReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+            //    .Returns(new List<GarmentDeliveryOrderReportViewModel> { ViewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+
+        }
+
+
+
+        #endregion
     }
 }
