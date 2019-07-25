@@ -239,7 +239,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotEmpty(response);
         }
 
-
+        [Fact]
+        public async Task Should_Success_Get_Subledger()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var response = await facade.GetUnitReceiptNoteForSubledger(new List<string>() { dataUtil.URNNo });
+            Assert.NotEmpty(response);
+        }
 
         //[Fact]
         //public async Task Should_Success_Update_Data()
