@@ -88,6 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     PricePerDealUnit = item.PricePerDealUnit,
                     DOCurrencyRate = item.DOCurrencyRate,
                     Conversion = 1,
+                    ReturQuantity = 1,
                 };
                 new GarmentUnitExpenditureNoteItem
                 {
@@ -119,6 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     PricePerDealUnit = item.PricePerDealUnit,
                     DOCurrencyRate = item.DOCurrencyRate,
                     Conversion = 1,
+                    ReturQuantity = 1,
 
 
                 };
@@ -197,6 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     PricePerDealUnit = item.PricePerDealUnit,
                     DOCurrencyRate = item.DOCurrencyRate,
                     Conversion = 1,
+                    ReturQuantity = 1,
                 };
                 new GarmentUnitExpenditureNoteItem
                 {
@@ -228,7 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     PricePerDealUnit = item.PricePerDealUnit,
                     DOCurrencyRate = item.DOCurrencyRate,
                     Conversion = 1,
-
+                    ReturQuantity = 1,
                 };
 
                 garmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);
@@ -307,6 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     PricePerDealUnit = item.PricePerDealUnit,
                     DOCurrencyRate = item.DOCurrencyRate,
                     Conversion = 1,
+                    ReturQuantity = 1,
                 };
                 new GarmentUnitExpenditureNoteItem
                 {
@@ -338,6 +342,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                     PricePerDealUnit = item.PricePerDealUnit,
                     DOCurrencyRate = item.DOCurrencyRate,
                     Conversion = 1,
+                    ReturQuantity = 1,
 
 
                 };

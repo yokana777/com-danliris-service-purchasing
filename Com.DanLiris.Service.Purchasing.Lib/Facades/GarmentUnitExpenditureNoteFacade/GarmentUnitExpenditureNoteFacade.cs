@@ -1091,6 +1091,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         DOCurrencyRate = i.DOCurrencyRate,
                         Conversion = i.Conversion,
                         BasicPrice = i.BasicPrice,
+                        ReturQuantity = i.ReturQuantity,
                     }).OrderByDescending(i => i.LastModifiedUtc).ToList()
                 });
 
@@ -1153,6 +1154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         i.DOCurrencyRate,
                         i.Conversion,
                         i.BasicPrice,
+                        i.ReturQuantity,
                     }).ToList()
                 }).ToList()
             );

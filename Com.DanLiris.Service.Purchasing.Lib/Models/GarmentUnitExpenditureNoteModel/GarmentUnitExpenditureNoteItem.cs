@@ -36,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
         public decimal Conversion { get; set; }
         [Column(TypeName = "decimal(38, 4)")]
         public decimal BasicPrice { get; set; }
+        public double ReturQuantity { get; set; }
 
         [NotMapped]
         public bool IsSave { get; set; }
