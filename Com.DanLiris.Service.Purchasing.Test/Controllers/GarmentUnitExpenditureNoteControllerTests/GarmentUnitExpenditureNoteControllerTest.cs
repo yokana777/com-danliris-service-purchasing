@@ -68,7 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                             {
                                 Rate = 1,
                             },
-                            BasicPrice = 1
+                            BasicPrice = 1,
+                            ReturQuantity = 1,
                         }
                     }
                 };

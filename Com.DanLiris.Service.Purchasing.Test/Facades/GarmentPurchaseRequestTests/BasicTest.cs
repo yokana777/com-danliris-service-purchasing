@@ -282,6 +282,45 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Success_PRApprove_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.PRApprove(model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_PRApprove_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.PRApprove(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_PRUnApprove_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.PRUnApprove(model.Id, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_PRUnApprove_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            Exception errorInvalidId = await Assert.ThrowsAsync<Exception>(async () => await facade.PRUnApprove(0, USERNAME));
+            Assert.NotNull(errorInvalidId.Message);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_All_Data()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));

@@ -28,5 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> PRUnpost(long id, string username);
         MemoryStream GeneratePdf(GarmentPurchaseRequestViewModel viewModel);
         GarmentPreSalesContractViewModel GetGarmentPreSalesContract(long Id);
+        Task<int> PRApprove(long id, string username);
+        Task<int> PRUnApprove(long id, string username);
     }
 }

@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                     {
                         new GarmentUnitExpenditureNoteItemViewModel {
                             ProductId = 1,
-                            UomId = 1
+                            UomId = 1,
                         }
                     }
                 });
@@ -508,6 +508,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         UnitDOItemId = 1,
                         Quantity = 10,
                         IsSave = true,
+                        ReturQuantity = 1,
                     },
 
                     new GarmentUnitExpenditureNoteItemViewModel
@@ -516,6 +517,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         UnitDOItemId = 1,
                         Quantity = 100,
                         IsSave = true,
+                        ReturQuantity = 1,
                         
                     },
 
@@ -524,7 +526,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         Id = item.Id,
                         UnitDOItemId = 1,
                         Quantity = 0,
-                        IsSave = true
+                        IsSave = true,
+                        ReturQuantity = 1,
                     },
                 }
             };

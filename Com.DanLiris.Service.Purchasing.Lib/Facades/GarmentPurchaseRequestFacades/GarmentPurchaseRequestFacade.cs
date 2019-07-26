@@ -546,6 +546,76 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Updated;
         }
 
+        public async Task<int> PRApprove(long id, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Include(i => i.Items)
+                        .Where(w => w.Id == id)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+                    data.IsValidate = true;
+                    data.ValidatedBy = user;
+                    data.ValidatedDate = DateTimeOffset.Now;
+
+                        foreach (var item in data.Items)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                        }
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public async Task<int> PRUnApprove(long id, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Include(i => i.Items)
+                        .Where(w => w.Id == id)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+                    data.IsValidate = false;
+                    data.ValidatedBy = user;
+                    data.ValidatedDate = DateTimeOffset.Now;
+
+                    foreach (var item in data.Items)
+                    {
+                        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                    }
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
         public MemoryStream GeneratePdf(GarmentPurchaseRequestViewModel viewModel)
         {
             return GarmentPurchaseRequestPDFTemplate.Generate(serviceProvider, viewModel);
