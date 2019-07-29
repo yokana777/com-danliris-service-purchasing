@@ -326,7 +326,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 Date = model.ReceiptDate,
                 Description = "Bon Terima Unit",
                 ReferenceNo = model.URNNo,
-                Status = "POSTED"
+                Status = "POSTED",
+                Items = new List<JournalTransactionItem>()
             };
 
             int.TryParse(model.DivisionId, out var divisionId);
