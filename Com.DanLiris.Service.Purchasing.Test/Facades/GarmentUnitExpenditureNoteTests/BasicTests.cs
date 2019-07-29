@@ -572,5 +572,52 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var ResponseUpdate = await facade.UpdateIsPreparing((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdate, 0);
         }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_Null_Items_For_Preparing_Create()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            dbContext.Entry(data).State = EntityState.Detached;
+            data.Items = null;
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateIsPreparing(0, null));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_For_DeliveryReturn()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var data = await dataUtil.GetTestData();
+
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
+
+            newData.Items.First().IsSave = false;
+
+            var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1);
+            Assert.NotEqual(ResponseUpdate, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_Null_Items_For_DeliveryReturn()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            dbContext.Entry(data).State = EntityState.Detached;
+            data.Items = null;
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateReturQuantity(0, 0));
+            Assert.NotNull(e.Message);
+        }
     }
 }
