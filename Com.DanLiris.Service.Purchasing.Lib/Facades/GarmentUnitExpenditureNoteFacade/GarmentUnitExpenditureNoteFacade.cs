@@ -35,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitExpenditureNote> dbSet;
+        private readonly DbSet<GarmentUnitExpenditureNoteItem> dbSetItem;
         private readonly DbSet<GarmentUnitDeliveryOrder> dbSetGarmentUnitDeliveryOrder;
         private readonly DbSet<GarmentUnitDeliveryOrderItem> dbSetGarmentUnitDeliveryOrderItem;
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
@@ -55,6 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitExpenditureNote>();
+            dbSetItem = dbContext.Set<GarmentUnitExpenditureNoteItem>();
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
@@ -1183,6 +1185,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
 
                     //dbSet.Update(garmentUnitExpenditureNote);
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public async Task<int> UpdateReturQuantity(int id, double quantity)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var oldGarmentUnitExpenditureNoteItem = dbSetItem
+                        .Single(m => m.Id == id);
+
+                    oldGarmentUnitExpenditureNoteItem.ReturQuantity = oldGarmentUnitExpenditureNoteItem.ReturQuantity + quantity;
+                    EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
