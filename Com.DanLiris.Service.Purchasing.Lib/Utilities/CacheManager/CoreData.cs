@@ -42,10 +42,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<CategoryCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            else
-            {
-                SetCategoryCOA();
-            }
+            //else
+            //{
+            //    SetCategoryCOA();
+            //}
 
             //if (categoryResult.data.Count > 0)
             _cacheManager.Set("Categories", categoryResult.data);
@@ -72,10 +72,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            else
-            {
-                SetDivisionCOA();
-            }
+            //else
+            //{
+            //    SetDivisionCOA();
+            //}
 
             //if (categoryResult.data.Count > 0)
             _cacheManager.Set("Divisions", categoryResult.data);
@@ -102,10 +102,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            else
-            {
-                SetUnitCOA();
-            }
+            //else
+            //{
+            //    SetUnitCOA();
+            //}
 
             //if (categoryResult.data.Count > 0)
             _cacheManager.Set("Units", categoryResult.data);
@@ -125,10 +125,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 tokenResult = JsonConvert.DeserializeObject<BaseResponse<string>>(await response.Content.ReadAsStringAsync(), jsonSerializerSettings);
             }
-            else
-            {
-                await GetTokenAsync();
-            }
+            //else
+            //{
+            //    await GetTokenAsync();
+            //}
             return tokenResult.data;
         }
     }
