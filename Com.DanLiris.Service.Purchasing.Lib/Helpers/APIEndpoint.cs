@@ -13,5 +13,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
         public static string Finance { get; set; }
 		public static string CustomsReport { get; set; }
 		public static string Sales { get; set; }
-	}
+        public static string Auth { get; set; }
+    }
+
+    public static class AuthCredential
+    {
+        public static string Username { get; set; }
+        public static string Password { get; set; }
+    }
 }

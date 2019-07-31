@@ -26,6 +26,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
 using System.Threading.Tasks;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrectionNoteTests
 {
@@ -67,6 +70,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
+
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProviders = services.BuildServiceProvider();
+            var memoryCache = serviceProviders.GetService<IMemoryCache>();
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(new MemoryCacheManager(memoryCache));
 
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, dbContext);
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
