@@ -33,5 +33,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public CurrencyViewModel DOCurrency { get; set; }
         public decimal Conversion { get; set; }
         public decimal BasicPrice { get; set; }
+        public double ReturQuantity { get; set; }
     }
 }

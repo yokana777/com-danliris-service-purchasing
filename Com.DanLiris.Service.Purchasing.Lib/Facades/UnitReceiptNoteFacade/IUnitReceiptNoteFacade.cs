@@ -21,5 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
         string GetPurchaseRequestCategoryCode(long prId);
         List<UnitReceiptNote> GetByListOfNo(List<string> urnNoList);
+        Task<List<SubLedgerUnitReceiptNoteViewModel>> GetUnitReceiptNoteForSubledger(List<string> urnNoes);
     }
 }

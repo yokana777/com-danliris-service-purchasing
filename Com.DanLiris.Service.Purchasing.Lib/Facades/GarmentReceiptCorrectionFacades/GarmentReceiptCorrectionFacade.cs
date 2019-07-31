@@ -207,6 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             decimal qty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion))* garmentUnitReceiptNoteItem.CorrectionConversion;
                             decimal newQty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion)) * (decimal)item.CorrectionConversion;
                             decimal diff = (newQty - qty)/(decimal)item.CorrectionConversion;
+                            item.SmallQuantity = item.Quantity * item.CorrectionConversion;
                             garmentUnitReceiptNoteItem.ReceiptCorrection += diff;
                             garmentUnitReceiptNoteItem.CorrectionConversion = (decimal)item.CorrectionConversion;
                         }
@@ -337,7 +338,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryMovement.StockPlanning = 0;
 
             garmentInventoryMovement.Before = garmentInventorySummary == null ? 0 : garmentInventorySummary.Quantity;
-            garmentInventoryMovement.Quantity = (decimal)garmentReceiptCorrectionItem.SmallQuantity ;
+            garmentInventoryMovement.Quantity = (type ?? "").ToUpper() == "OUT" && garmentReceiptCorrectionItem.SmallQuantity>0 ? (decimal)garmentReceiptCorrectionItem.SmallQuantity*(-1) : (decimal)garmentReceiptCorrectionItem.SmallQuantity;
             garmentInventoryMovement.After = garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
 
             garmentInventoryMovement.UomId = garmentReceiptCorrectionItem.SmallUomId;
@@ -345,7 +346,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
 
             garmentInventoryMovement.Remark = garmentReceiptCorrectionItem.ProductRemark;
 
-            garmentInventoryMovement.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryMovement.Type = type;
 
             return garmentInventoryMovement;
         }
@@ -366,7 +367,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryDocument.ReferenceNo = garmentReceiptCorrection.CorrectionNo;
             garmentInventoryDocument.ReferenceType = string.Concat("Koreksi Bon - ", garmentReceiptCorrection.UnitName);
 
-            garmentInventoryDocument.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryDocument.Type = type;
             garmentInventoryDocument.Date = DateTime.Now;
             garmentInventoryDocument.StorageId = garmentReceiptCorrection.StorageId;
             garmentInventoryDocument.StorageCode = garmentReceiptCorrection.StorageCode;
@@ -382,7 +383,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryDocumentItem.ProductCode = garmentReceiptCorrectionItem.ProductCode;
             garmentInventoryDocumentItem.ProductName = garmentReceiptCorrectionItem.ProductName;
 
-            garmentInventoryDocumentItem.Quantity = (type ?? "").ToUpper() == "IN" ? (decimal)garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity * (-1);
+            garmentInventoryDocumentItem.Quantity = garmentReceiptCorrectionItem.SmallQuantity >= 0 ? (decimal)garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity * (-1);
 
             garmentInventoryDocumentItem.UomId = garmentReceiptCorrectionItem.SmallUomId;
             garmentInventoryDocumentItem.UomUnit = garmentReceiptCorrectionItem.SmallUomUnit;
@@ -429,7 +430,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             garmentInventoryDocument.ReferenceNo = garmentReceiptCorrection.CorrectionNo;
             garmentInventoryDocument.ReferenceType = string.Concat("Koreksi Bon - ", garmentReceiptCorrection.UnitName);
 
-            garmentInventoryDocument.Type = (type ?? "").ToUpper() == "IN" ? "IN" : "OUT";
+            garmentInventoryDocument.Type = type;
             garmentInventoryDocument.Date = DateTime.Now;
             garmentInventoryDocument.StorageId = garmentReceiptCorrection.StorageId;
             garmentInventoryDocument.StorageCode = garmentReceiptCorrection.StorageCode;
@@ -446,7 +447,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                 garmentInventoryDocumentItem.ProductCode = garmentReceiptCorrectionItem.ProductCode;
                 garmentInventoryDocumentItem.ProductName = garmentReceiptCorrectionItem.ProductName;
 
-                garmentInventoryDocumentItem.Quantity = (type ?? "").ToUpper() == "IN" ? (decimal)garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity * (-1);
+                garmentInventoryDocumentItem.Quantity = garmentReceiptCorrectionItem.SmallQuantity>=0 ? (decimal)garmentReceiptCorrectionItem.SmallQuantity : (decimal)garmentReceiptCorrectionItem.SmallQuantity * (-1);
 
                 garmentInventoryDocumentItem.UomId = garmentReceiptCorrectionItem.SmallUomId;
                 garmentInventoryDocumentItem.UomUnit = garmentReceiptCorrectionItem.SmallUomUnit;

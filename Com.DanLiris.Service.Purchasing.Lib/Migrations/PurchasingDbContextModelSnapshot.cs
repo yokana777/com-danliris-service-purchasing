@@ -3037,6 +3037,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("UnitName")
                         .HasMaxLength(1000);
 
+                    b.Property<string>("ValidatedBy");
+
+                    b.Property<DateTimeOffset?>("ValidatedDate");
+
                     b.HasKey("Id");
 
                     b.ToTable("GarmentPurchaseRequests");
@@ -3656,6 +3660,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("Quantity");
 
                     b.Property<string>("RONo");
+
+                    b.Property<double>("ReturQuantity");
 
                     b.Property<long>("UENId");
 

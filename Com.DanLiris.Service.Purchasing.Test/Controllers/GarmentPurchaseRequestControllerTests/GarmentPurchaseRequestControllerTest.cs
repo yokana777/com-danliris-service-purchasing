@@ -271,7 +271,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentPurchaseRequest());
 
-            mockFacade.Setup(x => x.GeneratePdf(It.IsAny<IServiceProvider>(), It.IsAny<GarmentPurchaseRequestViewModel>()))
+            mockFacade.Setup(x => x.GeneratePdf(It.IsAny<GarmentPurchaseRequestViewModel>()))
                 .Returns(new System.IO.MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
@@ -496,6 +496,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             GarmentPurchaseRequestController controller = GetController(mockFacade, null, mockMapper);
             var response = controller.GetByTags(null, "2018-10-31", "2018-10-31");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_PRApprove()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.PRApprove(It.IsAny<long>(), It.IsAny<string>()))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, null, new Mock<IMapper>());
+
+            var response = await controller.PRApprove(It.IsAny<long>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Error_PRApprove()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.PRApprove(It.IsAny<long>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception());
+
+            var controller = GetController(mockFacade, null, new Mock<IMapper>());
+
+            var response = await controller.PRApprove(It.IsAny<long>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_PRUnApprove()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.PRUnApprove(It.IsAny<long>(), It.IsAny<string>()))
+               .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, null, new Mock<IMapper>());
+
+            var response = await controller.PRUnApprove(It.IsAny<long>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Error_PRUnApprove()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.PRUnApprove(It.IsAny<long>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception());
+
+            var controller = GetController(mockFacade, null, new Mock<IMapper>());
+
+            var response = await controller.PRUnApprove(It.IsAny<long>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }
 }

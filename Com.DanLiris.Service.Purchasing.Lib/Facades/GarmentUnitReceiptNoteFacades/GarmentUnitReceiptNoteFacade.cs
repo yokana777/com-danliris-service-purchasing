@@ -22,6 +22,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
+using System.Data;
+using System.Globalization;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -693,5 +695,183 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
+
+        #region Flow Detail Penerimaan 
+        public IQueryable<FlowDetailPenerimaanViewModels> GetReportQueryFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset)
+
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Status = new[] { "" };
+            switch (category)
+            {
+                case "Bahan Baku":
+                    Status = new[] { "FABRIC", "SUBKON" };
+                    break;
+                case "Bahan Pendukung":
+                    Status = new[] { "APPLICATION", "BADGES", "BUNGEE CORD", "BUCKLE", "BENANG HANGTAG", "BUTTON", "COLLAR BONE", "CARE LABEL",
+                    "DRAWSTRING", "ELASTIC", "EMBROIDERY", "LAIN-LAIN", "GROSS GRAIN", "GESPER", "HOOK & BAR", "HOOK & EYE",
+                    "INTERLINING", "KNACKS", "ID LABEL", "LABEL", "LACE", "MESS GUSSET", "METAL IGOT", "NECK LABEL",
+                    "PL PACKING", "PADDING", "PEN KRAH", "POLYCORD", "PLISKET", "POLYWOSHER", "PIPING", "PULLER","QUILTING","RIBBON","RIB","RING","STRAPPING BAND",
+                    "SLEEVE HEADER", "SIZE LABEL", "SAMPLE MATERIAL", "SHOULDER PAD", "SPONGE FOAM", "SPINDLE", "STOPPER", "SEWING THREAD","TAPE / DRYTEX","TRIMMING GROOMET","TASSEL","VELCRO","VITTER BAND",
+                    "WADDING", "WAPPEN", "WRAPBAND", "WASH", "ZIPPER","PROCESS",
+                    };
+                    break;
+                case "Bahan Embalase":
+                    Status = new[] { "ATTENTION NAME", "POLYBAG", "BACK CB", "BENANG KENUR", "BELT", "BIS NAME","BEARING STAMP","BUTTERFLY","CABLE TIES",
+                        "COLLAR CB", "CUFF STUD", "CLIPS", "DOCUMENT", "DOLL", "LAIN - LAIN","FOAM HANGER","FELT","GADGET","GLUE","GARMENT",
+                        "HANDLING", "HANGER", "HOOK", "HEAT TRANSFER", "ISOLASI", "INNER BOX","STAMPED INK","INSERT TAG","KLEM SENG","KARET GELANG","LACKBAND",
+                        "LICENSE SEAL", "LOOP", "INSERT CD/LAYER", "MACHINE", "MOULD", "METAL SLIDER","OUTER BOX","PLASTIC COLLAR","PIN","PLASTIC","PALLET",
+                        "PAPER", "PRINT", "TALI", "SILICA BAG", "SHAVING", "SILICA GEL","GARMENT SAMPLE","SHIPPING MARK","STUDS TRANSFER","SEAL TAG","STICKER",
+                        "STAMP", "STRING", "STATIONARY", "SWATCH CARD", "SIZE CHIP", "TAG","GARMENT TEST","TIE / DASI","TISSUE PAPER","TIGER TAIL",
+                    };
+                    break;
+                default:
+                    Status = new[] { "" };
+                    break;
+            }
+
+            List<FlowDetailPenerimaanViewModels> Data = new List<FlowDetailPenerimaanViewModels>();
+
+            var Query = (from a in dbContext.GarmentUnitReceiptNotes
+                         join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                         join c in dbContext.GarmentInternalPurchaseOrders on b.POId equals c.Id
+                         join d in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals d.Id
+                         join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
+                         join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
+
+
+                         where a.IsDeleted == false
+                            && b.IsDeleted == false
+                            && c.IsDeleted == false
+                            && d.IsDeleted == false
+                            && e.IsDeleted == false
+                            && f.IsDeleted == false
+                            && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                            && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
+                            && (category == "Bahan Baku" ? Status.Contains(b.ProductName) : (category == "Bahan Pendukung" ? Status.Contains(b.ProductName) : (category == "Bahan Embalase" ? Status.Contains(b.ProductName) : b.ProductName == b.ProductName)))
+
+                         select new FlowDetailPenerimaanViewModels
+                         {
+                             kdbarang = b.ProductCode,
+                             nmbarang = b.ProductName,
+                             nopo = b.POSerialNumber,
+                             keterangan = b.ProductRemark,
+                             noro = b.RONo,
+                             artikel = c.Article,
+                             kdbuyer = c.BuyerCode,
+                             nobukti = a.URNNo,
+                             tanggal = a.CreatedUtc,
+                             jumlahbeli = d.DOQuantity,
+                             satuanbeli = d.SmallUomUnit,
+                             jumlahterima = decimal.ToDouble(b.ReceiptQuantity),
+                             satuanterima = b.SmallUomUnit,
+                             jumlah = f.DOCurrencyRate.GetValueOrDefault() * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
+
+
+
+                         });
+            var index = 1;
+            foreach (var item in Query)
+            {
+
+                Data.Add(
+                       new FlowDetailPenerimaanViewModels
+                       {
+
+                           no = index++,
+                           kdbarang = item.kdbarang,
+                           nmbarang = item.nmbarang,
+                           nopo = item.nopo,
+                           keterangan = item.keterangan,
+                           noro = item.noro,
+                           artikel = item.artikel,
+                           kdbuyer = item.kdbuyer,
+                           asal = "Pembelian Eksternal",
+                           nobukti = item.nobukti,
+                           tanggal = item.tanggal,
+                           jumlahbeli = item.jumlahbeli,
+                           satuanbeli = item.satuanbeli,
+                           jumlahterima = item.jumlahterima,
+                           satuanterima = item.satuanterima,
+                           jumlah = item.jumlah,
+
+
+                       });
+
+            }
+
+            return Data.AsQueryable();
+        }
+
+
+        public Tuple<List<FlowDetailPenerimaanViewModels>, int> GetReportFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order, int offset)
+
+        {
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset);
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.no).ThenBy(b => b.no);
+            }
+
+
+            Pageable<FlowDetailPenerimaanViewModels> pageable = new Pageable<FlowDetailPenerimaanViewModels>(Query, page - 1, size);
+            List<FlowDetailPenerimaanViewModels> Data = pageable.Data.ToList<FlowDetailPenerimaanViewModels>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+
+        public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset)
+        {
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No R/O", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
+
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            if (Query.ToArray().Count() == 0)
+            {
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (FlowDetailPenerimaanViewModels data in Query)
+                {
+                    index++;
+                    string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah);
+
+                }
+
+            }
+
+            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+        #endregion
     }
 }

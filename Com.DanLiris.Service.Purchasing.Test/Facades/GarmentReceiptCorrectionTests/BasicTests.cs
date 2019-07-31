@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
 
         private GarmentReceiptCorrectionDataUtil dataUtil(GarmentReceiptCorrectionFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
@@ -228,6 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                         SmallUomUnit=It.IsAny<string>(),
                         ProductRemark=It.IsAny<string>(),
                         Product=It.IsAny<ProductViewModel>(),
+                        OrderQuantity=It.IsAny<double>(),
                     },
                 }
             };
@@ -246,6 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                         CorrectionQuantity=0,
                         CorrectionConversion=0,
                         IsSave=true,
+                        OrderQuantity=200
                     },
                 }
             };
@@ -268,6 +270,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
                 }
             };
             Assert.True(viewModel3.Validate(null).Count() > 0);
+
+            GarmentReceiptCorrectionViewModel viewModel4 = new GarmentReceiptCorrectionViewModel
+            {
+                CorrectionType = "Konversi",
+                URNNo = "test",
+                Items = new List<GarmentReceiptCorrectionItemViewModel>
+                {
+                    new GarmentReceiptCorrectionItemViewModel
+                    {
+                        QuantityCheck=100,
+                        Quantity = 500,
+                        CorrectionQuantity=0,
+                        CorrectionConversion=1,
+                        IsSave=true,
+                        OrderQuantity=1000
+                    },
+                }
+            };
+            Assert.True(viewModel4.Validate(null).Count() > 0);
         }
     }
 }

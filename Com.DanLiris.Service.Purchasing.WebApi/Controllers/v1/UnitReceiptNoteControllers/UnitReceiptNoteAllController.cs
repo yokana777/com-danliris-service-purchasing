@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteControllers
 {
@@ -133,6 +134,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 message = General.OK_MESSAGE,
                 data = newData
             });
+        }
+
+        [HttpPost("subledger")]
+        public async Task<IActionResult> GetForSubLedger([FromBody] List<string> urnNoes)
+        {
+            //identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                var Data = await _facade.GetUnitReceiptNoteForSubledger(urnNoes);
+
+                //var newData = _mapper.Map<List<UnitReceiptNoteViewModel>>(Data);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = Data
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
     }
 }

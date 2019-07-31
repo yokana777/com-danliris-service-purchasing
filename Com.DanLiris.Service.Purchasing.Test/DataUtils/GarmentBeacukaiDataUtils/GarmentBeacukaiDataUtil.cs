@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
@@ -31,10 +32,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
             this.garmentUnitReceiptNoteDataUtil = GarmentUnitReceiptNoteDataUtil;
 			this.facade = facade;
 		}
-		public async Task<GarmentBeacukai> GetNewData(string user)
+		public async Task<GarmentBeacukai> GetNewData(string user, GarmentDeliveryOrder garmentDeliveryOrder = null)
 		{
 			long nowTicks = DateTimeOffset.Now.Ticks;
-			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
+			var garmentDO = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
 			
 			return new GarmentBeacukai
 			{
@@ -135,9 +136,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 				}
 			};
 		}
-		public async Task<GarmentBeacukai> GetTestData(string user)
+		public async Task<GarmentBeacukai> GetTestData(string user, GarmentDeliveryOrder garmentDeliveryOrder)
 		{
-			GarmentBeacukai model = await GetNewData(user);
+			GarmentBeacukai model = await GetNewData(user, garmentDeliveryOrder);
 
 			await facade.Create(model, user);
 
