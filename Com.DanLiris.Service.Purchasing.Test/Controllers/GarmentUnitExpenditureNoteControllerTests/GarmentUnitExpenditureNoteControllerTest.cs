@@ -68,7 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                             {
                                 Rate = 1,
                             },
-                            BasicPrice = 1
+                            BasicPrice = 1,
+                            ReturQuantity = 1,
                         }
                     }
                 };
@@ -532,6 +533,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
 
             var response = await controller.PutIsPreparingFalse(It.IsAny<int>(), new GarmentUnitExpenditureNoteViewModel());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_for_DeliveryReturn()
+        {
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNote>>(It.IsAny<List<GarmentUnitExpenditureNoteViewModel>>()))
+                .Returns(new List<GarmentUnitExpenditureNote>());
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitExpenditureNoteViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<GarmentUnitExpenditureNote>()))
+               .ReturnsAsync(1);
+
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = GetController(mockFacade, mockFacadeUnitDO, validateMock, mockMapper);
+
+            var response = await controller.PutReturQuantity(It.IsAny<int>(), new Dictionary<string, double>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_for_DeliveryReturn()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+
+            var response = await controller.PutReturQuantity(It.IsAny<int>(), null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

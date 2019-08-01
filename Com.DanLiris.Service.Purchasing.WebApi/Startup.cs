@@ -45,6 +45,13 @@ using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacade.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderReturFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
+using FluentScheduler;
+using Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -71,11 +78,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.Inventory = Configuration.GetValue<string>(Constant.INVENTORY_ENDPOINT) ?? Configuration[Constant.INVENTORY_ENDPOINT];
             APIEndpoint.Finance = Configuration.GetValue<string>(Constant.FINANCE_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
             APIEndpoint.CustomsReport = Configuration.GetValue<string>(Constant.CUSTOMSREPORT_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
+            APIEndpoint.Sales = Configuration.GetValue<string>(Constant.SALES_ENDPOINT) ?? Configuration[Constant.SALES_ENDPOINT];
+            APIEndpoint.Auth = Configuration.GetValue<string>(Constant.AUTH_ENDPOINT) ?? Configuration[Constant.AUTH_ENDPOINT];
+
+            AuthCredential.Username = Configuration.GetValue<string>(Constant.USERNAME) ?? Configuration[Constant.USERNAME];
+            AuthCredential.Password = Configuration.GetValue<string>(Constant.PASSWORD) ?? Configuration[Constant.PASSWORD];
         }
 
         private void RegisterFacades(IServiceCollection services)
         {
             services
+                .AddTransient<ICoreData, CoreData>()
+                .AddTransient<ICoreHttpClientService, CoreHttpClientService>()
+                .AddTransient<IMemoryCacheManager, MemoryCacheManager>()
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
                 .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
@@ -119,7 +134,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentUnitDeliveryOrderFacade, GarmentUnitDeliveryOrderFacade>()
                 .AddTransient<IGarmentUnitExpenditureNoteFacade, GarmentUnitExpenditureNoteFacade>()
                 .AddTransient<IGarmentReturnCorrectionNoteFacade, GarmentReturnCorrectionNoteFacade>()
-                .AddTransient<IGarmentUnitDeliveryOrderReturFacade, GarmentUnitDeliveryOrderReturFacade>();
+                .AddTransient<IGarmentUnitDeliveryOrderReturFacade, GarmentUnitDeliveryOrderReturFacade>()
+                .AddTransient<IMonitoringCentralBillReceptionFacade, MonitoringCentralBillReceptionFacade>()
+                .AddTransient<IMonitoringCentralBillExpenditureFacade, MonitoringCentralBillExpenditureFacade>()
+                .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
+                .AddTransient<IGarmentReceiptCorrectionFacade, GarmentReceiptCorrectionFacade>();
 
         }
 
@@ -169,6 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
             services.AddAutoMapper();
+            services.AddMemoryCache();
 
             RegisterSerializationProvider();
             RegisterClassMap();
@@ -229,6 +249,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);
             app.UseMvc();
+
+            JobManager.Initialize(new MasterRegistry(app.ApplicationServices));
         }
     }
 }

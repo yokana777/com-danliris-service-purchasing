@@ -13,6 +13,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -23,6 +24,8 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -100,6 +103,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
 
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProviders = services.BuildServiceProvider();
+            var memoryCache = serviceProviders.GetService<IMemoryCache>();
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(new MemoryCacheManager(memoryCache));
+
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, _dbContext(testName));
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
@@ -135,6 +147,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
+
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProviders = services.BuildServiceProvider();
+            var memoryCache = serviceProviders.GetService<IMemoryCache>();
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(new MemoryCacheManager(memoryCache));
 
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, _dbContext(testName));
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
@@ -186,7 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReport(model.PRNo, null, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
+            var Response = Facade.GetReport(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
             Assert.NotNull(Response);
         }
 
@@ -204,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
                 prNo = item.PRNo;
             }
 
-            var Response = Facade.GetReport(prNo, null, null, null, null , null , modelLocalSupplier.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
+            var Response = Facade.GetReport(prNo, null, null, null, null, null , null , modelLocalSupplier.CreatedBy, null, null,null, 1, 25, "{}", 7,"");
             Assert.NotNull(Response);
         }
 
@@ -217,7 +238,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             var today = DateTime.Now;
             var tomorrow = today.AddDays(1);
-            var Response = Facade.GetReport(null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
+            var Response = Facade.GetReport(null, null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
 
             Assert.NotNull(Response);
         }
@@ -226,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GetReport(null, null, null, null, null,null,null,null,null,null, 1, 25, "{}", 7,"");
+            var Response = Facade.GetReport(null, null, null, null, null, null,null,null,null,null,null, 1, 25, "{}", 7,"");
             Assert.NotEqual(Response.Item2, 0);
         }
 
@@ -234,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data_Excel()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GenerateExcel(model.PRNo, null, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 7,"");
+            var Response = Facade.GenerateExcel(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 7,"");
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 
@@ -242,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
-            var Response = Facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, 7,"");
+            var Response = Facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, null, 7,"");
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 

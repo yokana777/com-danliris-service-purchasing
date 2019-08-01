@@ -273,13 +273,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
 
                 return NoContent();
             }
-            catch (ServiceValidationExeption e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
-                    .Fail(e);
-                return BadRequest(Result);
-            }
+           
             catch (Exception e)
             {
                 Dictionary<string, object> Result =
@@ -304,13 +298,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
 
                 return NoContent();
             }
-            catch (ServiceValidationExeption e)
+            
+            catch (Exception e)
             {
                 Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
-                    .Fail(e);
-                return BadRequest(Result);
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
+        }
+
+        [HttpPut("returQuantity/{id}")]
+        public async Task<IActionResult> PutReturQuantity(int id, [FromBody]Dictionary<string, double> ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.UpdateReturQuantity(id, ViewModel.GetValueOrDefault("ReturQuantity"));
+
+                return NoContent();
+            }
+            
             catch (Exception e)
             {
                 Dictionary<string, object> Result =

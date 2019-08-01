@@ -22,7 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 		public double bruto { get; set; }
 		public double netto { get; set; }
 		public CurrencyViewModel currency{ get; set; }
-		public List<GarmentBeacukaiItemViewModel> items { get; set; }
+        public DateTimeOffset? arrivalDate { get; set; }
+        public List<GarmentBeacukaiItemViewModel> items { get; set; }
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if (string.IsNullOrWhiteSpace(beacukaiNo))

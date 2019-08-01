@@ -40,6 +40,9 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -78,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 {
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISDEVELOPMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
-//                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com-danliris-db-test;Trusted_Connection=True;MultipleActiveResultSets=true"),
+//                   new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com-danliris-db-test;Trusted_Connection=True;MultipleActiveResultSets=true"),
                     new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.service.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;"),
                     new KeyValuePair<string, string>(Constant.MONGODB_CONNECTION, "mongodb://localhost:27017/admin")
                 })
@@ -149,6 +152,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<IUnitPaymentOrderFacade, UnitPaymentOrderFacade>()
                 .AddTransient<UnitPaymentOrderDataUtil>()
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
+                .AddTransient<IMonitoringCentralBillReceptionFacade, MonitoringCentralBillReceptionFacade>()
+                .AddTransient<IMonitoringCentralBillExpenditureFacade, MonitoringCentralBillExpenditureFacade>()
+                .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
                 .AddTransient<UnitPaymentPriceCorrectionNoteDataUtils>()
                 .AddTransient<UnitPaymentCorrectionNoteDataUtil>()
 				.AddSingleton<IHttpClientService, HttpClientTestService>()

@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNotePric
 
         private GarmentCorrectionNoteDataUtil dataUtil(GarmentCorrectionNotePriceFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));

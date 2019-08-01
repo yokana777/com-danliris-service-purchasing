@@ -99,7 +99,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         },
                         s.IsPosted,
                         s.CreatedBy, 
-                        s.LastModifiedUtc
+                        s.LastModifiedUtc,
+
+                        s.PRType,
+                        s.SCId,
+                        s.SCNo,
+                        s.IsValidate
                     }).ToList()
                 );
 
@@ -138,10 +143,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     throw new Exception("Invalid Id");
                 }
 
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(viewModel);
+                    return Ok(Result);
+                }
+                else
+                {
+                    identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+                    identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = facade.GeneratePdf(viewModel);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.PRNo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -183,6 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         {
             try
             {
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -240,6 +263,66 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
                     .Fail(e);
                 return BadRequest(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute]int id)
+        {
+            try
+            {
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.Delete(id, identityService.Username);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPost("post")]
+        public async Task<IActionResult> PRPost([FromBody]List<long> listId)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRPost(listId, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("unpost/{id}")]
+        public async Task<IActionResult> PRUnpost([FromRoute]long id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRUnpost(id, identityService.Username);
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -332,5 +415,45 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
-	}
+
+        [HttpPut("approve/{id}")]
+        public async Task<IActionResult> PRApprove([FromRoute]long id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRApprove(id, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("unapprove/{id}")]
+        public async Task<IActionResult> PRUnApprove([FromRoute]long id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRUnApprove(id, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+    }
 }

@@ -25,19 +25,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
         }
 
-        public IQueryable<UnitPaymentOrderNotVerifiedReportViewModel> GetReportQuery(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public IQueryable<UnitPaymentOrderNotVerifiedReportViewModel> GetReportQuery(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset,string type)
         {
             DateTimeOffset dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
             DateTimeOffset dateToFilter = (dateTo == null ? DateTimeOffset.UtcNow.Date : dateTo.Value.Date);
 
+            
+            var header = dbContext.PurchasingDocumentExpeditions.AsQueryable();
+            if (type == "not-history")
+            {
+                header = header.GroupBy(x => x.UnitPaymentOrderNo)
+                        .Select(g => g.OrderByDescending(x => x.LastModifiedUtc).FirstOrDefault()).AsQueryable();
+            }
 
-            var Query = (from p in dbContext.PurchasingDocumentExpeditions
+            var Query = (from p in header
                          where p.IsDeleted == false &&
                             p.UnitPaymentOrderNo == (string.IsNullOrWhiteSpace(no) ? p.UnitPaymentOrderNo : no) &&
                             p.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? p.SupplierCode : supplier) &&
                             p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
-                            p.VerifyDate >= dateFromFilter &&
-                            p.VerifyDate <= dateToFilter
+                            p.VerifyDate!=null &&
+                            p.VerifyDate.GetValueOrDefault().AddHours(offset).Date >= dateFromFilter &&
+                            p.VerifyDate.GetValueOrDefault().AddHours(offset).Date <= dateToFilter
                             && p.Position == (ExpeditionPosition)6
                          select new UnitPaymentOrderNotVerifiedReportViewModel
                          {
@@ -55,9 +63,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Query;
         }
 
-        public Tuple<List<UnitPaymentOrderNotVerifiedReportViewModel>, int> GetReport(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<UnitPaymentOrderNotVerifiedReportViewModel>, int> GetReport(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int page, int size, string Order, int offset, string type)
         {
-            var Query = GetReportQuery( no, supplier, division, dateFrom, dateTo, offset);
+            var Query = GetReportQuery( no, supplier, division, dateFrom, dateTo, offset,type);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -73,9 +81,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcel(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset, string type)
         {
-            var Query = GetReportQuery(no, supplier, division, dateFrom, dateTo, offset);
+            var Query = GetReportQuery(no, supplier, division, dateFrom, dateTo, offset,type);
             Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Verifikasi", DataType = typeof(String) });

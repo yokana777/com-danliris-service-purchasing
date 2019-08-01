@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -310,5 +313,114 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 
             }
         }
+        #region Monitoring
+        public Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportInternNote(no, supplierCode, curencyCode, dateFrom, dateTo, offset);
+            //Console.WriteLine(Query);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(b => b.iNDate);
+                Query = Query.OrderByDescending(b => b.invoiceNo);
+            }
+            Pageable<GarmentInternNoteReportViewModel> pageable = new Pageable<GarmentInternNoteReportViewModel>(Query, page - 1, size);
+            List<GarmentInternNoteReportViewModel> Data = pageable.Data.ToList<GarmentInternNoteReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public IQueryable<GarmentInternNoteReportViewModel> GetReportInternNote(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            int i = 1;
+            //List<GarmentInternNoteReportViewModel> list = new List<GarmentInternNoteReportViewModel>();
+            var Query = (from a in dbContext.GarmentInternNotes
+                         join b in dbContext.GarmentInternNoteItems on a.Id equals b.GarmentINId
+                         join c in dbContext.GarmentInternNoteDetails on b.Id equals c.GarmentItemINId
+                         where a.IsDeleted == false
+                         && b.IsDeleted == false
+                         && c.IsDeleted == false
+                         && a.INNo == (string.IsNullOrWhiteSpace(no) ? a.INNo : no)
+                         && a.SupplierCode == (string.IsNullOrWhiteSpace(supplierCode) ? a.SupplierCode : supplierCode)
+                         && a.INDate.AddHours(offset).Date >= DateFrom.Date
+                         && a.INDate.AddHours(offset).Date <= DateTo.Date
+                         && a.CurrencyCode == (string.IsNullOrWhiteSpace(curencyCode) ? a.CurrencyCode : curencyCode)
+                         group new { a, b, c } by new { c.DONo } into pg
+                         let firstproduct = pg.FirstOrDefault()
+                         let IN = firstproduct.a
+                         let InItem = firstproduct.b
+                         let InDetail = firstproduct.c
+                         select new GarmentInternNoteReportViewModel
+                         {
+                             inNo = IN.INNo,
+                             iNDate = IN.INDate,
+                             currencyCode = IN.CurrencyCode,
+                             supplierName = IN.SupplierName,
+                             invoiceNo = InItem.InvoiceNo,
+                             invoiceDate = InItem.InvoiceDate,
+                             //pOSerialNumber = String.Join(",",pg.Select(m=>m.c.POSerialNumber)),//InDetail.POSerialNumber,
+                             priceTotal = pg.Sum(m => m.c.PriceTotal),//InDetail.PriceTotal,
+                             doNo = InDetail.DONo,
+                             doDate = InDetail.DODate,
+                             supplierCode = IN.SupplierCode,
+                             createdBy = IN.CreatedBy
+                         });
+            //var Data = Query.GroupBy(s => s.doNo);
+
+
+            return Query.AsQueryable();
+        }
+
+        public MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportInternNote(no, supplierCode, curencyCode, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(b => b.iNDate);
+            Query = Query.OrderByDescending(c => c.invoiceNo);
+            DataTable result = new DataTable();
+
+            //result.Columns.Add(new DataColumn());
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "poserialnumber", DataType = typeof(String) });
+
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", "", "");
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string date = item.iNDate == null ? "-" : item.iNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //string DueDate = item.paymentDueDate == null ? "-" : item.paymentDueDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MM yyyy", new CultureInfo("id-ID"));
+                    string invoDate = item.invoiceDate == null ? "-" : item.invoiceDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string Dodate = item.doDate == null ? "-" : item.doDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //var price = item.priceTotal.ToString();
+                    string priceTotal = string.Format("{0:N2}", item.priceTotal);
+                    //double totalHarga = item.pricePerDealUnit * item.quantity;
+
+                    //result.Rows.Add(index, item.inNo, date, item.currencyCode, item.supplierName, item.paymentMethod, item.paymentType, DueDate, item.invoiceNo, invoDate, item.doNo, Dodate, item.pOSerialNumber, item.rONo, item.productCode, item.productName, item.quantity, item.uOMUnit, item.pricePerDealUnit, totalHarga);
+                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, priceTotal, item.currencyCode, item.createdBy);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>> { (new KeyValuePair<DataTable, string>(result, "Nota Intern")) }, true);
+
+        }
+        #endregion
     }
 }

@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                     {
                         new GarmentUnitExpenditureNoteItemViewModel {
                             ProductId = 1,
-                            UomId = 1
+                            UomId = 1,
                         }
                     }
                 });
@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
         private GarmentUnitExpenditureNoteDataUtil dataUtil(GarmentUnitExpenditureNoteFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
@@ -508,6 +508,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         UnitDOItemId = 1,
                         Quantity = 10,
                         IsSave = true,
+                        ReturQuantity = 1,
                     },
 
                     new GarmentUnitExpenditureNoteItemViewModel
@@ -516,6 +517,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         UnitDOItemId = 1,
                         Quantity = 100,
                         IsSave = true,
+                        ReturQuantity = 1,
                         
                     },
 
@@ -524,7 +526,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                         Id = item.Id,
                         UnitDOItemId = 1,
                         Quantity = 0,
-                        IsSave = true
+                        IsSave = true,
+                        ReturQuantity = 1,
                     },
                 }
             };
@@ -568,6 +571,53 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var ResponseUpdate = await facade.UpdateIsPreparing((int)newData.Id, newData);
             Assert.NotEqual(ResponseUpdate, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_Null_Items_For_Preparing_Create()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            dbContext.Entry(data).State = EntityState.Detached;
+            data.Items = null;
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateIsPreparing(0, null));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_For_DeliveryReturn()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var data = await dataUtil.GetTestData();
+
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
+
+            newData.Items.First().IsSave = false;
+
+            var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1);
+            Assert.NotEqual(ResponseUpdate, 0);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_Null_Items_For_DeliveryReturn()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            dbContext.Entry(data).State = EntityState.Detached;
+            data.Items = null;
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateReturQuantity(0, 0));
+            Assert.NotNull(e.Message);
         }
     }
 }

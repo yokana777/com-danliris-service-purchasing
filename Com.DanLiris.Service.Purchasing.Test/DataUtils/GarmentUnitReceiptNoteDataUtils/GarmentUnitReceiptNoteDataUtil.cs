@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 
@@ -19,11 +20,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public async Task<GarmentUnitReceiptNote> GetNewData(long? ticks = null)
+        public async Task<GarmentUnitReceiptNote> GetNewData(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder=null)
         {
             long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
 
-            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+            garmentDeliveryOrder = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
@@ -86,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         SmallUomId = long.Parse(detail.SmallUomId),
                         SmallUomUnit = detail.SmallUomUnit,
                         Conversion = (decimal)detail.Conversion,
+                        CorrectionConversion = (decimal)detail.Conversion
                     };
 
                 garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
@@ -159,7 +161,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
                         SmallUomId = long.Parse(detail.SmallUomId),
                         SmallUomUnit = detail.SmallUomUnit,
-                        Conversion = (decimal)detail.Conversion
+                        Conversion = (decimal)detail.Conversion,
+                        CorrectionConversion= (decimal)detail.Conversion
                     };
 
                     garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
@@ -199,6 +202,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
         public async Task<GarmentUnitReceiptNote> GetTestData(long? ticks = null)
         {
             var data = await GetNewData(ticks);
+            await facade.Create(data);
+            return data;
+        }
+
+        public async Task<GarmentUnitReceiptNote> GetTestData(GarmentDeliveryOrder garmentDeliveryOrder, long? ticks = null)
+        {
+            var data = await GetNewData(ticks,garmentDeliveryOrder);
             await facade.Create(data);
             return data;
         }

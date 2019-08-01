@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 		MemoryStream GenerateExcelPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
 		Tuple<List<MonitoringPurchaseAllUserViewModel>, int> GetMonitoringPurchaseByUserReport(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
 		MemoryStream GenerateExcelByUserPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
-		
-	}
+        Task<int> Delete(int id, string user);
+        Task<int> PRPost(List<long> listId, string username);
+        Task<int> PRUnpost(long id, string username);
+        MemoryStream GeneratePdf(GarmentPurchaseRequestViewModel viewModel);
+        GarmentPreSalesContractViewModel GetGarmentPreSalesContract(long Id);
+        Task<int> PRApprove(long id, string username);
+        Task<int> PRUnApprove(long id, string username);
+    }
 }

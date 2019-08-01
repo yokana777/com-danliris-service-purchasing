@@ -12,7 +12,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
     {
         public string UId { get; set; }
         public string PRNo { get; set; }
+        public string PRType { get; set; }
         public string RONo { get; set; }
+
+        public long SCId { get; set; }
+        public string SCNo { get; set; }
 
         public BuyerViewModel Buyer { get; set; }
 
@@ -26,26 +30,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
         public bool IsPosted { get; set; }
         public bool IsUsed { get; set; }
+        public bool IsValidate { get; set; }
         public string Remark { get; set; }
+        public string ValidatedBy { get; set; }
+        public DateTimeOffset ValidatedDate { get; set; }
 
         public List<GarmentPurchaseRequestItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             PurchasingDbContext dbContext = validationContext == null ? null : (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-
-            if (String.IsNullOrWhiteSpace(RONo))
-            {
-                yield return new ValidationResult("RONo tidak boleh kosong", new List<string> { "RONo" });
-            }
-            else
-            {
-                var duplicateRONo = dbContext.GarmentPurchaseRequests.Where(m => m.RONo.Equals(RONo) && m.Id != Id).Count();
-                if (duplicateRONo > 0)
-                {
-                    yield return new ValidationResult("RONo sudah ada", new List<string> { "RONo" });
-                }
-            }
 
             if (Buyer == null) {
                 yield return new ValidationResult("Buyer tidak boleh kosong", new List<string> { "Buyer" });
@@ -57,28 +51,60 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
             if (String.IsNullOrWhiteSpace(Article))
             {
-                yield return new ValidationResult("Article tidak boleh kosong", new List<string> { "Article" });
+                yield return new ValidationResult("Artikel tidak boleh kosong", new List<string> { "Article" });
             }
 
             if (Date.Equals(DateTimeOffset.MinValue) || Date == null)
             {
-                yield return new ValidationResult("Date tidak boleh kosong", new List<string> { "Date" });
-            }
-            if (ShipmentDate.Equals(DateTimeOffset.MinValue) || ShipmentDate == null)
-            {
-                yield return new ValidationResult("ShipmentDate tidak boleh kosong", new List<string> { "ShipmentDate" });
+                yield return new ValidationResult("Tanggal tidak boleh kosong", new List<string> { "Date" });
             }
 
-            if (Unit == null)
+            if (SCId < 1 || string.IsNullOrWhiteSpace(SCNo))
             {
-                yield return new ValidationResult("Unit tidak boleh kosong", new List<string> { "Unit" });
-            }
-            else if (String.IsNullOrWhiteSpace(Unit.Id) || Unit.Id.Equals("0") || String.IsNullOrWhiteSpace(Unit.Code) || String.IsNullOrWhiteSpace(Unit.Name))
-            {
-                yield return new ValidationResult("Data Unit tidak benar", new List<string> { "Unit" });
+                yield return new ValidationResult("Sales Contract tidak boleh kosong", new List<string> { "SalesContract" });
             }
 
-            if(Items == null || Items.Count <= 0)
+            if (new string[] { "MASTER", "SAMPLE" }.Contains(PRType))
+            {
+                if (ExpectedDeliveryDate.Equals(DateTimeOffset.MinValue) || ExpectedDeliveryDate == null)
+                {
+                    yield return new ValidationResult("Tanggal Diminta Datang tidak boleh kosong", new List<string> { "ExpectedDeliveryDate" });
+                }
+            }
+            else
+            {
+                if (String.IsNullOrWhiteSpace(RONo))
+                {
+                    yield return new ValidationResult("RONo tidak boleh kosong", new List<string> { "RONo" });
+                }
+                else
+                {
+                    var duplicateRONo = dbContext.GarmentPurchaseRequests.Where(m => m.RONo.Equals(RONo) && m.Id != Id).Count();
+                    if (duplicateRONo > 0)
+                    {
+                        yield return new ValidationResult("RONo sudah ada", new List<string> { "RONo" });
+                    }
+                }
+
+                if (ShipmentDate.Equals(DateTimeOffset.MinValue) || ShipmentDate == null)
+                {
+                    yield return new ValidationResult("Tanggal Shipment tidak boleh kosong", new List<string> { "ShipmentDate" });
+                }
+            }
+
+            if (PRType != "MASTER")
+            {
+                if (Unit == null)
+                {
+                    yield return new ValidationResult("Unit tidak boleh kosong", new List<string> { "Unit" });
+                }
+                else if (String.IsNullOrWhiteSpace(Unit.Id) || Unit.Id.Equals("0") || String.IsNullOrWhiteSpace(Unit.Code) || String.IsNullOrWhiteSpace(Unit.Name))
+                {
+                    yield return new ValidationResult("Data Unit tidak benar", new List<string> { "Unit" });
+                }
+            }
+
+            if (Items == null || Items.Count <= 0)
             {
                 yield return new ValidationResult("Items tidak boleh kosong", new List<string> { "ItemsCount" });
             }
@@ -91,65 +117,120 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                 {
                     itemError += "{";
 
-                    if(String.IsNullOrWhiteSpace(item.PO_SerialNumber))
-                    {
-                        itemErrorCount++;
-                        itemError += "PO_SerialNumber: 'PO_SerialNumber tidak boleh kosong', ";
-                    }
-                    else if(Id != 0)
-                    {
-                        var duplicatePO_SerialNumber = dbContext.GarmentPurchaseRequests
-                            .SingleOrDefault(m => m.Id == Id && m.Items.Any(i => i.PO_SerialNumber.Equals(item.PO_SerialNumber) && i.Id != item.Id));
-                        if (duplicatePO_SerialNumber != null)
-                        {
-                            itemErrorCount++;
-                            itemError += "PO_SerialNumber: 'PO_SerialNumber sudah ada', ";
-                        }
-                    }
-
                     if (item.Product == null)
                     {
                         itemErrorCount++;
-                        itemError += "Product: 'Product tidak boleh kosong', ";
+                        itemError += "Product: 'Barang tidak boleh kosong', ";
                     }
                     else if (String.IsNullOrWhiteSpace(item.Product.Id) || item.Product.Id.Equals("0") || String.IsNullOrWhiteSpace(item.Product.Code) || String.IsNullOrWhiteSpace(item.Product.Name))
                     {
                         itemErrorCount++;
-                        itemError += "Product: 'Data Product tidak benar', ";
+                        itemError += "Product: 'Data Barang tidak benar', ";
                     }
 
                     if(item.Quantity <= 0)
                     {
                         itemErrorCount++;
-                        itemError += "Quantity: 'Quantity harus lebih dari 0', ";
+                        itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                     }
 
-                    //if (item.BudgetPrice <= 0)
-                    //{
-                    //    itemErrorCount++;
-                    //    itemError += "BudgetPrice: 'BudgetPrice harus lebih dari 0', ";
-                    //}
+                    if (item.BudgetPrice < 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "BudgetPrice: 'Price harus lebih dari atau sama dengan 0', ";
+                    }
 
                     if (item.Uom == null)
                     {
                         itemErrorCount++;
-                        itemError += "UOM: 'UOM tidak boleh kosong', ";
+                        itemError += "UOM: 'Satuan tidak boleh kosong', ";
                     }
                     else if (String.IsNullOrWhiteSpace(item.Uom.Id) || item.Uom.Id.Equals("0") || String.IsNullOrWhiteSpace(item.Uom.Unit))
                     {
                         itemErrorCount++;
-                        itemError += "UOM: 'Data UOM tidak benar', ";
+                        itemError += "UOM: 'Data Satuan tidak benar', ";
                     }
 
                     if (item.Category == null)
                     {
                         itemErrorCount++;
-                        itemError += "Category: 'Category tidak boleh kosong', ";
+                        itemError += "Category: 'Kategori tidak boleh kosong', ";
                     }
                     else if (String.IsNullOrWhiteSpace(item.Category.Id) || item.Category.Id.Equals("0") || String.IsNullOrWhiteSpace(item.Category.Name))
                     {
                         itemErrorCount++;
-                        itemError += "Category: 'Data Category tidak benar', ";
+                        itemError += "Category: 'Data Kategori tidak benar', ";
+                    }
+
+                    if (new string[] { "MASTER", "SAMPLE" }.Contains(PRType))
+                    {
+                        if (item.Category != null && item.Category.Name == "FABRIC")
+                        {
+                            if (item.Composition == null || string.IsNullOrWhiteSpace(item.Composition.Composition))
+                            {
+                                itemErrorCount++;
+                                itemError += "Composition: 'Komposisi tidak boleh kosong', ";
+                            }
+                            else
+                            {
+                                if (item.Const == null || string.IsNullOrWhiteSpace(item.Const.Const))
+                                {
+                                    itemErrorCount++;
+                                    itemError += "Const: 'Konstruksi tidak boleh kosong', ";
+                                }
+                                else
+                                {
+                                    if (item.Yarn == null || string.IsNullOrWhiteSpace(item.Yarn.Yarn))
+                                    {
+                                        itemErrorCount++;
+                                        itemError += "Yarn: 'Yarn tidak boleh kosong', ";
+                                    }
+                                    else
+                                    {
+                                        if (item.Width == null || string.IsNullOrWhiteSpace(item.Width.Width))
+                                        {
+                                            itemErrorCount++;
+                                            itemError += "Width: 'Width tidak boleh kosong', ";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (item.PriceUom == null)
+                        {
+                            itemErrorCount++;
+                            itemError += "PriceUom: 'Satuan Harga tidak boleh kosong', ";
+                        }
+                        else if (string.IsNullOrWhiteSpace(item.PriceUom.Id) || item.PriceUom.Id.Equals("0") || string.IsNullOrWhiteSpace(item.PriceUom.Unit))
+                        {
+                            itemErrorCount++;
+                            itemError += "PriceUom: 'Data Satuan Harga tidak benar', ";
+                        }
+
+                        if (item.PriceConversion <= 0)
+                        {
+                            itemErrorCount++;
+                            itemError += "PriceConversion: 'Konversi harus lebih dari 0', ";
+                        }
+                    }
+                    else
+                    {
+                        if (string.IsNullOrWhiteSpace(item.PO_SerialNumber))
+                        {
+                            itemErrorCount++;
+                            itemError += "PO_SerialNumber: 'PO SerialNumber tidak boleh kosong', ";
+                        }
+                        else if (Id != 0)
+                        {
+                            var duplicatePO_SerialNumber = dbContext.GarmentPurchaseRequests
+                                .SingleOrDefault(m => m.Id == Id && m.Items.Any(i => i.PO_SerialNumber.Equals(item.PO_SerialNumber) && i.Id != item.Id));
+                            if (duplicatePO_SerialNumber != null)
+                            {
+                                itemErrorCount++;
+                                itemError += "PO_SerialNumber: 'PO SerialNumber sudah ada', ";
+                            }
+                        }
                     }
 
                     itemError += "}, ";

@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
         {
             CreateMap<GarmentUnitExpenditureNote, GarmentUnitExpenditureNoteViewModel>()
                 .ForPath(d => d.UnitRequest.Id, opt => opt.MapFrom(s => s.UnitRequestId))
-                .ForPath(d => d.UnitRequest.Code, opt => opt.MapFrom(s => s.UnitSenderCode))
+                .ForPath(d => d.UnitRequest.Code, opt => opt.MapFrom(s => s.UnitRequestCode))
                 .ForPath(d => d.UnitRequest.Name, opt => opt.MapFrom(s => s.UnitRequestName))
 
                 .ForPath(d => d.UnitSender.Id, opt => opt.MapFrom(s => s.UnitSenderId))

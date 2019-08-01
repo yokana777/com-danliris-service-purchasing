@@ -35,6 +35,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 
         public bool IsUsed { get; set; }
 
+        public long PriceUomId { get; set; }
+        [MaxLength(255)]
+        public string PriceUomUnit { get; set; }
+        public double PriceConversion { get; set; }
+
         public virtual long GarmentPRId { get; set; }
         [ForeignKey("GarmentPRId")]
         public virtual GarmentPurchaseRequest GarmentPurchaseRequest { get; set; }
