@@ -88,12 +88,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             return Query;
         }
 
+        /// <summary>
+        /// [ColumnName: 1, Name: ColumnName] will produce "SELECT ColumnName, ColumnName as Name FROM TableName"
+        /// </summary>
         public static IQueryable ConfigureSelect(IQueryable<TModel> Query, Dictionary<string, string> SelectDictionary)
         {
             /* Custom Select */
             if (SelectDictionary != null && !SelectDictionary.Count.Equals(0))
             {
-                string selectedColumns = string.Join(", ", SelectDictionary.Select(d => (d.Value == "1") ? d.Key : string.Concat(d.Value, " as ", d.Key)));
+                var listHeaderColumns = SelectDictionary.Where(d => !d.Key.Contains("."))
+                    .Select(d => (d.Value == "1") ? d.Key : string.Concat(d.Value, " as ", d.Key));
+
+                var listChildColumns = SelectDictionary
+                    .Where(d => d.Key.Contains(".") && d.Value == "1")
+                    .Select(s =>
+                    {
+                        var keys = s.Key.Split(".");
+                        return new KeyValuePair<string, string>(keys[0], keys[1]);
+                    })
+                    .GroupBy(g => g.Key)
+                    .Select(s => string.Concat(s.Key, ".Select(new(", string.Join(",", s.Select(ss => ss.Value)), ")) as ", s.Key));
+
+                var listColumns = listHeaderColumns.Concat(listChildColumns);
+
+                string selectedColumns = string.Join(", ", listColumns);
 
                 var SelectedQuery = Query.Select(string.Concat("new(", selectedColumns, ")"));
 
