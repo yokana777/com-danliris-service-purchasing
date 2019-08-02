@@ -451,11 +451,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Remark, normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
+            var ppnPurchase = viewModel.VatValue > 0 ? (totalPurchase * 10 / 100) : 0;
+
+
             cellLeftNoBorder.Phrase = new Phrase("Total Pembelian", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{totalPurchase.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{(totalPurchase+ ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove
@@ -468,6 +471,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableSignature = new PdfPTable(4);
 
             PdfPCell cellSignatureContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
+
+            cellSignatureContent.Phrase = new Phrase("", bold_font3);
+            tableSignature.AddCell(cellSignatureContent);
+            cellSignatureContent.Phrase = new Phrase("", bold_font3);
+            cellSignatureContent.Colspan = 2;
+            tableSignature.AddCell(cellSignatureContent);
+
+            cellSignatureContent.Colspan = 0;
+            cellSignatureContent.Phrase = new Phrase("Sukoharjo, " + viewModel.CreatedUtc.ToString("dd MMMM yyyy", new CultureInfo("id-ID")), bold_font3);
+            tableSignature.AddCell(cellSignatureContent);
+
             cellSignatureContent.Phrase = new Phrase("Menyetujui,", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
             cellSignatureContent.Phrase = new Phrase("Mengetahui,", bold_font3);
