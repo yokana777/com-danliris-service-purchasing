@@ -334,7 +334,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.ReadDynamic();
+            var Response = facade.ReadDynamic(Select: "{Id: 1}");
             Assert.NotEqual(Response.Data.Count, 0);
         }
 
