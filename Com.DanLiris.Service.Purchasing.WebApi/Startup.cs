@@ -52,6 +52,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRecept
 using FluentScheduler;
 using Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -138,6 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IMonitoringCentralBillReceptionFacade, MonitoringCentralBillReceptionFacade>()
                 .AddTransient<IMonitoringCentralBillExpenditureFacade, MonitoringCentralBillExpenditureFacade>()
                 .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
+                .AddTransient<IMonitoringCorrectionNoteExpenditureFacade, MonitoringCorrectionNoteExpenditureFacade>()
                 .AddTransient<IGarmentReceiptCorrectionFacade, GarmentReceiptCorrectionFacade>();
 
         }
