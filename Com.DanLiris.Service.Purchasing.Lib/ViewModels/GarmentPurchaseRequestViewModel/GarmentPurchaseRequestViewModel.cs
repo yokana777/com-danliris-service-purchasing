@@ -92,8 +92,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                 }
             }
 
-            if (PRType != "MASTER")
-            {
+            //if (PRType != "MASTER")
+            //{
                 if (Unit == null)
                 {
                     yield return new ValidationResult("Unit tidak boleh kosong", new List<string> { "Unit" });
@@ -102,7 +102,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                 {
                     yield return new ValidationResult("Data Unit tidak benar", new List<string> { "Unit" });
                 }
-            }
+            //}
 
             if (Items == null || Items.Count <= 0)
             {
@@ -212,6 +212,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                         {
                             itemErrorCount++;
                             itemError += "PriceConversion: 'Konversi harus lebih dari 0', ";
+                        }
+                        else if (item.Uom != null && item.PriceUom != null && (item.PriceUom.Id == item.Uom.Id || item.PriceUom.Unit == item.Uom.Unit) && item.PriceConversion != 1)
+                        {
+                            itemErrorCount++;
+                            itemError += "PriceConversion: 'Satuan Sama, Konversi harus 1', ";
                         }
                     }
                     else
