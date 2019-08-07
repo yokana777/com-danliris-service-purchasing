@@ -127,14 +127,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                         List<GarmentReceiptCorrectionItem> itemsOut = new List<GarmentReceiptCorrectionItem>();
                         foreach (var outs in m.Items)
                         {
-                            var OutSmallQuantity = outs.Quantity * outs.Conversion;
-
                             GarmentReceiptCorrectionItem outItem = new GarmentReceiptCorrectionItem
                             {
                                 PricePerDealUnit= outs.PricePerDealUnit,
                                 POItemId= outs.POItemId,
                                 Conversion= outs.Conversion,
-                                SmallQuantity= OutSmallQuantity,
+                                SmallQuantity= outs.SmallQuantity,
                                 DODetailId= outs.DODetailId,
                                 ProductCode= outs.ProductCode,
                                 ProductId= outs.ProductId,
@@ -204,11 +202,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                         }
                         else
                         {
-                            decimal qty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion))* garmentUnitReceiptNoteItem.CorrectionConversion;
-                            decimal newQty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion)) * (decimal)item.CorrectionConversion;
-                            decimal diff = (newQty - qty)/(decimal)item.CorrectionConversion;
-                            item.SmallQuantity = item.Quantity * item.CorrectionConversion;
-                            garmentUnitReceiptNoteItem.ReceiptCorrection += diff;
+                            //decimal qty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion))* garmentUnitReceiptNoteItem.CorrectionConversion;
+                            //decimal newQty = (garmentUnitReceiptNoteItem.ReceiptCorrection - (garmentUnitReceiptNoteItem.OrderQuantity / garmentUnitReceiptNoteItem.CorrectionConversion)) * (decimal)item.CorrectionConversion;
+                            //decimal diff = (newQty - qty)/(decimal)item.CorrectionConversion;
+                            item.SmallQuantity =(double) garmentUnitReceiptNoteItem.ReceiptCorrection * item.CorrectionConversion;
+                            //garmentUnitReceiptNoteItem.ReceiptCorrection += diff;
                             garmentUnitReceiptNoteItem.CorrectionConversion = (decimal)item.CorrectionConversion;
                         }
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
