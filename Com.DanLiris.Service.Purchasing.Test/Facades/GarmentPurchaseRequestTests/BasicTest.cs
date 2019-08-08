@@ -94,6 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, _dbContext(GetCurrentMethod()));
             var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
             model.PRType = "MASTER";
+            model.UnitCode = "C2A";
             model.RONo = null;
             foreach (var item in model.Items)
             {
@@ -182,7 +183,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             }
             var firstItem = newModel.Items.First();
             firstItem.Id = 0;
-            firstItem.PO_SerialNumber = null;
+            firstItem.PO_SerialNumber = $"PO_SerialNumber{DateTime.Now.Ticks}";
 
             var Response = await facade.Update((int)newModel.Id, newModel, USERNAME);
             Assert.NotEqual(Response, 0);

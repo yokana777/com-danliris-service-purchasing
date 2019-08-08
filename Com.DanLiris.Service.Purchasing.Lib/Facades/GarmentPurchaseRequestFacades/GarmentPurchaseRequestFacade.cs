@@ -194,24 +194,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
             string y = now.ToString("yy");
 
-            var prefix = string.Empty;
+            var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+            if (unitCode < 1)
+            {
+                throw new Exception("UnitCode format is invalid when Generate RONo");
+            }
+
+            var prefix = string.Concat(y, unitCode);
             var padding = 5;
             var suffix = string.Empty;
 
             if (m.PRType == "MASTER")
             {
-                prefix = $"{y}";
                 suffix = "M";
             }
             else if (m.PRType == "SAMPLE")
             {
-                var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
-                if (unitCode < 1)
-                {
-                    throw new Exception("UnitCode format is invalid when Generate RONo");
-                }
-                prefix = $"{y}{unitCode}";
                 suffix = "S";
+            }
+            else
+            {
+                throw new Exception("PRType only accepting \"MASTER\" and \"SAMPLE\" in order to generate RONo.");
             }
 
             var lastRONo = dbSet.Where(w => !string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
@@ -229,24 +232,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
             string y = now.ToString("yy");
 
-            var prefix = string.Empty;
+            var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+            if (unitCode < 1)
+            {
+                throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
+            }
+
+            var prefix = string.Concat(y, unitCode);
             var padding = 6;
             var suffix = string.Empty;
 
             if (m.PRType == "MASTER")
             {
-                prefix = string.Concat(prefix, y);
                 suffix = "M";
             }
             else if (m.PRType == "SAMPLE")
             {
-                var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
-                if (unitCode < 1)
-                {
-                    throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
-                }
-                prefix = string.Concat(prefix, y, unitCode);
                 suffix = "S";
+            }
+            else
+            {
+                throw new Exception("PRType only accepting \"MASTER\" and \"SAMPLE\" in order to generate POSerialNumber.");
             }
 
             var prefixPM = string.Concat("PM", prefix);
