@@ -458,7 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{(totalPurchase+ ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " " + $"{(totalPurchase + ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove
