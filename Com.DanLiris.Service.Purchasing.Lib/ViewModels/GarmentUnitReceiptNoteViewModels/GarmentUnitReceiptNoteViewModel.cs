@@ -60,10 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 yield return new ValidationResult("Supplier tidak boleh kosong.", new List<string> { "Supplier" });
                 checkDO = false;
             }
-            else if(URNType == "PROSES")
-            {
-                checkDO = false;
-            }
+            
             if (Storage == null || string.IsNullOrWhiteSpace(Storage._id))
             {
                 yield return new ValidationResult("Storage tidak boleh kosong.", new List<string> { "Storage" });
