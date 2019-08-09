@@ -294,6 +294,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteViewModel viewModelCheckDeliveryOrder = new GarmentUnitReceiptNoteViewModel {
                 Supplier = new SupplierViewModel { Id = 1 },
                 Unit = new UnitViewModel { Id = "1" },
+                URNType="PEMBELIAN"
             };
             Assert.True(viewModelCheckDeliveryOrder.Validate(null).Count() > 0);
 
@@ -302,6 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentUnitReceiptNoteViewModel viewModelCheckItems = new GarmentUnitReceiptNoteViewModel {
                 DOId = 1,
+                URNType = "PEMBELIAN",
                 Items = new List<GarmentUnitReceiptNoteItemViewModel>
                 {
                     new GarmentUnitReceiptNoteItemViewModel()
@@ -312,6 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteViewModel viewModelCheckItemsConvertion = new GarmentUnitReceiptNoteViewModel
             {
                 DOId = 1,
+                URNType = "PEMBELIAN",
                 Items = new List<GarmentUnitReceiptNoteItemViewModel>
                 {
                     new GarmentUnitReceiptNoteItemViewModel
