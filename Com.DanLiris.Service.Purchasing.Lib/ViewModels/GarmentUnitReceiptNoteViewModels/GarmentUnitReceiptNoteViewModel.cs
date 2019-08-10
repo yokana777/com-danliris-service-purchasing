@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
     {
         public string UId { get; set; }
         public string URNNo { get; set; }
+        public string URNType { get; set; }
 
         public NewIntegrationViewModel.UnitViewModel Unit { get; set; }
 
@@ -21,6 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public long? DOId { get; set; }
         public string DONo { get; set; }
         public bool IsInvoice { get; set; }
+        public string DRId { get; set; }
+        public string DRNo { get; set; }
 
         public DateTimeOffset? ReceiptDate { get; set; }
 
@@ -52,11 +55,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 yield return new ValidationResult("Unit tidak boleh kosong.", new List<string> { "Unit" });
                 checkDO = false;
             }
-            if (Supplier == null || Supplier.Id == 0)
+            if ((Supplier == null || Supplier.Id == 0) && URNType=="PEMBELIAN")
             {
                 yield return new ValidationResult("Supplier tidak boleh kosong.", new List<string> { "Supplier" });
                 checkDO = false;
             }
+            
             if (Storage == null || string.IsNullOrWhiteSpace(Storage._id))
             {
                 yield return new ValidationResult("Storage tidak boleh kosong.", new List<string> { "Storage" });
