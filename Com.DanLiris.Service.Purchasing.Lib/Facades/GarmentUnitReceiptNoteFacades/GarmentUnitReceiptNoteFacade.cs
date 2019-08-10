@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using System.Data;
 using System.Globalization;
+using System.Net.Http;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -187,8 +188,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     garmentUnitReceiptNote.URNNo = await GenerateNo(garmentUnitReceiptNote);
                     garmentUnitReceiptNote.IsStorage = true;
 
-                    var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
-                    garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN")
+                    {
+                        var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                        garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
+                    }
+                    else if(garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, true);
+                    }
+                    
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
@@ -243,6 +252,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
 
             return Created;
+        }
+
+        private async Task UpdateDR(string DRId, bool isUsed)
+        {
+            string drUri ="delivery-returns";
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = httpClient.GetAsync($"{APIEndpoint.GarmentProduction}{drUri}/{DRId}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                GarmentDeliveryReturnViewModel viewModel = JsonConvert.DeserializeObject< GarmentDeliveryReturnViewModel>(result.GetValueOrDefault("data").ToString());
+                viewModel.IsUsed= isUsed;
+                foreach(var item in viewModel.Items)
+                {
+                    item.QuantityUENItem = item.Quantity + 1;
+                    item.RemainingQuantityPreparingItem= item.Quantity + 1;
+                    item.IsSave = true;
+                }
+
+                //var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+                var response2 = httpClient.PutAsync($"{APIEndpoint.GarmentProduction}{drUri}/{DRId}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+                var content2 = response2.Content.ReadAsStringAsync().Result;
+                response2.EnsureSuccessStatusCode();
+            }
+            
         }
 
         public async Task<int> Update(int id, GarmentUnitReceiptNote garmentUnitReceiptNote)
@@ -337,6 +373,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                     garmentUnitReceiptNote.DeletedReason = deletedReason;
                     EntityExtension.FlagForDelete(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
+
+                    if (garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, false);
+                    }
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
