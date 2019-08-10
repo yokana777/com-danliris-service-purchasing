@@ -64,6 +64,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
 
+            httpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("delivery-returns"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
+
+            httpClientService
+               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("delivery-returns")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
+
+
             var mapper = new Mock<IMapper>();
             mapper
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
@@ -101,6 +110,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
                 .Returns(mockGarmentDeliveryOrderFacade.Object);
 
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
 
             return serviceProviderMock.Object;
         }
@@ -201,6 +213,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             data1.UnitId = data.UnitId;
             var Response1 = await facade.Create(data1);
             Assert.NotEqual(Response1, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Data_PROSES()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data.URNType = "PROSES";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(Response, 0);
+
         }
 
         [Fact]
