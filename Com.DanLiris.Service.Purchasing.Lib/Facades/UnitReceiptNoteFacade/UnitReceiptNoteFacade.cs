@@ -466,9 +466,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 },
                 Debit = 0,
                 Credit = s.Sum(sum => sum.Credit),
-                Remark = string.Join("\n", s.SelectMany(sm => sm.Remark).ToList())
+                Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
             }).ToList();
             journalTransactionToPost.Items.AddRange(journalCreditItems);
+
+            if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
+                journalTransactionToPost.Status = "DRAFT";
 
             string journalTransactionUri = "journal-transactions";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
