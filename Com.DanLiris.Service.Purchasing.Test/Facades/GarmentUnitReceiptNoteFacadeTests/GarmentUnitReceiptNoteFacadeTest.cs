@@ -289,6 +289,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
+        public async Task Should_Success_Delete_Data_Proses()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data.URNType = "PROSES";
+            await facade.Create(data);
+
+            var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Delete_Data2()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
