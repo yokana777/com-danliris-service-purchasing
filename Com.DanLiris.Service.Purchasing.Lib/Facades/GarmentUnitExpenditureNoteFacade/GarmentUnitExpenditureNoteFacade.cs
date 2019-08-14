@@ -495,7 +495,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     dbSet.Add(garmentUnitExpenditureNote);
 
-                    await dbContext.SaveChangesAsync();
+                    Created = await dbContext.SaveChangesAsync();
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
@@ -622,9 +622,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         EntityExtension.FlagForCreate(garmentUnitDO, identityService.Username, USER_AGENT);
 
                         dbSetGarmentUnitDeliveryOrder.Add(garmentUnitDO);
+
+                        Created = await dbContext.SaveChangesAsync();
                     }
 
-                    Created = await dbContext.SaveChangesAsync();
+                    
 
                     transaction.Commit();
 
