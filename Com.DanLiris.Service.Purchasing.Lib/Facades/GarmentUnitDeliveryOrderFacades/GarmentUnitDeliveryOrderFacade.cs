@@ -271,7 +271,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             return Updated;
         }
 
-        async Task<string> GenerateNo(GarmentUnitDeliveryOrder model)
+        public async Task<string> GenerateNo(GarmentUnitDeliveryOrder model)
         {
             DateTimeOffset dateTimeOffset = model.UnitDODate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0));
             string Month = dateTimeOffset.ToString("MM");
