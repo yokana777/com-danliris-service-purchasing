@@ -554,7 +554,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return garmentInventoryDocument;
         }
 
-        private async Task<string> GenerateNo(GarmentUnitReceiptNote garmentUnitReceiptNote)
+        public async Task<string> GenerateNo(GarmentUnitReceiptNote garmentUnitReceiptNote)
         {
             string Year = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
             string Month = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");
