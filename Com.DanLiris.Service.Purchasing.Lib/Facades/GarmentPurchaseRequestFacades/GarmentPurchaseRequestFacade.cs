@@ -306,6 +306,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     {
                         EntityExtension.FlagForUpdate(oldM, user, USER_AGENT);
 
+                        if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
+                        {
+                            oldM.Article = m.Article;
+                            oldM.Date = m.Date;
+                            oldM.ExpectedDeliveryDate = m.ExpectedDeliveryDate;
+                            oldM.Remark = m.Remark;
+                        }
+
                         foreach (var oldItem in oldM.Items)
                         {
                             var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
