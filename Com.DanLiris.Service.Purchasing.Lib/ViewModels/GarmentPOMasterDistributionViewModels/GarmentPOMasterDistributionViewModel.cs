@@ -20,7 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Supplier == null || Supplier.Id < 1 || string.IsNullOrWhiteSpace(Supplier.Name))
+            if (Supplier == null || Supplier.Id < 1)
             {
                 yield return new ValidationResult("Supplier tidak boleh kosong", new List<string> { "Supplier" });
             }
