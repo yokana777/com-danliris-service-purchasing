@@ -64,7 +64,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     IsPaid = s.IsPaid,
                     IsPaidPPH = s.IsPaidPPH,
                     VerifyDate = s.VerifyDate,
-                    LastModifiedUtc = s.LastModifiedUtc
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    Active = s.Active,
+                    IsDeleted = s.IsDeleted,
+                    Vat = s.Vat,
+                    IncomeTax = s.IncomeTax
                 });
 
             List<string> searchAttributes = new List<string>()
@@ -108,7 +112,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    Currency = s.Currency,
                    Position = s.Position,
                    VerifyDate = s.VerifyDate,
-                   _LastModifiedUtc = s.LastModifiedUtc
+                   _LastModifiedUtc = s.LastModifiedUtc,
+                   s.Active,
+                   s.IsDeleted,
+                   s.IncomeTax,
+                   s.Vat
                }).ToList()
             );
 
