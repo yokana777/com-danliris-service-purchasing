@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributio
 
                     foreach (var item in data.Items)
                     {
-                        var oldItem = data.Items.Single(i => i.Id == item.Id);
+                        var oldItem = oldData.Items.Single(i => i.Id == item.Id);
 
                         if (item.Details != null)
                         {
