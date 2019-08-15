@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 0,
                 DONo = null
             };
@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = null
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
@@ -123,7 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
@@ -151,7 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
@@ -210,7 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         {
             GarmentPOMasterDistributionViewModel viewModel = new GarmentPOMasterDistributionViewModel
             {
-                Supplier = new SupplierViewModel(),
+                Supplier = new SupplierViewModel { Id = 1 },
                 DOId = 1,
                 DONo = "DONo",
                 Items = new List<GarmentPOMasterDistributionItemViewModel>
