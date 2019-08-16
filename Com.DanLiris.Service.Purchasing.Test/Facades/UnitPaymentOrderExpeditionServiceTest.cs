@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
@@ -7,6 +8,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -118,6 +121,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
 
 
             Assert.NotNull(results);
+        }
+
+        [Fact]
+        public void Should_Success_InstantiateReport()
+        {
+            var report = new UnitPaymentOrderExpeditionReportViewModel()
+            {
+                BankExpenditureNoteNo = "",
+                CashierDivisionDate = DateTime.Now,
+                Date = DateTime.Now,
+                Division = new DivisionViewModel()
+                {
+                    Code = "Code",
+                    Id = "Id",
+                    Name = "Name"
+                },
+                DueDate = DateTime.Now,
+                InvoiceNo = "InvoiceNo",
+                No = "no",
+                Position = ExpeditionPosition.CASHIER_DIVISION,
+                SendDate = DateTime.Now,
+                SendToVerificationDivisionDate = DateTime.Now,
+                Supplier = new NewSupplierViewModel()
+                {
+                    code = "code",
+                    contact = "contact",
+                    import = false,
+                    name = "name",
+                    PIC = "pic",
+                    _id = 1
+                },
+                VerificationDivisionDate = DateTime.Now,
+                VerifyDate = DateTime.Now
+            };
+
+            Assert.NotNull(report);
         }
     }
 }
