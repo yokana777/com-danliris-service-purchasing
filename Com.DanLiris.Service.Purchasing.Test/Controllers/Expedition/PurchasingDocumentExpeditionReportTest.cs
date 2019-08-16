@@ -13,9 +13,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
     [Collection("TestServerFixture Collection")]
     public class PurchasingDocumentExpeditionReportTest
     {
-        private const string MediaType = "application/json";
+        //private const string MediaType = "application/json";
         private readonly string URI = "v1/expedition/purchasing-document-expeditions-report";
-        private readonly List<string> CreateValidationAttributes;
+        //private readonly List<string> CreateValidationAttributes;
 
         private TestServerFixture TestFixture { get; set; }
 

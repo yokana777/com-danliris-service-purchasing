@@ -746,7 +746,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             List<PurchaseOrderStaffReportViewModel> Data = new List<PurchaseOrderStaffReportViewModel>();
             List<PurchaseOrderStaffReportViewModel> Data2 = new List<PurchaseOrderStaffReportViewModel>();
 
-            var SuppTemp = "";
+            //var SuppTemp = "";
 
 
             var Group = (from a in QueryStaff

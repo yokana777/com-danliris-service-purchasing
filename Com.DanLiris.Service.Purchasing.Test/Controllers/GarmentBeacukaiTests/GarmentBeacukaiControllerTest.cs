@@ -28,9 +28,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
 	[Collection("TestServerFixture Collection")]
 	public class GarmentBeacukaiControllerTest
 	{
-		private const string MediaType = "application/json";
+		//private const string MediaType = "application/json";
 		private readonly string URI = "v1/garment-beacukai";
-		private readonly string USERNAME = "dev2";
+		//private readonly string USERNAME = "dev2";
 		private TestServerFixture TestFixture { get; set; }
 		private GarmentBeacukaiViewModel ViewModel
 		{

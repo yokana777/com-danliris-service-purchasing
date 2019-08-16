@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 	{
 		private string ApiVersion = "1.0.0";
 		public readonly IServiceProvider serviceProvider;
-		private readonly IMapper mapper;
+		//private readonly IMapper mapper;
 		private readonly IMonitoringCentralBillReceptionFacade facade;
 		private readonly IdentityService identityService;
 

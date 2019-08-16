@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
-        private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem;
+        //private readonly DbSet<GarmentDeliveryOrderItem> dbSetItem;
 
         private readonly IMapper mapper;
 
@@ -744,8 +744,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            List<string> Category = null;
-            List<string> Product = null;
+            //List<string> Category = null;
+            //List<string> Product = null;
             var Status = new[] { "" };
             var Supplier = new[] { "MADEIRA", "MARATHON" };
 
