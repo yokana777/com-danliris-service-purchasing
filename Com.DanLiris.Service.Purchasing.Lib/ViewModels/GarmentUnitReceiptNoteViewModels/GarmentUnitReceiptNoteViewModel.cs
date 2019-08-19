@@ -24,7 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public bool IsInvoice { get; set; }
         public string DRId { get; set; }
         public string DRNo { get; set; }
-
+        public long UENId { get; set; }
+        public string UENNo { get; set; }
         public DateTimeOffset? ReceiptDate { get; set; }
 
         public bool IsStorage { get; set; }
