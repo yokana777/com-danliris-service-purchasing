@@ -87,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 StorageCode=m.StorageCode,
                 DRNo=m.DRNo,
                 URNType=m.URNType,
+                UENNo=m.UENNo,
                 Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
                 {
                     Id = i.Id,
@@ -119,7 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             List<string> searchAttributes = new List<string>()
             {
-                "URNNo", "UnitName", "SupplierName", "DONo","URNType", "DRNo"
+                "URNNo", "UnitName", "SupplierName", "DONo","URNType", "DRNo", "UENNo"
             };
 
             Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -141,6 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 s.DOId,
                 s.DRNo,
                 s.URNType,
+                s.UENNo,
                 Unit = new { Name = s.UnitName, Id=s.UnitId, Code=s.UnitCode },
                 Storage= new {name=s.StorageName, _id=s.StorageId, code=s.StorageCode},
                 s.ReceiptDate,

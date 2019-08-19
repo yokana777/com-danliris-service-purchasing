@@ -28,6 +28,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
 
         public bool IsPreparing { get; set; }
 
+        public bool IsTransfered { get; set; }
+
         public virtual ICollection<GarmentUnitExpenditureNoteItem> Items { get; set; }
 
     }

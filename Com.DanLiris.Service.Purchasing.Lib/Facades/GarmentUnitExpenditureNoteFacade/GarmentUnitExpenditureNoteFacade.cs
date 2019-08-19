@@ -603,13 +603,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         GarmentUnitDeliveryOrder garmentUnitDO = new GarmentUnitDeliveryOrder
                         {
                             UnitDOType="PROSES",
-                            UnitDODate=DateTimeOffset.Now,
+                            UnitDODate= garmentUnitExpenditureNote.ExpenditureDate,
                             UnitRequestId= garmentUnitExpenditureNote.UnitRequestId,
                             UnitRequestCode = garmentUnitExpenditureNote.UnitRequestCode,
                             UnitRequestName = garmentUnitExpenditureNote.UnitRequestName,
-                            UnitSenderId= garmentUnitExpenditureNote.UnitSenderId,
-                            UnitSenderCode= garmentUnitExpenditureNote.UnitSenderCode,
-                            UnitSenderName= garmentUnitExpenditureNote.UnitSenderName,
+                            UnitSenderId= garmentUnitExpenditureNote.UnitRequestId,
+                            UnitSenderCode= garmentUnitExpenditureNote.UnitRequestCode,
+                            UnitSenderName= garmentUnitExpenditureNote.UnitRequestName,
                             StorageId= garmentUnitExpenditureNote.StorageId,
                             StorageCode= garmentUnitExpenditureNote.StorageCode,
                             StorageName= garmentUnitExpenditureNote.StorageName,
@@ -623,30 +623,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         dbSetGarmentUnitDeliveryOrder.Add(garmentUnitDO);
 
-                        Created = await dbContext.SaveChangesAsync();
-                    }
+                        await dbContext.SaveChangesAsync();
 
-                    
+                        List<GarmentUnitExpenditureNoteItem> garmentUENItems = new List<GarmentUnitExpenditureNoteItem>();
+                        foreach(var unitDOItem in garmentUnitDO.Items)
+                        {
+                            GarmentInternalPurchaseOrderItem gpoItem = dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.Id == unitDOItem.POItemId);
+                            GarmentInternalPurchaseOrder garmentInternalPurchaseOrder = dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id == gpoItem.GPOId);
+
+                            GarmentUnitExpenditureNoteItem uenItem = new GarmentUnitExpenditureNoteItem
+                            {
+                                UnitDOItemId= unitDOItem.Id,
+                                URNItemId=unitDOItem.URNItemId,
+                                DODetailId= unitDOItem.DODetailId,
+                                EPOItemId= unitDOItem.EPOItemId,
+                                POItemId= unitDOItem.POItemId,
+                                PRItemId= unitDOItem.PRItemId,
+                                POSerialNumber= unitDOItem.POSerialNumber,
+                                ProductId= unitDOItem.ProductId,
+                                ProductCode= unitDOItem.ProductCode,
+                                ProductName= unitDOItem.ProductName,
+                                ProductRemark= unitDOItem.ProductRemark,
+                                RONo= unitDOItem.RONo,
+                                Quantity= unitDOItem.Quantity,
+                                UomId= unitDOItem.UomId,
+                                UomUnit= unitDOItem.UomUnit,
+                                PricePerDealUnit= unitDOItem.PricePerDealUnit,
+                                FabricType= unitDOItem.FabricType,
+                                BuyerId=long.Parse(garmentInternalPurchaseOrder.BuyerId),
+                                BuyerCode= garmentInternalPurchaseOrder.BuyerCode
+
+                            };
+                            garmentUENItems.Add(uenItem);
+
+                            EntityExtension.FlagForCreate(uenItem, identityService.Username, USER_AGENT);
+                        }
+
+                        GarmentUnitExpenditureNote uen = new GarmentUnitExpenditureNote
+                        {
+                            ExpenditureDate = DateTimeOffset.Now,
+                            ExpenditureType = "PROSES",
+                            ExpenditureTo = "PROSES",
+                            UnitDOId = garmentUnitDO.Id,
+                            UnitDONo = garmentUnitDO.UnitDONo,
+                            UnitSenderId = garmentUnitDO.UnitSenderId,
+                            UnitSenderCode = garmentUnitDO.UnitSenderCode,
+                            UnitSenderName = garmentUnitDO.UnitSenderName,
+                            StorageId = garmentUnitDO.StorageId,
+                            StorageCode = garmentUnitDO.StorageCode,
+                            StorageName = garmentUnitDO.StorageName,
+                            UnitRequestId = garmentUnitDO.UnitRequestId,
+                            UnitRequestCode = garmentUnitDO.UnitRequestCode,
+                            UnitRequestName = garmentUnitDO.UnitRequestName,
+                            IsTransfered = true,
+                            Items = garmentUENItems
+                        };
+                        uen.UENNo = await GenerateNo(uen);
+                        EntityExtension.FlagForCreate(uen, identityService.Username, USER_AGENT);
+
+                        dbSet.Add(uen);
+
+                        Created= await dbContext.SaveChangesAsync();
+                    }
 
                     transaction.Commit();
 
-                    //var epoFacade = new GarmentExternalPurchaseOrderFacades.GarmentExternalPurchaseOrderFacade(serviceProvider, dbContext);
-                    //var correctionFacade = new GarmentReturnCorrectionNoteFacade(this.serviceProvider, dbContext);
-
-                    //if (Correction != null && garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && newEPOList.Count > 0)
-                    //{
-                    //    await correctionFacade.Create(Correction, suppType, identityService.Username);
-                    //    garmentUnitDeliveryOrder.CorrectionId = Correction.Id;
-                    //    garmentUnitDeliveryOrder.CorrectionNo = Correction.CorrectionNo;
-
-
-                    //    foreach (var epo in newEPOList)
-                    //    {
-                    //        await epoFacade.Create(epo, identityService.Username);
-                    //    }
-
-                    //    //Created = await dbContext.SaveChangesAsync();
-                    //}
                 }
                 catch (Exception e)
                 {
