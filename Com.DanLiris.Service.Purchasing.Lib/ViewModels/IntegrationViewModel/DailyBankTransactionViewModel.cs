@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public string Remark { get; set; }
         public string SourceType { get; set; }
         public string Status { get; set; }
-        public NewIntegrationViewModel.SupplierViewModel Supplier { get; set; }
+        public NewIntegrationViewModel.NewSupplierViewModel Supplier { get; set; }
         public double? AfterNominal { get; set; }
         public double? BeforeNominal { get; set; }
     }
