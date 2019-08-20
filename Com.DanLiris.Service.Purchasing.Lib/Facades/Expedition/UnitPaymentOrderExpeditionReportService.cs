@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             _dbContext = dbContext;
         }
 
-        public Task<List<UnitPaymentOrderExpeditionReportViewModel>> GetReport(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order, int page, int size)
+        public async Task<UnitPaymentOrderExpeditionReportWrapper> GetReport(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order, int page, int size)
         {
             var expeditionDocumentQuery = _dbContext.Set<PurchasingDocumentExpedition>().AsQueryable();
             var query = _dbContext.Set<UnitPaymentOrder>().AsQueryable();
@@ -76,17 +76,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                   {
                                       code = upoExpedition.SupplierCode,
                                       name = upoExpedition.SupplierName
-                                  }
+                                  },
+                                  LastModifiedUtc = upoExpedition.LastModifiedUtc
                               };
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             joinedQuery = QueryHelper<UnitPaymentOrderExpeditionReportViewModel>.ConfigureOrder(joinedQuery, OrderDictionary);
 
 
-            return joinedQuery
+            return new UnitPaymentOrderExpeditionReportWrapper()
+            {
+                Total = await joinedQuery.CountAsync(),
+                Data = await joinedQuery
                 .Skip((page - 1) * size)
                 .Take(size)
-                .ToListAsync();
-        } 
+                .ToListAsync()
+            };
+        }
     }
 }

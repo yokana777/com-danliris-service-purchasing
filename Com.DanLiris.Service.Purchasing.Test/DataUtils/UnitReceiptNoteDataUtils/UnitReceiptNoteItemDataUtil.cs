@@ -9,7 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
 {
     public class UnitReceiptNoteItemDataUtil
     {
-        private UnitReceiptNoteDataUtil unitReceiptNoteDataUtil;
+        //private UnitReceiptNoteDataUtil unitReceiptNoteDataUtil;
 
         public Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem GetNewData(List<DeliveryOrderItem> deliveryOrderItem)
         {

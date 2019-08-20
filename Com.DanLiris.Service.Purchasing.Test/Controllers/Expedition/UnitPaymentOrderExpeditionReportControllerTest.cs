@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         public async Task Should_Success_GetReport()
         {
             var reportServiceMock = new Mock<IUnitPaymentOrderExpeditionReportService>();
-            reportServiceMock.Setup(s => s.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(new List<UnitPaymentOrderExpeditionReportViewModel>());
+            reportServiceMock.Setup(s => s.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(new UnitPaymentOrderExpeditionReportWrapper());
             var controller = GetController(reportServiceMock);
 
             var response = await controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), null, null, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>());

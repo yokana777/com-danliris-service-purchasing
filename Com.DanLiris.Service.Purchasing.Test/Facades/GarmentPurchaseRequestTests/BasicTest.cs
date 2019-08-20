@@ -651,7 +651,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		}
 
 		[Fact]
-		public async Task Should_Success_Get_Report_Purchase_By_User_Data()
+		public void Should_Success_Get_Report_Purchase_By_User_Data()
 		{
 			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 		 

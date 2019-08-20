@@ -39,8 +39,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 return Ok(new
                 {
                     apiVersion = _apiVersion,
-                    data = result,
-                    info = new { total = result.Count, page, size }
+                    data = result.Data,
+                    info = new { total = result.Total, page, size }
                 });
             }
             catch(Exception e)

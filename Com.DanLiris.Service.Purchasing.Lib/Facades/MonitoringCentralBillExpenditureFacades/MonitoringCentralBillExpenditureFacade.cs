@@ -18,7 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
 {
     public class MonitoringCentralBillExpenditureFacade : IMonitoringCentralBillExpenditureFacade
     {
-        private string USER_AGENT = "Facade";
+        //private string USER_AGENT = "Facade";
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
