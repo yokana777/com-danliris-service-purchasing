@@ -333,18 +333,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             int.TryParse(model.DivisionId, out var divisionId);
             var division = Divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
             if (division == null)
+            {
                 division = new IdCOAResult()
                 {
                     COACode = "0"
                 };
+            }
+            else
+            {
+                if(string.IsNullOrEmpty(division.COACode))
+                {
+                    division.COACode = "0";
+                }
+            }
+                
 
             int.TryParse(model.UnitId, out var unitId);
             var unit = Units.FirstOrDefault(f => f.Id.Equals(unitId));
             if (unit == null)
+            {
                 unit = new IdCOAResult()
                 {
                     COACode = "00"
                 };
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(unit.COACode))
+                {
+                    unit.COACode = "0";
+                }
+            }
+                
 
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
@@ -365,6 +385,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                 var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
                 if (category == null)
+                {
                     category = new CategoryCOAResult()
                     {
                         ImportDebtCOA = "9999.00",
@@ -372,6 +393,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         PurchasingCOA = "9999.00",
                         StockCOA = "9999.00"
                     };
+                }
+                else
+                {
+                    if(string.IsNullOrEmpty(category.ImportDebtCOA))
+                    {
+                        category.ImportDebtCOA = "9999.00";
+                    }
+                    if (string.IsNullOrEmpty(category.LocalDebtCOA))
+                    {
+                        category.LocalDebtCOA = "9999.00";
+                    }
+                    if (string.IsNullOrEmpty(category.PurchasingCOA))
+                    {
+                        category.PurchasingCOA = "9999.00";
+                    }
+                    if (string.IsNullOrEmpty(category.StockCOA))
+                    {
+                        category.StockCOA = "9999.00";
+                    }
+                }
+                
 
 
                 if (model.SupplierIsImport && (externalPOPriceTotal * externalPurchaseOrder.CurrencyRate) > 100000000)
