@@ -74,10 +74,44 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             services.AddMemoryCache();
             var serviceProviders = services.BuildServiceProvider();
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
-
+            var mockMemoryCache = new Mock<IMemoryCacheManager>();
+            mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult()});
+            mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { new IdCOAResult() });
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
-                .Returns(new MemoryCacheManager(memoryCache));
+                .Returns(mockMemoryCache.Object);
+
+            return serviceProvider;
+        }
+
+        private Mock<IServiceProvider> GetServiceProvider2()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
+
+            //var cache = new Mock<IMemoryCache>();
+            //cache.Setup(x => x.GetOrCreate<List<IdCOAResult>>());
+
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProviders = services.BuildServiceProvider();
+            var memoryCache = serviceProviders.GetService<IMemoryCache>();
+            var mockMemoryCache = new Mock<IMemoryCacheManager>();
+            mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+                .Returns(new List<CategoryCOAResult>() {  });
+            mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { });
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(mockMemoryCache.Object);
 
             return serviceProvider;
         }
@@ -138,8 +172,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
             model.IsStorage = true;
+            model.UnitId = null;
             var response = await facade.Create(model, USERNAME);
+
             Assert.NotEqual(response, 0);
+            
+        }
+
+        [Fact]
+        public async Task Should_Success_CreateNullCOA_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            
+            UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2().Object, dbContext);
+            var model2 = await _dataUtil(facade2, dbContext).GetNewData(USERNAME);
+            model2.IsStorage = true;
+            model2.UnitId = null;
+            var response2 = await facade2.Create(model2, USERNAME);
+            Assert.NotEqual(response2, 0);
         }
 
         [Fact]
