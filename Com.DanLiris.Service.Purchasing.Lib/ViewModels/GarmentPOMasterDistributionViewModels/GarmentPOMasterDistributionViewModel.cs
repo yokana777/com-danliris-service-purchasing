@@ -71,19 +71,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
                                     detailsErrorsCount++;
                                     detailsErrors += "\"Conversion\": \"Harus lebih dari 0\", ";
                                 }
-                                else if (detail.Quantity <= 0)
+
+                                if (detail.Quantity <= 0)
                                 {
                                     detailsErrorsCount++;
                                     detailsErrors += "\"Quantity\": \"Harus lebih dari 0\", ";
                                 }
                                 else
                                 {
-                                    var defaultQuantity = decimal.Parse(((decimal)detail.Conversion * detail.QuantityCC).ToString("N2"));
-                                    //var defaultQuantity = Math.Round((decimal)detail.Conversion * detail.QuantityCC, 2, MidpointRounding.AwayFromZero);
-                                    if (detail.Quantity > defaultQuantity)
+                                    //var defaultQuantity = decimal.Parse(((decimal)detail.Conversion * detail.QuantityCC).ToString("N2"));
+                                    ////var defaultQuantity = Math.Round((decimal)detail.Conversion * detail.QuantityCC, 2, MidpointRounding.AwayFromZero);
+                                    if (detail.Quantity > detail.QuantityCC)
                                     {
                                         detailsErrorsCount++;
-                                        detailsErrors += $"\"Quantity\": \"Tidak boleh lebih dari {defaultQuantity}\", ";
+                                        detailsErrors += $"\"Quantity\": \"Tidak boleh lebih dari {detail.QuantityCC}\", ";
                                     }
                                 }
                             }
@@ -99,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
                             itemsErrors += detailsErrors;
                         }
 
-                        if (item.Details.Sum(d => d.Quantity) > (decimal)item.DOQuantity)
+                        if (item.Details.Sum(d => d.Quantity * (decimal)d.Conversion) > (decimal)item.DOQuantity)
                         {
                             itemsErrorsCount++;
                             itemsErrors += $"\"TotalQuantity\": \"Tidak boleh lebih dari {item.DOQuantity}\", ";
