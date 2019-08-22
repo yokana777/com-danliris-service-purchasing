@@ -54,6 +54,7 @@ using Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -143,7 +144,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
                 .AddTransient<IMonitoringCorrectionNoteExpenditureFacade, MonitoringCorrectionNoteExpenditureFacade>()
                 .AddTransient<IGarmentReceiptCorrectionFacade, GarmentReceiptCorrectionFacade>()
-                .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>();
+                .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>()
+                .AddTransient<IMonitoringROJobOrderFacade, MonitoringROJobOrderFacade>();
 
         }
 
