@@ -52,6 +52,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
             mockHttpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("cost-calculation-garments"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CostCalculationGarmentDataUtil().GetResultFormatterOkString()) });
+            mockHttpClientService
                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garmentProducts"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
 
