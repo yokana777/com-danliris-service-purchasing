@@ -164,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                                 externalPurchaseOrderDetailError += "price: 'Price should be more than 0', ";
                             }
                             
-                            if(Detail.productPrice==null || Detail.productPrice == 0)
+                            if(/*Detail.productPrice==null || */Detail.productPrice == 0)
                             {
                                 if(Detail.product!=null && Detail.product._id != null)
                                 {

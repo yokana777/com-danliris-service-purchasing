@@ -593,11 +593,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 ReferenceType = "Bayar Hutang",
                 SourceType = "Operasional",
                 Status = "OUT",
-                Supplier = new ViewModels.NewIntegrationViewModel.SupplierViewModel()
+                Supplier = new ViewModels.NewIntegrationViewModel.NewSupplierViewModel()
                 {
-                    Id = model.SupplierId,
-                    Code = model.SupplierCode,
-                    Name = model.SupplierName
+                    _id = model.SupplierId,
+                    code = model.SupplierCode,
+                    name = model.SupplierName
                 }
             };
 

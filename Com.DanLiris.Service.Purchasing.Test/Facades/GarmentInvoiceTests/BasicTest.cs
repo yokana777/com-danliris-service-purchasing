@@ -288,13 +288,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 		}
 
 		[Fact]
-		public async Task Should_Error_Delete_Data()
-		{
-			var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-			Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
-			Assert.NotNull(e.Message);
-		}
-		[Fact]
+		//public async Task Should_Error_Delete_Data()
+		//{
+		//	var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+		//	Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+		//	Assert.NotNull(e.Message);
+		//}
+
+        public void Should_Error_Delete_Data()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            Exception e = Assert.Throws<Exception>(() => facade.Delete(0, USERNAME));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
 		public void Should_Success_Validate_Data()
 		{
 			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();

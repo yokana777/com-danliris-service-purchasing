@@ -335,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            int i = 1;
+            //int i = 1;
             //List<GarmentInternNoteReportViewModel> list = new List<GarmentInternNoteReportViewModel>();
             var Query = (from a in dbContext.GarmentInternNotes
                          join b in dbContext.GarmentInternNoteItems on a.Id equals b.GarmentINId

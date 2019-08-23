@@ -130,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellCenter.Phrase = new Phrase("Satuan", bold_font);
             tableContent.AddCell(cellCenter);
 
-            int indexItem = 0;
+            //int indexItem = 0;
             foreach (var item in viewModel.Items)
             {
                 cellLeft.Phrase = new Phrase($"{item.ProductCode}", normal_font);

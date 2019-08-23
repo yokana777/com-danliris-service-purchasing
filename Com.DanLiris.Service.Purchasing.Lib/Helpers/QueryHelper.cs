@@ -9,7 +9,7 @@ using System.Text;
 namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 {
     public static class QueryHelper<TModel>
-        where TModel : IStandardEntity
+        //where TModel : IStandardEntity
     {
         public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword, bool ToLowerCase = false, string SearchWith = "Contains")
         {
