@@ -39,7 +39,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
         public Dictionary<string, object> GetResultFormatterOk()
         {
-            var data = GetNewData();
+            return GetResultFormatterOk(GetNewData());
+        }
+
+        public Dictionary<string, object> GetResultFormatterOk(CostCalculationGarmentViewModel costCalculationGarmentViewModel)
+        {
+            var data = costCalculationGarmentViewModel;
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -50,7 +55,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
         public string GetResultFormatterOkString()
         {
-            var result = GetResultFormatterOk();
+            return GetResultFormatterOkString(GetNewData());
+        }
+
+        public string GetResultFormatterOkString(CostCalculationGarmentViewModel costCalculationGarmentViewModel)
+        {
+            var result = GetResultFormatterOk(costCalculationGarmentViewModel);
 
             return JsonConvert.SerializeObject(result);
         }
