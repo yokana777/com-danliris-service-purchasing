@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
             {
                 RONo = $"RO{nowTicksA}",
 
-                BuyerId = $"{nowTicksA}",
+                BuyerId = "1",
                 BuyerCode = $"BuyerCode{nowTicksA}",
                 BuyerName = $"BuyerName{nowTicksA}",
 

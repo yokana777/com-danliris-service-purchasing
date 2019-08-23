@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
+                URNType="PEMBELIAN",
                 UnitId = nowTicks,
                 UnitCode = string.Concat("UnitCode", nowTicks),
                 UnitName = string.Concat("UnitName", nowTicks),
@@ -105,6 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
+                URNType = "PEMBELIAN",
                 UnitId = nowTicks,
                 UnitCode = string.Concat("UnitCode", nowTicks),
                 UnitName = string.Concat("UnitName", nowTicks),
@@ -226,5 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             await facade.Create(data);
             return data;
         }
+
+
     }
 }

@@ -64,6 +64,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
 
+            httpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("delivery-returns"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
+
+            httpClientService
+               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("delivery-returns")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
+
+
             var mapper = new Mock<IMapper>();
             mapper
                 .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
@@ -101,6 +110,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
                 .Returns(mockGarmentDeliveryOrderFacade.Object);
 
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
 
             return serviceProviderMock.Object;
         }
@@ -204,6 +216,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
+        public async Task Should_Success_Create_Data_PROSES()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data.URNType = "PROSES";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(Response, 0);
+
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -266,6 +289,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
+        public async Task Should_Success_Delete_Data_Proses()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data.URNType = "PROSES";
+            await facade.Create(data);
+
+            var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Delete_Data2()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -294,6 +329,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteViewModel viewModelCheckDeliveryOrder = new GarmentUnitReceiptNoteViewModel {
                 Supplier = new SupplierViewModel { Id = 1 },
                 Unit = new UnitViewModel { Id = "1" },
+                URNType="PEMBELIAN"
             };
             Assert.True(viewModelCheckDeliveryOrder.Validate(null).Count() > 0);
 
@@ -302,6 +338,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             GarmentUnitReceiptNoteViewModel viewModelCheckItems = new GarmentUnitReceiptNoteViewModel {
                 DOId = 1,
+                URNType = "PEMBELIAN",
                 Items = new List<GarmentUnitReceiptNoteItemViewModel>
                 {
                     new GarmentUnitReceiptNoteItemViewModel()
@@ -312,6 +349,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteViewModel viewModelCheckItemsConvertion = new GarmentUnitReceiptNoteViewModel
             {
                 DOId = 1,
+                URNType = "PEMBELIAN",
                 Items = new List<GarmentUnitReceiptNoteItemViewModel>
                 {
                     new GarmentUnitReceiptNoteItemViewModel

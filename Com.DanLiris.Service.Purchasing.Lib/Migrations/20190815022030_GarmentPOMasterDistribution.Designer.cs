@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190815022030_GarmentPOMasterDistribution")]
+    partial class GarmentPOMasterDistribution
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3536,8 +3537,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("IsPreparing");
 
-                    b.Property<bool>("IsTransfered");
-
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3795,8 +3794,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<decimal>("Conversion")
                         .HasColumnType("decimal(38, 20)");
 
-                    b.Property<decimal>("CorrectionConversion")
-                        .HasColumnType("decimal(38, 20)");
+                    b.Property<decimal>("CorrectionConversion");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()

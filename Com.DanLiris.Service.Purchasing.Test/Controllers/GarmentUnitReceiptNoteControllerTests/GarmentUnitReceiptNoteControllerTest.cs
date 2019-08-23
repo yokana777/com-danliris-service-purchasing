@@ -31,6 +31,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
                 return new GarmentUnitReceiptNoteViewModel
                 {
                     UId = null,
+                    DRId=It.IsAny<string>(),
+                    DRNo= It.IsAny<string>(),
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
                         new GarmentUnitReceiptNoteItemViewModel()

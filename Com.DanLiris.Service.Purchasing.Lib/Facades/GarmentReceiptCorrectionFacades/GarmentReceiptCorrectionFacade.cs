@@ -127,12 +127,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                         List<GarmentReceiptCorrectionItem> itemsOut = new List<GarmentReceiptCorrectionItem>();
                         foreach (var outs in m.Items)
                         {
+                            GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == outs.URNItemId);
+                            double SmallQuantityOut= (double)garmentUnitReceiptNoteItem.ReceiptCorrection * (double)garmentUnitReceiptNoteItem.CorrectionConversion;
                             GarmentReceiptCorrectionItem outItem = new GarmentReceiptCorrectionItem
                             {
+
                                 PricePerDealUnit= outs.PricePerDealUnit,
                                 POItemId= outs.POItemId,
                                 Conversion= outs.Conversion,
-                                SmallQuantity= outs.SmallQuantity,
+                                SmallQuantity= SmallQuantityOut,
                                 DODetailId= outs.DODetailId,
                                 ProductCode= outs.ProductCode,
                                 ProductId= outs.ProductId,
