@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -118,16 +119,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
         [Fact]
         public async Task Should_Success_Get_Monitoring()
         {
-            var serviceProvider = GetMockServiceProvider().Object;
+            var mockServiceProvider = GetMockServiceProvider();
+
             var dbContext = GetDbContext(GetCurrentMethod());
 
-            var garmentPOMasterDistributionFacade  = new GarmentPOMasterDistributionFacade(serviceProvider, dbContext);
-            var data = await dataUtil(garmentPOMasterDistributionFacade, dbContext).GetTestData();
+            var garmentPOMasterDistributionFacade  = new GarmentPOMasterDistributionFacade(mockServiceProvider.Object, dbContext);
+            var dataGarmentPOMasterDistribution = await dataUtil(garmentPOMasterDistributionFacade, dbContext).GetTestData();
 
-            var facade = new MonitoringROJobOrderFacade(serviceProvider, dbContext);
+            var costCalculationGarmentDataUtil = new CostCalculationGarmentDataUtil();
+            var ccData = costCalculationGarmentDataUtil.GetNewData();
+            ccData.CostCalculationGarment_Materials.First().PO_SerialNumber = dataGarmentPOMasterDistribution.Items.First().Details.First().POSerialNumber;
 
-            var Response = await facade.GetMonitoring(data.Id);
+            var mockHttpClientService = GetMockHttpClientService();
+            mockHttpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("cost-calculation-garments"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(costCalculationGarmentDataUtil.GetResultFormatterOkString(ccData)) });
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClientService.Object);
+
+            var facade = new MonitoringROJobOrderFacade(mockServiceProvider.Object, dbContext);
+
+            var Response = await facade.GetMonitoring(dataGarmentPOMasterDistribution.Id);
             Assert.NotEqual(0, Response.Count);
+
+            Assert.NotEqual(0, Response.Sum(d => d.Items.Count()));
         }
 
         [Fact]
