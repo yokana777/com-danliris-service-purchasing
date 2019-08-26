@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             if (string.IsNullOrWhiteSpace(this.UnitPaymentOrderNo))
                 yield return new ValidationResult("Unit Payment Order No is required", new List<string> { "UnitPaymentOrderNo" });
 
-            if (this.SubmitPosition.Equals(0))
+            if (this.SubmitPosition.Equals(ExpeditionPosition.INVALID))
                 yield return new ValidationResult("Submit Position is required", new List<string> { "SubmitPosition" });
 
         }
