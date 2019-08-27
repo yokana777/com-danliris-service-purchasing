@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using System;
 using System.Collections.Generic;
@@ -65,5 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             var Report = this.Facade.GetReport("", "", "", model.VerifyDate, tomorrow, 1, 25, "{}", 7, "history");
             Assert.NotEqual(Report.Item1.Count, 0);
         }
+
+        
     }
 }
