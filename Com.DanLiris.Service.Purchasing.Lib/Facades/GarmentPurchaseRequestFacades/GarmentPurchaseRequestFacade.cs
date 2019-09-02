@@ -67,7 +67,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 PRType = s.PRType,
                 SCId = s.SCId,
                 SCNo = s.SCNo,
+
                 IsValidate = s.IsValidate,
+
+                IsValidatedMD1 = s.IsValidatedMD1,
+                IsValidatedMD2 = s.IsValidatedMD2,
             });
 
             List<string> searchAttributes = new List<string>()
