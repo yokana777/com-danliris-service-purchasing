@@ -208,6 +208,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async Task Should_Success_Get_UEN_Data_By_Id()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var Response = facade.ReadByUENId((int)data.Id);
+            Assert.NotEqual(Response.Id, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
