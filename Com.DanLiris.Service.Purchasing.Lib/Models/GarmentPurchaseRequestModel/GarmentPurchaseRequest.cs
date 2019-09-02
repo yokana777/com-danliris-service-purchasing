@@ -43,8 +43,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public bool IsValidate { get; set; }
         public string Remark { get; set; }
 
+        [MaxLength(50)]
         public string ValidatedBy { get; set; }
         public DateTimeOffset? ValidatedDate { get; set; }
+
+        public bool IsValidatedMD1 { get; set; }
+        [MaxLength(50)]
+        public string ValidatedMD1By { get; set; }
+        public DateTimeOffset ValidatedMD1Date { get; set; }
+
+        public bool IsValidatedMD2 { get; set; }
+        [MaxLength(50)]
+        public string ValidatedMD2By { get; set; }
+        public DateTimeOffset ValidatedMD2Date { get; set; }
 
 
         public virtual ICollection<GarmentPurchaseRequestItem> Items { get; set; }
