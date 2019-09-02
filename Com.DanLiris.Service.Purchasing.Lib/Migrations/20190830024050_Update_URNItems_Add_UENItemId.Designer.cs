@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190830024050_Update_URNItems_Add_UENItemId")]
+    partial class Update_URNItems_Add_UENItemId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3873,8 +3874,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<decimal>("ReceiptCorrection");
 
-                    b.Property<decimal>("ReceiptQuantity")
-                        .HasColumnType("decimal(20, 4)");
+                    b.Property<decimal>("ReceiptQuantity");
 
                     b.Property<decimal>("SmallQuantity");
 
