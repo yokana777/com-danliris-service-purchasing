@@ -18,6 +18,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         ReadResponse<object> ReadForGPreparing(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
         Task<int> UpdateIsPreparing(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote);
         Task<int> UpdateReturQuantity(int id, double quantity);
-
+        GarmentUnitExpenditureNote ReadByUENId(int id);
     }
 }

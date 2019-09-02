@@ -144,77 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
                         
-                        var garmentInventoryDocumentTransferOutStorage = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
-                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferOutStorage);
-
-                        var garmentInventoryDocumentTransferInStorageRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "IN");
-                        garmentInventoryDocumentTransferInStorageRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
-                        garmentInventoryDocumentTransferInStorageRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
-                        garmentInventoryDocumentTransferInStorageRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferInStorageRequest);
-
-                        var garmentInventoryDocumentTransferOutStorageRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
-                        garmentInventoryDocumentTransferOutStorageRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
-                        garmentInventoryDocumentTransferOutStorageRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
-                        garmentInventoryDocumentTransferOutStorageRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferOutStorageRequest);
-
-                        foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
-                        {
-                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
-
-                            var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
-                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
-
-                            if (garmentInventorySummaryExisting == null)
-                            {
-                                var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovement);
-                                dbSetGarmentInventorySummary.Add(garmentInventorySummary);
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
-                                garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
-                            }
-
-                            var garmentInventorySummaryExistingRequest = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
-
-                            var garmentInventoryMovementRequestIn = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExistingRequest, "IN");
-                            garmentInventoryMovementRequestIn.StorageId = garmentUnitExpenditureNote.StorageRequestId;
-                            garmentInventoryMovementRequestIn.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
-                            garmentInventoryMovementRequestIn.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                            garmentInventoryMovementRequestIn.After = garmentInventoryMovementRequestIn.Before + (decimal)garmentUnitExpenditureNoteItem.Quantity;
-                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestIn);
-
-                            var garmentInventoryMovementRequestOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExistingRequest, "OUT");
-                            garmentInventoryMovementRequestOut.StorageId = garmentUnitExpenditureNote.StorageRequestId;
-                            garmentInventoryMovementRequestOut.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
-                            garmentInventoryMovementRequestOut.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                            garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
-                            garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestOut.Before - (decimal)garmentUnitExpenditureNoteItem.Quantity;
-
-                            //if (garmentInventorySummaryExistingRequest == null || garmentInventorySummaryExistingRequest.Quantity == 0)
-                            //{
-                            //    garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
-                            //    garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestIn.Before;
-                            //}
-                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestOut);
-
-                            if (garmentInventorySummaryExistingRequest == null)
-                            {
-                                var garmentInventorySummaryRequest = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovementRequestOut);
-                                garmentInventorySummaryRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
-                                garmentInventorySummaryRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
-                                garmentInventorySummaryRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
-                                dbSetGarmentInventorySummary.Add(garmentInventorySummaryRequest);
-                            }
-                            else
-                            {
-                                EntityExtension.FlagForUpdate(garmentInventorySummaryExistingRequest, identityService.Username, USER_AGENT);
-                                garmentInventorySummaryExistingRequest.Quantity = garmentInventoryMovementRequestOut.After;
-                            }
-                            await dbContext.SaveChangesAsync();
-                        }
+                        
                     }
                     else
                     {
@@ -539,7 +469,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SmallUomUnit=item.UomUnit,
                                 ReceiptCorrection= (decimal)item.Quantity / item.Conversion,
                                 OrderQuantity=0,
-                                CorrectionConversion= item.Conversion
+                                CorrectionConversion= item.Conversion,
+                                UENItemId=item.Id
                             };
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
@@ -572,6 +503,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         List<GarmentUnitDeliveryOrderItem> unitDOItems = new List<GarmentUnitDeliveryOrderItem>();
                         foreach (var urnItem in garmentUnitReceiptNote.Items)
                         {
+                            GarmentUnitExpenditureNoteItem gUenItem = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.Id == urnItem.UENItemId);
+
                             GarmentUnitDeliveryOrderItem garmentUnitDOItems = new GarmentUnitDeliveryOrderItem
                             {
                                 URNId= garmentUnitReceiptNote.Id,
@@ -593,8 +526,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 PricePerDealUnit=(double) urnItem.PricePerDealUnit,
                                 DesignColor= urnItem.DesignColor,
                                 DefaultDOQuantity= (double)urnItem.SmallQuantity,
-                                DOCurrencyRate= garmentUnitReceiptNote.DOCurrencyRate,
-                                ReturQuantity=0
+                                DOCurrencyRate= gUenItem.DOCurrencyRate,
+                                ReturQuantity=0,
+                                FabricType=gUenItem.FabricType,
+                                
                             };
                             unitDOItems.Add(garmentUnitDOItems);
                             EntityExtension.FlagForCreate(garmentUnitDOItems, identityService.Username, USER_AGENT);
@@ -610,9 +545,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             UnitSenderId= garmentUnitExpenditureNote.UnitRequestId,
                             UnitSenderCode= garmentUnitExpenditureNote.UnitRequestCode,
                             UnitSenderName= garmentUnitExpenditureNote.UnitRequestName,
-                            StorageId= garmentUnitExpenditureNote.StorageId,
-                            StorageCode= garmentUnitExpenditureNote.StorageCode,
-                            StorageName= garmentUnitExpenditureNote.StorageName,
+                            StorageId= garmentUnitExpenditureNote.StorageRequestId,
+                            StorageCode= garmentUnitExpenditureNote.StorageRequestCode,
+                            StorageName= garmentUnitExpenditureNote.StorageRequestName,
                             RONo= oldGarmentUnitDO.RONo,
                             Article=oldGarmentUnitDO.Article,
                             IsUsed=true,
@@ -630,6 +565,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         {
                             GarmentInternalPurchaseOrderItem gpoItem = dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.Id == unitDOItem.POItemId);
                             GarmentInternalPurchaseOrder garmentInternalPurchaseOrder = dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id == gpoItem.GPOId);
+                            GarmentUnitReceiptNoteItem gUrnItem = garmentUnitReceiptNote.Items.FirstOrDefault(a => a.Id == unitDOItem.URNItemId);
+                            GarmentUnitExpenditureNoteItem gUenItem1 = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.Id == gUrnItem.UENItemId);
 
                             GarmentUnitExpenditureNoteItem uenItem = new GarmentUnitExpenditureNoteItem
                             {
@@ -651,7 +588,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 PricePerDealUnit= unitDOItem.PricePerDealUnit,
                                 FabricType= unitDOItem.FabricType,
                                 BuyerId=long.Parse(garmentInternalPurchaseOrder.BuyerId),
-                                BuyerCode= garmentInternalPurchaseOrder.BuyerCode
+                                BuyerCode= garmentInternalPurchaseOrder.BuyerCode,
+                                DOCurrencyRate= unitDOItem.DOCurrencyRate,
+                                BasicPrice= gUenItem1.BasicPrice,
+                                Conversion= gUenItem1.Conversion
 
                             };
                             garmentUENItems.Add(uenItem);
@@ -661,7 +601,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         GarmentUnitExpenditureNote uen = new GarmentUnitExpenditureNote
                         {
-                            ExpenditureDate = DateTimeOffset.Now,
+                            ExpenditureDate = garmentUnitExpenditureNote.ExpenditureDate,
                             ExpenditureType = "PROSES",
                             ExpenditureTo = "PROSES",
                             UnitDOId = garmentUnitDO.Id,
@@ -683,7 +623,90 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         dbSet.Add(uen);
 
-                        Created= await dbContext.SaveChangesAsync();
+                        #region Inventory
+
+                        var garmentInventoryDocumentTransferOutStorage = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferOutStorage);
+
+                        var garmentInventoryDocumentTransferInStorageRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "IN");
+                        garmentInventoryDocumentTransferInStorageRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                        garmentInventoryDocumentTransferInStorageRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                        garmentInventoryDocumentTransferInStorageRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                        garmentInventoryDocumentTransferInStorageRequest.ReferenceNo = uen.UENNo;
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferInStorageRequest);
+
+                        var garmentInventoryDocumentTransferOutStorageRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
+                        garmentInventoryDocumentTransferOutStorageRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                        garmentInventoryDocumentTransferOutStorageRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                        garmentInventoryDocumentTransferOutStorageRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                        garmentInventoryDocumentTransferOutStorageRequest.ReferenceNo = uen.UENNo;
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferOutStorageRequest);
+
+                        foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
+                        {
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+
+                            var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
+                            garmentInventoryMovement.Date = garmentUnitExpenditureNote.ExpenditureDate;
+                            garmentInventoryMovement.ReferenceNo = garmentUnitExpenditureNote.UENNo;
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                            if (garmentInventorySummaryExisting == null)
+                            {
+                                var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovement);
+                                dbSetGarmentInventorySummary.Add(garmentInventorySummary);
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                            }
+
+                            var garmentInventorySummaryExistingRequest = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+
+                            var garmentInventoryMovementRequestIn = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExistingRequest, "IN");
+                            garmentInventoryMovementRequestIn.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                            garmentInventoryMovementRequestIn.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                            garmentInventoryMovementRequestIn.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                            garmentInventoryMovementRequestIn.After = garmentInventoryMovementRequestIn.Before + (decimal)garmentUnitExpenditureNoteItem.Quantity;
+                            garmentInventoryMovementRequestIn.ReferenceNo = uen.UENNo;
+                            garmentInventoryMovementRequestIn.Date = uen.ExpenditureDate;
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestIn);
+
+                            var garmentInventoryMovementRequestOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExistingRequest, "OUT");
+                            garmentInventoryMovementRequestOut.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                            garmentInventoryMovementRequestOut.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                            garmentInventoryMovementRequestOut.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                            garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
+                            garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestOut.Before - (decimal)garmentUnitExpenditureNoteItem.Quantity;
+                            garmentInventoryMovementRequestOut.ReferenceNo = uen.UENNo;
+                            //if (garmentInventorySummaryExistingRequest == null || garmentInventorySummaryExistingRequest.Quantity == 0)
+                            //{
+                            //    garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
+                            //    garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestIn.Before;
+                            //}
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestOut);
+
+                            if (garmentInventorySummaryExistingRequest == null)
+                            {
+                                var garmentInventorySummaryRequest = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovementRequestOut);
+                                garmentInventorySummaryRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                                garmentInventorySummaryRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                                garmentInventorySummaryRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                                dbSetGarmentInventorySummary.Add(garmentInventorySummaryRequest);
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(garmentInventorySummaryExistingRequest, identityService.Username, USER_AGENT);
+                                garmentInventorySummaryExistingRequest.Quantity = garmentInventoryMovementRequestOut.After;
+                            }
+
+                            #endregion Inventory
+
+                            Created = await dbContext.SaveChangesAsync();
+                        }
+
+                        //Created = await dbContext.SaveChangesAsync();
                     }
 
                     transaction.Commit();
@@ -1373,6 +1396,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             }
 
             return Updated;
+        }
+
+        public GarmentUnitExpenditureNote ReadByUENId(int id)
+        {
+            var urn = dbSetGarmentUnitReceiptNote.FirstOrDefault(a => a.UENId == id);
+            var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.URNId == urn.Id);
+            var unitDO = dbSetGarmentUnitDeliveryOrder.FirstOrDefault(a => a.Id == unitDOItem.UnitDOId);
+            var uen = dbSet.FirstOrDefault(a => a.UnitDOId == unitDO.Id);
+
+            return uen;
         }
     }
 }
