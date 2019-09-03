@@ -53,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             var joinedQuery = from unitPaymentOrder in query
                               join expeditionDocument in expeditionDocumentQuery on unitPaymentOrder.UPONo equals expeditionDocument.UnitPaymentOrderNo into upoExpeditions
-                              from upoExpedition in upoExpeditions.DefaultIfEmpty()
+                              from upoExpedition in upoExpeditions.DefaultIfEmpty(new PurchasingDocumentExpedition())
                               select new UnitPaymentOrderExpeditionReportViewModel()
                               {
                                   SendToVerificationDivisionDate = upoExpedition.SendToVerificationDivisionDate,
@@ -62,22 +62,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                   SendDate = (upoExpedition.Position == ExpeditionPosition.CASHIER_DIVISION || upoExpedition.Position == ExpeditionPosition.SEND_TO_CASHIER_DIVISION) ? upoExpedition.SendToCashierDivisionDate : (upoExpedition.Position == ExpeditionPosition.FINANCE_DIVISION || upoExpedition.Position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION) ? upoExpedition.SendToAccountingDivisionDate : (upoExpedition.Position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION) ? upoExpedition.SendToPurchasingDivisionDate : null,
                                   CashierDivisionDate = upoExpedition.CashierDivisionDate,
                                   BankExpenditureNoteNo = upoExpedition.BankExpenditureNoteNo,
-                                  Date = upoExpedition.UPODate,
+                                  Date = unitPaymentOrder.Date,
                                   Division = new DivisionViewModel()
                                   {
-                                      Code = upoExpedition.DivisionCode,
-                                      Name = upoExpedition.DivisionName
+                                      Code = unitPaymentOrder.DivisionCode,
+                                      Name = unitPaymentOrder.DivisionName
                                   },
-                                  DueDate = upoExpedition.DueDate,
-                                  InvoiceNo = upoExpedition.InvoiceNo,
-                                  No = upoExpedition.UnitPaymentOrderNo,
-                                  Position = upoExpedition.Position,
+                                  DueDate = unitPaymentOrder.DueDate,
+                                  InvoiceNo = unitPaymentOrder.InvoiceNo,
+                                  No = unitPaymentOrder.UPONo,
+                                  Position = (ExpeditionPosition)unitPaymentOrder.Position,
                                   Supplier = new NewSupplierViewModel()
                                   {
-                                      code = upoExpedition.SupplierCode,
-                                      name = upoExpedition.SupplierName
+                                      code = unitPaymentOrder.SupplierCode,
+                                      name = unitPaymentOrder.SupplierName
                                   },
-                                  LastModifiedUtc = upoExpedition.LastModifiedUtc
+                                  LastModifiedUtc = unitPaymentOrder.LastModifiedUtc
                               };
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
