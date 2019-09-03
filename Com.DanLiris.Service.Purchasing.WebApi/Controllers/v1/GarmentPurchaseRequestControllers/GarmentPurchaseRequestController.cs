@@ -103,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         s.PRType,
                         s.SCId,
                         s.SCNo,
-                        s.IsValidate
+                        s.IsValidated
                     }).ToList()
                 );
 

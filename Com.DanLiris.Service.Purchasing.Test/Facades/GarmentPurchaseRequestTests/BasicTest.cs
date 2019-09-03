@@ -470,7 +470,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                         Category = new CategoryViewModel(),
                         BudgetPrice = -1
                     }
-                }
+                },
+                IsValidatedMD1 = false,
+                ValidatedMD1By = null,
+                ValidatedMD1Date = DateTimeOffset.MinValue,
+                IsValidatedMD2 = false,
+                ValidatedMD2By = null,
+                ValidatedMD2Date = DateTimeOffset.MinValue,
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
