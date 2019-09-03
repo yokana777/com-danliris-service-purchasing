@@ -68,8 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 SCId = s.SCId,
                 SCNo = s.SCNo,
 
-                IsValidate = s.IsValidate,
-
+                IsValidated = s.IsValidated,
                 IsValidatedMD1 = s.IsValidatedMD1,
                 IsValidatedMD2 = s.IsValidatedMD2,
             });
@@ -407,7 +406,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
                     m.Items.Any(i => i.IsUsed == false) &&
                     m.IsUsed == false &&
-                    m.IsValidate == true
+                    m.IsValidated == true
                     )
                 .Select(m => new GarmentPurchaseRequest
                 {
@@ -613,7 +612,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         .Single();
 
                     EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-                    data.IsValidate = true;
+                    data.IsValidated = true;
                     data.ValidatedBy = user;
                     data.ValidatedDate = DateTimeOffset.Now;
 
@@ -648,7 +647,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         .Single();
 
                     EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-                    data.IsValidate = false;
+                    data.IsValidated = false;
                     data.ValidatedBy = user;
                     data.ValidatedDate = DateTimeOffset.Now;
 

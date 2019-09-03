@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 PRType = $"PRType{nowTicks}",
                 SCId = nowTicks,
                 SCNo = $"SCNo{nowTicks}",
-                IsValidate = true,
+                IsValidated = true,
                 ValidatedBy = nowTicksA,
                 ValidatedDate = DateTimeOffset.Now,
 
@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 UnitName = data.UnitName,
                 IsPosted = data.IsPosted,
                 IsUsed = data.IsUsed,
-                IsValidate = data.IsValidate,
+                IsValidated = data.IsValidated,
                 Remark = data.Remark,
                 ValidatedBy = data.ValidatedBy,
                 ValidatedDate = data.ValidatedDate,

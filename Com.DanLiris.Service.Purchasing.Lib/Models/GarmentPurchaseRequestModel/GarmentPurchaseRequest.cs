@@ -40,9 +40,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 
         public bool IsPosted { get; set; }
         public bool IsUsed { get; set; }
-        public bool IsValidate { get; set; }
         public string Remark { get; set; }
 
+        public bool IsValidated { get; set; }
         [MaxLength(50)]
         public string ValidatedBy { get; set; }
         public DateTimeOffset? ValidatedDate { get; set; }
