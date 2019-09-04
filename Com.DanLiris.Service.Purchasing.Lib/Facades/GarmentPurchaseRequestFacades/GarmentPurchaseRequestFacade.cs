@@ -582,6 +582,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     EntityExtension.FlagForUpdate(data, user, USER_AGENT);
                     data.IsPosted = false;
 
+                    data.IsValidatedMD1 = false;
+                    data.IsValidatedMD2 = false;
+                    data.IsValidated = false;
+                    data.ValidatedMD1By = null;
+                    data.ValidatedMD2By = null;
+                    data.ValidatedBy = null;
+                    data.ValidatedMD1Date = DateTimeOffset.MinValue;
+                    data.ValidatedMD2Date = DateTimeOffset.MinValue;
+                    data.ValidatedDate = DateTimeOffset.MinValue;
+
                     foreach (var item in data.Items)
                     {
                         EntityExtension.FlagForUpdate(item, user, USER_AGENT);
