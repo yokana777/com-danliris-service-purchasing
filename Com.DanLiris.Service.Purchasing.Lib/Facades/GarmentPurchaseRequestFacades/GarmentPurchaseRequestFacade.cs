@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
 {
@@ -628,6 +629,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     transaction.Rollback();
                     throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public async Task<int> Patch(long id, JsonPatchDocument<GarmentPurchaseRequest> jsonPatch, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Where(d => d.Id == id)
+                        //.Include(i => i.Items)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+
+                    //if (data.Items != null)
+                    //{
+                    //    foreach (var item in data.Items)
+                    //    {
+                    //        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                    //    }
+                    //}
+
+                    jsonPatch.ApplyTo(data);
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw e;
                 }
             }
 

@@ -11,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseRequestControllers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -580,5 +581,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             var response = await controller.PRUnApprove(It.IsAny<long>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        private async Task<int> GetStatusCodePatch(Mock<IGarmentPurchaseRequestFacade> mockFacade, Mock<IMapper> mockMapper, long id)
+        {
+            GarmentPurchaseRequestController controller = GetController(mockFacade, null, mockMapper);
+
+            JsonPatchDocument<GarmentPurchaseRequest> patch = new JsonPatchDocument<GarmentPurchaseRequest>();
+            IActionResult response = await controller.Patch(id, patch);
+
+            return this.GetStatusCode(response);
+        }
+
+        [Fact]
+        public async Task Patch_ReturnNotFound()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.Patch(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentPurchaseRequest>>(), It.IsAny<string>()))
+               .ReturnsAsync(1);
+
+            int statusCode = await this.GetStatusCodePatch(mockFacade, new Mock<IMapper>(), 1);
+            Assert.Equal((int)HttpStatusCode.NoContent, statusCode);
+        }
+
+        [Fact]
+        public async Task Patch_ReturnInternalServerError()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
+            mockFacade.Setup(x => x.Patch(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentPurchaseRequest>>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception());
+
+            int statusCode = await this.GetStatusCodePatch(mockFacade, new Mock<IMapper>(), 1);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, statusCode);
+        }
+
     }
 }
