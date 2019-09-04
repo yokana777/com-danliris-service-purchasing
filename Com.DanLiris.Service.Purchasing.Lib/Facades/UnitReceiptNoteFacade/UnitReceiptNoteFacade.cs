@@ -888,6 +888,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         .Include(d => d.Items)
                         .Single(pr => pr.Id == id && !pr.IsDeleted);
 
+                    var useIncomeTaxFlag = false;
                     if (m != null && !id.Equals(unitReceiptNote.Id))
                     {
                         if (m.IsStorage == true)
@@ -904,6 +905,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         foreach (var item in unitReceiptNote.Items)
                         {
                             EntityExtension.FlagForUpdate(item, user, "Facade");
+
+                            var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax }).FirstOrDefault(f => f.Id.Equals(item.EPOId));
+
+                            useIncomeTaxFlag = useIncomeTaxFlag || poext.UseIncomeTax;
                         }
                         this.dbContext.Update(unitReceiptNote);
                         #region UpdateStatus
@@ -1052,7 +1057,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         await ReverseJournalTransaction(m.URNNo);
                         await CreateJournalTransactions(m);
 
-                        await UpdateCreditorAccount(unitReceiptNote);
+                        await UpdateCreditorAccount(unitReceiptNote, useIncomeTaxFlag);
 
                         transaction.Commit();
                     }
@@ -1071,7 +1076,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Updated;
         }
 
-        private async Task UpdateCreditorAccount(UnitReceiptNote unitReceiptNote)
+        private async Task UpdateCreditorAccount(UnitReceiptNote unitReceiptNote, bool useIncomeTaxFlag)
         {
             var dpp = unitReceiptNote.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
             var productList = string.Join("\n", unitReceiptNote.Items.Select(s => s.ProductName).ToList());
@@ -1080,7 +1085,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             {
                 DPP = dpp,
                 Products = productList,
-                Code = unitReceiptNote.URNNo
+                Code = unitReceiptNote.URNNo,
+                UseIncomeTax = useIncomeTaxFlag
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
