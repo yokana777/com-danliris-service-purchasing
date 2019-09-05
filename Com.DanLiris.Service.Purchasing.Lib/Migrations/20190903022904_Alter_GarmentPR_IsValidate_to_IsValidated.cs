@@ -16,15 +16,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.RenameColumn(
                 name: "IsValidated",
-                table: "GarmentPurchaseRequests");
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsValidate",
                 table: "GarmentPurchaseRequests",
-                nullable: false,
-                defaultValue: false);
+                newName: "IsValidate");
         }
     }
 }
