@@ -110,11 +110,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod , normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod + "  " + viewModel.Currency.code + " " + $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
-            tableIdentity.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            //tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
+            cellLeftNoBorder.Colspan = 0;
             tableIdentity.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Terbilang", normal_font);
@@ -469,6 +471,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region signature
             PdfPTable tableSignature = new PdfPTable(4);
+            tableSignature.SetWidths(new float[] { 4f, 4f, 4f, 4.1f });
 
             PdfPCell cellSignatureContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
 
