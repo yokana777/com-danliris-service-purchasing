@@ -18,6 +18,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public long SCId { get; set; }
         public string SCNo { get; set; }
 
+        public string SectionName { get; set; }
+
         public BuyerViewModel Buyer { get; set; }
 
         public string Article { get; set; }
