@@ -1086,6 +1086,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 DPP = dpp,
                 Products = productList,
                 Code = unitReceiptNote.URNNo,
+                Date = unitReceiptNote.ReceiptDate,
                 UseIncomeTax = useIncomeTaxFlag
             };
 
