@@ -35,7 +35,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
                 {
                     UId = null,
                     Buyer = new BuyerViewModel(),
-                    Unit = new UnitViewModel()
+                    Unit = new UnitViewModel(),
+                    SectionName = "SectionName"
                 };
             }
         }
