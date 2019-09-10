@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,5 +34,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentPreSalesContractViewModel GetGarmentPreSalesContract(long Id);
         Task<int> PRApprove(long id, string username);
         Task<int> PRUnApprove(long id, string username);
+        Task<int> Patch(long id, JsonPatchDocument<GarmentPurchaseRequest> jsonPatch, string user);
     }
 }

@@ -680,6 +680,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
                             garmentInventoryMovementRequestOut.After = garmentInventoryMovementRequestOut.Before - (decimal)garmentUnitExpenditureNoteItem.Quantity;
                             garmentInventoryMovementRequestOut.ReferenceNo = uen.UENNo;
+                            garmentInventoryMovementRequestOut.Date = uen.ExpenditureDate;
                             //if (garmentInventorySummaryExistingRequest == null || garmentInventorySummaryExistingRequest.Quantity == 0)
                             //{
                             //    garmentInventoryMovementRequestOut.Before = garmentInventoryMovementRequestIn.After;
@@ -756,6 +757,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
 
                     var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "IN");
+                    garmentInventoryDocument.Date = DateTimeOffset.Now;
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
@@ -770,6 +772,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
                             garmentInventorySummaryExisting.Quantity = garmentInventorySummaryExisting.Quantity + (decimal)garmentUnitExpenditureNoteItem.Quantity;
                             garmentInventoryMovement.After = garmentInventorySummaryExisting.Quantity;
+                        }
+                    }
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
+                    {
+                        var urn = dbSetGarmentUnitReceiptNote.Include(a=>a.Items).FirstOrDefault(a => a.UENId == id);
+                        EntityExtension.FlagForDelete(urn, identityService.Username, USER_AGENT);
+                        foreach(var urnItem in urn.Items)
+                        {
+                            EntityExtension.FlagForDelete(urnItem, identityService.Username, USER_AGENT);
+                        }
+                        var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.URNId == urn.Id);
+                        var unitDO = dbSetGarmentUnitDeliveryOrder.Include(a=>a.Items).FirstOrDefault(a => a.Id == unitDOItem.UnitDOId);
+                        EntityExtension.FlagForDelete(unitDO, identityService.Username, USER_AGENT);
+
+                        foreach(var uDOItem in unitDO.Items)
+                        {
+                            EntityExtension.FlagForDelete(uDOItem, identityService.Username, USER_AGENT);
+                        }
+
+                        var uen = dbSet.Include(a=>a.Items).FirstOrDefault(a => a.UnitDOId == unitDO.Id);
+                        EntityExtension.FlagForDelete(uen, identityService.Username, USER_AGENT);
+
+                        foreach (var uenItem in uen.Items)
+                        {
+                            EntityExtension.FlagForDelete(uenItem, identityService.Username, USER_AGENT);
                         }
                     }
 

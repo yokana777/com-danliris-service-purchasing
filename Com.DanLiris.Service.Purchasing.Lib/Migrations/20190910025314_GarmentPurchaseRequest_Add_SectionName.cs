@@ -4,22 +4,23 @@ using System.Collections.Generic;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
-    public partial class Alter_GarmentPR_IsValidate_to_IsValidated : Migration
+    public partial class GarmentPurchaseRequest_Add_SectionName : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "IsValidate",
+            migrationBuilder.AddColumn<string>(
+                name: "SectionName",
                 table: "GarmentPurchaseRequests",
-                newName: "IsValidated");
+                type: "nvarchar(100)",
+                maxLength: 100,
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "IsValidated",
-                table: "GarmentPurchaseRequests",
-                newName: "IsValidate");
+            migrationBuilder.DropColumn(
+                name: "SectionName",
+                table: "GarmentPurchaseRequests");
         }
     }
 }
