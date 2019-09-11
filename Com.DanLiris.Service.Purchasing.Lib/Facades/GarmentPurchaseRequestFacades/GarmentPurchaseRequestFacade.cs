@@ -45,6 +45,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         {
             IQueryable<GarmentPurchaseRequest> Query = this.dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
+            };
+
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+
             Query = Query.Select(s => new GarmentPurchaseRequest
             {
                 Id = s.Id,
@@ -73,19 +86,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 IsValidatedMD1 = s.IsValidatedMD1,
                 IsValidatedMD2 = s.IsValidatedMD2,
             });
-
-            List<string> searchAttributes = new List<string>()
-            {
-                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
-            };
-
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
             List<GarmentPurchaseRequest> Data = pageable.Data.ToList<GarmentPurchaseRequest>();
