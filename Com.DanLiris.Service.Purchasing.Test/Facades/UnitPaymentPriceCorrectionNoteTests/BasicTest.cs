@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectionNoteTests
 {
@@ -79,6 +80,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(new MemoryCacheManager(memoryCache));
+
+            var mockCurrencyProvider = new Mock<ICurrencyProvider>();
+            mockCurrencyProvider
+                .Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
+                .ReturnsAsync((Currency)null);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+                .Returns(mockCurrencyProvider.Object);
 
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, _dbContext(testName));
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
