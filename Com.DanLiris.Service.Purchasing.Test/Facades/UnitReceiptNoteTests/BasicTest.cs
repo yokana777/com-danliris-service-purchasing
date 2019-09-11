@@ -84,6 +84,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(mockMemoryCache.Object);
 
+            var mockCurrencyProvider = new Mock<ICurrencyProvider>();
+            mockCurrencyProvider
+                .Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
+                .ReturnsAsync((Currency)null);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+                .Returns(mockCurrencyProvider.Object);
+
             return serviceProvider;
         }
 
