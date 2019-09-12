@@ -158,5 +158,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
 
             Assert.NotNull(report);
         }
+
+        [Fact]
+        public void Should_Fail_Validate_VM_UPOVerificationVM()
+        {
+            UnitPaymentOrderVerificationViewModel vm = new UnitPaymentOrderVerificationViewModel();
+            Assert.NotEmpty(vm.Validate(null));
+
+            vm.VerifyDate = DateTimeOffset.UtcNow.AddDays(1);
+            Assert.NotEmpty(vm.Validate(null));
+
+            vm.VerifyDate = DateTimeOffset.UtcNow.AddDays(-1);
+            Assert.NotEmpty(vm.Validate(null));
+
+            vm.UnitPaymentOrderNo = "no";
+            Assert.NotEmpty(vm.Validate(null));
+
+            vm.SubmitPosition = ExpeditionPosition.CASHIER_DIVISION;
+            Assert.Empty(vm.Validate(null));
+        }
     }
 }

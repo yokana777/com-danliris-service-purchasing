@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Helpers
         public const string AUTH_ENDPOINT = "AuthEndpoint";
         public const string USERNAME = "AdminUsername";
         public const string PASSWORD = "Password";
+        public const string GARMENT_PRODUCTION_ENDPOINT = "GarmentProductionEndpoint";
 
 
         public const string CATEGORIES = "Categories";

@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             {
                 yield return new ValidationResult("Date is required", new List<string> { "VerifyDate" });
             }
-            else if (this.VerifyDate > DateTimeOffset.UtcNow)
+            else if (this.VerifyDate.GetValueOrDefault().Date > DateTimeOffset.UtcNow.Date)
             {
                 yield return new ValidationResult("Date must be lower or equal than today's date", new List<string> { "VerifyDate" });
             }
@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             if (string.IsNullOrWhiteSpace(this.UnitPaymentOrderNo))
                 yield return new ValidationResult("Unit Payment Order No is required", new List<string> { "UnitPaymentOrderNo" });
 
-            if (this.SubmitPosition.Equals(0))
+            if (this.SubmitPosition.Equals(ExpeditionPosition.INVALID))
                 yield return new ValidationResult("Submit Position is required", new List<string> { "SubmitPosition" });
 
         }

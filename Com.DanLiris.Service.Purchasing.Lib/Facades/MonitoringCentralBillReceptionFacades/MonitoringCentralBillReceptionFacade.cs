@@ -203,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             var deliveryOrderDetailIds = queryResult.Select(s => s.DODetailId).Distinct().ToList();
             var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.CodeRequirment, s.POSerialNumber, s.ProductCode, s.ProductName, s.DOQuantity, s.UomUnit, s.PricePerDealUnit, s.PriceTotal, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
             var beaCukaiIds = queryResult.Select(s => s.BCId).Distinct().ToList();
-            var beaCukais = dbContext.GarmentBeacukais.Where(w => beaCukaiIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.BeacukaiDate, s.CustomsType, s.BeacukaiNo}).ToList();
+            var beaCukais = dbContext.GarmentBeacukais.Where(w => beaCukaiIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.ArrivalDate, s.BeacukaiDate, s.CustomsType, s.BeacukaiNo}).ToList();
             var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
             var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.SupplierName, s.SupplierImport}).ToList();
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
@@ -239,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.index = i;
                 monitoringcentralbillreceptionViewModel.BillNo = deliveryOrder.BillNo;
                 monitoringcentralbillreceptionViewModel.PaymentBill = deliveryOrder.PaymentBill;
-                monitoringcentralbillreceptionViewModel.BillDate = beaCukai == null ? new DateTime(1970, 1, 1) : beaCukai.BeacukaiDate;
+                monitoringcentralbillreceptionViewModel.BillDate = beaCukai.ArrivalDate == null ? beaCukai.BeacukaiDate : beaCukai.ArrivalDate.GetValueOrDefault();
                 monitoringcentralbillreceptionViewModel.CustomsType = beaCukai == null ? "-" : beaCukai.CustomsType;
                 monitoringcentralbillreceptionViewModel.BeaCukaiNo = beaCukai == null ? "-" : beaCukai.BeacukaiNo;
                 monitoringcentralbillreceptionViewModel.BeaCukaiDate = beaCukai == null ? new DateTime(1970, 1, 1) : beaCukai.BeacukaiDate;

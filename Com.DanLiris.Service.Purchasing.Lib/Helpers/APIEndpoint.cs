@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 		public static string CustomsReport { get; set; }
 		public static string Sales { get; set; }
         public static string Auth { get; set; }
+        public static string GarmentProduction { get; set; }
     }
 
     public static class AuthCredential

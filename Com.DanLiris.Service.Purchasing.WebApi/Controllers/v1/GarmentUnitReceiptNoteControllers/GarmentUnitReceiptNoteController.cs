@@ -142,6 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                identityService.Token= Request.Headers["Authorization"].First().Replace("Bearer ", "");
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
                 validateService.Validate(viewModel);

@@ -263,9 +263,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                 monitoringcorrectionnotereceptionViewModel.CorrectionNo = correctionNote.CorrectionNo;
                 monitoringcorrectionnotereceptionViewModel.CorrectionDate = correctionNote.CorrectionDate;
                 monitoringcorrectionnotereceptionViewModel.CorrectionType = correctionNote.CorrectionType;
-                monitoringcorrectionnotereceptionViewModel.CorrectionQuantity = (decimal)deliveryOrder.DOCurrencyRate * correctionNoteItem.Quantity;
+                monitoringcorrectionnotereceptionViewModel.CorrectionQuantity = correctionNote.CorrectionType == "Jumlah" || correctionNote.CorrectionType == "Retur" ? correctionNoteItem.Quantity : 0;
                 monitoringcorrectionnotereceptionViewModel.CorrectionUOMUnit = correctionNoteItem.UomIUnit;
-                monitoringcorrectionnotereceptionViewModel.CorrectionAmount = (decimal)deliveryOrder.DOCurrencyRate * (correctionNoteItem.PriceTotalBefore - correctionNoteItem.PriceTotalAfter);
+                monitoringcorrectionnotereceptionViewModel.CorrectionAmount = correctionNote.CorrectionType == "Jumlah" || correctionNote.CorrectionType == "Retur" ? (decimal)deliveryOrder.DOCurrencyRate * correctionNoteItem.PriceTotalAfter : (decimal)deliveryOrder.DOCurrencyRate * (correctionNoteItem.PriceTotalAfter - correctionNoteItem.PriceTotalBefore);
                 monitoringcorrectionnotereceptionViewModel.BillNo = deliveryOrder.BillNo;
                 monitoringcorrectionnotereceptionViewModel.PaymentBill = deliveryOrder.PaymentBill;
                 monitoringcorrectionnotereceptionViewModel.BillDate = beaCukai == null ? new DateTime(1970, 1, 1) : beaCukai.BeacukaiDate;

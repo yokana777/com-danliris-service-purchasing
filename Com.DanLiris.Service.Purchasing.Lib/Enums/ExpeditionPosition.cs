@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
 {
     public enum ExpeditionPosition
     {
+        INVALID = 0,
         PURCHASING_DIVISION = 1,
         SEND_TO_VERIFICATION_DIVISION = 2,
         VERIFICATION_DIVISION = 3,
