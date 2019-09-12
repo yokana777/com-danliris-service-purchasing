@@ -1,5 +1,9 @@
-﻿using Dapper;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
+using Dapper;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,30 +16,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 {
     public class CurrencyProvider : ICurrencyProvider
     {
-        private readonly IConfiguration _config;
+        private readonly IServiceProvider _serviceProvider;
 
-        public CurrencyProvider(IConfiguration config)
+        public CurrencyProvider(IServiceProvider serviceProvider)
         {
-            _config = config;
-        }
-
-        public IDbConnection Connection
-        {
-            get
-            {
-                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-            }
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<Currency> GetCurrencyByCurrencyCode(string currencyCode)
         {
-            using (var conn = Connection)
+            var jsonSerializerSettings = new JsonSerializerSettings
             {
-                string query = "SELECT * FROM kurs WHERE code = @code ORDER BY date DESC";
-                conn.Open();
-                var result = await conn.QueryAsync<Currency>(query, new { code = currencyCode });
-                return result.FirstOrDefault();
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code/{currencyCode}";
+            var currencyResponse = await httpClient.GetAsync(currencyUri);
+
+            var currencyResult = new BaseResponse<Currency>()
+            {
+                data = new Currency()
+            };
+
+            if (currencyResponse.IsSuccessStatusCode)
+            {
+                currencyResult = JsonConvert.DeserializeObject<BaseResponse<Currency>>(currencyResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
+
+            return currencyResult.data;
         }
     }
 }

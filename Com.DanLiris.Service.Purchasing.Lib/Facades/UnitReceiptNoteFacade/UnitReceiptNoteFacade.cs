@@ -260,7 +260,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
 
             var currency = await _currencyProvider.GetCurrencyByCurrencyCode(currencyCode);
-            var currencyRate = currency != null ? currency.KURS : 1;
+            var currencyRate = currency != null ? currency.Rate.GetValueOrDefault(): 1;
 
             var creditorAccount = new
             {
@@ -426,7 +426,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
 
                 var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
-                var currencyRate = currency != null ? currency.KURS : 1;
+                var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : 1;
 
                 if (!externalPurchaseOrder.UseIncomeTax)
                     incomeTaxRate = 1;
