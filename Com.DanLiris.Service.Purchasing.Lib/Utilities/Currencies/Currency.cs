@@ -7,8 +7,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 {
     public class Currency
     {
-        public string code { get; set; }
-        public decimal KURS { get; set; }
-        public DateTime date { get; set; }
+        public Currency()
+        {
+            Rate = 1;
+        }
+
+        public string UId { get; set; }
+
+        public string Code { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public double? Rate { get; set; }
     }
 }
