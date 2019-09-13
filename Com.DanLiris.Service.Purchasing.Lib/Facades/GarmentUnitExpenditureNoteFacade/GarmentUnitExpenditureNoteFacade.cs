@@ -1399,7 +1399,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Updated;
         }
 
-        public async Task<int> UpdateReturQuantity(int id, double quantity)
+        public async Task<int> UpdateReturQuantity(int id, double quantity, double quantityBefore)
         {
             int Updated = 0;
 
@@ -1410,7 +1410,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     var oldGarmentUnitExpenditureNoteItem = dbSetItem
                         .Single(m => m.Id == id);
 
-                    oldGarmentUnitExpenditureNoteItem.ReturQuantity = oldGarmentUnitExpenditureNoteItem.ReturQuantity + quantity;
+                    oldGarmentUnitExpenditureNoteItem.ReturQuantity = oldGarmentUnitExpenditureNoteItem.ReturQuantity - quantityBefore + quantity;
                     EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
 
                     Updated = await dbContext.SaveChangesAsync();
