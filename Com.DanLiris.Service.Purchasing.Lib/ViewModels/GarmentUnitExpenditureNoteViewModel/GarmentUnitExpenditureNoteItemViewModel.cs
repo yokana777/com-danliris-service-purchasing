@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public string ProductName { get; set; }
         public string ProductRemark { get; set; }
         public string RONo { get; set; }
-        public double Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public long UomId { get; set; }
         public string UomUnit { get; set; }
         public double PricePerDealUnit { get; set; }
@@ -33,6 +33,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public CurrencyViewModel DOCurrency { get; set; }
         public decimal Conversion { get; set; }
         public decimal BasicPrice { get; set; }
-        public double ReturQuantity { get; set; }
+        public decimal ReturQuantity { get; set; }
     }
 }
