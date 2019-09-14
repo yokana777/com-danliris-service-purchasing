@@ -611,7 +611,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             newData.Items.First().IsSave = false;
 
-            var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1);
+            var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1, 0);
             Assert.NotEqual(ResponseUpdate, 0);
         }
 
@@ -625,7 +625,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             dbContext.Entry(data).State = EntityState.Detached;
             data.Items = null;
 
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateReturQuantity(0, 0));
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateReturQuantity(0, 0, 0));
             Assert.NotNull(e.Message);
         }
     }

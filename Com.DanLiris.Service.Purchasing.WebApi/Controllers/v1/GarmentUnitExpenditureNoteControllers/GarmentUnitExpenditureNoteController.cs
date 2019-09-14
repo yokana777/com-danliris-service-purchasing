@@ -315,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                await facade.UpdateReturQuantity(id, ViewModel.GetValueOrDefault("ReturQuantity"));
+                await facade.UpdateReturQuantity(id, ViewModel.GetValueOrDefault("ReturQuantity"), ViewModel.GetValueOrDefault("Quantity"));
 
                 return NoContent();
             }
