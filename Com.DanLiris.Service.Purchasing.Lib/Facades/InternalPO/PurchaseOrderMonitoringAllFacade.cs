@@ -314,9 +314,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                 //TotalCountReport = Query.Distinct().Count();
 
-                var tt = Query.ToList();
-                var queryResult = tt.Distinct().OrderByDescending(o => o.LastModifiedUtc).Skip((page - 1) * size).Take(size).ToList();
-                TotalCountReport = tt.Distinct().Count();
+                //var tt = Query.ToList();
+                var queryResult = Query.Distinct().OrderByDescending(o => o.LastModifiedUtc).Skip((page - 1) * size).Take(size).ToList();
+                TotalCountReport = Query.Distinct().Count();
                 //var queryResult = Query.Distinct().OrderByDescending(o => o.LastModifiedUtc).ToList();
 
                 var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
