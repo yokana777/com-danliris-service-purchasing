@@ -436,9 +436,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
                 .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
 
-            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            var response = controller.GetByUser();
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetURNItem();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
         [Fact]
@@ -454,7 +454,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
                 .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
 
             GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            var response = controller.GetByUser();
+            var response = controller.GetURNItem();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
