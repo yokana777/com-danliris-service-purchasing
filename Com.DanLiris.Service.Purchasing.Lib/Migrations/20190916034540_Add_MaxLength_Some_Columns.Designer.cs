@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190916034540_Add_MaxLength_Some_Columns")]
+    partial class Add_MaxLength_Some_Columns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1380,10 +1381,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CorrectionNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
-
                     b.ToTable("GarmentCorrectionNotes");
                 });
 
@@ -1895,10 +1892,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EPONo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
-
                     b.ToTable("GarmentExternalPurchaseOrders");
                 });
 
@@ -2260,10 +2253,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("INNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentInternNotes");
                 });
@@ -3082,14 +3071,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PRNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
-
-                    b.HasIndex("RONo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
-
                     b.ToTable("GarmentPurchaseRequests");
                 });
 
@@ -3259,10 +3240,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CorrectionNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentReceiptCorrections");
                 });
@@ -3464,10 +3441,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UnitDONo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentUnitDeliveryOrders");
                 });
@@ -3671,10 +3644,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UENNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentUnitExpenditureNotes");
                 });
@@ -3881,10 +3850,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("URNNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentUnitReceiptNotes");
                 });

@@ -8,12 +8,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
     public class GarmentInternNoteDetail : StandardEntity<long>
     {
         public long DOId { get; set; }
+        [MaxLength(255)]
         public string DONo { get; set; }
+
         public long EPOId { get; set; }
+        [MaxLength(255)]
         public string EPONo { get; set; }
+
+        [MaxLength(255)]
         public string POSerialNumber { get; set; }
+        [MaxLength(255)]
         public string RONo { get; set; }
+
+        [MaxLength(255)]
         public string PaymentMethod { get; set; }
+        [MaxLength(255)]
         public string PaymentType { get; set; }
         public int PaymentDueDays { get; set; }
         public DateTimeOffset PaymentDueDate { get; set; }
@@ -40,6 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
 
         /*UOM*/
         public long? UOMId { get; set; }
+        [MaxLength(255)]
         public string UOMUnit { get; set; }
         
         public double PricePerDealUnit { get; set; }
