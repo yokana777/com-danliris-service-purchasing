@@ -25,7 +25,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
@@ -176,11 +178,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
 
         [Fact]
-        public void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var urnItem = dataUtil.Items.FirstOrDefault();
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
             //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
             var DateFrom = DateTime.Now.AddDays(-1);
             DateFrom = DateFrom.Date;
@@ -192,8 +196,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             //if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
             //{
             LocalPurchasingBookReportFacade Facade = new LocalPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
-            var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
-            Assert.Equal(Response.Item2, 0);
+            var Response = await Facade.GetReport(dataUtil.URNNo, dataUtil.UnitCode, pr?.CategoryCode, DateFrom, DateTo);
+            Assert.NotNull(Response);
             //}
         }
         //[Fact]
@@ -240,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //}
 
         [Fact]
-        public void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
@@ -257,11 +261,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             //{
             LocalPurchasingBookReportFacade Facade = new LocalPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
             //var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
-            var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
+            var Response = await Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
         [Fact]
-        public void Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
+        public async Task Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
@@ -278,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             //{
             LocalPurchasingBookReportFacade Facade = new LocalPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
             //var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
-            var Response = Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
+            var Response = await Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }

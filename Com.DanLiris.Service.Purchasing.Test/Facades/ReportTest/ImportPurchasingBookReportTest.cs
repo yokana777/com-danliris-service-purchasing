@@ -23,6 +23,7 @@ using Moq;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
@@ -184,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //          var Response = IPRFacade.GetReport(null, null,null ,DateFrom,DateTo);
         //	Assert.NotEqual(Response.Item2, 0);
         //}
-        public void Should_Success_Get_Report_Data()
+        public async Task Should_Success_Get_Report_Data()
         {
             //ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetTestData("Unit test");
             //DeliveryOrder deliveryOrder = await DODataUtil.GetTestData("unit-test");
@@ -197,8 +198,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var DateTo = DateTime.Now.AddDays(1);
             DateTo = DateTo.Date;
             ImportPurchasingBookReportFacade response = new ImportPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
-            var Response = response.GetReport(null, null, null, DateFrom, DateTo);
-            Assert.Equal(Response.Item2, 0);
+            var Response = await response.GetReport(null, null, null, DateFrom, DateTo);
+            Assert.Equal(Response.Reports.Count, 0);
         }
         //[Fact]
         //public async Task Should_Success_Get_Report_Data_No_Parameter()
@@ -291,7 +292,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         //}
 
         [Fact]
-        public void Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
@@ -303,7 +304,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             DateTo = DateTo.Date;
             ImportPurchasingBookReportFacade iprFacade = new ImportPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
             //var Response = facade.GetReport(null, null, null, DateFrom, DateTo);
-            var Response = iprFacade.GenerateExcel(null, null, null, DateFrom, DateTo);
+            var Response = await iprFacade.GenerateExcel(null, null, null, DateFrom, DateTo);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
         //[Fact]
