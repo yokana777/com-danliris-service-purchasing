@@ -15,9 +15,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
     public class ImportPurchasingBookReportController : Controller
     {
         private string ApiVersion = "1.0.0";
-        private readonly ImportPurchasingBookReportFacade importPurchasingBookReportFacade;
+        private readonly IImportPurchasingBookReportFacade importPurchasingBookReportFacade;
 
-        public ImportPurchasingBookReportController(ImportPurchasingBookReportFacade importPurchasingBookReportFacade)
+        public ImportPurchasingBookReportController(IImportPurchasingBookReportFacade importPurchasingBookReportFacade)
         {
             this.importPurchasingBookReportFacade = importPurchasingBookReportFacade;
         }

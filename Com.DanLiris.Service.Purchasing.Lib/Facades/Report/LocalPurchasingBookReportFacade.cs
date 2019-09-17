@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 {
-    public class LocalPurchasingBookReportFacade
+    public class LocalPurchasingBookReportFacade : ILocalPurchasingBookReportFacade
     {
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
@@ -132,10 +132,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
                         //default IDR
                         double currencyRate = 1;
+                        var currencyCode = "IDR";
                         if (currency != null && !currency.Code.Equals("IDR"))
                         {
                             dppCurrency = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity);
                             currencyRate = currency.Rate.GetValueOrDefault();
+                            currencyCode = currency.Code;
                         }
                         else
                             dpp = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity);
@@ -165,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             UPONo = unitPaymentOrder?.UPONo,
                             URNNo = urnItem.URNNo,
                             IsUseVat = epoItem.UseVat,
-                            CurrencyCode = currency.Code
+                            CurrencyCode = currencyCode
                         };
 
                         reportResult.Reports.Add(reportItem);
@@ -256,5 +258,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             }
         }
 
+    }
+
+    public interface ILocalPurchasingBookReportFacade
+    {
+        Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo);
+        Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo);
     }
 }

@@ -15,9 +15,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
     public class LocalPurchasingBookReportController : Controller
     {
         private string ApiVersion = "1.0.0";
-        private readonly LocalPurchasingBookReportFacade localPurchasingBookReportFacade;
+        private readonly ILocalPurchasingBookReportFacade localPurchasingBookReportFacade;
 
-        public LocalPurchasingBookReportController(LocalPurchasingBookReportFacade localPurchasingBookReportFacade)
+        public LocalPurchasingBookReportController(ILocalPurchasingBookReportFacade localPurchasingBookReportFacade)
         {
             this.localPurchasingBookReportFacade = localPurchasingBookReportFacade;
         }

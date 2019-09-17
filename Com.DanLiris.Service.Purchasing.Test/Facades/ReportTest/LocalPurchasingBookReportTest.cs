@@ -24,6 +24,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -35,11 +36,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
     //[Collection("ServiceProviderFixture Collection")]
     public class LocalPurchasingBookReportTest
     {
-        //private IServiceProvider ServiceProvider { get; set; }
-
-        private const string ENTITY = "UnitPaymentPriceCorrectionNote";
+        private const string ENTITY = "LocalPurchasingReport";
 
         private const string USERNAME = "Unit Test";
+
+        private IServiceProvider ServiceProvider { get; set; }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetCurrentMethod()
@@ -62,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             return dbContext;
         }
 
-        private Mock<IServiceProvider> GetServiceProvider()
+        private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, PurchasingDbContext dbContext)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -90,200 +91,104 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
 
-            return serviceProvider;
-        }
-
-        private Mock<IServiceProvider> _ServiceProvider => GetServiceProvider();
-
-        private UnitReceiptNoteDataUtil _dataUtil(UnitReceiptNoteFacade facade, PurchasingDbContext dbContext)
-        {
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(_ServiceProvider.Object, dbContext);
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, dbContext);
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(_ServiceProvider.Object, dbContext);
+            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(serviceProvider.Object, dbContext);
             InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
             InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(_ServiceProvider.Object, dbContext);
+            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(serviceProvider.Object, dbContext);
             ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, _ServiceProvider.Object);
+            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, serviceProvider.Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
             DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
 
-            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
+            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(serviceProvider.Object, dbContext);
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
-            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
-            UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
-
-            return new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, facade, deliveryOrderDataUtil);
+            return new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, facade);
         }
 
-        //public LocalPurchasingBookReportTest(ServiceProviderFixture fixture)
-        //{
-        //    ServiceProvider = fixture.ServiceProvider;
-        //}
-
-        //private LocalPurchasingBookReportFacade Facade
-        //{
-        //    get { return (LocalPurchasingBookReportFacade)ServiceProvider.GetService(typeof(LocalPurchasingBookReportFacade)); }
-        //}
-
-        //private UnitReceiptNoteDataUtil DataUtil
-        //{
-        //    get { return (UnitReceiptNoteDataUtil)ServiceProvider.GetService(typeof(UnitReceiptNoteDataUtil)); }
-        //}
-        //private ImportPurchasingBookReportFacade IPRFacade
-        //{
-        //    get { return (ImportPurchasingBookReportFacade)ServiceProvider.GetService(typeof(ImportPurchasingBookReportFacade)); }
-        //}
-        //private UnitReceiptNoteFacade URNFacade
-        //{
-        //    get { return (UnitReceiptNoteFacade)ServiceProvider.GetService(typeof(UnitReceiptNoteFacade)); }
-        //}
-        //private ExternalPurchaseOrderDataUtil EPODataUtil
-        //{
-        //    get { return (ExternalPurchaseOrderDataUtil)ServiceProvider.GetService(typeof(ExternalPurchaseOrderDataUtil)); }
-        //}
-        //private ExternalPurchaseOrderFacade EPOFacade
-        //{
-        //    get { return (ExternalPurchaseOrderFacade)ServiceProvider.GetService(typeof(ExternalPurchaseOrderFacade)); }
-        //}
-        //private DeliveryOrderDataUtil DODataUtil
-        //{
-        //    get { return (DeliveryOrderDataUtil)ServiceProvider.GetService(typeof(DeliveryOrderDataUtil)); }
-        //}
-
-        //private DeliveryOrderFacade DOFacade
-        //{
-        //    get { return (DeliveryOrderFacade)ServiceProvider.GetService(typeof(DeliveryOrderFacade)); }
-        //}
-
-        //private UnitPaymentOrderDataUtil UPODataUtil
-        //{
-        //    get { return (UnitPaymentOrderDataUtil)ServiceProvider.GetService(typeof(UnitPaymentOrderDataUtil)); }
-        //}
-
-        //private UnitPaymentOrderFacade UPOFacade
-        //{
-        //    get { return (UnitPaymentOrderFacade)ServiceProvider.GetService(typeof(UnitPaymentOrderFacade)); }
-        //}
-
-
-
-        [Fact]
-        public async Task Should_Success_Get_Report_Data()
+        private Mock<IServiceProvider> _getServiceProvider()
         {
-            var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
-            var urnItem = dataUtil.Items.FirstOrDefault();
-            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
-            //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
-            var DateFrom = DateTime.Now.AddDays(-1);
-            DateFrom = DateFrom.Date;
-            var DateTo = DateTime.Now.AddDays(1);
-            DateTo = DateTo.Date;
-            //UnitPaymentOrder upo = await UPODataUtil.GetTestData();
-            //await UPOFacade.Create(upo, "unit-test", false, 7);
-            DateTo = DateTo.Date;
-            //if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
-            //{
-            LocalPurchasingBookReportFacade Facade = new LocalPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
-            var Response = await Facade.GetReport(dataUtil.URNNo, dataUtil.UnitCode, pr?.CategoryCode, DateFrom, DateTo);
-            Assert.NotNull(Response);
-            //}
+            var serviceProvider = new Mock<IServiceProvider>();
+
+            var mockCurrencyProvider = new Mock<ICurrencyProvider>();
+            mockCurrencyProvider
+                .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<List<string>>()))
+                .ReturnsAsync(new List<Currency>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+                .Returns(mockCurrencyProvider.Object);
+
+            return serviceProvider;
         }
-        //[Fact]
-        //public async Task Should_Success_Get_Report_Data_No_Parameter()
-        //{
-        //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-        //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
-        //	DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-        //	await DOFacade.Create(deliveryOrder, "unit-test");
-        //	UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
-        //	await Facade.Create(urn, "unit-test");
-        //	DateTime DateFrom = new DateTime(2018, 8, 27);
-        //	DateTime DateTo = new DateTime(2018, 8, 27);
-        //	var Response = IPRFacade.GetReport("18-08-BPI-001-unitcode-001", null, null, DateFrom, DateTo);
-        //	Assert.NotEqual(Response.Item2, 0);
-        //}
-        //[Fact]
-        //public async Task Should_Success_Get_Report_Data_Unit_Parameter()
-        //{
-        //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-        //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
-        //	DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-        //	await DOFacade.Create(deliveryOrder, "unit-test");
-        //	UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
-        //	await Facade.Create(urn, "unit-test");
-        //	DateTime DateFrom = new DateTime(2018, 8, 27);
-        //	DateTime DateTo = new DateTime(2018, 8, 27);
-        //	var Response = IPRFacade.GetReport(null, "UnitName", null, DateFrom, DateTo);
-        //	Assert.NotEqual(Response.Item2, 0);
-        //}
-        //[Fact]
-        //public async Task Should_Success_Get_Report_Data_Category_Parameter()
-        //{
-        //	ExternalPurchaseOrder externalPurchaseOrder = await EPODataUtil.GetNewData("unit-test");
-        //	await EPOFacade.Create(externalPurchaseOrder, "unit-test", 7);
-        //	DeliveryOrder deliveryOrder = await DODataUtil.GetNewData("unit-test");
-        //	await DOFacade.Create(deliveryOrder, "unit-test");
-        //	UnitReceiptNote urn = await DataUtil.GetNewDatas("unit-test");
-        //	await Facade.Create(urn, "unit-test");
-        //	DateTime DateFrom = new DateTime(2018, 8, 27);
-        //	DateTime DateTo = new DateTime(2018, 8, 27);
-        //	var Response = IPRFacade.GetReport(null, null, "CategoryName", DateFrom, DateTo);
-        //	Assert.NotEqual(Response.Item2, 0);
-        //}
 
         [Fact]
-        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        public async Task Should_Success_Get_Data()
         {
-            var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
-            //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
-            var DateFrom = DateTime.Now.AddDays(-1);
-            DateFrom = DateFrom.Date;
-            var DateTo = DateTime.Now.AddDays(1);
-            DateTo = DateTo.Date;
-            //UnitPaymentOrder upo = await UPODataUtil.GetTestData();
-            //await UPOFacade.Create(upo, "unit-test", false, 7);
-            DateTo = DateTo.Date;
-            //if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
-            //{
-            LocalPurchasingBookReportFacade Facade = new LocalPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
-            //var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
-            var Response = await Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            var dbContext = _dbContext("test");
+            var serviceProvider = _getServiceProvider().Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
+
+            var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.NotEqual(result.Reports.Count, 0);
         }
+
         [Fact]
-        public async Task Should_Success_Get_Report_Total_Purchase_By_Units_Null_Data_Excel()
+        public async Task Should_Success_Get_Data_Empty()
         {
-            var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
-            //UnitReceiptNote urn = await _dataUtil.GetTestData2("unit-test");
-            var DateFrom = DateTime.Now.AddDays(-1);
-            DateFrom = DateFrom.Date;
-            var DateTo = DateTime.Now.AddDays(1);
-            DateTo = DateTo.Date;
-            //UnitPaymentOrder upo = await UPODataUtil.GetTestData();
-            //await UPOFacade.Create(upo, "unit-test", false, 7);
-            DateTo = DateTo.Date;
-            //if (externalPurchaseOrder != null && deliveryOrder != null && urn != null)
-            //{
-            LocalPurchasingBookReportFacade Facade = new LocalPurchasingBookReportFacade(_ServiceProvider.Object, dbContext);
-            //var Response = Facade.GetReport(null, null, null, DateFrom, DateTo);
-            var Response = await Facade.GenerateExcel(null, null, null, DateFrom, DateTo);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            var dbContext = _dbContext("test");
+            var serviceProvider = _getServiceProvider().Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
+
+            var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.Equal(result.Reports.Count, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_GenerateExcel_Data()
+        {
+            var dbContext = _dbContext("test");
+            var serviceProvider = _getServiceProvider().Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
+
+            var result = await facade.GenerateExcel(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.NotNull(result);
         }
     }
 }
