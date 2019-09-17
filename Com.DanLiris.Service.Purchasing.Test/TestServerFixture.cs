@@ -25,6 +25,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -75,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                        .AddTransient<UnitPaymentCorrectionNoteDataUtil>()
                        .AddTransient<UnitPaymentOrderUnpaidReportDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
+                       .AddScoped<ICurrencyProvider, CurrencyProvider>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })
                 .UseStartup<Startup>();
