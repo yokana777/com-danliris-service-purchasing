@@ -128,6 +128,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            modelBuilder.Entity<GarmentPurchaseRequest>()
+                .HasIndex(i => i.PRNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentPurchaseRequest>()
+                .HasIndex(i => i.RONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentExternalPurchaseOrder>()
+                .HasIndex(i => i.EPONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentInternNote>()
+                .HasIndex(i => i.INNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentUnitReceiptNote>()
+                .HasIndex(i => i.URNNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentReceiptCorrection>()
+                .HasIndex(i => i.CorrectionNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentUnitDeliveryOrder>()
+                .HasIndex(i => i.UnitDONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentUnitExpenditureNote>()
+                .HasIndex(i => i.UENNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentCorrectionNote>()
+                .HasIndex(i => i.CorrectionNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
         }
     }
 }
