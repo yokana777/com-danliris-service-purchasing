@@ -837,6 +837,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     UomId = i.UomId,
                     UomUnit = i.UomUnit,
                     ReturQuantity = i.ReturQuantity,
+                    UnitDOItemId = i.UnitDOItemId,
 
                 }).ToList(),
                 CreatedAgent = m.CreatedAgent,
