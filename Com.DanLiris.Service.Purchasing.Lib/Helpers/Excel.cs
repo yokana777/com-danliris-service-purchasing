@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 {
                     sheet.Cells[cells].Merge = true;
                     sheet.Cells[cells].Style.HorizontalAlignment = (OfficeOpenXml.Style.ExcelHorizontalAlignment)hAlign;
-                    sheet.Cells[cells].Style.VerticalAlignment = (OfficeOpenXml.Style.ExcelVerticalAlignment)hAlign;
+                    sheet.Cells[cells].Style.VerticalAlignment = (OfficeOpenXml.Style.ExcelVerticalAlignment)vAlign;
                 }
                 sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
             }
