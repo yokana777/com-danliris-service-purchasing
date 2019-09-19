@@ -52,7 +52,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                         DistributionQuantity = poDistDetail.Quantity,
                                         Conversion = poDistDetail.Conversion,
                                         UomCCUnit = poDistDetail.UomCCUnit,
-                                        DONo = poDist.DONo
+                                        DONo = poDist.DONo,
+                                        SupplierName = poDist.SupplierName
                                     };
                         garmentPOMasterDistributions = Query.ToList();
                     }

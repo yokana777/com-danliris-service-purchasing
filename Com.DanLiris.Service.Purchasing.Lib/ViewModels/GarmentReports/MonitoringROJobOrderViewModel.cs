@@ -21,5 +21,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double Conversion { get; set; }
         public string UomCCUnit { get; set; }
         public string DONo { get; set; }
+        public string SupplierName { get; set; }
     }
 }
