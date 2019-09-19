@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -70,6 +71,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 
             IActionResult result = await controller.GetMonitoring(It.IsAny<long>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(result));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Excel_Monitoring()
+        {
+            var fileName = "filename";
+
+            var mockFacade = new Mock<IMonitoringROJobOrderFacade>();
+            mockFacade.Setup(s => s.GetExcel(It.IsAny<long>()))
+                .ReturnsAsync(new Tuple<MemoryStream, string>(new MemoryStream(), fileName));
+
+            var controller = GetController(mockFacade);
+            controller.ControllerContext.HttpContext.Request.Headers["accept"] = "application/xls";
+
+            FileContentResult result = await controller.GetMonitoring(It.IsAny<long>()) as FileContentResult;
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.ContentType);
+            Assert.Equal($"{fileName}.xlsx", result.FileDownloadName);
         }
 
         [Fact]

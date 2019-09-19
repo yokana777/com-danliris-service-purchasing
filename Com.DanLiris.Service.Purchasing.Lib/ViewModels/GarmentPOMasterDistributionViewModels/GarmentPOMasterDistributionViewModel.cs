@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
                 int itemsErrorsCount = 0;
                 string itemsErrors = "[";
 
+                var facade = (IGarmentPOMasterDistributionFacade)validationContext.GetService(typeof(IGarmentPOMasterDistributionFacade));
+                Dictionary<string, decimal> othersExistingQuantities = facade.GetOthersQuantity(this);
+                Dictionary<string, decimal> aboveNeighborsQuantities = new Dictionary<string, decimal>();
+
                 foreach (var item in Items)
                 {
                     itemsErrors += "{";
@@ -72,20 +77,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
                                     detailsErrors += "\"Conversion\": \"Harus lebih dari 0\", ";
                                 }
 
-                                if (detail.Quantity <= 0)
+                                decimal aboveNeighborsQuantity = aboveNeighborsQuantities.GetValueOrDefault(detail.POSerialNumber);
+                                decimal othersQuantity = aboveNeighborsQuantity + othersExistingQuantities.GetValueOrDefault(detail.POSerialNumber);
+
+                                if (detail.QuantityCC - othersQuantity <= 0)
+                                {
+                                    detailsErrorsCount++;
+                                    detailsErrors += $"\"Quantity\": \"Jumlah CC sudah tidak bisa dibagi\", ";
+                                }
+                                else if (detail.Quantity <= 0)
                                 {
                                     detailsErrorsCount++;
                                     detailsErrors += "\"Quantity\": \"Harus lebih dari 0\", ";
                                 }
-                                else
+                                else if (detail.Quantity > detail.QuantityCC - othersQuantity)
                                 {
-                                    //var defaultQuantity = decimal.Parse(((decimal)detail.Conversion * detail.QuantityCC).ToString("N2"));
-                                    ////var defaultQuantity = Math.Round((decimal)detail.Conversion * detail.QuantityCC, 2, MidpointRounding.AwayFromZero);
-                                    if (detail.Quantity > detail.QuantityCC)
-                                    {
-                                        detailsErrorsCount++;
-                                        detailsErrors += $"\"Quantity\": \"Tidak boleh lebih dari {detail.QuantityCC}\", ";
-                                    }
+                                    detailsErrorsCount++;
+                                    detailsErrors += $"\"Quantity\": \"Tidak boleh lebih dari {detail.QuantityCC - othersQuantity}\", ";
+                                }
+
+                                if (!aboveNeighborsQuantities.TryAdd(detail.POSerialNumber, detail.Quantity))
+                                {
+                                    aboveNeighborsQuantities[detail.POSerialNumber] += detail.Quantity;
                                 }
                             }
 

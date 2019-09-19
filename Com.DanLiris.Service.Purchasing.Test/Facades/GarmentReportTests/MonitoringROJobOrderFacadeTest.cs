@@ -196,5 +196,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             Assert.NotNull(e.Message);
         }
 
+        [Fact]
+        public async Task Should_Success_Get_Excel()
+        {
+            var mockServiceProvider = GetMockServiceProvider();
+
+            var dbContext = GetDbContext(GetCurrentMethod());
+
+            var garmentPOMasterDistributionFacade = new GarmentPOMasterDistributionFacade(mockServiceProvider.Object, dbContext);
+            var dataGarmentPOMasterDistribution = await dataUtil(garmentPOMasterDistributionFacade, dbContext).GetTestData();
+
+            var costCalculationGarmentDataUtil = new CostCalculationGarmentDataUtil();
+            var ccData = costCalculationGarmentDataUtil.GetNewData();
+            ccData.CostCalculationGarment_Materials.First().PO_SerialNumber = dataGarmentPOMasterDistribution.Items.First().Details.First().POSerialNumber;
+            var ccData2 = costCalculationGarmentDataUtil.GetNewData();
+            ccData.CostCalculationGarment_Materials.Add(ccData2.CostCalculationGarment_Materials.First());
+
+            var mockHttpClientService = GetMockHttpClientService();
+            mockHttpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("cost-calculation-garments"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(costCalculationGarmentDataUtil.GetResultFormatterOkString(ccData)) });
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClientService.Object);
+
+            var facade = new MonitoringROJobOrderFacade(mockServiceProvider.Object, dbContext);
+
+            var Response = await facade.GetExcel(dataGarmentPOMasterDistribution.Id);
+            Assert.NotNull(Response.Item2);
+        }
+
     }
 }
