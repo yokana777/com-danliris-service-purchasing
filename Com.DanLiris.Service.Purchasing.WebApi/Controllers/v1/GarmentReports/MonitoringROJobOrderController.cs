@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,6 +38,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                 identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+
+                if (Request.Headers["accept"] == "application/xls")
+                {
+                    Tuple<MemoryStream, string> xls = await facade.GetExcel(CostCalculationId);
+                    byte[] xlsInBytes = xls.Item1.ToArray();
+                    var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{xls.Item2}.xlsx");
+                    return file;
+                }
 
                 var result = await facade.GetMonitoring(CostCalculationId);
 
