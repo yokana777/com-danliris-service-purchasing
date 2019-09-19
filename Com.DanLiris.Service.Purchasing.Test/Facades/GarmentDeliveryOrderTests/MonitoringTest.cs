@@ -1,4 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
@@ -7,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -397,5 +400,96 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = facade.GenerateExcelDO("", "", 0, null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
+        // Buku Harian Pembelian
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Data()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtil(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
+            DateTime d1 = dataBC.BeacukaiDate.DateTime;
+            DateTime d2 = dataBC.BeacukaiDate.DateTime;
+
+            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.NotNull(Response.Item1);
+            Assert.NotEqual(0, Response.Item2);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Null_Parameter()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtil(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
+            DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
+            DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
+
+            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.NotNull(Response.Item1);
+            Assert.NotEqual(0, Response.Item2);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Excel()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtil(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
+            DateTime d1 = dataBC.BeacukaiDate.DateTime;
+            DateTime d2 = dataBC.BeacukaiDate.DateTime;
+
+            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Excel_Null_Parameter()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtil(facadeDO, GetCurrentMethod());
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
+            DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
+            DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
+
+            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
     }
 }

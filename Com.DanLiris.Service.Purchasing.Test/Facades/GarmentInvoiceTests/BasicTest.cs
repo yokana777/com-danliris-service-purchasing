@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
@@ -422,6 +423,67 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
             var Responses = await facade.Create(data, USERNAME);
             var Response = facade.ReadForInternNote(new List<long> { data.Id });
             Assert.NotEmpty(Response);
+        }
+
+        // Buku Harian Pembelian
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Data()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+
+            GarmentDailyPurchasingReportFacade DataInv = new GarmentDailyPurchasingReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            DateTime d1 = data.InvoiceDate.DateTime;
+            DateTime d2 = data.InvoiceDate.DateTime;
+
+            var Response = DataInv.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Null_Parameter()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+
+            GarmentDailyPurchasingReportFacade DataInv = new GarmentDailyPurchasingReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            DateTime d1 = data.InvoiceDate.DateTime.AddDays(30);
+            DateTime d2 = data.InvoiceDate.DateTime.AddDays(30);
+
+            var Response = DataInv.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Excel()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+
+            GarmentDailyPurchasingReportFacade DataInv = new GarmentDailyPurchasingReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            DateTime d1 = data.InvoiceDate.DateTime;
+            DateTime d2 = data.InvoiceDate.DateTime;
+
+            var Response = DataInv.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Excel_Null_Parameter()
+        {
+            var facade = new GarmentInvoiceFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+            GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
+
+            GarmentDailyPurchasingReportFacade DataInv = new GarmentDailyPurchasingReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            DateTime d1 = data.InvoiceDate.DateTime.AddDays(30);
+            DateTime d2 = data.InvoiceDate.DateTime.AddDays(30);
+
+            var Response = DataInv.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
     }
 }
