@@ -56,6 +56,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpend
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -142,6 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IMonitoringCentralBillExpenditureFacade, MonitoringCentralBillExpenditureFacade>()
                 .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
                 .AddTransient<IMonitoringCorrectionNoteExpenditureFacade, MonitoringCorrectionNoteExpenditureFacade>()
+                .AddTransient<IGarmentDailyPurchasingReportFacade, GarmentDailyPurchasingReportFacade>()
                 .AddTransient<IGarmentReceiptCorrectionFacade, GarmentReceiptCorrectionFacade>()
                 .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>()
                 .AddTransient<IMonitoringROJobOrderFacade, MonitoringROJobOrderFacade>()
