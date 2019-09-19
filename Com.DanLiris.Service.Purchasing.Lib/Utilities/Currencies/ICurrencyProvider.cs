@@ -8,5 +8,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
     public interface ICurrencyProvider
     {
         Task<Currency> GetCurrencyByCurrencyCode(string currencyCode);
+        Task<List<Currency>> GetCurrencyByCurrencyCodeList(List<string> currencyCodeList);
     }
 }

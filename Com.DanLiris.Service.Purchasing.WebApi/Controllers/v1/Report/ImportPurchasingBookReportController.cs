@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -14,26 +15,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
     public class ImportPurchasingBookReportController : Controller
     {
         private string ApiVersion = "1.0.0";
-        private readonly ImportPurchasingBookReportFacade importPurchasingBookReportFacade;
+        private readonly IImportPurchasingBookReportFacade importPurchasingBookReportFacade;
 
-        public ImportPurchasingBookReportController(ImportPurchasingBookReportFacade importPurchasingBookReportFacade)
+        public ImportPurchasingBookReportController(IImportPurchasingBookReportFacade importPurchasingBookReportFacade)
         {
             this.importPurchasingBookReportFacade = importPurchasingBookReportFacade;
         }
 
         [HttpGet]
-        public IActionResult Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
             try
             {
-                var data = importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
-                    data = data.Item1,
-                    info = new { total = data.Item2 },
+                    data = data,
+                    info = new { total = data.Reports.Count },
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
 
@@ -48,33 +49,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             }
         }
 
-		[HttpGet("download")]
-		public IActionResult GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
-		{
-			try
-			{
-				byte[] xlsInBytes;
+        [HttpGet("download")]
+        public async Task<IActionResult> GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        {
+            try
+            {
+                byte[] xlsInBytes;
 
-				var xls = importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
+                var xls = await importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
 
-				string filename = "Laporan Buku Pembelian Impor";
+                string filename = "Laporan Buku Pembelian Impor";
 
-				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
 
-				if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
-				filename += ".xlsx";
+                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
 
-				xlsInBytes = xls.ToArray();
-				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
-				return file;
-			}
-			catch (Exception e)
-			{
-				Dictionary<string, object> Result =
-					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-					.Fail();
-				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-			}
-		}
-	}
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+    }
 }

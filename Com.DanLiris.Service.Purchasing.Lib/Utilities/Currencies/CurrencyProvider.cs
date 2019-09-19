@@ -47,5 +47,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
             return currencyResult.data;
         }
+
+        public async Task<List<Currency>> GetCurrencyByCurrencyCodeList(List<string> currencyCodeList)
+        {
+            var tasks = currencyCodeList.Select(s => GetCurrencyByCurrencyCode(s));
+
+            var result = await Task.WhenAll(tasks);
+
+            return result.ToList();
+        }
     }
 }

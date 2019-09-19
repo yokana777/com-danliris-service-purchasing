@@ -107,8 +107,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
-                .AddTransient<ImportPurchasingBookReportFacade>()
-                .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<MonitoringPriceFacade>()
@@ -148,6 +146,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>()
                 .AddTransient<IMonitoringROJobOrderFacade, MonitoringROJobOrderFacade>()
                 .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>()
+                .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
+                .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
                 .AddTransient<ICurrencyProvider, CurrencyProvider>();
 
         }

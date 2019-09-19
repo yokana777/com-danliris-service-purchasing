@@ -5,16 +5,48 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
 {
-    public class LocalPurchasingBookReportViewModel : BaseViewModel
+    public class LocalPurchasingBookReportViewModel
     {
-        public DateTimeOffset receiptDate { get; set; }
-        public string uRNNo { get; set; }
-        public string productName { get; set; }
-        public string invoiceNo { get; set; }
-        public string categoryName { get; set; }
-        public string unitName { get; set; }
-        public decimal dpp { get; set; }
-        public decimal ppn { get; set; }
-        public bool useVat { get; set; }
+        public LocalPurchasingBookReportViewModel()
+        {
+            Reports = new List<PurchasingReport>();
+            CategorySummaries = new List<Summary>();
+            CurrencySummaries = new List<Summary>();
+        }
+        public List<PurchasingReport> Reports { get; set; }
+        public List<Summary> CategorySummaries { get; set; }
+        public List<Summary> CurrencySummaries { get; set; }
+        public decimal GrandTotal { get; set; }
+        public decimal CategorySummaryTotal { get; set; }
+    }
+
+    public class Summary
+    {
+        public string Category { get; set; }
+        public string CurrencyCode { get; set; }
+        public decimal SubTotal { get; set; }
+    }
+
+    public class PurchasingReport
+    {
+        public DateTimeOffset ReceiptDate { get; set; }
+        public string URNNo { get; set; }
+        public string ProductName { get; set; }
+        public string InvoiceNo { get; set; }
+        public string CategoryName { get; set; }
+        public string UnitName { get; set; }
+        public decimal DPP { get; set; }
+        public decimal DPPCurrency { get; set; }
+        public decimal VAT { get; set; }
+        public decimal CurrencyRate { get; set; }
+        public decimal Total { get; set; }
+        public bool IsUseVat { get; set; }
+        public string SupplierName { get; set; }
+        public string IPONo { get; set; }
+        public string DONo { get; set; }
+        public string UPONo { get; set; }
+        public string CurrencyCode { get; set; }
+        public string CategoryCode { get; set; }
+        public string VATNo { get; set; }
     }
 }
