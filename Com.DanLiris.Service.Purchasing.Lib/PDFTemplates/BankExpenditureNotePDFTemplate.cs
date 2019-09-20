@@ -20,7 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            Document document = new Document(PageSize.A5.Rotate(), MARGIN, MARGIN, MARGIN, MARGIN);
+            Document document = new Document(PageSize.A4, MARGIN, MARGIN, MARGIN, MARGIN);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cellHeaderBody.Phrase = new Phrase("Tanggal", normal_font);
             headerTable2.AddCell(cellHeaderBody);
-            cellHeaderBody.Phrase = new Phrase(": " + model.CreatedUtc.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy"), normal_font);
+            cellHeaderBody.Phrase = new Phrase(": " + model.Date.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy"), normal_font);
             headerTable2.AddCell(cellHeaderBody);
 
             cellHeaderBody.Phrase = new Phrase("NO", normal_font);
