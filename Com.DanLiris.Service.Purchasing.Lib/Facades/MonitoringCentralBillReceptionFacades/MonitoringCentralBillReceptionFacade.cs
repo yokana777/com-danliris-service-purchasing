@@ -153,9 +153,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                          //External PO
                          join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
                          //Internal PO
-                         join f in dbContext.GarmentInternalPurchaseOrderItems on c.POId equals f.Id
-                         join g in dbContext.GarmentInternalPurchaseOrders on f.GPOId equals g.Id 
+                         join f in dbContext.GarmentInternalPurchaseOrderItems on c.POItemId equals f.Id
+                         join g in dbContext.GarmentInternalPurchaseOrders on f.GPOId equals g.Id
                          //Invoice
+                         join p in dbContext.GarmentInvoiceDetails on c.Id equals p.DODetailId into nn
+                         from DInv in nn.DefaultIfEmpty()
                          join h in dbContext.GarmentInvoiceItems on a.Id equals h.DeliveryOrderId into hh
                          from Inv in hh.DefaultIfEmpty()
                          join j in dbContext.GarmentInvoices on Inv.InvoiceId equals j.Id into jj
@@ -172,9 +174,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                          a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false
                          && f.IsDeleted == false && g.IsDeleted == false && Inv.IsDeleted == false && HInv.IsDeleted == false 
                          && NI.IsDeleted == false && URN.IsDeleted == false && IURN.IsDeleted == false
-
+                         && URN.URNType == "PEMBELIAN" && d.BeacukaiNo.Substring(0, 4) != "BCDL"
                          && ((d1 != new DateTime(1970, 1, 1)) ? (d.BeacukaiDate >= d1 && d.BeacukaiDate <= d2) : true)
-                         
+                         //
                          select new SelectedId
                          {
                              BillDate = d.BeacukaiDate,
