@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                 dateTo = DateTimeOffset.UtcNow;
 
             if (dateFrom == null)
-                dateFrom = dateTo.GetValueOrDefault().AddDays(-30);
+                dateFrom = DateTimeOffset.MinValue;
 
             try
             {
