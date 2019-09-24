@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("all/download")]
-        public async Task<IActionResult> GetXls(string unitId, string categoryId, string divisionId, string budgetId, string createdBy, string status, DateTimeOffset? startDate, DateTimeOffset? endDate, string supplierId, long prId = 0, long poExtId = 0)
+        public async Task<IActionResult> GetXls(string unitId, string categoryId, string divisionId, string budgetId, string createdBy, string status, DateTime? startDate, DateTime? endDate, string supplierId, long prId = 0, long poExtId = 0)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
                 byte[] xlsInBytes;
 
-                var xls = await _service.GenerateExcel(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value, endDate.Value, poExtId, supplierId, timezoneOffset);
+                var xls = await _service.GenerateExcel(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value.ToUniversalTime(), endDate.Value.ToUniversalTime(), poExtId, supplierId, timezoneOffset);
 
                 string filename = $"Laporan Purchase All {startDate.Value.ToString("dd-MM-yyyy")}_{endDate.Value.ToString("dd-MM-yyyy")}";
                 filename += ".xlsx";
