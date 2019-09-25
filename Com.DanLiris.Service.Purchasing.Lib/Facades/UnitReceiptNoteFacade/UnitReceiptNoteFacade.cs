@@ -494,7 +494,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     Code = s.Key
                 },
-                Debit = s.Sum(sum => sum.Debit),
+                Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
                 Credit = 0,
                 Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
             }).ToList();
@@ -507,7 +507,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     Code = s.Key
                 },
                 Debit = 0,
-                Credit = s.Sum(sum => sum.Credit),
+                Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
                 Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
             }).ToList();
             journalTransactionToPost.Items.AddRange(journalCreditItems);
