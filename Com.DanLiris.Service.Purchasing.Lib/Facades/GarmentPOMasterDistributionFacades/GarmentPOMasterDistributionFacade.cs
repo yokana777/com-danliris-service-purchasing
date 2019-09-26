@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionViewModels;
 using Com.Moonlay.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -226,6 +227,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributio
             }
 
             return Deleted;
+        }
+
+        public Dictionary<string, decimal> GetOthersQuantity(GarmentPOMasterDistributionViewModel viewModel)
+        {
+            var poSerialNumbers = viewModel.Items.SelectMany(i => i.Details.Where(w => !string.IsNullOrWhiteSpace(w.POSerialNumber)).Select(d => d.POSerialNumber)).ToHashSet();
+            var id = viewModel.Id;
+            var quantities = from p in dbSet
+                             join i in dbContext.GarmentPOMasterDistributionItems on p.Id equals i.POMasterDistributionId
+                             join d in dbContext.GarmentPOMasterDistributionDetails on i.Id equals d.POMasterDistributionItemId
+                             where p.Id != id && poSerialNumbers.Contains(d.POSerialNumber)
+                             select new { d.POSerialNumber, d.Quantity };
+
+            return quantities.ToList().GroupBy(g => g.POSerialNumber).ToDictionary(k => k.Key, k => k.Sum(s => s.Quantity));
         }
     }
 }

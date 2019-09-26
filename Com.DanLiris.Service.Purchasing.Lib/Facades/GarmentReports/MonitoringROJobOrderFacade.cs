@@ -5,8 +5,11 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.CostCalculationGarment;
 using Newtonsoft.Json;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,16 +29,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbContext = dbContext;
         }
 
-        public async Task<List<MonitoringROJobOrderViewModel>> GetMonitoring(long costCalculationId)
-        {
+        private async Task<Tuple<List<MonitoringROJobOrderViewModel>, CostCalculationGarmentViewModel>> GetData(long costCalculationId) {
 
             CostCalculationGarmentViewModel costCalculationGarmentViewModel = await GetCostCalculation(costCalculationId);
-            if (costCalculationGarmentViewModel.CostCalculationGarment_Materials != null)
+
+            if (costCalculationGarmentViewModel.CostCalculationGarment_Materials != null && costCalculationGarmentViewModel.CostCalculationGarment_Materials.Count() > 0)
             {
                 HashSet<long> productIds = costCalculationGarmentViewModel.CostCalculationGarment_Materials.Select(m => m.Product.Id).ToHashSet();
                 Dictionary<long, string> productNames = await GetProducts(productIds);
 
-                return costCalculationGarmentViewModel.CostCalculationGarment_Materials.Select(m =>
+                var result = costCalculationGarmentViewModel.CostCalculationGarment_Materials.Select(m =>
                 {
                     List<MonitoringROJobOrderItemViewModel> garmentPOMasterDistributions = new List<MonitoringROJobOrderItemViewModel>();
                     if (m.IsPRMaster.GetValueOrDefault())
@@ -52,7 +55,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                         DistributionQuantity = poDistDetail.Quantity,
                                         Conversion = poDistDetail.Conversion,
                                         UomCCUnit = poDistDetail.UomCCUnit,
-                                        DONo = poDist.DONo
+                                        DONo = poDist.DONo,
+                                        SupplierName = poDist.SupplierName
                                     };
                         garmentPOMasterDistributions = Query.ToList();
                     }
@@ -68,8 +72,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         Items = garmentPOMasterDistributions
                     };
                 }).ToList();
+
+                return new Tuple<List<MonitoringROJobOrderViewModel>, CostCalculationGarmentViewModel>(result, costCalculationGarmentViewModel);
             }
+
             throw new Exception("Tidak ada Product");
+        }
+
+        public async Task<List<MonitoringROJobOrderViewModel>> GetMonitoring(long costCalculationId)
+        {
+            var data = await GetData(costCalculationId);
+            return data.Item1;
+        }
+
+        public async Task<Tuple<MemoryStream, string>> GetExcel(long costCalculationId)
+        {
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "PO Serial Number", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Budget Quantity", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RO Master", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PO Master", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pembagian PO", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            var data = await GetData(costCalculationId);
+
+            int rowPosition = 2;
+
+            foreach (var d in data.Item1)
+            {
+                if (d.Items != null && d.Items.Count() > 0)
+                {
+                    var firstMergedRowPosition = rowPosition;
+                    var lastMergedRowPosition = rowPosition;
+                    foreach (var i in d.Items)
+                    {
+                        result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, i.ROMaster, i.POMaster, i.DistributionQuantity, i.UomCCUnit, i.DONo, i.SupplierName);
+                        lastMergedRowPosition = rowPosition++;
+                    }
+                    foreach (var col in new[] { "A", "B", "C", "D", "E", "F" })
+                    {
+                        mergeCells.Add(($"{col}{firstMergedRowPosition}:{col}{lastMergedRowPosition}", col == "D" ? ExcelHorizontalAlignment.Right : ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                    }
+                }
+                else
+                {
+                    result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, "", "", null, "", "", "");
+                    rowPosition++;
+                }
+            }
+
+            var xls = Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "RO Job Order", mergeCells) }, false);
+            return new Tuple<MemoryStream, string>(xls, $"Monitoring RO Job Order - {data.Item2.RO_Number}");
         }
 
         private async Task<CostCalculationGarmentViewModel> GetCostCalculation(long costCalculationId)
@@ -113,5 +175,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
     public interface IMonitoringROJobOrderFacade
     {
         Task<List<MonitoringROJobOrderViewModel>> GetMonitoring(long costCalculationId);
+        Task<Tuple<MemoryStream, string>> GetExcel(long costCalculationId);
     }
 }
