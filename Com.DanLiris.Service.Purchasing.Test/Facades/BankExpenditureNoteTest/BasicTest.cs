@@ -13,6 +13,7 @@ using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -101,7 +102,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             _dataUtil(facade, GetCurrentMethod());
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
 
-            var Response = facade.GetAllByPosition(1, 25, "{}", null, "{}");
+            var filter = new
+            {
+                model.Currency
+            };
+            var filterJson = JsonConvert.SerializeObject(filter);
+
+            var Response = facade.GetAllByPosition(1, 25, "{}", model.UnitPaymentOrderNo, filterJson);
             Assert.NotEqual(Response.Data.Count, 0);
         }
 
