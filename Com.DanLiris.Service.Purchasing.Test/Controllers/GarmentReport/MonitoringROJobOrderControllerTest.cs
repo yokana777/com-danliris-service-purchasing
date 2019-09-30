@@ -13,7 +13,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
+namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 {
     public class MonitoringROJobOrderControllerTest
     {
