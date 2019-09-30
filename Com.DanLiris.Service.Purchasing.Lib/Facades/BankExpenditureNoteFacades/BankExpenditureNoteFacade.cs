@@ -404,55 +404,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         public ReadResponse<object> GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
         {
-            IQueryable<PurchasingDocumentExpedition> Query = dbContext.PurchasingDocumentExpeditions;
+            IQueryable<PurchasingDocumentExpedition> query = dbContext.PurchasingDocumentExpeditions;
 
-            Query = Query
-                .Select(s => new PurchasingDocumentExpedition
-                {
-                    Id = s.Id,
-                    UnitPaymentOrderNo = s.UnitPaymentOrderNo,
-                    UPODate = s.UPODate,
-                    DueDate = s.DueDate,
-                    InvoiceNo = s.InvoiceNo,
-                    SupplierCode = s.SupplierCode,
-                    SupplierName = s.SupplierName,
-                    CategoryCode = s.CategoryCode,
-                    CategoryName = s.CategoryName,
-                    DivisionCode = s.DivisionCode,
-                    DivisionName = s.DivisionName,
-                    TotalPaid = s.TotalPaid,
-                    Currency = s.Currency,
-                    Position = s.Position,
-                    VerifyDate = s.VerifyDate,
-                    IncomeTax = s.IncomeTax,
-                    Vat = s.Vat,
-                    IsPaid = s.IsPaid,
-                    PaymentMethod = s.PaymentMethod,
-                    Items = s.Items.Where(w => w.PurchasingDocumentExpeditionId == s.Id).ToList(),
-                    LastModifiedUtc = s.LastModifiedUtc
-                });
+            query = query.Include(i => i.Items);
 
-            List<string> searchAttributes = new List<string>()
+            if (!string.IsNullOrWhiteSpace(Keyword))
             {
-                "UnitPaymentOrderNo", "SupplierName", "DivisionName", "SupplierCode", "InvoiceNo"
-            };
+                List<string> searchAttributes = new List<string>()
+                {
+                    "UnitPaymentOrderNo", "SupplierName", "DivisionName", "SupplierCode", "InvoiceNo"
+                };
 
-            Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(Query, searchAttributes, Keyword);
+                query = QueryHelper<PurchasingDocumentExpedition>.ConfigureSearch(query, searchAttributes, Keyword);
+            }
 
             if (Filter.Contains("verificationFilter"))
             {
                 Filter = "{}";
                 List<ExpeditionPosition> positions = new List<ExpeditionPosition> { ExpeditionPosition.SEND_TO_PURCHASING_DIVISION, ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION, ExpeditionPosition.SEND_TO_CASHIER_DIVISION };
-                Query = Query.Where(p => positions.Contains(p.Position));
+                query = query.Where(p => positions.Contains(p.Position));
             }
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureFilter(Query, FilterDictionary);
+            query = QueryHelper<PurchasingDocumentExpedition>.ConfigureFilter(query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<PurchasingDocumentExpedition>.ConfigureOrder(Query, OrderDictionary);
+            query = QueryHelper<PurchasingDocumentExpedition>.ConfigureOrder(query, OrderDictionary);
 
-            Pageable<PurchasingDocumentExpedition> pageable = new Pageable<PurchasingDocumentExpedition>(Query, Page - 1, Size);
+            Pageable<PurchasingDocumentExpedition> pageable = new Pageable<PurchasingDocumentExpedition>(query, Page - 1, Size);
             List<PurchasingDocumentExpedition> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
 
@@ -676,7 +655,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         public List<ExpenditureInfo> GetByPeriod(int month, int year, int timeoffset)
         {
-            if(month == 0 && year == 0)
+            if (month == 0 && year == 0)
             {
                 return dbSet.Select(s => new ExpenditureInfo() { DocumentNo = s.DocumentNo, BankName = s.BankName, BGCheckNumber = s.BGCheckNumber }).ToList();
             }
@@ -684,7 +663,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 return dbSet.Where(w => w.Date.AddHours(timeoffset).Month.Equals(month) && w.Date.AddHours(timeoffset).Year.Equals(year)).Select(s => new ExpenditureInfo() { DocumentNo = s.DocumentNo, BankName = s.BankName, BGCheckNumber = s.BGCheckNumber }).ToList();
             }
-            
+
         }
     }
 

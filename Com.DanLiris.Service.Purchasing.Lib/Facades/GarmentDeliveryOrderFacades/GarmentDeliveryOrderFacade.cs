@@ -672,6 +672,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     IncomeTaxName = m.IncomeTaxName,
                     IncomeTaxRate = m.IncomeTaxRate,
                     LastModifiedUtc = m.LastModifiedUtc,
+                    DODate=m.DODate,
                     Items = m.Items.Select(i => new GarmentDeliveryOrderItem
                     {
                         Id = i.Id,
@@ -706,6 +707,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     s.useVat,
                     s.incomeTax,
                     s.LastModifiedUtc,
+                    s.doDate,
                     items = s.items.Select(i => new
                     {
                         i.Id,
