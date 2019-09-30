@@ -338,10 +338,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             };
         }
 
-        public async Task<GarmentExternalPurchaseOrder> GetDataForDo2()
+        public async Task<GarmentExternalPurchaseOrder> GetDataForDo2(List<GarmentInternalPurchaseOrder> garmentInternalPurchaseOrders = null)
         {
-            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags());
-            return new GarmentExternalPurchaseOrder
+            var datas = await Task.Run(() => garmentPurchaseOrderDataUtil.GetTestDataByTags(garmentInternalPurchaseOrders));
+            var epo = new GarmentExternalPurchaseOrder
             {
                 SupplierId = 1,
                 SupplierCode = "Supplier1",
@@ -377,15 +377,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                 Remark = "Remark1",
 
-                Items = new List<GarmentExternalPurchaseOrderItem>
+                Items = new List<GarmentExternalPurchaseOrderItem>()
+            };
+
+            foreach (var data in datas)
+            {
+                foreach (var item in data.Items)
                 {
-                    new GarmentExternalPurchaseOrderItem
+                    epo.Items.Add(new GarmentExternalPurchaseOrderItem
                     {
-                        PO_SerialNumber = "PO_SerialNumber1",
-                        POId=(int)datas[0].Id,
-                        PONo=datas[0].PONo,
-                        PRNo=datas[0].PRNo,
-                        PRId=1,
+                        PO_SerialNumber = item.PO_SerialNumber ?? "PO_SerialNumber1",
+                        POId = (int)data.Id,
+                        PONo = data.PONo,
+                        PRNo = data.PRNo,
+                        PRId = 1,
                         ProductId = 1,
                         ProductCode = "ProductCode1",
                         ProductName = "ProductName1",
@@ -396,28 +401,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         DealUomId = 1,
                         DealUomUnit = "UomUnit1",
 
-                        DefaultQuantity=5,
-                        DefaultUomId=1,
-                        DefaultUomUnit="unit1",
+                        DefaultQuantity = 5,
+                        DefaultUomId = 1,
+                        DefaultUomUnit = "unit1",
 
-                        UsedBudget=1,
+                        UsedBudget = 1,
 
-                        PricePerDealUnit=1,
-                        Conversion=1,
-                        RONo=datas[0].RONo,
+                        PricePerDealUnit = 1,
+                        Conversion = 1,
+                        RONo = data.RONo,
 
                         Remark = "ProductRemark",
-                        IsOverBudget=true,
-                        OverBudgetRemark="TestRemarkOB",
+                        IsOverBudget = true,
+                        OverBudgetRemark = "TestRemarkOB",
 
                         ReceiptQuantity = 0,
                         DOQuantity = 0,
 
                         SmallUomId = 1,
                         SmallUomUnit = "UomUnit1",
-                    }
+                    });
                 }
-            };
+            }
+            return epo;
         }
 
         public async Task<GarmentExternalPurchaseOrder> GetTestDataFabric()
@@ -447,9 +453,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             await facade.Create(data, "Unit Test");
             return data;
         }
-        public async Task<GarmentExternalPurchaseOrder> GetTestDataForDo2()
+        public async Task<GarmentExternalPurchaseOrder> GetTestDataForDo2(GarmentExternalPurchaseOrder data = null)
         {
-            var data = await GetDataForDo2();
+            data = data ?? await GetDataForDo2();
             await facade.Create(data, "Unit Test");
             return data;
         }

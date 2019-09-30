@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchase
             this.garmentPurchaseRequestDataUtil = garmentPurchaseRequestDataUtil;
         }
 
-        public async Task<List<GarmentInternalPurchaseOrder>> GetNewData()
+        public async Task<List<GarmentInternalPurchaseOrder>> GetNewData(GarmentPurchaseRequest garmentPurchaseRequest = null)
         {
-            return await Task.Run(() => garmentPurchaseRequestDataUtil.GetTestDataByTags());
+            return await Task.Run(() => garmentPurchaseRequestDataUtil.GetTestDataByTags(garmentPurchaseRequest));
         }
 
         public async Task<List<GarmentInternalPurchaseOrder>> GetTestData()
@@ -31,10 +32,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchase
             return data;
         }
 
-        public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags()
+        public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags(List<GarmentInternalPurchaseOrder> data = null)
         {
-            var testData = await GetTestData();
-            var data = await GetNewData();
+            //var testData = await GetTestData();
+            data = data ?? await GetNewData();
             await facade.CreateMultiple(data, "Unit Test");
             return facade.ReadByTags("accessories", null, DateTimeOffset.MinValue, DateTimeOffset.MinValue, "Unit Test");
         }

@@ -10,12 +10,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 {
-    public class MonitoringROJobOrderControllerTest
+    public class MonitoringROMasterControllerTest
     {
         private Mock<IServiceProvider> GetMockServiceProvider()
         {
@@ -27,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             return serviceProvider;
         }
 
-        private MonitoringROJobOrderController GetController(Mock<IMonitoringROJobOrderFacade> mockFacade)
+        private MonitoringROMasterController GetController(Mock<IMonitoringROMasterFacade> mockFacade)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -39,9 +40,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             var mockServiceProvider = GetMockServiceProvider();
 
             if (mockFacade != null)
-                mockServiceProvider.Setup(x => x.GetService(typeof(IMonitoringROJobOrderFacade))).Returns(mockFacade.Object);
+                mockServiceProvider.Setup(x => x.GetService(typeof(IMonitoringROMasterFacade))).Returns(mockFacade.Object);
 
-            MonitoringROJobOrderController controller = new MonitoringROJobOrderController(mockServiceProvider.Object)
+            MonitoringROMasterController controller = new MonitoringROMasterController(mockServiceProvider.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -61,45 +62,45 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         }
 
         [Fact]
-        public async Task Should_Success_Get_Monitoring()
+        public void Should_Success_Get_Monitoring()
         {
-            var mockFacade = new Mock<IMonitoringROJobOrderFacade>();
+            var mockFacade = new Mock<IMonitoringROMasterFacade>();
             mockFacade.Setup(s => s.GetMonitoring(It.IsAny<long>()))
-                .ReturnsAsync(new List<MonitoringROJobOrderViewModel>());
+                .Returns(new List<MonitoringROMasterViewModel>());
 
             var controller = GetController(mockFacade);
 
-            IActionResult result = await controller.GetMonitoring(It.IsAny<long>());
+            IActionResult result = controller.GetMonitoring(It.IsAny<long>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(result));
         }
 
         [Fact]
-        public async Task Should_Success_Get_Excel_Monitoring()
+        public void Should_Success_Get_Excel_Monitoring()
         {
             var fileName = "filename";
 
-            var mockFacade = new Mock<IMonitoringROJobOrderFacade>();
+            var mockFacade = new Mock<IMonitoringROMasterFacade>();
             mockFacade.Setup(s => s.GetExcel(It.IsAny<long>()))
-                .ReturnsAsync(new Tuple<MemoryStream, string>(new MemoryStream(), fileName));
+                .Returns(new Tuple<MemoryStream, string>(new MemoryStream(), fileName));
 
             var controller = GetController(mockFacade);
             controller.ControllerContext.HttpContext.Request.Headers["accept"] = "application/xls";
 
-            FileContentResult result = await controller.GetMonitoring(It.IsAny<long>()) as FileContentResult;
+            FileContentResult result = controller.GetMonitoring(It.IsAny<long>()) as FileContentResult;
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.ContentType);
             Assert.Equal($"{fileName}.xlsx", result.FileDownloadName);
         }
 
         [Fact]
-        public async Task Should_Error_Get_Monitoring()
+        public void Should_Error_Get_Monitoring()
         {
-            var mockFacade = new Mock<IMonitoringROJobOrderFacade>();
+            var mockFacade = new Mock<IMonitoringROMasterFacade>();
             mockFacade.Setup(s => s.GetMonitoring(It.IsAny<long>()))
-                .ThrowsAsync(new Exception(string.Empty));
+                .Throws(new Exception(string.Empty));
 
             var controller = GetController(mockFacade);
 
-            IActionResult result = await controller.GetMonitoring(It.IsAny<long>());
+            IActionResult result = controller.GetMonitoring(It.IsAny<long>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(result));
         }
     }

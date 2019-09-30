@@ -184,16 +184,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
             };
         }
 
-        public async Task<GarmentPurchaseRequest> GetTestData()
+        public async Task<GarmentPurchaseRequest> GetTestData(GarmentPurchaseRequest data = null)
         {
-            var data = GetNewData();
+            data = data ?? GetNewData();
             await facade.Create(data, "Unit Test");
             return data;
         }
 
-        public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags()
+        public async Task<List<GarmentInternalPurchaseOrder>> GetTestDataByTags(GarmentPurchaseRequest garmentPurchaseRequest = null)
         {
-            var testData = await GetTestData();
+            var testData = await GetTestData(garmentPurchaseRequest);
             return facade.ReadByTags($"#{testData.UnitName}#{testData.BuyerName}", DateTimeOffset.MinValue, DateTimeOffset.MinValue);
         }
 
