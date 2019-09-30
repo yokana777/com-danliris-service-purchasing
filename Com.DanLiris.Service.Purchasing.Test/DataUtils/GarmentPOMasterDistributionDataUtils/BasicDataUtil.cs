@@ -20,9 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPOMasterDistribu
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public async Task<GarmentPOMasterDistribution> GetNewData()
+        public async Task<GarmentPOMasterDistribution> GetNewData(GarmentDeliveryOrder garmentDeliveryOrder = null)
         {
-            GarmentDeliveryOrder garmentDeliveryOrder = await garmentDeliveryOrderDataUtil.GetTestData4();
+            garmentDeliveryOrder = await garmentDeliveryOrderDataUtil.GetTestData4(garmentDeliveryOrder);
             return new GarmentPOMasterDistribution
             {
                 DOId = garmentDeliveryOrder.Id,
@@ -140,9 +140,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPOMasterDistribu
             };
         }
 
-        public async Task<GarmentPOMasterDistribution> GetTestData()
+        public async Task<GarmentPOMasterDistribution> GetTestData(GarmentPOMasterDistribution data = null)
         {
-            var data = await GetNewData();
+            data = data ?? await GetNewData();
             await facade.Create(data);
             return data;
         }
