@@ -1032,7 +1032,81 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 			return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 		}
 
-		
-		#endregion
-	}
+
+        #endregion
+
+        public List<GarmentExternalPurchaseOrder> ReadItemFor(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo",
+            };
+
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+
+            Query = Query
+                .Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && ((m.IsOverBudget == true && m.IsApproved == true) || m.IsOverBudget == false))
+                .Select(s => new GarmentExternalPurchaseOrder
+                {
+                    Id = s.Id,
+                    UId = s.UId,
+                    EPONo = s.EPONo,
+                    OrderDate = s.OrderDate,
+                    DeliveryDate = s.DeliveryDate,
+                    SupplierName = s.SupplierName,
+                    SupplierId = s.SupplierId,
+                    SupplierCode = s.SupplierCode,
+                    SupplierImport = s.SupplierImport,
+                    CurrencyId = s.CurrencyId,
+                    CurrencyCode = s.CurrencyCode,
+                    PaymentMethod = s.PaymentMethod,
+                    PaymentType = s.PaymentType,
+                    PaymentDueDays = s.PaymentDueDays,
+                    IncomeTaxId = s.IncomeTaxId,
+                    IncomeTaxName = s.IncomeTaxName,
+                    IncomeTaxRate = s.IncomeTaxRate,
+                    IsUseVat = s.IsUseVat,
+                    IsIncomeTax = s.IsIncomeTax,
+                    IsClosed = s.IsClosed,
+                    CreatedBy = s.CreatedBy,
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    Items = s.Items.Select(i => new GarmentExternalPurchaseOrderItem
+                    {
+                        Id = i.Id,
+                        POId = i.POId,
+                        PONo = i.PONo,
+                        RONo = i.RONo,
+                        PRId = i.PRId,
+                        PRNo = i.PRNo,
+                        ProductCode = i.ProductCode,
+                        ProductId = i.ProductId,
+                        ProductName = i.ProductName,
+                        PO_SerialNumber = i.PO_SerialNumber,
+                        DefaultQuantity = i.DefaultQuantity,
+                        DefaultUomId = i.DefaultUomId,
+                        DefaultUomUnit = i.DefaultUomUnit,
+                        DealQuantity = i.DealQuantity,
+                        DealUomId = i.DealUomId,
+                        DealUomUnit = i.DealUomUnit,
+                        DOQuantity = i.DOQuantity,
+                        PricePerDealUnit = i.PricePerDealUnit,
+                        BudgetPrice = i.BudgetPrice,
+                        Conversion = i.Conversion,
+                        SmallQuantity = i.SmallQuantity,
+                        SmallUomId = i.SmallUomId,
+                        SmallUomUnit = i.SmallUomUnit,
+                    })
+                    .Where(i => (i.DealQuantity - i.DOQuantity) > 0)
+                    .ToList()
+                })
+                .Where(m => m.Items.Count > 0);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            return Query.ToList();
+        }
+    }
 }
