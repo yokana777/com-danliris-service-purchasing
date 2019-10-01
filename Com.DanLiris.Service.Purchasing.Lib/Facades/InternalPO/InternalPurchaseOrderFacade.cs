@@ -971,8 +971,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             {
                 try
                 {
-                    var m = this.dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
-                        .Single(pr => pr.Id == id);
+                    var m = this.dbContext.InternalPurchaseOrderFulfillments.AsNoTracking().Single(pr => pr.Id == id);
 
                     if (m != null)
                     {

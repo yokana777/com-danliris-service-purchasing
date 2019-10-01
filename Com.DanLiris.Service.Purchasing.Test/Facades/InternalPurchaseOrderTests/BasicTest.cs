@@ -93,6 +93,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         }
 
         [Fact]
+        public async Task Should_Fail_Create_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            //model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.CreateFulfillment(model, "Unit Test"));
+            //Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Fulfillment_Data()
         {
             InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
@@ -102,6 +113,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var created = await Facade.CreateFulfillment(model, "Unit Test");
             var Response = await Facade.UpdateFulfillment((int)created, model, "Unit Test");
             Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Fail_Update_Fulfillment_Data_NotFound()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            //var created = await Facade.CreateFulfillment(model, "Unit Test");
+            //var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillment((int)model.Id, model, "Unit Test"));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Update_Fulfillment_Data_Exception()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            //var created = await Facade.CreateFulfillment(model, "Unit Test");
+            var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
+            model.POItemId = 0;
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillment((int)model.Id, model, "Unit Test"));
         }
     }
 }
