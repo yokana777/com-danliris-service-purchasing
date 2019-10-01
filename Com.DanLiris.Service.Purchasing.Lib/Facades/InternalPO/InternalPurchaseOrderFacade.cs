@@ -1001,5 +1001,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             return Updated;
         }
+
+        public int DeleteFulfillment(int id, string user)
+        {
+            int Deleted = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbContext.InternalPurchaseOrderFulfillments
+                        .Include(d => d.Corrections)
+                        .SingleOrDefault(pr => pr.Id == id);
+                    EntityExtension.FlagForDelete(m, user, "Facade");
+
+                    foreach (var item in m.Corrections)
+                    {
+                        
+                        EntityExtension.FlagForDelete(item, user, "Facade");
+                    }
+
+                    Deleted = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
+        }
     }
 }
