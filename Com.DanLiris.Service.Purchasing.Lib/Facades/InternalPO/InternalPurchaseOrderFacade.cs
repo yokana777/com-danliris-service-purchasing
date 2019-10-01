@@ -962,5 +962,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             return Created;
         }
+
+        public async Task<int> UpdateFulfillment(int id, InternalPurchaseOrderFulFillment model, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                        .Single(pr => pr.Id == id);
+
+                    if (m != null)
+                    {
+
+                        EntityExtension.FlagForUpdate(model, user, "Facade");
+
+                        foreach (var item in model.Corrections)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                        }
+
+                        this.dbContext.Update(model);
+                        Updated = await dbContext.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Error while updating data");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
     }
 }

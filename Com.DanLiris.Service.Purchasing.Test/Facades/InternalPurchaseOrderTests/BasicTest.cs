@@ -91,5 +91,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var Response = await Facade.CreateFulfillment(model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
+
+        [Fact]
+        public async Task Should_Success_Update_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await Facade.CreateFulfillment(model, "Unit Test");
+            var Response = await Facade.UpdateFulfillment((int)created, model, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
     }
 }
