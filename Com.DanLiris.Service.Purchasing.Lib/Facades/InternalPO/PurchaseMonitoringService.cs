@@ -41,6 +41,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         {
             _dbContext = dbContext;
             //_dbContext.Database.SetCommandTimeout(1000 * 60 * 2);
+            //if (_dbContext.Database.IsSqlServer())
+            //    _dbContext.Database.SetCommandTimeout(1000 * 60 * 2);
 
             _purchaseRequestDbSet = dbContext.Set<PurchaseRequest>();
             _purchaseRequestItemDbSet = dbContext.Set<PurchaseRequestItem>();
@@ -114,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              UOMId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.DealUomId : "",
                              UOMUnit = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.DealUomUnit : "-",
                              Price = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.PricePerDealUnit : 0,
-                             PriceTotal = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.PricePerDealUnit * epoDetail.DealQuantity: 0,
+                             PriceTotal = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.PricePerDealUnit * epoDetail.DealQuantity : 0,
                              CurrencyId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyId : "",
                              CurrencyCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode : "",
                              CurrencyRate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyRate : 0,
