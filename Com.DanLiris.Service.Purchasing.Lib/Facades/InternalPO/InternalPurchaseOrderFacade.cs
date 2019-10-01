@@ -933,5 +933,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          });
             return Query.ToArray().Count();
         }
+
+        public async Task<int> CreateFulfillment(InternalPurchaseOrderFulFillment model, string user)
+        {
+            int Created = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    EntityExtension.FlagForCreate(model, user, "Facade");
+                    
+                    foreach (var item in model.Corrections)
+                    {
+                        EntityExtension.FlagForCreate(item, user, "Facade");
+                    }
+
+                    this.dbContext.InternalPurchaseOrderFulfillments.Add(model);
+                    Created = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Created;
+        }
     }
 }

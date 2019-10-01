@@ -47,6 +47,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<InternalPurchaseOrder> InternalPurchaseOrders { get; set; }
         public DbSet<InternalPurchaseOrderItem> InternalPurchaseOrderItems { get; set; }
+        public DbSet<InternalPurchaseOrderFulFillment> InternalPurchaseOrderFulfillments { get; set; }
+        public DbSet<InternalPurchaseOrderCorrection> InternalPurchaseOrderCorrections { get; set; }
 
         public DbSet<ExternalPurchaseOrder> ExternalPurchaseOrders { get; set; }
         public DbSet<ExternalPurchaseOrderItem> ExternalPurchaseOrderItems { get; set; }

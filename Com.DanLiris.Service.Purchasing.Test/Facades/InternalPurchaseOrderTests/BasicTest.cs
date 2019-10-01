@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -77,6 +78,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadByPRNo(model.PRNo);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var Response = await Facade.CreateFulfillment(model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
     }

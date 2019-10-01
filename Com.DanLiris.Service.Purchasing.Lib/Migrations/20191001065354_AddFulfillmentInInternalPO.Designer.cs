@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191001065354_AddFulfillmentInInternalPO")]
+    partial class AddFulfillmentInInternalPO
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4120,15 +4121,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("CorrectionDate");
 
-                    b.Property<string>("CorrectionNo")
-                        .HasMaxLength(128);
+                    b.Property<string>("CorrectionNo");
 
                     b.Property<double>("CorrectionPriceTotal");
 
                     b.Property<double>("CorrectionQuantity");
 
-                    b.Property<string>("CorrectionRemark")
-                        .HasMaxLength(4000);
+                    b.Property<string>("CorrectionRemark");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -4213,21 +4212,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("DeliveryOrderItemId");
 
                     b.Property<string>("DeliveryOrderNo")
-                        .HasMaxLength(64);
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset>("InterNoteDate");
 
                     b.Property<DateTimeOffset>("InterNoteDueDate");
 
                     b.Property<string>("InterNoteNo")
-                        .HasMaxLength(64);
+                        .HasMaxLength(255);
 
                     b.Property<double>("InterNoteValue");
 
                     b.Property<DateTimeOffset>("InvoiceDate");
 
                     b.Property<string>("InvoiceNo")
-                        .HasMaxLength(64);
+                        .HasMaxLength(255);
 
                     b.Property<bool>("IsDeleted");
 
@@ -4260,13 +4259,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("UnitReceiptNoteItemId");
 
                     b.Property<string>("UnitReceiptNoteNo")
-                        .HasMaxLength(64);
+                        .HasMaxLength(255);
 
-                    b.Property<string>("UnitReceiptNoteUom")
-                        .HasMaxLength(128);
+                    b.Property<string>("UnitReceiptNoteUom");
 
-                    b.Property<string>("UnitReceiptNoteUomId")
-                        .HasMaxLength(64);
+                    b.Property<string>("UnitReceiptNoteUomId");
 
                     b.HasKey("Id");
 
