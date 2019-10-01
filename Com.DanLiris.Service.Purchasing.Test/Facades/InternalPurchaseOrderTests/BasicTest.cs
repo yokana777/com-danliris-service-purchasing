@@ -134,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var model = DataUtil.GetNewFulfillmentData("Unit test");
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
-            //var created = await Facade.CreateFulfillment(model, "Unit Test");
+            var created = await Facade.CreateFulfillment(model, "Unit Test");
             var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
             model.POItemId = 0;
             await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillment((int)model.Id, model, "Unit Test"));
