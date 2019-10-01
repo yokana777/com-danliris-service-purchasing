@@ -160,8 +160,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
             var created = await Facade.CreateFulfillment(model, "Unit Test");
-            var Response = Facade.DeleteFulfillment((int)0, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            //var Response = Facade.DeleteFulfillment((int)0, "Unit Test");
+            Assert.Throws<Exception>(() => Facade.DeleteFulfillment((int)0, "Unit Test"));
         }
     }
 }
