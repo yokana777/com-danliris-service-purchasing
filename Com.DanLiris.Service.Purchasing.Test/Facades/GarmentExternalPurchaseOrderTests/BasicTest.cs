@@ -413,6 +413,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             Assert.NotNull(Response);
         }
 
+        [Fact]
+        public async Task Should_Success_Get_Data_By_RO()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var Responses = await facade.Create(data, USERNAME);
+            var ro = data.Items.First().RONo;
+            var Response = facade.ReadBySupplier(ro);
+            Assert.NotNull(Response);
+        }
+
         //Duration
         [Fact]
         public async Task Should_Success_Get_Report_POEDODuration_Data()
