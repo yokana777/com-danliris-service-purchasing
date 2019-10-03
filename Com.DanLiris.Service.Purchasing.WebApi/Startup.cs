@@ -197,7 +197,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
 
             /* Register */
-            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+            //services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(1000 * 60 * 20)));
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));

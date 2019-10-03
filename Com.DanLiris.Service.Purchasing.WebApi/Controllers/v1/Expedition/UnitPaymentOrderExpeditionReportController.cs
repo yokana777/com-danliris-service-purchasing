@@ -34,6 +34,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
 
             try
             {
+                if (Request.Headers["accept"] == "application/xls")
+                {
+                    MemoryStream xls = await _service.GetExcel(no, supplierCode, divisionCode, status, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), order);
+                    byte[] xlsInBytes = xls.ToArray();
+                    var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Laporan Ekspedisi Surat Perintah Bayar {no ?? supplierCode ?? divisionCode ?? ""}.xlsx");
+                    return file;
+                }
+
                 var result = await _service.GetReport(no, supplierCode, divisionCode, status, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), order, page, size);
 
                 return Ok(new
