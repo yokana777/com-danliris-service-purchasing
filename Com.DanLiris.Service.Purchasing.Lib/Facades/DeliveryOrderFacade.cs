@@ -129,7 +129,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw new Exception(e.Message);
+                    while (e.InnerException != null) e = e.InnerException;
+                    throw e;
                 }
             }
 
@@ -338,7 +339,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw new Exception(e.Message);
+                    while (e.InnerException != null) e = e.InnerException;
+                    throw e;
                 }
             }
 
@@ -381,7 +383,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw new Exception(e.Message);
+                    while (e.InnerException != null) e = e.InnerException;
+                    throw e;
                 }
             }
 
