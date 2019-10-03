@@ -960,7 +960,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             {
                 if (internalTransaction)
                     transaction.Rollback();
-                throw new Exception(e.Message);
+                while (e.InnerException != null) e = e.InnerException;
+                throw e.GetBaseException();
             }
 
 
@@ -1004,7 +1005,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             {
                 if (internalTransaction)
                     transaction.Rollback();
-                throw new Exception(e.Message);
+                while (e.InnerException != null) e = e.InnerException;
+                throw e.GetBaseException();
             }
 
 
@@ -1040,7 +1042,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             {
                 if (internalTransaction)
                     transaction.Rollback();
-                throw new Exception(e.Message);
+                while (e.InnerException != null) e = e.InnerException;
+                throw e.GetBaseException();
             }
 
 
