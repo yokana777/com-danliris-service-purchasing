@@ -11,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -172,6 +173,102 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             var dataUtil = await GetDataUtil(garmentPOMasterDistributionFacade, dbContext);
             var dataGarmentPOMasterDistribution = await dataUtil.dataUtil.GetNewData(dataUtil.deliveryOrder);
             await dataUtil.dataUtil.GetTestData(dataGarmentPOMasterDistribution);
+
+            var facade = new MonitoringROMasterFacade(mockServiceProvider.Object, dbContext);
+
+            var Response = facade.GetExcel(dataUtil.purchaseRequest.Id);
+            Assert.NotNull(Response.Item2);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Excel_Empty()
+        {
+            var mockServiceProvider = GetMockServiceProvider();
+
+            var dbContext = GetDbContext(GetCurrentMethod());
+
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, dbContext);
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+            var garmentPurchaseRequestData = await garmentPurchaseRequestDataUtil.GetTestData();
+
+            var facade = new MonitoringROMasterFacade(mockServiceProvider.Object, dbContext);
+
+            var Response = facade.GetExcel(garmentPurchaseRequestData.Id);
+            Assert.NotNull(Response.Item2);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Excel_No_DeliveryOrders()
+        {
+            var mockServiceProvider = GetMockServiceProvider();
+
+            var dbContext = GetDbContext(GetCurrentMethod());
+
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, dbContext);
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+            var garmentPurchaseRequestData = garmentPurchaseRequestDataUtil.GetNewData();
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+            var garmentInternalPurchaseOrderData = await garmentInternalPurchaseOrderDataUtil.GetNewData(garmentPurchaseRequestData);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(mockServiceProvider.Object, dbContext);
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+            var garmentExternalPurchaseOrderData = await garmentExternalPurchaseOrderDataUtil.GetDataForDo2(garmentInternalPurchaseOrderData);
+            await garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2(garmentExternalPurchaseOrderData);
+
+            var facade = new MonitoringROMasterFacade(mockServiceProvider.Object, dbContext);
+
+            var Response = facade.GetExcel(garmentPurchaseRequestData.Id);
+            Assert.NotNull(Response.Item2);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Excel_No_Distributions()
+        {
+            var mockServiceProvider = GetMockServiceProvider();
+
+            var dbContext = GetDbContext(GetCurrentMethod());
+
+            var garmentPOMasterDistributionFacade = new GarmentPOMasterDistributionFacade(mockServiceProvider.Object, dbContext);
+            var dataUtil = await GetDataUtil(garmentPOMasterDistributionFacade, dbContext);
+            var dataGarmentPOMasterDistribution = await dataUtil.dataUtil.GetNewData(dataUtil.deliveryOrder);
+
+            var facade = new MonitoringROMasterFacade(mockServiceProvider.Object, dbContext);
+
+            var Response = facade.GetExcel(dataUtil.purchaseRequest.Id);
+            Assert.NotNull(Response.Item2);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Excel_Multiple_Distributions()
+        {
+            var mockServiceProvider = GetMockServiceProvider();
+
+            var dbContext = GetDbContext(GetCurrentMethod());
+
+            var garmentPOMasterDistributionFacade = new GarmentPOMasterDistributionFacade(mockServiceProvider.Object, dbContext);
+            var dataUtil = await GetDataUtil(garmentPOMasterDistributionFacade, dbContext);
+            var dataGarmentPOMasterDistribution = await dataUtil.dataUtil.GetNewData(dataUtil.deliveryOrder);
+            await dataUtil.dataUtil.GetTestData(dataGarmentPOMasterDistribution);
+
+            var dataGarmentPOMasterDistributionDuplicate = dataUtil.dataUtil.CopyData(dataGarmentPOMasterDistribution);
+            dataGarmentPOMasterDistributionDuplicate.Id = 0;
+            dataGarmentPOMasterDistributionDuplicate.Items = new List<GarmentPOMasterDistributionItem>();
+            foreach (var item in dataGarmentPOMasterDistribution.Items)
+            {
+                var itemDuplicate = dataUtil.dataUtil.CopyDataItem(item);
+                itemDuplicate.Id = 0;
+                itemDuplicate.Details = new List<GarmentPOMasterDistributionDetail>();
+                foreach (var detail in item.Details)
+                {
+                    var detailDuplicate = dataUtil.dataUtil.CopyDataDetail(detail);
+                    detailDuplicate.Id = 0;
+                    itemDuplicate.Details.Add(detailDuplicate);
+                }
+                dataGarmentPOMasterDistributionDuplicate.Items.Add(itemDuplicate);
+            }
+            await dataUtil.dataUtil.GetTestData(dataGarmentPOMasterDistributionDuplicate);
 
             var facade = new MonitoringROMasterFacade(mockServiceProvider.Object, dbContext);
 
