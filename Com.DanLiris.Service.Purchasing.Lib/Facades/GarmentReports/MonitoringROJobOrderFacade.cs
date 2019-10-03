@@ -120,7 +120,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     }
                     foreach (var col in new[] { "A", "B", "C", "D", "E", "F" })
                     {
-                        mergeCells.Add(($"{col}{firstMergedRowPosition}:{col}{lastMergedRowPosition}", col == "D" ? ExcelHorizontalAlignment.Right : ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                        if (firstMergedRowPosition != lastMergedRowPosition)
+                        {
+                            mergeCells.Add(($"{col}{firstMergedRowPosition}:{col}{lastMergedRowPosition}", col == "D" ? ExcelHorizontalAlignment.Right : ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                        }
                     }
                 }
                 else
