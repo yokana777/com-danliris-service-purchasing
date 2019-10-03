@@ -348,7 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         }
 
         [HttpGet("correction-note-quantity")]
-        public IActionResult GetForCorrectionNoteQuantity(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
+        public IActionResult GetForCorrectionNoteQuantity(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             try
             {
