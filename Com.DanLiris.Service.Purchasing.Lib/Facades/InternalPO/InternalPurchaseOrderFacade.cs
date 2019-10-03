@@ -961,7 +961,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 if (internalTransaction)
                     transaction.Rollback();
                 
-                throw e.InnerException;
+                throw new Exception(model.POItemId + " " + e.InnerException.Message);
             }
 
 
