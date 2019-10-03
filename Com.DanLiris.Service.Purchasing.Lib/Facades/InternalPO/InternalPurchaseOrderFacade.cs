@@ -935,10 +935,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Query.ToArray().Count();
         }
 
-        public async Task<int> CreateFulfillment(InternalPurchaseOrderFulFillment model, string user)
+        public int CreateFulfillment(InternalPurchaseOrderFulFillment model, string user)
         {
-            var internalTransaction = dbContext.Database.CurrentTransaction == null;
-            var transaction = !internalTransaction ? dbContext.Database.CurrentTransaction : dbContext.Database.BeginTransaction();
 
             int Created;
             try
@@ -951,28 +949,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 }
 
                 this.dbContext.InternalPurchaseOrderFulfillments.Add(model);
-                Created = await dbContext.SaveChangesAsync();
+                Created = dbContext.SaveChanges();
 
-                if (internalTransaction)
-                    transaction.Commit();
             }
             catch (Exception e)
             {
-                if (internalTransaction)
-                    transaction.Rollback();
-                
-                throw new Exception(model.POItemId + " " + e.InnerException.Message);
+
+                throw e.InnerException;
             }
 
 
             return Created;
         }
 
-        public async Task<int> UpdateFulfillment(long id, InternalPurchaseOrderFulFillment model, string user)
+        public int UpdateFulfillment(long id, InternalPurchaseOrderFulFillment model, string user)
         {
             int Updated = 0;
-            var internalTransaction = dbContext.Database.CurrentTransaction == null;
-            var transaction = !internalTransaction ? dbContext.Database.CurrentTransaction : dbContext.Database.BeginTransaction();
 
             try
             {
@@ -989,22 +981,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     }
 
                     this.dbContext.Update(model);
-                    Updated = await dbContext.SaveChangesAsync();
+                    Updated = dbContext.SaveChanges();
 
-                    if (internalTransaction)
-                        transaction.Commit();
                 }
                 else
                 {
-                    if (internalTransaction)
-                        transaction.Rollback();
+
                     throw new Exception("Error while updating data");
                 }
             }
             catch (Exception e)
             {
-                if (internalTransaction)
-                    transaction.Rollback();
+
                 throw e.InnerException;
             }
 
@@ -1015,9 +1003,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public int DeleteFulfillment(long id, string user)
         {
             int Deleted = 0;
-            var internalTransaction = dbContext.Database.CurrentTransaction == null;
-            var transaction = !internalTransaction ? dbContext.Database.CurrentTransaction : dbContext.Database.BeginTransaction();
-
 
             try
             {
@@ -1034,13 +1019,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                 Deleted = dbContext.SaveChanges();
 
-                if (internalTransaction)
-                    transaction.Commit();
+
             }
             catch (Exception e)
             {
-                if (internalTransaction)
-                    transaction.Rollback();
+
                 throw e.InnerException;
             }
 

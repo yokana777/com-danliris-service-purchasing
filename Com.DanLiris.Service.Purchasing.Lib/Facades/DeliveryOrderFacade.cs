@@ -123,7 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    Created += await AddFulfillment(model, username);
+                    Created += AddFulfillment(model, username);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -327,7 +327,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                            .Include(d => d.Items)
                                .ThenInclude(d => d.Details)
                            .SingleOrDefault(pr => pr.Id == model.Id && !pr.IsDeleted);
-                        Updated += await EditFulfillment(updatedModel, user);
+                        Updated += EditFulfillment(updatedModel, user);
                         transaction.Commit();
                     }
                     else
@@ -602,7 +602,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        private async Task<int> AddFulfillment(DeliveryOrder model, string username)
+        private int AddFulfillment(DeliveryOrder model, string username)
         {
             var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
             int count = 0;
@@ -623,14 +623,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     };
 
 
-                    count += await internalPOFacade.CreateFulfillment(fulfillment, username);
+                    count += internalPOFacade.CreateFulfillment(fulfillment, username);
 
                 }
             }
             return count;
         }
 
-        private async Task<int> EditFulfillment(DeliveryOrder model, string username)
+        private int EditFulfillment(DeliveryOrder model, string username)
         {
             int count = 0;
             var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
@@ -643,8 +643,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             foreach (var item in updatedFulfillments)
             {
-                var dbItem = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.DeliveryOrderId == model.Id && x.DeliveryOrderItemId == item.DOItemId && x.DeliveryOrderDetailId == item.Id && item.POItemId == x.POItemId);
+                var dbItem = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                    .FirstOrDefault(x => x.DeliveryOrderId == model.Id && x.DeliveryOrderItemId == item.DOItemId && x.DeliveryOrderDetailId == item.Id && item.POItemId == x.POItemId);
 
                 dbItem.DeliveryOrderDate = model.ArrivalDate;
                 dbItem.SupplierDODate = model.DODate;
@@ -652,7 +652,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 dbItem.DeliveryOrderNo = model.DONo;
                 dbItem.POItemId = item.POItemId;
 
-                count += await internalPOFacade.UpdateFulfillment(dbItem.Id, dbItem, username);
+                count += internalPOFacade.UpdateFulfillment(dbItem.Id, dbItem, username);
 
             }
 
@@ -670,7 +670,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     POItemId = item.POItemId
                 };
 
-                count += await internalPOFacade.CreateFulfillment(fulfillment, username);
+                count += internalPOFacade.CreateFulfillment(fulfillment, username);
             }
 
             foreach (var item in deletedFulfillments)
