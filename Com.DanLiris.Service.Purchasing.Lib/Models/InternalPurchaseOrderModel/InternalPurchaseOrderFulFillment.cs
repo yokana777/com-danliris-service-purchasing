@@ -9,6 +9,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
 {
     public class InternalPurchaseOrderFulFillment : StandardEntity<long>
     {
+        public InternalPurchaseOrderFulFillment()
+        {
+            Corrections = new List<InternalPurchaseOrderCorrection>();
+        }
+
         public long DeliveryOrderId { get; set; }
         public long DeliveryOrderItemId { get; set; }
         public long DeliveryOrderDetailId { get; set; }

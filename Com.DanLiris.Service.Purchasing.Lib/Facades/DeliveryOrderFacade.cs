@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
@@ -17,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
@@ -48,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 DODate = s.DODate,
                 ArrivalDate = s.ArrivalDate,
                 SupplierName = s.SupplierName,
-                SupplierId=s.SupplierId,
+                SupplierId = s.SupplierId,
                 IsClosed = s.IsClosed,
                 CreatedBy = s.CreatedBy,
                 LastModifiedUtc = s.LastModifiedUtc,
@@ -56,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 {
                     EPOId = i.EPOId,
                     EPONo = i.EPONo,
-                    Details=i.Details.ToList()
+                    Details = i.Details.ToList()
                 }).ToList()
             });
 
@@ -115,11 +117,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             externalPurchaseOrderDetail.DOQuantity += detail.DOQuantity;
                             EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, username, USER_AGENT);
                             SetStatus(externalPurchaseOrderDetail, detail, username);
+
                         }
                     }
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+                    Created += await AddFulfillment(model, username);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -221,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                                         detail.DOQuantity += duplicateDetail.DOQuantity;
                                                         detail.ProductRemark = String.Concat(detail.ProductRemark, Environment.NewLine, duplicateDetail.ProductRemark).Trim();
                                                     }
-                                                    else if(item.Details.Count(d => d.PRId.Equals(duplicateDetail.PRId) && d.ProductId.Equals(duplicateDetail.ProductId)) < 1)
+                                                    else if (item.Details.Count(d => d.PRId.Equals(duplicateDetail.PRId) && d.ProductId.Equals(duplicateDetail.ProductId)) < 1)
                                                     {
                                                         double duplicateDetailDOQuantity = 0;
                                                         string duplicateDetailProductRemark = string.Empty;
@@ -319,6 +323,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
 
                         Updated = await dbContext.SaveChangesAsync();
+                        var updatedModel = this.dbSet.AsNoTracking()
+                           .Include(d => d.Items)
+                               .ThenInclude(d => d.Details)
+                           .SingleOrDefault(pr => pr.Id == model.Id && !pr.IsDeleted);
+                        Updated += await EditFulfillment(updatedModel, user);
                         transaction.Commit();
                     }
                     else
@@ -366,6 +375,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     }
 
                     Deleted = dbContext.SaveChanges();
+                    Deleted += RemoveFulfillment(model, username);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -417,7 +427,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             }
         }
 
-        public List<DeliveryOrder> ReadBySupplier(string Keyword = null, string unitId="", string supplierId="")
+        public List<DeliveryOrder> ReadBySupplier(string Keyword = null, string unitId = "", string supplierId = "")
         {
             IQueryable<DeliveryOrder> Query = this.dbSet;
 
@@ -429,7 +439,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             Query = QueryHelper<DeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
 
             Query = Query
-                .Where(m => m.IsClosed == false && m.IsDeleted == false && m.SupplierId==supplierId)
+                .Where(m => m.IsClosed == false && m.IsDeleted == false && m.SupplierId == supplierId)
                 .Select(s => new DeliveryOrder
                 {
                     Id = s.Id,
@@ -446,30 +456,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     {
                         EPOId = i.EPOId,
                         EPONo = i.EPONo,
-                        DOId=i.DOId,
+                        DOId = i.DOId,
                         Details = i.Details
                                 .Select(d => new DeliveryOrderDetail
                                 {
                                     Id = d.Id,
                                     POItemId = d.POItemId,
                                     PRItemId = d.PRItemId,
-                                    PRId=d.PRId,
-                                    PRNo=d.PRNo,
+                                    PRId = d.PRId,
+                                    PRNo = d.PRNo,
                                     ProductId = d.ProductId,
                                     ProductCode = d.ProductCode,
                                     ProductName = d.ProductName,
                                     DealQuantity = d.DealQuantity,
                                     DOQuantity = d.DOQuantity,
                                     ProductRemark = d.ProductRemark,
-                                    UnitId=d.UnitId,
-                                    EPODetailId=d.EPODetailId,
-                                    DOItemId=d.DOItemId,
-                                    ReceiptQuantity=d.ReceiptQuantity,
-                                    UomId=d.UomId,
-                                    UomUnit=d.UomUnit
-                                }).Where(d=> d.UnitId==unitId)
+                                    UnitId = d.UnitId,
+                                    EPODetailId = d.EPODetailId,
+                                    DOItemId = d.DOItemId,
+                                    ReceiptQuantity = d.ReceiptQuantity,
+                                    UomId = d.UomId,
+                                    UomUnit = d.UomUnit
+                                }).Where(d => d.UnitId == unitId)
                                 .ToList()
-                        })
+                    })
                         .Where(i => i.Details.Count > 0)
                         .ToList()
                 })
@@ -591,5 +601,103 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        private async Task<int> AddFulfillment(DeliveryOrder model, string username)
+        {
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            int count = 0;
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var fulfillment = new InternalPurchaseOrderFulFillment()
+                    {
+                        DeliveryOrderDate = model.ArrivalDate,
+                        DeliveryOrderDeliveredQuantity = detail.DOQuantity,
+                        DeliveryOrderDetailId = detail.Id,
+                        DeliveryOrderId = model.Id,
+                        DeliveryOrderItemId = item.Id,
+                        DeliveryOrderNo = model.DONo,
+                        SupplierDODate = model.DODate,
+                        POItemId = detail.POItemId
+                    };
+
+
+                    count += await internalPOFacade.CreateFulfillment(fulfillment, username);
+
+                }
+            }
+            return count;
+        }
+
+        private async Task<int> EditFulfillment(DeliveryOrder model, string username)
+        {
+            int count = 0;
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            var dbFulfillments = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking().Where(x => x.DeliveryOrderId == model.Id);
+            var localFulfilments = model.Items.SelectMany(x => x.Details);
+
+            var addedFulfillments = localFulfilments.Where(x => !dbFulfillments.Any(y => y.DeliveryOrderItemId == x.DOItemId && y.DeliveryOrderDetailId == x.Id && y.POItemId == x.POItemId));
+            var updatedFulfillments = localFulfilments.Where(x => dbFulfillments.Any(y => y.DeliveryOrderItemId == x.DOItemId && y.DeliveryOrderDetailId == x.Id && y.POItemId == x.POItemId));
+            var deletedFulfillments = dbFulfillments.Where(x => !localFulfilments.Any(y => y.DOItemId == x.DeliveryOrderItemId && y.Id == x.DeliveryOrderDetailId && y.POItemId == x.POItemId));
+
+            foreach (var item in updatedFulfillments)
+            {
+                var dbItem = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.DeliveryOrderId == model.Id && x.DeliveryOrderItemId == item.DOItemId && x.DeliveryOrderDetailId == item.Id && item.POItemId == x.POItemId);
+
+                dbItem.DeliveryOrderDate = model.ArrivalDate;
+                dbItem.SupplierDODate = model.DODate;
+                dbItem.DeliveryOrderDeliveredQuantity = item.DOQuantity;
+                dbItem.DeliveryOrderNo = model.DONo;
+                dbItem.POItemId = item.POItemId;
+
+                count += await internalPOFacade.UpdateFulfillment(dbItem.Id, dbItem, username);
+
+            }
+
+            foreach (var item in addedFulfillments)
+            {
+                var fulfillment = new InternalPurchaseOrderFulFillment()
+                {
+                    DeliveryOrderDate = model.ArrivalDate,
+                    DeliveryOrderDeliveredQuantity = item.DOQuantity,
+                    DeliveryOrderDetailId = item.Id,
+                    DeliveryOrderId = model.Id,
+                    DeliveryOrderItemId = item.DOItemId,
+                    DeliveryOrderNo = model.DONo,
+                    SupplierDODate = model.DODate,
+                    POItemId = item.POItemId
+                };
+
+                count += await internalPOFacade.CreateFulfillment(fulfillment, username);
+            }
+
+            foreach (var item in deletedFulfillments)
+            {
+                count += internalPOFacade.DeleteFulfillment(item.Id, username);
+            }
+
+            return count;
+        }
+
+        private int RemoveFulfillment(DeliveryOrder model, string username)
+        {
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            int count = 0;
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var fulfillment = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                        .FirstOrDefault(x => x.DeliveryOrderId == model.Id && x.DeliveryOrderItemId == item.Id && x.DeliveryOrderDetailId == detail.Id);
+                    count += internalPOFacade.DeleteFulfillment(fulfillment.Id, username);
+
+                }
+            }
+            return count;
+        }
     }
+
+
 }
