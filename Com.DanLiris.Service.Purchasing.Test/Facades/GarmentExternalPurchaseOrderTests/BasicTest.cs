@@ -417,7 +417,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         public async Task Should_Success_Get_Data_By_RO()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetDataForDo();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             data.Items.First().ProductName = "PROCESS";
             var Responses = await facade.Create(data, USERNAME);
             var ro = data.Items.First().RONo;
