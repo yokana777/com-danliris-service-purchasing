@@ -328,15 +328,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         private void SetPOItemIdEPONo(UnitPaymentOrderDetail detail)
         {
-            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.First(m => m.Id == detail.EPODetailId);
             detail.POItemId = EPODetail.POItemId;
 
-            detail.EPONo = dbContext.ExternalPurchaseOrders.Single(m => m.Items.Any(i => i.Id == EPODetail.EPOItemId)).EPONo;
+            detail.EPONo = dbContext.ExternalPurchaseOrders.First(m => m.Items.Any(i => i.Id == EPODetail.EPOItemId)).EPONo;
         }
 
         private void SetPaid(UnitPaymentOrderItem item, bool isPaid, string username)
         {
-            UnitReceiptNote unitReceiptNote = dbContext.UnitReceiptNotes.Include(a=>a.Items).Single(m => m.Id == item.URNId);
+            UnitReceiptNote unitReceiptNote = dbContext.UnitReceiptNotes.Include(a=>a.Items).First(m => m.Id == item.URNId);
             
             foreach (var itemURN in unitReceiptNote.Items)
             {
@@ -360,8 +360,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         private void SetStatus(UnitPaymentOrderDetail detail, string username)
         {
-            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.Single(m => m.Id == detail.EPODetailId);
-            InternalPurchaseOrderItem POItem = dbContext.InternalPurchaseOrderItems.Single(m => m.Id == EPODetail.POItemId);
+            ExternalPurchaseOrderDetail EPODetail = dbContext.ExternalPurchaseOrderDetails.First(m => m.Id == detail.EPODetailId);
+            InternalPurchaseOrderItem POItem = dbContext.InternalPurchaseOrderItems.First(m => m.Id == EPODetail.POItemId);
 
             List<long> EPODetailIds = dbContext.ExternalPurchaseOrderDetails.Where(m => m.POItemId == POItem.Id).Select(m => m.Id).ToList();
             List<long> URNItemIds = dbContext.UnitReceiptNoteItems.Where(m => EPODetailIds.Contains(m.EPODetailId)).Select(m => m.Id).ToList();
@@ -404,10 +404,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             List<DateTimeOffset> DueDates = new List<DateTimeOffset>();
             foreach (var item in model.Items)
             {
-                var unitReceiptNoteDate = dbContext.UnitReceiptNotes.Single(m => m.Id == item.URNId).ReceiptDate;
+                var unitReceiptNoteDate = dbContext.UnitReceiptNotes.First(m => m.Id == item.URNId).ReceiptDate;
                 foreach (var detail in item.Details)
                 {
-                    var PaymentDueDays = dbContext.ExternalPurchaseOrders.Single(m => m.EPONo.Equals(detail.EPONo)).PaymentDueDays;
+                    var PaymentDueDays = dbContext.ExternalPurchaseOrders.First(m => m.EPONo.Equals(detail.EPONo)).PaymentDueDays;
                     DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
                 }
             }
