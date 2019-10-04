@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var model = DataUtil.GetNewFulfillmentData("Unit test");
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
-            var created = Facade.CreateFulfillmentAsync(model, "Unit Test");
+            var created = await Facade.CreateFulfillmentAsync(model, "Unit Test");
             var Response = await Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
@@ -134,8 +134,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var model = DataUtil.GetNewFulfillmentData("Unit test");
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
-            var created = Facade.CreateFulfillmentAsync(model, "Unit Test");
-            var Response = Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
+            var created = await Facade.CreateFulfillmentAsync(model, "Unit Test");
+            var Response = await Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
             model.POItemId = 0;
             await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
         }
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
 
             var created = await Facade.CreateFulfillmentAsync(model, "Unit Test");
             //var Response = Facade.DeleteFulfillment((int)0, "Unit Test");
-            Assert.Throws<Exception>(() => Facade.DeleteFulfillment((int)0, "Unit Test"));
+            Assert.ThrowsAny<Exception>(() => Facade.DeleteFulfillment((int)0, "Unit Test"));
         }
     }
 }
