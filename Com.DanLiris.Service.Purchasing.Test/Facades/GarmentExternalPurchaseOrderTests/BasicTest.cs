@@ -418,6 +418,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            data.Items.First().ProductName = "PROCESS";
             var Responses = await facade.Create(data, USERNAME);
             var ro = data.Items.First().RONo;
             var Response = facade.ReadItemByRO(ro);
