@@ -350,6 +350,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             return serviceProvider;
         }
 
+
         private DeliveryOrderController GetController(Mock<IDeliveryOrderFacade> facadeMock, Mock<IServiceProvider> serviceProviderMock, Mock<IMapper> autoMapperMock)
         {
             var user = new Mock<ClaimsPrincipal>();
@@ -404,6 +405,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
+        public void Should_Fail_Get_All_Data()
+        {
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception("error"));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<DeliveryOrderViewModel>>(It.IsAny<List<DeliveryOrder>>()))
+                .Returns(new List<DeliveryOrderViewModel> { ViewModel });
+
+            DeliveryOrderController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), "{}");
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_ByUser()
         {
             var mockFacade = new Mock<IDeliveryOrderFacade>();
@@ -438,6 +456,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
+        public void Should_Fail_Get_ById()
+        {
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Throws(new Exception("error"));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<DeliveryOrderViewModel>(It.IsAny<DeliveryOrder>()))
+                .Returns(ViewModel);
+
+            DeliveryOrderController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();
@@ -462,6 +497,60 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
 
             var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Create_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<DeliveryOrderViewModel>()))
+                .Verifiable();
+
+            var serviceProviderMock = GetServiceProvider();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IValidateService)))
+                .Returns(validateMock.Object);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<DeliveryOrder>(It.IsAny<DeliveryOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<DeliveryOrder>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception("error"));
+
+            var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
+
+            var response = await controller.Post(ViewModel);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Validate_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<DeliveryOrderViewModel>()))
+                .Throws(GetServiceValidationExeption());
+
+            var serviceProviderMock = GetServiceProvider();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IValidateService)))
+                .Returns(validateMock.Object);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<DeliveryOrder>(It.IsAny<DeliveryOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.Create(It.IsAny<DeliveryOrder>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception("error"));
+
+            var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
+
+            var response = await controller.Post(ViewModel);
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
         [Fact]
@@ -492,6 +581,60 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
+        public async Task Should_Fail_Update_Data()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<DeliveryOrderViewModel>()))
+                .Verifiable();
+
+            var serviceProviderMock = GetServiceProvider();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IValidateService)))
+                .Returns(validateMock.Object);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<DeliveryOrder>(It.IsAny<DeliveryOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<DeliveryOrder>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception("error"));
+
+            var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
+
+            var response = await controller.Put(It.IsAny<int>(), ViewModel);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Validate_Data_Update()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<DeliveryOrderViewModel>()))
+                .Throws(GetServiceValidationExeption());
+
+            var serviceProviderMock = GetServiceProvider();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IValidateService)))
+                .Returns(validateMock.Object);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<DeliveryOrder>(It.IsAny<DeliveryOrderViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.Update(It.IsAny<int>(), It.IsAny<DeliveryOrder>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception("error"));
+
+            var controller = GetController(mockFacade, serviceProviderMock, mockMapper);
+
+            var response = await controller.Put(It.IsAny<int>(), ViewModel);
+            Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
         public async Task Should_Success_Delete_Data()
         {
             var mockFacade = new Mock<IDeliveryOrderFacade>();
@@ -504,6 +647,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             var controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
             var response = controller.Delete(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Delete_Data()
+        {
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+            mockFacade
+                .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
+                .Throws(new Exception("error"));
+
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.Delete(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
@@ -541,6 +699,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
+        public void Should_Fail_GetReport()
+        {
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<string>(), It.IsAny<int>()))
+                .Throws(new Exception("error"));
+
+            var mockMapper = new Mock<IMapper>();
+
+            DeliveryOrderController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_GetXls()
         {
             var mockFacade = new Mock<IDeliveryOrderFacade>();
@@ -554,6 +729,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             DeliveryOrderController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
             var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>());
             Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void Should_Fail_GetXls()
+        {
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+                 It.IsAny<int>()))
+                .Throws(new Exception("error"));
+
+            var mockMapper = new Mock<IMapper>();
+
+            DeliveryOrderController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }
 }
