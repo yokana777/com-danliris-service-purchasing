@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
-    public class DeliveryOrderFacade
+    public class DeliveryOrderFacade : IDeliveryOrderFacade
     {
 
         private readonly PurchasingDbContext dbContext;
@@ -123,13 +123,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    Created += AddFulfillment(model, username);
+                    Created += await AddFulfillmentAsync(model, username);
                     transaction.Commit();
                 }
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw e.InnerException;
+                    while (e.InnerException != null) e = e.InnerException;
+                    throw e;
                 }
             }
 
@@ -147,6 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     var existingModel = this.dbSet.AsNoTracking()
                         .Include(d => d.Items)
                             .ThenInclude(d => d.Details)
+                            .AsNoTracking()
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
 
                     if (existingModel != null && id == model.Id)
@@ -295,7 +297,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 foreach (var existingDetail in existingItem.Details)
                                 {
                                     EntityExtension.FlagForDelete(existingDetail, user, USER_AGENT);
-                                    this.dbContext.DeliveryOrderDetails.Update(existingDetail);
+                                    dbContext.Entry(existingDetail).State = EntityState.Modified;
+                                    //this.dbContext.DeliveryOrderDetails.Update(existingDetail);
 
                                     ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == existingDetail.EPODetailId);
                                     externalPurchaseOrderDetail.DOQuantity -= existingDetail.DOQuantity;
@@ -311,7 +314,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                     if (newDetail == null)
                                     {
                                         EntityExtension.FlagForDelete(existingDetail, user, USER_AGENT);
-                                        this.dbContext.DeliveryOrderDetails.Update(existingDetail);
+                                        dbContext.Entry(existingDetail).State = EntityState.Modified;
+                                        //this.dbContext.DeliveryOrderDetails.Update(existingDetail);
 
                                         ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == existingDetail.EPODetailId);
                                         externalPurchaseOrderDetail.DOQuantity -= existingDetail.DOQuantity;
@@ -327,7 +331,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                            .Include(d => d.Items)
                                .ThenInclude(d => d.Details)
                            .SingleOrDefault(pr => pr.Id == model.Id && !pr.IsDeleted);
-                        Updated += EditFulfillment(updatedModel, user);
+                        Updated += await EditFulfillmentAsync(updatedModel, user);
                         transaction.Commit();
                     }
                     else
@@ -338,12 +342,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw e.InnerException;
+                    while (e.InnerException != null) e = e.InnerException;
+                    throw e;
                 }
             }
 
             return Updated;
         }
+
+
 
         public int Delete(int id, string username)
         {
@@ -381,7 +388,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw e.InnerException;
+                    while (e.InnerException != null) e = e.InnerException;
+                    throw e;
                 }
             }
 
@@ -602,7 +610,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        private int AddFulfillment(DeliveryOrder model, string username)
+        private async Task<int> AddFulfillmentAsync(DeliveryOrder model, string username)
         {
             var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
             int count = 0;
@@ -623,14 +631,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     };
 
 
-                    count += internalPOFacade.CreateFulfillment(fulfillment, username);
+                    count += await internalPOFacade.CreateFulfillmentAsync(fulfillment, username);
 
                 }
             }
             return count;
         }
 
-        private int EditFulfillment(DeliveryOrder model, string username)
+        private async Task<int> EditFulfillmentAsync(DeliveryOrder model, string username)
         {
             int count = 0;
             var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
@@ -652,7 +660,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 dbItem.DeliveryOrderNo = model.DONo;
                 dbItem.POItemId = item.POItemId;
 
-                count += internalPOFacade.UpdateFulfillment(dbItem.Id, dbItem, username);
+                count += await internalPOFacade.UpdateFulfillmentAsync(dbItem.Id, dbItem, username);
 
             }
 
@@ -670,7 +678,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     POItemId = item.POItemId
                 };
 
-                count += internalPOFacade.CreateFulfillment(fulfillment, username);
+                count += await internalPOFacade.CreateFulfillmentAsync(fulfillment, username);
             }
 
             foreach (var item in deletedFulfillments)
@@ -691,7 +699,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 {
                     var fulfillment = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
                         .FirstOrDefault(x => x.DeliveryOrderId == model.Id && x.DeliveryOrderItemId == item.Id && x.DeliveryOrderDetailId == detail.Id);
-                    count += internalPOFacade.DeleteFulfillment(fulfillment.Id, username);
+                    if (fulfillment != null)
+                        count += internalPOFacade.DeleteFulfillment(fulfillment.Id, username);
 
                 }
             }

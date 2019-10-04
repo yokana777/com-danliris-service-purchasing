@@ -54,6 +54,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
 
+            serviceProvider
+                .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, GetDbContext(Guid.NewGuid().ToString())));
+
             var services = new ServiceCollection();
             services.AddMemoryCache();
             var serviceProviders = services.BuildServiceProvider();

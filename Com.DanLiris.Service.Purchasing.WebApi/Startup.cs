@@ -108,6 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
+                .AddTransient<IDeliveryOrderFacade, DeliveryOrderFacade>()
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<MonitoringPriceFacade>()

@@ -935,7 +935,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Query.ToArray().Count();
         }
 
-        public int CreateFulfillment(InternalPurchaseOrderFulFillment model, string user)
+        public async Task<int> CreateFulfillmentAsync(InternalPurchaseOrderFulFillment model, string user)
         {
 
             int Created;
@@ -949,20 +949,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 }
 
                 this.dbContext.InternalPurchaseOrderFulfillments.Add(model);
-                Created = dbContext.SaveChanges();
+                Created = await dbContext.SaveChangesAsync();
 
             }
             catch (Exception e)
             {
-
-                throw e.InnerException;
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
             }
 
 
             return Created;
         }
 
-        public int UpdateFulfillment(long id, InternalPurchaseOrderFulFillment model, string user)
+        public async Task<int> UpdateFulfillmentAsync(long id, InternalPurchaseOrderFulFillment model, string user)
         {
             int Updated = 0;
 
@@ -972,7 +972,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                 if (m != null)
                 {
-
                     EntityExtension.FlagForUpdate(model, user, "Facade");
 
                     foreach (var item in model.Corrections)
@@ -981,7 +980,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     }
 
                     this.dbContext.Update(model);
-                    Updated = dbContext.SaveChanges();
+                    Updated = await dbContext.SaveChangesAsync();
 
                 }
                 else
@@ -992,8 +991,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             }
             catch (Exception e)
             {
-
-                throw e.InnerException;
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
             }
 
 
@@ -1023,8 +1022,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             }
             catch (Exception e)
             {
-
-                throw e.InnerException;
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
             }
 
 

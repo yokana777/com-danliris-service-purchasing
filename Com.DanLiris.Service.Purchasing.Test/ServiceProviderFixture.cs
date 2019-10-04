@@ -130,6 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
 
                 .AddTransient<DeliveryOrderFacade>()
+                .AddTransient<IDeliveryOrderFacade, DeliveryOrderFacade>()
                 .AddTransient<DeliveryOrderDataUtil>()
                 .AddTransient<DeliveryOrderItemDataUtil>()
                 .AddTransient<DeliveryOrderDetailDataUtil>()
