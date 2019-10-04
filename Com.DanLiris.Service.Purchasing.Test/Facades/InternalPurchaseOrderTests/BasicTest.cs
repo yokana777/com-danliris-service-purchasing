@@ -99,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var model = DataUtil.GetNewFulfillmentData("Unit test");
             //model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
-            Assert.ThrowsAny<Exception>(() => Facade.CreateFulfillmentAsync(model, "Unit Test"));
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.CreateFulfillmentAsync(model, "Unit Test"));
             //Assert.NotEqual(Response, 0);
         }
 
@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
 
             //var created = await Facade.CreateFulfillment(model, "Unit Test");
             //var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
-            Assert.ThrowsAny<Exception>(() => Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var created = Facade.CreateFulfillmentAsync(model, "Unit Test");
             var Response = Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
             model.POItemId = 0;
-            Assert.ThrowsAny<Exception>(() => Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var model = DataUtil.GetNewFulfillmentData("Unit test");
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
-            var created = Facade.CreateFulfillmentAsync(model, "Unit Test");
+            var created = await  Facade.CreateFulfillmentAsync(model, "Unit Test");
             var Response = Facade.DeleteFulfillment((int)model.Id, "Unit Test");
             Assert.NotEqual(Response, 0);
         }
@@ -159,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var model = DataUtil.GetNewFulfillmentData("Unit test");
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
-            var created = Facade.CreateFulfillmentAsync(model, "Unit Test");
+            var created = await Facade.CreateFulfillmentAsync(model, "Unit Test");
             //var Response = Facade.DeleteFulfillment((int)0, "Unit Test");
             Assert.Throws<Exception>(() => Facade.DeleteFulfillment((int)0, "Unit Test"));
         }
