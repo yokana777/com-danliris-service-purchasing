@@ -420,7 +420,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             var Responses = await facade.Create(data, USERNAME);
             var ro = data.Items.First().RONo;
-            var Response = facade.ReadBySupplier(ro);
+            var Response = facade.ReadItemByRO(ro);
             Assert.NotNull(Response);
         }
 
