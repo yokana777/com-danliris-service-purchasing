@@ -114,10 +114,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
                             ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
-                            externalPurchaseOrderDetail.DOQuantity += detail.DOQuantity;
-                            EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, username, USER_AGENT);
-                            SetStatus(externalPurchaseOrderDetail, detail, username);
-
+                            
+                            if(externalPurchaseOrderDetail != null)
+                            {
+                                externalPurchaseOrderDetail.DOQuantity += detail.DOQuantity;
+                                EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, username, USER_AGENT);
+                                SetStatus(externalPurchaseOrderDetail, detail, username);
+                            }
+                            
                         }
                     }
 
