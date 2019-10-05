@@ -3,8 +3,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -16,7 +14,6 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -295,14 +292,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                             var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
 
                                             ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
-                                            
-                                            if(externalPurchaseOrderDetail != null)
+
+                                            if (externalPurchaseOrderDetail != null)
                                             {
                                                 externalPurchaseOrderDetail.DOQuantity = externalPurchaseOrderDetail.DOQuantity - existingDetail.DOQuantity + detail.DOQuantity;
                                                 EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
                                                 SetStatus(externalPurchaseOrderDetail, detail, user);
                                             }
-                                            
+
                                         }
                                     }
                                 }
@@ -325,14 +322,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                     //this.dbContext.DeliveryOrderDetails.Update(existingDetail);
 
                                     ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == existingDetail.EPODetailId);
-                                    
-                                    if(externalPurchaseOrderDetail != null)
+
+                                    if (externalPurchaseOrderDetail != null)
                                     {
                                         externalPurchaseOrderDetail.DOQuantity -= existingDetail.DOQuantity;
                                         EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
                                         SetStatus(externalPurchaseOrderDetail, existingDetail, user);
                                     }
-                                    
+
                                 }
                             }
                             else
@@ -347,13 +344,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                         //this.dbContext.DeliveryOrderDetails.Update(existingDetail);
 
                                         ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == existingDetail.EPODetailId);
-                                        if(externalPurchaseOrderDetail != null)
+                                        if (externalPurchaseOrderDetail != null)
                                         {
                                             externalPurchaseOrderDetail.DOQuantity -= existingDetail.DOQuantity;
                                             EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
                                             SetStatus(externalPurchaseOrderDetail, existingDetail, user);
                                         }
-                                        
+
                                     }
                                 }
                             }

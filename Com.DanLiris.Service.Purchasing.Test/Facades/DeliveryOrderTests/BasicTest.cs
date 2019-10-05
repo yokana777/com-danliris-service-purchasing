@@ -289,7 +289,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         //    var dbContext = _dbContext(GetCurrentMethod() + "Details");
         //    DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
         //    DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
-            
+
         //    model.Items.FirstOrDefault().Details.Clear();
         //    var ResponseRemoveItemDetail = await facade.Update((int)model.Id, model, USERNAME);
         //    Assert.NotEqual(ResponseRemoveItemDetail, 0);
@@ -301,7 +301,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         //    var dbContext = _dbContext(GetCurrentMethod() + "Items");
         //    DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
         //    DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
-            
+
 
         //    model.Items = new List<DeliveryOrderItem>();
         //    var ResponseRemoveItemDetail = await facade.Update((int)model.Id, model, USERNAME);
@@ -367,6 +367,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData("Unit test");
             var Response = facade.GenerateExcel("", "", null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_ReadBySupplier()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var Response = facade.ReadBySupplier(null, model.Items.FirstOrDefault().Details.FirstOrDefault().UnitId, model.SupplierId);
+            Assert.NotEqual(0, Response.Count);
         }
     }
 }
