@@ -7,9 +7,16 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             _dbContext = dbContext;
         }
 
-        public async Task<UnitPaymentOrderExpeditionReportWrapper> GetReport(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order, int page, int size)
+        public IQueryable<UnitPaymentOrderExpeditionReportViewModel> GetQuery(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order)
         {
             var expeditionDocumentQuery = _dbContext.Set<PurchasingDocumentExpedition>().AsQueryable();
             var query = _dbContext.Set<UnitPaymentOrder>().AsQueryable();
@@ -53,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             var joinedQuery = from unitPaymentOrder in query
                               join expeditionDocument in expeditionDocumentQuery on unitPaymentOrder.UPONo equals expeditionDocument.UnitPaymentOrderNo into upoExpeditions
-                              from upoExpedition in upoExpeditions.DefaultIfEmpty()
+                              from upoExpedition in upoExpeditions
                               select new UnitPaymentOrderExpeditionReportViewModel()
                               {
                                   SendToVerificationDivisionDate = upoExpedition.SendToVerificationDivisionDate,
@@ -81,8 +88,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                               };
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
-            joinedQuery = QueryHelper<UnitPaymentOrderExpeditionReportViewModel>.ConfigureOrder(joinedQuery, OrderDictionary);
+            /* Default Order */
+            if (OrderDictionary.Count.Equals(0))
+            {
+                OrderDictionary.Add("Date", "desc");
 
+                joinedQuery = joinedQuery.OrderBy("Date desc");
+            }
+            /* Custom Order */
+            else
+            {
+                string Key = OrderDictionary.Keys.First();
+                string OrderType = OrderDictionary[Key];
+
+                joinedQuery = joinedQuery.OrderBy(string.Concat(Key, " ", OrderType));
+            }
+
+            return joinedQuery;
+        }
+
+        public async Task<UnitPaymentOrderExpeditionReportWrapper> GetReport(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order, int page, int size)
+        {
+            var joinedQuery = GetQuery(no, supplierCode, divisionCode, status, dateFrom, dateTo, order);
 
             return new UnitPaymentOrderExpeditionReportWrapper()
             {
@@ -92,6 +119,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 .Take(size)
                 .ToListAsync()
             };
+        }
+
+        public async Task<MemoryStream> GetExcel(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order)
+        {
+            var query = GetQuery(no, supplierCode, divisionCode, status, dateFrom, dateTo, order);
+            var data = await query.ToListAsync();
+
+            DataTable dataTable = new DataTable();
+
+            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
+            foreach (var header in headers)
+            {
+                dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(string) });
+            }
+
+            if (data == null || data.Count < 1)
+            {
+                data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
+            }
+
+            foreach (var d in data)
+            {
+                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
+            }
+
+            ExcelPackage package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Data");
+
+            sheet.Cells["A3"].LoadFromDataTable(dataTable, false, OfficeOpenXml.Table.TableStyles.None);
+
+            foreach (var i in Enumerable.Range(0, 8))
+            {
+                var col = (char)('A' + i);
+                sheet.Cells[$"{col}1"].Value = headers[i];
+                sheet.Cells[$"{col}1:{col}2"].Merge = true;
+            }
+            sheet.Cells["I1"].Value = headers[8];
+            sheet.Cells["I1:K1"].Merge = true;
+            sheet.Cells["L1"].Value = headers[11];
+            sheet.Cells["L1:M1"].Merge = true;
+
+            var subHeaders = new string[] { "Tgl Terima", "Tgl Cek", "Tgl Kirim", "Tgl Terima", "No Kuitansi" };
+            foreach (var i in Enumerable.Range(0, 5))
+            {
+                var col = (char)('I' + i);
+                sheet.Cells[$"{col}2"].Value = subHeaders[i];
+            }
+
+            sheet.Cells["A1:M2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells["A1:M2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells["A1:M2"].Style.Font.Bold = true;
+
+            var widths = new int[] { 20, 20, 20, 50, 30, 20, 40, 20, 20, 20, 20, 20, 20 };
+            foreach (var i in Enumerable.Range(0, widths.Length))
+            {
+                sheet.Column(i + 1).Width = widths[i];
+            }
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+        }
+
+        string GetFormattedDate(DateTimeOffset? dateTime)
+        {
+            return dateTime == null ? "-" : dateTime.Value.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
         }
     }
 }

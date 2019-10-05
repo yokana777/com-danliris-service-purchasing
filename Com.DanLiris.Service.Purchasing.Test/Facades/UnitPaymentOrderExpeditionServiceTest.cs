@@ -133,6 +133,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
         }
 
         [Fact]
+        public async Task Should_Success_GetReport_Excel()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
+            var modelLocalSupplier = await _dataUtil(unitPaymentOrderFacade, dbContext).GetNewData();
+            var responseLocalSupplier = await unitPaymentOrderFacade.Create(modelLocalSupplier, USERNAME, false);
+
+            var reportService = new UnitPaymentOrderExpeditionReportService(dbContext);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = await reportService.GetExcel(modelLocalSupplier.UPONo, modelLocalSupplier.SupplierCode, modelLocalSupplier.DivisionCode, modelLocalSupplier.Position, dateFrom, dateTo, "{'Date': 'desc'}");
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
         public void Should_Success_InstantiateReport()
         {
             var report = new UnitPaymentOrderExpeditionReportViewModel()

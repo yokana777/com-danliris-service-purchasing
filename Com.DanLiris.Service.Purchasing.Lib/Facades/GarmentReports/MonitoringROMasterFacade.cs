@@ -1,14 +1,13 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.CostCalculationGarment;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
@@ -110,12 +109,109 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 .Select(s => s.RONo)
                 .Single();
 
-            DataTable result = new DataTable();
-            result.Columns.Add(new DataColumn() { ColumnName = "Column", DataType = typeof(string) });
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(double) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(double) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "", DataType = typeof(double) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "RO Job", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "PO Job", DataType = typeof(string) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pembagian PO", DataType = typeof(double) });
+            dataTable.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
-            var xls = Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, RONo, mergeCells) }, false);
+            var dataResults = GetData(prId);
+
+            int rowPosition = 3;
+
+            if (dataResults != null && dataResults.Count > 0)
+            {
+                foreach (var data in dataResults)
+                {
+                    if (data.DeliveryOrders != null && data.DeliveryOrders.Count > 0)
+                    {
+                        var firstDataMergedRowPosition = rowPosition;
+                        var lastDataMergedRowPosition = rowPosition;
+                        foreach (var deliveryOrder in data.DeliveryOrders)
+                        {
+                            if (deliveryOrder.Distributions != null && deliveryOrder.Distributions.Count > 0)
+                            {
+                                var firstDeliveryMergedRowPosition = rowPosition;
+                                var lastDeliveryMergedRowPosition = rowPosition;
+                                foreach (var distribution in deliveryOrder.Distributions)
+                                {
+                                    dataTable.Rows.Add(data.POMaster, data.ProductCode, data.ProductName, data.Quantity, data.UomUnit, data.DealQuantity, data.DealUomUnit, deliveryOrder.DONo, deliveryOrder.SupplierName, deliveryOrder.DOQuantity, distribution.RONo, distribution.POSerialNumber, distribution.DistributionQuantity, distribution.UomUnit);
+                                    lastDataMergedRowPosition = lastDeliveryMergedRowPosition = rowPosition++;
+                                }
+                                if (firstDeliveryMergedRowPosition != lastDeliveryMergedRowPosition)
+                                {
+                                    mergeCells.Add(($"H{firstDeliveryMergedRowPosition}:H{lastDeliveryMergedRowPosition}", ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                                    mergeCells.Add(($"I{firstDeliveryMergedRowPosition}:I{lastDeliveryMergedRowPosition}", ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                                    mergeCells.Add(($"J{firstDeliveryMergedRowPosition}:J{lastDeliveryMergedRowPosition}", ExcelHorizontalAlignment.Right, ExcelVerticalAlignment.Bottom));
+                                }
+                            }
+                            else
+                            {
+                                dataTable.Rows.Add(data.POMaster, data.ProductCode, data.ProductName, data.Quantity, data.UomUnit, data.DealQuantity, data.DealUomUnit, deliveryOrder.DONo, deliveryOrder.SupplierName, deliveryOrder.DOQuantity, null, null, null, null);
+                                lastDataMergedRowPosition = rowPosition++;
+                            }
+                        }
+                        foreach (var col in new[] { "A", "B", "C", "D", "E", "F", "G" })
+                        {
+                            if (firstDataMergedRowPosition != lastDataMergedRowPosition)
+                            {
+                                mergeCells.Add(($"{col}{firstDataMergedRowPosition}:{col}{lastDataMergedRowPosition}", col == "D" || col == "F" ? ExcelHorizontalAlignment.Right : ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        dataTable.Rows.Add(data.POMaster, data.ProductCode, data.ProductName, data.Quantity, data.UomUnit, data.DealQuantity, data.DealUomUnit, null, null, null, null, null, null, null);
+                        rowPosition++;
+                    }
+                }
+            }
+            else
+            {
+                dataTable.Rows.Add(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            }
+
+            ExcelPackage package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add(RONo);
+            
+            var cols = new[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
+            var headers = new[] { "PO Master", "Kode Barang", "Nama Barang", "Jumlah Diminta", "Satuan Diminta", "Jumlah Beli", "Satuan Beli", "No Surat Jalan", "Supplier", "Jumlah SJ PO" };
+
+            foreach (var col in cols)
+            {
+                sheet.Cells[$"{col}1"].Value = headers[Array.IndexOf(cols, col)];
+                sheet.Cells[$"{col}1:{col}2"].Merge = true;
+            }
+
+            sheet.Cells["K1"].Value = "Pembagian RO Master";
+            sheet.Cells["K1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells["K1:N1"].Merge = true;
+            sheet.Cells["A2"].LoadFromDataTable(dataTable, true, OfficeOpenXml.Table.TableStyles.None);
+
+            foreach ((string cells, Enum hAlign, Enum vAlign) in mergeCells)
+            {
+                sheet.Cells[cells].Merge = true;
+                sheet.Cells[cells].Style.HorizontalAlignment = (ExcelHorizontalAlignment)hAlign;
+                sheet.Cells[cells].Style.VerticalAlignment = (ExcelVerticalAlignment)vAlign;
+            }
+
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            MemoryStream xls = new MemoryStream();
+            package.SaveAs(xls);
+
             return new Tuple<MemoryStream, string>(xls, $"Monitoring RO Master - {RONo}");
         }
     }

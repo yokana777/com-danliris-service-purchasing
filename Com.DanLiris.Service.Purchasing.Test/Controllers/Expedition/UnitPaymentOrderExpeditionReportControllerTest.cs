@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
@@ -87,6 +88,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
 
             var response = await controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), null, null, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_GetReport_Excel()
+        {
+            var reportServiceMock = new Mock<IUnitPaymentOrderExpeditionReportService>();
+            reportServiceMock
+                .Setup(s => s.GetExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
+                .ReturnsAsync(new MemoryStream());
+            var controller = GetController(reportServiceMock);
+            controller.ControllerContext.HttpContext.Request.Headers["accept"] = "application/xls";
+
+            FileContentResult result = await controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), null, null, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()) as FileContentResult;
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.ContentType);
         }
     }
 }
