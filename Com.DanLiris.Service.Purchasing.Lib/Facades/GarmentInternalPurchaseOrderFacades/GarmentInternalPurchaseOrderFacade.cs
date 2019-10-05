@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
         public Tuple<List<GarmentInternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet;
+            IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet.Include(x => x.Items);
 
             List<string> searchAttributes = new List<string>()
             {
@@ -46,30 +46,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
 
-            Query = Query.Select(m => new GarmentInternalPurchaseOrder
-            {
-                Id = m.Id,
-                PRNo = m.PRNo,
-                RONo = m.RONo,
-                Article = m.Article,
-                ShipmentDate = m.ShipmentDate,
-                BuyerId = m.BuyerId,
-                BuyerCode = m.BuyerCode,
-                BuyerName = m.BuyerName,
-                Items = m.Items.Select(i => new GarmentInternalPurchaseOrderItem
-                {
-                    ProductId = i.ProductId,
-                    ProductCode = i.ProductCode,
-                    ProductName = i.ProductName,
-                    ProductRemark = i.ProductRemark,
-                    Quantity = i.Quantity,
-                    UomId = i.UomId,
-                    UomUnit = i.UomUnit
-                }).ToList(),
-                CreatedBy = m.CreatedBy,
-                IsPosted = m.IsPosted,
-                LastModifiedUtc = m.LastModifiedUtc
-            });
+            //Query = Query.Select(m => new GarmentInternalPurchaseOrder
+            //{
+            //    Id = m.Id,
+            //    PRNo = m.PRNo,
+            //    RONo = m.RONo,
+            //    Article = m.Article,
+            //    ShipmentDate = m.ShipmentDate,
+            //    BuyerId = m.BuyerId,
+            //    BuyerCode = m.BuyerCode,
+            //    BuyerName = m.BuyerName,
+            //    Items = m.Items.Select(i => new GarmentInternalPurchaseOrderItem
+            //    {
+            //        ProductId = i.ProductId,
+            //        ProductCode = i.ProductCode,
+            //        ProductName = i.ProductName,
+            //        ProductRemark = i.ProductRemark,
+            //        Quantity = i.Quantity,
+            //        UomId = i.UomId,
+            //        UomUnit = i.UomUnit
+            //    }).ToList(),
+            //    CreatedBy = m.CreatedBy,
+            //    IsPosted = m.IsPosted,
+            //    LastModifiedUtc = m.LastModifiedUtc
+            //});
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
