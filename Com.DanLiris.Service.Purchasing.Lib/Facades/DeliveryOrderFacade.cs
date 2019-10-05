@@ -37,27 +37,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
         public Tuple<List<DeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<DeliveryOrder> Query = this.dbSet;
+            IQueryable<DeliveryOrder> Query = this.dbSet.Include(x => x.Items).ThenInclude(x => x.Details);
 
-            Query = Query.Select(s => new DeliveryOrder
-            {
-                Id = s.Id,
-                UId = s.UId,
-                DONo = s.DONo,
-                DODate = s.DODate,
-                ArrivalDate = s.ArrivalDate,
-                SupplierName = s.SupplierName,
-                SupplierId = s.SupplierId,
-                IsClosed = s.IsClosed,
-                CreatedBy = s.CreatedBy,
-                LastModifiedUtc = s.LastModifiedUtc,
-                Items = s.Items.Select(i => new DeliveryOrderItem
-                {
-                    EPOId = i.EPOId,
-                    EPONo = i.EPONo,
-                    Details = i.Details.ToList()
-                }).ToList()
-            });
+            //Query = Query.Select(s => new DeliveryOrder
+            //{
+            //    Id = s.Id,
+            //    UId = s.UId,
+            //    DONo = s.DONo,
+            //    DODate = s.DODate,
+            //    ArrivalDate = s.ArrivalDate,
+            //    SupplierName = s.SupplierName,
+            //    SupplierId = s.SupplierId,
+            //    IsClosed = s.IsClosed,
+            //    CreatedBy = s.CreatedBy,
+            //    LastModifiedUtc = s.LastModifiedUtc,
+            //    Items = s.Items.Select(i => new DeliveryOrderItem
+            //    {
+            //        EPOId = i.EPOId,
+            //        EPONo = i.EPONo,
+            //        Details = i.Details.ToList()
+            //    }).ToList()
+            //});
 
             List<string> searchAttributes = new List<string>()
             {

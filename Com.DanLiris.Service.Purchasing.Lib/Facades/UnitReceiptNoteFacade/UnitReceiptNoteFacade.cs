@@ -1196,7 +1196,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     await ReverseJournalTransaction(m.URNNo);
                     await DeleteCreditorAccount(m.URNNo);
-
+                    await RollbackFulfillment(m, user);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -1514,15 +1514,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var fulfillment = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
                           .FirstOrDefault(x => x.UnitReceiptNoteId == model.Id && x.UnitReceiptNoteItemId == item.Id);
 
-                fulfillment.UnitReceiptNoteDate = null;
-                fulfillment.UnitReceiptNoteDeliveredQuantity = null;
-                fulfillment.UnitReceiptNoteId = null;
-                fulfillment.UnitReceiptNoteItemId = null;
-                fulfillment.UnitReceiptNoteNo = null;
-                fulfillment.UnitReceiptNoteUom = null;
-                fulfillment.UnitReceiptNoteUomId = null;
+                if(fulfillment != null)
+                {
+                    fulfillment.UnitReceiptNoteDate = null;
+                    fulfillment.UnitReceiptNoteDeliveredQuantity = null;
+                    fulfillment.UnitReceiptNoteId = null;
+                    fulfillment.UnitReceiptNoteItemId = null;
+                    fulfillment.UnitReceiptNoteNo = null;
+                    fulfillment.UnitReceiptNoteUom = null;
+                    fulfillment.UnitReceiptNoteUomId = null;
 
-                count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
+                    count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
+                }
+                
 
             }
             return count;

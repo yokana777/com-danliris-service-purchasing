@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -20,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -73,6 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             serviceProvider
                 .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
                 .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod())));
+
 
             var services = new ServiceCollection();
             services.AddMemoryCache();
@@ -130,14 +133,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Create_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
+
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
-            
+
             var response = await facade.Create(model, USERNAME);
 
             Assert.NotEqual(0, response);
 
-            
+
         }
 
         [Fact]
@@ -185,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var Response = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(0, Response);
 
-            
+
         }
 
         [Fact]
@@ -254,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var ResponseAddDuplicateItem = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(0, ResponseAddDuplicateItem);
 
-            
+
         }
 
         [Fact]
@@ -329,6 +333,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
         [Fact]
+        public async Task Should_Fail_Delete_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            Assert.ThrowsAny<Exception>(() => facade.Delete((int)0, USERNAME));
+
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -378,5 +392,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var Response = facade.ReadBySupplier(null, model.Items.FirstOrDefault().Details.FirstOrDefault().UnitId, model.SupplierId);
             Assert.NotEmpty(Response);
         }
+
+        [Fact]
+        public void Should_Success_Validate_VM_Null()
+        {
+            var serviceProvider = GetServiceProvider();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
+
+            var vm = new DeliveryOrderViewModel()
+            {
+                items = new List<DeliveryOrderItemViewModel>()
+            };
+            var context = new ValidationContext(vm, serviceProvider.Object, null);
+            Assert.NotEmpty(vm.Validate(context));
+        }
+
     }
 }
