@@ -1345,7 +1345,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
             Assert.NotNull(Response.Item1);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -1368,7 +1368,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
             Assert.NotNull(Response.Item1);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]

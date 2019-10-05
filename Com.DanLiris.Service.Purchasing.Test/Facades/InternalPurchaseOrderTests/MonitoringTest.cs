@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport( model.UnitId, model.CategoryId, model.CreatedBy, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport("", null, null, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReportUnProcessed(model.UnitId, model.CategoryId, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReportUnProcessed("", null, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetIPOEPODurationReport(model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GetIPOEPODurationReport("", "15-30 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]

@@ -264,7 +264,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             await facade.Create(data, USERNAME);
             GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var Response = Facade.GetIPOEPODurationReport("", "0-7 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
 
             var Response1 = Facade.GetIPOEPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response1.Item1);

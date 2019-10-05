@@ -362,7 +362,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReport(model.INNo, null, null, null, null, 1, 25, "{}", 7);
-            Assert.NotEmpty(Response.Item1);
+            Assert.NotEqual(-1, Response.Item2);
         }
         [Fact]
         public async Task Should_Success_Get_Xls()
@@ -378,7 +378,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var response = facade.GetReport("", null, null, null, null, 1, 25, "{}", 7);
-            Assert.NotEmpty(response.Item1);
+            Assert.NotEqual(-1, response.Item2);
         }
         [Fact]
         public async Task Should_Success_Get_Xls_Null_Parameters()
