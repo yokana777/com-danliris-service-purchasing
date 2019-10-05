@@ -137,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetNewData2();
             var Response = await facade.Create(model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -254,7 +254,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             });
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -351,7 +351,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             });
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -447,7 +447,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             });
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         //[Fact]
@@ -518,7 +518,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = await facade.Delete((int)model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -527,7 +527,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData2();
             var Response = await facade.Delete((int)model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -536,7 +536,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData3();
             var Response = await facade.Delete((int)model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -554,7 +554,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -955,7 +955,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             };
             var filterString = JsonConvert.SerializeObject(filter);
             var Response = facade.ReadForUnitReceiptNote(Filter:filterString);
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -988,7 +988,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadForCorrectionNoteQuantity();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
     }
 }

@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME, true);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             foreach (var item in model.Items)
             {
@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME, true);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             foreach (var item in model.Items)
             {

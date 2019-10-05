@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXls(null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
     }
 }

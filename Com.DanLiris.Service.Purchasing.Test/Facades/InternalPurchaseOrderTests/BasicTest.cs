@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             await DataUtil.GetTestData("Unit test");
             Tuple<List<InternalPurchaseOrder>, int, Dictionary<string, string>> Response = Facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetNewData("Unit test");
             var Response = await Facade.Create(model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadByPRNo(model.PRNo);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             model.POItemId = modelIpo.Items.FirstOrDefault().Id;
 
             var Response = await Facade.CreateFulfillmentAsync(model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
 
             var created = await Facade.CreateFulfillmentAsync(model, "Unit Test");
             var Response = await Facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
 
             var created = await  Facade.CreateFulfillmentAsync(model, "Unit Test");
             var Response = Facade.DeleteFulfillment((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]

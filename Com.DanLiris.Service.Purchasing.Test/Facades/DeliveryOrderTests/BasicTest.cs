@@ -135,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             
             var response = await facade.Create(model, USERNAME);
 
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
 
             
         }
@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var dbContext = _dbContext(GetCurrentMethod());
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             Exception exception = await Assert.ThrowsAnyAsync<Exception>(() => facade.Create(null, USERNAME));
-            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
+            Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             Tuple<List<DeliveryOrder>, int, Dictionary<string, string>> Response = facade.Read(Keyword: model.DONo);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -183,7 +183,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
                 }
             }
             var Response = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             
         }
@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
                 }
             }
             var Response = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             DeliveryOrderItem oldItem = model.Items.FirstOrDefault();
             DeliveryOrderDetail oldDetail = oldItem.Details.FirstOrDefault();
@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             newDuplicateItem.Details.Add(newDuplicateDetail);
             model.Items.Add(newDuplicateItem);
             var ResponseAddDuplicateItem = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAddDuplicateItem, 0);
+            Assert.NotEqual(0, ResponseAddDuplicateItem);
 
             
         }
@@ -271,14 +271,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
                 }
             }
             var Response = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             var newModelForAddItem = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
             DeliveryOrderItem newModelItem = newModelForAddItem.Items.FirstOrDefault();
             model.Items.Add(newModelItem);
             model.Items.Add(newModelItem);
             var ResponseAddItem = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAddItem, 0);
+            Assert.NotEqual(0, ResponseAddItem);
 
 
         }
@@ -315,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var dbContext = _dbContext(GetCurrentMethod());
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Update(0, new DeliveryOrder(), USERNAME));
-            Assert.Equal(exception.Message, "Invalid Id");
+            Assert.Equal("Invalid Id", exception.Message);
         }
 
         [Fact]
@@ -325,7 +325,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var Response = facade.Delete((int)model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -356,7 +356,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData("Unit test");
             var Response = facade.GenerateExcel(model.DONo, model.SupplierId, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -366,7 +366,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData("Unit test");
             var Response = facade.GenerateExcel("", "", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -376,7 +376,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var Response = facade.ReadBySupplier(null, model.Items.FirstOrDefault().Details.FirstOrDefault().UnitId, model.SupplierId);
-            Assert.NotEqual(0, Response.Count);
+            Assert.NotEmpty(Response);
         }
     }
 }

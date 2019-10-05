@@ -558,7 +558,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
     }
 }

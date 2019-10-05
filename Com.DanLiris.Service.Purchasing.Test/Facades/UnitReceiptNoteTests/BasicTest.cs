@@ -176,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var Response = facade.Read();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             model.UnitId = null;
             var response = await facade.Create(model, USERNAME);
 
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
             
         }
 
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             model2.IsStorage = true;
             model2.UnitId = null;
             var response2 = await facade2.Create(model2, USERNAME);
-            Assert.NotEqual(response2, 0);
+            Assert.NotEqual(0, response2);
         }
 
         [Fact]
@@ -224,7 +224,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var model = await _dataUtil(facade, dbContext).GetNewHavingStockData(USERNAME);
             model.IsStorage = true;
             var response = await facade.Create(model, USERNAME);
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
         }
 
         [Fact]
@@ -234,7 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = await facade.Update((int)dataUtil.Id, dataUtil, dataUtil.CreatedBy);
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
         }
 
         [Fact]
@@ -244,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = await facade.Delete((int)dataUtil.Id, dataUtil.CreatedBy);
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
         }
 
         [Fact]
@@ -266,7 +266,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
 
             var response = facade.ReadBySupplierUnit(Filter: filter);
 
-            Assert.NotEqual(response.Data.Count, 0);
+            Assert.NotEmpty(response.Data);
         }
 
         [Fact]
@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
             var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
             var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1, 25, "{}", 1);
-            Assert.NotEqual(response.Data.Count, 0);
+            Assert.NotEmpty(response.Data);
         }
 
         [Fact]
@@ -307,7 +307,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
 
             var Response = facade.Read();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
 
             foreach (var data in Response.Data)
             {

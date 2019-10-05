@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             await DataUtil.GetTestData("Unit test");
             Tuple<List<ExternalPurchaseOrder>, int, Dictionary<string, string>> Response = Facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetTestDataUnused("Unit test");
             List<ExternalPurchaseOrder> Response = Facade.ReadUnused(Keyword:externalPurchaseOrder.EPONo);
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         //[Fact]
@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 
             await DataUtil.GetTestData("Unit Test");
             var Response = this.Facade.Read(1, 25, order, keyword, filter);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder model = await DataUtil.GetNewData("Unit Test");
             var Response = await Facade.Create(model, "Unit Test",7);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         //[Fact]
@@ -99,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         //[Fact]
@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
                 }
             }
             var Response = await Facade.Update((int)model.Id, model, "Unit test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
 
             ExternalPurchaseOrderItem oldItem = model.Items.FirstOrDefault();
@@ -174,18 +174,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             newDuplicateItem.Details.Add(newDuplicateDetail);
             model.Items.Add(newDuplicateItem);
             var ResponseAddDuplicateItem = await Facade.Update((int)model.Id, model, "Unit test");
-            Assert.NotEqual(ResponseAddDuplicateItem, 0);
+            Assert.NotEqual(0, ResponseAddDuplicateItem);
 
             var newModelForAddItem = await DataUtil.GetNewData("Unit test");
             ExternalPurchaseOrderItem newModelItem = newModelForAddItem.Items.FirstOrDefault();
             model.Items.Add(newModelItem);
             var ResponseAddItem = await Facade.Update((int)model.Id, model, "Unit test");
-            Assert.NotEqual(ResponseAddItem, 0);
+            Assert.NotEqual(0, ResponseAddItem);
 
             model.Items.Remove(newModelItem);
             model.Items.FirstOrDefault().Details.Remove(oldDetail);
             var ResponseRemoveItemDetail = await Facade.Update((int)model.Id, model, "Unit test");
-            Assert.NotEqual(ResponseRemoveItemDetail, 0);
+            Assert.NotEqual(0, ResponseRemoveItemDetail);
         }
 
         [Fact]

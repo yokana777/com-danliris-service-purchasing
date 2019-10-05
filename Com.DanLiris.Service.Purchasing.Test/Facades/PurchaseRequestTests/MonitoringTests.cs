@@ -53,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport(model.No,model.UnitId,model.CategoryId,model.BudgetId,"","",null,null, 1,25,"{}",7, "Unit Test");
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(0, Response.Item2);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport("", null,null, null, "", "", null, null, 1, 25, "{}", 7, "Unit Test");
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(0, Response.Item2);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel(model.No, model.UnitId, model.CategoryId, model.BudgetId, "", "", null, null, 7, "Unit Test");
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GenerateExcel("", "", "", "", "", "", null, null, 7, "Unit Test");
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
         //Duration PR
         [Fact]
@@ -85,7 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
 			var Response = Facade.GetPRDurationReport( model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
-			Assert.NotEqual(Response.Item2, 0);
+			Assert.NotEqual(0, Response.Item2);
 		}
 
 		[Fact]
@@ -93,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
 			var Response = Facade.GetPRDurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
-			Assert.NotEqual(Response.Item2, 0);
+			Assert.NotEqual(0, Response.Item2);
 		}
 
 		[Fact]
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		{
 			var model = await IPODataUtil.GetTestData2("Unit test");
 			var Response = Facade.GenerateExcelPRDuration(model.UnitId, "8-14 hari", null, null, 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 		}
 
 		[Fact]
@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 		{
 			var model = await IPODataUtil.GetTestData3("Unit test");
 			var Response = Facade.GenerateExcelPRDuration("", "15-30 hari", null, null, 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 		}
 
         //Duration PR-PO Ex
@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetPREPODurationReport(model.UnitId, "8-14 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(0, Response.Item2);
         }
 
         [Fact]
@@ -126,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             var model = await IPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GetPREPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(0, Response.Item2);
         }
 
         [Fact]
@@ -134,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             var model = await EPODataUtil.GetTestData2("Unit test");
             var Response = Facade.GenerateExcelPREPODuration(model.UnitId, "8-14 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             var model = await EPODataUtil.GetTestData3("Unit test");
             var Response = Facade.GenerateExcelPREPODuration("", "15-30 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -158,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = FacadeGenerateData.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }

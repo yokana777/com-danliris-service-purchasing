@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            Assert.NotEqual(result.Reports.Count, 0);
+            Assert.NotEmpty(result.Reports);
         }
 
         [Fact]
@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            Assert.Equal(result.Reports.Count, 0);
+            Assert.Empty(result.Reports);
         }
 
         [Fact]

@@ -571,7 +571,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXlsArrivalHeader(null, null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
         //[Fact]
@@ -691,7 +691,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXlsArrivalDetail($"BuyerCode{nowTicksA}", null, null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
 
@@ -786,7 +786,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXlsDeliveryHeader(null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
         //[Fact]
@@ -888,7 +888,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
         #region Report Delivery Order All
         [Fact]

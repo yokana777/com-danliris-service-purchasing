@@ -308,7 +308,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData2("Unit test");
             var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
             var Response = externalPurchaseOrderFacade.GenerateExcelEPODODuration(model.UnitId, "31-60 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -324,7 +324,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData3("Unit test");
             var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
             var Response = externalPurchaseOrderFacade.GenerateExcelEPODODuration("", "61-90 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         // Monitoring Price
@@ -360,7 +360,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
             var EPODtl = modelEPO.Items.First().Details.First();
             var Response = monitoringPriceFacade.GenerateExcel(EPODtl.ProductName, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -371,7 +371,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             MonitoringPriceFacade monitoringPriceFacade = new MonitoringPriceFacade(GetServiceProvider().Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
             var Response = monitoringPriceFacade.GenerateExcel("", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -382,7 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrderGenerateDataFacade externalPurchaseOrderGenerateDataFacade = new ExternalPurchaseOrderGenerateDataFacade(GetServiceProvider().Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = externalPurchaseOrderGenerateDataFacade.GenerateExcel(null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -393,7 +393,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrderGenerateDataFacade externalPurchaseOrderGenerateDataFacade = new ExternalPurchaseOrderGenerateDataFacade(GetServiceProvider().Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = externalPurchaseOrderGenerateDataFacade.GenerateExcel(DateTime.MinValue, DateTime.MinValue, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }

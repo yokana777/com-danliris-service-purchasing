@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -148,11 +148,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
+            Assert.NotEqual(0, ResponseLocalSupplier);
 
             var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier,true, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             
             Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(null, true, USERNAME, 7));
-            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
+            Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             modelLocalSupplier.DivisionName = "GARMENT";
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
+            Assert.NotEqual(0, ResponseLocalSupplier);
         }
 
         [Fact]
@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
             UnitPaymentPriceCorrectionNoteFacade facade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcel(null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
 
             var Response = facade.GenerateDataExcel(null, null, 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentPriceCorrectio
 
             var Response = facade.GenerateDataExcel(DateTime.MinValue, DateTime.MinValue, 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }

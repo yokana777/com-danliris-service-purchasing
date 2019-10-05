@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             modelList.Add(model);
             var Response = Facade.PRPost(modelList, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.PRUnpost((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
     }
 }

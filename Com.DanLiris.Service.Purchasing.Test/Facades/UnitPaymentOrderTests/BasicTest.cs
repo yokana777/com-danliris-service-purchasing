@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -140,11 +140,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, false);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
+            Assert.NotEqual(0, ResponseLocalSupplier);
 
             var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, true);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
         [Fact]
@@ -158,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             //model.Items.Clear();
             model.Items.Add(modelItem);
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAdd, 0);
+            Assert.NotEqual(0, ResponseAdd);
         }
 
         [Fact]
@@ -208,7 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadSpb();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadSpbForVerification();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -226,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadPositionFiltered(1, 25, "{}", null, "{position : [1,6]}");
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
         #region Monitoring All 
         [Fact]
@@ -235,7 +235,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportAll(null, model.SupplierId, DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -244,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportAll("", "", DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -253,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcel(null, model.SupplierId, DateTime.MinValue, DateTime.MaxValue, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(_dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcel("", "", DateTime.MinValue, DateTime.MaxValue, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
         #endregion
 
@@ -275,7 +275,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
 
             var Response = facade.GenerateDataExcel(null, null, 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -287,7 +287,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
 
             var Response = facade.GenerateDataExcel(DateTime.MinValue, DateTime.MinValue, 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
     }

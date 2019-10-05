@@ -97,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
             var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileDownloadName"));
+            Assert.NotNull(response.GetType().GetProperty("FileDownloadName"));
         }
     }
 }

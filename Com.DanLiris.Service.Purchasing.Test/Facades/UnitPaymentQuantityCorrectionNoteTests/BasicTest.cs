@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
             await _dataUtil(facade, dbContext).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -173,11 +173,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
+            Assert.NotEqual(0, ResponseLocalSupplier);
 
             var modelImportSupplier = await _dataUtil(facade, dbContext).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
         [Fact]
@@ -189,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             modelLocalSupplier.DivisionName = "GARMENT";
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
         [Fact]
@@ -201,7 +201,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             modelLocalSupplier.SupplierId = null;
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
         [Fact]
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
             modelLocalSupplier.SupplierId = "670";
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
 
             Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(null, USERNAME, 7));
-            Assert.Equal(exception.Message, "Object reference not set to an instance of an object.");
+            Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
         }
 
 
@@ -322,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
             await _dataUtil(facade, dbContext).GetTestData();
             var Response = facade.GetReport(DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -333,7 +333,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
             await _dataUtil(facade, dbContext).GetTestData();
             var Response = facade.GenerateExcel(DateTime.MinValue, DateTime.MaxValue, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -344,7 +344,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
             await _dataUtil(facade, dbContext).GetTestData();
             var Response = facade.GenerateExcel(null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
 

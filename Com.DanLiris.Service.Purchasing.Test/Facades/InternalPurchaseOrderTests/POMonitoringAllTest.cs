@@ -303,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider().Object, dbContext);
             InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcel(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 7, "");
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -314,7 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider().Object, dbContext);
             InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, null, 7, "");
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
 
@@ -373,7 +373,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             DeliveryOrderFacade doFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             var model = await _dataUtilDO(doFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcelSarmut(DateTime.MinValue, DateTime.MaxValue, null, model.CreatedBy, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -384,7 +384,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             DeliveryOrderFacade doFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
             var model = await _dataUtilDO(doFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcelSarmut(null, null, null, null, 0);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
         #endregion
     }

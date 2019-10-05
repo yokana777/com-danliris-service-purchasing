@@ -245,12 +245,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GenerateExcelArrivalHeader(null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
             var Response1 = Facade.GenerateExcelArrivalDetail($"BuyerCode{nowTicksA}", null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+            Assert.IsType<System.IO.MemoryStream>(Response1);
         }
 
 
@@ -357,12 +357,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GenerateExcelDeliveryHeader(null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
             var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+            Assert.IsType<System.IO.MemoryStream>(Response1);
         }
 
         [Fact]
@@ -371,7 +371,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportDO(model.DONo, "", model.SupplierId, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -380,7 +380,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportDO("", "", 0, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -389,7 +389,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcelDO(model.DONo, "", model.SupplierId, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -398,7 +398,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcelDO("", "", 0, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
         // Buku Harian Pembelian
         [Fact]
@@ -466,7 +466,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d2 = dataBC.BeacukaiDate.DateTime;
 
             var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -488,7 +488,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
             var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
     }

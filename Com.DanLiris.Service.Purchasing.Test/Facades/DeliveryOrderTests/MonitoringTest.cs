@@ -37,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         {
             DeliveryOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.GetReport( model.DONo, model.SupplierId, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(0, Response.Item2);
         }
 
         

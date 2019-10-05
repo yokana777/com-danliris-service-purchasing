@@ -44,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
                 items.Id = 0;
             }
             var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         //[Fact]
@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
                 items.Quantity = items.Quantity - 1;
             }
             var Response = await Facade.Split((int)NewDataId, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
     }
 }

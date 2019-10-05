@@ -198,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal("JObject", result["data"].GetType().Name);
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
             foreach (var item in viewModel.items)
             {
@@ -231,7 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal("JObject", result["data"].GetType().Name);
 
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
             viewModel.orderDate = DateTimeOffset.MinValue;
@@ -269,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal("JObject", result["data"].GetType().Name);
 
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
             viewModel.incomeTax = new Lib.ViewModels.IntegrationViewModel.IncomeTaxViewModel
@@ -304,7 +304,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal("JObject", result["data"].GetType().Name);
 
             ExternalPurchaseOrderViewModel viewModel = JsonConvert.DeserializeObject<ExternalPurchaseOrderViewModel>(result.GetValueOrDefault("data").ToString());
             foreach (var item in viewModel.items)
