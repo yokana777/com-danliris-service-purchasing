@@ -635,7 +635,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
-        public async Task Should_Success_Delete_Data()
+        public void Should_Success_Delete_Data()
         {
             var mockFacade = new Mock<IDeliveryOrderFacade>();
             mockFacade
@@ -650,7 +650,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
-        public async Task Should_Fail_Delete_Data()
+        public void Should_Fail_Delete_Data()
         {
             var mockFacade = new Mock<IDeliveryOrderFacade>();
             mockFacade
