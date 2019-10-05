@@ -398,7 +398,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", "", "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", "");
             else
             {
                 int index = 0;
