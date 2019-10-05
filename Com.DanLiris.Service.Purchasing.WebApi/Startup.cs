@@ -57,6 +57,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributionFac
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
+using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -203,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
-            services.AddAutoMapper();
+            services.AddAutoMapper(typeof(BaseAutoMapperProfile));
             services.AddMemoryCache();
 
             RegisterSerializationProvider();
