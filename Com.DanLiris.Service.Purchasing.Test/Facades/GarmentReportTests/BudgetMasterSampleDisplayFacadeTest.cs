@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             var dataUtil = GetDataUtil(garmentPurchaseRequestFacade);
             var dataGarmentPurchaseRequest = await dataUtil.GetTestData();
 
-            var facade = new MonitoringROMasterFacade(mockServiceProvider.Object, dbContext);
+            var facade = new BudgetMasterSampleDisplayFacade(mockServiceProvider.Object, dbContext);
 
             var Response = facade.GetExcel(dataGarmentPurchaseRequest.Id);
             Assert.NotNull(Response.Item2);
