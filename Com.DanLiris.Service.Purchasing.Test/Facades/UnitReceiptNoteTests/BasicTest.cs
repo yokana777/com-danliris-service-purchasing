@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             return dbContext;
         }
 
-        private Mock<IServiceProvider> GetServiceProvider()
+        private Mock<IServiceProvider> GetServiceProvider(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
-                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod())));
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
             //var cache = new Mock<IMemoryCache>();
             //cache.Setup(x => x.GetOrCreate<List<IdCOAResult>>());
 
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             return serviceProvider;
         }
 
-        private Mock<IServiceProvider> GetServiceProvider2()
+        private Mock<IServiceProvider> GetServiceProvider2(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -111,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
-                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod())));
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
 
             //var cache = new Mock<IMemoryCache>();
             //cache.Setup(x => x.GetOrCreate<List<IdCOAResult>>());
@@ -140,29 +140,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             return serviceProvider;
         }
 
-        private Mock<IServiceProvider> _ServiceProvider => GetServiceProvider();
+        private Mock<IServiceProvider> _ServiceProvider(string testname) => GetServiceProvider(testname);
 
-        private UnitReceiptNoteDataUtil _dataUtil(UnitReceiptNoteFacade facade, PurchasingDbContext _DbContext)
+        private UnitReceiptNoteDataUtil _dataUtil(UnitReceiptNoteFacade facade, PurchasingDbContext _DbContext, string testname)
         {
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(_ServiceProvider.Object, _DbContext);
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(_ServiceProvider(testname).Object, _DbContext);
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(_ServiceProvider.Object, _DbContext);
+            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(_ServiceProvider(testname).Object, _DbContext);
             InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
             InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(_ServiceProvider.Object, _DbContext);
+            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(_ServiceProvider(testname).Object, _DbContext);
             ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(_DbContext, _ServiceProvider.Object);
+            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(_DbContext, _ServiceProvider(testname).Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
             DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
 
-            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(_ServiceProvider.Object, _DbContext);
+            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(_ServiceProvider(testname).Object, _DbContext);
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
@@ -173,8 +173,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public void Should_Success_Get_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.Read();
             Assert.NotEmpty(Response.Data);
         }
@@ -183,8 +183,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Get_Data_By_Id()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.ReadById((int)dataUtil.Id);
             Assert.NotNull(Response);
         }
@@ -193,8 +193,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Create_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
             model.IsStorage = true;
             model.UnitId = null;
             var response = await facade.Create(model, USERNAME);
@@ -208,8 +208,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
             
-            UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2().Object, dbContext);
-            var model2 = await _dataUtil(facade2, dbContext).GetNewData(USERNAME);
+            UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2(GetCurrentMethod()).Object, dbContext);
+            var model2 = await _dataUtil(facade2, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
             model2.IsStorage = true;
             model2.UnitId = null;
             var response2 = await facade2.Create(model2, USERNAME);
@@ -220,8 +220,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Create_Having_Stock_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var model = await _dataUtil(facade, dbContext).GetNewHavingStockData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewHavingStockData(USERNAME);
             model.IsStorage = true;
             var response = await facade.Create(model, USERNAME);
             Assert.NotEqual(0, response);
@@ -231,8 +231,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = await facade.Update((int)dataUtil.Id, dataUtil, dataUtil.CreatedBy);
             Assert.NotEqual(0, response);
         }
@@ -241,8 +241,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Delete_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = await facade.Delete((int)dataUtil.Id, dataUtil.CreatedBy);
             Assert.NotEqual(0, response);
         }
@@ -251,8 +251,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public void Should_Success_Read_DataBySupplier()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var filter = JsonConvert.SerializeObject(new
             {
                 DivisionId = "DivisionId",
@@ -273,8 +273,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_GetReport()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1, 25, "{}", 1);
             Assert.NotEmpty(response.Data);
         }
@@ -283,8 +283,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_GenerateExcel()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = facade.GenerateExcel(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1);
             Assert.NotNull(response);
         }
@@ -293,8 +293,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Get_By_No()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = facade.ReadByNoFiltered(1, 25, "{}", null, "{ no : ['" + dataUtil.URNNo + "']}");
             Assert.NotNull(response);
         }
@@ -303,8 +303,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public void Should_Success_Get_GetPurchaseRequestCategoryCode()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
 
             var Response = facade.Read();
             Assert.NotEmpty(Response.Data);
@@ -323,8 +323,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Get_By_List_Of_No()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = facade.GetByListOfNo(new List<string>() { dataUtil.URNNo });
             Assert.NotEmpty(response);
         }
@@ -333,8 +333,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Get_Subledger()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider.Object, dbContext);
-            var dataUtil = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var response = await facade.GetUnitReceiptNoteForSubledger(new List<string>() { dataUtil.URNNo });
             Assert.NotEmpty(response);
         }

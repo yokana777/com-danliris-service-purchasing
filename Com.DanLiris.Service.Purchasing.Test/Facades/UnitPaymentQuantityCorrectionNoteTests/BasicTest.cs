@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             return dbContext;
         }
 
-        private UnitPaymentCorrectionNoteDataUtil _dataUtil(UnitPaymentQuantityCorrectionNoteFacade facade, PurchasingDbContext dbContext)
+        private Mock<IServiceProvider> GetServiceProvider(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
-                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod())));
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
@@ -93,29 +93,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
 
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, dbContext);
+            return serviceProvider;
+        }
+
+        private UnitPaymentCorrectionNoteDataUtil _dataUtil(UnitPaymentQuantityCorrectionNoteFacade facade, PurchasingDbContext dbContext, string testName)
+        {
+            
+
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(testName).Object, dbContext);
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(serviceProvider.Object, dbContext);
+            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(testName).Object, dbContext);
             InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
             InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(serviceProvider.Object, dbContext);
+            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider(testName).Object, dbContext);
             ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, serviceProvider.Object);
+            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider(testName).Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
             DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
 
-            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(serviceProvider.Object, dbContext);
+            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(GetServiceProvider(testName).Object, dbContext);
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
-            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
+            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(GetServiceProvider(testName).Object, dbContext);
             UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
 
             return new UnitPaymentCorrectionNoteDataUtil(unitPaymentOrderDataUtil, facade, unitReceiptNoteFacade);
@@ -124,10 +131,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Get_Data()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
-            await _dataUtil(facade, dbContext).GetTestData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
             Assert.NotEmpty(Response.Item1);
         }
@@ -135,10 +141,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var model = await _dataUtil(facade, dbContext).GetTestData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
         }
@@ -146,10 +151,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Error_Get_Null_Data_UnitReceiptNote()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var model = await _dataUtil(facade, dbContext).GetTestData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadByURNNo((string)model.UPCNo);
             Assert.Null(Response);
         }
@@ -168,14 +172,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Create_Data()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseLocalSupplier);
 
-            var modelImportSupplier = await _dataUtil(facade, dbContext).GetNewData();
+            var modelImportSupplier = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseImportSupplier);
         }
@@ -183,10 +186,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Create_Data_garment()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData();
             modelLocalSupplier.DivisionName = "GARMENT";
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseImportSupplier);
@@ -195,10 +197,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Create_Data_when_Supplier_IsNull()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData();
             modelLocalSupplier.SupplierId = null;
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseImportSupplier);
@@ -207,10 +208,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Create_Data_when_Supplier_Is_not_Null()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = await _dataUtil(facade, dbContext).GetNewData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData();
             modelLocalSupplier.SupplierId = "670";
             var ResponseImportSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseImportSupplier);
@@ -219,8 +219,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Error_Create_Data_Null_Parameter()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
 
             Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(null, USERNAME, 7));
             Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
@@ -317,10 +316,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Get_Report_Data()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
-            await _dataUtil(facade, dbContext).GetTestData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReport(DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
             Assert.NotEmpty(Response.Item1);
         }
@@ -328,10 +326,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Get_Generate_Excel()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
-            await _dataUtil(facade, dbContext).GetTestData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcel(DateTime.MinValue, DateTime.MaxValue, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -339,10 +336,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
         [Fact]
         public async Task Should_Success_Get_Generate_Excel_Null_parameter()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
             var dbContext = _dbContext(GetCurrentMethod());
-            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(serviceProvider.Object, dbContext);
-            await _dataUtil(facade, dbContext).GetTestData();
+            UnitPaymentQuantityCorrectionNoteFacade facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcel(null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }

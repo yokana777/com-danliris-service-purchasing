@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         }
 
 
-        private Mock<IServiceProvider> GetServiceProvider()
+        private Mock<IServiceProvider> GetServiceProvider(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
-                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(GetCurrentMethod())));
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
 
 
             var services = new ServiceCollection();
@@ -104,22 +104,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             return serviceProvider;
         }
 
-        private DeliveryOrderDataUtil _dataUtil(DeliveryOrderFacade facade, PurchasingDbContext _DbContext)
+        private DeliveryOrderDataUtil _dataUtil(DeliveryOrderFacade facade, PurchasingDbContext _DbContext, string testname)
         {
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider().Object, _DbContext);
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(testname).Object, _DbContext);
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider().Object, _DbContext);
+            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(testname).Object, _DbContext);
             InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
             InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider().Object, _DbContext);
+            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider(testname).Object, _DbContext);
             ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(_DbContext, GetServiceProvider().Object);
+            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(_DbContext, GetServiceProvider(testname).Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
             DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
@@ -134,8 +134,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
 
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
 
             var response = await facade.Create(model, USERNAME);
 
@@ -148,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Error_Create_Data_Null_Parameter()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
             Exception exception = await Assert.ThrowsAnyAsync<Exception>(() => facade.Create(null, USERNAME));
             Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
         }
@@ -157,8 +157,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             Tuple<List<DeliveryOrder>, int, Dictionary<string, string>> Response = facade.Read(Keyword: model.DONo);
             Assert.NotEmpty(Response.Item1);
         }
@@ -167,8 +167,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_Data_By_Id()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
         }
@@ -177,8 +177,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             foreach (var item in model.Items)
             {
                 foreach (var detail in item.Details)
@@ -195,9 +195,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         [Fact]
         public async Task Should_Success_UpdateThenAdd()
         {
-            var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            var dbContext = _dbContext(GetCurrentMethod() + "ThenAdd");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod() + "ThenAdd").Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod() + "ThenAdd").GetTestData(USERNAME);
             foreach (var item in model.Items)
             {
                 foreach (var detail in item.Details)
@@ -205,6 +205,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
                     detail.DOQuantity -= 1;
                 }
             }
+
+            foreach (var item in dbContext.InternalPurchaseOrderFulfillments.ToList())
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
+
             var Response = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(0, Response);
 
@@ -265,8 +271,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_UpdateThenAddMany()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             foreach (var item in model.Items)
             {
                 foreach (var detail in item.Details)
@@ -277,7 +283,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             var Response = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(0, Response);
 
-            var newModelForAddItem = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
+            var newModelForAddItem = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
             DeliveryOrderItem newModelItem = newModelForAddItem.Items.FirstOrDefault();
             model.Items.Add(newModelItem);
             model.Items.Add(newModelItem);
@@ -287,37 +293,52 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
 
         }
 
-        //[Fact]
-        //public async Task Should_Success_UpdateThenRemoveDetails()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod() + "Details");
-        //    DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-        //    DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+        [Fact]
+        public async Task Should_Success_UpdateThenRemoveDetails()
+        {
+            var dbContext = _dbContext(GetCurrentMethod() + "Details");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod() + "Details").Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod() + "Details").GetTestData(USERNAME);
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    dbContext.Entry(detail).State = EntityState.Detached;
+                }
+            }
+            model.Items.FirstOrDefault().Details.Clear();
+            var ResponseRemoveItemDetail = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(0, ResponseRemoveItemDetail);
+        }
 
-        //    model.Items.FirstOrDefault().Details.Clear();
-        //    var ResponseRemoveItemDetail = await facade.Update((int)model.Id, model, USERNAME);
-        //    Assert.NotEqual(ResponseRemoveItemDetail, 0);
-        //}
+        [Fact]
+        public async Task Should_Success_Update_DataThenRemoveItems()
+        {
+            var dbContext = _dbContext(GetCurrentMethod() + "Items");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod() + "Items").Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod() + "Items").GetTestData(USERNAME);
 
-        //[Fact]
-        //public async Task Should_Success_Update_DataThenRemoveItems()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod() + "Items");
-        //    DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-        //    DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            foreach (var item in model.Items)
+            {
 
+                dbContext.Entry(item).State = EntityState.Detached;
+                foreach (var detail in item.Details)
+                {
+                    dbContext.Entry(detail).State = EntityState.Detached;
+                }
+            }
 
-        //    model.Items = new List<DeliveryOrderItem>();
-        //    var ResponseRemoveItemDetail = await facade.Update((int)model.Id, model, USERNAME);
-        //    Assert.NotEqual(ResponseRemoveItemDetail, 0);
-        //}
+            model.Items = new List<DeliveryOrderItem>();
+            var ResponseRemoveItemDetail = await facade.Update((int)model.Id, model, USERNAME);
+            Assert.NotEqual(0, ResponseRemoveItemDetail);
+        }
 
 
         [Fact]
         public async Task Should_Error_Update_Data_Invalid_Id()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
             Exception exception = await Assert.ThrowsAsync<Exception>(() => facade.Update(0, new DeliveryOrder(), USERNAME));
             Assert.Equal("Invalid Id", exception.Message);
         }
@@ -326,8 +347,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Delete_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.Delete((int)model.Id, USERNAME);
             Assert.NotEqual(0, Response);
         }
@@ -336,8 +357,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Fail_Delete_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             Assert.ThrowsAny<Exception>(() => facade.Delete((int)0, USERNAME));
 
         }
@@ -346,8 +367,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_Report_Data_Null_Parameter()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData("Unit test");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GetReport("", null, null, null, 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item2, -1);
         }
@@ -356,9 +377,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_Report_Data_Null_Parameter_Using_Two_Test_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model_1 = await _dataUtil(facade, dbContext).GetTestDataDummy("Unit test");
-            DeliveryOrder model_2 = await _dataUtil(facade, dbContext).GetTestDataDummy("Unit test");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model_1 = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestDataDummy("Unit test");
+            DeliveryOrder model_2 = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestDataDummy("Unit test");
             var Response = facade.GetReport("", null, null, null, 1, 25, "{}", 7);
             Assert.NotEqual(Response.Item2, -1);
         }
@@ -367,8 +388,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_Report_Data_Excel()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData("Unit test");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcel(model.DONo, model.SupplierId, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -377,8 +398,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            DeliveryOrder model = await _dataUtil(facade, dbContext).GetTestData("Unit test");
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            DeliveryOrder model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcel("", "", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -387,8 +408,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         public async Task Should_Success_Get_ReadBySupplier()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider().Object);
-            var model = await _dataUtil(facade, dbContext).GetTestData(USERNAME);
+            DeliveryOrderFacade facade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.ReadBySupplier(null, model.Items.FirstOrDefault().Details.FirstOrDefault().UnitId, model.SupplierId);
             Assert.NotEmpty(Response);
         }
@@ -396,7 +417,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
         [Fact]
         public void Should_Success_Validate_VM_Null()
         {
-            var serviceProvider = GetServiceProvider();
+            var serviceProvider = GetServiceProvider(GetCurrentMethod());
             serviceProvider
                 .Setup(x => x.GetService(typeof(PurchasingDbContext)))
                 .Returns(_dbContext(GetCurrentMethod()));

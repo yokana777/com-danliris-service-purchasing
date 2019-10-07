@@ -968,18 +968,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             try
             {
-                var m = this.dbContext.InternalPurchaseOrderFulfillments.AsNoTracking().SingleOrDefault(pr => pr.Id == id);
+                var m = this.dbContext.InternalPurchaseOrderFulfillments.SingleOrDefault(pr => pr.Id == id);
 
                 if (m != null)
                 {
                     EntityExtension.FlagForUpdate(model, user, "Facade");
+                    m.DeliveryOrderDate = model.DeliveryOrderDate;
+                    m.DeliveryOrderDeliveredQuantity = model.DeliveryOrderDeliveredQuantity;
+                    m.DeliveryOrderDetailId = model.DeliveryOrderDetailId;
+                    m.DeliveryOrderId = model.DeliveryOrderId;
+                    m.DeliveryOrderItemId = model.DeliveryOrderItemId;
+                    m.DeliveryOrderNo = model.DeliveryOrderNo;
+                    m.InterNoteDate = model.InterNoteDate;
+                    m.InterNoteDueDate = model.InterNoteDueDate;
+                    m.InterNoteNo = model.InterNoteNo;
+                    m.InterNoteValue = model.InterNoteValue;
+                    m.InvoiceDate = model.InvoiceDate;
+                    m.InvoiceNo = model.InvoiceNo;
+                    m.POItemId = model.POItemId;
+                    m.SupplierDODate = model.SupplierDODate;
+                    m.UnitPaymentOrderDetailId = model.UnitPaymentOrderDetailId;
+                    m.UnitPaymentOrderId = model.UnitPaymentOrderId;
+                    m.UnitPaymentOrderItemId = model.UnitPaymentOrderItemId;
+                    m.UnitReceiptNoteDate = model.UnitReceiptNoteDate;
+                    m.UnitReceiptNoteDeliveredQuantity = model.UnitReceiptNoteDeliveredQuantity;
+                    m.UnitReceiptNoteId = model.UnitReceiptNoteId;
+                    m.UnitReceiptNoteItemId = model.UnitReceiptNoteItemId;
+                    m.UnitReceiptNoteNo = model.UnitReceiptNoteNo;
+                    m.UnitReceiptNoteUom = model.UnitReceiptNoteUom;
+                    m.UnitReceiptNoteUomId = model.UnitReceiptNoteUomId;
 
-                    foreach (var item in model.Corrections)
+                    var updatedCorrections = model.Corrections.Where(x => m.Corrections.Any(y => y.Id == x.Id));
+                    var addedCorrections = model.Corrections.Where(x => !m.Corrections.Any(y => y.Id == x.Id));
+                    var deletedCorrections = m.Corrections.Where(x => !model.Corrections.Any(y => y.Id == x.Id));
+
+                    foreach (var item in updatedCorrections)
                     {
-                        EntityExtension.FlagForUpdate(item, user, "Facade");
+                        var dbCorrection = dbContext.InternalPurchaseOrderCorrections.FirstOrDefault(x => x.Id == item.Id);
+                        EntityExtension.FlagForUpdate(dbCorrection, user, "Facade");
+                        dbCorrection.CorrectionDate = item.CorrectionDate;
+                        dbCorrection.CorrectionNo = item.CorrectionNo;
+                        dbCorrection.CorrectionPriceTotal = item.CorrectionPriceTotal;
+                        dbCorrection.CorrectionQuantity = item.CorrectionQuantity;
+                        dbCorrection.CorrectionRemark = item.CorrectionRemark;
+                        dbCorrection.UnitPaymentCorrectionId = item.UnitPaymentCorrectionId;
+                        dbCorrection.UnitPaymentCorrectionItemId = item.UnitPaymentCorrectionItemId;
                     }
 
-                    this.dbContext.Update(model);
+                    foreach (var item in addedCorrections)
+                    {
+                        item.POFulfillmentId = m.Id;
+                        EntityExtension.FlagForCreate(item, user, "Facade");
+                        dbContext.InternalPurchaseOrderCorrections.Add(item);
+
+                    }
+
+                    foreach(var item in deletedCorrections)
+                    {
+                        EntityExtension.FlagForDelete(item, user, "Facade");
+                    }
+
                     Updated = await dbContext.SaveChangesAsync();
 
                 }

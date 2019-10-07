@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         [MaxLength(64)]
         public string InterNoteNo { get; set; }
 
-        public double InterNoteValue { get; set; }
+        public double? InterNoteValue { get; set; }
 
         public DateTimeOffset? InterNoteDueDate { get; set; }
 
