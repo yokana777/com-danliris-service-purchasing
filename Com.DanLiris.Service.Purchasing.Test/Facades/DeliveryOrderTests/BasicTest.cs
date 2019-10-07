@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
@@ -127,6 +128,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
 
 
             return new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, facade);
+        }
+
+        private InternalPurchaseOrderDataUtil _dataUtilIPO(InternalPurchaseOrderFacade facade, PurchasingDbContext _DbContext, string testname)
+        {
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(testname).Object, _DbContext);
+            PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
+            PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
+
+            InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
+            
+            return new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, facade, purchaseRequestDataUtil);
         }
 
         [Fact]
@@ -428,6 +440,153 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
             };
             var context = new ValidationContext(vm, serviceProvider.Object, null);
             Assert.NotEmpty(vm.Validate(context));
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Fulfillment_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var Response = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async Task Should_Fail_Create_Fulfillment_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            //model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+            model.Corrections = null;
+            await Assert.ThrowsAnyAsync<Exception>(() => facade.CreateFulfillmentAsync(model, "Unit Test"));
+            //Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Fulfillment_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            var Response = await facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(0, Response);
+
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Fulfillment_Data_AddNew()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            dbContext.Entry(model).State = EntityState.Detached;
+            model.Corrections.Add(new InternalPurchaseOrderCorrection()
+            {
+                CorrectionDate = DateTimeOffset.UtcNow,
+                CorrectionNo = "no",
+                CorrectionQuantity = 1,
+                CorrectionPriceTotal = 1,
+                CorrectionRemark = "remark",
+                UnitPaymentCorrectionId = 1,
+                UnitPaymentCorrectionItemId = 1
+            });
+
+            var Response = await facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(0, Response);
+
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Fulfillment_Data_Delete()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            dbContext.Entry(model).State = EntityState.Detached;
+            model.Corrections.Clear();
+
+            var Response = await facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(0, Response);
+
+
+        }
+
+        [Fact]
+        public async Task Should_Fail_Update_Fulfillment_Data_NotFound()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            //var created = await Facade.CreateFulfillment(model, "Unit Test");
+            //var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
+            await Assert.ThrowsAnyAsync<Exception>(() => facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Update_Fulfillment_Data_Exception()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            var Response = await facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test");
+            model.POItemId = 0;
+            model.Corrections = null;
+            await Assert.ThrowsAnyAsync<Exception>(() => facade.UpdateFulfillmentAsync((int)model.Id, model, "Unit Test"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete_Fulfillment_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            var Response = facade.DeleteFulfillment((int)model.Id, "Unit Test");
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async Task Should_Fail_Delete_Fulfillment_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            InternalPurchaseOrderFacade facade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            InternalPurchaseOrder modelIpo = await _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetTestData("Unit test");
+            var model = _dataUtilIPO(facade, dbContext, GetCurrentMethod()).GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await facade.CreateFulfillmentAsync(model, "Unit Test");
+            //var Response = Facade.DeleteFulfillment((int)0, "Unit Test");
+            Assert.ThrowsAny<Exception>(() => facade.DeleteFulfillment((int)0, "Unit Test"));
         }
 
     }
