@@ -1017,7 +1017,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                     foreach (var item in addedCorrections)
                     {
-                        item.POFulfillmentId = m.Id;
+                        item.InternalPurchaseOrderFulFillment = m;
                         EntityExtension.FlagForCreate(item, user, "Facade");
                         dbContext.InternalPurchaseOrderCorrections.Add(item);
 
