@@ -12,13 +12,14 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191003114746_FixModelFulfillment")]
+    partial class FixModelFulfillment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.0.3-rtm-10026")
+                .HasAnnotation("ProductVersion", "2.0.1-rtm-125")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber.BankDocumentNumber", b =>
@@ -4222,7 +4223,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("InterNoteNo")
                         .HasMaxLength(64);
 
-                    b.Property<double?>("InterNoteValue");
+                    b.Property<double>("InterNoteValue");
 
                     b.Property<DateTimeOffset?>("InvoiceDate");
 

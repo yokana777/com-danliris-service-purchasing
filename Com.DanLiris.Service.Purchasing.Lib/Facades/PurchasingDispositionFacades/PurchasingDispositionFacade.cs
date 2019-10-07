@@ -379,7 +379,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
         public List<PurchasingDisposition> ReadDisposition(string Keyword = null, string Filter = "{}", string epoId = "")
         {
-            IQueryable<PurchasingDisposition> Query = this.dbSet;
+            IQueryable<PurchasingDisposition> Query = this.dbSet.Include(x => x.Items).ThenInclude(x => x.Details);
 
             List<string> searchAttributes = new List<string>()
             {
@@ -387,41 +387,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             };
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-            Query = Query
-                .Where(m => m.IsDeleted == false)
-                .Select(s => new PurchasingDisposition
-                {
-                    DispositionNo = s.DispositionNo,
-                    Id = s.Id,
-                    SupplierCode = s.SupplierCode,
-                    SupplierId = s.SupplierId,
-                    SupplierName = s.SupplierName,
-                    Bank = s.Bank,
-                    CurrencyCode = s.CurrencyCode,
-                    CurrencyId = s.CurrencyId,
-                    CurrencyRate = s.CurrencyRate,
-                    ConfirmationOrderNo = s.ConfirmationOrderNo,
-                    //InvoiceNo = s.InvoiceNo,
-                    PaymentMethod = s.PaymentMethod,
-                    PaymentDueDate = s.PaymentDueDate,
-                    CreatedBy = s.CreatedBy,
-                    LastModifiedUtc = s.LastModifiedUtc,
-                    CreatedUtc = s.CreatedUtc,
-                    PaymentCorrection=s.PaymentCorrection,
-                    Items = s.Items
-                        .Select(i => new PurchasingDispositionItem
-                        {
-                            Id = i.Id,
-                            EPOId = i.EPOId,
-                            Details = i.Details
-                                .Where(d => d.IsDeleted == false)
-                                .ToList()
-                        })
-                        .Where(i => i.Details.Count > 0 && i.EPOId == epoId)
-                        .ToList()
-                })
-                .Where(m => m.Items.Count > 0);
+            Query = Query.Where(x => x.IsDeleted == false && x.Items.Count() > 0
+                && x.Items.Any(y => y.Details.Count() > 0 && y.EPOId == epoId && y.Details.Any(z => z.IsDeleted == false)));
+            //Query = Query
+            //    .Where(m => m.IsDeleted == false)
+            //    .Select(s => new PurchasingDisposition
+            //    {
+            //        DispositionNo = s.DispositionNo,
+            //        Id = s.Id,
+            //        SupplierCode = s.SupplierCode,
+            //        SupplierId = s.SupplierId,
+            //        SupplierName = s.SupplierName,
+            //        Bank = s.Bank,
+            //        CurrencyCode = s.CurrencyCode,
+            //        CurrencyId = s.CurrencyId,
+            //        CurrencyRate = s.CurrencyRate,
+            //        ConfirmationOrderNo = s.ConfirmationOrderNo,
+            //        //InvoiceNo = s.InvoiceNo,
+            //        PaymentMethod = s.PaymentMethod,
+            //        PaymentDueDate = s.PaymentDueDate,
+            //        CreatedBy = s.CreatedBy,
+            //        LastModifiedUtc = s.LastModifiedUtc,
+            //        CreatedUtc = s.CreatedUtc,
+            //        PaymentCorrection=s.PaymentCorrection,
+            //        Items = s.Items
+            //            .Select(i => new PurchasingDispositionItem
+            //            {
+            //                Id = i.Id,
+            //                EPOId = i.EPOId,
+            //                Details = i.Details
+            //                    .Where(d => d.IsDeleted == false)
+            //                    .ToList()
+            //            })
+            //            .Where(i => i.Details.Count > 0 && i.EPOId == epoId)
+            //            .ToList()
+            //    })
+            //    .Where(m => m.Items.Count > 0);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<PurchasingDisposition>.ConfigureFilter(Query, FilterDictionary);

@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPOMasterDistributi
             var data = await dataUtil(facade, dbContext).GetTestData();
 
             var Response = facade.Read(Select: "{ 'Id': 1, 'DONo': 1 }");
-            Assert.NotEqual(0, Response.Data.Count);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]

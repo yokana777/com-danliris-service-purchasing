@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             ReadResponse<object> Response = facade.Read();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
            
             var Response = facade.GetUnitPaymentOrder(null, null, model.IncomeTaxName, model.IncomeTaxRate, model.Currency);
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
 
             var Response = facade.GetUnitPaymentOrder(model.DueDate, model.DueDate, model.IncomeTaxName, model.IncomeTaxRate, model.Currency);
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             model.Items.Clear();
             model.Items.Add(modelItem);
             var Response = await facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]

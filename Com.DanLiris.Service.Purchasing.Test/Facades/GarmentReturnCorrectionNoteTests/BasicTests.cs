@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReturnCorrectionNo
             var facade = new GarmentReturnCorrectionNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReturnCorrectionNo
             var facade = new GarmentReturnCorrectionNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.ReadById((int)data.Id);
-            Assert.NotEqual(Response.Id, 0);
+            Assert.NotEqual(0, Response.Id);
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReturnCorrectionNo
             var facade = new GarmentReturnCorrectionNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(data, false, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -154,11 +154,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReturnCorrectionNo
             var facade = new GarmentReturnCorrectionNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response = await facade.Create(data, false, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             var data2nd = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response2nd = await facade.Create(data2nd, false, USERNAME);
-            Assert.NotEqual(Response2nd, 0);
+            Assert.NotEqual(0, Response2nd);
         }
 
         [Fact]

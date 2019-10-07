@@ -141,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal("JObject", result["data"].GetType().Name);
 
             PurchaseRequestViewModel viewModel = JsonConvert.DeserializeObject<PurchaseRequestViewModel>(result.GetValueOrDefault("data").ToString());
 
@@ -168,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JObject"));
+            Assert.Equal("JObject", result["data"].GetType().Name);
 
             PurchaseRequestViewModel viewModel = JsonConvert.DeserializeObject<PurchaseRequestViewModel>(result.GetValueOrDefault("data").ToString());
             viewModel.date = DateTimeOffset.MinValue;

@@ -54,6 +54,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
 
+            serviceProvider
+                .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, GetDbContext(Guid.NewGuid().ToString())));
+
             var services = new ServiceCollection();
             services.AddMemoryCache();
             var serviceProviders = services.BuildServiceProvider();
@@ -100,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
-            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(GetDbContext(testName));
+            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, GetDbContext(testName));
             UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
 
             return new UnitPaymentPriceCorrectionNoteDataUtils(unitPaymentOrderDataUtil, facade);

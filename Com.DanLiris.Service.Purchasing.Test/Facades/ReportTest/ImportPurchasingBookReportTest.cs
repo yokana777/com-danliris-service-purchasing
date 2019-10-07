@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             return dbContext;
         }
 
-        private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, PurchasingDbContext dbContext)
+        private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, PurchasingDbContext dbContext, string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -70,6 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
 
             var services = new ServiceCollection();
             services.AddMemoryCache();
@@ -113,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             return new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, facade);
         }
 
-        private Mock<IServiceProvider> _getServiceProvider()
+        private Mock<IServiceProvider> _getServiceProvider(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
 
@@ -125,17 +129,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
 
+            serviceProvider
+                .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
+
             return serviceProvider;
         }
 
         [Fact]
         public async Task Should_Success_Get_Data()
         {
-            var dbContext = _dbContext("testImport");
-            var serviceProvider = _getServiceProvider().Object;
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
 
-            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
-            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext).GetTestImportData();
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider,dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestImportData();
 
             var urnId = dataUtil.Items.FirstOrDefault().URNId;
             var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
@@ -145,17 +153,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            Assert.NotEqual(result.Reports.Count, 0);
+            Assert.NotEmpty(result.Reports);
         }
 
         [Fact]
         public async Task Should_Success_Get_Data_Empty()
         {
-            var dbContext = _dbContext("testImport");
-            var serviceProvider = _getServiceProvider().Object;
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
 
-            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
-            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext).GetTestImportData();
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestImportData();
 
             var urnId = dataUtil.Items.FirstOrDefault().URNId;
             var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
@@ -165,17 +173,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            Assert.Equal(result.Reports.Count, 0);
+            Assert.Empty(result.Reports);
         }
 
         [Fact]
         public async Task Should_Success_GenerateExcel_Data_Empty()
         {
-            var dbContext = _dbContext("testImport");
-            var serviceProvider = _getServiceProvider().Object;
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
 
-            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
-            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext).GetTestImportData();
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestImportData();
 
             var urnId = dataUtil.Items.FirstOrDefault().URNId;
             var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));

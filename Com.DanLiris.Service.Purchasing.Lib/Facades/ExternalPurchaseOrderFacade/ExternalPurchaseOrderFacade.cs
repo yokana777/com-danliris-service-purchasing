@@ -595,6 +595,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     DivisionName = s.DivisionName,
                     LastModifiedUtc = s.LastModifiedUtc,
                     UnitName = s.UnitName,
+                    UnitId = s.UnitId,
                     UnitCode = s.UnitCode,
                     CreatedBy = s.CreatedBy,
                     IsPosted = s.IsPosted,

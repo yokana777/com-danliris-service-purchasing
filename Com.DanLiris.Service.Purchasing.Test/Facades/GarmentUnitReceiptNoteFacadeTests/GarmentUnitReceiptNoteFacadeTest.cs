@@ -176,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -185,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.ReadById((int)data.Id);
-            Assert.NotEqual(Response.Id, 0);
+            Assert.NotEqual(0, Response.Id);
         }
 
         [Fact]
@@ -205,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             //var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data1 = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             data1.Items.First().UomId = data.Items.First().UomId;
             data1.UnitId = data.UnitId;
             var Response1 = await facade.Create(data1);
-            Assert.NotEqual(Response1, 0);
+            Assert.NotEqual(0, Response1);
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             data.URNType = "PROSES";
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
         }
 
@@ -253,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             dataUtil.SetDataWithStorage(data);
             var ResponseUpdateStorage = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseUpdateStorage, 0);
+            Assert.NotEqual(0, ResponseUpdateStorage);
 
             //// Create Storage based on UnitId that contain longTick on create DataUtil
             //dataUtil.SetDataWithStorage(data, data.UnitId);
@@ -286,7 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -298,7 +298,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facade.Create(data);
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -308,7 +308,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage2();
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -380,10 +380,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 			var uFacade= new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 			var datas = await dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
 			var Responses = await uFacade.Create(datas);
-			Assert.NotEqual(Responses, 0);
+			Assert.NotEqual(0, Responses);
 			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.NotEqual(Response.Item2, 0);
+			Assert.NotEqual(0, Response.Item2);
 
 			var Response1 = Facade.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
 			Assert.NotNull(Response1.Item1);
@@ -400,13 +400,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 			var uFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 			var datas = await dataUtil(uFacade, GetCurrentMethod()).GetNewDataWithStorage();
 			var Responses = await uFacade.Create(datas);
-			Assert.NotEqual(Responses, 0);
+			Assert.NotEqual(0, Responses);
 			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetReport(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.NotEqual(Response.Item2, 0);
+			Assert.NotEqual(0, Response.Item2);
 
 			var Response1 = Facade.GenerateExcel(null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+			Assert.IsType<System.IO.MemoryStream>(Response1);
 		}
 
         [Fact]
@@ -415,7 +415,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.ReadForUnitDO();
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -429,7 +429,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 data.StorageId,
             };
             var Response = facade.ReadForUnitDO("", JsonConvert.SerializeObject(filter));
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -438,7 +438,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.ReadForUnitDOHeader();
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 RONo = "xxx"
             };
             var Response = facade.ReadForUnitDOHeader("", JsonConvert.SerializeObject(filter));
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -468,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 data.DONo
             };
             var Response = facade.ReadURNItem();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         //Monitoring Terima BP
@@ -601,7 +601,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = TerimaBP.GenerateExcelMonitoringTerimaBonPusat(null, null, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -629,7 +629,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = TerimaBP.GenerateExcelMonitoringTerimaBonPusat(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -655,7 +655,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = TerimaBP.GenerateExcelMonitoringTerimaBonPusatByUser(null, null, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -683,7 +683,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = TerimaBP.GenerateExcelMonitoringTerimaBonPusatByUser(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
         //Monitoring Keluar BP
         [Fact]
@@ -811,7 +811,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(null, null, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -839,7 +839,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -862,7 +862,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(null, null, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -890,7 +890,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
         //Monitoring Terima Nota Koreksi
         [Fact]
@@ -1021,7 +1021,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
             var Response = TerimaNK.GenerateExcelMonitoringTerimaNK(null, null, 1, 25, "{}", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1052,7 +1052,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = TerimaNK.GenerateExcelMonitoringTerimaNK(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1077,7 +1077,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
             var Response = TerimaNK.GenerateExcelMonitoringTerimaNKByUser(null, null, 1, 25, "{}", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1106,7 +1106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = TerimaNK.GenerateExcelMonitoringTerimaNKByUser(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         //Monitoring Keluar Nota Koreksi
@@ -1238,7 +1238,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
             var Response = KeluarNK.GenerateExcelMonitoringKeluarNK(null, null, 1, 25, "{}", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1267,7 +1267,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarNK.GenerateExcelMonitoringKeluarNK(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1292,7 +1292,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
             var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(null, null, 1, 25, "{}", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1321,7 +1321,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(d1, d2, 1, 25, "{}", 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         //Buku Harian Pembelian
@@ -1345,7 +1345,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
             Assert.NotNull(Response.Item1);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -1368,7 +1368,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
             Assert.NotNull(Response.Item1);
-            Assert.NotEqual(0, Response.Item2);
+            Assert.NotEqual(-1, Response.Item2);
         }
 
         [Fact]
@@ -1390,7 +1390,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d2 = dataNK.CorrectionDate.DateTime;
 
             var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1412,7 +1412,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
 
             var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         #region flow detail penerimaan 
@@ -1423,7 +1423,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -1432,7 +1432,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportFlow(null, null, "", "Bahan Baku", 1, 25, "{}", 7);
-            Assert.Equal(Response.Item1.Count, 0);
+            Assert.Empty(Response.Item1);
         }
 
         [Fact]
@@ -1441,7 +1441,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcelLow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -1450,7 +1450,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GenerateExcelLow(null, null, "0", "", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Helpers
         }
         public Task<HttpResponseMessage> GetAsync(string url)
         {
-            return Task.Run(() => new HttpResponseMessage());
+            return Task.Run(() => new HttpResponseMessage() { Content = new StringContent("{data : {}}")});
         }
 
         public Task<HttpResponseMessage> PostAsync(string url, HttpContent content)

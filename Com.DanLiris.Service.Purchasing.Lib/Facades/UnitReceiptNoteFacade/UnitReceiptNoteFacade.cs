@@ -1,6 +1,7 @@
 
 
 using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -241,7 +242,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
                     await CreateJournalTransactions(model);
-
+                    await EditFulfillment(model, user);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -260,7 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
 
             var currency = await _currencyProvider.GetCurrencyByCurrencyCode(currencyCode);
-            var currencyRate = currency != null ? currency.Rate.GetValueOrDefault(): 1;
+            var currencyRate = currency != null ? currency.Rate.GetValueOrDefault() : 1;
 
             var creditorAccount = new
             {
@@ -360,7 +361,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var externalPurchaseOrderIds = model.Items.Select(s => s.EPOId).ToList();
             var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode }).ToList();
 
-            
+
 
             var externalPurchaseOrderDetailIds = model.Items.Select(s => s.EPODetailId).ToList();
             var externalPurchaseOrderDetails = dbContext.ExternalPurchaseOrderDetails.Where(w => externalPurchaseOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.ProductId, TotalPrice = s.PricePerDealUnit * s.DealQuantity, s.DealQuantity }).ToList();
@@ -1075,6 +1076,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                         await UpdateCreditorAccount(unitReceiptNote, useIncomeTaxFlag);
 
+                        var updatedModel = this.dbSet.AsNoTracking()
+                            .Include(d => d.Items)
+                            .Single(pr => pr.Id == m.Id && !pr.IsDeleted);
+
+                        await EditFulfillment(updatedModel, user);
                         transaction.Commit();
                     }
                     else
@@ -1190,7 +1196,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     await ReverseJournalTransaction(m.URNNo);
                     await DeleteCreditorAccount(m.URNNo);
-
+                    await RollbackFulfillment(m, user);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -1468,6 +1474,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
 
             return result;
+        }
+
+        private async Task<int> EditFulfillment(UnitReceiptNote model, string username)
+        {
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            int count = 0;
+
+            foreach (var item in model.Items)
+            {
+                var fulfillment = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.DeliveryOrderDetailId == item.DODetailId);
+
+                if(fulfillment != null)
+                {
+                    fulfillment.UnitReceiptNoteDate = model.ReceiptDate;
+                    fulfillment.UnitReceiptNoteDeliveredQuantity = item.ReceiptQuantity;
+                    fulfillment.UnitReceiptNoteId = model.Id;
+                    fulfillment.UnitReceiptNoteItemId = item.Id;
+                    fulfillment.UnitReceiptNoteNo = model.URNNo;
+                    fulfillment.UnitReceiptNoteUom = item.Uom;
+                    fulfillment.UnitReceiptNoteUomId = item.UomId;
+
+                    count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
+                }
+                
+            }
+
+
+            return count;
+        }
+
+        private async Task<int> RollbackFulfillment(UnitReceiptNote model, string username)
+        {
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            int count = 0;
+            foreach (var item in model.Items)
+            {
+                var fulfillment = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                          .FirstOrDefault(x => x.UnitReceiptNoteId == model.Id && x.UnitReceiptNoteItemId == item.Id);
+
+                if(fulfillment != null)
+                {
+                    fulfillment.UnitReceiptNoteDate = null;
+                    fulfillment.UnitReceiptNoteDeliveredQuantity = null;
+                    fulfillment.UnitReceiptNoteId = null;
+                    fulfillment.UnitReceiptNoteItemId = null;
+                    fulfillment.UnitReceiptNoteNo = null;
+                    fulfillment.UnitReceiptNoteUom = null;
+                    fulfillment.UnitReceiptNoteUomId = null;
+
+                    count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
+                }
+                
+
+            }
+            return count;
         }
     }
 }

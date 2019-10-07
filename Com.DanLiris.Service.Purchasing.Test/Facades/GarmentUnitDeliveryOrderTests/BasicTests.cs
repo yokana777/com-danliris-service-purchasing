@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             data.Items.Add(newItem);
 
             var ResponseUpdate = await facade.Update((int)data.Id, data);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(0, ResponseUpdate);
 
             var newData = dbContext.GarmentUnitDeliveryOrders
                 .AsNoTracking()
@@ -159,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             newData.Items.First().IsSave = true;
 
             var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
-            Assert.NotEqual(ResponseUpdateRemoveItem, 0);
+            Assert.NotEqual(0, ResponseUpdateRemoveItem);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.Delete((int)data.Id);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -207,7 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = facade.Read();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -304,7 +304,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), serviceProvider.Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadForUnitExpenditureNote();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
     }
 }
