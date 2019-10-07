@@ -148,6 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>()
                 .AddTransient<IMonitoringROJobOrderFacade, MonitoringROJobOrderFacade>()
                 .AddTransient<IMonitoringROMasterFacade, MonitoringROMasterFacade>()
+                .AddTransient<IBudgetMasterSampleDisplayFacade, BudgetMasterSampleDisplayFacade>()
                 .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>()
                 .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
                 .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
