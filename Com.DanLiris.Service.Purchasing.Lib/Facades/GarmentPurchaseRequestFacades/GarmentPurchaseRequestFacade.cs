@@ -317,6 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             oldM.ExpectedDeliveryDate = m.ExpectedDeliveryDate;
                             oldM.Remark = m.Remark;
                         }
+                        oldM.IsUsed = m.IsUsed;
 
                         foreach (var oldItem in oldM.Items)
                         {
