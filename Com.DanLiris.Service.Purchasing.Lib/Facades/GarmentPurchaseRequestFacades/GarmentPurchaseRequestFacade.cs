@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
 {
@@ -44,6 +45,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         {
             IQueryable<GarmentPurchaseRequest> Query = this.dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
+            };
+
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+
             Query = Query.Select(s => new GarmentPurchaseRequest
             {
                 Id = s.Id,
@@ -67,21 +81,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 PRType = s.PRType,
                 SCId = s.SCId,
                 SCNo = s.SCNo,
-                IsValidate = s.IsValidate,
+
+                IsValidated = s.IsValidated,
+                IsValidatedMD1 = s.IsValidatedMD1,
+                IsValidatedMD2 = s.IsValidatedMD2,
             });
-
-            List<string> searchAttributes = new List<string>()
-            {
-                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
-            };
-
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
             List<GarmentPurchaseRequest> Data = pageable.Data.ToList<GarmentPurchaseRequest>();
@@ -403,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
                     m.Items.Any(i => i.IsUsed == false) &&
                     m.IsUsed == false &&
-                    m.IsValidate == true
+                    m.IsValidated == true
                     )
                 .Select(m => new GarmentPurchaseRequest
                 {
@@ -578,6 +582,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     EntityExtension.FlagForUpdate(data, user, USER_AGENT);
                     data.IsPosted = false;
 
+                    data.IsValidatedMD1 = false;
+                    data.IsValidatedMD2 = false;
+                    data.IsValidated = false;
+                    data.ValidatedMD1By = null;
+                    data.ValidatedMD2By = null;
+                    data.ValidatedBy = null;
+                    data.ValidatedMD1Date = DateTimeOffset.MinValue;
+                    data.ValidatedMD2Date = DateTimeOffset.MinValue;
+                    data.ValidatedDate = DateTimeOffset.MinValue;
+
                     foreach (var item in data.Items)
                     {
                         EntityExtension.FlagForUpdate(item, user, USER_AGENT);
@@ -609,7 +623,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         .Single();
 
                     EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-                    data.IsValidate = true;
+                    data.IsValidated = true;
                     data.ValidatedBy = user;
                     data.ValidatedDate = DateTimeOffset.Now;
 
@@ -631,6 +645,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Updated;
         }
 
+        public async Task<int> Patch(long id, JsonPatchDocument<GarmentPurchaseRequest> jsonPatch, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Where(d => d.Id == id)
+                        //.Include(i => i.Items)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, user, USER_AGENT);
+
+                    //if (data.Items != null)
+                    //{
+                    //    foreach (var item in data.Items)
+                    //    {
+                    //        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                    //    }
+                    //}
+
+                    jsonPatch.ApplyTo(data);
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw e;
+                }
+            }
+
+            return Updated;
+        }
+
         public async Task<int> PRUnApprove(long id, string user)
         {
             int Updated = 0;
@@ -644,7 +695,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         .Single();
 
                     EntityExtension.FlagForUpdate(data, user, USER_AGENT);
-                    data.IsValidate = false;
+                    data.IsValidated = false;
                     data.ValidatedBy = user;
                     data.ValidatedDate = DateTimeOffset.Now;
 

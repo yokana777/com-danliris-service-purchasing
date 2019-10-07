@@ -234,6 +234,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
         }
 
         [Fact]
+        public void Should_Sucscess_Get_Data_UEN_By_Id()
+        {
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacadeUnitDO.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelUnitDO);
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadByUENId(It.IsAny<int>()))
+                .Returns(new GarmentUnitExpenditureNote());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitExpenditureNoteViewModel>(It.IsAny<GarmentUnitExpenditureNote>()))
+                .Returns(new GarmentUnitExpenditureNoteViewModel());
+
+            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
+
+            var response = controller.GetByUEN(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Error_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
@@ -245,6 +265,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
 
             GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
             var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_UEN_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadByUENId(It.IsAny<int>()))
+                .Returns((GarmentUnitExpenditureNote)null);
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
+            var response = controller.GetByUEN(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

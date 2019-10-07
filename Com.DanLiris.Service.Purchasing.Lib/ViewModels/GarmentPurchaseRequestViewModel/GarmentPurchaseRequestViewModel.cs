@@ -18,6 +18,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public long SCId { get; set; }
         public string SCNo { get; set; }
 
+        public string SectionName { get; set; }
+
         public BuyerViewModel Buyer { get; set; }
 
         public string Article { get; set; }
@@ -30,10 +32,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
         public bool IsPosted { get; set; }
         public bool IsUsed { get; set; }
-        public bool IsValidate { get; set; }
         public string Remark { get; set; }
+
+        public bool IsValidated { get; set; }
         public string ValidatedBy { get; set; }
         public DateTimeOffset ValidatedDate { get; set; }
+
+        public bool IsValidatedMD1 { get; set; }
+        public string ValidatedMD1By { get; set; }
+        public DateTimeOffset ValidatedMD1Date { get; set; }
+
+        public bool IsValidatedMD2 { get; set; }
+        public string ValidatedMD2By { get; set; }
+        public DateTimeOffset ValidatedMD2Date { get; set; }
 
         public List<GarmentPurchaseRequestItemViewModel> Items { get; set; }
 

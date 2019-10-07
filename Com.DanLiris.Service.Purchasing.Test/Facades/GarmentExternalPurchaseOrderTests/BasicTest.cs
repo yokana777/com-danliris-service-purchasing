@@ -159,6 +159,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var Response = facade.Read();
             Assert.NotEqual(Response.Item1.Count, 0);
         }
+        
+        
 
         [Fact]
         public async Task Should_Success_Get_Data_By_Id()
@@ -410,6 +412,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             var Responses = await facade.Create(data, USERNAME);
             var Response = facade.ReadBySupplier(data.SupplierCode);
+            Assert.NotNull(Response);
+            
+            var Response2 = facade.ReadItemByRO();
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_By_RO()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+            
+            var Responses = await facade.Create(data, USERNAME);
+            var ro = data.Items.First().RONo;
+            var Response = facade.ReadItemByRO();
             Assert.NotNull(Response);
         }
 

@@ -55,6 +55,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -106,8 +108,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
-                .AddTransient<ImportPurchasingBookReportFacade>()
-                .AddTransient<LocalPurchasingBookReportFacade>()
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<MonitoringPriceFacade>()
@@ -143,12 +143,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IMonitoringCentralBillExpenditureFacade, MonitoringCentralBillExpenditureFacade>()
                 .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
                 .AddTransient<IMonitoringCorrectionNoteExpenditureFacade, MonitoringCorrectionNoteExpenditureFacade>()
+                .AddTransient<IGarmentDailyPurchasingReportFacade, GarmentDailyPurchasingReportFacade>()
                 .AddTransient<IGarmentReceiptCorrectionFacade, GarmentReceiptCorrectionFacade>()
                 .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>()
                 .AddTransient<IMonitoringROJobOrderFacade, MonitoringROJobOrderFacade>()
-                .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
-                .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>();
-
+                .AddTransient<IMonitoringROMasterFacade, MonitoringROMasterFacade>()
+                .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>()
+                .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
+                .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
+                .AddTransient<ICurrencyProvider, CurrencyProvider>()
+                .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>();
+                
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

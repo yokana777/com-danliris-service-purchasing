@@ -41,6 +41,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUt
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -1320,6 +1321,97 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(d1, d2, 1, 25, "{}", 7);
 
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        //Buku Harian Pembelian
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Data()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            GarmentDailyPurchasingReportFacade DataNK = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+            DateTime d1 = dataNK.CorrectionDate.DateTime;
+            DateTime d2 = dataNK.CorrectionDate.DateTime;
+
+            var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.NotNull(Response.Item1);
+            Assert.NotEqual(0, Response.Item2);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Null_Parameter()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            GarmentDailyPurchasingReportFacade DataNK = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+            DateTime d1 = dataNK.CorrectionDate.DateTime;
+            DateTime d2 = dataNK.CorrectionDate.DateTime;
+
+            var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.NotNull(Response.Item1);
+            Assert.NotEqual(0, Response.Item2);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Excel()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            GarmentDailyPurchasingReportFacade DataNK = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+            DateTime d1 = dataNK.CorrectionDate.DateTime;
+            DateTime d2 = dataNK.CorrectionDate.DateTime;
+
+            var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Buku_Sub_Beli_Excel_Null_Parameter()
+        {
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var garmentCorrectionNoteFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilCN = new GarmentCorrectionNoteDataUtil(garmentCorrectionNoteFacade, datautilBC, datautilDO);
+
+            GarmentDailyPurchasingReportFacade DataNK = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+            var dataNK = await datautilCN.GetTestDataNotaKoreksi();
+            DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
+            DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
+
+            var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
             Assert.IsType(typeof(System.IO.MemoryStream), Response);
         }
 

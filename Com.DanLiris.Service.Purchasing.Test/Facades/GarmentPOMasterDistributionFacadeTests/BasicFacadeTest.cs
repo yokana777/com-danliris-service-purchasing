@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionViewModels;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -230,6 +231,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPOMasterDistributi
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0));
             Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_OthersQuantity()
+        {
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var facade = new GarmentPOMasterDistributionFacade(GetMockServiceProvider().Object, dbContext);
+            var data = await dataUtil(facade, dbContext).GetTestData();
+
+            var viewModel = new GarmentPOMasterDistributionViewModel { Id = data.Id, Items = new List<GarmentPOMasterDistributionItemViewModel>() };
+            foreach (var i in data.Items)
+            {
+                var viewModelItem = new GarmentPOMasterDistributionItemViewModel { Details = new List<GarmentPOMasterDistributionDetailViewModel>() };
+                foreach (var d in i.Details)
+                {
+                    viewModelItem.Details.Add(new GarmentPOMasterDistributionDetailViewModel
+                    {
+                        POSerialNumber = d.POSerialNumber,
+                        Quantity = d.Quantity
+                    });
+                }
+                viewModel.Items.Add(viewModelItem);
+            }
+
+            var Response = facade.GetOthersQuantity(viewModel);
+            Assert.NotNull(Response);
         }
     }
 }

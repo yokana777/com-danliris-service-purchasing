@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -73,6 +74,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(new MemoryCacheManager(memoryCache));
+
+            var mockCurrencyProvider = new Mock<ICurrencyProvider>();
+            mockCurrencyProvider
+                .Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
+                .ReturnsAsync((Currency)null);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+                .Returns(mockCurrencyProvider.Object);
 
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, _dbContext(testName));
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();

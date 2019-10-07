@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -78,6 +79,89 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             InternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.ReadByPRNo(model.PRNo);
             Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var Response = await Facade.CreateFulfillment(model, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Fail_Create_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            //model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.CreateFulfillment(model, "Unit Test"));
+            //Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await Facade.CreateFulfillment(model, "Unit Test");
+            var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Fail_Update_Fulfillment_Data_NotFound()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            //var created = await Facade.CreateFulfillment(model, "Unit Test");
+            //var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillment((int)model.Id, model, "Unit Test"));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Update_Fulfillment_Data_Exception()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await Facade.CreateFulfillment(model, "Unit Test");
+            var Response = await Facade.UpdateFulfillment((int)model.Id, model, "Unit Test");
+            model.POItemId = 0;
+            await Assert.ThrowsAnyAsync<Exception>(() => Facade.UpdateFulfillment((int)model.Id, model, "Unit Test"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await Facade.CreateFulfillment(model, "Unit Test");
+            var Response = Facade.DeleteFulfillment((int)model.Id, "Unit Test");
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async Task Should_Fail_Delete_Fulfillment_Data()
+        {
+            InternalPurchaseOrder modelIpo = await DataUtil.GetTestData("Unit test");
+            var model = DataUtil.GetNewFulfillmentData("Unit test");
+            model.POItemId = modelIpo.Items.FirstOrDefault().Id;
+
+            var created = await Facade.CreateFulfillment(model, "Unit Test");
+            //var Response = Facade.DeleteFulfillment((int)0, "Unit Test");
+            Assert.Throws<Exception>(() => Facade.DeleteFulfillment((int)0, "Unit Test"));
         }
     }
 }

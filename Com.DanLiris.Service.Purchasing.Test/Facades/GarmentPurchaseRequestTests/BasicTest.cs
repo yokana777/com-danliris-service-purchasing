@@ -17,6 +17,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrde
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -470,7 +471,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                         Category = new CategoryViewModel(),
                         BudgetPrice = -1
                     }
-                }
+                },
+                IsValidatedMD1 = false,
+                ValidatedMD1By = null,
+                ValidatedMD1Date = DateTimeOffset.MinValue,
+                IsValidatedMD2 = false,
+                ValidatedMD2By = null,
+                ValidatedMD2Date = DateTimeOffset.MinValue,
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
@@ -688,5 +695,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
 		}
 
-	}
+        [Fact]
+        public async void Should_Success_Patch_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            JsonPatchDocument<GarmentPurchaseRequest> jsonPatch = new JsonPatchDocument<GarmentPurchaseRequest>();
+            jsonPatch.Replace(m => m.IsValidated, false);
+
+            var Response = await facade.Patch(model.Id, jsonPatch, USERNAME);
+            Assert.NotEqual(Response, 0);
+        }
+
+        [Fact]
+        public async void Should_Error_Patch_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            JsonPatchDocument<GarmentPurchaseRequest> jsonPatch = new JsonPatchDocument<GarmentPurchaseRequest>();
+            jsonPatch.Replace(m => m.Id, 0);
+
+            var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.Patch(model.Id, jsonPatch, USERNAME));
+            Assert.NotEqual(Response.Message, null);
+        }
+    }
 }

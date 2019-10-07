@@ -1032,7 +1032,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 			return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 		}
 
-		
-		#endregion
-	}
+
+        #endregion
+
+        public List<GarmentExternalPurchaseOrderItem> ReadItemByRO(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "RONo",
+            };
+
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems;
+
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
+
+            QueryItem = (from i in QueryItem join b in Query on i.GarmentEPOId equals b.Id
+                         where i.ProductName.ToUpper() == "PROCESS"
+                         select new GarmentExternalPurchaseOrderItem {
+                             Id = i.Id,
+                             GarmentEPOId=i.GarmentEPOId,
+                             RONo = i.RONo,
+                             ProductCode = i.ProductCode,
+                             ProductId = i.ProductId,
+                             ProductName = i.ProductName,
+                             PO_SerialNumber = i.PO_SerialNumber,
+                             DealQuantity = i.DealQuantity,
+                             DealUomId = i.DealUomId,
+                             DealUomUnit = i.DealUomUnit,
+                         });
+                
+                
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureFilter(QueryItem, FilterDictionary);
+
+            return QueryItem.ToList();
+        }
+    }
 }
