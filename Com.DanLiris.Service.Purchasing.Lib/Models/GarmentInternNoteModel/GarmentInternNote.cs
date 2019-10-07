@@ -8,6 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
 {
     public class GarmentInternNote : BaseModel
     {
+        [MaxLength(255)]
         public string INNo { get; set; }
         public string Remark { get; set; }
         public DateTimeOffset INDate { get; set; }

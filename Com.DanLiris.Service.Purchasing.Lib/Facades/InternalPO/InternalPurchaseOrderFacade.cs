@@ -933,5 +933,105 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          });
             return Query.ToArray().Count();
         }
+
+        public async Task<int> CreateFulfillment(InternalPurchaseOrderFulFillment model, string user)
+        {
+            int Created = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    EntityExtension.FlagForCreate(model, user, "Facade");
+                    
+                    foreach (var item in model.Corrections)
+                    {
+                        EntityExtension.FlagForCreate(item, user, "Facade");
+                    }
+
+                    this.dbContext.InternalPurchaseOrderFulfillments.Add(model);
+                    Created = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Created;
+        }
+
+        public async Task<int> UpdateFulfillment(int id, InternalPurchaseOrderFulFillment model, string user)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbContext.InternalPurchaseOrderFulfillments.AsNoTracking().SingleOrDefault(pr => pr.Id == id);
+
+                    if (m != null)
+                    {
+
+                        EntityExtension.FlagForUpdate(model, user, "Facade");
+
+                        foreach (var item in model.Corrections)
+                        {
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+                        }
+
+                        this.dbContext.Update(model);
+                        Updated = await dbContext.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        throw new Exception("Error while updating data");
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public int DeleteFulfillment(int id, string user)
+        {
+            int Deleted = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbContext.InternalPurchaseOrderFulfillments
+                        .Include(d => d.Corrections)
+                        .SingleOrDefault(pr => pr.Id == id);
+                    EntityExtension.FlagForDelete(m, user, "Facade");
+
+                    foreach (var item in m.Corrections)
+                    {
+                        
+                        EntityExtension.FlagForDelete(item, user, "Facade");
+                    }
+
+                    Deleted = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
+        }
     }
 }

@@ -12,6 +12,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -36,12 +37,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly IMemoryCacheManager _cacheManager;
+        private readonly ICurrencyProvider _currencyProvider;
         private readonly DbSet<UnitReceiptNote> dbSet;
 
         public UnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
             _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
+            _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<UnitReceiptNote>();
         }
@@ -177,6 +180,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     EntityExtension.FlagForCreate(model, user, "Facade");
 
                     model.URNNo = await GenerateNo(model);
+
+                    var useIncomeTaxFlag = false;
+                    var currencyCode = "";
+                    var paymentDuration = "";
                     if (model.Items != null)
                     {
                         foreach (var item in model.Items)
@@ -188,6 +195,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == externalPurchaseOrderDetail.POItemId);
                             DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.Id == item.DODetailId);
                             UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
+
+                            var poextItem = dbContext.ExternalPurchaseOrderItems.Select(s => new { s.Id, s.EPOId }).FirstOrDefault(f => f.Id.Equals(externalPurchaseOrderDetail.EPOItemId));
+                            var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax, s.CurrencyCode, s.PaymentDueDays }).FirstOrDefault(f => f.Id.Equals(poextItem.EPOId));
+
+                            paymentDuration = poext.PaymentDueDays;
+
+                            useIncomeTaxFlag = useIncomeTaxFlag || poext.UseIncomeTax;
+                            currencyCode = poext.CurrencyCode;
+
                             item.PRItemId = doDetail.PRItemId;
                             item.PricePerDealUnit = externalPurchaseOrderDetail.PricePerDealUnit;
                             doDetail.ReceiptQuantity += item.ReceiptQuantity;
@@ -223,6 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
 
+                    await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
                     await CreateJournalTransactions(model);
 
                     transaction.Commit();
@@ -235,6 +252,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
 
             return Created;
+        }
+
+        private async Task CreateCreditorAccount(UnitReceiptNote model, bool useIncomeTaxFlag, string currencyCode, string paymentDuration)
+        {
+            var dpp = model.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
+
+            var currency = await _currencyProvider.GetCurrencyByCurrencyCode(currencyCode);
+            var currencyRate = currency != null ? currency.Rate.GetValueOrDefault(): 1;
+
+            var creditorAccount = new
+            {
+                DPP = dpp,
+                Products = productList,
+                PPN = useIncomeTaxFlag ? 0.1 * dpp : 0,
+                model.SupplierCode,
+                model.SupplierName,
+                Code = model.URNNo,
+                Date = model.ReceiptDate,
+                Currency = currencyCode,
+                CurrencyRate = currencyRate,
+                PaymentDuration = paymentDuration
+            };
+
+            string creditorAccountUri = "creditor-account/unit-receipt-note";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(creditorAccount).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
         }
 
         //private async Task CreateJournalTransactions(UnitReceiptNote model)
@@ -312,7 +358,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
 
             var externalPurchaseOrderIds = model.Items.Select(s => s.EPOId).ToList();
-            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyRate }).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode }).ToList();
+
+            
 
             var externalPurchaseOrderDetailIds = model.Items.Select(s => s.EPODetailId).ToList();
             var externalPurchaseOrderDetails = dbContext.ExternalPurchaseOrderDetails.Where(w => externalPurchaseOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.ProductId, TotalPrice = s.PricePerDealUnit * s.DealQuantity, s.DealQuantity }).ToList();
@@ -341,12 +389,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
             else
             {
-                if(string.IsNullOrEmpty(division.COACode))
+                if (string.IsNullOrEmpty(division.COACode))
                 {
                     division.COACode = "0";
                 }
             }
-                
+
 
             int.TryParse(model.UnitId, out var unitId);
             var unit = Units.FirstOrDefault(f => f.Id.Equals(unitId));
@@ -364,7 +412,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     unit.COACode = "0";
                 }
             }
-                
+
 
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
@@ -376,6 +424,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(f => f.Id.Equals(item.EPOId));
 
                 double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+
+                var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
+                var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : 1;
 
                 if (!externalPurchaseOrder.UseIncomeTax)
                     incomeTaxRate = 1;
@@ -396,7 +447,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 }
                 else
                 {
-                    if(string.IsNullOrEmpty(category.ImportDebtCOA))
+                    if (string.IsNullOrEmpty(category.ImportDebtCOA))
                     {
                         category.ImportDebtCOA = "9999.00";
                     }
@@ -413,10 +464,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         category.StockCOA = "9999.00";
                     }
                 }
-                
 
 
-                if (model.SupplierIsImport && (externalPOPriceTotal * externalPurchaseOrder.CurrencyRate) > 100000000)
+
+                if (model.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
                 {
                     //Purchasing Journal Item
                     journalDebitItems.Add(new JournalTransactionItem()
@@ -425,7 +476,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * externalPurchaseOrder.CurrencyRate,
+                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -436,7 +487,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * externalPurchaseOrder.CurrencyRate,
+                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -447,7 +498,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * externalPurchaseOrder.CurrencyRate,
+                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -458,7 +509,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * externalPurchaseOrder.CurrencyRate,
+                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
                         Remark = $"- {item.ProductName}"
                     });
                 }
@@ -471,7 +522,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * externalPurchaseOrder.CurrencyRate,
+                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -482,7 +533,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = model.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * externalPurchaseOrder.CurrencyRate,
+                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
                         Remark = $"- {item.ProductName}"
                     });
                 }
@@ -853,6 +904,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         .Include(d => d.Items)
                         .Single(pr => pr.Id == id && !pr.IsDeleted);
 
+                    var useIncomeTaxFlag = false;
                     if (m != null && !id.Equals(unitReceiptNote.Id))
                     {
                         if (m.IsStorage == true)
@@ -869,6 +921,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         foreach (var item in unitReceiptNote.Items)
                         {
                             EntityExtension.FlagForUpdate(item, user, "Facade");
+
+                            var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax }).FirstOrDefault(f => f.Id.Equals(item.EPOId));
+
+                            useIncomeTaxFlag = useIncomeTaxFlag || poext.UseIncomeTax;
                         }
                         this.dbContext.Update(unitReceiptNote);
                         #region UpdateStatus
@@ -1017,6 +1073,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         await ReverseJournalTransaction(m.URNNo);
                         await CreateJournalTransactions(m);
 
+                        await UpdateCreditorAccount(unitReceiptNote, useIncomeTaxFlag);
+
                         transaction.Commit();
                     }
                     else
@@ -1034,6 +1092,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Updated;
         }
 
+        private async Task UpdateCreditorAccount(UnitReceiptNote unitReceiptNote, bool useIncomeTaxFlag)
+        {
+            var dpp = unitReceiptNote.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var productList = string.Join("\n", unitReceiptNote.Items.Select(s => s.ProductName).ToList());
+
+            var creditorAccount = new
+            {
+                DPP = dpp,
+                Products = productList,
+                Code = unitReceiptNote.URNNo,
+                Date = unitReceiptNote.ReceiptDate,
+                UseIncomeTax = useIncomeTaxFlag
+            };
+
+            string creditorAccountUri = "creditor-account/unit-receipt-note";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(creditorAccount).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
+        }
 
         private async Task ReverseJournalTransaction(string referenceNo)
         {
@@ -1111,6 +1189,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     Deleted = dbContext.SaveChanges();
 
                     await ReverseJournalTransaction(m.URNNo);
+                    await DeleteCreditorAccount(m.URNNo);
 
                     transaction.Commit();
                 }
@@ -1122,6 +1201,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
 
             return Deleted;
+        }
+
+        private async Task DeleteCreditorAccount(string urnNo)
+        {
+            var creditorAccount = new
+            {
+                Code = urnNo
+            };
+
+            string creditorAccountUri = "creditor-account/unit-receipt-note/delete";
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(creditorAccount).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
         }
 
         public void insertStorage(UnitReceiptNote unitReceiptNote, string user, string type)

@@ -534,6 +534,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             garmentInventoryDocument.Remark = garmentUnitReceiptNote.Remark;
 
+            garmentInventoryDocument.Date = DateTimeOffset.Now;
+
             foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
             {
                 var garmentInventoryDocumentItem = new GarmentInventoryDocumentItem();

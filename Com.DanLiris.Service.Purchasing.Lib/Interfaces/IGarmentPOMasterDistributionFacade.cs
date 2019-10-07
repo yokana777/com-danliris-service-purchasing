@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,5 +15,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(GarmentPOMasterDistribution model);
         Task<int> Update(long id , GarmentPOMasterDistribution model);
         Task<int> Delete(long id);
+        Dictionary<string, decimal> GetOthersQuantity(GarmentPOMasterDistributionViewModel garmentPOMasterDistributionViewModel);
     }
 }

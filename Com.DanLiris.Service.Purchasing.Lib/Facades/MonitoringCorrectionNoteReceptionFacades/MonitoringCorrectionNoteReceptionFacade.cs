@@ -170,9 +170,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                          //External PO
                          join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
                          //Internal PO
-                         join f in dbContext.GarmentInternalPurchaseOrderItems on c.POId equals f.Id
-                         join g in dbContext.GarmentInternalPurchaseOrders on f.GPOId equals g.Id 
+                         join f in dbContext.GarmentInternalPurchaseOrderItems on c.POItemId equals f.Id
+                         join g in dbContext.GarmentInternalPurchaseOrders on f.GPOId equals g.Id
                          //Invoice
+                         join p in dbContext.GarmentInvoiceDetails  on c.Id equals p.DODetailId into nn
+                         from DInv in nn.DefaultIfEmpty()
                          join h in dbContext.GarmentInvoiceItems on a.Id equals h.DeliveryOrderId into hh
                          from Inv in hh.DefaultIfEmpty()
                          join j in dbContext.GarmentInvoices on Inv.InvoiceId equals j.Id into jj
@@ -186,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where
-                         n != null &&
+                         n != null && URN.URNType == "PEMBELIAN" && d.BeacukaiNo.Substring(0, 4) != "BCDL"  &&
                          ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate >= d1 && n.CorrectionDate <= d2) : true)
 
                          select new SelectedId
@@ -204,7 +206,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                              POItemId = f.Id,
                              INNo = a.InternNo, 
                              INVId = HInv  == null ? 0 : HInv.Id,
-                             INVItemId = Inv == null ? 0 : Inv.Id,                            
+                             INVItemId = Inv == null ? 0 : Inv.Id,
                              URNId = URN == null ? 0 : URN.Id,
                              URNItemId = IURN == null ? 0 : IURN.Id,
                          });

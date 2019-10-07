@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils
 {
@@ -97,6 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
 				Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
 			};
 		}
+
         public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewDataLocalSupplier(string user)
         {
             DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestData(user);
@@ -173,6 +175,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
         {
             Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDataLocalSupplier(user);
 
+            await facade.Create(unitReceiptNote, user);
+
+            return unitReceiptNote;
+        }
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestDataLocalSupplier(string user)
+        {
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDataLocalSupplier(user);
+
+            unitReceiptNote.SupplierIsImport = false;
+            await facade.Create(unitReceiptNote, user);
+
+            return unitReceiptNote;
+        }
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestDataImportSupplier(string user)
+        {
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDataLocalSupplier(user);
+
+            unitReceiptNote.SupplierIsImport = true;
             await facade.Create(unitReceiptNote, user);
 
             return unitReceiptNote;

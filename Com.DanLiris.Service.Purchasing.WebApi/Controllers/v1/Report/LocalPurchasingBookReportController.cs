@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -14,26 +15,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
     public class LocalPurchasingBookReportController : Controller
     {
         private string ApiVersion = "1.0.0";
-        private readonly LocalPurchasingBookReportFacade localPurchasingBookReportFacade;
+        private readonly ILocalPurchasingBookReportFacade localPurchasingBookReportFacade;
 
-        public LocalPurchasingBookReportController(LocalPurchasingBookReportFacade localPurchasingBookReportFacade)
+        public LocalPurchasingBookReportController(ILocalPurchasingBookReportFacade localPurchasingBookReportFacade)
         {
             this.localPurchasingBookReportFacade = localPurchasingBookReportFacade;
         }
 
         [HttpGet]
-        public IActionResult Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
             try
             {
-                var data = localPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                var data = await localPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
-                    data = data.Item1,
-                    info = new { total = data.Item2 },
+                    data = data,
+                    info = new { total = data.Reports.Count },
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
 
@@ -49,13 +50,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         {
             try
             {
                 byte[] xlsInBytes;
 
-                var xls = localPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
+                var xls = await localPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
 
                 string filename = "Laporan Buku Pembelian Lokal";
                 if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");

@@ -13,6 +13,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         [ForeignKey("URNId")]
         public virtual GarmentUnitReceiptNote GarmentUnitReceiptNote { get; set; }
 
+        public long UENItemId { get; set; }
+
         public long DODetailId { get; set; }
 
         public long EPOItemId { get; set; }
@@ -37,6 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         [MaxLength(255)]
         public string RONo { get; set; }
 
+        [Column(TypeName = "decimal(20, 4)")]
         public decimal ReceiptQuantity { get; set; }
 
         public long UomId { get; set; }

@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                             var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
                             if (unitDOItem != null)
                             {
-                                if (item.Quantity > unitDOItem.Quantity)
+                                if ((double)item.Quantity > unitDOItem.Quantity)
                                 {
                                     itemErrorCount++;
                                     itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + unitDOItem.Quantity + "', ";
@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                         var UENItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
                         if (UENItem != null)
                         {
-                            if (item.Quantity > UENItem.Quantity)
+                            if ((double)item.Quantity > UENItem.Quantity)
                             {
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + UENItem.Quantity + "', ";
