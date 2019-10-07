@@ -651,6 +651,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public ReadResponse<object> ReadForCorrectionNoteQuantity(int Page = 1, int Size = 100, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+           
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet;
 
@@ -690,8 +691,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     }).ToList()
                 });
 
-            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
-
+            
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
 
