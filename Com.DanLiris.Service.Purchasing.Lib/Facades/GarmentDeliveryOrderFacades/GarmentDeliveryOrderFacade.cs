@@ -648,22 +648,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
 
-        public ReadResponse<object> ReadForCorrectionNoteQuantity(int Page = 1, int Size = 100, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse<object> ReadForCorrectionNoteQuantity(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-           
+
 
             IQueryable<GarmentDeliveryOrder> Query = dbSet;
-
             List<string> searchAttributes = new List<string>()
             {
-                "DONo", "SupplierName"
+                "DONo"
             };
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+            Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
 
-            Query= Query
-                .Where(m =>  m.CustomsId != 0 && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0)))
+            Query = Query
+                .Where(m => m.CustomsId != 0 && m.Items.Any(i => i.Details.Any(d => d.ReceiptQuantity > 0)))
                 .Select(m => new GarmentDeliveryOrder
                 {
                     Id = m.Id,
@@ -681,7 +681,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     IncomeTaxName = m.IncomeTaxName,
                     IncomeTaxRate = m.IncomeTaxRate,
                     LastModifiedUtc = m.LastModifiedUtc,
-                    DODate=m.DODate,
+                    DODate = m.DODate,
                     Items = m.Items.Select(i => new GarmentDeliveryOrderItem
                     {
                         Id = i.Id,
@@ -691,7 +691,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     }).ToList()
                 });
 
-            
+
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
 
