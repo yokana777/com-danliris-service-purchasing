@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                 table: "GarmentUnitReceiptNotes",
                 column: "URNNo",
                 unique: true,
-                filter: "[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+                filter: "[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GarmentUnitExpenditureNotes_UENNo",
