@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191008061220_fixDataTypeFulfillment")]
+    partial class fixDataTypeFulfillment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4215,16 +4216,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DeliveryOrderNo")
                         .HasMaxLength(64);
 
-                    b.Property<DateTimeOffset>("InterNoteDate");
+                    b.Property<DateTimeOffset?>("InterNoteDate");
 
-                    b.Property<DateTimeOffset>("InterNoteDueDate");
+                    b.Property<DateTimeOffset?>("InterNoteDueDate");
 
                     b.Property<string>("InterNoteNo")
                         .HasMaxLength(64);
 
-                    b.Property<double>("InterNoteValue");
+                    b.Property<double?>("InterNoteValue");
 
-                    b.Property<DateTimeOffset>("InvoiceDate");
+                    b.Property<DateTimeOffset?>("InvoiceDate");
 
                     b.Property<string>("InvoiceNo")
                         .HasMaxLength(64);
@@ -4249,25 +4250,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("UnitPaymentOrderId");
 
-                    b.Property<DateTimeOffset>("UnitPaymentOrderIncomeTaxDate");
+                    b.Property<DateTimeOffset?>("UnitPaymentOrderIncomeTaxDate");
 
                     b.Property<string>("UnitPaymentOrderIncomeTaxNo");
 
-                    b.Property<double>("UnitPaymentOrderIncomeTaxRate");
+                    b.Property<double?>("UnitPaymentOrderIncomeTaxRate");
 
                     b.Property<long>("UnitPaymentOrderItemId");
 
-                    b.Property<bool>("UnitPaymentOrderUseIncomeTax");
+                    b.Property<bool?>("UnitPaymentOrderUseIncomeTax");
 
-                    b.Property<bool>("UnitPaymentOrderUseVat");
+                    b.Property<bool?>("UnitPaymentOrderUseVat");
 
-                    b.Property<DateTimeOffset>("UnitPaymentOrderVatDate");
+                    b.Property<DateTimeOffset?>("UnitPaymentOrderVatDate");
 
                     b.Property<string>("UnitPaymentOrderVatNo");
 
-                    b.Property<DateTimeOffset>("UnitReceiptNoteDate");
+                    b.Property<DateTimeOffset?>("UnitReceiptNoteDate");
 
-                    b.Property<double>("UnitReceiptNoteDeliveredQuantity");
+                    b.Property<double?>("UnitReceiptNoteDeliveredQuantity");
 
                     b.Property<long>("UnitReceiptNoteId");
 

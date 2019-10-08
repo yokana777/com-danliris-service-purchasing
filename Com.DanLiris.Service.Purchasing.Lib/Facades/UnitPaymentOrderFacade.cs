@@ -999,6 +999,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         fulfillment.InterNoteNo = model.UPONo;
                         fulfillment.InterNoteValue = detail.PriceTotal;
                         fulfillment.InterNoteDueDate = model.DueDate;
+                        fulfillment.UnitPaymentOrderUseVat = model.UseVat;
+                        fulfillment.UnitPaymentOrderUseIncomeTax = model.UseIncomeTax;
+                        fulfillment.UnitPaymentOrderIncomeTaxDate = DateTimeOffset.MinValue;
+                        fulfillment.UnitPaymentOrderIncomeTaxNo = model.IncomeTaxNo;
+                        fulfillment.UnitPaymentOrderIncomeTaxRate = model.IncomeTaxRate;
+                        fulfillment.UnitPaymentOrderVatDate = model.VatDate;
+                        fulfillment.UnitPaymentOrderVatNo = model.VatNo;
 
                         count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
                     }
@@ -1023,15 +1030,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                     if (fulfillment != null)
                     {
-                        fulfillment.UnitPaymentOrderDetailId = null;
-                        fulfillment.UnitPaymentOrderId = null;
-                        fulfillment.UnitPaymentOrderItemId = null;
-                        fulfillment.InvoiceDate = null;
+                        fulfillment.UnitPaymentOrderDetailId = 0;
+                        fulfillment.UnitPaymentOrderId = 0;
+                        fulfillment.UnitPaymentOrderItemId = 0;
+                        fulfillment.InvoiceDate = DateTimeOffset.MinValue;
                         fulfillment.InvoiceNo = null;
-                        fulfillment.InterNoteDate = null;
+                        fulfillment.InterNoteDate = DateTimeOffset.MinValue;
                         fulfillment.InterNoteNo = null;
-                        fulfillment.InterNoteValue = null;
-                        fulfillment.InterNoteDueDate = null;
+                        fulfillment.InterNoteValue = 0;
+                        fulfillment.InterNoteDueDate = DateTimeOffset.MinValue;
+                        fulfillment.UnitPaymentOrderUseVat = false;
+                        fulfillment.UnitPaymentOrderUseIncomeTax = false;
+                        fulfillment.UnitPaymentOrderIncomeTaxDate = DateTimeOffset.MinValue;
+                        fulfillment.UnitPaymentOrderIncomeTaxNo = null;
+                        fulfillment.UnitPaymentOrderIncomeTaxRate = 0;
+                        fulfillment.UnitPaymentOrderVatDate = DateTimeOffset.MinValue;
+                        fulfillment.UnitPaymentOrderVatNo = null;
 
                         count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
                     }

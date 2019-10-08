@@ -1516,10 +1516,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                 if(fulfillment != null)
                 {
-                    fulfillment.UnitReceiptNoteDate = null;
-                    fulfillment.UnitReceiptNoteDeliveredQuantity = null;
-                    fulfillment.UnitReceiptNoteId = null;
-                    fulfillment.UnitReceiptNoteItemId = null;
+                    fulfillment.UnitReceiptNoteDate = DateTimeOffset.MinValue;
+                    fulfillment.UnitReceiptNoteDeliveredQuantity = 0;
+                    fulfillment.UnitReceiptNoteId = 0;
+                    fulfillment.UnitReceiptNoteItemId = 0;
                     fulfillment.UnitReceiptNoteNo = null;
                     fulfillment.UnitReceiptNoteUom = null;
                     fulfillment.UnitReceiptNoteUomId = null;
