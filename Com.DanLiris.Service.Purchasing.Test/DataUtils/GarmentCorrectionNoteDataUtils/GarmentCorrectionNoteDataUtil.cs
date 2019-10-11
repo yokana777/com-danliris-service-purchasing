@@ -29,9 +29,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             this.garmentBeacukaiDataUtil = garmentBeacukaiDataUtil;
         }
 
-        public async Task<(GarmentCorrectionNote GarmentCorrectionNote, GarmentDeliveryOrder GarmentDeliveryOrder)> GetNewData()
+        public async Task<(GarmentCorrectionNote GarmentCorrectionNote, GarmentDeliveryOrder GarmentDeliveryOrder)> GetNewData(GarmentDeliveryOrder deliveryOrder = null)
         {
-            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+            var garmentDeliveryOrder = deliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
             GarmentCorrectionNote garmentCorrectionNote = new GarmentCorrectionNote
             {
@@ -189,6 +189,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             var data = await GetNewDataWithBC();
             await garmentCorrectionNoteFacade.Create(data.GarmentCorrectionNote);
             return data.GarmentCorrectionNote;
+        }
+        public async Task<GarmentCorrectionNote> GetNewDataK(GarmentDeliveryOrder deliveryOrder)
+        {
+            var data = await GetNewData(deliveryOrder);
+
+            data.GarmentCorrectionNote.CorrectionType = "Harga Total";
+
+            foreach (var item in data.GarmentDeliveryOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var garmentCorrectionNoteItem = data.GarmentCorrectionNote.Items.First(i => i.DODetailId == detail.Id);
+                    garmentCorrectionNoteItem.PricePerDealUnitBefore = (decimal)detail.PricePerDealUnitCorrection;
+                    garmentCorrectionNoteItem.PricePerDealUnitAfter = (decimal)detail.PricePerDealUnitCorrection;
+                    garmentCorrectionNoteItem.PriceTotalBefore = (decimal)detail.PriceTotalCorrection;
+                    garmentCorrectionNoteItem.PriceTotalAfter = (decimal)detail.PriceTotalCorrection + 1;
+                }
+            }
+
+            return data.GarmentCorrectionNote;
+        }
+        public async Task<GarmentCorrectionNote> GetTestData(GarmentDeliveryOrder deliveryOrder)
+        {
+            var data = await GetNewDataK(deliveryOrder);
+            await garmentCorrectionNoteFacade.Create(data);
+            return data;
         }
     }
 }
