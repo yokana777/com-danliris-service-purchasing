@@ -745,6 +745,60 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
 
+        public List<object> ReadItemByRO(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "RONo",
+            };
+
+            IQueryable<GarmentUnitReceiptNoteItem> QueryItem = dbContext.GarmentUnitReceiptNoteItems;
+
+            QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
+
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureFilter(QueryItem, FilterDictionary);
+
+            var data = (from y in QueryItem
+                        join x in Query on y.URNId equals x.Id
+                        select new
+                        {
+                            x.DOId,
+                            x.DONo,
+                            x.URNNo,
+                            y.URNId,
+                            y.Id,
+                            y.RONo,
+                            y.DODetailId,
+                            y.EPOItemId,
+                            y.POItemId,
+                            y.PRItemId,
+                            y.ProductId,
+                            y.ProductName,
+                            y.ProductCode,
+                            y.ProductRemark,
+                            y.OrderQuantity,
+                            y.SmallQuantity,
+                            y.DesignColor,
+                            y.SmallUomId,
+                            y.SmallUomUnit,
+                            y.POSerialNumber,
+                            y.PricePerDealUnit,
+                            x.DOCurrencyRate,
+                            y.Conversion,
+                            y.UomUnit,
+                            y.UomId,
+                            y.ReceiptCorrection,
+                            y.CorrectionConversion,
+                            Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+                        }).ToList();
+            List<object> ListData = new List<object>(data);
+            return ListData;
+        }
+
         #region Flow Detail Penerimaan 
         public IQueryable<FlowDetailPenerimaanViewModels> GetReportQueryFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset)
 
