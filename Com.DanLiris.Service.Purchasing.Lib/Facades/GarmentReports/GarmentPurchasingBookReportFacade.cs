@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           && (d.ArrivalDate != null ? d.ArrivalDate.AddHours(offset).Date >= DateFrom.Date : e.BeacukaiDate.AddHours(offset).Date >= DateFrom.Date)
                           && (d.ArrivalDate != null ? d.ArrivalDate.AddHours(offset).Date <= DateTo.Date : e.BeacukaiDate.AddHours(offset).Date <= DateTo.Date)
                           && h.SupplierImport == (suppliertype.HasValue ? suppliertype : h.SupplierImport)
-                          && a.BillNo == "BP190904171636000028"
+                          //&& a.BillNo == "BP190904171636000028"
                           && !e.BeacukaiNo.Contains("BCDL")
                           select new
                           {
