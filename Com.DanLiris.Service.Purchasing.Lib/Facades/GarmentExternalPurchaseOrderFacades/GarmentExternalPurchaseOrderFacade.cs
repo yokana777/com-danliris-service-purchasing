@@ -1049,7 +1049,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
 
             QueryItem = (from i in QueryItem join b in Query on i.GarmentEPOId equals b.Id
-                         where i.ProductName.ToUpper() == "PROCESS"
+                        // where i.ProductName.ToUpper() == "PROCESS"
                          select new GarmentExternalPurchaseOrderItem {
                              Id = i.Id,
                              GarmentEPOId=i.GarmentEPOId,

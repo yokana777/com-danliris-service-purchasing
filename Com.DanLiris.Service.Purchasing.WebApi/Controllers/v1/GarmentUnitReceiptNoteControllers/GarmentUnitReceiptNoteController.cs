@@ -318,6 +318,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
+        [HttpGet("by-ro")]
+        public IActionResult GetByRO(string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var result = facade.ReadItemByRO(keyword, filter);
+                Dictionary<string, object> Result =
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         #region Flow Detail Permintaan 
         [HttpGet("laporan")]
         public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order = "{}")
