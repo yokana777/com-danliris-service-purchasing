@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
-                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult()});
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() });
             mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
             serviceProvider
@@ -88,6 +88,48 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             mockCurrencyProvider
                 .Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
                 .ReturnsAsync((Currency)null);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+                .Returns(mockCurrencyProvider.Object);
+
+            return serviceProvider;
+        }
+
+        private Mock<IServiceProvider> GetServiceProviderCurrencyNotNull()
+        {
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
+
+            //var cache = new Mock<IMemoryCache>();
+            //cache.Setup(x => x.GetOrCreate<List<IdCOAResult>>());
+
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProviders = services.BuildServiceProvider();
+            var memoryCache = serviceProviders.GetService<IMemoryCache>();
+            var mockMemoryCache = new Mock<IMemoryCacheManager>();
+            mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() });
+            mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(mockMemoryCache.Object);
+
+            var mockCurrencyProvider = new Mock<ICurrencyProvider>();
+            mockCurrencyProvider.Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
+                .ReturnsAsync(new Currency()
+                {
+                    Code = "CurrencyCode",
+                    Date = DateTime.UtcNow,
+                    Rate = 100000000
+                });
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
@@ -115,7 +157,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
-                .Returns(new List<CategoryCOAResult>() {  });
+                .Returns(new List<CategoryCOAResult>() { });
             mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { });
             serviceProvider
@@ -193,14 +235,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var response = await facade.Create(model, USERNAME);
 
             Assert.NotEqual(response, 0);
-            
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Data_SupplierIsImport()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+           
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(GetServiceProviderCurrencyNotNull().Object, dbContext);
+            var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
+            model.IsStorage = true;
+            model.UnitId = null;
+            model.SupplierIsImport = true;
+
+            var response = await facade.Create(model, USERNAME);
+
+            Assert.NotEqual(response, 0);
+
         }
 
         [Fact]
         public async Task Should_Success_CreateNullCOA_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            
+
             UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2().Object, dbContext);
             var model2 = await _dataUtil(facade2, dbContext).GetNewData(USERNAME);
             model2.IsStorage = true;
