@@ -144,6 +144,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                         itemErrorCount++;
                         itemError += "DealUom: 'Data Satuan tidak benar', ";
                     }
+                    if (item.SmallUom == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "SmallUom: 'Satuan Kacil tidak boleh kosong', ";
+                    }
+                    else if (String.IsNullOrWhiteSpace(item.SmallUom.Id) || item.SmallUom.Id.Equals("0") || String.IsNullOrWhiteSpace(item.SmallUom.Unit))
+                    {
+                        itemErrorCount++;
+                        itemError += "SmallUom: 'Data Satuan Kecil tidak benar', ";
+                    }
                     if (item.IsOverBudget && !((PaymentMethod == "CMT" || PaymentMethod == "FREE FROM BUYER") && (PaymentType == "FREE" || PaymentType == "EX MASTER FREE")))
                     {
                         if (string.IsNullOrWhiteSpace(item.OverBudgetRemark))
