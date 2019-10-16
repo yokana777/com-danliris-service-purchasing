@@ -156,7 +156,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
                 .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
                 .AddTransient<ICurrencyProvider, CurrencyProvider>()
-                .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>();
+                .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
+                .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>();
                 
         }
 
