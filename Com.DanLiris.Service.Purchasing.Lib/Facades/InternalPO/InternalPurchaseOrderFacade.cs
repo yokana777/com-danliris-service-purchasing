@@ -997,6 +997,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     m.UnitReceiptNoteNo = model.UnitReceiptNoteNo;
                     m.UnitReceiptNoteUom = model.UnitReceiptNoteUom;
                     m.UnitReceiptNoteUomId = model.UnitReceiptNoteUomId;
+                    m.UnitPaymentOrderIncomeTaxDate = model.UnitPaymentOrderIncomeTaxDate;
+                    m.UnitPaymentOrderIncomeTaxNo = model.UnitPaymentOrderIncomeTaxNo;
+                    m.UnitPaymentOrderIncomeTaxRate = model.UnitPaymentOrderIncomeTaxRate;
+                    m.UnitPaymentOrderUseIncomeTax = model.UnitPaymentOrderUseIncomeTax;
+                    m.UnitPaymentOrderUseVat = model.UnitPaymentOrderUseVat;
+                    m.UnitPaymentOrderVatDate = model.UnitPaymentOrderVatDate;
+                    m.UnitPaymentOrderVatNo = model.UnitPaymentOrderVatNo;
 
                     var updatedCorrections = model.Corrections.Where(x => m.Corrections.Any(y => y.Id == x.Id));
                     var addedCorrections = model.Corrections.Where(x => !m.Corrections.Any(y => y.Id == x.Id));
