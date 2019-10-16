@@ -25,7 +25,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string buyerCode { get; set; }
 		public string prProductRemark { get; set; }
 		public string poProductRemark { get; set; }
-		public double poDealQty { get; set; }
+        public double poDefaultQty { get; set; }
+        public string paymentMethod { get; set; }
+        public string paymentType { get; set; }
+        public double poDealQty { get; set; }
 		public string poDealUomUnit { get; set; }
 		public double prBudgetPrice { get; set; }
 		public double poPricePerDealUnit { get; set; }
@@ -80,5 +83,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string correctionRemark { get; set; }
 		public string username { get; set; }
 		public string status { get; set; }
-	}
+        
+    }
 }

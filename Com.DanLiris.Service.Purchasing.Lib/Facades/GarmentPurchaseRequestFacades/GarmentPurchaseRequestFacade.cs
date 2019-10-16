@@ -1126,6 +1126,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Kena PPN", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kena PPH", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = " PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Term Pembayaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Pembayaran", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
@@ -1133,7 +1135,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PR)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PO EKS)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Budget", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Budget", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Beli", DataType = typeof(Double) });
@@ -1176,7 +1179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1184,7 +1187,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     index++;
 
-                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.supplierCode, item.supplierName, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark, item.poDealQty,
+                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.paymentMethod, item.paymentType, item.supplierCode, item.supplierName, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark, item.poDealQty, item.poDefaultQty,
                         item.poDealUomUnit, item.prBudgetPrice, item.poPricePerDealUnit, item.TotalNominalPO, item.poCurrencyCode, item.poCurrencyRate, item.TotalNominalRp, item.ipoDate, item.doNo,
                         item.doDate, item.arrivalDate, item.doQty, item.doUomUnit, item.bcNo, item.bcDate, item.receiptNo, item.receiptDate, item.ReceiptQty, item.receiptUomUnit,
                         item.invoiceNo, item.invoiceDate, item.vatNo, item.vatDate, item.vatValue, item.incomeTaxType, item.incomeTaxtRate, item.incomeTaxNo, item.incomeTaxDate, item.incomeTaxtValue,
@@ -1332,9 +1335,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var purchaseOrderInternalItems = dbContext.GarmentInternalPurchaseOrderItems.Where(w => purchaseOrderInternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Status }).ToList();
 
             var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
-            var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo, s.OrderDate, s.DeliveryDate, s.SupplierCode, s.SupplierName, s.CurrencyCode, s.CurrencyRate, s.IncomeTaxRate, s.IsIncomeTax, s.IsUseVat }).ToList();
+            var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo, s.OrderDate, s.DeliveryDate, s.SupplierCode, s.SupplierName, s.CurrencyCode, s.CurrencyRate, s.IncomeTaxRate, s.IsIncomeTax, s.IsUseVat, s.PaymentMethod, s.PaymentType }).ToList();
             var purchaseOrderExternalItemIds = queryResult.Select(s => s.EPOItemId).Distinct().ToList();
-            var purchaseOrderExternalItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => purchaseOrderExternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Remark, s.DealQuantity, s.DealUomUnit, s.PricePerDealUnit }).ToList();
+            var purchaseOrderExternalItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => purchaseOrderExternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Remark, s.DealQuantity, s.DealUomUnit, s.PricePerDealUnit, s.DefaultQuantity }).ToList();
 
             var deliveryOrderIds = queryResult.Select(s => s.DOId).Distinct().ToList();
             var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.DONo, s.DODate, s.ArrivalDate }).ToList();
@@ -1465,6 +1468,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         productName = purchaseRequestItem.ProductName,
                         prProductRemark = purchaseRequestItem.ProductRemark,
                         poProductRemark = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.Remark,
+                        poDefaultQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DefaultQuantity,
                         poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
                         poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
                         prBudgetPrice = purchaseRequestItem.BudgetPrice,
@@ -1476,6 +1480,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         totalNominalRp = purchaseOrderExternalItem == null && purchaseOrderExternal == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit * purchaseOrderExternal.CurrencyRate),
                         TotalNominalRp = purchaseOrderExternal == null && purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit * purchaseOrderExternal.CurrencyRate,
                         incomeTaxRate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IncomeTaxRate?.ToString(),
+                        paymentMethod = purchaseOrderExternal == null ? "" : purchaseOrderExternal.PaymentMethod?.ToString(),
+                        paymentType = purchaseOrderExternal == null ? "" : purchaseOrderExternal.PaymentType?.ToString(),
                         ipoDate = purchaseOrderInternal == null ? "" : purchaseOrderInternal.CreatedUtc.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                         username = purchaseOrderInternal == null ? "" : purchaseOrderInternal.CreatedBy,
                         useIncomeTax = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IsIncomeTax ? "YA" : "TIDAK",
@@ -1581,6 +1587,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Kena PPN", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kena PPH", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = " PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Term Pembayaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Pembayaran", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
@@ -1588,7 +1596,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PR)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PO EKS)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Budget", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Budget", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Beli", DataType = typeof(Double) });
@@ -1631,7 +1640,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1639,7 +1648,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     index++;
 
-                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.supplierCode, item.supplierName, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark, item.poDealQty,
+                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.paymentMethod, item.paymentType,item.supplierCode, item.supplierName, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark, item.poDealQty, item.poDefaultQty,
                         item.poDealUomUnit, item.prBudgetPrice, item.poPricePerDealUnit, item.TotalNominalPO, item.poCurrencyCode, item.poCurrencyRate, item.TotalNominalRp, item.ipoDate, item.doNo,
                         item.doDate, item.arrivalDate, item.doQty, item.doUomUnit, item.bcNo, item.bcDate, item.receiptNo, item.receiptDate, item.ReceiptQty, item.receiptUomUnit,
                         item.invoiceNo, item.invoiceDate, item.vatNo, item.vatDate, item.vatValue, item.incomeTaxType, item.incomeTaxtRate, item.incomeTaxNo, item.incomeTaxDate, item.incomeTaxtValue,
