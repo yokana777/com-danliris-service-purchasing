@@ -284,7 +284,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, datum.UnitCode)
                         },
-                        Debit = datum.Total
+                        Debit = Convert.ToDecimal(datum.Total)
                     };
 
                     items.Add(item);
@@ -294,7 +294,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             items = items.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
             {
                 COA = s.First().COA,
-                Debit = s.Sum(sm => sm.Debit)
+                Debit = s.Sum(sm => Math.Round(sm.Debit.GetValueOrDefault(), 4))
             }).ToList();
 
             var bankJournalItem = new JournalTransactionItem()
@@ -303,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 {
                     Code = model.BankAccountCOA
                 },
-                Credit = items.Sum(s => s.Debit)
+                Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
             };
             items.Add(bankJournalItem);
 
