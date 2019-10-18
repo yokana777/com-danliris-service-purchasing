@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public IQueryable<PurchaseMonitoringReportViewModel> GetReportQuery(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, long poExtId, string supplierId)
         {
             var purchaseRequestItems = _purchaseRequestItemDbSet.Include(prItem => prItem.PurchaseRequest).Where(w => w.PurchaseRequest.Date >= startDate && w.PurchaseRequest.Date <= endDate);
-            purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, createdBy, purchaseRequestItems);
+            purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, purchaseRequestItems);
 
             var internalPurchaseOrderFulfillments = _internalPurchaseOrderFulfillmentDbSet.Include(fulfillment => fulfillment.InternalPurchaseOrderItem).ThenInclude(item => item.InternalPurchaseOrder).AsQueryable();
             //var internalPurchaseOrderItems = _internalPurchaseOrderItemDbSet.Include(ipoItem => ipoItem.InternalPurchaseOrder).AsQueryable();
@@ -125,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoFulfillment != null ? ipoFulfillment.InternalPurchaseOrderItem.InternalPurchaseOrder.ExpectedDeliveryDate : (DateTimeOffset?)null,
                              ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoFulfillment != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate : (DateTimeOffset?)null,
                              ExternalPurchaseOrderNo = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.EPONo : "",
-                             SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode : "",
+                             SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
                              SupplierCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierCode : "",
                              SupplierName = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierName : "",
                              ExternalPurchaseOrderPaymentDueDays = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.PaymentDueDays : "",
@@ -161,6 +161,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              UnitPaymentOrderIncomeTaxNo = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax ? ipoFulfillment.UnitPaymentOrderIncomeTaxNo : "",
                              UnitPaymentOrderIncomeTax = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax ? ipoFulfillment.UnitPaymentOrderIncomeTaxRate * ipoFulfillment.InterNoteValue : 0
                          });
+
+            if (!string.IsNullOrWhiteSpace(createdBy))
+                query = query.Where(w => w.InternalPurchaseOrderStaff == createdBy);
 
             if (poExtId > 0)
                 query = query.Where(w => w.ExternalPurchaseOrderId == poExtId);
@@ -238,7 +241,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             };
         }
 
-        private IQueryable<PurchaseRequestItem> FilterPurchaseRequest(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, IQueryable<PurchaseRequestItem> purchaseRequestItems)
+        private IQueryable<PurchaseRequestItem> FilterPurchaseRequest(string unitId, string categoryId, string divisionId, string budgetId, long prId, IQueryable<PurchaseRequestItem> purchaseRequestItems)
         {
             if (!string.IsNullOrWhiteSpace(unitId))
                 purchaseRequestItems = purchaseRequestItems.Where(w => w.PurchaseRequest.UnitId.Equals(unitId));
@@ -255,8 +258,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             if (prId > 0)
                 purchaseRequestItems = purchaseRequestItems.Where(w => w.PurchaseRequest.Id.Equals(prId));
 
-            if (!string.IsNullOrWhiteSpace(createdBy))
-                purchaseRequestItems = purchaseRequestItems.Where(w => w.PurchaseRequest.CreatedBy.Equals(createdBy));
+            //if (!string.IsNullOrWhiteSpace(createdBy))
+            //    purchaseRequestItems = purchaseRequestItems.Where(w => w.PurchaseRequest.CreatedBy.Equals(createdBy));
 
             return purchaseRequestItems;
         }

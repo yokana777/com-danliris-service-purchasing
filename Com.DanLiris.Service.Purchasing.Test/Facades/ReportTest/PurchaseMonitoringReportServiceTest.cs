@@ -172,9 +172,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var correctionTestData = await correctionDataUtil.GetTestData();
 
             var purchaseRequest = await dbContext.PurchaseRequests.FirstOrDefaultAsync();
+            var internalPurchaseOrder = await dbContext.InternalPurchaseOrders.FirstOrDefaultAsync(f => f.PRId == purchaseRequest.Id.ToString());
 
             var service = new PurchaseMonitoringService(dbContext);
-            var result = await service.GetReport(purchaseRequest.UnitId, purchaseRequest.CategoryId, purchaseRequest.DivisionId, purchaseRequest.BudgetId, purchaseRequest.Id, purchaseRequest.CreatedBy, null, DateTimeOffset.MinValue, DateTimeOffset.Now, 0, null, 1, 25);
+            var result = await service.GetReport(purchaseRequest.UnitId, purchaseRequest.CategoryId, purchaseRequest.DivisionId, purchaseRequest.BudgetId, purchaseRequest.Id, internalPurchaseOrder.CreatedBy, null, DateTimeOffset.MinValue, DateTimeOffset.Now, 0, null, 1, 25);
 
             Assert.NotEqual(0, result.Total);
         }
