@@ -477,7 +477,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -488,7 +488,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -499,7 +499,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -510,7 +510,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
                 }
@@ -523,7 +523,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -534,7 +534,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = model.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
                 }
