@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             await DataUtil.GetTestData("Unit test");
             Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             await DataUtil.GetTestDataPosted("Unit test");
             Tuple<List<PurchaseRequest>, int, Dictionary<string, string>> Response = Facade.ReadModelPosted();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
 
             await DataUtil.GetTestData("Unit Test");
             var Response = this.Facade.Read(1, 25, order, keyword, filter);
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = DataUtil.GetNewData();
             var Response = await Facade.Create(model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -83,16 +83,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
 
             var Response = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             PurchaseRequestItem modelItem = DataUtil.GetNewData().Items.FirstOrDefault();
             model.Items.Add(modelItem);
             var ResponseAddItem = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(ResponseAddItem, 0);
+            Assert.NotEqual(0, ResponseAddItem);
 
             model.Items.Remove(modelItem);
             var ResponseRemoveItem = await Facade.Update((int)model.Id, model, "Unit Test");
-            Assert.NotEqual(ResponseRemoveItem, 0);
+            Assert.NotEqual(0, ResponseRemoveItem);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchaseRequestTests
         {
             PurchaseRequest model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.Delete((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
     }
 }

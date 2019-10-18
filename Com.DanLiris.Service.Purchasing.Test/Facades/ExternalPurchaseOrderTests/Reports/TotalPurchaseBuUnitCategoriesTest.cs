@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			ExternalPurchaseOrder externalPurchaseOrder = await DataUtil.GetNewData("unit-test");
 			await FacadeEPO.Create(externalPurchaseOrder, "unit-test", 7);
 			var Response = Facade.GenerateExcelTotalPurchaseByUnitCategories(null,null,null,null, null, 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 		}
 		[Fact]
 		public void Should_Success_Get_Report_Total_Purchase_By_Unit_Categories_Null_Data_Excel()
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
 			DateTime DateFrom = new DateTime(2018, 1, 1);
 			DateTime DateTo = new DateTime(2018, 1, 1);
 			var Response = Facade.GenerateExcelTotalPurchaseByUnitCategories(null, null, null, DateFrom, DateTo, 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 		}
 	}
 }

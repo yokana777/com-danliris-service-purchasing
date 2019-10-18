@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             PurchasingDocumentExpedition model = await DataUtil.GetTestData();
             List<string> unitPaymentOrders = new List<string>() { model.UnitPaymentOrderNo };
             var Response = this.Facade.GetReport(unitPaymentOrders);
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
     }
 }

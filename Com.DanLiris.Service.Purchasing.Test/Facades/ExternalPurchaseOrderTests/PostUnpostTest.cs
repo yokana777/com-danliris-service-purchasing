@@ -40,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             modelList.Add(model);
             var Response = Facade.EPOPost(modelList, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.EPOUnpost((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.EPOClose((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
             var Response = Facade.EPOCancel((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
     }
 }

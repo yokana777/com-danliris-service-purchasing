@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var facade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()),GetServiceProvider());
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiJumlahPlus();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var facade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataKoreksiJumlahMinus();
             var Response = facade.ReadById((int)data.Id);
-            Assert.NotEqual(Response.Id, 0);
+            Assert.NotEqual(0, Response.Id);
         }
 
         [Fact]
@@ -126,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var facade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataKoreksiKonversi();
             var Response = await facade.Create(data, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewDataKoreksiKonversi();
             var dataItem = data.Items.First();
@@ -135,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             data2.Items.First().SmallUomId = dataItem.SmallUomId;
             data2.StorageId = data.StorageId;
             var Response2 = await facade.Create(data2, USERNAME);
-            Assert.NotEqual(Response2, 0);
+            Assert.NotEqual(0, Response2);
 
             var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewDataKoreksiJumlahPlus();
             var dataItem1 = data.Items.First();
@@ -143,7 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             data3.Items.First().SmallUomId = dataItem.SmallUomId;
             data3.StorageId = nowTicks;
             var Response3 = await facade.Create(data3, USERNAME);
-            Assert.NotEqual(Response2, 0);
+            Assert.NotEqual(0, Response2);
         }
 
         //[Fact]

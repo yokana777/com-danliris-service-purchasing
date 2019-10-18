@@ -234,7 +234,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
                 UnitReceiptNoteItemId = 1,
                 UnitReceiptNoteNo = "np",
                 UnitReceiptNoteUom = "uom",
-                UnitReceiptNoteUomId = "1"
+                UnitReceiptNoteUomId = "1",
+                UnitPaymentOrderUseVat = true,
+                UnitPaymentOrderUseIncomeTax = true,
+                UnitPaymentOrderIncomeTaxDate = DateTimeOffset.UtcNow,
+                UnitPaymentOrderIncomeTaxNo = "no",
+                UnitPaymentOrderIncomeTaxRate = 1,
+                UnitPaymentOrderVatDate = DateTimeOffset.UtcNow,
+                UnitPaymentOrderVatNo = "no"
             };
         }
     }

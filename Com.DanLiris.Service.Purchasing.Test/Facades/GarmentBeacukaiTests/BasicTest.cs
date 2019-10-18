@@ -102,7 +102,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
 
 			var Response = await facade.Create(data, USERNAME);
-			Assert.NotEqual(Response, 0);
+			Assert.NotEqual(0, Response);
 		}
 		[Fact]
 		public async Task Should_Success_Create_Data_null_BillNo()
@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
 			data.BillNo = "";
 			var Response = await facade.Create(data, USERNAME);
-			Assert.NotEqual(Response, 0);
+			Assert.NotEqual(0, Response);
 		}
 
 		//[Fact]
@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 			viewModel.items = Newitems;
 			//List<GarmentBeacukaiItem> Newitems = new List<GarmentBeacukaiItem>(data.Items);
 			var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate1, 0);
+			Assert.NotEqual(0, ResponseUpdate1);
 		}
 
 		[Fact]
@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
 			await facade.Create(data, USERNAME);
 			var Response = facade.Delete((int)data.Id, USERNAME);
-			Assert.NotEqual(Response, 0);
+			Assert.NotEqual(0, Response);
 		}
 		[Fact]
 		public void Should_Error_Delete_Data()

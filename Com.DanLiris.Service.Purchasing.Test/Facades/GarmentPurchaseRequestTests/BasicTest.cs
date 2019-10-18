@@ -76,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 item.PO_SerialNumber = null;
             }
             var Response = await facade.Create(model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 item.PO_SerialNumber = null;
             }
             var Response = await facade.Create(model, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             firstItem.PO_SerialNumber = $"PO_SerialNumber{DateTime.Now.Ticks}";
 
             var Response = await facade.Update((int)newModel.Id, newModel, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -211,7 +211,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.Delete((int)model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             model.PRType = "MASTER";
 
             var Response = await facade.Delete((int)model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -251,7 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.PRPost(new List<long> { model.Id }, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -271,7 +271,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.PRUnpost(model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.PRApprove(model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -310,7 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var model = await this.dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.PRUnApprove(model.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -328,7 +328,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -337,7 +337,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadDynamic(Select: "{Id: 1}");
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -644,7 +644,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
 
@@ -679,7 +679,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelByUserPurchase(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
 
@@ -691,7 +691,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GenerateExcelByUserPurchase("coba", null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.IsType(typeof(System.IO.MemoryStream), Response);
+			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
 
@@ -706,7 +706,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             jsonPatch.Replace(m => m.IsValidated, false);
 
             var Response = await facade.Patch(model.Id, jsonPatch, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -720,7 +720,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             jsonPatch.Replace(m => m.Id, 0);
 
             var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.Patch(model.Id, jsonPatch, USERNAME));
-            Assert.NotEqual(Response.Message, null);
+            Assert.NotNull(Response.Message);
         }
     }
 }

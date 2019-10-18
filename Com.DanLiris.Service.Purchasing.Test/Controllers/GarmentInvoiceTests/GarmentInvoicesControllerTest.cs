@@ -510,7 +510,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
 			var response = controller.GetIncomePDF(It.IsAny<int>());
-			Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+			Assert.NotNull(response.GetType().GetProperty("FileStream"));
 		}
 
 		[Fact]
@@ -553,7 +553,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInvoiceTests
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
 			var response = controller.GetVatPDF(It.IsAny<int>());
-			Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+			Assert.NotNull(response.GetType().GetProperty("FileStream"));
 		}
 
 	}

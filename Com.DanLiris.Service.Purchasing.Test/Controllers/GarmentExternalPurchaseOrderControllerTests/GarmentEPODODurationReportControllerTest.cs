@@ -176,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXls(null, null, "0-30 hari", null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
     }
 }

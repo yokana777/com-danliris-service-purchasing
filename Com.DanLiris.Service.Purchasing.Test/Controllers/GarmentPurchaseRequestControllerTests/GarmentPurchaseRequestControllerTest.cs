@@ -315,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
         [Fact]

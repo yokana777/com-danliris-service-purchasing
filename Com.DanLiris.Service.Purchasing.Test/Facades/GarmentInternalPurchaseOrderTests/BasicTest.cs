@@ -76,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var listData = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.CreateMultiple(listData, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read(Order: "{\"Items.ProductName\" : \"desc\"}");
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.CheckDuplicate(listData.First());
-            Assert.Equal(Response, false);
+            Assert.False(Response);
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var data = dbContext.GarmentInternalPurchaseOrders.AsNoTracking().Include(m => m.Items).Single(m => m.Id == listData.First().Id);
 
             var Response = await facade.Split((int)data.Id, data, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -158,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var data = listData.First();
             var Response = await facade.Delete((int)data.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -264,7 +264,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             await facade.Create(data, USERNAME);
             GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
             var Response = Facade.GetIPOEPODurationReport("", "0-7 hari", null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(Response.Item2, 0);
+            Assert.NotEqual(-1, Response.Item2);
 
             var Response1 = Facade.GetIPOEPODurationReport("", "8-14 hari", null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response1.Item1);
@@ -285,10 +285,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
 
             var Response = Facade.GenerateExcelIPOEPODuration("", "8-14 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
 
             var Response1 = Facade.GenerateExcelIPOEPODuration("", "0-7 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+            Assert.IsType<System.IO.MemoryStream>(Response1);
         }
 
 

@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             var Response = await facade.Create(data, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
 
             var Response = await facade.Create(data, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
             var Response = await facade.Create(data, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -138,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             data.PaymentMethod = "CMT";
             data.PaymentType = "FREE";
             var Response = await facade.Create(data, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
         
         
@@ -197,7 +197,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             });
 
             var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(0, ResponseUpdate);
             var newItem = new GarmentExternalPurchaseOrderItem
             {
                 PO_SerialNumber = "PO_SerialNumber",
@@ -219,12 +219,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             data.Items = Newitems;
 
             var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate1, 0);
+            Assert.NotEqual(0, ResponseUpdate1);
 
             data.PaymentMethod = "CMT";
             data.PaymentType = "FREE";
             var ResponseUpdate2 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate2, 0);
+            Assert.NotEqual(0, ResponseUpdate2);
 
             List<GarmentExternalPurchaseOrderItem> Newitems1 = new List<GarmentExternalPurchaseOrderItem>(data.Items);
             var newItem2 = new GarmentExternalPurchaseOrderItem
@@ -249,7 +249,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             data.PaymentMethod = "CMT";
             data.PaymentType = "FREE";
             var ResponseUpdate3 = await facade.Update((int)data.Id, data, USERNAME);
-            Assert.NotEqual(ResponseUpdate3, 0);
+            Assert.NotEqual(0, ResponseUpdate3);
         }
 
         [Fact]
@@ -274,7 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             modelList.Add(model);
             var Response = facade.EPOPost(modelList, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -285,7 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             modelList.Add(model);
             var Response = facade.EPOApprove(modelList, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -294,7 +294,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.EPOUnpost((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.EPOCancel((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -312,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             GarmentExternalPurchaseOrder model = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.EPOClose((int)model.Id, "Unit Test");
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
 
@@ -361,7 +361,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.Delete((int)data.Id, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -457,10 +457,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GenerateExcelEPODODuration("", "", "0-30 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
 
             var Response1 = Facade.GenerateExcelEPODODuration("", "", ">60 hari", null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response1);
+            Assert.IsType<System.IO.MemoryStream>(Response1);
         }
 
         //OVER BUDGET
@@ -484,7 +484,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GenerateExcelEPOOverBudget(null, null, null, null, null, null, 1, 25, "{}", 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
 
         }
 
@@ -499,7 +499,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
             var Response = facadetotal.GetTotalGarmentPurchaseBySupplierReport(model.garmentInternalPurchaseOrder.UnitId, model.garmentExternalPurchaseOrder.SupplierImport, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
 
-            Assert.NotEqual(Response.ToList().Count, 0);
+            Assert.NotEmpty(Response.ToList());
         }
 
         [Fact]
@@ -513,7 +513,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
             var Response = facadetotal.GenerateExcelTotalGarmentPurchaseBySupplier(model.garmentInternalPurchaseOrder.UnitId, model.garmentExternalPurchaseOrder.SupplierImport, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
 
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }

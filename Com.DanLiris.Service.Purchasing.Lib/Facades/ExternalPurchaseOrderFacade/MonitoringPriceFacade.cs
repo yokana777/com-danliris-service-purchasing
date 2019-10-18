@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuanh", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuanh", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Harga", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)

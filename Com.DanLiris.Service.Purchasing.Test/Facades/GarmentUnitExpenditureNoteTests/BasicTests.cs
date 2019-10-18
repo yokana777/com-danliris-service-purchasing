@@ -195,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int)data.Id);
-            Assert.NotEqual(Response.Id, 0);
+            Assert.NotEqual(0, Response.Id);
         }
 
         [Fact]
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
             var Response = facade.ReadByUENId((int)data.Id);
-            Assert.NotEqual(Response.Id, 0);
+            Assert.NotEqual(0, Response.Id);
         }
 
         [Fact]
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -233,7 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             data.ExpenditureType = "EXTERNAL";
             var Response = await facade.Create(data);
 
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             // var datas = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             //var Response = facade.ReadById((int)data.Id);
@@ -327,7 +327,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             //data.Items = items;
             data.Items.First().IsSave = false;
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -345,7 +345,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
             var Response = await facade.Create(data);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -374,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             newData.Items.First().IsSave = false;
 
             var ResponseUpdate = await facade.Update((int)newData.Id, newData);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(0, ResponseUpdate);
         }
 
         [Fact]
@@ -392,7 +392,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             newData.Items.First().IsSave = true;
             var ResponseUpdateTypeTransfer = await facade.Update((int)newData.Id, newData);
-            Assert.NotEqual(ResponseUpdateTypeTransfer, 0);
+            Assert.NotEqual(0, ResponseUpdateTypeTransfer);
         }
 
         [Fact]
@@ -420,7 +420,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             }
 
             var ResponseUpdate2 = await facade.Update((int)dataTransfer.Id, dataTransfer);
-            Assert.NotEqual(ResponseUpdate2, 0);
+            Assert.NotEqual(0, ResponseUpdate2);
         }
 
         [Fact]
@@ -444,7 +444,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = await facade.Delete((int)data.Id);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -560,7 +560,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataForPreparing();
              var Response = facade.ReadForGPreparing();
-            Assert.NotEqual(Response.Data.Count, 0);
+            Assert.NotEmpty(Response.Data);
         }
 
         [Fact]
@@ -579,7 +579,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             newData.Items.First().IsSave = false;
 
             var ResponseUpdate = await facade.UpdateIsPreparing((int)newData.Id, newData);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(0, ResponseUpdate);
         }
 
         [Fact]
@@ -612,7 +612,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             newData.Items.First().IsSave = false;
 
             var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1, 0);
-            Assert.NotEqual(ResponseUpdate, 0);
+            Assert.NotEqual(0, ResponseUpdate);
         }
 
         [Fact]

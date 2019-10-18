@@ -9,6 +9,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
 {
     public class InternalPurchaseOrderFulFillment : StandardEntity<long>
     {
+        public InternalPurchaseOrderFulFillment()
+        {
+            Corrections = new List<InternalPurchaseOrderCorrection>();
+        }
+
         public long DeliveryOrderId { get; set; }
         public long DeliveryOrderItemId { get; set; }
         public long DeliveryOrderDetailId { get; set; }
@@ -21,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public long UnitPaymentOrderDetailId { get; set; }
 
 
+        //DO
         [MaxLength(64)]
         public string DeliveryOrderNo { get; set; }
 
@@ -31,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public DateTimeOffset SupplierDODate { get; set; }
 
 
+        // URN
         [MaxLength(64)]
         public string UnitReceiptNoteNo { get; set; }
 
@@ -45,6 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public string UnitReceiptNoteUomId { get; set; }
 
 
+        //UPO
         public DateTimeOffset InvoiceDate { get; set; }
 
         [MaxLength(64)]
@@ -58,6 +66,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel
         public double InterNoteValue { get; set; }
 
         public DateTimeOffset InterNoteDueDate { get; set; }
+
+        public bool UnitPaymentOrderUseVat { get; set; }
+
+        public DateTimeOffset UnitPaymentOrderVatDate { get; set; }
+
+        public string UnitPaymentOrderVatNo { get; set; }
+
+        public bool UnitPaymentOrderUseIncomeTax { get; set; }
+
+        public DateTimeOffset UnitPaymentOrderIncomeTaxDate { get; set; }
+
+        public string UnitPaymentOrderIncomeTaxNo { get; set; }
+
+        public double UnitPaymentOrderIncomeTaxRate { get; set; }
 
         public virtual ICollection<InternalPurchaseOrderCorrection> Corrections { get; set; }
 

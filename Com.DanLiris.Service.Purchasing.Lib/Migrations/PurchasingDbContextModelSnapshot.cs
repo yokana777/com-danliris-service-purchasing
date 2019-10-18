@@ -18,7 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.0.1-rtm-125")
+                .HasAnnotation("ProductVersion", "2.0.3-rtm-10026")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber.BankDocumentNumber", b =>
@@ -4249,7 +4249,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("UnitPaymentOrderId");
 
+                    b.Property<DateTimeOffset>("UnitPaymentOrderIncomeTaxDate");
+
+                    b.Property<string>("UnitPaymentOrderIncomeTaxNo");
+
+                    b.Property<double>("UnitPaymentOrderIncomeTaxRate");
+
                     b.Property<long>("UnitPaymentOrderItemId");
+
+                    b.Property<bool>("UnitPaymentOrderUseIncomeTax");
+
+                    b.Property<bool>("UnitPaymentOrderUseVat");
+
+                    b.Property<DateTimeOffset>("UnitPaymentOrderVatDate");
+
+                    b.Property<string>("UnitPaymentOrderVatNo");
 
                     b.Property<DateTimeOffset>("UnitReceiptNoteDate");
 

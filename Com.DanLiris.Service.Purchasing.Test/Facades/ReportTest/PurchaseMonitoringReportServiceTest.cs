@@ -23,6 +23,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -31,6 +33,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 {
     public class PurchaseMonitoringReportServiceTest
     {
+        private const string ENTITY = "PurchaseMonitoringReports";
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public string GetCurrentMethod()
+        {
+            StackTrace st = new StackTrace();
+            StackFrame sf = st.GetFrame(1);
+
+            return string.Concat(sf.GetMethod().Name, "_", ENTITY);
+        }
+
+
         private PurchasingDbContext GetDbContext(string dbIdentity)
         {
             DbContextOptionsBuilder<PurchasingDbContext> optionsBuilder = new DbContextOptionsBuilder<PurchasingDbContext>();
@@ -43,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             return dbContext;
         }
 
-        private Mock<IServiceProvider> GetServiceProvider()
+        private Mock<IServiceProvider> GetServiceProvider(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -53,6 +66,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, GetDbContext(testname)));
 
             var services = new ServiceCollection();
             services.AddMemoryCache();
@@ -100,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
-            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(GetDbContext(testName));
+            UnitPaymentOrderFacade unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, GetDbContext(testName));
             UnitPaymentOrderDataUtil unitPaymentOrderDataUtil = new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, unitPaymentOrderFacade);
 
             return new UnitPaymentPriceCorrectionNoteDataUtils(unitPaymentOrderDataUtil, facade);
@@ -109,13 +126,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         [Fact]
         public async Task ShouldSuccessGetReport()
         {
-            var dbIdentity = new Guid().ToString() + "ShouldSuccessGetReport";
-            var dbContext = GetDbContext(dbIdentity);
-            var serviceProvider = GetServiceProvider().Object;
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
 
             var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
 
-            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, dbIdentity, serviceProvider);
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
 
             var correctionTestData = await correctionDataUtil.GetTestData();
 
@@ -128,13 +144,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         [Fact]
         public async Task ShouldSuccessGetReportXls()
         {
-            var dbIdentity = new Guid().ToString() + "ShouldSuccessGetReportXls";
-            var dbContext = GetDbContext(dbIdentity);
-            var serviceProvider = GetServiceProvider().Object;
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
 
             var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
 
-            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, dbIdentity, serviceProvider);
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
 
             var correctionTestData = await correctionDataUtil.GetTestData();
 
@@ -147,13 +162,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         [Fact]
         public async Task ShouldSuccessGetReportWithFilter()
         {
-            var dbIdentity = new Guid().ToString() + "ShouldSuccessGetReportWithFilter";
-            var dbContext = GetDbContext(dbIdentity);
-            var serviceProvider = GetServiceProvider().Object;
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
 
             var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
 
-            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, dbIdentity, serviceProvider);
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
 
             var correctionTestData = await correctionDataUtil.GetTestData();
 

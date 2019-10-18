@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
             return dbContext;
         }
 
-        private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, PurchasingDbContext dbContext)
+        private Mock<IServiceProvider> GetServiceProvider(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -71,6 +71,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(InternalPurchaseOrderFacade)))
+                .Returns(new InternalPurchaseOrderFacade(serviceProvider.Object, _dbContext(testname)));
 
             var services = new ServiceCollection();
             services.AddMemoryCache();
@@ -89,25 +93,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
 
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(serviceProvider.Object, dbContext);
+            return serviceProvider;
+        }
+
+        private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, PurchasingDbContext dbContext, string testname)
+        {
+
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(testname).Object, dbContext);
             PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(serviceProvider.Object, dbContext);
+            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(testname).Object, dbContext);
             InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
             InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(serviceProvider.Object, dbContext);
+            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider(testname).Object, dbContext);
             ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, serviceProvider.Object);
+            DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider(testname).Object);
             DeliveryOrderDetailDataUtil deliveryOrderDetailDataUtil = new DeliveryOrderDetailDataUtil();
             DeliveryOrderItemDataUtil deliveryOrderItemDataUtil = new DeliveryOrderItemDataUtil(deliveryOrderDetailDataUtil);
             DeliveryOrderDataUtil deliveryOrderDataUtil = new DeliveryOrderDataUtil(deliveryOrderItemDataUtil, deliveryOrderDetailDataUtil, externalPurchaseOrderDataUtil, deliveryOrderFacade);
 
-            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(serviceProvider.Object, dbContext);
+            UnitReceiptNoteFacade unitReceiptNoteFacade = new UnitReceiptNoteFacade(GetServiceProvider(testname).Object, dbContext);
             UnitReceiptNoteItemDataUtil unitReceiptNoteItemDataUtil = new UnitReceiptNoteItemDataUtil();
             UnitReceiptNoteDataUtil unitReceiptNoteDataUtil = new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, unitReceiptNoteFacade, deliveryOrderDataUtil);
 
@@ -118,8 +128,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
         public async Task Should_Success_GetReport()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
-            var modelLocalSupplier = await _dataUtil(unitPaymentOrderFacade, dbContext).GetNewData();
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var modelLocalSupplier = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetNewData();
             var responseLocalSupplier = await unitPaymentOrderFacade.Create(modelLocalSupplier, USERNAME, false);
 
             var reportService = new UnitPaymentOrderExpeditionReportService(dbContext);
@@ -136,8 +146,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
         public async Task Should_Success_GetReport_Excel()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(dbContext);
-            var modelLocalSupplier = await _dataUtil(unitPaymentOrderFacade, dbContext).GetNewData();
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var modelLocalSupplier = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetNewData();
             var responseLocalSupplier = await unitPaymentOrderFacade.Create(modelLocalSupplier, USERNAME, false);
 
             var reportService = new UnitPaymentOrderExpeditionReportService(dbContext);

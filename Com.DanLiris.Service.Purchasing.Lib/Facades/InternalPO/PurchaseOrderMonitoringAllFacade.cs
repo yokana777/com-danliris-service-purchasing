@@ -30,7 +30,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         {
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
-            this.dbContext.Database.SetCommandTimeout(600);
+            if(this.dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            {
+                this.dbContext.Database.SetCommandTimeout(600);
+            }
             this.dbSet = dbContext.Set<InternalPurchaseOrder>();
         }
 

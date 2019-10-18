@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             var Response = this.FacadeExpedition.Read();
             await this.FacadeExpedition.UnitPaymentOrderVerification(model, "Unit Test");
             var Report = this.Facade.GetReport("", "", "", model.VerifyDate, tomorrow, 1,25, "{}", 7, "not-history");
-            Assert.NotEqual(Report.Item1.Count, 0);
+            Assert.NotEmpty(Report.Item1);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDocumentExpedit
             var Response = this.FacadeExpedition.Read();
             await this.FacadeExpedition.UnitPaymentOrderVerification(model, "Unit Test");
             var Report = this.Facade.GetReport("", "", "", model.VerifyDate, tomorrow, 1, 25, "{}", 7, "history");
-            Assert.NotEqual(Report.Item1.Count, 0);
+            Assert.NotEmpty(Report.Item1);
         }
 
         
