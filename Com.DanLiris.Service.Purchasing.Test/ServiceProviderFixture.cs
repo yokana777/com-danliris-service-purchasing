@@ -130,6 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                 .AddTransient<ExternalPurchaseOrderDetailDataUtil>()
 
                 .AddTransient<DeliveryOrderFacade>()
+                .AddTransient<IDeliveryOrderFacade, DeliveryOrderFacade>()
                 .AddTransient<DeliveryOrderDataUtil>()
                 .AddTransient<DeliveryOrderItemDataUtil>()
                 .AddTransient<DeliveryOrderDetailDataUtil>()
@@ -170,7 +171,10 @@ namespace Com.DanLiris.Service.Purchasing.Test
             MongoDbContext.connectionString = configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? configuration[Constant.MONGODB_CONNECTION];
 
             PurchasingDbContext dbContext = ServiceProvider.GetService<PurchasingDbContext>();
-            dbContext.Database.Migrate();
+            if (dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            {
+                dbContext.Database.Migrate();
+            }
         }     
     }
 

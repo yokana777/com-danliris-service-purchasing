@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", null, null, null, null, null, null, 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", "", "", "", null, null, null, 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", "", "", "", null, new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", "", "", "", "LUNAS", new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -160,7 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", "", "", "", "SUDAH BAYAR DPP+PPN", new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", "", "", "", "SUDAH BAYAR PPH", new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             UnitPaymentOrderPaidStatusReportFacade facade = new UnitPaymentOrderPaidStatusReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(25, 1, "{}", "", "", "", "BELUM BAYAR", new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
     }
 }

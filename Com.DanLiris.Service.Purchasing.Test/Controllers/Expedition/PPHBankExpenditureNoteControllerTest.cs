@@ -392,7 +392,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = await controller.GetById(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
     }
 }

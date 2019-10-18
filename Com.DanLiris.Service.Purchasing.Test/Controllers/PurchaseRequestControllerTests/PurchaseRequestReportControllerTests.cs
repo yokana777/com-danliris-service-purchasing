@@ -45,7 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+            Assert.Equal("JArray", result["data"].GetType().Name);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
             Assert.True(result.ContainsKey("apiVersion"));
             Assert.True(result.ContainsKey("message"));
             Assert.True(result.ContainsKey("data"));
-            Assert.True(result["data"].GetType().Name.Equals("JArray"));
+            Assert.Equal("JArray", result["data"].GetType().Name);
         }
 
         [Fact]

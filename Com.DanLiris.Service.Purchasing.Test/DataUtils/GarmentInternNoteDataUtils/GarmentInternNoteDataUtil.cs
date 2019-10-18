@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
             this.facade = facade;
         }
 
-        public async Task<GarmentInternNote> GetNewData()
+        public async Task<GarmentInternNote> GetNewData(GarmentInvoice invo = null)
         {
-            var garmentInvoice = await Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User"));
+            var garmentInvoice = invo ?? await Task.Run(() => garmentInvoiceDataUtil.GetTestDataViewModel("User"));
             List<GarmentInternNoteDetail> garmentInternNoteDetails = new List<GarmentInternNoteDetail>();
             foreach (var item in garmentInvoice.Items)
             {

@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -61,9 +62,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
                 }
             };
         }
-        public async Task<GarmentInvoice> GetNewData(string user)
+        public async Task<GarmentInvoice> GetNewData(string user, GarmentDeliveryOrder garmentDeliveryOrder = null)
         {
-            var garmentDO = await garmentDeliveryOrderDataUtil.GetNewData("User");
+            var garmentDO = garmentDeliveryOrder ?? await garmentDeliveryOrderDataUtil.GetNewData("User");
             //long nowTicks = DateTimeOffset.Now.Ticks;
             return new GarmentInvoice
             {
@@ -130,6 +131,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
 
             await facade.Create(model, user);
 
+            return model;
+        }
+        public async Task<GarmentInvoice> GetTestData2(string user, GarmentDeliveryOrder deliveryOrder)
+        {
+            GarmentInvoice model = await GetNewData(user, deliveryOrder);
+            model.NPH = "acdg";
+            model.NPN = "acdf";
+
+            await facade.Create(model, user);
             return model;
         }
         public async Task<GarmentInvoice> GetNewDataViewModel(string user)

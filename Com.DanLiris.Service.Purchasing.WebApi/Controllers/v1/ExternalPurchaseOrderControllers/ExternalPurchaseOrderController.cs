@@ -98,7 +98,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     unit = new
                     {
                         division = new { s.unit.division.name },
-                        s.unit.name
+                        s.unit.name,
+                        s.unit._id,
+                        s.unit.code
                     },
                     s.isPosted,
                     s.items

@@ -112,12 +112,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 		
 			var Response = await facade.Create(data, USERNAME);
-			Assert.NotEqual(Response, 0);
+			Assert.NotEqual(0, Response);
 			GarmentInvoice data2 = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			DateTime dateWithoutOffset = new DateTime(2010,8, 16, 13, 32, 00);
 			data2.InvoiceDate = dateWithoutOffset;
 			var Response1 = await facade.Create(data2, USERNAME);
-			Assert.NotEqual(Response1, 0);
+			Assert.NotEqual(0, Response1);
 		}
 
 		[Fact]
@@ -187,14 +187,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			GarmentInvoiceItem item= await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
+			Assert.NotEqual(0, ResponseUpdate);
 			 
 			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
 			Newitems.Add(item);
 			data.Items = Newitems;
 			 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate1, 0);
+			Assert.NotEqual(0, ResponseUpdate1);
 
             //Newitems.Remove(newItem);
             //data.Items = Newitems;
@@ -212,14 +212,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			GarmentInvoiceItem item = await dataUtil(facade, GetCurrentMethod()).GetNewDataItem(USERNAME);
 
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
+			Assert.NotEqual(0, ResponseUpdate);
 
 			List<GarmentInvoiceItem> Newitems = new List<GarmentInvoiceItem>(data.Items);
 			Newitems.Add(item);
 			data.Items = Newitems;
 
 			var ResponseUpdate1 = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
+			Assert.NotEqual(0, ResponseUpdate);
 
 			dbContext.Entry(data).State = EntityState.Detached;
 			foreach (var items in data.Items)
@@ -239,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			newData.Items = newData.Items.Take(1).ToList();
 
 			var ResponseUpdate2 = await facade.Update((int)newData.Id, newData, USERNAME);
-			Assert.NotEqual(ResponseUpdate2, 0);
+			Assert.NotEqual(0, ResponseUpdate2);
 		}
 
 		[Fact]
@@ -260,7 +260,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			});
 
 			var ResponseUpdate = await facade.Update((int)data.Id, data, USERNAME);
-			Assert.NotEqual(ResponseUpdate, 0);
+			Assert.NotEqual(0, ResponseUpdate);
 			var newItem = new GarmentInvoiceItem
 			{
 				DeliveryOrderId = It.IsAny<int>(),
@@ -285,7 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 			GarmentInvoice data = await dataUtil(facade, GetCurrentMethod()).GetNewDataViewModel(USERNAME);
 			await facade.Create(data, USERNAME); 
 			var Response = facade.Delete((int)data.Id, USERNAME);
-			Assert.NotEqual(Response, 0);
+			Assert.NotEqual(0, Response);
 		}
 
 		[Fact]
@@ -468,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
             DateTime d2 = data.InvoiceDate.DateTime;
 
             var Response = DataInv.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]
@@ -483,7 +483,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
             DateTime d2 = data.InvoiceDate.DateTime.AddDays(30);
 
             var Response = DataInv.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
-            Assert.IsType(typeof(System.IO.MemoryStream), Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }

@@ -23,5 +23,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Tuple<List<FlowDetailPenerimaanViewModels>, int> GetReportFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset);
 
+        List<object> ReadItemByRO(string Keyword = null, string Filter = "{}");
     }
 }

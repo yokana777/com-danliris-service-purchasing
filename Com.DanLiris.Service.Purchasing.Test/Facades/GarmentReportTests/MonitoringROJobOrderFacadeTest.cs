@@ -141,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             var facade = new MonitoringROJobOrderFacade(mockServiceProvider.Object, dbContext);
 
             var Response = await facade.GetMonitoring(dataGarmentPOMasterDistribution.Id);
-            Assert.NotEqual(0, Response.Count);
+            Assert.NotEmpty(Response);
 
             Assert.NotEqual(0, Response.Sum(d => d.Items.Count()));
         }
