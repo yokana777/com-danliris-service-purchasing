@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             return serviceProvider;
         }
 
-        private Mock<IServiceProvider> GetServiceProviderCurrencyNotNull()
+        private Mock<IServiceProvider> GetServiceProviderCurrencyNotNull(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             return serviceProvider;
         }
 
-        private Mock<IServiceProvider> GetServiceProvider2()
+        private Mock<IServiceProvider> GetServiceProvider2(string testname)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -241,7 +241,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             model.UnitId = null;
             var response = await facade.Create(model, USERNAME);
 
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
 
         }
 
@@ -250,15 +250,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
            
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(GetServiceProviderCurrencyNotNull().Object, dbContext);
-            var model = await _dataUtil(facade, dbContext).GetNewData(USERNAME);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(GetServiceProviderCurrencyNotNull(GetCurrentMethod()).Object, dbContext);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
             model.IsStorage = true;
             model.UnitId = null;
             model.SupplierIsImport = true;
 
             var response = await facade.Create(model, USERNAME);
 
-            Assert.NotEqual(response, 0);
+            Assert.NotEqual(0, response);
 
         }
 
@@ -267,8 +267,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         {
             var dbContext = _dbContext(GetCurrentMethod());
 
-            UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2().Object, dbContext);
-            var model2 = await _dataUtil(facade2, dbContext).GetNewData(USERNAME);
+            UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2(GetCurrentMethod()).Object, dbContext);
+            var model2 = await _dataUtil(facade2, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
             model2.IsStorage = true;
             model2.UnitId = null;
             var response2 = await facade2.Create(model2, USERNAME);
