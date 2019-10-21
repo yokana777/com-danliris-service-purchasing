@@ -233,15 +233,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                         }
                     }
+
+                    this.dbSet.Add(model);
+                    Created = await dbContext.SaveChangesAsync();
+
+
+                    await CreateJournalTransactions(model);
+                    await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
                     if (model.IsStorage == true)
                     {
                         insertStorage(model, user, "IN");
                     }
-                    this.dbSet.Add(model);
-                    Created = await dbContext.SaveChangesAsync();
-
-                    await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
-                    await CreateJournalTransactions(model);
                     await EditFulfillment(model, user);
                     transaction.Commit();
                 }
@@ -1064,17 +1066,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         //}
                         #endregion
 
-                        if (unitReceiptNote.IsStorage == true)
-                        {
-                            insertStorage(unitReceiptNote, user, "IN");
-                        }
+
 
                         Updated = await dbContext.SaveChangesAsync();
 
                         await ReverseJournalTransaction(m.URNNo);
                         await CreateJournalTransactions(m);
-
                         await UpdateCreditorAccount(unitReceiptNote, useIncomeTaxFlag);
+
+                        if (unitReceiptNote.IsStorage == true)
+                        {
+                            insertStorage(unitReceiptNote, user, "IN");
+                        }
 
                         var updatedModel = this.dbSet.AsNoTracking()
                             .Include(d => d.Items)
@@ -1187,15 +1190,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             }
                         }
                     }
-                    if (m.IsStorage == true)
-                    {
-                        insertStorage(m, user, "OUT");
-                    }
 
                     Deleted = dbContext.SaveChanges();
 
                     await ReverseJournalTransaction(m.URNNo);
                     await DeleteCreditorAccount(m.URNNo);
+
+                    if (m.IsStorage == true)
+                    {
+                        insertStorage(m, user, "OUT");
+                    }
                     await RollbackFulfillment(m, user);
                     transaction.Commit();
                 }
@@ -1486,7 +1490,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var fulfillment = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
                     .FirstOrDefaultAsync(x => x.DeliveryOrderDetailId == item.DODetailId);
 
-                if(fulfillment != null)
+                if (fulfillment != null)
                 {
                     fulfillment.UnitReceiptNoteDate = model.ReceiptDate;
                     fulfillment.UnitReceiptNoteDeliveredQuantity = item.ReceiptQuantity;
@@ -1498,7 +1502,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
                 }
-                
+
             }
 
 
@@ -1514,7 +1518,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var fulfillment = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
                           .FirstOrDefault(x => x.UnitReceiptNoteId == model.Id && x.UnitReceiptNoteItemId == item.Id);
 
-                if(fulfillment != null)
+                if (fulfillment != null)
                 {
                     fulfillment.UnitReceiptNoteDate = DateTimeOffset.MinValue;
                     fulfillment.UnitReceiptNoteDeliveredQuantity = 0;
@@ -1526,7 +1530,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
                 }
-                
+
 
             }
             return count;
