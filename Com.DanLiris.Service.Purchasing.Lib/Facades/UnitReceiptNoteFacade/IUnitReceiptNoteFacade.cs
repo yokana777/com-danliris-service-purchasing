@@ -22,5 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         string GetPurchaseRequestCategoryCode(long prId);
         List<UnitReceiptNote> GetByListOfNo(List<string> urnNoList);
         Task<List<SubLedgerUnitReceiptNoteViewModel>> GetUnitReceiptNoteForSubledger(List<string> urnNoes);
+        ReadResponse<UnitNoteSpbViewModel> GetSpbReport(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid, int size, int page, string Order, int offset);
+        MemoryStream GenerateExcelSpb(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid, int offset);
     }
 }
