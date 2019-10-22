@@ -75,8 +75,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var purchaseRequestItems = _purchaseRequestItemDbSet.Include(prItem => prItem.PurchaseRequest).Where(w => w.PurchaseRequest.Date >= startDate && w.PurchaseRequest.Date <= endDate);
             purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, purchaseRequestItems);
 
-            var internalPurchaseOrderFulfillments = _internalPurchaseOrderFulfillmentDbSet.Include(fulfillment => fulfillment.InternalPurchaseOrderItem).ThenInclude(item => item.InternalPurchaseOrder).AsQueryable();
-            //var internalPurchaseOrderItems = _internalPurchaseOrderItemDbSet.Include(ipoItem => ipoItem.InternalPurchaseOrder).AsQueryable();
+            var internalPurchaseOrderFulfillments = _internalPurchaseOrderFulfillmentDbSet.AsQueryable();
+            var internalPurchaseOrderItems = _internalPurchaseOrderItemDbSet.Include(ipoItem => ipoItem.InternalPurchaseOrder).AsQueryable();
             var externalPurchaseOrderDetails = _externalPurchaseOrderDetailDbSet.Include(epoDetail => epoDetail.ExternalPurchaseOrderItem).ThenInclude(epoItem => epoItem.ExternalPurchaseOrder).AsQueryable();
             //var deliveryOrderDetails = _deliveryOrderDetailDbSet.Include(doDetail => doDetail.DeliveryOrderItem).ThenInclude(doItem => doItem.DeliveryOrder).AsQueryable();
             //var unitReceiptNoteItems = _unitReceiptNoteItemDbSet.Include(urnItem => urnItem.UnitReceiptNote).AsQueryable();
@@ -84,11 +84,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             var query = (from purchaseRequestItem in purchaseRequestItems
 
-                         join internalPurchaseOrderFulfillment in internalPurchaseOrderFulfillments on new { PRNo = purchaseRequestItem.PurchaseRequest.No, PRItemId = purchaseRequestItem.Id } equals new { internalPurchaseOrderFulfillment.InternalPurchaseOrderItem.InternalPurchaseOrder.PRNo, internalPurchaseOrderFulfillment.InternalPurchaseOrderItem.PRItemId } into joinIPO
-                         from ipoFulfillment in joinIPO.DefaultIfEmpty()
+                         join internalPurchaseOrderItem in internalPurchaseOrderItems on new { PRNo = purchaseRequestItem.PurchaseRequest.No, PRItemId = purchaseRequestItem.Id } equals new { internalPurchaseOrderItem.InternalPurchaseOrder.PRNo, internalPurchaseOrderItem.PRItemId } into joinIPO
+                         from ipoItem in joinIPO.DefaultIfEmpty()
 
-                         join externalPurchaseOrderDetail in externalPurchaseOrderDetails on new { ipoFulfillment.InternalPurchaseOrderItem.POId, POItemId = ipoFulfillment.InternalPurchaseOrderItem.Id } equals new { externalPurchaseOrderDetail.ExternalPurchaseOrderItem.POId, externalPurchaseOrderDetail.POItemId } into joinEPO
+                         join externalPurchaseOrderDetail in externalPurchaseOrderDetails on new { ipoItem.POId, POItemId = ipoItem.Id } equals new { externalPurchaseOrderDetail.ExternalPurchaseOrderItem.POId, externalPurchaseOrderDetail.POItemId } into joinEPO
                          from epoDetail in joinEPO.DefaultIfEmpty()
+
+                         join internalPOFulfillment in internalPurchaseOrderFulfillments on ipoItem.Id equals internalPOFulfillment.POItemId into joinFulfillment
+                         from ipoFulfillment in joinFulfillment.DefaultIfEmpty()
+
                          select new PurchaseMonitoringReportViewModel()
                          {
                              PurchaseRequestId = purchaseRequestItem.PurchaseRequestId,
@@ -113,17 +117,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              CurrencyId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyId : "",
                              CurrencyCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode : "",
                              CurrencyRate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyRate : 0,
-                             InternalPurchaseOrderId = ipoFulfillment == null ? 0 : ipoFulfillment.InternalPurchaseOrderItem.POId,
-                             InternalPurchaseOrderCreatedDate = ipoFulfillment == null ? (DateTime?)null : ipoFulfillment.InternalPurchaseOrderItem.InternalPurchaseOrder.CreatedUtc,
-                             InternalPurchaseOrderLastModifiedDate = ipoFulfillment == null ? (DateTime?)null : ipoFulfillment.InternalPurchaseOrderItem.InternalPurchaseOrder.LastModifiedUtc,
-                             InternalPurchaseOrderStaff = ipoFulfillment != null ? ipoFulfillment.InternalPurchaseOrderItem.InternalPurchaseOrder.CreatedBy : "",
-                             InternalPurchaseOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.InternalPurchaseOrderItem.Id,
-                             InternalPurchaseOrderStatus = ipoFulfillment != null ? ipoFulfillment.InternalPurchaseOrderItem.Status : "",
+                             InternalPurchaseOrderId = ipoItem == null ? 0 : ipoItem.POId,
+                             InternalPurchaseOrderCreatedDate = ipoItem == null ? (DateTime?)null : ipoItem.InternalPurchaseOrder.CreatedUtc,
+                             InternalPurchaseOrderLastModifiedDate = ipoItem == null ? (DateTime?)null : ipoItem.InternalPurchaseOrder.LastModifiedUtc,
+                             InternalPurchaseOrderStaff = ipoItem != null ? ipoItem.InternalPurchaseOrder.CreatedBy : "",
+                             InternalPurchaseOrderItemId = ipoItem == null ? 0 : ipoItem.Id,
+                             InternalPurchaseOrderStatus = ipoItem != null ? ipoItem.Status : "",
                              ExternalPurchaseOrderId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.EPOId : 0,
                              ExternalPurchaseOrderCreatedDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CreatedUtc : (DateTime?)null,
                              ExternalPurchaseOrderDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate : (DateTimeOffset?)null,
-                             ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoFulfillment != null ? ipoFulfillment.InternalPurchaseOrderItem.InternalPurchaseOrder.ExpectedDeliveryDate : (DateTimeOffset?)null,
-                             ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoFulfillment != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate : (DateTimeOffset?)null,
+                             ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? ipoItem.InternalPurchaseOrder.ExpectedDeliveryDate : (DateTimeOffset?)null,
+                             ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate : (DateTimeOffset?)null,
                              ExternalPurchaseOrderNo = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.EPONo : "",
                              SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
                              SupplierCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierCode : "",
