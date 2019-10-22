@@ -1535,6 +1535,139 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             }
             return count;
         }
+
+        public IQueryable<UnitNoteSpbViewModel> GetSpbQuery(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid, int offset)
+        {
+            
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.UnitReceiptNotes
+                         join b in dbContext.DeliveryOrders on a.DOId equals b.Id
+
+                         join c in dbContext.UnitReceiptNoteItems on a.Id equals c.URNId
+                         join d in dbContext.ExternalPurchaseOrders on c.EPOId equals d.Id
+                         join e in dbContext.PurchaseRequests on c.PRId equals e.Id
+                         join f in dbContext.UnitPaymentOrderDetails on c.Id equals f.URNItemId into k
+                         from f in k.DefaultIfEmpty()
+                         join g in dbContext.UnitPaymentOrderItems on f.UPOItemId equals g.Id into l
+                         from g in l.DefaultIfEmpty()
+                         join h in dbContext.UnitPaymentOrders on g.UPOId equals h.Id into m
+                         from h in m.DefaultIfEmpty()
+                             //Conditions
+                         where
+                             a.IsDeleted == false
+                             && b.IsDeleted == false
+                             && c.IsDeleted == false
+                             && d.IsDeleted == false
+                             && e.IsDeleted == false
+                             && f.IsDeleted == false
+                             && g.IsDeleted == false
+                             && h.IsDeleted == false
+                             && a.URNNo == (string.IsNullOrWhiteSpace(urnNo) ? a.URNNo : urnNo)
+                             && a.SupplierName == (string.IsNullOrWhiteSpace(supplierName) ? a.SupplierName : supplierName)
+                             && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                             && c.IsPaid == (string.IsNullOrWhiteSpace(isPaid) ? c.IsPaid : (Convert.ToBoolean(isPaid)))
+                         orderby a.ReceiptDate descending
+
+
+                         select new UnitNoteSpbViewModel
+                         {
+
+                             UrnNo = a.URNNo,
+                             ReceiptDate = a.ReceiptDate,
+                             SupplierCode = a.SupplierCode,
+                             SupplierName = a.SupplierName,
+                             DONo = b.DONo,
+                             DODate = b.DODate,
+                             EPONo = c.EPONo,
+                             OrderDate = d.OrderDate,
+                             PaymentDueDays = d.PaymentDueDays,
+                             PRNo = c.PRNo,
+                             BudgetName = e.BudgetName,
+                             UnitName = a.UnitName,
+                             CategoryName = e.CategoryName,
+                             ProductCode = c.ProductCode,
+                             ProductName = c.ProductName,
+                             ReceiptQuantity = c.ReceiptQuantity,
+                             Uom = c.Uom,
+                             createdBy = b.CreatedBy,
+                             IsPaid = c.IsPaid.Equals(true) ? "SUDAH" : "BELUM",
+                             UPONo = h.UPONo ?? "-"
+
+                         });
+
+            return Query;
+        }
+
+
+        public ReadResponse<UnitNoteSpbViewModel> GetSpbReport(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid, int size, int page, string Order, int offset)
+        {
+            var Query = GetSpbQuery(urnNo, supplierName, dateFrom, dateTo, isPaid, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(a => a.ReceiptDate).ThenByDescending(a => a.CreatedUtc);
+            }
+
+            Pageable<UnitNoteSpbViewModel> pageable = new Pageable<UnitNoteSpbViewModel>(Query, page - 1, size);
+            List<UnitNoteSpbViewModel> Data = pageable.Data.ToList<UnitNoteSpbViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return new ReadResponse<UnitNoteSpbViewModel>(Data, TotalData, OrderDictionary);
+        }
+
+
+        public MemoryStream GenerateExcelSpb(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid, int offset)
+        {
+            var Query = GetSpbQuery(urnNo, supplierName, dateFrom, dateTo, isPaid, offset);
+            Query = Query.OrderByDescending(a => a.ReceiptDate);
+            DataTable result = new DataTable();
+            //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO Eksternal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Order", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tempo Pembelian", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Budget", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Status SPB", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor SPB", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "");
+            // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string receipt_date = item.ReceiptDate == null ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string order_date = item.OrderDate == null ? "-" : item.OrderDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string do_date = item.DODate == null ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, item.UrnNo, receipt_date, item.SupplierCode, item.SupplierName, item.DONo, do_date, item.EPONo, order_date, item.PaymentDueDays, item.PRNo,
+                       item.BudgetName, item.UnitName, item.CategoryName, item.ProductCode, item.ProductName, item.ReceiptQuantity, item.Uom, item.createdBy, item.IsPaid, item.UPONo);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
     }
 }
 
