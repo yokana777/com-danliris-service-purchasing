@@ -83,13 +83,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GetSpbReport(It.IsAny<string>(), It.IsAny<string>(),  It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetSpbReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(new ReadResponse<UnitNoteSpbViewModel>(new List<UnitNoteSpbViewModel>() { new UnitNoteSpbViewModel() }, 1, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
 
             UnitNoteSpbController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetSpbReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
+            var response = controller.GetSpbReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
@@ -99,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GetSpbReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetSpbReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(new ReadResponse<UnitNoteSpbViewModel>(new List<UnitNoteSpbViewModel>() { new UnitNoteSpbViewModel() }, 1, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
@@ -114,13 +114,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GenerateExcelSpb(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GenerateExcelSpb(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
 
             UnitNoteSpbController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
             Assert.NotNull(response.GetType().GetProperty("FileDownloadName"));
         }
 
@@ -130,12 +130,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
             //mockFacade.Setup(x => x.GenerateExcelSpb(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
-                //.Returns(new MemoryStream());
+            //.Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
 
             UnitNoteSpbController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
 
             //Assert.Equal((int)HttpStatusCode.InternalServerError, (int)response.GetType().GetProperty("FileDownloadName").GetValue(response, null));
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
