@@ -193,6 +193,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             }
         }
 
+        private BankExpenditureNoteModel ModelIDR
+        {
+            get
+            {
+                return new BankExpenditureNoteModel()
+                {
+                    Active = true,
+                    BankAccountName = "",
+                    BankAccountNumber = "",
+                    BankCode = "",
+                    BankId = 0,
+                    BankName = "",
+                    BGCheckNumber = "",
+                    CreatedAgent = "",
+                    CreatedBy = "",
+                    CreatedUtc = DateTime.UtcNow,
+                    BankCurrencyCode = "IDR",
+                    BankCurrencyId = 0,
+                    BankCurrencyRate = "",
+                    DeletedAgent = "",
+                    DeletedBy = "",
+                    DeletedUtc = DateTime.UtcNow,
+                    Id = 1,
+                    IsDeleted = false,
+                    CurrencyCode = "USD",
+                    Details = new List<BankExpenditureNoteDetailModel>() { new BankExpenditureNoteDetailModel() { Items = new List<BankExpenditureNoteItemModel>() { new BankExpenditureNoteItemModel() { UnitCode = "code" }, new BankExpenditureNoteItemModel() { UnitCode = "code" } } } },
+                };
+            }
+        }
+
         [Fact]
         public async Task Should_Not_Found_Get_Data_By_Id()
         {
@@ -458,6 +488,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .ReturnsAsync(this.Model);
+
+            var mockMapper = new Mock<IMapper>();
+
+            BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = await controller.GetById(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_PDF_IDR_NONIDR_By_Id()
+        {
+            var mockFacade = new Mock<IBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .ReturnsAsync(this.ModelIDR);
 
             var mockMapper = new Mock<IMapper>();
 
