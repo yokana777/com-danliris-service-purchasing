@@ -33,6 +33,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
                 {
                     UId = null,
                     Bank = new AccountBankViewModel() { Currency = new CurrencyViewModel() },
+                    CurrencyCode = "Code",
+                    CurrencyId = 1,
+                    CurrencyRate = 1,
                     Details = new List<BankExpenditureNoteDetailViewModel>() { new BankExpenditureNoteDetailViewModel() { Items = new List<BankExpenditureNoteItemViewModel>() { new BankExpenditureNoteItemViewModel() } } }
                 };
             }
