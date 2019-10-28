@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         }
 
         [HttpGet]
-        public IActionResult GetSpbReport(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid, int size, int page, string Order ="{}")
+        public IActionResult GetSpbReport(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo, int size, int page, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
             try
             {
 
-                var data = facade.GetSpbReport(urnNo, supplierName, dateFrom, dateTo, isPaid,  size, page, Order, offset);
+                var data = facade.GetSpbReport(urnNo, supplierName, doNo, dateFrom, dateTo, size, page, Order, offset);
 
                 return Ok(new
                 {
@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string urnNo, string supplierName, DateTime? dateFrom, DateTime? dateTo, string isPaid)
+        public IActionResult GetXls(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try
@@ -68,10 +68,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
                 string filename;
 
-                var xls = facade.GenerateExcelSpb(urnNo, supplierName, DateFrom, DateTo, isPaid, offset);
-                
+                var xls = facade.GenerateExcelSpb(urnNo, supplierName, doNo, DateFrom, DateTo, offset);
 
-                filename = String.Format("Monitoring Bon SPB - {0}.xlsx", DateTime.UtcNow.ToString("dd-MMM-yyyy"));
+
+                filename = String.Format("Monitoring Bon Belum Dibuat SPB - {0}.xlsx", DateTime.UtcNow.ToString("dd-MMM-yyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
