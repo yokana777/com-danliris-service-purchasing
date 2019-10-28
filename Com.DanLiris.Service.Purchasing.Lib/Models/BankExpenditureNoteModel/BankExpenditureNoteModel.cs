@@ -42,5 +42,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         public string SupplierName { get; set; }
         public bool SupplierImport { get; set; }
         #endregion
+
+        [MaxLength(255)]
+        public string CurrencyCode { get; set; }
+        public int CurrencyId { get; set; }
+        public double CurrencyRate { get; set; }
     }
 }

@@ -48,5 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string CurrencyCode { get; set; }
         public string CategoryCode { get; set; }
         public string VATNo { get; set; }
+        public double Quantity { get; set; }
+        public string Uom { get; set; }
     }
 }
