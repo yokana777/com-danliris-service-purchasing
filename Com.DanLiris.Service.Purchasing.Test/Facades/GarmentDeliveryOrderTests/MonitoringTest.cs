@@ -204,6 +204,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             viewModelAccuracy.percentOk_notOk = (int)nowTicks;
             viewModelAccuracy.jumlahOk = (int)nowTicks;
             viewModelAccuracy.jumlah = (int)nowTicks;
+            viewModelAccuracy.paymentMethod = data.PaymentMethod;
+            viewModelAccuracy.paymentType = data.PaymentType;
+            string paymentMethod = viewModelAccuracy.paymentMethod;
+            string paymentType = viewModelAccuracy.paymentType;
 
             var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.NotNull(Response2.Item1);
