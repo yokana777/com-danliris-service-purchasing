@@ -27,5 +27,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public int percentOk_notOk { get; set; }
         public int jumlah { get; set; }
         public int jumlahOk { get; set; }
+
+        public string paymentMethod { get; set; }
+        public string paymentType { get; set; }
     }
 }

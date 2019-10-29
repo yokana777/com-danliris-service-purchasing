@@ -66,37 +66,37 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             }
         }
 
-		[HttpGet("by-supplier")]
-		public IActionResult GetBySupplier(string Keyword = "", string Filter = "{}")
-		{
-			var Data = facade.ReadBySupplier(Keyword, Filter);
-			var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
-			Dictionary<string, object> Result =
-				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-				   .Ok(newData);
-			return Ok(Result);
-		}
-		[HttpGet("forCustoms")]
-		public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}", string BillNo = null)
-		{
-			var Data = facade.DOForCustoms(Keyword, Filter, BillNo);
-			var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
-			Dictionary<string, object> Result =
-				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-				   .Ok(newData);
-			return Ok(Result);
-		}
-		[HttpGet("isReceived")]
-		public IActionResult GetIsReceived(List<int> Id)
-		{
-			var Data = facade.IsReceived(Id);
-			Dictionary<string, object> Result =
-				   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-				   .Ok(Data);
-			return Ok(Result);
-		}
+        [HttpGet("by-supplier")]
+        public IActionResult GetBySupplier(string Keyword = "", string Filter = "{}")
+        {
+            var Data = facade.ReadBySupplier(Keyword, Filter);
+            var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+            return Ok(Result);
+        }
+        [HttpGet("forCustoms")]
+        public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}", string BillNo = null)
+        {
+            var Data = facade.DOForCustoms(Keyword, Filter, BillNo);
+            var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+            return Ok(Result);
+        }
+        [HttpGet("isReceived")]
+        public IActionResult GetIsReceived(List<int> Id)
+        {
+            var Data = facade.IsReceived(Id);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(Data);
+            return Ok(Result);
+        }
 
-		[HttpGet]
+        [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             try
@@ -148,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             }
         }
 
-		[HttpGet("loader")]
+        [HttpGet("loader")]
         public IActionResult GetLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", string select = "{}", string search = "[]")
         {
             try
@@ -237,7 +237,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return BadRequest(Result);
             }
             catch (Exception e)
-                {
+            {
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
                     .Fail();
@@ -485,23 +485,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
 
         #region MONITORING DELIVERY
         [HttpGet("deliveryReport")]
-        public IActionResult GetReport2(DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetReport2(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod)
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
             //try
             //{
-                var data = facade.GetReportHeaderAccuracyofDelivery(dateFrom, dateTo, offset);
+            var data = facade.GetReportHeaderAccuracyofDelivery(dateFrom, dateTo, paymentType, paymentMethod, offset);
 
-                return Ok(new
-                {
-                    apiVersion = ApiVersion,
-                    data = data.Item1,
-                    info = new { total = data.Item2 },
-                    message = General.OK_MESSAGE,
-                    statusCode = General.OK_STATUS_CODE
-                });
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                data = data.Item1,
+                info = new { total = data.Item2 },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
             //}
             //catch (Exception e)
             //{
@@ -512,7 +512,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             //}
         }
         [HttpGet("deliveryReport/download")]
-        public IActionResult GetXlsDeliveryHeader(DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXlsDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod)
         {
             try
             {
@@ -521,7 +521,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcelDeliveryHeader(dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcelDeliveryHeader(dateFrom, dateTo, paymentType, paymentMethod, offset);
 
                 string filename = String.Format($"Monitoring Ketepatan Pengiriman - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
 
@@ -540,23 +540,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         }
 
         [HttpGet("deliveryReportDetail")]
-        public IActionResult GetReportDetail2(string supplier, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetReportDetail2(string supplier, DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod)
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
             //try
             //{
-                var data = facade.GetReportDetailAccuracyofDelivery(supplier, dateFrom, dateTo, offset);
+            var data = facade.GetReportDetailAccuracyofDelivery(supplier, dateFrom, dateTo, paymentType, paymentMethod, offset);
 
-                return Ok(new
-                {
-                    apiVersion = ApiVersion,
-                    data = data.Item1,
-                    info = new { total = data.Item2 },
-                    message = General.OK_MESSAGE,
-                    statusCode = General.OK_STATUS_CODE
-                });
+            return Ok(new
+            {
+                apiVersion = ApiVersion,
+                data = data.Item1,
+                info = new { total = data.Item2 },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
             //}
             //catch (Exception e)
             //{
@@ -567,7 +567,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             //}
         }
         [HttpGet("deliveryReportDetail/download")]
-        public IActionResult GetXlsDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXlsDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod)
         {
             try
             {
@@ -576,7 +576,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcelDeliveryDetail(supplier, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcelDeliveryDetail(supplier, dateFrom, dateTo, paymentType, paymentMethod, offset);
 
                 string filename = String.Format($"Monitoring Detail Ketepatan Pengiriman - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
 
