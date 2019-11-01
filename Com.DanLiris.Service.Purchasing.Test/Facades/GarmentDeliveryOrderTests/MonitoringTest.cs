@@ -204,6 +204,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             viewModelAccuracy.percentOk_notOk = (int)nowTicks;
             viewModelAccuracy.jumlahOk = (int)nowTicks;
             viewModelAccuracy.jumlah = (int)nowTicks;
+            viewModelAccuracy.paymentMethod = data.PaymentMethod;
+            viewModelAccuracy.paymentType = data.PaymentType;
+            string paymentMethod = viewModelAccuracy.paymentMethod;
+            string paymentType = viewModelAccuracy.paymentType;
 
             var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
             Assert.NotNull(Response2.Item1);
@@ -279,7 +283,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             await facade.Create(data, USERNAME);
 
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, 7);
+            var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, data.PaymentType, data.PaymentMethod, 7);
             Assert.NotNull(Response.Item1);
 
             var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
@@ -315,12 +319,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             }
             await facade.Create(data4, USERNAME);
 
-            var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, 7);
+            var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, "", "", 7);
             Assert.NotNull(Response1.Item1);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
-            var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, 7);
+            var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, "", "", 7);
             Assert.NotNull(Response2.Item1);
         }
 
@@ -365,12 +369,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             await facade.Create(data4, USERNAME);
 
             var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcelDeliveryHeader(null, null, 7);
+            var Response = Facade.GenerateExcelDeliveryHeader(null, null, "", "", 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
 
             long nowTicks = DateTimeOffset.Now.Ticks;
             string nowTicksA = $"{nowTicks}a";
-            var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, 7);
+            var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, "", "", 7);
             Assert.IsType<System.IO.MemoryStream>(Response1);
         }
 

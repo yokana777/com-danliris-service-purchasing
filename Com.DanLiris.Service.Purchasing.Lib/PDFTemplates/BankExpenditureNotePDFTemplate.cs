@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellHeaderBody = new PdfPCell() { Border = Rectangle.NO_BORDER };
 
             PdfPCell cellHeaderCS2 = new PdfPCell() { Border = Rectangle.NO_BORDER, Colspan = 2 };
-            
+
 
             cellHeaderCS2.Phrase = new Phrase("BUKTI PENGELUARAN BANK", bold_font);
             cellHeaderCS2.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderBody.Phrase = new Phrase(": " + (supplier.Count > 0 ? supplier[0] : "-"), normal_font);
             headerTable2.AddCell(cellHeaderBody);
 
-            for(int i = 1; i < supplier.Count; i++)
+            for (int i = 1; i < supplier.Count; i++)
             {
                 cellHeaderBody.Phrase = new Phrase("", normal_font);
                 headerTable2.AddCell(cellHeaderBody);
@@ -100,119 +100,242 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(headerTable);
 
             #endregion Header
-
-            #region Body
-
-            PdfPTable bodyTable = new PdfPTable(7);
-            PdfPCell bodyCell = new PdfPCell();
-
-            float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f };
-            bodyTable.SetWidths(widthsBody);
-            bodyTable.WidthPercentage = 100;
-
-            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
-            bodyCell.Phrase = new Phrase("No.", bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.Phrase = new Phrase("No. SPB", bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.Phrase = new Phrase("Kategori Barang", bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.Phrase = new Phrase("Divisi", bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.Phrase = new Phrase("Unit", bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.Phrase = new Phrase("Mata Uang", bold_font);
-            bodyTable.AddCell(bodyCell);
-            
-            bodyCell.Phrase = new Phrase("Jumlah", bold_font);
-            bodyTable.AddCell(bodyCell);
-            
             int index = 1;
             double total = 0;
-            foreach (BankExpenditureNoteDetailModel detail in model.Details)
+            if (model.BankCurrencyCode != "IDR" || model.CurrencyCode == "IDR")
             {
-                var items = detail.Items
-                    .GroupBy(m => new { m.UnitCode, m.UnitName })
-                    .Select(s => new
-                    {
-                        s.First().UnitCode,
-                        s.First().UnitName,
-                        Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
-                    });
-                foreach (var item in items)
+                #region BodyNonIdr
+
+                PdfPTable bodyTable = new PdfPTable(7);
+                PdfPCell bodyCell = new PdfPCell();
+
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f };
+                bodyTable.SetWidths(widthsBody);
+                bodyTable.WidthPercentage = 100;
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase("No.", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("No. SPB", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Kategori Barang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Divisi", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Unit", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Mata Uang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Jumlah", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                
+                foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
-                    bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                    bodyCell.VerticalAlignment = Element.ALIGN_TOP;
-                    bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
-                    bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                    bodyCell.Phrase = new Phrase(item.UnitCode, normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                    bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
-                    bodyTable.AddCell(bodyCell);
-
-                    if (units.ContainsKey(item.UnitCode))
+                    var items = detail.Items
+                        .GroupBy(m => new { m.UnitCode, m.UnitName })
+                        .Select(s => new
+                        {
+                            s.First().UnitCode,
+                            s.First().UnitName,
+                            Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
+                        });
+                    foreach (var item in items)
                     {
-                        units[item.UnitCode] += item.Total;
-                    }
-                    else
-                    {
-                        units.Add(item.UnitCode, item.Total);
-                    }
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.VerticalAlignment = Element.ALIGN_TOP;
+                        bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
 
-                    total += item.Total;
+                        bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.Phrase = new Phrase(item.UnitCode, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        if (units.ContainsKey(item.UnitCode))
+                        {
+                            units[item.UnitCode] += item.Total;
+                        }
+                        else
+                        {
+                            units.Add(item.UnitCode, item.Total);
+                        }
+
+                        total += item.Total;
+                    }
                 }
+
+                bodyCell.Colspan = 4;
+                bodyCell.Border = Rectangle.NO_BORDER;
+                bodyCell.Phrase = new Phrase("", normal_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.Border = Rectangle.BOX;
+                bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                bodyCell.Phrase = new Phrase("Total", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase(model.BankCurrencyCode, bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                document.Add(bodyTable);
+
+                #endregion BodyNonIdr
+            }
+            else
+            {
+                #region BodyIdr
+                PdfPTable bodyTable = new PdfPTable(8);
+                PdfPCell bodyCell = new PdfPCell();
+
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 10f, 10f };
+                bodyTable.SetWidths(widthsBody);
+                bodyTable.WidthPercentage = 100;
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase("No.", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("No. SPB", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Kategori Barang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Divisi", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Unit", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Mata Uang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Jumlah", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Jumlah (IDR)", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                foreach (BankExpenditureNoteDetailModel detail in model.Details)
+                {
+                    var items = detail.Items
+                        .GroupBy(m => new { m.UnitCode, m.UnitName })
+                        .Select(s => new
+                        {
+                            s.First().UnitCode,
+                            s.First().UnitName,
+                            Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
+                        });
+                    foreach (var item in items)
+                    {
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.VerticalAlignment = Element.ALIGN_TOP;
+                        bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.Phrase = new Phrase(item.UnitCode, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (item.Total * model.CurrencyRate)), normal_font);
+                        bodyTable.AddCell(bodyCell);
+
+                        if (units.ContainsKey(item.UnitCode))
+                        {
+                            units[item.UnitCode] += (item.Total * model.CurrencyRate);
+                        }
+                        else
+                        {
+                            units.Add(item.UnitCode, (item.Total * model.CurrencyRate));
+                        }
+
+                        total += item.Total;
+                    }
+                }
+
+                bodyCell.Colspan = 4;
+                bodyCell.Border = Rectangle.NO_BORDER;
+                bodyCell.Phrase = new Phrase("", normal_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.Border = Rectangle.BOX;
+                bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                bodyCell.Phrase = new Phrase("Total", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase(model.BankCurrencyCode, bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total * model.CurrencyRate), bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                document.Add(bodyTable);
+
+                #endregion BodyIdr
             }
 
-            bodyCell.Colspan = 4;
-            bodyCell.Border = Rectangle.NO_BORDER;
-            bodyCell.Phrase = new Phrase("", normal_font);
-            bodyTable.AddCell(bodyCell);
 
-            bodyCell.Colspan = 1;
-            bodyCell.Border = Rectangle.BOX;
-            bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
-            bodyCell.Phrase = new Phrase("Total", bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.Colspan = 1;
-            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
-            bodyCell.Phrase = new Phrase(model.BankCurrencyCode, bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), bold_font);
-            bodyTable.AddCell(bodyCell);
-
-            document.Add(bodyTable);
-
-            #endregion Body
 
             #region BodyFooter
 
             PdfPTable bodyFooterTable = new PdfPTable(6);
-            bodyFooterTable.SetWidths(new float[] { 3f, 6f, 2f, 6f , 10f, 10f });
+            bodyFooterTable.SetWidths(new float[] { 3f, 6f, 2f, 6f, 10f, 10f });
             bodyFooterTable.WidthPercentage = 100;
 
             PdfPCell bodyFooterCell = new PdfPCell() { Border = Rectangle.NO_BORDER };
@@ -230,19 +353,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             bodyFooterCell.HorizontalAlignment = Element.ALIGN_RIGHT;
             bodyFooterCell.Phrase = new Phrase("");
             bodyFooterTable.AddCell(bodyFooterCell);
-
+            total = model.CurrencyId > 0 ? total * model.CurrencyRate : total;
             foreach (var unit in units)
             {
                 bodyFooterCell.Colspan = 1;
                 bodyFooterCell.Phrase = new Phrase("");
                 bodyFooterTable.AddCell(bodyFooterCell);
-                
+
                 bodyFooterCell.Phrase = new Phrase(unit.Key, normal_font);
                 bodyFooterTable.AddCell(bodyFooterCell);
-                
+
                 bodyFooterCell.Phrase = new Phrase(model.BankCurrencyCode, normal_font);
                 bodyFooterTable.AddCell(bodyFooterCell);
-                
+
                 bodyFooterCell.Phrase = new Phrase(string.Format("{0:n4}", unit.Value), normal_font);
                 bodyFooterTable.AddCell(bodyFooterCell);
 
@@ -267,11 +390,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
             bodyFooterCell.Phrase = new Phrase(NumberToTextIDN.terbilang(total), normal_font);
             bodyFooterTable.AddCell(bodyFooterCell);
-            
+
 
             document.Add(bodyFooterTable);
             document.Add(new Paragraph("\n"));
-            
+
             #endregion BodyFooter
 
             #region Footer
@@ -293,7 +416,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell signatureCell = new PdfPCell() { HorizontalAlignment = Element.ALIGN_CENTER };
             signatureCell.Phrase = new Phrase("Bag. Keuangan", normal_font);
             signatureTable.AddCell(signatureCell);
-            
+
             signatureCell.Colspan = 2;
             signatureCell.HorizontalAlignment = Element.ALIGN_CENTER;
             signatureCell.Phrase = new Phrase("Direksi", normal_font);
