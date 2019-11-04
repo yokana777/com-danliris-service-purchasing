@@ -16,6 +16,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string DocumentNo { get; set; }
         public NewSupplierViewModel Supplier { get; set; }
         public double GrandTotal { get; set; }
+
+        public string CurrencyCode { get; set; }
+        public int CurrencyId { get; set; }
+        public double CurrencyRate { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Details == null || Details.Count.Equals(0))

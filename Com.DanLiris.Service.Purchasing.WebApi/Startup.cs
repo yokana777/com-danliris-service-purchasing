@@ -59,6 +59,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -246,9 +249,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             /* API */
             services
                .AddMvcCore()
+               .AddApiExplorer()
                .AddAuthorization()
                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver())
                .AddJsonFormatters();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Spinning API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme { In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    { "Bearer", Enumerable.Empty<string>() },
+                });
+
+                c.CustomSchemaIds(i => i.FullName);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -272,6 +288,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);
             app.UseMvc();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+            });
 
             JobManager.Initialize(new MasterRegistry(app.ApplicationServices));
         }

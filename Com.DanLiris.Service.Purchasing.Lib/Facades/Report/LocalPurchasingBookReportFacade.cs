@@ -80,7 +80,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnItem.UnitReceiptNote.UnitCode,
                             urnItem.EPODetailId,
                             urnItem.PricePerDealUnit,
-                            urnItem.ReceiptQuantity
+                            urnItem.ReceiptQuantity,
+                            urnItem.Uom
                         })
                         .ToList();
 
@@ -167,7 +168,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             UPONo = unitPaymentOrder?.UPONo,
                             URNNo = urnItem.URNNo,
                             IsUseVat = epoItem.UseVat,
-                            CurrencyCode = currencyCode
+                            CurrencyCode = currencyCode,
+                            Quantity = urnItem.ReceiptQuantity,
+                            Uom = urnItem.Uom
                         };
 
                         reportResult.Reports.Add(reportItem);

@@ -216,6 +216,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 GrandTotal = 120,
                 BGCheckNumber = "BGNo",
                 SupplierImport = false,
+                CurrencyRate = 1,
+                CurrencyId = 1,
+                CurrencyCode = "Code",
                 Details = Details,
             };
 
