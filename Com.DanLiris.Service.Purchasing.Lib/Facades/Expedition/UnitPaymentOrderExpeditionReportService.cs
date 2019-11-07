@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             var data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
             var listData = await query.ToListAsync();
-            if (listData != null && listData.Count > 1)
+            if (listData != null && listData.Count > 0)
             {
                 data = listData;
             }
