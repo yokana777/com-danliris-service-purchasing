@@ -124,7 +124,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public async Task<MemoryStream> GetExcel(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order)
         {
             var query = GetQuery(no, supplierCode, divisionCode, status, dateFrom, dateTo, order);
-            var data = await query.ToListAsync();
+
+            var data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
+            var listData = await query.ToListAsync();
+            if (listData != null && listData.Count > 1)
+            {
+                data = listData;
+            }
 
             DataTable dataTable = new DataTable();
 
@@ -141,11 +147,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 {
                     dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(string) });
                 }
-            }
-
-            if (data == null || data.Count < 1)
-            {
-                data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
             }
 
             foreach (var d in data)
