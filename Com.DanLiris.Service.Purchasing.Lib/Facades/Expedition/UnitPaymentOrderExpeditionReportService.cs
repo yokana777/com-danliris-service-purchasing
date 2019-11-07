@@ -124,19 +124,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public async Task<MemoryStream> GetExcel(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order)
         {
             var query = GetQuery(no, supplierCode, divisionCode, status, dateFrom, dateTo, order);
-            var data = await query.ToListAsync();
+
+            var data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
+            var listData = await query.ToListAsync();
+            if (listData != null && listData.Count > 0)
+            {
+                data = listData;
+            }
 
             DataTable dataTable = new DataTable();
 
+            var headersDateType = new int[] { 1, 2, 7, 8, 9, 10, 11 };
             var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
-            foreach (var header in headers)
+            for (int i = 0; i < headers.Length; i++)
             {
-                dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(string) });
-            }
-
-            if (data == null || data.Count < 1)
-            {
-                data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
+                var header = headers[i];
+                if (headersDateType.Contains(i))
+                {
+                    dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(DateTime) });
+                }
+                else
+                {
+                    dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(string) });
+                }
             }
 
             foreach (var d in data)
@@ -171,6 +181,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             sheet.Cells["A1:M2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells["A1:M2"].Style.Font.Bold = true;
 
+            foreach (var headerDateType in headersDateType)
+            {
+                sheet.Column(headerDateType + 1).Style.Numberformat.Format = "dd MMMM yyyy";
+            }
+
             var widths = new int[] { 20, 20, 20, 50, 30, 20, 40, 20, 20, 20, 20, 20, 20 };
             foreach (var i in Enumerable.Range(0, widths.Length))
             {
@@ -182,9 +197,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return stream;
         }
 
-        string GetFormattedDate(DateTimeOffset? dateTime)
+        DateTime? GetFormattedDate(DateTimeOffset? dateTime)
         {
-            return dateTime == null ? "-" : dateTime.Value.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+            if (dateTime == null)
+            {
+                return null;
+            }
+            else
+            {
+                return dateTime.Value.ToOffset(new TimeSpan(7, 0, 0)).DateTime;
+            }
         }
     }
 }
