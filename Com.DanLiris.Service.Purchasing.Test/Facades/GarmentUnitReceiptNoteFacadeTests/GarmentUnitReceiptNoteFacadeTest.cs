@@ -480,6 +480,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             Assert.NotEmpty(Response.Data);
         }
 
+        [Fact]
+        public async Task Should_Success_ReadItemByRO_With_Filter()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var filter = new
+            {
+                UnitId=data.UnitId,
+                StorageId=data.StorageId,
+                RONo = data.Items.First().RONo
+            };
+            var Response = facade.ReadItemByRO("", JsonConvert.SerializeObject(filter));
+            Assert.NotEqual(Response.Count, 0);
+        }
+
         //Monitoring Terima BP
         [Fact]
         public async Task Should_Success_Get_Terima_BP_Report_Data()

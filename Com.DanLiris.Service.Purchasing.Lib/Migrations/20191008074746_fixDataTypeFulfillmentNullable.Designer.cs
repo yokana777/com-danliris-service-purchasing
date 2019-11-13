@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191008074746_fixDataTypeFulfillmentNullable")]
+    partial class fixDataTypeFulfillmentNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,13 +285,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("CurrencyCode")
-                        .HasMaxLength(255);
-
-                    b.Property<int>("CurrencyId");
-
-                    b.Property<double>("CurrencyRate");
 
                     b.Property<DateTimeOffset>("Date");
 
@@ -3891,7 +3885,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasIndex("URNNo")
                         .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
+                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentUnitReceiptNotes");
                 });
@@ -4222,16 +4216,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DeliveryOrderNo")
                         .HasMaxLength(64);
 
-                    b.Property<DateTimeOffset>("InterNoteDate");
+                    b.Property<DateTimeOffset?>("InterNoteDate");
 
-                    b.Property<DateTimeOffset>("InterNoteDueDate");
+                    b.Property<DateTimeOffset?>("InterNoteDueDate");
 
                     b.Property<string>("InterNoteNo")
                         .HasMaxLength(64);
 
                     b.Property<double>("InterNoteValue");
 
-                    b.Property<DateTimeOffset>("InvoiceDate");
+                    b.Property<DateTimeOffset?>("InvoiceDate");
 
                     b.Property<string>("InvoiceNo")
                         .HasMaxLength(64);
@@ -4256,7 +4250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("UnitPaymentOrderId");
 
-                    b.Property<DateTimeOffset>("UnitPaymentOrderIncomeTaxDate");
+                    b.Property<DateTimeOffset?>("UnitPaymentOrderIncomeTaxDate");
 
                     b.Property<string>("UnitPaymentOrderIncomeTaxNo");
 
@@ -4268,11 +4262,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("UnitPaymentOrderUseVat");
 
-                    b.Property<DateTimeOffset>("UnitPaymentOrderVatDate");
+                    b.Property<DateTimeOffset?>("UnitPaymentOrderVatDate");
 
                     b.Property<string>("UnitPaymentOrderVatNo");
 
-                    b.Property<DateTimeOffset>("UnitReceiptNoteDate");
+                    b.Property<DateTimeOffset?>("UnitReceiptNoteDate");
 
                     b.Property<double>("UnitReceiptNoteDeliveredQuantity");
 

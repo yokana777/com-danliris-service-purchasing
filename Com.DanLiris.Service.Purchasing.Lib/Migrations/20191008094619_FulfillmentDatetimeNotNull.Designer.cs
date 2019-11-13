@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191008094619_FulfillmentDatetimeNotNull")]
+    partial class FulfillmentDatetimeNotNull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,13 +285,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("CurrencyCode")
-                        .HasMaxLength(255);
-
-                    b.Property<int>("CurrencyId");
-
-                    b.Property<double>("CurrencyRate");
 
                     b.Property<DateTimeOffset>("Date");
 
@@ -3891,7 +3885,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasIndex("URNNo")
                         .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
+                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
                     b.ToTable("GarmentUnitReceiptNotes");
                 });

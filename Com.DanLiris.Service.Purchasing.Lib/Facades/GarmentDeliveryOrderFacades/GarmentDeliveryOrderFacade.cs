@@ -691,7 +691,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     }).ToList()
                 });
 
-
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
 
@@ -1678,12 +1677,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
 
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-
+            //bool flagPaymentType = ;
+            //bool flagPaymentMethod = ;
             List<AccuracyOfArrivalReportViewModel> listAccuracyOfArrival = new List<AccuracyOfArrivalReportViewModel>();
 
             var Query = (from a in dbContext.GarmentDeliveryOrders
@@ -1726,8 +1726,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              staff = a.CreatedBy,
                              doNo = a.DONo,
                              ok_notOk = "NOT OK",
-                             LastModifiedUtc = i.LastModifiedUtc
+                             LastModifiedUtc = i.LastModifiedUtc,
+                             paymentMethod = h.PaymentMethod,
+                             paymentType = h.PaymentType
                          }).Distinct();
+
+            if (!string.IsNullOrEmpty(paymentType))
+            {
+                Query = Query.Where(x => x.paymentType == paymentType);
+            }
+
+            if (!string.IsNullOrEmpty(paymentMethod))
+            {
+                Query = Query.Where(x => x.paymentMethod == paymentMethod);
+            }
+
             Query = Query.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate);
             var suppTemp = "";
             var percentOK = 0;
@@ -1809,16 +1822,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     jumlah = jumlah,
                     jumlahOk = percentOK,
                     dateDiff = datediff,
-                    LastModifiedUtc = item.LastModifiedUtc
+                    LastModifiedUtc = item.LastModifiedUtc,
+                    paymentMethod = item.paymentMethod,
+                    paymentType = item.paymentType
                 };
                 listAccuracyOfArrival.Add(_new);
             }
             return listAccuracyOfArrival.OrderByDescending(b => b.supplier.Code).ThenByDescending(b => b.doDate).AsQueryable();
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofDelivery(DateTime? dateFrom, DateTime? dateTo, int offset)
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofDelivery(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
-            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, offset);
+            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, paymentType, paymentMethod, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1848,7 +1863,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         jumlah = item.jumlah,
                         jumlahOk = item.jumlahOk,
                         dateDiff = item.dateDiff,
-                        LastModifiedUtc = item.LastModifiedUtc
+                        LastModifiedUtc = item.LastModifiedUtc,
+                        paymentMethod = item.paymentMethod,
+                        paymentType = item.paymentType
                     };
                     Data.Add(_new);
                 }
@@ -1856,9 +1873,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcelDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelDeliveryHeader(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
-            var Query = GetReportQuery2(dateFrom, dateTo, offset);
+            var Query = GetReportQuery2(dateFrom, dateTo, paymentType, paymentMethod, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1888,7 +1905,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         jumlah = item.jumlah,
                         jumlahOk = item.jumlahOk,
                         dateDiff = item.dateDiff,
-                        LastModifiedUtc = item.LastModifiedUtc
+                        LastModifiedUtc = item.LastModifiedUtc,
+                        paymentType = item.paymentType,
+                        paymentMethod = item.paymentMethod
                     };
                     Data.Add(_new);
                 }
@@ -1915,9 +1934,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofDelivery(string supplier, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofDelivery(string supplier, DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
-            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, offset);
+            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, paymentType, paymentMethod, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1942,16 +1961,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     jumlah = item.jumlah,
                     jumlahOk = item.jumlahOk,
                     dateDiff = item.dateDiff,
-                    LastModifiedUtc = item.LastModifiedUtc
+                    LastModifiedUtc = item.LastModifiedUtc,
+                    paymentType = item.paymentType,
+                    paymentMethod = item.paymentMethod
                 };
                 Data.Add(_new);
             }
             return Tuple.Create(Data, Data.Count);
         }
 
-        public MemoryStream GenerateExcelDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelDeliveryDetail(string supplier, DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
-            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, offset);
+            var QuerySupplier = GetReportQuery2(dateFrom, dateTo, paymentType, paymentMethod, offset);
 
             List<AccuracyOfArrivalReportViewModel> Data = new List<AccuracyOfArrivalReportViewModel>();
 
@@ -1977,7 +1998,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     jumlah = item.jumlah,
                     jumlahOk = item.jumlahOk,
                     dateDiff = item.dateDiff,
-                    LastModifiedUtc = item.LastModifiedUtc
+                    LastModifiedUtc = item.LastModifiedUtc,
+                    paymentType = item.paymentType,
+                    paymentMethod = item.paymentMethod
                 };
                 Data.Add(_new);
             }
@@ -2033,7 +2056,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
                          join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
                          join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
-                         from URNItem in p.DefaultIfEmpty() 
+                         from URNItem in p.DefaultIfEmpty()
                          join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
                          from URN in l.DefaultIfEmpty()
                          where a.IsDeleted == false

@@ -233,15 +233,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                         }
                     }
+
+                    this.dbSet.Add(model);
+                    Created = await dbContext.SaveChangesAsync();
+
+
+                    await CreateJournalTransactions(model);
+                    await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
                     if (model.IsStorage == true)
                     {
                         insertStorage(model, user, "IN");
                     }
-                    this.dbSet.Add(model);
-                    Created = await dbContext.SaveChangesAsync();
-
-                    await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
-                    await CreateJournalTransactions(model);
                     await EditFulfillment(model, user);
                     transaction.Commit();
                 }
@@ -477,7 +479,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -488,7 +490,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -499,7 +501,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -510,7 +512,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
                 }
@@ -523,7 +525,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -534,7 +536,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = model.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate,
+                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
                 }
@@ -1064,17 +1066,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         //}
                         #endregion
 
-                        if (unitReceiptNote.IsStorage == true)
-                        {
-                            insertStorage(unitReceiptNote, user, "IN");
-                        }
+
 
                         Updated = await dbContext.SaveChangesAsync();
 
                         await ReverseJournalTransaction(m.URNNo);
                         await CreateJournalTransactions(m);
-
                         await UpdateCreditorAccount(unitReceiptNote, useIncomeTaxFlag);
+
+                        if (unitReceiptNote.IsStorage == true)
+                        {
+                            insertStorage(unitReceiptNote, user, "IN");
+                        }
 
                         var updatedModel = this.dbSet.AsNoTracking()
                             .Include(d => d.Items)
@@ -1187,15 +1190,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             }
                         }
                     }
-                    if (m.IsStorage == true)
-                    {
-                        insertStorage(m, user, "OUT");
-                    }
 
                     Deleted = dbContext.SaveChanges();
 
                     await ReverseJournalTransaction(m.URNNo);
                     await DeleteCreditorAccount(m.URNNo);
+
+                    if (m.IsStorage == true)
+                    {
+                        insertStorage(m, user, "OUT");
+                    }
                     await RollbackFulfillment(m, user);
                     transaction.Commit();
                 }
@@ -1486,7 +1490,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var fulfillment = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
                     .FirstOrDefaultAsync(x => x.DeliveryOrderDetailId == item.DODetailId);
 
-                if(fulfillment != null)
+                if (fulfillment != null)
                 {
                     fulfillment.UnitReceiptNoteDate = model.ReceiptDate;
                     fulfillment.UnitReceiptNoteDeliveredQuantity = item.ReceiptQuantity;
@@ -1498,7 +1502,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
                 }
-                
+
             }
 
 
@@ -1514,22 +1518,156 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var fulfillment = dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
                           .FirstOrDefault(x => x.UnitReceiptNoteId == model.Id && x.UnitReceiptNoteItemId == item.Id);
 
-                if(fulfillment != null)
+                if (fulfillment != null)
                 {
-                    fulfillment.UnitReceiptNoteDate = null;
-                    fulfillment.UnitReceiptNoteDeliveredQuantity = null;
-                    fulfillment.UnitReceiptNoteId = null;
-                    fulfillment.UnitReceiptNoteItemId = null;
+                    fulfillment.UnitReceiptNoteDate = DateTimeOffset.MinValue;
+                    fulfillment.UnitReceiptNoteDeliveredQuantity = 0;
+                    fulfillment.UnitReceiptNoteId = 0;
+                    fulfillment.UnitReceiptNoteItemId = 0;
                     fulfillment.UnitReceiptNoteNo = null;
                     fulfillment.UnitReceiptNoteUom = null;
                     fulfillment.UnitReceiptNoteUomId = null;
 
                     count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
                 }
-                
+
 
             }
             return count;
+        }
+
+        public IQueryable<UnitNoteSpbViewModel> GetSpbQuery(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query = (from a in dbContext.UnitReceiptNotes
+                         join b in dbContext.DeliveryOrders on a.DOId equals b.Id
+
+                         join c in dbContext.UnitReceiptNoteItems on a.Id equals c.URNId
+                         join d in dbContext.ExternalPurchaseOrders on c.EPOId equals d.Id
+                         join e in dbContext.PurchaseRequests on c.PRId equals e.Id
+                         join f in dbContext.UnitPaymentOrderDetails on c.Id equals f.URNItemId into k
+                         from f in k.DefaultIfEmpty()
+                         join g in dbContext.UnitPaymentOrderItems on f.UPOItemId equals g.Id into l
+                         from g in l.DefaultIfEmpty()
+                         join h in dbContext.UnitPaymentOrders on g.UPOId equals h.Id into m
+                         from h in m.DefaultIfEmpty()
+                             //Conditions
+                         where
+                             a.IsDeleted == false
+                             && b.IsDeleted == false
+                             && c.IsDeleted == false
+                             && d.IsDeleted == false
+                             && e.IsDeleted == false
+                             && f.IsDeleted == false
+                             && g.IsDeleted == false
+                             && h.IsDeleted == false
+                             && a.URNNo == (string.IsNullOrWhiteSpace(urnNo) ? a.URNNo : urnNo)
+                             && a.SupplierName == (string.IsNullOrWhiteSpace(supplierName) ? a.SupplierName : supplierName)
+                             && a.DONo == (string.IsNullOrWhiteSpace(doNo) ? a.DONo : doNo)
+                             && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                             && a.IsPaid == false
+
+                         orderby a.ReceiptDate descending
+
+
+                         select new UnitNoteSpbViewModel
+                         {
+
+                             UrnNo = a.URNNo,
+                             ReceiptDate = a.ReceiptDate,
+                             SupplierName = a.SupplierName,
+                             PaymentDueDays = d.PaymentDueDays,
+                             DONo = b.DONo,
+                             DODate = b.DODate,
+                             PRNo = c.PRNo,
+                             PRDate = e.Date,
+
+                             UnitName = a.UnitName,
+                             CategoryName = e.CategoryName,
+                             BudgetName = e.BudgetName,
+                             ProductName = c.ProductName,
+                             ReceiptQuantity = c.ReceiptQuantity,
+                             Uom = c.Uom,
+                             PricePerDealUnit = c.PricePerDealUnit,
+                             TotalPrice = (c.ReceiptQuantity * c.PricePerDealUnit),
+                             CurencyCode = d.CurrencyCode,
+                             createdBy = b.CreatedBy,
+
+                         });
+
+            return Query;
+        }
+
+
+        public ReadResponse<UnitNoteSpbViewModel> GetSpbReport(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo, int size, int page, string Order, int offset)
+        {
+            var Query = GetSpbQuery(urnNo, supplierName, doNo, dateFrom, dateTo, offset);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderByDescending(a => a.ReceiptDate).ThenByDescending(a => a.ReceiptDate);
+            }
+
+            Pageable<UnitNoteSpbViewModel> pageable = new Pageable<UnitNoteSpbViewModel>(Query, page - 1, size);
+            List<UnitNoteSpbViewModel> Data = pageable.Data.ToList<UnitNoteSpbViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return new ReadResponse<UnitNoteSpbViewModel>(Data, TotalData, OrderDictionary);
+        }
+
+
+        public MemoryStream GenerateExcelSpb(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetSpbQuery(urnNo, supplierName, doNo, dateFrom, dateTo, offset);
+            Query = Query.OrderByDescending(a => a.ReceiptDate);
+            DataTable result = new DataTable();
+            //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuan", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Total", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tempo Pembelian", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Budget", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
+
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", 0, "", "", "", "", "", "", "", "", 0, "", 0, 0, "", "");
+            // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string receipt_date = item.ReceiptDate == null ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string pr_date = item.PRDate == null ? "-" : item.PRDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string do_date = item.DODate == null ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, pr_date, item.PRNo, item.ProductName, do_date, item.DONo, receipt_date, item.UrnNo, item.ReceiptQuantity, item.Uom, item.PricePerDealUnit,
+                        item.TotalPrice, item.CurencyCode, item.SupplierName, item.PaymentDueDays, item.CategoryName, item.BudgetName, item.UnitName, item.createdBy);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
     }
 }

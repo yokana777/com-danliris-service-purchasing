@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
         {
             this.Facade = Facade;
         }
-        public PurchasingDocumentExpedition GetNewData()
+        public PurchasingDocumentExpedition GetNewData(UnitPaymentOrder unitPaymentOrder = null)
         {
             List<PurchasingDocumentExpeditionItem> Items = new List<PurchasingDocumentExpeditionItem>()
             {
@@ -36,8 +37,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             PurchasingDocumentExpedition TestData = new PurchasingDocumentExpedition()
             {
                 SendToVerificationDivisionDate = DateTimeOffset.UtcNow,
-                UnitPaymentOrderNo = Guid.NewGuid().ToString(),
-                UPODate = DateTimeOffset.UtcNow,
+                UnitPaymentOrderNo = unitPaymentOrder == null ? Guid.NewGuid().ToString() : unitPaymentOrder.UPONo,
+                UPODate = unitPaymentOrder == null ? DateTimeOffset.UtcNow : unitPaymentOrder.Date,
                 DueDate = DateTimeOffset.UtcNow,
                 InvoiceNo = "Invoice",
                 PaymentMethod = "CASH",
@@ -58,9 +59,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil
             return TestData;
         }
 
-        public async Task<PurchasingDocumentExpedition> GetTestData()
+        public async Task<PurchasingDocumentExpedition> GetTestData(PurchasingDocumentExpedition purchasingDocumentExpedition = null)
         {
-            PurchasingDocumentExpedition model = GetNewData();
+            PurchasingDocumentExpedition model = purchasingDocumentExpedition ?? GetNewData();
             await Facade.SendToVerification(new List<PurchasingDocumentExpedition>() { model }, "Unit Test");
             return model;
         }

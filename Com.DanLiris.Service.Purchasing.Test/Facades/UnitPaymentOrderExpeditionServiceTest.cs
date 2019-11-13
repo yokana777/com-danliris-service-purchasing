@@ -12,6 +12,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
@@ -150,9 +151,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
             var modelLocalSupplier = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetNewData();
             var responseLocalSupplier = await unitPaymentOrderFacade.Create(modelLocalSupplier, USERNAME, false);
 
+            var purchasingDocumentExpeditionFacade = new PurchasingDocumentExpeditionFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var sendToVerificationDataUtil = new SendToVerificationDataUtil(purchasingDocumentExpeditionFacade);
+            var purchasingDocumentExpedition = sendToVerificationDataUtil.GetNewData(modelLocalSupplier);
+            await sendToVerificationDataUtil.GetTestData(purchasingDocumentExpedition);
+
             var reportService = new UnitPaymentOrderExpeditionReportService(dbContext);
-            var dateTo = DateTime.UtcNow.AddDays(1);
-            var dateFrom = dateTo.AddDays(-30);
+            var dateTo = modelLocalSupplier.Date;
+            var dateFrom = modelLocalSupplier.Date;
             var results = await reportService.GetExcel(modelLocalSupplier.UPONo, modelLocalSupplier.SupplierCode, modelLocalSupplier.DivisionCode, modelLocalSupplier.Position, dateFrom, dateTo, "{'Date': 'desc'}");
 
             Assert.NotNull(results);

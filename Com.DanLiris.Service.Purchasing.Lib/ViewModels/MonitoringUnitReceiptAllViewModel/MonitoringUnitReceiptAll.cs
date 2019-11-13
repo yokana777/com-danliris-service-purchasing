@@ -24,5 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringUnitReceiptAl
 		public string design { get; set; }
 		public string user { get; set; }
 		public string internNote { get; set; }
+        public string shipmentType { get; set; }
+        public string createdBy { get; set; }
+        public decimal price { get; set; }
 	}
 }

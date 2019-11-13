@@ -46,8 +46,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						   && ((doNo  != null) ? (a.DONo == doNo) : true)
 							&& ((roNo  != null) ? (b.RONo == roNo) : true)
 							&& ((refNo != null) ? (b.POSerialNumber == refNo ) : true)
-						select  new {	id= a.Id, no=a.URNNo, dateBon= a.ReceiptDate, unit=a.UnitName, supplier= a.SupplierName, doNo= a.DONo,poEksternalNo=e.EPONo,poRefPR=b.POSerialNumber,design=b.DesignColor,
-										roNo = b.RONo,article=d.Article,productCode=b.ProductCode,productName=b.ProductName, qty= b.ReceiptQuantity,uom=b.UomUnit,remark= b.ProductRemark, user= a.CreatedBy, internNo=c.InternNo}
+						select  new {	id= a.Id, no=a.URNNo, dateBon= a.ReceiptDate, unit=a.UnitName, supplier= a.SupplierName, shipmentType =c.ShipmentType, doNo= a.DONo,poEksternalNo=e.EPONo,poRefPR=b.POSerialNumber,design=b.DesignColor,
+										roNo = b.RONo,article=d.Article,productCode=b.ProductCode,productName=b.ProductName, qty= b.ReceiptQuantity,uom=b.UomUnit, price= b.PricePerDealUnit, remark= b.ProductRemark, user= a.CreatedBy, createdBy= c.CreatedBy, internNo=c.InternNo}
 						)
 						.Distinct()
 						.ToList();
@@ -59,6 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 							dateBon=(data.dateBon.AddHours(offset)).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
 							unit=data.unit,
 							supplier=data.supplier,
+                            shipmentType=data.shipmentType,
 							doNo=data.doNo,
 							poEksternalNo=data.poEksternalNo,
 							poRefPR=data.poRefPR,
@@ -68,9 +69,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 							productName=data.productName,
 							qty=data.qty,
 							uom=data.uom,
+                            price=data.price,
 							remark=data.remark,
 							user=data.user,
 							design=data.design,
+                            createdBy=data.createdBy,
 							internNote=data.internNo
 
 						}).OrderByDescending(s => s.dateBon);
@@ -85,6 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						   dateBon = item.dateBon,
 						   unit = item.unit,
 						   supplier = item.supplier,
+                           shipmentType = item.shipmentType,
 						   doNo = item.doNo,
 						   poEksternalNo = item.poEksternalNo,
 						   poRefPR = item.poRefPR,
@@ -94,9 +98,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						   productName = item.productName,
 						   qty = item.qty,
 						   uom = item.uom,
+                           price = item.price,
 						   remark = item.remark,
 						   user = item.user,
 						   design = item.design,
+                           createdBy = item.createdBy,
 						   internNote = item.internNote
 					   });
 				i++;
@@ -125,6 +131,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 			result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL BON TERIMA UNIT", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "UNIT", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JENIS SUPPLIER", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "SURAT JALAN", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "NO PO EKSTERNAL", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "RO REFERENSI PR", DataType = typeof(String) });
@@ -133,23 +140,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 			result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(decimal) });
 			result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "HARGA SATUAN", DataType = typeof(decimal) });
 			result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "DESAIN COLOR", DataType = typeof(String) });
 			result.Columns.Add(new DataColumn() { ColumnName = "USER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "STAFF PEMBELIAN", DataType = typeof(string) });
 			result.Columns.Add(new DataColumn() { ColumnName = "NOTA INTERN", DataType = typeof(String) });
 
 			List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
 			if (Query.ToArray().Count() == 0)
 			{
-				result.Rows.Add("", "", "", "", "", "","","","","","",0,"","","","",""); // to allow column name to be generated properly for empty data as template
+				result.Rows.Add("", "", "", "", "", "","","","","","","",0,"",0,"","","","",""); // to allow column name to be generated properly for empty data as template
 			}
 			else
-			{ 
-				foreach (MonitoringUnitReceiptAll data in Query)
+			{
+                int index = 0;
+                foreach (MonitoringUnitReceiptAll data in Query)
 				{
-					
-					result.Rows.Add(data.no, data.dateBon, data.unit,data.supplier,data.doNo,data.poEksternalNo,data.poRefPR,data.roNo,data.productCode,data.productName,data.qty,data.uom,data.remark,data.design,data.user,data.internNote);
+                    index++;
+                    string jenissupp = data.shipmentType == "" ? "Local" : "Import";
+                    result.Rows.Add(data.no, data.dateBon, data.unit,data.supplier,jenissupp,data.doNo,data.poEksternalNo,data.poRefPR,data.roNo,data.productCode,data.productName,data.qty,data.uom,data.price,data.remark,data.design,data.user,data.createdBy,data.internNote);
 
 				}
 			
