@@ -156,14 +156,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 data = listData;
             }
 
+            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Kurs", "Jumlah", "Jumlah1", "Jumlah2", "Jumlah3", "Tempo", "Kategori", "Unit", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
             var subHeaders = new string[] { "DPP", "PPn", "PPh", "Total", "Tgl Terima", "Tgl Cek", "Tgl Kirim", "Tgl Terima", "No Kuitansi" };
 
-
-            if (data == null || data.Count < 1)
             DataTable dataTable = new DataTable();
 
-            var headersDateType = new int[] { 1, 2, 7, 8, 9, 10, 11 };
-            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Kurs", "Jumlah", "Jumlah1", "Jumlah2", "Jumlah3", "Tempo", "Kategori", "Unit", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
+            var headersDateType = new int[] { 1, 2, 15, 16, 17, 18, 19 };
             for (int i = 0; i < headers.Length; i++)
             {
                 var header = headers[i];
