@@ -165,6 +165,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
             {
                 BankExpenditureNoteNo = "",
                 CashierDivisionDate = DateTime.Now,
+                Category = new CategoryViewModel()
+                {
+                    Code = "Code",
+                    Name = "Name"
+                },
+                Currency = new CurrencyViewModel()
+                {
+                    Code = "Code"
+                },
                 Date = DateTime.Now,
                 Division = new DivisionViewModel()
                 {
@@ -172,10 +181,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
                     Id = "Id",
                     Name = "Name"
                 },
+                DPP = 0,
                 DueDate = DateTime.Now,
                 InvoiceNo = "InvoiceNo",
                 No = "no",
                 Position = ExpeditionPosition.CASHIER_DIVISION,
+                PPn = 0,
+                PPh = 0,
                 SendDate = DateTime.Now,
                 SendToVerificationDivisionDate = DateTime.Now,
                 Supplier = new NewSupplierViewModel()
@@ -186,6 +198,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
                     name = "name",
                     PIC = "pic",
                     _id = 1
+                },
+                TotalDay = 0,
+                TotalTax = 0,
+                Unit = new UnitViewModel()
+                {
+                    Code = "Code",
+                    Name = "Name"
                 },
                 VerificationDivisionDate = DateTime.Now,
                 VerifyDate = DateTime.Now

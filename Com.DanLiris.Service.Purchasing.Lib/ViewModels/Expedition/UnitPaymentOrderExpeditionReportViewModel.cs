@@ -13,9 +13,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public DateTimeOffset? DueDate { get; set; }
         public string InvoiceNo { get; set; }
         public NewSupplierViewModel Supplier { get; set; }
+        public CurrencyViewModel Currency { get; set; }
+        public double TotalDay { get; set; }
+        public CategoryViewModel Category { get; set; }
+        public UnitViewModel Unit { get; set; }
         public DivisionViewModel Division { get; set; }
         public ExpeditionPosition Position { get; set; }
         public DateTimeOffset? SendToVerificationDivisionDate { get; set; }
+        public double DPP { get; set; }
+        public double PPn { get; set; }
+        public double PPh { get; set; }
+        public double TotalTax { get; set; }
         public DateTimeOffset? VerificationDivisionDate { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }
         public DateTimeOffset? SendDate { get; set; }
