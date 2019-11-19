@@ -32,6 +32,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
                 startDate = startDate.GetValueOrDefault().Date;
                 endDate = endDate.HasValue ? endDate.Value.Date.AddDays(1).AddTicks(-1) : DateTime.Now.Date.AddDays(1).AddTicks(-1);
 
+                var timezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                startDate = startDate.Value == DateTime.MinValue ? startDate.GetValueOrDefault() : startDate.Value.AddHours(timezoneOffset * -1).Date;
+                endDate = endDate.Value.AddHours(timezoneOffset * -1).Date;
+
                 var result = await _service.GetReport(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value.ToUniversalTime(), endDate.Value.ToUniversalTime(), poExtId, supplierId, page, size);
 
                 //var data = importPurchasingBookReportService.GetReport();
@@ -61,7 +66,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             {
                 startDate = startDate.GetValueOrDefault().Date;
                 endDate = endDate.HasValue ? endDate.Value.Date.AddDays(1).AddTicks(-1) : DateTimeOffset.Now.Date.AddDays(1).AddTicks(-1);
+
                 var timezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                startDate = startDate.Value == DateTime.MinValue ? startDate.GetValueOrDefault() : startDate.Value.AddHours(timezoneOffset * -1).Date;
+                endDate = endDate.Value.AddHours(timezoneOffset * -1).Date;
 
                 byte[] xlsInBytes;
 

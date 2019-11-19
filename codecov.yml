@@ -1,3 +1,4 @@
 ignore:
   - "Com.DanLiris.Service.Purchasing.Lib/Migrations" 
   - "Com.DanLiris.Service.Purchasing.WebApi/Startup.cs"
+  - "Com.DanLiris.Service.Purchasing.WebApi/SchedulerJobs/MasterRegistry.cs"

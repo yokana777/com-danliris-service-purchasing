@@ -1,6 +1,8 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using FluentScheduler;
 using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs
                 coreService.SetDivisionCOA();
                 coreService.SetUnitCOA();
             }).ToRunNow().AndEvery(12).Hours();
-            
+
+        }
+    }
+
+    public class ResponseHeaderFilter : IOperationFilter
+    {
+        public void Apply(Operation operation, OperationFilterContext context)
+        {
+            // Get all response header declarations for a given operation
+            if (operation.Parameters == null)
+                operation.Parameters = new List<IParameter>();
+
+            operation.Parameters.Add(new NonBodyParameter
+            {
+                Name = "x-timezone-offset",
+                In = "header",
+                Type = "string",
+                Required = true
+            });
         }
     }
 }
