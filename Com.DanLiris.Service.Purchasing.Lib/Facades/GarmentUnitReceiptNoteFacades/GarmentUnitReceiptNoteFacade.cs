@@ -757,13 +757,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             IQueryable<GarmentUnitReceiptNoteItem> QueryItem = dbContext.GarmentUnitReceiptNoteItems;
 
             QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
-
-
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureFilter(QueryItem, FilterDictionary);
+            long unitId = 0;
+            long storageId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
+            string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+            //QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureFilter(QueryItem, FilterDictionary);
 
             var data = (from y in QueryItem
                         join x in Query on y.URNId equals x.Id
+                        where 
+                        (!hasUnitFilter ? true : x.UnitId == unitId) &&
+                        (!hasStorageFilter ? true : x.StorageId == storageId) &&
+                        (!hasRONoFilter ? true : y.RONo== RONo)
                         select new
                         {
                             x.DOId,
