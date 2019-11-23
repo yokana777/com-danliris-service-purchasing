@@ -468,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SmallUomId=item.UomId,
                                 SmallUomUnit=item.UomUnit,
                                 ReceiptCorrection= (decimal)item.Quantity / item.Conversion,
-                                OrderQuantity=0,
+                                OrderQuantity= (decimal)item.Quantity,
                                 CorrectionConversion= item.Conversion,
                                 UENItemId=item.Id
                             };
