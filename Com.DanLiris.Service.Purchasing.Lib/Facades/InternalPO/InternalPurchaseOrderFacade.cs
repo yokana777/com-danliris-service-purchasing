@@ -972,7 +972,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                 if (m != null)
                 {
-                    EntityExtension.FlagForUpdate(model, user, "Facade");
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.DeliveryOrderDate = model.DeliveryOrderDate;
                     m.DeliveryOrderDeliveredQuantity = model.DeliveryOrderDeliveredQuantity;
                     m.DeliveryOrderDetailId = model.DeliveryOrderDetailId;
