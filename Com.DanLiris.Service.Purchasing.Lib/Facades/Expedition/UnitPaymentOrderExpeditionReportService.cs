@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -35,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             var expeditionDocumentQuery = _dbContext.Set<PurchasingDocumentExpedition>().AsQueryable();
             var query = _dbContext.Set<UnitPaymentOrder>().AsQueryable();
+            var externalPurchaseOrderQuery = _dbContext.Set<ExternalPurchaseOrder>().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(no))
             {
@@ -60,6 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             var joinedQuery = from unitPaymentOrder in query
                               join expeditionDocument in expeditionDocumentQuery on unitPaymentOrder.UPONo equals expeditionDocument.UnitPaymentOrderNo into upoExpeditions
+                              join externalPurchaseOrder in externalPurchaseOrderQuery on unitPaymentOrder.DivisionId equals externalPurchaseOrder.DivisionId
                               from upoExpedition in upoExpeditions
                               select new UnitPaymentOrderExpeditionReportViewModel()
                               {
@@ -70,19 +73,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                   CashierDivisionDate = upoExpedition.CashierDivisionDate,
                                   BankExpenditureNoteNo = upoExpedition.BankExpenditureNoteNo,
                                   Date = upoExpedition.UPODate,
-                                  Division = new DivisionViewModel()
-                                  {
-                                      Code = upoExpedition.DivisionCode,
-                                      Name = upoExpedition.DivisionName
-                                  },
                                   DueDate = upoExpedition.DueDate,
                                   InvoiceNo = upoExpedition.InvoiceNo,
                                   No = upoExpedition.UnitPaymentOrderNo,
                                   Position = upoExpedition.Position,
+                                  DPP = upoExpedition.TotalPaid - upoExpedition.Vat,
+                                  PPn = upoExpedition.Vat,
+                                  PPh = upoExpedition.IncomeTax,
+                                  TotalTax = upoExpedition.TotalPaid + upoExpedition.IncomeTax,
                                   Supplier = new NewSupplierViewModel()
                                   {
                                       code = upoExpedition.SupplierCode,
                                       name = upoExpedition.SupplierName
+                                  },
+                                  Currency = new CurrencyViewModel()
+                                  {
+                                      Code = unitPaymentOrder.CurrencyCode,
+                                      Rate = unitPaymentOrder.CurrencyRate
+                                  },
+                                  TotalDay = Math.Abs((upoExpedition.DueDate.Date - upoExpedition.UPODate.Date).TotalDays),
+                                  //TotalDay = 1.0,
+                                  Category = new CategoryViewModel()
+                                  {
+                                      Code = upoExpedition.CategoryCode,
+                                      Name = upoExpedition.CategoryName
+                                  },
+                                  Unit = new UnitViewModel()
+                                  {
+                                      Code = externalPurchaseOrder.UnitCode,
+                                      Name = externalPurchaseOrder.UnitName
+                                  },
+                                  Division = new DivisionViewModel()
+                                  {
+                                      Code = upoExpedition.DivisionCode,
+                                      Name = upoExpedition.DivisionName
                                   },
                                   LastModifiedUtc = upoExpedition.LastModifiedUtc
                               };
@@ -124,24 +148,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         public async Task<MemoryStream> GetExcel(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order)
         {
             var query = GetQuery(no, supplierCode, divisionCode, status, dateFrom, dateTo, order);
-            var data = await query.ToListAsync();
+
+            var data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
+            var listData = await query.ToListAsync();
+            if (listData != null && listData.Count > 0)
+            {
+                data = listData;
+            }
+
+            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Kurs", "Jumlah", "Jumlah1", "Jumlah2", "Jumlah3", "Tempo", "Kategori", "Unit", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
+            var subHeaders = new string[] { "DPP", "PPn", "PPh", "Total", "Tgl Terima", "Tgl Cek", "Tgl Kirim", "Tgl Terima", "No Kuitansi" };
 
             DataTable dataTable = new DataTable();
 
-            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
-            foreach (var header in headers)
+            var headersDateType = new int[] { 1, 2, 15, 16, 17, 18, 19 };
+            for (int i = 0; i < headers.Length; i++)
             {
-                dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(string) });
-            }
-
-            if (data == null || data.Count < 1)
-            {
-                data = new List<UnitPaymentOrderExpeditionReportViewModel> { new UnitPaymentOrderExpeditionReportViewModel { Supplier = new NewSupplierViewModel(), Division = new DivisionViewModel() } };
+                var header = headers[i];
+                if (headersDateType.Contains(i))
+                {
+                    dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(DateTime) });
+                }
+                else
+                {
+                    dataTable.Columns.Add(new DataColumn() { ColumnName = header, DataType = typeof(string) });
+                }
             }
 
             foreach (var d in data)
             {
-                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
+                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Currency.Code ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, d.TotalDay, d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
             }
 
             ExcelPackage package = new ExcelPackage();
@@ -149,29 +185,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             sheet.Cells["A3"].LoadFromDataTable(dataTable, false, OfficeOpenXml.Table.TableStyles.None);
 
-            foreach (var i in Enumerable.Range(0, 8))
+            sheet.Cells["G1"].Value = headers[6];
+            sheet.Cells["G1:J1"].Merge = true;
+            sheet.Cells["Q1"].Value = headers[16];
+            sheet.Cells["Q1:S1"].Merge = true;
+            sheet.Cells["T1"].Value = headers[19];
+            sheet.Cells["T1:U1"].Merge = true;
+
+            foreach (var i in Enumerable.Range(0, 6))
             {
                 var col = (char)('A' + i);
                 sheet.Cells[$"{col}1"].Value = headers[i];
                 sheet.Cells[$"{col}1:{col}2"].Merge = true;
             }
-            sheet.Cells["I1"].Value = headers[8];
-            sheet.Cells["I1:K1"].Merge = true;
-            sheet.Cells["L1"].Value = headers[11];
-            sheet.Cells["L1:M1"].Merge = true;
 
-            var subHeaders = new string[] { "Tgl Terima", "Tgl Cek", "Tgl Kirim", "Tgl Terima", "No Kuitansi" };
-            foreach (var i in Enumerable.Range(0, 5))
+            foreach (var i in Enumerable.Range(0, 4))
             {
-                var col = (char)('I' + i);
+                var col = (char)('G' + i);
                 sheet.Cells[$"{col}2"].Value = subHeaders[i];
             }
 
-            sheet.Cells["A1:M2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells["A1:M2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells["A1:M2"].Style.Font.Bold = true;
+            foreach (var i in Enumerable.Range(0, 6))
+            {
+                var col = (char)('K' + i);
+                sheet.Cells[$"{col}1"].Value = headers[i + 10];
+                sheet.Cells[$"{col}1:{col}2"].Merge = true;
+            }
 
-            var widths = new int[] { 20, 20, 20, 50, 30, 20, 40, 20, 20, 20, 20, 20, 20 };
+            foreach (var i in Enumerable.Range(0, 5))
+            {
+                var col = (char)('Q' + i);
+                sheet.Cells[$"{col}2"].Value = subHeaders[i + 4];
+            }
+            sheet.Cells["A1:U2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells["A1:U2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells["A1:U2"].Style.Font.Bold = true;
+
+            foreach (var headerDateType in headersDateType)
+            {
+                sheet.Column(headerDateType + 1).Style.Numberformat.Format = "dd MMMM yyyy";
+            }
+
+            var widths = new int[] { 20, 20, 20, 50, 30, 10, 20, 20, 20, 20, 20, 30, 30, 20, 40, 20, 20, 20, 20, 20, 20 };
             foreach (var i in Enumerable.Range(0, widths.Length))
             {
                 sheet.Column(i + 1).Width = widths[i];
@@ -182,9 +237,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return stream;
         }
 
-        string GetFormattedDate(DateTimeOffset? dateTime)
+        DateTime? GetFormattedDate(DateTimeOffset? dateTime)
         {
-            return dateTime == null ? "-" : dateTime.Value.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+            if (dateTime == null)
+            {
+                return null;
+            }
+            else
+            {
+                return dateTime.Value.ToOffset(new TimeSpan(7, 0, 0)).DateTime;
+            }
         }
     }
 }
