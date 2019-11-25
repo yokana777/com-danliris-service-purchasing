@@ -753,7 +753,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              jumlahhrg = c.PriceTotal,
                              ppn = a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0,
                              total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0),
-                             pph = a.IncomeTaxRate * c.PriceTotal,
+                             pph = (a.IncomeTaxRate * c.PriceTotal)/100,
                              tglpr = d.Date,
                              nopr = c.PRNo,
                              tglbon = e.ReceiptDate,
