@@ -122,6 +122,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var serviceProvider = new Mock<IServiceProvider>();
 
             var mockCurrencyProvider = new Mock<ICurrencyProvider>();
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
             mockCurrencyProvider
                 .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<List<string>>()))
                 .ReturnsAsync(new List<Currency>());
