@@ -53,6 +53,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         [MaxLength(1000)]
         public string StorageRequestName { get; set; }
 
+        public long UENFromId { get; set; }
+        [MaxLength(255)]
+        public string UENFromNo { get; set; }
+        public long UnitDOFromId { get; set; }
+        [MaxLength(255)]
+        public string UnitDOFromNo { get; set; }
+
         public virtual List<GarmentUnitDeliveryOrderItem> Items { get; set; }
     }
 }

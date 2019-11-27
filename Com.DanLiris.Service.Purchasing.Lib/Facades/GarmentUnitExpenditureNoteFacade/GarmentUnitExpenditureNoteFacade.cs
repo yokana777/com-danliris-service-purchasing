@@ -121,7 +121,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             }
                             garmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate == null ? 0 : garmentUnitDeliveryOrderItem.DOCurrencyRate;
                             garmentUnitExpenditureNoteItem.Conversion = garmentUnitReceiptNoteItem.Conversion;
-                            var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * Math.Round(garmentUnitExpenditureNoteItem.Quantity / (double)garmentUnitExpenditureNoteItem.Conversion, 2) * garmentUnitExpenditureNoteItem.DOCurrencyRate) / (double)garmentUnitExpenditureNoteItem.Conversion;
+                            //var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * Math.Round(garmentUnitExpenditureNoteItem.Quantity / (double)garmentUnitExpenditureNoteItem.Conversion, 2) * garmentUnitExpenditureNoteItem.DOCurrencyRate) / (double)garmentUnitExpenditureNoteItem.Conversion;
+                            var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * garmentUnitExpenditureNoteItem.DOCurrencyRate);
                             garmentUnitExpenditureNoteItem.BasicPrice = Math.Round((decimal)basicPrice, 4);
                         }
                     }
@@ -551,7 +552,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             RONo= oldGarmentUnitDO.RONo,
                             Article=oldGarmentUnitDO.Article,
                             IsUsed=true,
-                            Items= unitDOItems
+                            Items= unitDOItems,
+                            UENFromId= garmentUnitExpenditureNote.Id,
+                            UENFromNo= garmentUnitExpenditureNote.UENNo,
+                            UnitDOFromId= oldGarmentUnitDO.Id,
+                            UnitDOFromNo=oldGarmentUnitDO.UnitDONo
                         };
                         garmentUnitDO.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDO);
                         EntityExtension.FlagForCreate(garmentUnitDO, identityService.Username, USER_AGENT);
