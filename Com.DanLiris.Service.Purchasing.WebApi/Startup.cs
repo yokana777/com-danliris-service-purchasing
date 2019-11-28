@@ -262,6 +262,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 {
                     { "Bearer", Enumerable.Empty<string>() },
                 });
+                c.OperationFilter<ResponseHeaderFilter>();
 
                 c.CustomSchemaIds(i => i.FullName);
             });
