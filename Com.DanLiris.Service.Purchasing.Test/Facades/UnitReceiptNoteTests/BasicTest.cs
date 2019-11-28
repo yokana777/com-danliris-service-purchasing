@@ -80,7 +80,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
-                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() });
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
+                code = "BB"
+                } });
             mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
             serviceProvider
@@ -122,7 +124,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
-                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() });
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
+                    code = "BB"
+                } });
             mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
             serviceProvider
@@ -168,7 +172,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
-                .Returns(new List<CategoryCOAResult>() { });
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult(){
+                code = "BB"
+                }
+                });
             mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { });
             serviceProvider
@@ -253,7 +260,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         public async Task Should_Success_Create_Data_SupplierIsImport()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-           
+
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(GetServiceProviderCurrencyNotNull(GetCurrentMethod()).Object, dbContext);
             var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
             model.IsStorage = true;
