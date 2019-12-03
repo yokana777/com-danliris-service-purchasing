@@ -25,6 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public double PPh { get; set; }
         public double TotalTax { get; set; }
         public DateTimeOffset? VerificationDivisionDate { get; set; }
+        public string VerifiedBy { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }
         public DateTimeOffset? SendDate { get; set; }
         public DateTimeOffset? CashierDivisionDate { get; set; }
