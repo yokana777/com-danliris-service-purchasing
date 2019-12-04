@@ -40,6 +40,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         private readonly IMemoryCacheManager _cacheManager;
         private readonly ICurrencyProvider _currencyProvider;
         private readonly DbSet<UnitReceiptNote> dbSet;
+        private readonly IEnumerable<string> SpecialCategoryCode = new List<string>()
+        {
+            "BP","BB","EM","S","R","E","PL","MM","SP","U"
+        };
 
         public UnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -529,6 +533,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         Remark = $"- {item.ProductName}"
                     });
 
+                    if (SpecialCategoryCode.Contains(category.code))
+                    {
+                        //Stock Journal Item
+                        journalDebitItems.Add(new JournalTransactionItem()
+                        {
+                            COA = new COA()
+                            {
+                                Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
+                            },
+                            Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                            Remark = $"- {item.ProductName}"
+                        });
+                    }
+                    
+
                     //Debt Journal Item
                     journalCreditItems.Add(new JournalTransactionItem()
                     {
@@ -539,6 +558,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
                         Remark = $"- {item.ProductName}"
                     });
+
+                    if (SpecialCategoryCode.Contains(category.code))
+                    {
+                        //Purchasing Journal Item
+                        journalCreditItems.Add(new JournalTransactionItem()
+                        {
+                            COA = new COA()
+                            {
+                                Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
+                            },
+                            Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                            Remark = $"- {item.ProductName}"
+                        });
+                    }
                 }
             }
 
