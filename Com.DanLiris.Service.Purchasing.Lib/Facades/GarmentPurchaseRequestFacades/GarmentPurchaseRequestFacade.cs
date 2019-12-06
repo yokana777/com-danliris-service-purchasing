@@ -85,6 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 IsValidated = s.IsValidated,
                 IsValidatedMD1 = s.IsValidatedMD1,
                 IsValidatedMD2 = s.IsValidatedMD2,
+                IsValidatedPurchasing = s.IsValidatedPurchasing
             });
 
             Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
@@ -585,12 +586,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                     data.IsValidatedMD1 = false;
                     data.IsValidatedMD2 = false;
+                    data.IsValidatedPurchasing = false;
                     data.IsValidated = false;
                     data.ValidatedMD1By = null;
                     data.ValidatedMD2By = null;
+                    data.ValidatedPurchasingBy = null;
                     data.ValidatedBy = null;
                     data.ValidatedMD1Date = DateTimeOffset.MinValue;
                     data.ValidatedMD2Date = DateTimeOffset.MinValue;
+                    data.ValidatedPurchasingDate = DateTimeOffset.MinValue;
                     data.ValidatedDate = DateTimeOffset.MinValue;
 
                     foreach (var item in data.Items)

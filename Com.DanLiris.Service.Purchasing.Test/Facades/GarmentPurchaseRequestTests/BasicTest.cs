@@ -478,6 +478,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 IsValidatedMD2 = false,
                 ValidatedMD2By = null,
                 ValidatedMD2Date = DateTimeOffset.MinValue,
+                IsValidatedPurchasing = false,
+                ValidatedPurchasingBy = null,
+                ValidatedPurchasingDate = DateTimeOffset.MinValue,
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
