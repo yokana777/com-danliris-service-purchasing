@@ -46,6 +46,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public string ValidatedMD2By { get; set; }
         public DateTimeOffset ValidatedMD2Date { get; set; }
 
+        public bool IsValidatedPurchasing { get; set; }
+        public string ValidatedPurchasingBy { get; set; }
+        public DateTimeOffset ValidatedPurchasingDate { get; set; }
+
         public List<GarmentPurchaseRequestItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

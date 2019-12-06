@@ -61,6 +61,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public string ValidatedMD2By { get; set; }
         public DateTimeOffset ValidatedMD2Date { get; set; }
 
+        public bool IsValidatedPurchasing { get; set; }
+        [MaxLength(50)]
+        public string ValidatedPurchasingBy { get; set; }
+        public DateTimeOffset ValidatedPurchasingDate { get; set; }
 
         public virtual ICollection<GarmentPurchaseRequestItem> Items { get; set; }
     }
