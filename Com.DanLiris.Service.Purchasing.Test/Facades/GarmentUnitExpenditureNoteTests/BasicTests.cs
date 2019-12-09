@@ -628,5 +628,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UpdateReturQuantity(0, 0, 0));
             Assert.NotNull(e.Message);
         }
-    }
+
+		[Fact]
+		public async Task Should_Error_Get_Data_By_Id()
+		{
+			var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+			var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+			var Response = facade.GetROAsalById((int)data.Id);
+			Assert.NotEqual(0, Response.DetailExpenditureId);
+		}
+	}
 }

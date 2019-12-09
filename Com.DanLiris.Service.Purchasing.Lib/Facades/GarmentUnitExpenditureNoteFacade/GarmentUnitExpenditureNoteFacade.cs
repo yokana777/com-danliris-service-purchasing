@@ -895,7 +895,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return viewModel;
         }
 
-        public async Task<int> Update(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote)
+		public async Task<int> Update(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote)
         {
             int Updated = 0;
 
@@ -1441,5 +1441,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             return uen;
         }
-    }
+
+		public ExpenditureROViewModel GetROAsalById(int id)
+		{
+			ExpenditureROViewModel viewModel = new ExpenditureROViewModel();
+
+			var uendetail = dbSet.Include(x=>x.Items).FirstOrDefault(x => x.Items.Any(i => i.Id == id));
+
+			var unitDO = dbSetGarmentUnitDeliveryOrder.FirstOrDefault(a => a.Id == uendetail.UnitDOId);
+
+			foreach (var item in uendetail.Items.Where(s=>s.Id== id))
+			{
+				var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.Id == item.UnitDOItemId);
+				viewModel = new ExpenditureROViewModel
+				{
+					DetailExpenditureId = item.Id,
+					ROAsal = unitDOItem.RONo
+				};
+			}
+			return viewModel;
+
+		}
+ 
+	}
 }

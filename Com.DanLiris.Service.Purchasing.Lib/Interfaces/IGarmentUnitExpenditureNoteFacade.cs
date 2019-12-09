@@ -12,7 +12,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     {
         ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentUnitExpenditureNoteViewModel ReadById(int id);
-        Task<int> Create(GarmentUnitExpenditureNote garmentUnitExpenditureNote);
+		ExpenditureROViewModel GetROAsalById(int id);
+		Task<int> Create(GarmentUnitExpenditureNote garmentUnitExpenditureNote);
         Task<int> Update(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote);
         Task<int> Delete(int id);
         ReadResponse<object> ReadForGPreparing(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
