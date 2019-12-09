@@ -613,7 +613,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
 				return new ExpenditureROViewModel
 				{
 					DetailExpenditureId = It.IsAny<int>(),
-					ROAsal = "191023"
+					ROAsal = "RONo"
 				};
 			}
 		}
