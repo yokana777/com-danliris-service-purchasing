@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191204014818_Add_DOCurrencyRate_URNItems")]
+    partial class Add_DOCurrencyRate_URNItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3029,8 +3030,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("IsValidatedMD2");
 
-                    b.Property<bool>("IsValidatedPurchasing");
-
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3088,11 +3087,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(50);
 
                     b.Property<DateTimeOffset>("ValidatedMD2Date");
-
-                    b.Property<string>("ValidatedPurchasingBy")
-                        .HasMaxLength(50);
-
-                    b.Property<DateTimeOffset>("ValidatedPurchasingDate");
 
                     b.HasKey("Id");
 

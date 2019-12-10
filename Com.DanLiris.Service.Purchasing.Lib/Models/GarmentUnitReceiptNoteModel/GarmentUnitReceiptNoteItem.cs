@@ -68,5 +68,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         public long SmallUomId { get; set; }
         [MaxLength(1000)]
         public string SmallUomUnit { get; set; }
+        public double DOCurrencyRate { get; set; }
     }
 }

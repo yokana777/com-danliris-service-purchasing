@@ -33,6 +33,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
         public long CorrectionId { get; set; }
         public string CorrectionNo { get; set; }
 
+        public long UENFromId { get; set; }
+        public string UENFromNo { get; set; }
+        public long UnitDOFromId { get; set; }
+        public string UnitDOFromNo { get; set; }
+
+
         public List<GarmentUnitDeliveryOrderItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
