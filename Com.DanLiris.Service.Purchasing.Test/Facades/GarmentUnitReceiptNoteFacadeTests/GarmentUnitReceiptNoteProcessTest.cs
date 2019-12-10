@@ -254,8 +254,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.GetService(typeof(IdentityService)))
                 .Returns(new IdentityService() { Token = "Token", Username = "Test" });
 
-
-
             var facade = new GarmentUnitReceiptNoteFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
             var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             data.URNType = "PROSES";
