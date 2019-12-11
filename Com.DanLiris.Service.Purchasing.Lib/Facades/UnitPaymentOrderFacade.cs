@@ -417,7 +417,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     DueDates.Add(unitReceiptNoteDate.AddDays(Double.Parse(PaymentDueDays ?? "0")));
                 }
             }
-            model.DueDate = DueDates.Min();
+            model.DueDate = DueDates.Max();
         }
 
         public Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> ReadSpb(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
