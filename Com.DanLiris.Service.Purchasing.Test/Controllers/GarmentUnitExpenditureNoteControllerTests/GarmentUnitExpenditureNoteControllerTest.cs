@@ -637,6 +637,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
 			var response = controller.GetROAsal(It.IsAny<int>());
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
+
+
+		[Fact]
+		public void Should_Error_Get_ROAsalById()
+		{
 		
+			var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+			var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+			var mockMapper = new Mock<IMapper>();
+			GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+			var response = controller.GetROAsal(It.IsAny<int>());
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+		}
+
+
 	}
 }
