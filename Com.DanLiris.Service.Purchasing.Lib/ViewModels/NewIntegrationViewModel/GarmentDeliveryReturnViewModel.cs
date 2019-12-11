@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
         public string DRNo { get; set; }
         public string RONo { get; set; }
         public string Article { get; set; }
-        public int UnitDOId { get; set; }
+        public long UnitDOId { get; set; }
         public string UnitDONo { get; set; }
         public int UENId { get; set; }
         public string PreparingId { get; set; }

@@ -445,33 +445,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             GarmentUnitReceiptNoteItem urnItem = new GarmentUnitReceiptNoteItem
                             {
-                                DODetailId= item.DODetailId,
-                                EPOItemId=item.EPOItemId,
-                                PRId= garmentPurchaseRequestItem.GarmentPRId,
-                                PRNo= garmentPurchaseRequest.PRNo,
-                                PRItemId=item.PRItemId,
-                                POId= garmentInternalPurchaseOrderItem.GPOId,
-                                POItemId=item.POItemId,
-                                POSerialNumber=item.POSerialNumber,
-                                ProductId=item.ProductId,
-                                ProductCode= item.ProductCode,
-                                ProductName=item.ProductName,
-                                ProductRemark=item.ProductRemark,
-                                RONo=item.RONo,
-                                ReceiptQuantity=(decimal)item.Quantity/item.Conversion,
-                                UomId= OldurnItem.UomId,
-                                UomUnit= OldurnItem.UomUnit,
-                                PricePerDealUnit= (decimal)item.PricePerDealUnit,
-                                DesignColor= garmentUnitDeliveryOrderItem.DesignColor,
-                                IsCorrection=false,
-                                Conversion=item.Conversion,
-                                SmallQuantity= (decimal)item.Quantity,
-                                SmallUomId=item.UomId,
-                                SmallUomUnit=item.UomUnit,
-                                ReceiptCorrection= (decimal)item.Quantity / item.Conversion,
-                                OrderQuantity= (decimal)item.Quantity,
-                                CorrectionConversion= item.Conversion,
-                                UENItemId=item.Id
+                                DODetailId = item.DODetailId,
+                                EPOItemId = item.EPOItemId,
+                                PRId = garmentPurchaseRequestItem.GarmentPRId,
+                                PRNo = garmentPurchaseRequest.PRNo,
+                                PRItemId = item.PRItemId,
+                                POId = garmentInternalPurchaseOrderItem.GPOId,
+                                POItemId = item.POItemId,
+                                POSerialNumber = item.POSerialNumber,
+                                ProductId = item.ProductId,
+                                ProductCode = item.ProductCode,
+                                ProductName = item.ProductName,
+                                ProductRemark = item.ProductRemark,
+                                RONo = item.RONo,
+                                ReceiptQuantity = (decimal)item.Quantity / item.Conversion,
+                                UomId = OldurnItem.UomId,
+                                UomUnit = OldurnItem.UomUnit,
+                                PricePerDealUnit = (decimal)item.PricePerDealUnit,
+                                DesignColor = garmentUnitDeliveryOrderItem.DesignColor,
+                                IsCorrection = false,
+                                Conversion = item.Conversion,
+                                SmallQuantity = (decimal)item.Quantity,
+                                SmallUomId = item.UomId,
+                                SmallUomUnit = item.UomUnit,
+                                ReceiptCorrection = (decimal)item.Quantity / item.Conversion,
+                                OrderQuantity = (decimal)item.Quantity,
+                                CorrectionConversion = item.Conversion,
+                                UENItemId = item.Id,
+                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
                             };
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
@@ -1094,7 +1095,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Updated;
         }
 
-        private GarmentInventorySummary GenerateGarmentInventorySummary(GarmentUnitExpenditureNote garmentUnitExpenditureNote, GarmentUnitExpenditureNoteItem garmentUnitExpenditureNoteItem, GarmentInventoryMovement garmentInventoryMovement)
+        public GarmentInventorySummary GenerateGarmentInventorySummary(GarmentUnitExpenditureNote garmentUnitExpenditureNote, GarmentUnitExpenditureNoteItem garmentUnitExpenditureNoteItem, GarmentInventoryMovement garmentInventoryMovement)
         {
             var garmentInventorySummary = new GarmentInventorySummary();
             EntityExtension.FlagForCreate(garmentInventorySummary, identityService.Username, USER_AGENT);
@@ -1122,7 +1123,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return garmentInventorySummary;
         }
 
-        private GarmentInventoryMovement GenerateGarmentInventoryMovement(GarmentUnitExpenditureNote garmentUnitExpenditureNote, GarmentUnitExpenditureNoteItem garmentUnitExpenditureNoteItem, GarmentInventorySummary garmentInventorySummary, string type = "IN")
+        public GarmentInventoryMovement GenerateGarmentInventoryMovement(GarmentUnitExpenditureNote garmentUnitExpenditureNote, GarmentUnitExpenditureNoteItem garmentUnitExpenditureNoteItem, GarmentInventorySummary garmentInventorySummary, string type = "IN")
         {
             var garmentInventoryMovement = new GarmentInventoryMovement();
             EntityExtension.FlagForCreate(garmentInventoryMovement, identityService.Username, USER_AGENT);
@@ -1169,7 +1170,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return garmentInventoryMovement;
         }
 
-        private GarmentInventoryDocument GenerateGarmentInventoryDocument(GarmentUnitExpenditureNote garmentUnitExpenditureNote, string type = "IN")
+        public GarmentInventoryDocument GenerateGarmentInventoryDocument(GarmentUnitExpenditureNote garmentUnitExpenditureNote, string type = "IN")
         {
             var garmentInventoryDocument = new GarmentInventoryDocument
             {
@@ -1217,7 +1218,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return garmentInventoryDocument;
         }
 
-        private async Task<string> GenerateNo(GarmentUnitExpenditureNote garmentUnitExpenditureNote)
+        public async Task<string> GenerateNo(GarmentUnitExpenditureNote garmentUnitExpenditureNote)
         {
             string Year = garmentUnitExpenditureNote.ExpenditureDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
             string Month = garmentUnitExpenditureNote.ExpenditureDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");

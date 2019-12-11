@@ -106,6 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         s.SCNo,
                         s.IsValidatedMD1,
                         s.IsValidatedMD2,
+                        s.IsValidatedPurchasing,
                         s.IsValidated
                     }).ToList()
                 );

@@ -176,5 +176,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             return data;
         }
 
+        public async Task<GarmentUnitDeliveryOrder> GetTestDataMultipleItemForURNProcess()
+        {
+            var data = await Task.Run(() => GetTestDataMultipleItem());
+
+            var data2= await GetNewDataMultipleItem();
+            data2.UnitDOFromId = data.Id;
+            await facade.Create(data2);
+            return data2;
+        }
+
     }
 }
