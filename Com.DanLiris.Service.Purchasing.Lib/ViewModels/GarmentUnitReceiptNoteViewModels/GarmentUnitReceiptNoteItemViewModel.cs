@@ -47,5 +47,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
         public string Article { get; set; }
         public decimal CorrectionConversion { get; set; }
+        public double DOCurrencyRate { get; set; }
     }
 }
