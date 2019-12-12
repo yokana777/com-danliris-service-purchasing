@@ -96,6 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                             if (garmentUnitDOItem != null)
                             {
                                 item.DesignColor = garmentUnitDOItem.DesignColor;
+								item.RONo = garmentUnitDOItem.RONo;
                             }
                         }
 
@@ -130,7 +131,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             }
         }
 
-        [HttpPost]
+		[HttpGet("ro-asal/{id}")]
+		public IActionResult GetROAsal(int id)
+		{
+			try
+			{
+				var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+				var viewModel = facade.GetROAsalById(id);
+				Dictionary<string, object> Result =
+				new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+				.Ok(viewModel);
+				return Ok(Result);
+				 
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+		[HttpPost]
         public async Task<IActionResult> Post([FromBody]GarmentUnitExpenditureNoteViewModel viewModel)
         {
             try
