@@ -81,7 +81,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnItem.EPODetailId,
                             urnItem.PricePerDealUnit,
                             urnItem.ReceiptQuantity,
-                            urnItem.Uom
+                            urnItem.Uom,
+                            urnItem.UnitReceiptNote.UnitName
                         })
                         .ToList();
 
@@ -164,7 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             ProductName = urnItem.ProductName,
                             ReceiptDate = urnItem.ReceiptDate,
                             SupplierName = urnItem.SupplierName,
-                            UnitName = urnItem.UnitCode,
+                            UnitName = urnItem.UnitName,
                             UPONo = unitPaymentOrder?.UPONo,
                             URNNo = urnItem.URNNo,
                             IsUseVat = epoItem.UseVat,
@@ -238,7 +239,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (result.Reports.Count > 0)
             {
                 foreach (var report in result.Reports)
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.ProductName, report.SupplierName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode, report.UnitName, report.DPP, report.DPPCurrency, report.VAT, report.Total);
+                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.ProductName, report.SupplierName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.DPP, report.DPPCurrency, report.VAT, report.Total);
 
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
