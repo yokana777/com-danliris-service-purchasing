@@ -486,7 +486,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                             foreach(var gurnItem in urnItems)
                             {
-                                var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == gurnItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == gurnItem.SmallUomId);
+                                var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == gurnItem.ProductId && s.StorageId == garmentUrn.StorageId && s.UomId == gurnItem.SmallUomId);
 
                                 var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUrn, gurnItem, garmentInventorySummaryExisting);
                                 dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
@@ -662,11 +662,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     garmentUnitReceiptNote.DeletedReason = deletedReason;
                     EntityExtension.FlagForDelete(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
 
-                    if (garmentUnitReceiptNote.URNType == "PROSES")
-                    {
-                        await UpdateDR(garmentUnitReceiptNote.DRId, false);
-                    }
-
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
                         EntityExtension.FlagForDelete(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
@@ -692,7 +687,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
                     }
 
-                    if (garmentUnitReceiptNote.IsStorage)
+                    if (garmentUnitReceiptNote.IsStorage && garmentUnitReceiptNote.URNType != "PROSES")
                     {
                         var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote, "OUT");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
@@ -702,6 +697,88 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
 
                             var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "OUT");
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                            if (garmentInventorySummaryExisting != null)
+                            {
+                                EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                            }
+                        }
+                    }
+
+                    if (garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, false);
+                        var garmentUnitDOItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(x => x.URNId == garmentUnitReceiptNote.Id);
+                        var unitDO = dbContext.GarmentUnitDeliveryOrders.Include(m => m.Items).Single(a => a.Id == garmentUnitDOItem.UnitDOId);
+                        EntityExtension.FlagForDelete(unitDO, identityService.Username, USER_AGENT);
+                        foreach (var uDOItem in unitDO.Items)
+                        {
+                            EntityExtension.FlagForDelete(uDOItem, identityService.Username, USER_AGENT);
+                        }
+
+                        var garmentExpenditureNote = dbContext.GarmentUnitExpenditureNotes.Include(m => m.Items).Single(x => x.UnitDOId == unitDO.Id);
+                        EntityExtension.FlagForDelete(garmentExpenditureNote, identityService.Username, USER_AGENT);
+                        GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
+                        var garmentInventoryDocumentOut = garmentUnitExpenditureNoteFacade.GenerateGarmentInventoryDocument(garmentExpenditureNote);
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOut);
+
+                        foreach (var uenItem in garmentExpenditureNote.Items)
+                        {
+                            EntityExtension.FlagForDelete(uenItem, identityService.Username, USER_AGENT);
+
+                            var garmentInventorySummaryExistingBUK = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == uenItem.ProductId && s.StorageId == garmentExpenditureNote.StorageId && s.UomId == uenItem.UomId);
+
+                            var garmentInventoryMovement = garmentUnitExpenditureNoteFacade.GenerateGarmentInventoryMovement(garmentExpenditureNote, uenItem, garmentInventorySummaryExistingBUK);
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                            if (garmentInventorySummaryExistingBUK == null)
+                            {
+                                var garmentInventorySummary = garmentUnitExpenditureNoteFacade.GenerateGarmentInventorySummary(garmentExpenditureNote, uenItem, garmentInventoryMovement);
+                                dbSetGarmentInventorySummary.Add(garmentInventorySummary);
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForUpdate(garmentInventorySummaryExistingBUK, identityService.Username, USER_AGENT);
+                                garmentInventorySummaryExistingBUK.Quantity = garmentInventoryMovement.After;
+                            }
+
+                            await dbContext.SaveChangesAsync();
+                        }
+
+                        var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote, "OUT");
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
+
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
+
+                            var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "OUT");
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                            if (garmentInventorySummaryExisting != null)
+                            {
+                                EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                            }
+
+                            await dbContext.SaveChangesAsync();
+                        }
+
+                        var gURN = dbSet.Include(m => m.Items).Single(x => x.UENId == garmentExpenditureNote.Id);
+                        EntityExtension.FlagForDelete(gURN, identityService.Username, USER_AGENT);
+
+                        var garmentInventoryDocument1 = GenerateGarmentInventoryDocument(gURN, "OUT");
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocument1);
+
+                        foreach (var gURNItem in gURN.Items)
+                        {
+                            EntityExtension.FlagForDelete(gURNItem, identityService.Username, USER_AGENT);
+
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == gURNItem.ProductId && s.StorageId == gURN.StorageId && s.UomId == gURNItem.SmallUomId);
+
+                            var garmentInventoryMovement = GenerateGarmentInventoryMovement(gURN, gURNItem, garmentInventorySummaryExisting, "OUT");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
 
                             if (garmentInventorySummaryExisting != null)
