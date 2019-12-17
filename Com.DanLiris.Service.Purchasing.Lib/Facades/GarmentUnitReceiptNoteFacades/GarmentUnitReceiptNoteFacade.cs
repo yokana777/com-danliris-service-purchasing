@@ -505,7 +505,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 await dbContext.SaveChangesAsync();
                             }
 
-                            Created = await dbContext.SaveChangesAsync();
+                            await dbContext.SaveChangesAsync();
                         }
                     }
 
