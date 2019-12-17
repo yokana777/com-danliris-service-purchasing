@@ -73,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnWithItem.UnitReceiptNote.ReceiptDate,
                             urnWithItem.UnitReceiptNote.SupplierName,
                             urnWithItem.UnitReceiptNote.UnitCode,
+                            urnWithItem.UnitReceiptNote.UnitName,
                             urnWithItem.EPODetailId,
                             urnWithItem.PricePerDealUnit,
                             urnWithItem.ReceiptQuantity,
@@ -139,30 +140,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
 
 
-                var reportItem = new PurchasingReport()
-                {
-                    CategoryName = item.CategoryName,
-                    CategoryCode = item.CategoryCode,
-                    CurrencyRate = (decimal)currencyRate,
-                    DONo = item.DONo,
-                    DPP = dpp,
-                    DPPCurrency = dppCurrency,
-                    InvoiceNo = item.InvoiceNo,
-                    VATNo = item.VatNo,
-                    IPONo = item.PONo,
-                    VAT = ppn,
-                    Total = (dpp + dppCurrency + ppn) * (decimal)currencyRate,
-                    ProductName = item.ProductName,
-                    ReceiptDate = item.ReceiptDate,
-                    SupplierName = item.SupplierName,
-                    UnitName = item.UnitCode,
-                    UPONo = item.UPONo,
-                    URNNo = item.URNNo,
-                    IsUseVat = item.UseVat,
-                    CurrencyCode = currencyCode,
-                    Quantity = item.ReceiptQuantity,
-                    Uom = item.Uom
-                };
+                        var reportItem = new PurchasingReport()
+                        {
+                            CategoryName = item.CategoryName,
+                            CategoryCode = item.CategoryCode,
+                            CurrencyRate = (decimal)currencyRate,
+                            DONo = item.DONo,
+                            DPP = dpp,
+                            DPPCurrency = dppCurrency,
+                            InvoiceNo = item.InvoiceNo,
+                            VATNo = item.VatNo,
+                            IPONo = item.PONo,
+                            VAT = ppn,
+                            Total = (dpp + dppCurrency + ppn) * (decimal)currencyRate,
+                            ProductName = item.ProductName,
+                            ReceiptDate = item.ReceiptDate,
+                            SupplierName = item.SupplierName,
+                            UnitName = item.UnitName,
+                            UPONo = item.UPONo,
+                            URNNo = item.URNNo,
+                            IsUseVat = item.UseVat,
+                            CurrencyCode = currencyCode
+                        };
 
                 reportResult.Reports.Add(reportItem);
             }
@@ -374,7 +373,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (result.Reports.Count > 0)
             {
                 foreach (var report in result.Reports)
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.ProductName, report.SupplierName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode, report.UnitName, report.DPP, report.DPPCurrency, report.VAT, report.CurrencyRate, report.Total);
+                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.ProductName, report.SupplierName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.DPP, report.DPPCurrency, report.VAT, report.CurrencyRate, report.Total);
 
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
