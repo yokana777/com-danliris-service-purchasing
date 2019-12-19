@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 //using Com.DanLiris.Service.Purchasing.WebApi.Helpers
 using Newtonsoft.Json;
@@ -48,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             //}
 
             //if (categoryResult.data.Count > 0)
-            _cacheManager.Set("Categories", categoryResult.data);
+            _cacheManager.Set(MemoryCacheConstant.Categories, categoryResult.data);
         }
 
         public void SetDivisionCOA()
@@ -78,7 +79,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             //}
 
             //if (categoryResult.data.Count > 0)
-            _cacheManager.Set("Divisions", categoryResult.data);
+            _cacheManager.Set(MemoryCacheConstant.Divisions, categoryResult.data);
+        }
+
+        public void SetPPhCOA()
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var token = GetTokenAsync().Result;
+
+            var incomeTaxUri = APIEndpoint.Core + $"master/income-taxes?size={int.MaxValue}";
+            //var masterUnitUri = $"https://com-danliris-service-core-dev.azurewebsites.net/v1/master/units/simple";
+            var incomeTaxResponse = _http.GetAsync(incomeTaxUri, token).Result;
+
+            var incomeTaxResult = new BaseResponse<List<IncomeTaxCOAResult>>()
+            {
+                data = new List<IncomeTaxCOAResult>()
+            };
+            if (incomeTaxResponse.IsSuccessStatusCode)
+            {
+                incomeTaxResult = JsonConvert.DeserializeObject<BaseResponse<List<IncomeTaxCOAResult>>>(incomeTaxResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+            //else
+            //{
+            //    SetUnitCOA();
+            //}
+
+            //if (categoryResult.data.Count > 0)
+            _cacheManager.Set(MemoryCacheConstant.IncomeTaxes, incomeTaxResult.data);
         }
 
         public void SetUnitCOA()
@@ -108,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             //}
 
             //if (categoryResult.data.Count > 0)
-            _cacheManager.Set("Units", categoryResult.data);
+            _cacheManager.Set(MemoryCacheConstant.Units, categoryResult.data);
         }
 
         protected async Task<string> GetTokenAsync()
@@ -138,5 +169,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
         void SetCategoryCOA();
         void SetDivisionCOA();
         void SetUnitCOA();
+        void SetPPhCOA();
     }
 }

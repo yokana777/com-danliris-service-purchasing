@@ -27,4 +27,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData
         public string LocalDebtCOA { get; set; }
         public string ImportDebtCOA { get; set; }
     }
+
+    public class IncomeTaxCOAResult
+    {
+        public int Id { get; set; }
+        public string COACodeCredit { get; set; }
+    }
 }

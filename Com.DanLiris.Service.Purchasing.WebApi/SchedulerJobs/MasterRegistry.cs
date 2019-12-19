@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs
                 coreService.SetCategoryCOA();
                 coreService.SetDivisionCOA();
                 coreService.SetUnitCOA();
+                coreService.SetPPhCOA();
             }).ToRunNow().AndEvery(12).Hours();
 
         }
