@@ -22,6 +22,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             _cacheManager = cacheManager;
         }
 
+        public void SetBankAccount()
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var token = GetTokenAsync().Result;
+
+            var bankAccountUri = APIEndpoint.Core + $"master/account-banks?size={int.MaxValue}";
+            var bankAccountResponse = _http.GetAsync(bankAccountUri, token).Result;
+
+            var bankAccountResult = new BaseResponse<List<BankAccountCOAResult>>()
+            {
+                data = new List<BankAccountCOAResult>()
+            };
+            if (bankAccountResponse.IsSuccessStatusCode)
+            {
+                bankAccountResult = JsonConvert.DeserializeObject<BaseResponse<List<BankAccountCOAResult>>>(bankAccountResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+            
+            _cacheManager.Set(MemoryCacheConstant.BankAccounts, bankAccountResult.data);
+        }
+
         public void SetCategoryCOA()
         {
             var jsonSerializerSettings = new JsonSerializerSettings
@@ -32,7 +56,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var token = GetTokenAsync().Result;
 
             var categoryUri = APIEndpoint.Core + $"master/categories?size={int.MaxValue}";
-            //var masterUnitUri = $"https://com-danliris-service-core-dev.azurewebsites.net/v1/master/units/simple";
             var categoryResponse = _http.GetAsync(categoryUri, token).Result;
 
             var categoryResult = new BaseResponse<List<CategoryCOAResult>>()
@@ -43,12 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<CategoryCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            //else
-            //{
-            //    SetCategoryCOA();
-            //}
-
-            //if (categoryResult.data.Count > 0)
+            
             _cacheManager.Set(MemoryCacheConstant.Categories, categoryResult.data);
         }
 
@@ -62,7 +80,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var token = GetTokenAsync().Result;
 
             var categoryUri = APIEndpoint.Core + $"master/divisions?size={int.MaxValue}";
-            //var masterUnitUri = $"https://com-danliris-service-core-dev.azurewebsites.net/v1/master/units/simple";
             var categoryResponse = _http.GetAsync(categoryUri, token).Result;
 
             var categoryResult = new BaseResponse<List<IdCOAResult>>()
@@ -73,12 +90,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            //else
-            //{
-            //    SetDivisionCOA();
-            //}
-
-            //if (categoryResult.data.Count > 0)
             _cacheManager.Set(MemoryCacheConstant.Divisions, categoryResult.data);
         }
 
@@ -92,7 +103,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var token = GetTokenAsync().Result;
 
             var incomeTaxUri = APIEndpoint.Core + $"master/income-taxes?size={int.MaxValue}";
-            //var masterUnitUri = $"https://com-danliris-service-core-dev.azurewebsites.net/v1/master/units/simple";
             var incomeTaxResponse = _http.GetAsync(incomeTaxUri, token).Result;
 
             var incomeTaxResult = new BaseResponse<List<IncomeTaxCOAResult>>()
@@ -103,12 +113,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 incomeTaxResult = JsonConvert.DeserializeObject<BaseResponse<List<IncomeTaxCOAResult>>>(incomeTaxResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            //else
-            //{
-            //    SetUnitCOA();
-            //}
-
-            //if (categoryResult.data.Count > 0)
             _cacheManager.Set(MemoryCacheConstant.IncomeTaxes, incomeTaxResult.data);
         }
 
@@ -122,7 +126,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var token = GetTokenAsync().Result;
 
             var categoryUri = APIEndpoint.Core + $"master/units?size={int.MaxValue}";
-            //var masterUnitUri = $"https://com-danliris-service-core-dev.azurewebsites.net/v1/master/units/simple";
             var categoryResponse = _http.GetAsync(categoryUri, token).Result;
 
             var categoryResult = new BaseResponse<List<IdCOAResult>>()
@@ -133,12 +136,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
-            //else
-            //{
-            //    SetUnitCOA();
-            //}
-
-            //if (categoryResult.data.Count > 0)
             _cacheManager.Set(MemoryCacheConstant.Units, categoryResult.data);
         }
 
@@ -156,10 +153,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             {
                 tokenResult = JsonConvert.DeserializeObject<BaseResponse<string>>(await response.Content.ReadAsStringAsync(), jsonSerializerSettings);
             }
-            //else
-            //{
-            //    await GetTokenAsync();
-            //}
             return tokenResult.data;
         }
     }
@@ -170,5 +163,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
         void SetDivisionCOA();
         void SetUnitCOA();
         void SetPPhCOA();
+        void SetBankAccount();
     }
 }

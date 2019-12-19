@@ -71,7 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public async Task Should_Success_Get_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             ReadResponse<object> Response = facade.Read();
             Assert.NotEmpty(Response.Data);
@@ -81,7 +82,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public async Task Should_Success_Get_Unit_Payment_Order()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             _dataUtil(facade, GetCurrentMethod());
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
            
@@ -93,7 +95,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public async Task Should_Success_Get_Unit_Payment_Order_With_Date()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             _dataUtil(facade, GetCurrentMethod());
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
 
@@ -105,7 +108,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public async Task Should_Success_Get_Data_By_Id()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
@@ -116,7 +120,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(model, "Unit Test");
             Assert.NotEqual(0, Response);
@@ -126,7 +131,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public async Task Should_Success_Update_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             PPHBankExpenditureNoteItem modelItem = await _dataUtil(facade, GetCurrentMethod()).GetItemNewData();
@@ -140,7 +146,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         public async Task Should_Success_Delete_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
-            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object);
+            var serviceProvider = new Mock<IServiceProvider>();
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             PPHBankExpenditureNote Data = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             int AffectedRows = await facade.Delete(Data.Id, "Test");
             Assert.True(AffectedRows > 0);

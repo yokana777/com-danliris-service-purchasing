@@ -15,7 +15,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData
     public class IdCOAResult
     {
         public int Id { get; set; }
+        public string Code { get; set; }
         public string COACode { get; set; }
+    }
+
+    public class BankAccountCOAResult
+    {
+        public int Id { get; set; }
+        public string AccountCOA { get; set; }
     }
 
     public class CategoryCOAResult
