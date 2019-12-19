@@ -21,6 +21,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using System.Net.Http;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
@@ -142,6 +144,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                     model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     Created += await dbContext.SaveChangesAsync();
+
+                    await UpdateCreditorAccount(model);
                     Created += await EditFulfillment(model, user);
                     transaction.Commit();
                 }
@@ -229,6 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                         Updated += await dbContext.SaveChangesAsync();
 
+                        await UpdateCreditorAccount(model);
                         Updated += await EditFulfillment(model, user);
                         transaction.Commit();
                     }
@@ -284,6 +289,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     }
 
                     Deleted += await dbContext.SaveChangesAsync();
+                    await DeleteCreditorAccount(model);
                     Deleted += await RollbackFulfillment(model, user);
                     transaction.Commit();
                 }
@@ -753,7 +759,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              jumlahhrg = c.PriceTotal,
                              ppn = a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0,
                              total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0),
-                             pph = a.IncomeTaxRate * c.PriceTotal,
+                             pph = (a.IncomeTaxRate * c.PriceTotal)/100,
                              tglpr = d.Date,
                              nopr = c.PRNo,
                              tglbon = e.ReceiptDate,
@@ -1053,6 +1059,61 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             }
             return count;
+        }
+
+        private async Task UpdateCreditorAccount(UnitPaymentOrder model)
+        {
+            List<CreditorAccountViewModel> data = new List<CreditorAccountViewModel>();
+
+            foreach(var item in model.Items)
+            {
+                data.Add(new CreditorAccountViewModel()
+                {
+                    Code = item.URNNo,
+                    SupplierCode = model.SupplierCode,
+                    InvoiceNo = model.InvoiceNo
+                });
+            }
+
+            var postedData = new
+            {
+                MemoNo = model.UPONo,
+                model.InvoiceNo,
+                MemoDate = model.Date,
+                CreditorAccounts = data
+            };
+
+            string creditorAccountUri = "creditor-account/unit-payment-order";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        private async Task DeleteCreditorAccount(UnitPaymentOrder model)
+        {
+            List<CreditorAccountViewModel> data = new List<CreditorAccountViewModel>();
+
+            foreach (var item in model.Items)
+            {
+                data.Add(new CreditorAccountViewModel()
+                {
+                    Code = item.URNNo,
+                    SupplierCode = model.SupplierCode,
+                    InvoiceNo = model.InvoiceNo
+                });
+            }
+
+            var postedData = new
+            {
+                CreditorAccounts = data
+            };
+
+            string creditorAccountUri = "creditor-account/unit-payment-order";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
         }
     }
 }

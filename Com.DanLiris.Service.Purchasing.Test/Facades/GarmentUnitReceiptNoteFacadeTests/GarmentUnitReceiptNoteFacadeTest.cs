@@ -217,17 +217,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
-        public async Task Should_Success_Create_Data_PROSES()
-        {
-            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
-            data.URNType = "PROSES";
-            var Response = await facade.Create(data);
-            Assert.NotEqual(0, Response);
-
-        }
-
-        [Fact]
         public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -284,18 +273,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-
-            var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
-            Assert.NotEqual(0, Response);
-        }
-
-        [Fact]
-        public async Task Should_Success_Delete_Data_Proses()
-        {
-            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
-            data.URNType = "PROSES";
-            await facade.Create(data);
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
             Assert.NotEqual(0, Response);

@@ -67,6 +67,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 Article = m.Article,
                 CreatedBy = m.CreatedBy,
                 LastModifiedUtc = m.LastModifiedUtc,
+                UENFromNo=m.UENFromNo,
+                UENFromId=m.UENFromId,
                 Items = m.Items.Select(i => new GarmentUnitDeliveryOrderItem
                 {
                     Id = i.Id,
