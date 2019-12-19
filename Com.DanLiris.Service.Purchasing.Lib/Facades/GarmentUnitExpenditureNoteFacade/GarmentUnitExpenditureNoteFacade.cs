@@ -142,12 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     //}
                     
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
-                    {
-                        
-                        
-                    }
-                    else
+                    if (garmentUnitExpenditureNote.ExpenditureType != "TRANSFER")
                     {
                         var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
@@ -1225,7 +1220,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             string Day = garmentUnitExpenditureNote.ExpenditureDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd");
 
             string no = "";
-            if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE")// || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
+            if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "SISA")// || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
             }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
