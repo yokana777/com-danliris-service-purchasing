@@ -281,9 +281,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             int.TryParse(model.BankId, out int bankAccountId);
             var bankAccount = BankAccounts.FirstOrDefault(entity => entity.Id == bankAccountId);
+            if (bankAccount == null)
+            {
+                bankAccount = new BankAccountCOAResult()
+                {
+                    AccountCOA = "9999.00.00.00"
+                };
+            }
 
             int.TryParse(model.IncomeTaxId, out int incomeTaxId);
             var incomeTax = IncomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
+            if (incomeTax == null)
+            {
+                incomeTax = new IncomeTaxCOAResult()
+                {
+                    COACodeCredit = "9999.00"
+                };
+            }
 
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
@@ -303,6 +317,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             {
                 var purchasingDocumentExpedition = purchasingDocumentExpeditions.FirstOrDefault(entity => entity.Id == item.PurchasingDocumentExpeditionId);
                 var division = Divisions.FirstOrDefault(entity => entity.Code == purchasingDocumentExpedition.DivisionCode);
+                if (division == null)
+                {
+                    division = new IdCOAResult()
+                    {
+                        COACode = "0"
+                    };
+                }
 
                 journalDebitItems.Add(new JournalTransactionItem()
                 {
