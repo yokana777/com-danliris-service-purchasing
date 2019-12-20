@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
@@ -79,12 +80,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var serviceProviders = services.BuildServiceProvider();
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
-            mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
                 .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
                 code = "BB"
                 } });
-            mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Divisions, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.BankAccounts, It.IsAny<Func<ICacheEntry, List<BankAccountCOAResult>>>()))
+               .Returns(new List<BankAccountCOAResult>() { });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
+               .Returns(new List<IncomeTaxCOAResult>() { });
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(mockMemoryCache.Object);
@@ -123,12 +130,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var serviceProviders = services.BuildServiceProvider();
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
-            mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
                 .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
-                    code = "BB"
+                code = "BB"
                 } });
-            mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Divisions, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.BankAccounts, It.IsAny<Func<ICacheEntry, List<BankAccountCOAResult>>>()))
+               .Returns(new List<BankAccountCOAResult>() { });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
+               .Returns(new List<IncomeTaxCOAResult>() { });
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(mockMemoryCache.Object);
@@ -171,13 +184,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var serviceProviders = services.BuildServiceProvider();
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
-            mockMemoryCache.Setup(x => x.Get<List<CategoryCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
-                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult(){
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+                .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
                 code = "BB"
-                }
-                });
-            mockMemoryCache.Setup(x => x.Get<List<IdCOAResult>>(It.IsAny<string>(), It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
-               .Returns(new List<IdCOAResult>() { });
+                } });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Divisions, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+               .Returns(new List<IdCOAResult>() { new IdCOAResult() });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.BankAccounts, It.IsAny<Func<ICacheEntry, List<BankAccountCOAResult>>>()))
+               .Returns(new List<BankAccountCOAResult>() { });
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
+               .Returns(new List<IncomeTaxCOAResult>() { });
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(mockMemoryCache.Object);
