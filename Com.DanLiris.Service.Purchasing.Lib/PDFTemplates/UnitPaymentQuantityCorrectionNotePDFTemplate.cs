@@ -468,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 Paragraph companyName = new Paragraph("Nama     :  PT DAN LIRIS", smaller_font) { Alignment = Element.ALIGN_LEFT };
                 document.Add(companyName);
 
-                Paragraph companyAddress = new Paragraph("Alamat     :  Banaran, Grogol, Sukoharjo", smaller_font) { Alignment = Element.ALIGN_LEFT };
+                Paragraph companyAddress = new Paragraph("Alamat     :  JL. Merapi No.23 Banaran, Grogol, Kab. Sukoharjo Jawa Tengah 57552", smaller_font) { Alignment = Element.ALIGN_LEFT };
                 document.Add(companyAddress);
 
                 Paragraph companyNPWP = new Paragraph("N P W P  :  01.139.907.8 - 532.000", smaller_font) { Alignment = Element.ALIGN_LEFT };
