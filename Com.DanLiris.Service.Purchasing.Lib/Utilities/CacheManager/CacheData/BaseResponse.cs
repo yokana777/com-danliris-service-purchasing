@@ -15,7 +15,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData
     public class IdCOAResult
     {
         public int Id { get; set; }
+        public string Code { get; set; }
         public string COACode { get; set; }
+    }
+
+    public class BankAccountCOAResult
+    {
+        public int Id { get; set; }
+        public string AccountCOA { get; set; }
     }
 
     public class CategoryCOAResult
@@ -26,5 +33,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData
         public string StockCOA { get; set; }
         public string LocalDebtCOA { get; set; }
         public string ImportDebtCOA { get; set; }
+    }
+
+    public class IncomeTaxCOAResult
+    {
+        public int Id { get; set; }
+        public string COACodeCredit { get; set; }
     }
 }

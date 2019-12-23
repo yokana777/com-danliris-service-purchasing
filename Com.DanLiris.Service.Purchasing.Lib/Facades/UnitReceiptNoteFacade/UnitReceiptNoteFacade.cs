@@ -54,9 +54,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             this.dbSet = dbContext.Set<UnitReceiptNote>();
         }
 
-        private List<CategoryCOAResult> Categories => _cacheManager.Get("Categories", entry => { return new List<CategoryCOAResult>(); });
-        private List<IdCOAResult> Units => _cacheManager.Get("Units", entry => { return new List<IdCOAResult>(); });
-        private List<IdCOAResult> Divisions => _cacheManager.Get("Divisions", entry => { return new List<IdCOAResult>(); });
+        private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
+        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
+        private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
 
         public ReadResponse<UnitReceiptNote> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
@@ -365,7 +366,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
 
             var externalPurchaseOrderIds = model.Items.Select(s => s.EPOId).ToList();
-            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode }).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode }).ToList();
 
 
 
@@ -430,15 +431,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(item.PRId));
                 var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(f => f.Id.Equals(item.EPOId));
 
-                double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+                //double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
 
                 var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
                 var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : 1;
 
-                if (!externalPurchaseOrder.UseIncomeTax)
-                    incomeTaxRate = 1;
+                //if (!externalPurchaseOrder.UseIncomeTax)
+                //    incomeTaxRate = 1;
                 //var externalPurchaseOrderDetail = externalPurchaseOrderDetails.FirstOrDefault(f => f.Id.Equals(item.EPODetailId));
-                var externalPOPriceTotal = externalPurchaseOrderDetails.Where(w => w.ProductId.Equals(item.ProductId) && w.Id.Equals(item.EPODetailId)).Sum(s => s.TotalPrice * incomeTaxRate);
+                var externalPOPriceTotal = externalPurchaseOrderDetails.Where(w => w.ProductId.Equals(item.ProductId) && w.Id.Equals(item.EPODetailId)).Sum(s => s.TotalPrice);
+
+                
 
                 int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                 var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
@@ -472,8 +475,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     }
                 }
 
+                double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+                var grandTotal = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate);
+                if (externalPurchaseOrder.UseIncomeTax)
+                {
+                    int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
+                    var incomeTax = IncomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
 
+                    if (incomeTax == null)
+                    {
+                        incomeTax = new IncomeTaxCOAResult()
+                        {
+                            COACodeCredit = "9999"
+                        };
+                    }
 
+                    var incomeTaxTotal = (decimal)incomeTaxRate * grandTotal;
+
+                    journalDebitItems.Add(new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = model.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                        },
+                        Debit = incomeTaxTotal
+                    });
+
+                    journalCreditItems.Add(new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = $"{incomeTax.COACodeCredit}.{division.COACode}.{unit.COACode}"
+                        },
+                        Credit = incomeTaxTotal
+                    });
+                }
+
+                
                 if (model.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
                 {
                     //Purchasing Journal Item
@@ -483,7 +521,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                        Debit = grandTotal,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -494,7 +532,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                        Credit = grandTotal,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -505,7 +543,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                        Debit = grandTotal,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -516,7 +554,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                        Credit = grandTotal,
                         Remark = $"- {item.ProductName}"
                     });
                 }
@@ -529,7 +567,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                        Debit = grandTotal,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -542,7 +580,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             {
                                 Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                             },
-                            Debit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                            Debit = grandTotal,
                             Remark = $"- {item.ProductName}"
                         });
                     }
@@ -555,7 +593,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         {
                             Code = model.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                        Credit = grandTotal,
                         Remark = $"- {item.ProductName}"
                     });
 
@@ -568,7 +606,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             {
                                 Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                             },
-                            Credit = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate),
+                            Credit = grandTotal,
                             Remark = $"- {item.ProductName}"
                         });
                     }

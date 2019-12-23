@@ -40,15 +40,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
 
-            var query = from urnWithItem in dbContext.UnitReceiptNoteItems.Include(urnItem => urnItem.UnitReceiptNote)
+            var query = from urnWithItem in dbContext.UnitReceiptNoteItems
 
                            join pr in dbContext.PurchaseRequests on urnWithItem.PRId equals pr.Id into joinPurchaseRequest
                            from urnPR in joinPurchaseRequest.DefaultIfEmpty()
 
-                           join epoDetail in dbContext.ExternalPurchaseOrderDetails.Include(detail => detail.ExternalPurchaseOrderItem).ThenInclude(item => item.ExternalPurchaseOrder) on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
+                           join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                            from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                           join upoItem in dbContext.UnitPaymentOrderItems.Include(item => item.UnitPaymentOrder) on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
+                           join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
                            from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
                            where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && !urnWithItem.UnitReceiptNote.SupplierIsImport

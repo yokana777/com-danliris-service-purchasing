@@ -17,8 +17,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs
             var coreService = serviceProvider.GetService<ICoreData>();
             Schedule(() =>
             {
+                coreService.SetBankAccount();
                 coreService.SetCategoryCOA();
                 coreService.SetDivisionCOA();
+                coreService.SetPPhCOA();
                 coreService.SetUnitCOA();
             }).ToRunNow().AndEvery(12).Hours();
 
