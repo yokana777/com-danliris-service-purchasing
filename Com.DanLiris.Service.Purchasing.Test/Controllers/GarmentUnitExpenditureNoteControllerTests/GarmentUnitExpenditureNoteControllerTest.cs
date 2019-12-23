@@ -243,15 +243,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
         public void Should_Error_Get_All_Data_By_User()
         {
             var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
-            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNoteViewModel>>(It.IsAny<List<GarmentUnitExpenditureNote>>()))
                 .Returns(new List<GarmentUnitExpenditureNoteViewModel> { ViewModel });
 
-            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
 
             var response = controller.GetByUser();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
