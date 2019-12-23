@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 //using Com.DanLiris.Service.Purchasing.WebApi.Helpers
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
         private readonly ICoreHttpClientService _http;
         private readonly IMemoryCacheManager _cacheManager;
 
-        public CoreData(ICoreHttpClientService http, IMemoryCacheManager cacheManager)
+        public CoreData(IServiceProvider serviceProvider)
         {
-            _http = http;
-            _cacheManager = cacheManager;
+            _http = serviceProvider.GetService<ICoreHttpClientService>();
+            _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
         }
 
         public void SetBankAccount()
