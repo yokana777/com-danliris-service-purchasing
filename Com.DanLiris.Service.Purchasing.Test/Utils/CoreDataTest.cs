@@ -53,6 +53,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Utils
                 throw e;
             }
         }
+
+        public void Should_Success_Build_BaseResponses()
+        {
+            var idCOAResult = new IdCOAResult()
+            {
+                COACode = "",
+                Code = "",
+                Id = 0
+            };
+
+            var bankAccountCOAResult = new BankAccountCOAResult()
+            {   
+                AccountCOA = "",
+                Id = 0
+            };
+
+            var incomeTaxCOAResult = new IncomeTaxCOAResult()
+            {
+                COACodeCredit = "",
+                Id = 0
+            };
+
+            Assert.NotNull(idCOAResult);
+            Assert.NotNull(bankAccountCOAResult);
+            Assert.NotNull(incomeTaxCOAResult);
+        }
     }
 
     public class CoreHttpClientServiceTest : ICoreHttpClientService
