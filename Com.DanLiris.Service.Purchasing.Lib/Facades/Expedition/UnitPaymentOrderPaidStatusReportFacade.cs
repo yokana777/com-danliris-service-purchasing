@@ -24,11 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             this.dbContext = dbContext;
             this.dbSet = this.dbContext.Set<UnitPaymentOrder>();
-            //  this.dbSet = this.dbContext.Set<PurchasingDocumentExpedition>();
         }
-
-
-
         public IQueryable<UnitPaymentOrderPaidStatusViewModel> GetQuery(string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string Status, DateTimeOffset? DateFromDue, DateTimeOffset? DateToDue, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
 
@@ -37,10 +33,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             DateTimeOffset dateFromDue = DateFromDue == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFromDue;
             DateTimeOffset dateToDue = DateToDue == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateToDue;
-
-            //  var foo = new ExpeditionPosition();
-
-
             var Query1 = (from a in dbContext.UnitPaymentOrders
 
                           join d in dbContext.PurchasingDocumentExpeditions on a.UPONo equals d.UnitPaymentOrderNo into m
@@ -66,10 +58,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                   && a.Date.AddHours(Offset).Date <= dateTo.Date
 
                           orderby d.Id descending
-
                           select new
                           {
-
                               a.UPONo,
                               a.Date,
                               a.DueDate,
@@ -106,37 +96,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                              PaymentMethod = groupdata.First().PaymentMethod,
 
                              DPP = (groupdata.Count(a => a.position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 &&
-                                   (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0
-                                    ?
-
+                                   (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 ?
                                     groupdata.Where(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION).Sum(a => a.PriceTotal) :
-
                                     groupdata.Sum(a => a.PriceTotal),
 
                              PPH = groupdata.First().UseIncomeTax == true ? (
                                     (groupdata.Count(a => a.position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 &&
-                                   (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0
-                                    ?
-
+                                   (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 ?
                                     groupdata.Where(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION).Sum(a => (a.IncomeTaxRate * a.PriceTotal) / 100) :
-
                                     groupdata.Sum(a => (a.IncomeTaxRate * a.PriceTotal) / 100)
-
                                     ) : 0,
 
                              PPN = groupdata.First().UseVat == true ? (
-
                                    (groupdata.Count(a => a.position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 &&
-                                   (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0
-                                    ?
-
+                                   (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 ?
                                     groupdata.Where(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION).Sum(a => (a.PriceTotal * 10) / 100) :
-
                                     groupdata.Sum(a => (a.PriceTotal * 10) / 100)
-
                              ) : 0,
-
-
                              Currency = groupdata.First().CurrencyCode,
                              BankExpenditureNoteDate = groupdata.First().BankExpenditureNoteDate,
                              BankExpenditureNoteNo = groupdata.First().BankExpenditureNoteNo,
@@ -173,7 +149,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
                 else if (Status.Equals("SUDAH BAYAR DPP+PPN"))
                 {
-                    Query = Query.Where(p => p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == false && p.BankExpenditureNoteNo != null || p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == true);
+                    Query = Query.Where(p => p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == false && p.BankExpenditureNoteNo != null || 
+                                             p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == true);
                 }
                 else if (Status.Equals("SUDAH BAYAR PPH"))
                 {
@@ -181,25 +158,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
                 else if (Status.Equals("BELUM BAYAR"))
                 {
-                    Query = Query.Where(p => p.IsPaid == false && p.IsPaidPPH == false);
+                    Query = Query.Where(p => p.IsPaid == false && p.IsPaidPPH == false || p.Position == 6);
                 }
-
-
             }
-
-
-
 
             Pageable<UnitPaymentOrderPaidStatusViewModel> pageable = new Pageable<UnitPaymentOrderPaidStatusViewModel>(Query, Page - 1, Size);
             List<UnitPaymentOrderPaidStatusViewModel> Data = pageable.Data.ToList<UnitPaymentOrderPaidStatusViewModel>();
             int TotalData = pageable.TotalCount;
-
             List<object> list = new List<object>();
             foreach (var datum in Data)
             {
-
-
-
                 list.Add(new UnitPaymentOrderPaidStatusViewModel
                 {
                     UnitPaymentOrderNo = datum.UnitPaymentOrderNo,
@@ -209,9 +177,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     SupplierName = datum.SupplierName,
                     DivisionName = datum.DivisionName,
                     PaymentMethod = datum.PaymentMethod,
-                    Status =
+                    Status =      //Lunas
                                   (datum.IsPaid == true && datum.IsPaidPPH == false && datum.UseVat == true && datum.UseIncomeTax == false) ||
-
+                                  (datum.IsPaid == true && datum.IsPaidPPH == false && datum.UseVat == false && datum.UseIncomeTax == false) ||
                                   (datum.IsPaid == true && datum.IsPaidPPH == true) ? "LUNAS" :
                                   //Sudah Bayar DPP+PPN
                                   (datum.IsPaid == true && datum.IsPaidPPH == false && datum.UseVat == true && datum.UseIncomeTax == true) ||
@@ -219,22 +187,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                   //Sudah Bayar PPH               
                                   (datum.IsPaidPPH == true && datum.IsPaid == false && datum.UseVat == true && datum.UseIncomeTax == true) ||
                                   (datum.IsPaidPPH == true && datum.IsPaid == false && datum.UseVat == false && datum.UseIncomeTax == true && datum.BankExpenditureNoteNo == null) ? "SUDAH BAYAR PPH"
+                                  //Belum Bayar
                                   : (datum.Position == 6) ? "BELUM BAYAR" : "BELUM BAYAR",
-
-
                     DPP = (datum.UseIncomeTax == true) ? datum.DPP - datum.PPH : datum.DPP,
                     PPH = datum.PPH,
                     PPN = datum.PPN,
-
                     TotalPaid =
                             (datum.UseVat == true && datum.UseIncomeTax == false) ? (datum.DPP) + datum.PPN :
                             (datum.DPP - datum.PPH) + datum.PPH + datum.PPN,
-                    /*  (datum.IsPaid == true && datum.IsPaidPPH == false && datum.UseVat == true && datum.UseIncomeTax == true) ||
-                      (datum.IsPaid == true && datum.IsPaidPPH == false && datum.UseVat == false && datum.UseIncomeTax == true) ? (datum.DPP + datum.PPN) : 
-                      (datum.IsPaid == false && datum.IsPaidPPH == true && datum.UseVat == true && datum.UseIncomeTax == true) ||
-                      (datum.IsPaid == false && datum.IsPaidPPH == true && datum.UseVat == false && datum.UseIncomeTax == true) ? datum.PPH:
-                      (datum.DPP - datum.PPH)+datum.PPH + datum.PPN, */
-
                     Currency = datum.Currency,
                     BankExpenditureNotePPHDate = datum.BankExpenditureNotePPHDate,
                     BankExpenditureNotePPHNo = datum.BankExpenditureNotePPHNo,
