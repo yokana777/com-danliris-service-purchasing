@@ -54,6 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Utils
             }
         }
 
+        [Fact]
         public void Should_Success_Build_BaseResponses()
         {
             var idCOAResult = new IdCOAResult()
