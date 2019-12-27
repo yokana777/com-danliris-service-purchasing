@@ -88,6 +88,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             mockCurrencyProvider
                 .Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
                 .ReturnsAsync((Currency)null);
+            mockCurrencyProvider
+                .Setup(x => x.GetCurrencyByCurrencyCodeDate(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
+                .ReturnsAsync((Currency)null);
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
@@ -127,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
             mockCurrencyProvider
-                .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<List<string>>()))
+                .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<IEnumerable<Tuple<string,DateTimeOffset>>>()))
                 .ReturnsAsync(new List<Currency>());
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
