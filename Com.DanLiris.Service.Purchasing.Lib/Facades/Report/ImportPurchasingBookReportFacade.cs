@@ -361,6 +361,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB Tanggal", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB No", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB BM", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB PPH22", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB PPN Impor", DataType = typeof(decimal) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
@@ -378,8 +383,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (result.Reports.Count > 0)
             {
                 foreach (var report in result.Reports)
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.DPP, report.DPPCurrency, report.VAT, report.CurrencyRate, report.Total);
-
+                {
+                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo,
+                        report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName,
+                        report.UnitName, "", report.PIBNo, report.PIBBM, 0, 0, report.DPP, report.DPPCurrency, report.VAT, report.CurrencyRate, report.Total);
+                }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
 
