@@ -91,6 +91,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             mockCurrencyProvider
                 .Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>()))
                 .ReturnsAsync((Currency)null);
+            mockCurrencyProvider
+               .Setup(x => x.GetCurrencyByCurrencyCodeDate(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
+               .ReturnsAsync((Currency)null);
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
@@ -130,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
             mockCurrencyProvider
-                .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<List<string>>()))
+                .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<IEnumerable<Tuple<string, DateTimeOffset>>>()))
                 .ReturnsAsync(new List<Currency>());
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
@@ -159,7 +162,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
+            Assert.NotEmpty(result.Reports);
+
+            result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
             Assert.NotEmpty(result.Reports);
         }
 
@@ -179,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false);
             Assert.Empty(result.Reports);
         }
 
@@ -199,7 +205,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GenerateExcel(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            var result = await facade.GenerateExcel(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false);
+            Assert.NotNull(result);
+
+            result = await facade.GenerateExcel(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
             Assert.NotNull(result);
         }
     }

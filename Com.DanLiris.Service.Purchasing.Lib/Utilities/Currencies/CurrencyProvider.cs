@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<Currency> GetCurrencyByCurrencyCode(string currencyCode)
+        public async Task<Currency> GetCurrencyByCurrencyCodeDate(string currencyCode, DateTimeOffset date)
         {
             var jsonSerializerSettings = new JsonSerializerSettings
             {
@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
             var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
 
-            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code/{currencyCode}";
+            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?code={currencyCode}&stringDate={date.DateTime.ToString()}";
             var currencyResponse = await httpClient.GetAsync(currencyUri);
 
             var currencyResult = new BaseResponse<Currency>()
@@ -48,9 +48,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             return currencyResult.data;
         }
 
-        public async Task<List<Currency>> GetCurrencyByCurrencyCodeList(List<string> currencyCodeList)
+        public async Task<Currency> GetCurrencyByCurrencyCode(string currencyCode)
         {
-            var tasks = currencyCodeList.Select(s => GetCurrencyByCurrencyCode(s));
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code-date/{currencyCode}";
+            var currencyResponse = await httpClient.GetAsync(currencyUri);
+
+            var currencyResult = new BaseResponse<Currency>()
+            {
+                data = new Currency()
+            };
+
+            if (currencyResponse.IsSuccessStatusCode)
+            {
+                currencyResult = JsonConvert.DeserializeObject<BaseResponse<Currency>>(currencyResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return currencyResult.data;
+        }
+
+        public async Task<List<Currency>> GetCurrencyByCurrencyCodeList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples)
+        {
+            var tasks = currencyTuples.Select(s => GetCurrencyByCurrencyCodeDate(s.Item1, s.Item2));
 
             var result = await Task.WhenAll(tasks);
 
