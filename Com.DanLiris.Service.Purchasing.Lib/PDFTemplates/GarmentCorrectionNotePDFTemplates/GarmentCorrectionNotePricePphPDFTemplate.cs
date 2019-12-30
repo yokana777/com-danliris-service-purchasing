@@ -43,9 +43,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
             #region Header
             string addressString = "PT. DAN LIRIS\n" +
-                "Head Offce :\n" +
-                "Kelurahan Banaran, Kecamatan Grogol\n" +
-                "Sukoharjo 57193 - INDONESIA\n" +
+                "JL. Merapi No.23\n" +
+                "Banaran, Grogol, Kab. Sukoharjo\n" +
+                "Jawa Tengah 57552 - INDONESIA\n" +
                 "PO.BOX 166 Solo 57100\n" +
                 "Telp. (0271) 740888, 714400\n" +
                 "Fax. (0271) 735222, 740777";

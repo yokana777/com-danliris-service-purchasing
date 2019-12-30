@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region Header
 
-            string addressString = "PT DAN LIRIS" + "\n" + "Head Office: Kelurahan Banaran" + "\n" + "Kecamatan Grogol" + "\n" + "Sukoharjo 57193 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777";
+            string addressString = "PT DAN LIRIS" + "\n" + "JL. Merapi No.23" + "\n" + "Banaran, Grogol, Kab. Sukoharjo" + "\n" + "Jawa Tengah 57552 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777";
             Paragraph address = new Paragraph(addressString, bold_font) { Alignment = Element.ALIGN_LEFT };
             document.Add(address);
             bold_font.SetStyle(Font.NORMAL);

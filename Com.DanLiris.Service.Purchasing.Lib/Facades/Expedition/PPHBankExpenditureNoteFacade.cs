@@ -1,20 +1,21 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using System.Net.Http;
+using System.Text;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -24,13 +25,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly DbSet<PPHBankExpenditureNote> dbSet;
         private readonly DbSet<PurchasingDocumentExpedition> dbSetPurchasingDocumentExpedition;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IMemoryCacheManager _cacheManager;
 
-        public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator)
+        public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<PPHBankExpenditureNote>();
             this.dbSetPurchasingDocumentExpedition = dbContext.Set<PurchasingDocumentExpedition>();
             this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
+            _serviceProvider = serviceProvider;
+            _cacheManager = (IMemoryCacheManager)serviceProvider.GetService(typeof(IMemoryCacheManager));
         }
 
         public List<object> GetUnitPaymentOrder(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency)
@@ -242,6 +247,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     }
 
                     Updated = await dbContext.SaveChangesAsync();
+
+                    await ReverseJournalTransaction(model.No);
+                    await AutoCreateJournalTransaction(model);
+                    
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -252,6 +261,121 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             return Updated;
+        }
+
+        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
+        private List<BankAccountCOAResult> BankAccounts => _cacheManager.Get(MemoryCacheConstant.BankAccounts, entry => { return new List<BankAccountCOAResult>(); });
+        private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
+
+        private async Task AutoCreateJournalTransaction(PPHBankExpenditureNote model)
+        {
+            var journalTransactionToPost = new JournalTransaction()
+            {
+                Date = model.Date,
+                Description = "Bon Terima Unit",
+                ReferenceNo = model.No,
+                Status = "POSTED",
+                Items = new List<JournalTransactionItem>()
+            };
+
+            int.TryParse(model.BankId, out int bankAccountId);
+            var bankAccount = BankAccounts.FirstOrDefault(entity => entity.Id == bankAccountId);
+            if (bankAccount == null)
+            {
+                bankAccount = new BankAccountCOAResult()
+                {
+                    AccountCOA = "9999.00.00.00"
+                };
+            }
+
+            int.TryParse(model.IncomeTaxId, out int incomeTaxId);
+            var incomeTax = IncomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
+            if (incomeTax == null)
+            {
+                incomeTax = new IncomeTaxCOAResult()
+                {
+                    COACodeCredit = "9999.00"
+                };
+            }
+
+            var journalDebitItems = new List<JournalTransactionItem>();
+            var journalCreditItems = new List<JournalTransactionItem>();
+
+            journalCreditItems.Add(new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = bankAccount.AccountCOA
+                },
+                Credit = (decimal)model.TotalIncomeTax
+            });
+
+            var purchasingDocumentExpeditionIds = model.Items.Select(item => item.PurchasingDocumentExpeditionId).ToList();
+            var purchasingDocumentExpeditions = await dbContext.PurchasingDocumentExpeditions.Include(entity => entity.Items).Where(entity => purchasingDocumentExpeditionIds.Contains(entity.Id)).ToListAsync();
+            foreach (var item in model.Items)
+            {
+                var purchasingDocumentExpedition = purchasingDocumentExpeditions.FirstOrDefault(entity => entity.Id == item.PurchasingDocumentExpeditionId);
+                var division = Divisions.FirstOrDefault(entity => entity.Code == purchasingDocumentExpedition.DivisionCode);
+                if (division == null)
+                {
+                    division = new IdCOAResult()
+                    {
+                        COACode = "0"
+                    };
+                }
+
+                journalDebitItems.Add(new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = $"{incomeTax.COACodeCredit}.{division.COACode}.00"
+                    },
+                    Debit = (decimal)purchasingDocumentExpedition.IncomeTax
+                });
+            }
+
+            journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.Key
+                },
+                Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
+                Credit = 0,
+                //Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+            }).ToList();
+            journalTransactionToPost.Items.AddRange(journalDebitItems);
+
+            journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.Key
+                },
+                Debit = 0,
+                Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
+                //Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+            }).ToList();
+            journalTransactionToPost.Items.AddRange(journalCreditItems);
+
+            if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
+                journalTransactionToPost.Status = "DRAFT";
+
+            string journalTransactionUri = "journal-transactions";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        private async Task ReverseJournalTransaction(string referenceNo)
+        {
+            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<PPHBankExpenditureNote> ReadById(int id)
@@ -300,6 +424,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+                    await AutoCreateJournalTransaction(model);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -355,6 +480,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     EntityExtension.FlagForDelete(PPHBankExpenditureNote, username, "Facade");
                     this.dbSet.Update(PPHBankExpenditureNote);
                     Count = await this.dbContext.SaveChangesAsync();
+
+                    await ReverseJournalTransaction(PPHBankExpenditureNote.No);
 
                     transaction.Commit();
                 }
