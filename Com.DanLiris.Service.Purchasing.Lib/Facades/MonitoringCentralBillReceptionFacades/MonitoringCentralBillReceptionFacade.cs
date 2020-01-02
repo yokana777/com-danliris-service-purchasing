@@ -171,11 +171,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where
-                         a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false
-                         && f.IsDeleted == false && g.IsDeleted == false && Inv.IsDeleted == false && HInv.IsDeleted == false 
-                         && NI.IsDeleted == false && URN.IsDeleted == false && IURN.IsDeleted == false
-                         && URN.URNType == "PEMBELIAN" && d.BeacukaiNo.Substring(0, 4) != "BCDL"
-                         && ((d1 != new DateTime(1970, 1, 1)) ? (d.BeacukaiDate >= d1 && d.BeacukaiDate <= d2) : true)
+                        a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false
+                         && f.IsDeleted == false && g.IsDeleted == false
+                         //&& Inv.IsDeleted == false && HInv.IsDeleted == false 
+                         //&& NI.IsDeleted == false && URN.IsDeleted == false && IURN.IsDeleted == false
+                         && URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
+                         && d.BeacukaiNo.Substring(0, 4) != "BCDL"
+                         //&& d.BeacukaiDate.AddHours(offset).Date >= d1.Date && d.BeacukaiDate.AddHours(offset).Date <= d2.Date
+                          && ((d1 != new DateTime(1970, 1, 1)) ? (d.BeacukaiDate.Date >= d1.Date && d.BeacukaiDate.Date <= d2.Date) : true)
                          //
                          select new SelectedId
                          {
@@ -265,8 +268,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.ProductRemark = purchaseOrderInternalItem.ProductRemark;
                 monitoringcentralbillreceptionViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcentralbillreceptionViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
-                monitoringcentralbillreceptionViewModel.PricePerDealUnit = (double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit;
-                monitoringcentralbillreceptionViewModel.PriceTotal = (double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal;
+                monitoringcentralbillreceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit,2);
+                monitoringcentralbillreceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal,2);
                 monitoringcentralbillreceptionViewModel.Conversion = deliveryOrderDetail.Conversion;
                 monitoringcentralbillreceptionViewModel.SmallQuantity = deliveryOrderDetail.SmallQuantity;
                 monitoringcentralbillreceptionViewModel.SmallUOMUnit = deliveryOrderDetail.SmallUomUnit;
@@ -277,8 +280,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.UnitName = unitReceiptNote == null ? "-" : unitReceiptNote.UnitName;
                 monitoringcentralbillreceptionViewModel.ReceiptQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity;
                 monitoringcentralbillreceptionViewModel.URNUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.UomUnit;
-                monitoringcentralbillreceptionViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : (decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit;
-                monitoringcentralbillreceptionViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : (decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity;
+                monitoringcentralbillreceptionViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit,2);
+                monitoringcentralbillreceptionViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,2);
                 monitoringcentralbillreceptionViewModel.URNConversion = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.Conversion;
                 monitoringcentralbillreceptionViewModel.URNSmallQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.SmallQuantity;
                 monitoringcentralbillreceptionViewModel.URNSmallUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.SmallUomUnit;

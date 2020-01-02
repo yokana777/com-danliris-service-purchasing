@@ -232,7 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             CodeRequirement = groupData.Key.JnsBrg,
                             UOMUnit = groupData.Key.Satuan,
                             Quantity = groupData.Sum(s => (double)s.Quantity),
-                            Amount = Math.Round(groupData.Sum(s =>s.Amount*s.Kurs) ,2),
+                            Amount = Math.Round(groupData.Sum(s =>Math.Round((s.Amount*s.Kurs),2)) ,2),
                         };
             return Query.AsQueryable();
         }

@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Moq;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -57,6 +58,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Utils
         {
             var currencyProvider = new CurrencyProvider(GetServiceProvider());
             var result = await currencyProvider.GetCurrencyByCurrencyCode("any code");
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Currency_Code_Date()
+        {
+            var currencyProvider = new CurrencyProvider(GetServiceProvider());
+            var result = await currencyProvider.GetCurrencyByCurrencyCodeDate("any code", DateTimeOffset.UtcNow);
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Currency_List()
+        {
+            var currencyProvider = new CurrencyProvider(GetServiceProvider());
+            var result = await currencyProvider.GetCurrencyByCurrencyCodeList(
+                new List<Tuple<string, DateTimeOffset>>() { new Tuple<string, DateTimeOffset>("any", DateTimeOffset.UtcNow) });
 
             Assert.NotNull(result);
         }

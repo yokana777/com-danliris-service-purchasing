@@ -188,8 +188,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where
-                         n != null && URN.URNType == "PEMBELIAN" && d.BeacukaiNo.Substring(0, 4) != "BCDL"  &&
-                         ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate >= d1 && n.CorrectionDate <= d2) : true)
+                         n != null 
+                         && URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
+                         && d.BeacukaiNo.Substring(0, 4) != "BCDL" &&
+                         ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate.Date >= d1.Date && n.CorrectionDate.Date <= d2.Date) : true)
 
                          select new SelectedId
                          {
@@ -294,8 +296,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                 monitoringcorrectionnotereceptionViewModel.ProductRemark = purchaseOrderInternalItem.ProductRemark;
                 monitoringcorrectionnotereceptionViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcorrectionnotereceptionViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
-                monitoringcorrectionnotereceptionViewModel.PricePerDealUnit = (double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit;
-                monitoringcorrectionnotereceptionViewModel.PriceTotal = (double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal;
+                monitoringcorrectionnotereceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit,2);
+                monitoringcorrectionnotereceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal,2);
                 monitoringcorrectionnotereceptionViewModel.Conversion = deliveryOrderDetail.Conversion;
                 monitoringcorrectionnotereceptionViewModel.SmallQuantity = deliveryOrderDetail.SmallQuantity;
                 monitoringcorrectionnotereceptionViewModel.SmallUOMUnit = deliveryOrderDetail.SmallUomUnit;
@@ -306,8 +308,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                 monitoringcorrectionnotereceptionViewModel.UnitName = unitReceiptNote == null ? "-" : unitReceiptNote.UnitName;
                 monitoringcorrectionnotereceptionViewModel.ReceiptQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity;
                 monitoringcorrectionnotereceptionViewModel.URNUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.UomUnit;
-                monitoringcorrectionnotereceptionViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : (decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit;
-                monitoringcorrectionnotereceptionViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : (decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity;
+                monitoringcorrectionnotereceptionViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit,2);
+                monitoringcorrectionnotereceptionViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,2);
                 monitoringcorrectionnotereceptionViewModel.URNConversion = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.Conversion;
                 monitoringcorrectionnotereceptionViewModel.URNSmallQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.SmallQuantity;
                 monitoringcorrectionnotereceptionViewModel.URNSmallUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.SmallUomUnit;
