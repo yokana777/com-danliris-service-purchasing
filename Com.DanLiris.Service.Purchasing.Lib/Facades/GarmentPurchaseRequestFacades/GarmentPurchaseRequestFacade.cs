@@ -177,12 +177,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     this.dbSet.Add(m);
 
                     Created = await dbContext.SaveChangesAsync();
-                    transaction.Commit();
 
                     if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
                     {
                         await SetIsPR(m.SCId, true);
                     }
+
+                    transaction.Commit();
                 }
                 catch (Exception e)
                 {
