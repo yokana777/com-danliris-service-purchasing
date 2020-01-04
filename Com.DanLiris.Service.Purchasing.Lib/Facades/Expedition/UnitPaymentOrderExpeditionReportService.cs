@@ -60,56 +60,65 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             query = query.Where(document => document.Date >= dateFrom && document.Date <= dateTo);
 
-            var joinedQuery = from unitPaymentOrder in query
-                              join expeditionDocument in expeditionDocumentQuery on unitPaymentOrder.UPONo equals expeditionDocument.UnitPaymentOrderNo into upoExpeditions
-                              join externalPurchaseOrder in externalPurchaseOrderQuery on unitPaymentOrder.DivisionId equals externalPurchaseOrder.DivisionId
-                              from upoExpedition in upoExpeditions
-                              select new UnitPaymentOrderExpeditionReportViewModel()
-                              {
-                                  SendToVerificationDivisionDate = upoExpedition.SendToVerificationDivisionDate,
-                                  VerificationDivisionDate = upoExpedition.VerificationDivisionDate,
-                                  VerifyDate = upoExpedition.VerifyDate,
-                                  SendDate = (upoExpedition.Position == ExpeditionPosition.CASHIER_DIVISION || upoExpedition.Position == ExpeditionPosition.SEND_TO_CASHIER_DIVISION) ? upoExpedition.SendToCashierDivisionDate : (upoExpedition.Position == ExpeditionPosition.FINANCE_DIVISION || upoExpedition.Position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION) ? upoExpedition.SendToAccountingDivisionDate : (upoExpedition.Position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION) ? upoExpedition.SendToPurchasingDivisionDate : null,
-                                  CashierDivisionDate = upoExpedition.CashierDivisionDate,
-                                  BankExpenditureNoteNo = upoExpedition.BankExpenditureNoteNo,
-                                  Date = upoExpedition.UPODate,
-                                  DueDate = upoExpedition.DueDate,
-                                  InvoiceNo = upoExpedition.InvoiceNo,
-                                  No = upoExpedition.UnitPaymentOrderNo,
-                                  Position = upoExpedition.Position,
-                                  DPP = upoExpedition.TotalPaid - upoExpedition.Vat,
-                                  PPn = upoExpedition.Vat,
-                                  PPh = upoExpedition.IncomeTax,
-                                  TotalTax = upoExpedition.TotalPaid + upoExpedition.IncomeTax,
-                                  Supplier = new NewSupplierViewModel()
-                                  {
-                                      code = upoExpedition.SupplierCode,
-                                      name = upoExpedition.SupplierName
-                                  },
-                                  Currency = new CurrencyViewModel()
-                                  {
-                                      Code = unitPaymentOrder.CurrencyCode,
-                                      Rate = unitPaymentOrder.CurrencyRate
-                                  },
-                                  TotalDay = Math.Abs((upoExpedition.DueDate.Date - upoExpedition.UPODate.Date).TotalDays),
-                                  //TotalDay = 1.0,
-                                  Category = new CategoryViewModel()
-                                  {
-                                      Code = upoExpedition.CategoryCode,
-                                      Name = upoExpedition.CategoryName
-                                  },
-                                  Unit = new UnitViewModel()
-                                  {
-                                      Code = externalPurchaseOrder.UnitCode,
-                                      Name = externalPurchaseOrder.UnitName
-                                  },
-                                  Division = new DivisionViewModel()
-                                  {
-                                      Code = upoExpedition.DivisionCode,
-                                      Name = upoExpedition.DivisionName
-                                  },
-                                  LastModifiedUtc = upoExpedition.LastModifiedUtc
-                              };
+            var joinedQuery = query.GroupJoin(
+                expeditionDocumentQuery,
+                unitPaymentOrder => unitPaymentOrder.UPONo,
+                expeditionDocument => expeditionDocument.UnitPaymentOrderNo,
+                (unitPaymentOrder, expeditionDocuments) => new { UnitPaymentOrder = unitPaymentOrder, ExpeditionDocuments = expeditionDocuments })
+                .SelectMany(
+                    joined => joined.ExpeditionDocuments.DefaultIfEmpty(),
+                    (joinResult, expeditionDocument) => new UnitPaymentOrderExpeditionReportViewModel()
+                    {
+                        SendToVerificationDivisionDate = expeditionDocument.SendToVerificationDivisionDate,
+                        VerificationDivisionDate = expeditionDocument.VerificationDivisionDate,
+                        VerifyDate = expeditionDocument.VerifyDate,
+                        SendDate = (expeditionDocument.Position == ExpeditionPosition.CASHIER_DIVISION || expeditionDocument.Position == ExpeditionPosition.SEND_TO_CASHIER_DIVISION) ? expeditionDocument.SendToCashierDivisionDate : (expeditionDocument.Position == ExpeditionPosition.FINANCE_DIVISION || expeditionDocument.Position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION) ? expeditionDocument.SendToAccountingDivisionDate : (expeditionDocument.Position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION) ? expeditionDocument.SendToPurchasingDivisionDate : null,
+                        CashierDivisionDate = expeditionDocument.CashierDivisionDate,
+                        BankExpenditureNoteNo = expeditionDocument.BankExpenditureNoteNo,
+                        Date = expeditionDocument.UPODate.AddHours(7),
+                        DueDate = expeditionDocument.DueDate.AddHours(7),
+                        InvoiceNo = expeditionDocument.InvoiceNo,
+                        No = expeditionDocument.UnitPaymentOrderNo,
+                        Position = expeditionDocument.Position,
+                        DPP = expeditionDocument.TotalPaid - expeditionDocument.Vat,
+                        PPn = expeditionDocument.Vat,
+                        PPh = expeditionDocument.IncomeTax,
+                        TotalTax = expeditionDocument.TotalPaid + expeditionDocument.IncomeTax,
+                        Supplier = new NewSupplierViewModel()
+                        {
+                            code = expeditionDocument.SupplierCode,
+                            name = expeditionDocument.SupplierName
+                        },
+                        Currency = new CurrencyViewModel()
+                        {
+                            Code = joinResult.UnitPaymentOrder.CurrencyCode,
+                            Rate = joinResult.UnitPaymentOrder.CurrencyRate
+                        },
+                        // TotalDay = TimeSpan.Days,
+                        // TotalDay = (joinResult.UnitPaymentOrder.DueDate.Date.Date - joinResult.UnitPaymentOrder.Date.Date.Date).TotalDays,
+                        //TotalDay = (joinResult.UnitPaymentOrder.DueDate.Date - joinResult.UnitPaymentOrder.Date.Date),
+                        // TotalDay = SqlServerDbFunctionsExtensions.,
+                        Category = new CategoryViewModel()
+                        {
+                            Code = expeditionDocument.CategoryCode,
+                            Name = expeditionDocument.CategoryName
+                        },
+                        Unit = new UnitViewModel()
+                        {
+                            Code = expeditionDocument.Items.FirstOrDefault().UnitCode,
+                            Name = expeditionDocument.Items.FirstOrDefault().UnitName
+                        },
+                        Division = new DivisionViewModel()
+                        {
+                            Code = expeditionDocument.DivisionCode,
+                            Name = expeditionDocument.DivisionName
+                        },
+                        LastModifiedUtc = expeditionDocument.LastModifiedUtc,
+                        VerifiedBy = expeditionDocument.VerificationDivisionBy,
+                        //TotalDay = Math.Abs((Convert.ToDateTime(expeditionDocument.DueDate)-Convert.ToDateTime(expeditionDocument.UPODate.Date)).TotalDays)
+                        // TotalDay = Math.Ceiling((expeditionDocument.DueDate - expeditionDocument.UPODate).TotalDays)
+                    }
+                );
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             /* Default Order */
@@ -177,7 +186,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             foreach (var d in data)
             {
-                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Currency.Code ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, d.TotalDay, d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
+                var diff = ((d.DueDate).Value - (d.Date).Value).TotalDays;
+                
+                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Currency.Code ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Ceiling(diff), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
             }
 
             ExcelPackage package = new ExcelPackage();
