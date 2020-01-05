@@ -198,6 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
         public async Task<IActionResult> Put([FromRoute]int id, [FromBody]UnitPaymentOrderViewModel vm)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
             UnitPaymentOrder m = mapper.Map<UnitPaymentOrder>(vm);
 
@@ -233,6 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
         public async Task<IActionResult> Delete([FromRoute]int id)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
             try
             {
