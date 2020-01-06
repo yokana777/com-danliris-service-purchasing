@@ -151,6 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             Assert.NotEqual(0, ResponseLocalSupplier);
 
             var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            //modelImportSupplier.UseVat = true;
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, true);
             Assert.NotEqual(0, ResponseImportSupplier);
         }
@@ -296,6 +297,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             var Response = facade.GenerateDataExcel(DateTime.MinValue, DateTime.MinValue, 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_DataWithVAT()
+        {
+
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+
+            var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelImportSupplier.UseVat = true;
+            var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, true);
+            Assert.NotEqual(0, ResponseImportSupplier);
         }
 
     }

@@ -153,12 +153,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     Created += await dbContext.SaveChangesAsync();
 
-                    //await UpdateCreditorAccount(model);
+                    await UpdateCreditorAccount(model);
                     Created += await EditFulfillment(model, user);
-                    //if (model.UseVat)
-                    //{
-                    //    await AutoCreateJournalTransaction(model);
-                    //}
+                    if (model.UseVat)
+                    {
+                        await AutoCreateJournalTransaction(model);
+                    }
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -245,14 +245,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                         Updated += await dbContext.SaveChangesAsync();
 
-                        //await UpdateCreditorAccount(model);
+                        await UpdateCreditorAccount(model);
                         Updated += await EditFulfillment(model, user);
 
-                        //if (model.UseVat)
-                        //{
-                        //    await ReverseJournalTransaction(model.UPONo);
-                        //    await AutoCreateJournalTransaction(model);
-                        //}
+                        if (model.UseVat)
+                        {
+                            await ReverseJournalTransaction(model.UPONo);
+                            await AutoCreateJournalTransaction(model);
+                        }
 
                         transaction.Commit();
                     }
@@ -308,11 +308,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     }
 
                     Deleted += await dbContext.SaveChangesAsync();
-                    //await DeleteCreditorAccount(model);
+                    await DeleteCreditorAccount(model);
                     Deleted += await RollbackFulfillment(model, user);
 
-                    //if (model.UseVat)
-                    //    await ReverseJournalTransaction(model.UPONo);
+                    if (model.UseVat)
+                        await ReverseJournalTransaction(model.UPONo);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -1083,164 +1083,188 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return count;
         }
 
-        //private async Task UpdateCreditorAccount(UnitPaymentOrder model)
-        //{
-        //    List<CreditorAccountViewModel> data = new List<CreditorAccountViewModel>();
+        private async Task UpdateCreditorAccount(UnitPaymentOrder model)
+        {
+            List<CreditorAccountViewModel> data = new List<CreditorAccountViewModel>();
 
-        //    foreach (var item in model.Items)
-        //    {
-        //        data.Add(new CreditorAccountViewModel()
-        //        {
-        //            Code = item.URNNo,
-        //            SupplierCode = model.SupplierCode,
-        //            InvoiceNo = model.InvoiceNo
-        //        });
-        //    }
+            foreach (var item in model.Items)
+            {
+                data.Add(new CreditorAccountViewModel()
+                {
+                    Code = item.URNNo,
+                    SupplierCode = model.SupplierCode,
+                    InvoiceNo = model.InvoiceNo
+                });
+            }
 
-        //    var postedData = new
-        //    {
-        //        MemoNo = model.UPONo,
-        //        model.InvoiceNo,
-        //        MemoDate = model.Date,
-        //        CreditorAccounts = data
-        //    };
+            var postedData = new
+            {
+                MemoNo = model.UPONo,
+                model.InvoiceNo,
+                MemoDate = model.Date,
+                CreditorAccounts = data
+            };
 
-        //    string creditorAccountUri = "creditor-account/unit-payment-order";
-        //    var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-        //    var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType));
+            string creditorAccountUri = "creditor-account/unit-payment-order";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-        //    response.EnsureSuccessStatusCode();
-        //}
+            response.EnsureSuccessStatusCode();
+        }
 
-        //private async Task DeleteCreditorAccount(UnitPaymentOrder model)
-        //{
-        //    List<CreditorAccountViewModel> data = new List<CreditorAccountViewModel>();
+        private async Task DeleteCreditorAccount(UnitPaymentOrder model)
+        {
+            List<CreditorAccountViewModel> data = new List<CreditorAccountViewModel>();
 
-        //    foreach (var item in model.Items)
-        //    {
-        //        data.Add(new CreditorAccountViewModel()
-        //        {
-        //            Code = item.URNNo,
-        //            SupplierCode = model.SupplierCode,
-        //            InvoiceNo = model.InvoiceNo
-        //        });
-        //    }
+            foreach (var item in model.Items)
+            {
+                data.Add(new CreditorAccountViewModel()
+                {
+                    Code = item.URNNo,
+                    SupplierCode = model.SupplierCode,
+                    InvoiceNo = model.InvoiceNo
+                });
+            }
 
-        //    var postedData = new
-        //    {
-        //        CreditorAccounts = data
-        //    };
+            var postedData = new
+            {
+                CreditorAccounts = data
+            };
 
-        //    string creditorAccountUri = "creditor-account/unit-payment-order";
-        //    var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-        //    var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType));
+            string creditorAccountUri = "creditor-account/unit-payment-order";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-        //    response.EnsureSuccessStatusCode();
-        //}
+            response.EnsureSuccessStatusCode();
+        }
 
-        //private async Task AutoCreateJournalTransaction(UnitPaymentOrder model)
-        //{
-        //    var journalTransactionToPost = new JournalTransaction()
-        //    {
-        //        Date = model.Date,
-        //        Description = "Bon Terima Unit",
-        //        ReferenceNo = model.UPONo,
-        //        Status = "POSTED",
-        //        Items = new List<JournalTransactionItem>()
-        //    };
+        private async Task AutoCreateJournalTransaction(UnitPaymentOrder model)
+        {
+            var journalTransactionToPost = new JournalTransaction()
+            {
+                Date = model.Date,
+                Description = "Surat Perintah Bayar",
+                ReferenceNo = model.UPONo,
+                Status = "POSTED",
+                Items = new List<JournalTransactionItem>()
+            };
 
-        //    var journalDebitItems = new List<JournalTransactionItem>();
-        //    var journalCreditItems = new List<JournalTransactionItem>();
+            var journalDebitItems = new List<JournalTransactionItem>();
+            var journalCreditItems = new List<JournalTransactionItem>();
 
-        //    //journal
-        //    var inVATCOA = "1509.00";
+            //journal
+            var inVATCOA = "1509.00";
 
-        //    int.TryParse(model.DivisionId, out var divisionId);
-        //    var division = Divisions.FirstOrDefault(entity => entity.Id == divisionId);
+            int.TryParse(model.DivisionId, out var divisionId);
+            var division = Divisions.FirstOrDefault(entity => entity.Id == divisionId);
+            if (division == null)
+            {
+                division = new IdCOAResult()
+                {
+                    COACode = "0"
+                };
+            }
 
-        //    var urnIds = model.Items.Select(item => item.URNId).ToList();
-        //    var unitReceiptNotes = dbContext.UnitReceiptNotes.Include(entity => entity.Items).Where(entity => urnIds.Contains(entity.Id)).ToList();
+            var urnIds = model.Items.Select(item => item.URNId).ToList();
+            var unitReceiptNotes = dbContext.UnitReceiptNotes.Include(entity => entity.Items).Where(entity => urnIds.Contains(entity.Id)).ToList();
 
-        //    var prIds = unitReceiptNotes.SelectMany(entity => entity.Items).Select(item => item.PRId).ToList();
-        //    var purchaseRequests = dbContext.PurchaseRequests.Include(entity => entity.Items).Where(entity => prIds.Contains(entity.Id)).ToList();
+            var prIds = unitReceiptNotes.SelectMany(entity => entity.Items).Select(item => item.PRId).ToList();
+            var purchaseRequests = dbContext.PurchaseRequests.Include(entity => entity.Items).Where(entity => prIds.Contains(entity.Id)).ToList();
 
-        //    foreach (var item in model.Items)
-        //    {
-        //        var unitReceiptNote = unitReceiptNotes.FirstOrDefault(entity => entity.Id == item.URNId);
+            foreach (var item in model.Items)
+            {
+                var unitReceiptNote = unitReceiptNotes.FirstOrDefault(entity => entity.Id == item.URNId);
 
-        //        int.TryParse(unitReceiptNote.UnitId, out var unitId);
-        //        var unit = Units.FirstOrDefault(entity => entity.Id == unitId);
+                int.TryParse(unitReceiptNote.UnitId, out var unitId);
+                var unit = Units.FirstOrDefault(entity => entity.Id == unitId);
+                if (unit == null)
+                {
+                    unit = new IdCOAResult()
+                    {
+                        COACode = "00"
+                    };
+                }
 
-        //        foreach (var urnItem in unitReceiptNote.Items)
-        //        {
-        //            var purchaseRequest = purchaseRequests.FirstOrDefault(entity => entity.Id == urnItem.PRId);
+                foreach (var urnItem in unitReceiptNote.Items)
+                {
+                    var purchaseRequest = purchaseRequests.FirstOrDefault(entity => entity.Id == urnItem.PRId);
 
-        //            int.TryParse(purchaseRequest.CategoryId, out var categoryId);
-        //            var category = Categories.FirstOrDefault(entity => entity._id == categoryId);
+                    int.TryParse(purchaseRequest.CategoryId, out var categoryId);
+                    var category = Categories.FirstOrDefault(entity => entity._id == categoryId);
+                    if (category == null)
+                    {
+                        category = new CategoryCOAResult()
+                        {
+                            ImportDebtCOA = "9999.00",
+                            LocalDebtCOA = "9999.00",
+                            PurchasingCOA = "9999.00",
+                            StockCOA = "9999.00"
+                        };
+                    }
 
-        //            var total = 0.1 * (urnItem.PricePerDealUnit * urnItem.ReceiptQuantity);
-        //            journalCreditItems.Add(new JournalTransactionItem()
-        //            {
-        //                COA = new COA()
-        //                {
-        //                    Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
-        //                },
-        //                Credit = (decimal)total
-        //            });
+                    var total = 0.1 * (urnItem.PricePerDealUnit * urnItem.ReceiptQuantity);
+                    journalCreditItems.Add(new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                        },
+                        Credit = (decimal)total
+                    });
 
-        //            journalDebitItems.Add(new JournalTransactionItem()
-        //            {
-        //                COA = new COA()
-        //                {
-        //                    Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
-        //                },
-        //                Debit = (decimal)total
-        //            });
-        //        }
-        //    }
+                    journalDebitItems.Add(new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
+                        },
+                        Debit = (decimal)total
+                    });
+                }
+            }
 
 
-        //    journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
-        //    {
-        //        COA = new COA()
-        //        {
-        //            Code = s.Key
-        //        },
-        //        Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
-        //        Credit = 0,
-        //        Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
-        //    }).ToList();
-        //    journalTransactionToPost.Items.AddRange(journalDebitItems);
+            journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.Key
+                },
+                Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
+                Credit = 0,
+                Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+            }).ToList();
+            journalTransactionToPost.Items.AddRange(journalDebitItems);
 
-        //    journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
-        //    {
-        //        COA = new COA()
-        //        {
-        //            Code = s.Key
-        //        },
-        //        Debit = 0,
-        //        Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
-        //        Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
-        //    }).ToList();
-        //    journalTransactionToPost.Items.AddRange(journalCreditItems);
+            journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.Key
+                },
+                Debit = 0,
+                Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
+                Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+            }).ToList();
+            journalTransactionToPost.Items.AddRange(journalCreditItems);
 
-        //    if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
-        //        journalTransactionToPost.Status = "DRAFT";
+            if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
+                journalTransactionToPost.Status = "DRAFT";
 
-        //    string journalTransactionUri = "journal-transactions";
-        //    var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-        //    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+            string journalTransactionUri = "journal-transactions";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-        //    response.EnsureSuccessStatusCode();
-        //}
+            response.EnsureSuccessStatusCode();
+        }
 
-        //private async Task ReverseJournalTransaction(string referenceNo)
-        //{
-        //    string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
-        //    var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-        //    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
+        private async Task ReverseJournalTransaction(string referenceNo)
+        {
+            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-        //    response.EnsureSuccessStatusCode();
-        //}
+            response.EnsureSuccessStatusCode();
+        }
     }
 }
