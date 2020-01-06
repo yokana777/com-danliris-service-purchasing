@@ -1143,7 +1143,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             var journalTransactionToPost = new JournalTransaction()
             {
                 Date = model.Date,
-                Description = "Bon Terima Unit",
+                Description = "Surat Perintah Bayar",
                 ReferenceNo = model.UPONo,
                 Status = "POSTED",
                 Items = new List<JournalTransactionItem>()
@@ -1157,6 +1157,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             int.TryParse(model.DivisionId, out var divisionId);
             var division = Divisions.FirstOrDefault(entity => entity.Id == divisionId);
+            if (division == null)
+            {
+                division = new IdCOAResult()
+                {
+                    COACode = "0"
+                };
+            }
 
             var urnIds = model.Items.Select(item => item.URNId).ToList();
             var unitReceiptNotes = dbContext.UnitReceiptNotes.Include(entity => entity.Items).Where(entity => urnIds.Contains(entity.Id)).ToList();
@@ -1170,6 +1177,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                 int.TryParse(unitReceiptNote.UnitId, out var unitId);
                 var unit = Units.FirstOrDefault(entity => entity.Id == unitId);
+                if (unit == null)
+                {
+                    unit = new IdCOAResult()
+                    {
+                        COACode = "00"
+                    };
+                }
 
                 foreach (var urnItem in unitReceiptNote.Items)
                 {
@@ -1177,6 +1191,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                     int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                     var category = Categories.FirstOrDefault(entity => entity._id == categoryId);
+                    if (category == null)
+                    {
+                        category = new CategoryCOAResult()
+                        {
+                            ImportDebtCOA = "9999.00",
+                            LocalDebtCOA = "9999.00",
+                            PurchasingCOA = "9999.00",
+                            StockCOA = "9999.00"
+                        };
+                    }
 
                     var total = 0.1 * (urnItem.PricePerDealUnit * urnItem.ReceiptQuantity);
                     journalCreditItems.Add(new JournalTransactionItem()

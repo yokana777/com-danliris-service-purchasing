@@ -486,7 +486,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     {
                         incomeTax = new IncomeTaxCOAResult()
                         {
-                            COACodeCredit = "9999"
+                            COACodeCredit = "9999.00"
                         };
                     }
 
