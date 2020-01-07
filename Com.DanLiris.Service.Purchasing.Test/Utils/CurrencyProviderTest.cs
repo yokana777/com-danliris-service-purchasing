@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Utils
         public async Task Should_Success_Get_Currency_List()
         {
             var currencyProvider = new CurrencyProvider(GetServiceProvider());
-            var result = await currencyProvider.GetCurrencyByCurrencyCodeList(
+            var result = await currencyProvider.GetCurrencyByCurrencyCodeDateList(
                 new List<Tuple<string, DateTimeOffset>>() { new Tuple<string, DateTimeOffset>("any", DateTimeOffset.UtcNow) });
 
             Assert.NotNull(result);

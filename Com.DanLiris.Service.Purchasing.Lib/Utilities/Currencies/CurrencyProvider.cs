@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
             var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
 
-            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code-date/{currencyCode}";
+            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code/{currencyCode}";
             var currencyResponse = await httpClient.GetAsync(currencyUri);
 
             var currencyResult = new BaseResponse<Currency>()
@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             return currencyResult.data;
         }
 
-        public async Task<List<Currency>> GetCurrencyByCurrencyCodeList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples)
+        public async Task<List<Currency>> GetCurrencyByCurrencyCodeDateList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples)
         {
             var tasks = currencyTuples.Select(s => GetCurrencyByCurrencyCodeDate(s.Item1, s.Item2));
 

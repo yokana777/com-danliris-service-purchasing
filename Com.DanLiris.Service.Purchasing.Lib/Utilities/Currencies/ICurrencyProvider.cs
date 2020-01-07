@@ -9,6 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
     {
         Task<Currency> GetCurrencyByCurrencyCode(string currencyCode);
         Task<Currency> GetCurrencyByCurrencyCodeDate(string currencyCode, DateTimeOffset date);
-        Task<List<Currency>> GetCurrencyByCurrencyCodeList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples);
+        Task<List<Currency>> GetCurrencyByCurrencyCodeDateList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples);
     }
 }
