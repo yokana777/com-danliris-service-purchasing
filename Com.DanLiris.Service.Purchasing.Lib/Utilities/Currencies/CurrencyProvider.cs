@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
             var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
 
-            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code-date/{currencyCode}";
+            var currencyUri = APIEndpoint.Core + $"master/garment-currencies/single-by-code/{currencyCode}";
             var currencyResponse = await httpClient.GetAsync(currencyUri);
 
             var currencyResult = new BaseResponse<Currency>()
