@@ -18,8 +18,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
             mongoClientSettings.Server = mongoUrl.Server;
             if (mongoUrl.DatabaseName != null && mongoUrl.Username != null && mongoUrl.Password != null)
                 mongoClientSettings.Credential = MongoCredential.CreateCredential(mongoUrl.DatabaseName, mongoUrl.Username, mongoUrl.Password);
-            mongoClientSettings.UseSsl = mongoUrl.UseSsl;
-            mongoClientSettings.VerifySslCertificate = false;
+            // mongoClientSettings.UseSsl = mongoUrl.UseSsl;
+            // mongoClientSettings.VerifySslCertificate = false;
 
             MongoClient mongoClient = new MongoClient(mongoClientSettings);
 

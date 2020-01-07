@@ -482,11 +482,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
                     var incomeTax = IncomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
 
-                    if (incomeTax == null)
+                    if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
                     {
                         incomeTax = new IncomeTaxCOAResult()
                         {
-                            COACodeCredit = "9999"
+                            COACodeCredit = "9999.00"
                         };
                     }
 

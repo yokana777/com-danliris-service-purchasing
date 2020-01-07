@@ -1,8 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
-using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
-using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -13,12 +11,10 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
-using System.Globalization;
+// using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
@@ -34,9 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
         public IQueryable<UnitPaymentOrderExpeditionReportViewModel> GetQuery(string no, string supplierCode, string divisionCode, int status, DateTimeOffset dateFrom, DateTimeOffset dateTo, string order)
         {
-            var expeditionDocumentQuery = _dbContext.Set<PurchasingDocumentExpedition>().AsQueryable();
+            var expeditionDocumentQuery = _dbContext.Set<PurchasingDocumentExpedition>().Include(entity => entity.Items).AsQueryable();
             var query = _dbContext.Set<UnitPaymentOrder>().AsQueryable();
-            var externalPurchaseOrderQuery = _dbContext.Set<ExternalPurchaseOrder>().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(no))
             {
@@ -76,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         CashierDivisionDate = expeditionDocument.CashierDivisionDate,
                         BankExpenditureNoteNo = expeditionDocument.BankExpenditureNoteNo,
                         Date = expeditionDocument.UPODate.AddHours(7),
-                        DueDate = expeditionDocument.DueDate.AddHours(7),
+                        DueDate = expeditionDocument.DueDate.AddHours(7)
                         InvoiceNo = expeditionDocument.InvoiceNo,
                         No = expeditionDocument.UnitPaymentOrderNo,
                         Position = expeditionDocument.Position,
