@@ -81,9 +81,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
             if (new string[] { "MASTER", "SAMPLE" }.Contains(PRType))
             {
-                if (ExpectedDeliveryDate.Equals(DateTimeOffset.MinValue) || ExpectedDeliveryDate == null)
+                if (ShipmentDate.Equals(DateTimeOffset.MinValue) || ShipmentDate == null)
                 {
-                    yield return new ValidationResult("Tanggal Diminta Datang tidak boleh kosong", new List<string> { "ExpectedDeliveryDate" });
+                    yield return new ValidationResult("Tanggal Shipment tidak boleh kosong", new List<string> { "ShipmentDate" });
                 }
             }
             else
