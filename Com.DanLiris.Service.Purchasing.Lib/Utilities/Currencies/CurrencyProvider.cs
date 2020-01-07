@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             return currencyResult.data;
         }
 
-        public async Task<List<Currency>> GetCurrencyByCurrencyCodeList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples)
+        public async Task<List<Currency>> GetCurrencyByCurrencyCodeDateList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples)
         {
             var tasks = currencyTuples.Select(s => GetCurrencyByCurrencyCodeDate(s.Item1, s.Item2));
 
