@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public DateTimeOffset? CashierDivisionDate { get; set; }
         public string BankExpenditureNoteNo { get; set; }
         public DateTime LastModifiedUtc { get; set; }
-        public string VerifiedBy { get; set; }
+        //public string VerifiedBy { get; set; }
     }
 
     public class UnitPaymentOrderExpeditionReportWrapper
