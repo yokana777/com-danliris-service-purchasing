@@ -312,6 +312,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentQuantityCorrec
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Correction_State()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new UnitPaymentQuantityCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var data = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData();
+            var response = facade.GetCorrectionStateByUnitPaymentOrderId((int)data.UPOId);
+            Assert.NotNull(response);
+        }
+
         #region Monitoring Koreksi Jumlah 
         [Fact]
         public async Task Should_Success_Get_Report_Data()
