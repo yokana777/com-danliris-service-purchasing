@@ -14,6 +14,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
         public decimal QuantityCC { get; set; }
         public UomViewModel UomCC { get; set; }
 
+        public string OverUsageReason { get; set; }
+
         public double Conversion { get; set; }
 
         public decimal Quantity { get; set; }

@@ -80,21 +80,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
                                 decimal aboveNeighborsQuantity = aboveNeighborsQuantities.GetValueOrDefault(detail.POSerialNumber);
                                 decimal othersQuantity = aboveNeighborsQuantity + othersExistingQuantities.GetValueOrDefault(detail.POSerialNumber);
 
-                                if (detail.QuantityCC - othersQuantity <= 0)
-                                {
-                                    detailsErrorsCount++;
-                                    detailsErrors += $"\"Quantity\": \"Jumlah CC sudah tidak bisa dibagi\", ";
-                                }
-                                else if (detail.Quantity <= 0)
+                                //if (detail.QuantityCC - othersQuantity <= 0)
+                                //{
+                                //    detailsErrorsCount++;
+                                //    detailsErrors += $"\"Quantity\": \"Jumlah CC sudah tidak bisa dibagi\", ";
+                                //}
+                                //else if (detail.Quantity <= 0)
+                                //{
+                                //    detailsErrorsCount++;
+                                //    detailsErrors += "\"Quantity\": \"Harus lebih dari 0\", ";
+                                //}
+                                //else if (detail.Quantity > detail.QuantityCC - othersQuantity)
+                                //{
+                                //    detailsErrorsCount++;
+                                //    detailsErrors += $"\"Quantity\": \"Tidak boleh lebih dari {detail.QuantityCC - othersQuantity}\", ";
+                                //}
+
+                                if (detail.Quantity <= 0)
                                 {
                                     detailsErrorsCount++;
                                     detailsErrors += "\"Quantity\": \"Harus lebih dari 0\", ";
                                 }
                                 else if (detail.Quantity > detail.QuantityCC - othersQuantity)
                                 {
-                                    detailsErrorsCount++;
-                                    detailsErrors += $"\"Quantity\": \"Tidak boleh lebih dari {detail.QuantityCC - othersQuantity}\", ";
+                                    if (string.IsNullOrWhiteSpace(detail.OverUsageReason))
+                                    {
+                                        detailsErrorsCount++;
+                                        detailsErrors += $"\"OverUsageReason\": \"Jumlah pemakaian ({detail.Quantity + othersQuantity}) lebih dari Jumlah CC. Berikan keterangan\", ";
+                                    }
                                 }
+
 
                                 if (!aboveNeighborsQuantities.TryAdd(detail.POSerialNumber, detail.Quantity))
                                 {
