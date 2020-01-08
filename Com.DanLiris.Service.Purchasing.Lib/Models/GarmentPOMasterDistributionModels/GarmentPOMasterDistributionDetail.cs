@@ -25,6 +25,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribu
         [MaxLength(50)]
         public string UomCCUnit { get; set; }
 
+        [MaxLength(1000)]
+        public string OverUsageReason { get; set; }
+
         public double Conversion { get; set; }
 
         public decimal Quantity { get; set; }
