@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         CashierDivisionDate = expeditionDocument.CashierDivisionDate,
                         BankExpenditureNoteNo = expeditionDocument.BankExpenditureNoteNo,
                         Date = expeditionDocument.UPODate.AddHours(7),
-                        DueDate = expeditionDocument.DueDate.AddHours(7)
+                        DueDate = expeditionDocument.DueDate.AddHours(7),
                         InvoiceNo = expeditionDocument.InvoiceNo,
                         No = expeditionDocument.UnitPaymentOrderNo,
                         Position = expeditionDocument.Position,
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         },
                         // TotalDay = TimeSpan.Days,
                         // TotalDay = (joinResult.UnitPaymentOrder.DueDate.Date.Date - joinResult.UnitPaymentOrder.Date.Date.Date).TotalDays,
-                        //TotalDay = (joinResult.UnitPaymentOrder.DueDate.Date - joinResult.UnitPaymentOrder.Date.Date),
+                        // TotalDay = (joinResult.UnitPaymentOrder.DueDate.Date - joinResult.UnitPaymentOrder.Date.Date).TotalDays,
                         // TotalDay = SqlServerDbFunctionsExtensions.,
                         Category = new CategoryViewModel()
                         {
@@ -109,9 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             Name = expeditionDocument.DivisionName
                         },
                         LastModifiedUtc = expeditionDocument.LastModifiedUtc,
-                        VerifiedBy = expeditionDocument.VerificationDivisionBy,
-                        //TotalDay = Math.Abs((Convert.ToDateTime(expeditionDocument.DueDate)-Convert.ToDateTime(expeditionDocument.UPODate.Date)).TotalDays)
-                        // TotalDay = Math.Ceiling((expeditionDocument.DueDate - expeditionDocument.UPODate).TotalDays)
+                        VerifiedBy = expeditionDocument.VerificationDivisionBy
                     }
                 );
 
