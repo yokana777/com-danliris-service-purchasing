@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public DateTimeOffset? DueDate { get; set; }
         public string InvoiceNo { get; set; }
         public NewSupplierViewModel Supplier { get; set; }
-        public CurrencyViewModel Currency { get; set; }
+        public string Currency { get; set; }
         public double TotalDay { get; set; }
         public CategoryViewModel Category { get; set; }
         public UnitViewModel Unit { get; set; }
@@ -25,13 +25,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public double PPh { get; set; }
         public double TotalTax { get; set; }
         public DateTimeOffset? VerificationDivisionDate { get; set; }
-        public string VerifiedBy { get; set; }
         public DateTimeOffset? VerifyDate { get; set; }
         public DateTimeOffset? SendDate { get; set; }
         public DateTimeOffset? CashierDivisionDate { get; set; }
         public string BankExpenditureNoteNo { get; set; }
-        public DateTime LastModifiedUtc { get; set; }
-        //public string VerifiedBy { get; set; }
+        public DateTime? LastModifiedUtc { get; set; }
+        public string VerifiedBy { get; set; }
+        public string CreatedBy { get; set; }
+        public string PaymentDueDays { get; set; }
     }
 
     public class UnitPaymentOrderExpeditionReportWrapper
