@@ -70,8 +70,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         SendDate = (expeditionDocument.Position == ExpeditionPosition.CASHIER_DIVISION || expeditionDocument.Position == ExpeditionPosition.SEND_TO_CASHIER_DIVISION) ? expeditionDocument.SendToCashierDivisionDate : (expeditionDocument.Position == ExpeditionPosition.FINANCE_DIVISION || expeditionDocument.Position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION) ? expeditionDocument.SendToAccountingDivisionDate : (expeditionDocument.Position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION) ? expeditionDocument.SendToPurchasingDivisionDate : null,
                         CashierDivisionDate = expeditionDocument.CashierDivisionDate,
                         BankExpenditureNoteNo = expeditionDocument.BankExpenditureNoteNo,
-                        Date = expeditionDocument.UPODate,
-                        DueDate = expeditionDocument.DueDate,
+                        Date = expeditionDocument.UPODate.AddHours(7),
+                        DueDate = expeditionDocument.DueDate.AddHours(7),
                         InvoiceNo = expeditionDocument.InvoiceNo,
                         No = expeditionDocument.UnitPaymentOrderNo,
                         Position = expeditionDocument.Position,
@@ -179,7 +179,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             foreach (var d in data)
             {
-                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Currency.Code ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, d.TotalDay, d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
+                var diff = ((d.DueDate).Value - (d.Date).Value).TotalDays;
+                
+                dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-", d.Currency.Code ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Ceiling(diff), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", d.Position, GetFormattedDate(d.SendToVerificationDivisionDate), GetFormattedDate(d.VerificationDivisionDate), GetFormattedDate(d.VerifyDate), GetFormattedDate(d.SendDate), GetFormattedDate(d.CashierDivisionDate), d.BankExpenditureNoteNo ?? "-");
             }
 
             ExcelPackage package = new ExcelPackage();

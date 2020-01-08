@@ -130,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
             mockCurrencyProvider
-                .Setup(x => x.GetCurrencyByCurrencyCodeList(It.IsAny<IEnumerable<Tuple<string,DateTimeOffset>>>()))
+                .Setup(x => x.GetCurrencyByCurrencyCodeDateList(It.IsAny<IEnumerable<Tuple<string,DateTimeOffset>>>()))
                 .ReturnsAsync(new List<Currency>());
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))

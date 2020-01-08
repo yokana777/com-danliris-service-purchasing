@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var queryResult = query.OrderByDescending(item => item.ReceiptDate).ToList();
             //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
             var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
-            var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeList(currencyTuples);
+            var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
             var reportResult = new LocalPurchasingBookReportViewModel();
             foreach (var item in queryResult)
