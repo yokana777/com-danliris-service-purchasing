@@ -166,6 +166,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
             }
         }
 
+        [HttpGet("correction-state-by-unit-payment-order")]
+        public async Task<IActionResult> GetCorrectionStateByUnitPaymentOrder(int unitPaymentOrderid)
+        {
+            try
+            {
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = await _facade.GetCorrectionStateByUnitPaymentOrderId(unitPaymentOrderid)
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("pdf/{id}")]
         public IActionResult GetPDF(int id)
         {
