@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
@@ -724,6 +725,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.Patch(model.Id, jsonPatch, USERNAME));
             Assert.NotNull(Response.Message);
+        }
+        // PR MASTER VALIDATION REPORT
+        [Fact]
+        public async Task Should_Success_Get_Report_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GetDisplayReport(model.UnitId, null, null, "{}", 7);
+
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_Excel()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GenerateExcel(model.UnitId, null, null, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }
