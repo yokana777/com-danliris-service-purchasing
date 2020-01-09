@@ -741,6 +741,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Get_Report_Data_Null_Parameter()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GetDisplayReport(model.UnitId, model.ShipmentDate.DateTime.AddDays(30), model.ShipmentDate.DateTime.AddDays(30), "{}", 7);
+
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Report_Data_Excel()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
@@ -749,6 +761,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var Response = facadevld.GenerateExcel(model.UnitId, null, null, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Get_Report_Data_Excel_Null_Parameter()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GenerateExcel(model.UnitId, model.ShipmentDate.DateTime.AddDays(30), model.ShipmentDate.DateTime.AddDays(30), 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
