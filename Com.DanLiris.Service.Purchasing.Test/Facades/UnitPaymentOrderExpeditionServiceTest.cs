@@ -176,10 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades
                     Code = "Code",
                     Name = "Name"
                 },
-                Currency = new CurrencyViewModel()
-                {
-                    Code = "Code"
-                },
+                Currency = "IDR",
                 Date = DateTime.Now,
                 Division = new DivisionViewModel()
                 {
