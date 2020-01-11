@@ -180,10 +180,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
 
             tableFooter.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER, Rowspan = 2 });
 
-            cellLeft.Phrase = new Phrase("DELIVERY", normal_font);
+            cellLeft.Phrase = new Phrase("SHIPMENT", normal_font);
             tableFooter.AddCell(cellLeft);
 
-            cellLeft.Phrase = new Phrase(viewModel.ExpectedDeliveryDate.GetValueOrDefault().ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellLeft.Phrase = new Phrase(viewModel.ShipmentDate.GetValueOrDefault().ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableFooter.AddCell(cellLeft);
 
             PdfPCell cellfooter = new PdfPCell(tableFooter);
