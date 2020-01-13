@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectio
             this.garmentUnitReceiptNoteDataUtil = garmentUnitReceiptNoteDataUtil;
         }
 
-        public async Task<(GarmentReceiptCorrection GarmentReceiptCorrection, GarmentUnitReceiptNote GarmentUnitReceiptNote)> GetNewData()
+        public async Task<(GarmentReceiptCorrection GarmentReceiptCorrection, GarmentUnitReceiptNote GarmentUnitReceiptNote)> GetNewData(GarmentUnitReceiptNote unitReceiptNote = null)
         {
-            var garmentUnitReceiptNote = await Task.Run(() => garmentUnitReceiptNoteDataUtil.GetTestData());
+            var garmentUnitReceiptNote = unitReceiptNote ?? await Task.Run(() => garmentUnitReceiptNoteDataUtil.GetTestData());
 
             GarmentReceiptCorrection garmentReceiptCorrection = new GarmentReceiptCorrection
             {
