@@ -53,6 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
                              ValidatedMD = a.IsValidatedMD1 == true ? "SUDAH" : "BELUM",
                              ValidatedPurch = a.IsValidatedPurchasing == true ? "SUDAH" : "BELUM",
                              ValidatedKadiv = a.IsValidatedMD2 == true ? "SUDAH" : "BELUM",
+                             ValidatedDate = a.ValidatedMD2Date, 
                          }
                          );
             return Query;
@@ -97,10 +98,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Shipment", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Valid Kabag Merchandiser", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Valid Kabag Purchasing", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Valid Kabiv Merchandiser", DataType = typeof(String) });
-            
+            result.Columns.Add(new DataColumn() { ColumnName = "Valid Kadiv Merchandiser", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Valid Kadiv Merchandiser", DataType = typeof(String) });
+
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -110,11 +112,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
 
                     string PRMDate = item.PRDate == null ? "-" : item.PRDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string ShipDate = item.DeliveryDate == new DateTime(1970, 1, 1) ? "-" : item.DeliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string ValidDate = item.ValidatedDate == null ? "-" : item.ValidatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
-                    result.Rows.Add(index, item.RO_Number, item.StaffName ,item.UnitName, PRMDate, item.SectionName, item.BuyerCode, item.BuyerName, item.Article, ShipDate, item.ValidatedMD, item.ValidatedPurch, item.ValidatedKadiv);
+                    result.Rows.Add(index, item.RO_Number, item.StaffName ,item.UnitName, PRMDate, item.SectionName, item.BuyerCode, item.BuyerName, item.Article, ShipDate, item.ValidatedMD, item.ValidatedPurch, item.ValidatedKadiv, ValidDate);
                 }
             }
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Valid PR Maser") }, true);
 
         }
     }

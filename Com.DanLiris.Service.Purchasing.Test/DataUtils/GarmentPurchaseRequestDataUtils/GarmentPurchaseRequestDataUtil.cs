@@ -55,6 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 IsValidatedMD1 = true,
                 IsValidatedPurchasing = true,
                 IsValidatedMD2 = true,
+                ValidatedMD2Date = DateTimeOffset.Now,
 
                 Items = new List<GarmentPurchaseRequestItem>
                 {
