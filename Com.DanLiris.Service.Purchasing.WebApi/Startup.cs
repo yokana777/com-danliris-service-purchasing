@@ -162,7 +162,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<ICurrencyProvider, CurrencyProvider>()
                 .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
                 .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>()
-                .AddTransient<IPRMasterValidationReportFacade, PRMasterValidationReportFacade>();                
+                .AddTransient<IPRMasterValidationReportFacade, PRMasterValidationReportFacade>()
+                .AddTransient<IAccountingStockReportFacade, AccountingStockReportFacade>(); ;                
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
