@@ -144,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
             cellLeft.Phrase = new Phrase("BUYER AGENT", normal_font);
             tableFooter.AddCell(cellLeft);
 
-            cellLeft.Phrase = new Phrase(salesContract.BuyerAgentName, normal_font);
+            cellLeft.Phrase = new Phrase(salesContract.BuyerAgentCode + " - " + salesContract.BuyerAgentName, normal_font);
             tableFooter.AddCell(cellLeft);
 
             tableFooter.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER, Rowspan = 5 });
@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
             cellLeft.Phrase = new Phrase("BUYER BRAND", normal_font);
             tableFooter.AddCell(cellLeft);
 
-            cellLeft.Phrase = new Phrase(viewModel.Buyer.Name, normal_font);
+            cellLeft.Phrase = new Phrase(viewModel.Buyer.Code + " - " + viewModel.Buyer.Name, normal_font);
             tableFooter.AddCell(cellLeft);
 
             cellLeft.Phrase = new Phrase("ARTICLE", normal_font);

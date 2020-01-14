@@ -19,5 +19,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PRMasterValidationRepor
         public string ValidatedMD { get; set; }
         public string ValidatedPurch { get; set; }
         public string ValidatedKadiv { get; set; }
+        public DateTimeOffset ValidatedDate { get; set; }
     }
 }
