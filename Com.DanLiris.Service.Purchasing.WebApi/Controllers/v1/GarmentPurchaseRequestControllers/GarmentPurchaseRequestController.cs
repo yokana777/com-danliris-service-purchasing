@@ -107,7 +107,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         s.IsValidatedMD1,
                         s.IsValidatedMD2,
                         s.IsValidatedPurchasing,
-                        s.IsValidated
+                        s.IsValidated,
+                        s.ValidatedMD1Date,
+                        s.ValidatedMD2Date,
+                        s.ValidatedPurchasingDate,
+                        s.ValidatedDate
                     }).ToList()
                 );
 

@@ -85,7 +85,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 IsValidated = s.IsValidated,
                 IsValidatedMD1 = s.IsValidatedMD1,
                 IsValidatedMD2 = s.IsValidatedMD2,
-                IsValidatedPurchasing = s.IsValidatedPurchasing
+                IsValidatedPurchasing = s.IsValidatedPurchasing,
+
+                ValidatedDate = s.ValidatedDate,
+                ValidatedMD1Date = s.ValidatedMD1Date,
+                ValidatedMD2Date = s.ValidatedMD2Date,
+                ValidatedPurchasingDate = s.ValidatedPurchasingDate,
+
             });
 
             Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
