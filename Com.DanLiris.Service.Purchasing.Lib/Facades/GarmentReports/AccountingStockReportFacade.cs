@@ -51,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join r in dbContext.GarmentUnitExpenditureNotes on ww.UENId equals r.Id into UEN
                           from dd in UEN.DefaultIfEmpty()
                           where d.CodeRequirment == (String.IsNullOrWhiteSpace(ctg) ? d.CodeRequirment : ctg)
+                          && a.IsDeleted == false && b.IsDeleted == false
                           //String.IsNullOrEmpty(a.UENNo) ? false : a.UENNo.Contains(unitcode)
                           //|| a.UnitCode == unitcode
                           //a.UENNo.Contains(unitcode) || a.UnitCode == unitcode
@@ -86,7 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           });
             var CobaPP = from a in PPAwal
                              //where a.ReceiptDate.AddHours(offset).Date < DateFrom.Date && a.CodeRequirment == (String.IsNullOrWhiteSpace(ctg) ? a.CodeRequirment : ctg) && a.IsDeleted == false
-                         where a.UENNo.Contains(unitcode) || a.UnitCode == unitcode
+                         where a.UENNo.Contains((String.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)) || a.UnitCode == (String.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                          select a;
             var PPAkhir = from a in dbContext.GarmentUnitReceiptNotes
                           join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
@@ -100,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join r in dbContext.GarmentUnitExpenditureNotes on ww.UENId equals r.Id into UEN
                           from dd in UEN.DefaultIfEmpty()
                           where d.CodeRequirment == (String.IsNullOrWhiteSpace(ctg) ? d.CodeRequirment : ctg)
+                          && a.IsDeleted == false && b.IsDeleted == false
                           //String.IsNullOrEmpty(a.UENNo) ? false : a.UENNo.Contains(unitcode)
                           //|| a.UnitCode == unitcode
                           //a.UnitCode == unitcode || a.UENNo.Contains(unitcode)
@@ -134,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               a.IsDeleted
                           };
             var CobaPPAkhir = from a in PPAkhir
-                              where a.UENNo.Contains(unitcode) || a.UnitCode == unitcode
+                              where a.UENNo.Contains((String.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)) || a.UnitCode == (String.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                               //where a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
                               //      && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
                               //      && a.CodeRequirment == (String.IsNullOrWhiteSpace(ctg) ? a.CodeRequirment : ctg)
@@ -315,8 +317,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var index = 1;
             foreach (var item in Query)
             {
-                var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon2DQty : item.ReceiptPurchaseQty + item.ReceiptKon1MNSQty;
-                var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon1MNSPrice : item.ReceiptPurchasePrice + item.ReceiptKon2DPrice;
+                var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon2DQty : unitcode == "C1A" ? item.ReceiptPurchaseQty + item.ReceiptKon1MNSQty : item.ReceiptPurchaseQty + item.ReceiptKon2AQty + item.ReceiptKon2BQty + item.ReceiptKon2CQty + item.ReceiptKon2DQty + item.ReceiptKon1MNSQty;
+                var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon2DPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1MNSPrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon2DPrice + item.ReceiptKon1MNSPrice;
                 var ReceiptKon2AQty = unitcode == "C2A" ? "-" : item.ReceiptKon2AQty.ToString();
                 var ReceiptKon2APrice = unitcode == "C2A" ? "-" : item.ReceiptKon2APrice.ToString();
                 var ReceiptKon2BPrice = unitcode == "C2B" ? "-" : item.ReceiptKon2BPrice.ToString();

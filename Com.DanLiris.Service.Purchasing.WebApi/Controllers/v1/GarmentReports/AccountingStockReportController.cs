@@ -76,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 MemoryStream xls = _facade.GenerateExcelAStockReport(category, unitcode, DateFrom, DateTo, offset);
 
 
-                string filename = String.Format("Laporan Stock Pembukuan - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.IsNullOrWhiteSpace(unitcode) ? String.Format("Laporan Stock Pembukuan All Unit - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2A" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2A - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2B" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2B - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2C" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2C - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C1B" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2D - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : String.Format("Laporan Stock Pembukuan All KONFEKSI 1 MNS - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
