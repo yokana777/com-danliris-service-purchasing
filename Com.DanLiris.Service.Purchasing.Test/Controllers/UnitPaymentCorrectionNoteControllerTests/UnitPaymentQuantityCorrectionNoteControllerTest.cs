@@ -483,6 +483,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
         }
+
         [Fact]
         public async Task Should_Success_Create_Data_with_null_Correction_Type()
         {
@@ -861,6 +862,54 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
             var response = controller.GetPDFNotaRetur(It.IsAny<int>());
             Assert.Null(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Correction_State()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNote>(It.IsAny<UnitPaymentCorrectionNoteViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.GetCorrectionStateByUnitPaymentOrderId(It.IsAny<int>()))
+               .ReturnsAsync(new CorrectionState());
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
+
+            this.ViewModel.correctionType = "Jumlah";
+
+            var response = await controller.GetCorrectionStateByUnitPaymentOrder(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Internal_Server_Error_Get_Correction_State_With_Exception()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNote>(It.IsAny<UnitPaymentCorrectionNoteViewModel>()))
+                .Returns(Model);
+
+            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+            mockFacade.Setup(x => x.GetCorrectionStateByUnitPaymentOrderId(It.IsAny<int>()))
+               .ThrowsAsync(new Exception());
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+
+            var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
+
+            this.ViewModel.correctionType = "Jumlah";
+
+            var response = await controller.GetCorrectionStateByUnitPaymentOrder(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         //[Fact]

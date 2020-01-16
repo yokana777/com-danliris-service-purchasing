@@ -62,6 +62,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Collections.Generic;
 using System.Linq;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -160,8 +161,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
                 .AddTransient<ICurrencyProvider, CurrencyProvider>()
                 .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
-                .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>();
-                
+                .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>()
+                .AddTransient<IPRMasterValidationReportFacade, PRMasterValidationReportFacade>()
+                .AddTransient<IAccountingStockReportFacade, AccountingStockReportFacade>(); ;                
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

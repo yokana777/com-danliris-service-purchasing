@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                         supplierImport = supplier.import;
                     }
                     m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, supplierImport, m.DivisionName);
-                    if(m.useVat==true)
+                    if (m.useVat == true)
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
                     }
@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var itemSpb in unitPaymentOrder.Items)
                         {
-                            foreach(var detailSpb in itemSpb.Details)
+                            foreach (var detailSpb in itemSpb.Details)
                             {
                                 if (item.UPODetailId == detailSpb.Id)
                                 {
@@ -235,7 +235,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
         {
             string supplierUri = "master/suppliers";
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            if (httpClient!=null)
+            if (httpClient != null)
             {
                 var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
@@ -247,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 SupplierViewModel viewModel = null;
                 return viewModel;
             }
-            
+
         }
 
         public UnitReceiptNote ReadByURNNo(string uRNNo)
@@ -485,6 +485,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
 
             return count;
+        }
+
+        public async Task<CorrectionState> GetCorrectionStateByUnitPaymentOrderId(int unitPaymentOrderId)
+        {
+            return new CorrectionState()
+            {
+                IsHavingPricePerUnitCorrection = await dbSet.AnyAsync(entity => entity.UPOId == unitPaymentOrderId && entity.CorrectionType == "Harga Satuan"),
+                IsHavingPriceTotalCorrection = await dbSet.AnyAsync(entity => entity.UPOId == unitPaymentOrderId && entity.CorrectionType == "Harga Total"),
+                IsHavingQuantityCorrection = await dbSet.AnyAsync(entity => entity.UPOId == unitPaymentOrderId && entity.CorrectionType == "Jumlah")
+            };
         }
     }
 }

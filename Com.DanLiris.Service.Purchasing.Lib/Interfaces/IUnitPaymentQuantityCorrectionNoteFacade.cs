@@ -22,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         //Task<int> Delete(int id, string username);
         Tuple<List<UnitPaymentQuantityCorrectionNoteReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
+        Task<CorrectionState> GetCorrectionStateByUnitPaymentOrderId(int unitPaymentOrderId);
     }
 }

@@ -144,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
             cellLeft.Phrase = new Phrase("BUYER AGENT", normal_font);
             tableFooter.AddCell(cellLeft);
 
-            cellLeft.Phrase = new Phrase(salesContract.BuyerAgentName, normal_font);
+            cellLeft.Phrase = new Phrase(salesContract.BuyerAgentCode + " - " + salesContract.BuyerAgentName, normal_font);
             tableFooter.AddCell(cellLeft);
 
             tableFooter.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER, Rowspan = 5 });
@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
             cellLeft.Phrase = new Phrase("BUYER BRAND", normal_font);
             tableFooter.AddCell(cellLeft);
 
-            cellLeft.Phrase = new Phrase(viewModel.Buyer.Name, normal_font);
+            cellLeft.Phrase = new Phrase(viewModel.Buyer.Code + " - " + viewModel.Buyer.Name, normal_font);
             tableFooter.AddCell(cellLeft);
 
             cellLeft.Phrase = new Phrase("ARTICLE", normal_font);
@@ -180,10 +180,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
 
             tableFooter.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER, Rowspan = 2 });
 
-            cellLeft.Phrase = new Phrase("DELIVERY", normal_font);
+            cellLeft.Phrase = new Phrase("SHIPMENT", normal_font);
             tableFooter.AddCell(cellLeft);
 
-            cellLeft.Phrase = new Phrase(viewModel.ExpectedDeliveryDate.GetValueOrDefault().ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellLeft.Phrase = new Phrase(viewModel.ShipmentDate.GetValueOrDefault().ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableFooter.AddCell(cellLeft);
 
             PdfPCell cellfooter = new PdfPCell(tableFooter);
