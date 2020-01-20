@@ -1370,5 +1370,148 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         }
 
         #endregion
+
+        public Tuple<List<GarmentUnitReceiptNoteINReportViewModel>, int> GetReportIN(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset)
+
+        {
+            var Query = GetReportQueryIN(dateFrom, dateTo, type, offset);
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.NoBUM).ThenBy(b => b.NoPO);
+            }
+
+
+            Pageable<GarmentUnitReceiptNoteINReportViewModel> pageable = new Pageable<GarmentUnitReceiptNoteINReportViewModel>(Query, page - 1, size);
+            List<GarmentUnitReceiptNoteINReportViewModel> Data = pageable.Data.ToList<GarmentUnitReceiptNoteINReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public IQueryable<GarmentUnitReceiptNoteINReportViewModel> GetReportQueryIN(DateTime? dateFrom, DateTime? dateTo, string type, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+                                           join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                                           where a.IsDeleted == false && b.IsDeleted == false
+                                           && a.StorageName == "GUDANG BAHAN BAKU"
+                                           && a.ReceiptDate >= DateFrom
+                                           && a.ReceiptDate <= DateTo
+                                           select new GarmentUnitReceiptNoteINReportViewModel
+                                           {
+                                               NoSuratJalan = a.DONo,
+                                               NoBUM = a.URNNo,
+                                               UNit = a.UnitName,
+                                               TanggalMasuk = a.ReceiptDate,
+                                               TanggalBuatBon = a.CreatedUtc,
+                                               Gudang = a.StorageName,
+                                               AsalTerima = a.URNType,
+                                               NoPO = b.POSerialNumber,
+                                               Keterangan = b.ProductRemark,
+                                               NoRO = b.RONo,
+                                               JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                                               Satuan = b.UomUnit,
+                                               JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                                               NamaBarang = b.ProductName
+                                           }
+                        : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+                                                 join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                                                 where a.IsDeleted == false && b.IsDeleted == false
+                                                 && a.StorageName != "GUDANG BAHAN BAKU"
+                                                 && a.ReceiptDate >= DateFrom
+                                                 && a.ReceiptDate <= DateTo
+                                                 select new GarmentUnitReceiptNoteINReportViewModel
+                                                 {
+                                                     NoSuratJalan = a.DONo,
+                                                     NoBUM = a.URNNo,
+                                                     UNit = a.UnitName,
+                                                     TanggalMasuk = a.ReceiptDate,
+                                                     TanggalBuatBon = a.CreatedUtc,
+                                                     Gudang = a.StorageName,
+                                                     AsalTerima = a.URNType,
+                                                     NoPO = b.POSerialNumber,
+                                                     Keterangan = b.ProductRemark,
+                                                     NoRO = b.RONo,
+                                                     JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                                                     Satuan = b.UomUnit,
+                                                     JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                                                     NamaBarang = b.ProductName
+                                                 }
+                                                 : from a in dbContext.GarmentUnitReceiptNotes
+                                                   join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                                                   where a.IsDeleted == false && b.IsDeleted == false
+                                                   && a.StorageName == a.StorageName
+                                                   && a.ReceiptDate >= DateFrom
+                                                   && a.ReceiptDate <= DateTo
+                                                   select new GarmentUnitReceiptNoteINReportViewModel
+                                                   {
+                                                       NoSuratJalan = a.DONo,
+                                                       NoBUM = a.URNNo,
+                                                       UNit = a.UnitName,
+                                                       TanggalMasuk = a.ReceiptDate,
+                                                       TanggalBuatBon = a.CreatedUtc,
+                                                       Gudang = a.StorageName,
+                                                       AsalTerima = a.URNType,
+                                                       NoPO = b.POSerialNumber,
+                                                       Keterangan = b.ProductRemark,
+                                                       NoRO = b.RONo,
+                                                       JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                                                       Satuan = b.UomUnit,
+                                                       JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                                                       NamaBarang = b.ProductName
+                                                   };
+            return Query.AsQueryable();
+
+        }
+
+        public MemoryStream GenerateExcelMonIN(DateTime? dateFrom, DateTime? dateTo, string category, int offset)
+        {
+            var Query = GetReportQueryIN(dateFrom, dateTo, category, offset);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BUM", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Masuk", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Buat Bon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Gudang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Diterima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Kecil", DataType = typeof(String) });
+
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            if (Query.ToArray().Count() == 0)
+            {
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (GarmentUnitReceiptNoteINReportViewModel data in Query)
+                {
+                    index++;
+                    string tgl1 = data.TanggalMasuk == null ? "-" : data.TanggalMasuk.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //string tgl2 = data.TanggalBuatBon == null ? "-" : data.TanggalBuatBon.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.NoBUM, data.NoPO, data.NoSuratJalan, data.UNit, tgl1, data.TanggalBuatBon, data.Gudang, data.Supplier, data.AsalTerima, data.NamaBarang, data.Keterangan, data.NoRO, data.JumlahDiterima, data.Satuan, data.JumlahKecil);
+
+                }
+
+            }
+
+            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
     }
 }

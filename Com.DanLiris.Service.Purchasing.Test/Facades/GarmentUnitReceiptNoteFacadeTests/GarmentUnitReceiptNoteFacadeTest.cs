@@ -1577,6 +1577,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
+        [Fact]
+        public async Task Should_Success_Get_Monitoring_IN()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var Response = facade.GetReportIN(null, null, "", 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Excel_Monitoring_IN()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var Response = facade.GenerateExcelMonIN(null, null, "", 7);
+            Assert.IsType<MemoryStream>(Response);
+        }
     }
 
 

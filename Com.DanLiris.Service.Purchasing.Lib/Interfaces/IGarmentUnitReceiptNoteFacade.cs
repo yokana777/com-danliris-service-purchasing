@@ -24,5 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset);
 
         List<object> ReadItemByRO(string Keyword = null, string Filter = "{}");
+        Tuple<List<GarmentUnitReceiptNoteINReportViewModel>, int> GetReportIN(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcelMonIN(DateTime? dateFrom, DateTime? dateTo, string category, int offset);
     }
 }
