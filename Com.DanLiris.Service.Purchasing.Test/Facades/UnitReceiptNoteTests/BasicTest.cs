@@ -446,6 +446,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var response = facade.GenerateExcelSpb(dataUtil.URNNo, "", "", null, null, 1);
             Assert.NotNull(response);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Creditor_Account_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GetCreditorAccountDataByURNNo(dataUtil.URNNo);
+            Assert.NotNull(response);
+        }
         //[Fact]
         //public async Task Should_Success_Update_Data()
         //{
