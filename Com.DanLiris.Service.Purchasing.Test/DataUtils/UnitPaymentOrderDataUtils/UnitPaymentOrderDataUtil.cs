@@ -229,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
 
                     PricePerDealUnit = item.PricePerDealUnit,
                     PriceTotal = item.PricePerDealUnit * item.ReceiptQuantity,
-                    QuantityCorrection = item.ReceiptQuantity,
+                    QuantityCorrection = 0,
 
                     ProductRemark = item.ProductRemark
                 });
