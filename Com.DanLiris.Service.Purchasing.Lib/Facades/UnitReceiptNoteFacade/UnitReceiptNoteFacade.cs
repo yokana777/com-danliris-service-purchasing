@@ -1740,6 +1740,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        public async Task<dynamic> GetCreditorAccountDataByURNNo(string urnNo)
+        {
+            var model = dbSet.Include(entity => entity.Items).Where(entity => entity.URNNo == urnNo).FirstOrDefault();
+
+            var dpp = model.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
+
+            var item = model.Items.LastOrDefault();
+
+            var externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.Id == item.EPODetailId);
+            var poextItem = dbContext.ExternalPurchaseOrderItems.Select(s => new { s.Id, s.EPOId }).FirstOrDefault(f => f.Id.Equals(externalPurchaseOrderDetail.EPOItemId));
+            var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax, s.CurrencyCode, s.PaymentDueDays }).FirstOrDefault(f => f.Id.Equals(poextItem.EPOId));
+
+            var currencyCode = poext.CurrencyCode;
+            var currency = await _currencyProvider.GetCurrencyByCurrencyCode(currencyCode);
+            var currencyRate = currency != null ? currency.Rate.GetValueOrDefault() : 1;
+
+            var useIncomeTaxFlag = poext.UseIncomeTax;
+            var paymentDuration = poext.PaymentDueDays;
+
+            var creditorAccount = new
+            {
+                DPP = dpp,
+                Products = productList,
+                PPN = useIncomeTaxFlag ? 0.1 * dpp : 0,
+                model.SupplierCode,
+                model.SupplierName,
+                Code = model.URNNo,
+                Date = model.ReceiptDate,
+                Currency = currencyCode,
+                CurrencyRate = currencyRate,
+                PaymentDuration = paymentDuration
+            };
+
+            return creditorAccount;
+        }
     }
 }
 

@@ -143,6 +143,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                             {
                                 if (item.UPODetailId == detailSpb.Id)
                                 {
+                                    if (detailSpb.QuantityCorrection <= 0)
+                                    {
+                                        detailSpb.QuantityCorrection = detailSpb.ReceiptQuantity;
+                                    }
+
                                     detailSpb.QuantityCorrection = detailSpb.QuantityCorrection - item.Quantity;
                                     ExternalPurchaseOrderDetail epoDetail = dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(a => a.Id.Equals(detailSpb.EPODetailId));
                                     epoDetail.DOQuantity -= item.Quantity;

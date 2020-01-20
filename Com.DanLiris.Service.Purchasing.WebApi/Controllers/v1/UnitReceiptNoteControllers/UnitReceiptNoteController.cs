@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                     }
                 }
             }
-            
+
             UnitReceiptNote m = _mapper.Map<UnitReceiptNote>(vm);
 
             IValidateService validateService = (IValidateService)_serviceProvider.GetService(typeof(IValidateService));
@@ -228,6 +228,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 await _facade.Delete(id, identityService.Username);
 
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("correction-note/{urnNo}")]
+        public async Task<IActionResult> GetCreditorAccountByURNNo([FromRoute] string urnNo)
+        {
+            try
+            {
+                var creditorAccount = await _facade.GetCreditorAccountDataByURNNo(urnNo);
+                if (creditorAccount == null)
+                {
+                    throw new Exception("Invalid No");
+                }
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = creditorAccount,
+                });
             }
             catch (Exception e)
             {
