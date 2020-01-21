@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
                          a.CorrectionDate descending
                         
-                         select new GarmentReceiptCorrectionReportViewModel
+                         select new 
                          {
                              CorrectionNo = a.CorrectionNo,
                              CorrectionDate = a.CorrectionDate,

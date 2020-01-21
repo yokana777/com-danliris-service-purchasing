@@ -355,9 +355,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var dateTo = DateTimeOffset.UtcNow;
             var facade1 = new GarmentReceiptCorrectionReportFacade(dbContext, serviceProvider);
 
-            var Response = facade1.GetReport(null, null, dateFrom, dateTo, "{}", 1, 25);
+            var Response = facade1.GetReport(dataReceipt.UnitCode, null, dateFrom, dateTo, "{}", 1, 25);
 
-            Assert.NotNull(Response);
+            Assert.NotNull(Response.Item1);
         }
 
 
@@ -395,11 +395,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
 
 
 
-            var Response = facade1.GenerateExcel(null, null, dateFrom, dateTo, "{}");
+            var Response = facade1.GenerateExcel(dataReceipt.UnitCode, null, dateFrom, dateTo, "{}");
             //var garmentReceiptCorrectionFacade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()),GetServiceProvider() );
             // var dataUtilReceiptNote = await dataUtil(Facade, GetCurrentMethod()).GetTestData();
 
-            Assert.NotNull(Response);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
     }

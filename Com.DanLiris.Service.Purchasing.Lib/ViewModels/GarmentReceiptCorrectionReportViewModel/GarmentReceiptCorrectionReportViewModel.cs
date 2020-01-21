@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReceiptCorrectionNoteViewModel
 {
-    public class GarmentReceiptCorrectionReportViewModel : BasicViewModel
+    public class GarmentReceiptCorrectionReportViewModel
     {
         public string CorrectionNo { get; set; }
         public DateTimeOffset? CorrectionDate { get; set; }
