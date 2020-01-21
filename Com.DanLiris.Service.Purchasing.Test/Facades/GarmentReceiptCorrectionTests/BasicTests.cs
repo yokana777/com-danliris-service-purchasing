@@ -312,9 +312,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
         {
             var serviceProvider = GetServiceProvider();
             var dbContext = _dbContext(GetCurrentMethod());
-            var Facade = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+            
 
-            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
+            var facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
             var dataUtilDO = _dataUtilDO(facadeDO, GetCurrentMethod());
 
             var FacadeCorrection = new GarmentCorrectionNotePriceFacade(serviceProvider, dbContext);
@@ -323,6 +323,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var FacadeUnitReceipt = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
             var dataUtilUnitReceipt = new GarmentUnitReceiptNoteDataUtil(FacadeUnitReceipt, dataUtilDO);
 
+            var Facade = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
             var dataUtilReceiptCorr = new GarmentReceiptCorrectionDataUtil(Facade, dataUtilUnitReceipt);
 
             var dataDO = await dataUtilDO.GetNewData();
@@ -355,9 +356,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var dbContext = _dbContext(GetCurrentMethod());
             var Facade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()), serviceProvider);
 
-
-
-            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
+            var facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
             var dataUtilDO = _dataUtilDO(facadeDO, GetCurrentMethod());
 
             var FacadeCorrection = new GarmentCorrectionNotePriceFacade(serviceProvider, dbContext);

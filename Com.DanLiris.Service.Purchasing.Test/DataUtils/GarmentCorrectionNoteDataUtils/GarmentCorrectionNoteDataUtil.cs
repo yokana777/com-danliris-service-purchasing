@@ -221,17 +221,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
         {
             var data = await GetNewData(deliveryOrder);
 
-            data.GarmentCorrectionNote.CorrectionType = "HARGA SATUAN";
+            data.GarmentCorrectionNote.CorrectionType = "Jumlah";
 
             foreach (var item in data.GarmentDeliveryOrder.Items)
             {
                 foreach (var detail in item.Details)
                 {
                     var garmentCorrectionNoteItem = data.GarmentCorrectionNote.Items.First(i => i.DODetailId == detail.Id);
-                    garmentCorrectionNoteItem.PricePerDealUnitBefore = (decimal)detail.PricePerDealUnitCorrection;
-                    garmentCorrectionNoteItem.PricePerDealUnitAfter = (decimal)detail.PricePerDealUnitCorrection;
-                    garmentCorrectionNoteItem.PriceTotalBefore = (decimal)detail.PriceTotalCorrection;
-                    garmentCorrectionNoteItem.PriceTotalAfter = (decimal)detail.PriceTotalCorrection + 1;
                 }
             }
 
