@@ -443,13 +443,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 {
                     new GarmentPurchaseRequestItemViewModel
                     {
+                        UId = null,
                         Category = new CategoryViewModel(),
                         Product = new ProductViewModel(),
                         Uom = new UomViewModel(),
+                        Status = null,
+                        IsUsed = false,
                         PriceUom = new UomViewModel(),
                         Quantity = 5,
                         BudgetPrice = 2,
-                        PriceConversion = 1
+                        PriceConversion = 1,
+                        IsOpenPO = false,
+                        IsApprovedOpenPOMD = false,
+                        IsApprovedOpenPOPurchasing = false
                     }
                 }
             });
