@@ -331,7 +331,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var dataCorr = await dataUtilCorrection.GetTestData2(dataDO);
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var dataUnit = await dataUtilUnitReceipt.GetNewData(nowTicks, dataDO);
+            var dataUnit = await dataUtilUnitReceipt.GetNewData(null, dataDO);
             await FacadeUnitReceipt.Create(dataUnit);
             var dataReceipt = await dataUtilReceiptCorr.GetNewData(dataUnit);
             await Facade.Create(dataReceipt.GarmentReceiptCorrection, "unit-test", 7);
@@ -374,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var dataCorr = await dataUtilCorrection.GetTestData2(dataDO);
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var dataUnit = await dataUtilUnitReceipt.GetNewData(nowTicks, dataDO);
+            var dataUnit = await dataUtilUnitReceipt.GetNewData(null, dataDO);
             await FacadeUnitReceipt.Create(dataUnit);
             var dataReceipt = await dataUtilReceiptCorr.GetNewData(dataUnit);
             await Facade.Create(dataReceipt.GarmentReceiptCorrection, "unit-test");
