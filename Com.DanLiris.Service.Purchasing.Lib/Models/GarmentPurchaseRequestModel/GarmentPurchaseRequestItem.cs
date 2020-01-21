@@ -40,6 +40,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public string PriceUomUnit { get; set; }
         public double PriceConversion { get; set; }
 
+        public bool IsOpenPO { get; set; }
+        public bool IsApprovedOpenPOMD { get; set; }
+        public bool IsApprovedOpenPOPurchasing { get; set; }
+
         public virtual long GarmentPRId { get; set; }
         [ForeignKey("GarmentPRId")]
         public virtual GarmentPurchaseRequest GarmentPurchaseRequest { get; set; }

@@ -56,7 +56,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+            if (OrderDictionary != null && OrderDictionary.Count != 0)
+            {
+                var order = OrderDictionary.First();
+                switch (order.Key)
+                {
+                    case "Date":
+                        if (order.Value == "asc")
+                        {
+                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? o.ValidatedMD2Date : o.Date);
+                        }
+                        else
+                        {
+                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? o.ValidatedMD2Date : o.Date);
+                        }
+                        break;
+                    case "Status":
+                        if (order.Value == "asc")
+                        {
+                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
+                        }
+                        else
+                        {
+                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
+                        }
+                        break;
+                    default:
+                        Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+                        break;
+                }
+            }
+            else
+            {
+                Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+            }
 
             Query = Query.Select(s => new GarmentPurchaseRequest
             {
@@ -85,7 +118,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 IsValidated = s.IsValidated,
                 IsValidatedMD1 = s.IsValidatedMD1,
                 IsValidatedMD2 = s.IsValidatedMD2,
-                IsValidatedPurchasing = s.IsValidatedPurchasing
+                IsValidatedPurchasing = s.IsValidatedPurchasing,
+
+                ValidatedDate = s.ValidatedDate,
+                ValidatedMD1Date = s.ValidatedMD1Date,
+                ValidatedMD2Date = s.ValidatedMD2Date,
+                ValidatedPurchasingDate = s.ValidatedPurchasingDate,
+
             });
 
             Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);

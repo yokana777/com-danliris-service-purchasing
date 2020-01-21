@@ -333,6 +333,51 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Success_Get_All_Data_Order()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"PRNo\": \"asc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Date_Asc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Date\": \"asc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Date_Desc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Date\": \"desc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Status_Asc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Status\": \"asc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Status_Desc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Status\": \"desc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_All_Data_Dynamic()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
@@ -398,13 +443,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 {
                     new GarmentPurchaseRequestItemViewModel
                     {
+                        UId = null,
                         Category = new CategoryViewModel(),
                         Product = new ProductViewModel(),
                         Uom = new UomViewModel(),
+                        Status = null,
+                        IsUsed = false,
                         PriceUom = new UomViewModel(),
                         Quantity = 5,
                         BudgetPrice = 2,
-                        PriceConversion = 1
+                        PriceConversion = 1,
+                        IsOpenPO = false,
+                        IsApprovedOpenPOMD = false,
+                        IsApprovedOpenPOPurchasing = false
                     }
                 }
             });
