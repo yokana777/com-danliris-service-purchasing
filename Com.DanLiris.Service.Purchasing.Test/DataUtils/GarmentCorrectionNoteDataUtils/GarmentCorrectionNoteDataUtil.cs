@@ -228,6 +228,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
                 foreach (var detail in item.Details)
                 {
                     var garmentCorrectionNoteItem = data.GarmentCorrectionNote.Items.First(i => i.DODetailId == detail.Id);
+                    garmentCorrectionNoteItem.PricePerDealUnitBefore = (decimal)detail.PricePerDealUnitCorrection;
+                    garmentCorrectionNoteItem.PricePerDealUnitAfter = (decimal)detail.PricePerDealUnitCorrection;
+                    garmentCorrectionNoteItem.PriceTotalBefore = (decimal)detail.PriceTotalCorrection;
+                    garmentCorrectionNoteItem.PriceTotalAfter = (decimal)detail.PriceTotalCorrection + 1;
                 }
             }
 

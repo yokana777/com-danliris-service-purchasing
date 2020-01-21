@@ -141,5 +141,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectio
             await garmentReceiptCorrectionFacade.Create(data, "unit-test");
             return data;
         }
+
+        public async Task<GarmentReceiptCorrection> GetTestData(GarmentUnitReceiptNote unit)
+        {
+            var data = await GetNewData(unit);
+            await garmentReceiptCorrectionFacade.Create(data.GarmentReceiptCorrection, "unit-test");
+            return data.GarmentReceiptCorrection;
+        }
     }
 }

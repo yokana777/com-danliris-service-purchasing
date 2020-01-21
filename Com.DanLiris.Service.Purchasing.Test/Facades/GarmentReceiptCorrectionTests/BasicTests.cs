@@ -307,6 +307,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             Assert.True(viewModel4.Validate(null).Count() > 0);
         }
 
+
+
+        //[Fact]
+        //public async Task Should_Success_Get_All_Data_Report2()
+        //{
+        //    var dbContext = _dbContext(GetCurrentMethod());
+        //    var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade( GetServiceProvider(), dbContext);
+        //    var modelLocalDO = _dataUtilDO(garmentDeliveryOrderFacade, GetCurrentMethod());
+        //    var dataDO = await modelLocalDO.GetNewData5();
+
+        //    var garmentCorrection = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), dbContext);
+        //    var dataUtilCorr = new GarmentCorrectionNoteDataUtil(garmentCorrection, modelLocalDO);
+        //    var modelLocalCorr = await dataUtilCorr.GetTestData2(modelLocalDO);
+        //}
+
+
         [Fact]
         public async Task Should_Success_Get_All_Data_Report()
         {
@@ -326,16 +342,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var Facade = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
             var dataUtilReceiptCorr = new GarmentReceiptCorrectionDataUtil(Facade, dataUtilUnitReceipt);
 
-            var dataDO = await dataUtilDO.GetNewData();
-            await facadeDO.Create(dataDO, USERNAME);
+            var dataDO = await dataUtilDO.GetTestData5();
 
             var dataCorr = await dataUtilCorrection.GetTestData2(dataDO);
-            long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var dataUnit = await dataUtilUnitReceipt.GetNewData(null, dataDO);
-            await FacadeUnitReceipt.Create(dataUnit);
-            var dataReceipt = await dataUtilReceiptCorr.GetNewData(dataUnit);
-            await Facade.Create(dataReceipt.GarmentReceiptCorrection, "unit-test", 7);
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            var dataUnit = await dataUtilUnitReceipt.GetTestData(dataDO, nowTicks);
+
+            var dataReceipt = await dataUtilReceiptCorr.GetTestData(dataUnit);
 
             var dateFrom = DateTimeOffset.MinValue;
             var dateTo = DateTimeOffset.UtcNow;
@@ -350,11 +364,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
         [Fact]
         public async Task Should_Success_Get_Excel()
         {
-
-
             var serviceProvider = GetServiceProvider();
             var dbContext = _dbContext(GetCurrentMethod());
-            var Facade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()), serviceProvider);
+
 
             var facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
             var dataUtilDO = _dataUtilDO(facadeDO, GetCurrentMethod());
@@ -365,22 +377,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var FacadeUnitReceipt = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
             var dataUtilUnitReceipt = new GarmentUnitReceiptNoteDataUtil(FacadeUnitReceipt, dataUtilDO);
 
+            var Facade = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
             var dataUtilReceiptCorr = new GarmentReceiptCorrectionDataUtil(Facade, dataUtilUnitReceipt);
 
-            var dataDO = await dataUtilDO.GetNewData();
-            await facadeDO.Create(dataDO, USERNAME);
+            var dataDO = await dataUtilDO.GetTestData5();
 
             var dataCorr = await dataUtilCorrection.GetTestData2(dataDO);
-            long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var dataUnit = await dataUtilUnitReceipt.GetNewData(null, dataDO);
-            await FacadeUnitReceipt.Create(dataUnit);
-            var dataReceipt = await dataUtilReceiptCorr.GetNewData(dataUnit);
-            await Facade.Create(dataReceipt.GarmentReceiptCorrection, "unit-test");
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            var dataUnit = await dataUtilUnitReceipt.GetTestData(dataDO, nowTicks);
+
+            var dataReceipt = await dataUtilReceiptCorr.GetTestData(dataUnit);
 
             var dateFrom = DateTimeOffset.MinValue;
             var dateTo = DateTimeOffset.UtcNow;
-            var facade1 = new GarmentReceiptCorrectionReportFacade(_dbContext(GetCurrentMethod()), serviceProvider);
+            var facade1 = new GarmentReceiptCorrectionReportFacade(dbContext, serviceProvider);
+
+
 
             var Response = facade1.GenerateExcel(null, null, dateFrom, dateTo, "{}");
             //var garmentReceiptCorrectionFacade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()),GetServiceProvider() );
