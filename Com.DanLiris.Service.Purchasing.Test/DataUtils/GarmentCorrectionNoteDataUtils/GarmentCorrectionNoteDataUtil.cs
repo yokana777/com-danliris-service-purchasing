@@ -216,5 +216,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             await garmentCorrectionNoteFacade.Create(data);
             return data;
         }
+
+        public async Task<GarmentCorrectionNote> GetNewDataC(GarmentDeliveryOrder deliveryOrder)
+        {
+            var data = await GetNewData(deliveryOrder);
+
+            data.GarmentCorrectionNote.CorrectionType = "Jumlah";
+
+            foreach (var item in data.GarmentDeliveryOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var garmentCorrectionNoteItem = data.GarmentCorrectionNote.Items.First(i => i.DODetailId == detail.Id);
+                    garmentCorrectionNoteItem.PricePerDealUnitBefore = (decimal)detail.PricePerDealUnitCorrection;
+                    garmentCorrectionNoteItem.PricePerDealUnitAfter = (decimal)detail.PricePerDealUnitCorrection;
+                    garmentCorrectionNoteItem.PriceTotalBefore = (decimal)detail.PriceTotalCorrection;
+                    garmentCorrectionNoteItem.PriceTotalAfter = (decimal)detail.PriceTotalCorrection + 1;
+                }
+            }
+
+            return data.GarmentCorrectionNote;
+        }
+
+        public async Task<GarmentCorrectionNote> GetTestData2(GarmentDeliveryOrder deliveryOrder)
+        {
+            var data = await GetNewDataC(deliveryOrder);
+            await garmentCorrectionNoteFacade.Create(data);
+            return data;
+        }
     }
 }

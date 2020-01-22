@@ -519,6 +519,109 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             return gdo;
         }
 
+        public async Task<GarmentDeliveryOrder> GetNewData5(GarmentExternalPurchaseOrder garmentExternalPurchaseOrder = null)
+        {
+            var datas = await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataForDo2(garmentExternalPurchaseOrder));
+
+            Random rnd = new Random();
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            string nowTicksA = $"{nowTicks}a";
+            string nowTicksB = $"{nowTicks}b";
+
+            var gdo = new GarmentDeliveryOrder
+            {
+                DONo = $"{nowTicksB}",
+
+                SupplierId = 1,
+                SupplierCode = $"BuyerCode{nowTicksB}",
+                SupplierName = $"BuyerName{nowTicksB}",
+
+                DODate = DateTimeOffset.Now,
+                ArrivalDate = DateTimeOffset.Now,
+
+                ShipmentType = $"ShipmentType{nowTicksB}",
+                ShipmentNo = $"ShipmentNo{nowTicksB}",
+
+                Remark = $"Remark{nowTicksB}",
+
+                IsClosed = false,
+                IsCustoms = false,
+                IsInvoice = false,
+
+                UseVat = datas.IsUseVat,
+                UseIncomeTax = datas.IsIncomeTax,
+                IncomeTaxId = Convert.ToInt32(datas.IncomeTaxId),
+                IncomeTaxName = datas.IncomeTaxName,
+                IncomeTaxRate = Convert.ToDouble(datas.IncomeTaxRate),
+
+                IsCorrection = false,
+
+                InternNo = $"{nowTicksB}",
+                PaymentBill = $"{nowTicksA}",
+                BillNo = $"{nowTicksA}",
+                PaymentType = datas.PaymentType,
+                PaymentMethod = datas.PaymentMethod,
+                DOCurrencyId = datas.CurrencyId,
+                DOCurrencyCode = datas.CurrencyCode,
+                DOCurrencyRate = datas.CurrencyRate,
+
+                TotalAmount = nowTicks,
+
+                Items = new List<GarmentDeliveryOrderItem>()
+            };
+
+            foreach (var item in datas.Items)
+            {
+                gdo.Items.Add(new GarmentDeliveryOrderItem
+                {
+                    EPOId = datas.Id,
+                    EPONo = datas.EPONo,
+                    CurrencyId = datas.CurrencyId,
+                    CurrencyCode = "USD",
+                    PaymentDueDays = datas.PaymentDueDays,
+
+                    Details = new List<GarmentDeliveryOrderDetail>
+                            {
+                                new GarmentDeliveryOrderDetail
+                                {
+                                    EPOItemId = item.Id,
+                                    POId = item.POId,
+                                    POItemId = (int)nowTicks,
+                                    PRId = item.PRId,
+                                    PRNo = item.PRNo,
+                                    PRItemId = nowTicks,
+                                    POSerialNumber = item.PO_SerialNumber,
+                                    UnitId =  $"{nowTicksB}",
+                                    UnitCode = $"{nowTicksB}",
+                                    ProductId = item.ProductId,
+                                    ProductCode = item.ProductCode,
+                                    ProductName = item.ProductName,
+                                    ProductRemark = item.Remark,
+                                    DOQuantity = item.DOQuantity,
+                                    DealQuantity = item.DealQuantity,
+                                    Conversion = item.Conversion,
+                                    UomId = item.DealUomId.ToString(),
+                                    UomUnit = item.DealUomUnit,
+                                    SmallQuantity = item.SmallQuantity,
+                                    SmallUomId = item.SmallUomId.ToString(),
+                                    SmallUomUnit = item.SmallUomUnit,
+                                    PricePerDealUnit = item.PricePerDealUnit,
+                                    PriceTotal = item.PricePerDealUnit,
+                                    RONo = item.RONo,
+                                    ReceiptQuantity = 0,
+                                    QuantityCorrection = item.DOQuantity,
+                                    PricePerDealUnitCorrection = item.PricePerDealUnit,
+                                    PriceTotalCorrection = item.PricePerDealUnit,
+                                    CodeRequirment = $"{nowTicksA}",
+                                    ReturQuantity=0
+                                }
+                            }
+                });
+            }
+
+            return gdo;
+        }
+
         public async Task<GarmentDeliveryOrder> GetTestData()
         {
             var data = await GetNewData();
@@ -560,7 +663,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
 			await facade.Create(data, "Unit Test");
 			return data;
 		}
-		public async Task<GarmentDeliveryOrder> GetDatas(string user)
+
+        public async Task<GarmentDeliveryOrder> GetTestData5()
+        {
+            var data = await GetNewData3();
+            await facade.Create(data, "Unit Test");
+            return data;
+        }
+        public async Task<GarmentDeliveryOrder> GetDatas(string user)
 		{
 			GarmentDeliveryOrder garmentDeliveryOrder =  await GetNewData();
 			garmentDeliveryOrder.IsInvoice = false;
