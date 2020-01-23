@@ -92,10 +92,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var mockMapper = new Mock<IMapper>();
 
+            //TopTenGarmentPurchaseSupplierController controller = GetController(mockFacade, null, mockMapper);
+            //var response = controller.GetReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>());
+            //Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
             TopTenGarmentPurchaseSupplierController controller = GetController(mockFacade, null, mockMapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-
         }
 
         [Fact]
@@ -128,18 +145,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
         }
 
-        [Fact]
-        public void Should_Error_Get_Report()
-        {
-            var mockFacade = new Mock<IGarmentTopTenPurchaseSupplier>();
-
-            var mockMapper = new Mock<IMapper>();
-
-            TopTenGarmentPurchaseSupplierController controller = GetController(mockFacade, null, mockMapper);
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
-
-        }
 
         [Fact]
         public void Should_Error_Get_Xls()

@@ -36,8 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
-            try
-            {
+            
                 var data = _facade.GetTopTenGarmentPurchaseSupplierReport(unit, jnsSpl, payMtd, category, dateFrom, dateTo, offset);
 
                 return Ok(new
@@ -47,14 +46,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
+            
+           
         }
 
 
