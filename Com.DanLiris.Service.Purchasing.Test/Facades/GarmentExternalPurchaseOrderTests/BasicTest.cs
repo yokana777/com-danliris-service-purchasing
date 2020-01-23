@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacade.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -515,5 +516,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
+
+        #region ToptenFacadeTest
+        [Fact]
+        public async Task Should_Success_Get_Report_TopTen()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            TopTenGarmentPurchaseFacade facadetotal = new TopTenGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
+            var Response = facadetotal.GetTopTenGarmentPurchaseSupplierReport(model.garmentInternalPurchaseOrder.UnitId, model.garmentExternalPurchaseOrder.SupplierImport, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
+
+            Assert.NotEmpty(Response.ToList());
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_TopTen_Excel()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            TopTenGarmentPurchaseFacade facadetotal = new TopTenGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
+            var Response = facadetotal.GenerateExcelTopTenGarmentPurchaseSupplier(model.garmentInternalPurchaseOrder.UnitId, model.garmentExternalPurchaseOrder.SupplierImport, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        #endregion
     }
 }
