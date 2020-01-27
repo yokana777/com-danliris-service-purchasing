@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             List<string> searchAttributes = new List<string>()
             {
-                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article"
+                "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article","SectionName"
             };
 
             Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -124,6 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 ValidatedMD1Date = s.ValidatedMD1Date,
                 ValidatedMD2Date = s.ValidatedMD2Date,
                 ValidatedPurchasingDate = s.ValidatedPurchasingDate,
+                SectionName=s.SectionName
 
             });
 
