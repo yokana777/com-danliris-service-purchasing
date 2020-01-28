@@ -241,6 +241,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         [HttpGet("correction-note/{urnNo}")]
         public async Task<IActionResult> GetCreditorAccountByURNNo([FromRoute] string urnNo)
         {
+            identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
                 var creditorAccount = await _facade.GetCreditorAccountDataByURNNo(urnNo);
