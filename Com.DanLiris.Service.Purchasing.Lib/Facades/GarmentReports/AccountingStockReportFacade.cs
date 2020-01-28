@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           //a.UnitCode == unitcode || a.UENNo.Contains(unitcode)
 
                           //&& a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
-                          && a.ReceiptDate.AddHours(offset).Date < DateFrom.Date
+                          && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                           select new
                           {
                               ReceiptDate = a.ReceiptDate,
@@ -106,8 +106,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           //|| a.UnitCode == unitcode
                           //a.UnitCode == unitcode || a.UENNo.Contains(unitcode)
                           // a.UENNo.Contains(unitcode) || a.UnitCode == unitcode     /*String.IsNullOrEmpty(a.UENNo) ? true :*/ 
-                         && a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
-                          && a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                         && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                          && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
 
                           select new
                           {
