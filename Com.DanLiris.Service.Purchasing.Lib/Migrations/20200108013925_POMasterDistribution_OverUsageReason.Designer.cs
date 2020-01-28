@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200108013925_POMasterDistribution_OverUsageReason")]
+    partial class POMasterDistribution_OverUsageReason
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3144,13 +3145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("GarmentPRId");
 
-                    b.Property<bool>("IsApprovedOpenPOMD");
-
-                    b.Property<bool>("IsApprovedOpenPOPurchasing");
-
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsOpenPO");
 
                     b.Property<bool>("IsUsed");
 

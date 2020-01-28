@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectio
             this.garmentUnitReceiptNoteDataUtil = garmentUnitReceiptNoteDataUtil;
         }
 
-        public async Task<(GarmentReceiptCorrection GarmentReceiptCorrection, GarmentUnitReceiptNote GarmentUnitReceiptNote)> GetNewData()
+        public async Task<(GarmentReceiptCorrection GarmentReceiptCorrection, GarmentUnitReceiptNote GarmentUnitReceiptNote)> GetNewData(GarmentUnitReceiptNote unitReceiptNote = null)
         {
-            var garmentUnitReceiptNote = await Task.Run(() => garmentUnitReceiptNoteDataUtil.GetTestData());
+            var garmentUnitReceiptNote = unitReceiptNote ?? await Task.Run(() => garmentUnitReceiptNoteDataUtil.GetTestData());
 
             GarmentReceiptCorrection garmentReceiptCorrection = new GarmentReceiptCorrection
             {
@@ -140,6 +140,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectio
             var data = await GetNewDataKoreksiKonversi();
             await garmentReceiptCorrectionFacade.Create(data, "unit-test");
             return data;
+        }
+
+        public async Task<GarmentReceiptCorrection> GetTestData(GarmentUnitReceiptNote unit)
+        {
+            var data = await GetNewData(unit);
+            await garmentReceiptCorrectionFacade.Create(data.GarmentReceiptCorrection, "unit-test");
+            return data.GarmentReceiptCorrection;
         }
     }
 }

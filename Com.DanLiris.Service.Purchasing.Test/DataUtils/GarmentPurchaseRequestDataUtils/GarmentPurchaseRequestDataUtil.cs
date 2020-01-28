@@ -51,6 +51,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 ValidatedBy = nowTicksA,
                 ValidatedDate = DateTimeOffset.Now,
 
+                SectionName = $"SectionName{nowTicksA}",
+                IsValidatedMD1 = true,
+                IsValidatedPurchasing = true,
+                IsValidatedMD2 = true,
+                ValidatedMD2Date = DateTimeOffset.Now,
+
                 Items = new List<GarmentPurchaseRequestItem>
                 {
                     new GarmentPurchaseRequestItem

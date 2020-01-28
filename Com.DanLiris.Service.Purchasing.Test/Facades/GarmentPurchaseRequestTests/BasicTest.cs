@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
@@ -332,6 +333,51 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
         }
 
         [Fact]
+        public async Task Should_Success_Get_All_Data_Order()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"PRNo\": \"asc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Date_Asc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Date\": \"asc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Date_Desc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Date\": \"desc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Status_Asc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Status\": \"asc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Order_Status_Desc()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read(Order: "{\"Status\": \"desc\"}");
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_All_Data_Dynamic()
         {
             GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
@@ -397,13 +443,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                 {
                     new GarmentPurchaseRequestItemViewModel
                     {
+                        UId = null,
                         Category = new CategoryViewModel(),
                         Product = new ProductViewModel(),
                         Uom = new UomViewModel(),
+                        Status = null,
+                        IsUsed = false,
                         PriceUom = new UomViewModel(),
                         Quantity = 5,
                         BudgetPrice = 2,
-                        PriceConversion = 1
+                        PriceConversion = 1,
+                        IsOpenPO = false,
+                        IsApprovedOpenPOMD = false,
+                        IsApprovedOpenPOPurchasing = false
                     }
                 }
             });
@@ -724,6 +776,57 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.Patch(model.Id, jsonPatch, USERNAME));
             Assert.NotNull(Response.Message);
+        }
+        // PR MASTER VALIDATION REPORT
+        [Fact]
+        public async Task Should_Success_Get_Report_Data()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GetDisplayReport(model.UnitId, null, null, "{}", 7);
+
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Get_Report_Data_Null_Parameter()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GetDisplayReport(model.UnitId, model.ShipmentDate.DateTime.AddDays(30), model.ShipmentDate.DateTime.AddDays(30), "{}", 7);
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_Excel()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GenerateExcel(model.UnitId, null, null, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Get_Report_Data_Excel_Null_Parameter()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            PRMasterValidationReportFacade facadevld = new PRMasterValidationReportFacade(_dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facadevld.GenerateExcel(model.UnitId, model.ShipmentDate.DateTime.AddDays(30), model.ShipmentDate.DateTime.AddDays(30), 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
     }
 }

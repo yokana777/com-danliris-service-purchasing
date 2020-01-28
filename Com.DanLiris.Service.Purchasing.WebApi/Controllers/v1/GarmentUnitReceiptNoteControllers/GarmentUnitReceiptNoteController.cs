@@ -399,6 +399,61 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 
         #endregion 
 
+        [HttpGet("monitoring-in")]
+        public IActionResult GetMonitoringIN(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var data = facade.GetReportIN(dateFrom, dateTo, type, page, size, Order, offset);
+
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("monitoring-in/download")]
+        public IActionResult GetXlsMonIn(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                var xls = facade.GenerateExcelMonIN(dateFrom, dateTo, type, offset);
+
+                string filename = "Monitoring Pemasukan";
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
 
     }
 }
