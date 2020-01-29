@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
@@ -11,6 +12,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReceiptCorrectionViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -100,6 +102,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             var garmentUnitReceiptNoteDataUtil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
 
             return new GarmentReceiptCorrectionDataUtil(facade, garmentUnitReceiptNoteDataUtil);
+        }
+
+        private GarmentDeliveryOrderDataUtil _dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
         }
 
         [Fact]
@@ -290,5 +306,101 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReceiptCorrectionT
             };
             Assert.True(viewModel4.Validate(null).Count() > 0);
         }
+
+
+
+        //[Fact]
+        //public async Task Should_Success_Get_All_Data_Report2()
+        //{
+        //    var dbContext = _dbContext(GetCurrentMethod());
+        //    var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade( GetServiceProvider(), dbContext);
+        //    var modelLocalDO = _dataUtilDO(garmentDeliveryOrderFacade, GetCurrentMethod());
+        //    var dataDO = await modelLocalDO.GetNewData5();
+
+        //    var garmentCorrection = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), dbContext);
+        //    var dataUtilCorr = new GarmentCorrectionNoteDataUtil(garmentCorrection, modelLocalDO);
+        //    var modelLocalCorr = await dataUtilCorr.GetTestData2(modelLocalDO);
+        //}
+
+
+        [Fact]
+        public async Task Should_Success_Get_All_Data_Report()
+        {
+            var serviceProvider = GetServiceProvider();
+            var dbContext = _dbContext(GetCurrentMethod());
+            
+
+            var facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
+            var dataUtilDO = _dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var FacadeCorrection = new GarmentCorrectionNotePriceFacade(serviceProvider, dbContext);
+            var dataUtilCorrection = new GarmentCorrectionNoteDataUtil(FacadeCorrection, dataUtilDO);
+
+            var FacadeUnitReceipt = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
+            var dataUtilUnitReceipt = new GarmentUnitReceiptNoteDataUtil(FacadeUnitReceipt, dataUtilDO);
+
+            var Facade = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+            var dataUtilReceiptCorr = new GarmentReceiptCorrectionDataUtil(Facade, dataUtilUnitReceipt);
+
+            var dataDO = await dataUtilDO.GetTestData5();
+
+            var dataCorr = await dataUtilCorrection.GetTestData2(dataDO);
+
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            var dataUnit = await dataUtilUnitReceipt.GetTestData(dataDO, nowTicks);
+
+            var dataReceipt = await dataUtilReceiptCorr.GetTestData(dataUnit);
+
+            var dateFrom = DateTimeOffset.MinValue;
+            var dateTo = DateTimeOffset.UtcNow;
+            var facade1 = new GarmentReceiptCorrectionReportFacade(dbContext, serviceProvider);
+
+            var Response = facade1.GetReport(dataReceipt.UnitCode, null, dateFrom, dateTo, "{}", 1, 25);
+
+            Assert.NotNull(Response.Item1);
+        }
+
+
+        [Fact]
+        public async Task Should_Success_Get_Excel()
+        {
+            var serviceProvider = GetServiceProvider();
+            var dbContext = _dbContext(GetCurrentMethod());
+
+
+            var facadeDO = new GarmentDeliveryOrderFacade(serviceProvider, dbContext);
+            var dataUtilDO = _dataUtilDO(facadeDO, GetCurrentMethod());
+
+            var FacadeCorrection = new GarmentCorrectionNotePriceFacade(serviceProvider, dbContext);
+            var dataUtilCorrection = new GarmentCorrectionNoteDataUtil(FacadeCorrection, dataUtilDO);
+
+            var FacadeUnitReceipt = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
+            var dataUtilUnitReceipt = new GarmentUnitReceiptNoteDataUtil(FacadeUnitReceipt, dataUtilDO);
+
+            var Facade = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+            var dataUtilReceiptCorr = new GarmentReceiptCorrectionDataUtil(Facade, dataUtilUnitReceipt);
+
+            var dataDO = await dataUtilDO.GetTestData5();
+
+            var dataCorr = await dataUtilCorrection.GetTestData2(dataDO);
+
+            long nowTicks = DateTimeOffset.Now.Ticks;
+            var dataUnit = await dataUtilUnitReceipt.GetTestData(dataDO, nowTicks);
+
+            var dataReceipt = await dataUtilReceiptCorr.GetTestData(dataUnit);
+
+            var dateFrom = DateTimeOffset.MinValue;
+            var dateTo = DateTimeOffset.UtcNow;
+            var facade1 = new GarmentReceiptCorrectionReportFacade(dbContext, serviceProvider);
+
+
+
+            var Response = facade1.GenerateExcel(dataReceipt.UnitCode, null, dateFrom, dateTo, "{}");
+            //var garmentReceiptCorrectionFacade = new GarmentReceiptCorrectionFacade(_dbContext(GetCurrentMethod()),GetServiceProvider() );
+            // var dataUtilReceiptNote = await dataUtil(Facade, GetCurrentMethod()).GetTestData();
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
     }
 }

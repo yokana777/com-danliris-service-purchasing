@@ -63,6 +63,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Collections.Generic;
 using System.Linq;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -128,6 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
+                .AddTransient<IGarmentPurchaseRequestItemFacade, GarmentPurchaseRequestItemFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentTotalPurchaseOrderFacade, TotalGarmentPurchaseFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
@@ -163,7 +165,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
                 .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>()
                 .AddTransient<IPRMasterValidationReportFacade, PRMasterValidationReportFacade>()
-                .AddTransient<IAccountingStockReportFacade, AccountingStockReportFacade>(); ;                
+                .AddTransient<IAccountingStockReportFacade, AccountingStockReportFacade>()
+                .AddTransient<IGarmentReceiptCorrectionReportFacade, GarmentReceiptCorrectionReportFacade>()
+                .AddTransient<IGarmentTopTenPurchaseSupplier, TopTenGarmentPurchaseFacade>()
+                .AddTransient<IGarmentFlowDetailMaterialReport, GarmentFlowDetailMaterialReportFacade>(); ;                
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
