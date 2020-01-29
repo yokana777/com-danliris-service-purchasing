@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         }
 
         [HttpGet]
-        public IActionResult GetReport(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+        public IActionResult GetReport(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
 
 
         [HttpGet("download")]
-        public IActionResult GetXls(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXls(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try

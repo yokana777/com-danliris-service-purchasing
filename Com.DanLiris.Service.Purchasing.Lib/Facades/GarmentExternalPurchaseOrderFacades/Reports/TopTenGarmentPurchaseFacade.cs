@@ -27,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             this.dbSet = dbContext.Set<GarmentExternalPurchaseOrder>();
         }
        
-        public IQueryable<TopTenGarmenPurchasebySupplierViewModel> GetTotalGarmentPurchaseBySupplierReportQuery(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<TopTenGarmenPurchasebySupplierViewModel> GetTotalGarmentPurchaseBySupplierReportQuery(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && a.IsCanceled == false && a.IsPosted == true &&
                          b.DealQuantity != 0
                          && c.UnitId == (string.IsNullOrWhiteSpace(unit) ? c.UnitId : unit)
-                         && a.SupplierImport == jnsSpl 
+                         && a.SupplierImport == (jnsSpl.HasValue ? jnsSpl : a.SupplierImport)
                          && a.PaymentMethod == (string.IsNullOrWhiteSpace(payMtd) ? a.PaymentMethod : payMtd)
                          && (string.IsNullOrWhiteSpace(category) ? true : (category == "BAHAN PENDUKUNG" ? (b.ProductName != "FABRIC" && b.ProductName != "INTERLINING") : b.ProductName == category))
                          && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          });
 
             var Query = (from a in Query1
-                         group a by new { a.SupplierName } into G
+                         group a by new { a.SupplierName, a.ProductName } into G
                          orderby G.Sum(a => a.Amount) descending
                          select new TopTenGarmenPurchasebySupplierViewModel
                          {
@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Query.OrderByDescending(b => b.Amount).Take(10);
         }
 
-        public List<TopTenGarmenPurchasebySupplierViewModel> GetTopTenGarmentPurchaseSupplierReport(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public List<TopTenGarmenPurchasebySupplierViewModel> GetTopTenGarmentPurchaseSupplierReport(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetTotalGarmentPurchaseBySupplierReportQuery(unit, jnsSpl, payMtd, category, dateFrom, dateTo, offset);
            // Query = Query.OrderByDescending(b => b.Amount);
@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
         }
 
 
-        public MemoryStream GenerateExcelTopTenGarmentPurchaseSupplier(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelTopTenGarmentPurchaseSupplier(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetTotalGarmentPurchaseBySupplierReportQuery(unit, jnsSpl, payMtd, category, dateFrom, dateTo, offset);
             DataTable result = new DataTable();
