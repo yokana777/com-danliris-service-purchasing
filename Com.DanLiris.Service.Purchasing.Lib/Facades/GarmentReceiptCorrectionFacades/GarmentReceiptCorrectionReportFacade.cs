@@ -63,21 +63,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
             
 
-            var Query = (from a in dbContext.GarmentReceiptCorrections
-                         join b in dbContext.GarmentReceiptCorrectionItems on a.Id equals b.CorrectionId //into i from b in i.DefaultIfEmpty()
+            var Query = (from b in dbContext.GarmentReceiptCorrectionItems 
+                         join a in dbContext.GarmentReceiptCorrections on b.CorrectionId equals a.Id into i from a in i.DefaultIfEmpty()
 
-                         join c in dbContext.GarmentCorrectionNoteItems on b.DODetailId equals c.DODetailId //into j from c in j.DefaultIfEmpty()
+                         join c in dbContext.GarmentCorrectionNoteItems on b.DODetailId equals c.DODetailId into j from c in j.DefaultIfEmpty()
 
-                         join d in dbContext.GarmentCorrectionNotes on c.GCorrectionId equals d.Id //into k from d in k.DefaultIfEmpty()
+                         join d in dbContext.GarmentCorrectionNotes on c.GCorrectionId equals d.Id into k from d in k.DefaultIfEmpty()
 
-                         join e in dbContext.GarmentDeliveryOrders on d.DOId equals e.Id //into l from e in l.DefaultIfEmpty()
+                         join e in dbContext.GarmentDeliveryOrders on d.DOId equals e.Id into l from e in l.DefaultIfEmpty()
 
-                         join f in dbContext.GarmentUnitReceiptNotes on a.URNId equals f.Id //into m from f in m.DefaultIfEmpty()
+                         join f in dbContext.GarmentUnitReceiptNotes on a.URNId equals f.Id into m from f in m.DefaultIfEmpty()
 
-                         join g in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals g.Id //into n from g in n.DefaultIfEmpty()
-                         join h in dbContext.GarmentUnitReceiptNoteItems on f.Id equals h.URNId //into o from h in o.DefaultIfEmpty()
+                         join g in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals g.Id into n from g in n.DefaultIfEmpty()
+                         join h in dbContext.GarmentUnitReceiptNoteItems on f.Id equals h.URNId into o from h in o.DefaultIfEmpty()
 
-                         join i in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals i.Id
+                         join z in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals z.Id into p from z in p.DefaultIfEmpty()
 
                          where
                          a.IsDeleted == false
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
                         && a.CorrectionDate.Date >= dateFrom
                         && a.CorrectionDate.Date <= dateTo
-                         && i.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? i.CodeRequirment : category)
+                         && z.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? z.CodeRequirment : category)
                          orderby
 
                          a.CorrectionDate descending
@@ -238,8 +238,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 foreach (var item in Query)
                 {
                     index++;
-                    
-                    result.Rows.Add(index, item.CorrectionNo, item.CorrectionDate, item.CorrectionNote, item.URNNo, item.BillNo, 
+                    string Corr = item.CorrectionDate == null ? "-" : item.CorrectionDate.Value.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, item.CorrectionNo, Corr, item.CorrectionNote, item.URNNo, item.BillNo, 
                         item.Supplier, item.SupplierCode, item.RONo, item.Article, item.DONo, item.POSerialNumber, item.ProductCode, item.ProductName,
                         item.ProductRemark, item.Quantity, item.UomUnit,item.Conversion, item.SmallQuantity, item.SmallUomUnit);
                 }
@@ -249,6 +249,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
         }
 
 
-        
     }
 }
