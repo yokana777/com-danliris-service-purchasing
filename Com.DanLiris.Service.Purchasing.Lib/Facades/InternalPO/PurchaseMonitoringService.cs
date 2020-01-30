@@ -97,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          {
                              PurchaseRequestId = purchaseRequestItem.PurchaseRequestId,
                              PurchaseRequestNo = purchaseRequestItem.PurchaseRequest.No,
-                             PurchaseRequestDate = purchaseRequestItem.PurchaseRequest.Date,
+                             PurchaseRequestDate = purchaseRequestItem.PurchaseRequest.Date.Date,
                              PurchaseRequestCreatedDate = purchaseRequestItem.PurchaseRequest.CreatedUtc,
                              CategoryId = purchaseRequestItem.PurchaseRequest.CategoryId,
                              CategoryName = purchaseRequestItem.PurchaseRequest.CategoryName,
@@ -118,6 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              CurrencyCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode : "",
                              CurrencyRate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyRate : 0,
                              InternalPurchaseOrderId = ipoItem == null ? 0 : ipoItem.POId,
+                             InternalPurchaseOrderNo = ipoItem == null ? "" : ipoItem.InternalPurchaseOrder.PONo,
                              InternalPurchaseOrderCreatedDate = ipoItem == null ? (DateTime?)null : ipoItem.InternalPurchaseOrder.CreatedUtc,
                              InternalPurchaseOrderLastModifiedDate = ipoItem == null ? (DateTime?)null : ipoItem.InternalPurchaseOrder.LastModifiedUtc,
                              InternalPurchaseOrderStaff = ipoItem != null ? ipoItem.InternalPurchaseOrder.CreatedBy : "",
@@ -125,9 +126,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              InternalPurchaseOrderStatus = ipoItem != null ? ipoItem.Status : "",
                              ExternalPurchaseOrderId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.EPOId : 0,
                              ExternalPurchaseOrderCreatedDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CreatedUtc : (DateTime?)null,
-                             ExternalPurchaseOrderDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate : (DateTimeOffset?)null,
-                             ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? ipoItem.InternalPurchaseOrder.ExpectedDeliveryDate : (DateTimeOffset?)null,
-                             ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate : (DateTimeOffset?)null,
+                             ExternalPurchaseOrderDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date : (DateTimeOffset?)null,
+                             ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? ipoItem.InternalPurchaseOrder.ExpectedDeliveryDate.Date : (DateTimeOffset?)null,
+                             ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate.Date : (DateTimeOffset?)null,
                              ExternalPurchaseOrderNo = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.EPONo : "",
                              SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
                              SupplierCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierCode : "",
@@ -137,13 +138,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              ExternalPurchaseOrderItemId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.Id : 0,
                              ExternalPurchaseOrderDetailId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.Id : 0,
                              DeliveryOrderId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderId,
-                             DeliveryOrderDate = ipoFulfillment != null ? ipoFulfillment.SupplierDODate : (DateTimeOffset?)null,
-                             DeliveryOrderArrivalDate = ipoFulfillment != null ? ipoFulfillment.DeliveryOrderDate : (DateTimeOffset?)null,
+                             DeliveryOrderDate = ipoFulfillment != null ? ipoFulfillment.SupplierDODate.Date : (DateTimeOffset?)null,
+                             DeliveryOrderArrivalDate = ipoFulfillment != null ? ipoFulfillment.DeliveryOrderDate.Date : (DateTimeOffset?)null,
                              DeliveryOrderNo = ipoFulfillment != null ? ipoFulfillment.DeliveryOrderNo : "",
                              DeliveryOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderItemId,
                              DelveryOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderDetailId,
                              UnitReceiptNoteId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitReceiptNoteId,
-                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate != DateTimeOffset.MinValue ? ipoFulfillment.UnitReceiptNoteDate : (DateTimeOffset?)null,
+                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate != DateTimeOffset.MinValue ? ipoFulfillment.UnitReceiptNoteDate.Date : (DateTimeOffset?)null,
                              UnitReceiptNoteNo = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteNo : "",
                              UnitReceiptNoteItemId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteItemId : 0,
                              UnitReceiptNoteQuantity = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteDeliveredQuantity : 0,
@@ -524,6 +525,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public string CorrectionNominal { get; set; }
         public double PriceTotal { get; internal set; }
         public DateTimeOffset? ExternalPurchaseOrderDeliveryDate { get; internal set; }
+        public string InternalPurchaseOrderNo { get; internal set; }
     }
 
 
