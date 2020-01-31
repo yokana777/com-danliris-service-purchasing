@@ -126,9 +126,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              InternalPurchaseOrderStatus = ipoItem != null ? ipoItem.Status : "",
                              ExternalPurchaseOrderId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.EPOId : 0,
                              ExternalPurchaseOrderCreatedDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CreatedUtc : (DateTime?)null,
-                             ExternalPurchaseOrderDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date : (DateTimeOffset?)null,
-                             ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? ipoItem.InternalPurchaseOrder.ExpectedDeliveryDate.Date : (DateTimeOffset?)null,
-                             ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate.Date : (DateTimeOffset?)null,
+                             ExternalPurchaseOrderDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date : (DateTime?)null,
+                             ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? ipoItem.InternalPurchaseOrder.ExpectedDeliveryDate.Date : (DateTime?)null,
+                             ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate.Date : (DateTime?)null,
                              ExternalPurchaseOrderNo = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.EPONo : "",
                              SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
                              SupplierCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierCode : "",
@@ -138,31 +138,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              ExternalPurchaseOrderItemId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.Id : 0,
                              ExternalPurchaseOrderDetailId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.Id : 0,
                              DeliveryOrderId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderId,
-                             DeliveryOrderDate = ipoFulfillment != null ? ipoFulfillment.SupplierDODate.Date : (DateTimeOffset?)null,
-                             DeliveryOrderArrivalDate = ipoFulfillment != null ? ipoFulfillment.DeliveryOrderDate.Date : (DateTimeOffset?)null,
+                             DeliveryOrderDate = ipoFulfillment != null ? ipoFulfillment.SupplierDODate.Date : (DateTime?)null,
+                             DeliveryOrderArrivalDate = ipoFulfillment != null ? ipoFulfillment.DeliveryOrderDate.Date : (DateTime?)null,
                              DeliveryOrderNo = ipoFulfillment != null ? ipoFulfillment.DeliveryOrderNo : "",
                              DeliveryOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderItemId,
                              DelveryOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderDetailId,
                              UnitReceiptNoteId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitReceiptNoteId,
-                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate != DateTimeOffset.MinValue ? ipoFulfillment.UnitReceiptNoteDate.Date : (DateTimeOffset?)null,
+                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate != DateTime.MinValue ? ipoFulfillment.UnitReceiptNoteDate.Date : (DateTime?)null,
                              UnitReceiptNoteNo = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteNo : "",
                              UnitReceiptNoteItemId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteItemId : 0,
                              UnitReceiptNoteQuantity = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteDeliveredQuantity : 0,
                              UnitReceiptNoteUomId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteUomId : "",
                              UnitReceiptNoteUomUnit = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteUom : "",
                              UnitPaymentOrderId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderId,
-                             UnitPaymentOrderInvoiceDate = ipoFulfillment != null && ipoFulfillment.InvoiceDate != DateTimeOffset.MinValue ? ipoFulfillment.InvoiceDate : (DateTimeOffset?)null,
+                             UnitPaymentOrderInvoiceDate = ipoFulfillment != null && ipoFulfillment.InvoiceDate != DateTime.MinValue ? ipoFulfillment.InvoiceDate.Date : (DateTime?)null,
                              UnitPaymentOrderInvoiceNo = ipoFulfillment != null ? ipoFulfillment.InvoiceNo : "",
-                             UnitPaymentOrderDate = ipoFulfillment != null && ipoFulfillment.InterNoteDate != DateTimeOffset.MinValue ? ipoFulfillment.InterNoteDate : (DateTimeOffset?)null,
+                             UnitPaymentOrderDate = ipoFulfillment != null && ipoFulfillment.InterNoteDate != DateTime.MinValue ? ipoFulfillment.InterNoteDate.Date : (DateTime?)null,
                              UnitPaymentOrderNo = ipoFulfillment != null ? ipoFulfillment.InterNoteNo : "",
-                             UnitPaymentOrderDueDate = ipoFulfillment != null && ipoFulfillment.InterNoteDueDate != DateTimeOffset.MinValue ? ipoFulfillment.InterNoteDueDate : (DateTimeOffset?)null,
+                             UnitPaymentOrderDueDate = ipoFulfillment != null && ipoFulfillment.InterNoteDueDate != DateTime.MinValue ? ipoFulfillment.InterNoteDueDate.Date : (DateTime?)null,
                              UnitPaymentOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderItemId,
                              UnitPaymentOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderDetailId,
                              UnitPaymentOrderTotalPrice = ipoFulfillment != null ? ipoFulfillment.InterNoteValue : 0,
-                             UnitPaymentOrderVATDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat && ipoFulfillment.UnitPaymentOrderVatDate!= DateTimeOffset.MinValue ? ipoFulfillment.UnitPaymentOrderVatDate : (DateTimeOffset?)null,
+                             UnitPaymentOrderVATDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat && ipoFulfillment.UnitPaymentOrderVatDate!= DateTime.MinValue ? ipoFulfillment.UnitPaymentOrderVatDate.Date : (DateTime?)null,
                              UnitPaymentOrderVATNo = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat ? ipoFulfillment.UnitPaymentOrderVatNo : "",
                              UnitPaymentOrderVAT = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat ? 0.1 * ipoFulfillment.InterNoteValue : 0,
-                             UnitPaymentOrderIncomeTaxDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax && ipoFulfillment.UnitPaymentOrderIncomeTaxDate != DateTimeOffset.MinValue ? ipoFulfillment.UnitPaymentOrderIncomeTaxDate : (DateTimeOffset?)null,
+                             UnitPaymentOrderIncomeTaxDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax && ipoFulfillment.UnitPaymentOrderIncomeTaxDate != DateTime.MinValue ? ipoFulfillment.UnitPaymentOrderIncomeTaxDate.Date : (DateTime?)null,
                              UnitPaymentOrderIncomeTaxNo = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax ? ipoFulfillment.UnitPaymentOrderIncomeTaxNo : "",
                              UnitPaymentOrderIncomeTax = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax ? ipoFulfillment.UnitPaymentOrderIncomeTaxRate * ipoFulfillment.InterNoteValue : 0
                          });
@@ -454,7 +454,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public long PurchaseRequestId { get; set; }
         public string PurchaseRequestNo { get; set; }
-        public DateTimeOffset PurchaseRequestDate { get; set; }
+        public DateTime PurchaseRequestDate { get; set; }
         public DateTime PurchaseRequestCreatedDate { get; set; }
         public string CategoryId { get; set; }
         public string CategoryName { get; set; }
@@ -481,8 +481,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public string InternalPurchaseOrderStatus { get; set; }
         public long ExternalPurchaseOrderId { get; set; }
         public DateTime? ExternalPurchaseOrderCreatedDate { get; set; }
-        public DateTimeOffset? ExternalPurchaseOrderDate { get; set; }
-        public DateTimeOffset? ExternalPurchaseOrderExpectedDeliveryDate { get; set; }
+        public DateTime? ExternalPurchaseOrderDate { get; set; }
+        public DateTime? ExternalPurchaseOrderExpectedDeliveryDate { get; set; }
         public string ExternalPurchaseOrderNo { get; set; }
         public string SupplierId { get; set; }
         public string SupplierCode { get; set; }
@@ -492,31 +492,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public long ExternalPurchaseOrderItemId { get; set; }
         public long ExternalPurchaseOrderDetailId { get; set; }
         public long DeliveryOrderId { get; set; }
-        public DateTimeOffset? DeliveryOrderDate { get; set; }
-        public DateTimeOffset? DeliveryOrderArrivalDate { get; set; }
+        public DateTime? DeliveryOrderDate { get; set; }
+        public DateTime? DeliveryOrderArrivalDate { get; set; }
         public string DeliveryOrderNo { get; set; }
         public long DeliveryOrderItemId { get; set; }
         public long DelveryOrderDetailId { get; set; }
         public long UnitReceiptNoteId { get; set; }
-        public DateTimeOffset? UnitReceiptNoteDate { get; set; }
+        public DateTime? UnitReceiptNoteDate { get; set; }
         public string UnitReceiptNoteNo { get; set; }
         public long UnitReceiptNoteItemId { get; set; }
         public double UnitReceiptNoteQuantity { get; set; }
         public string UnitReceiptNoteUomId { get; set; }
         public string UnitReceiptNoteUomUnit { get; set; }
         public long UnitPaymentOrderId { get; set; }
-        public DateTimeOffset? UnitPaymentOrderInvoiceDate { get; set; }
+        public DateTime? UnitPaymentOrderInvoiceDate { get; set; }
         public string UnitPaymentOrderInvoiceNo { get; set; }
-        public DateTimeOffset? UnitPaymentOrderDate { get; set; }
+        public DateTime? UnitPaymentOrderDate { get; set; }
         public string UnitPaymentOrderNo { get; set; }
-        public DateTimeOffset? UnitPaymentOrderDueDate { get; set; }
+        public DateTime? UnitPaymentOrderDueDate { get; set; }
         public long UnitPaymentOrderItemId { get; set; }
         public long UnitPaymentOrderDetailId { get; set; }
         public double UnitPaymentOrderTotalPrice { get; set; }
-        public DateTimeOffset? UnitPaymentOrderVATDate { get; set; }
+        public DateTime? UnitPaymentOrderVATDate { get; set; }
         public string UnitPaymentOrderVATNo { get; set; }
         public double UnitPaymentOrderVAT { get; set; }
-        public DateTimeOffset? UnitPaymentOrderIncomeTaxDate { get; set; }
+        public DateTime? UnitPaymentOrderIncomeTaxDate { get; set; }
         public string UnitPaymentOrderIncomeTaxNo { get; set; }
         public double UnitPaymentOrderIncomeTax { get; set; }
         public string CorrectionDate { get; set; }
@@ -524,7 +524,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public string CorrectionType { get; set; }
         public string CorrectionNominal { get; set; }
         public double PriceTotal { get; internal set; }
-        public DateTimeOffset? ExternalPurchaseOrderDeliveryDate { get; internal set; }
+        public DateTime? ExternalPurchaseOrderDeliveryDate { get; internal set; }
         public string InternalPurchaseOrderNo { get; internal set; }
     }
 
