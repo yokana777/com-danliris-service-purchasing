@@ -195,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     DeleteDailyBankTransaction(model.DocumentNo, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     UpdateCreditorAccount(model, identityService);
-                    ReverseJournalTransaction(model.DocumentNo);
+                    ReverseJournalTransaction(model);
                     CreateJournalTransaction(model, identityService);
                     transaction.Commit();
                 }
@@ -289,45 +289,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     items.Add(item);
                 }
+
+                items = items.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+                {
+                    COA = s.First().COA,
+                    Debit = s.Sum(sm => Math.Round(sm.Debit.GetValueOrDefault(), 4))
+                }).ToList();
+
+                var bankJournalItem = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = model.BankAccountCOA
+                    },
+                    Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
+                };
+                items.Add(bankJournalItem);
+
+                var modelToPost = new JournalTransaction()
+                {
+                    Date = DateTimeOffset.Now,
+                    Description = "Bukti Pengeluaran Bank",
+                    ReferenceNo = model.DocumentNo + " / " + detail.UnitPaymentOrderNo,
+                    Items = items
+                };
+
+                string journalTransactionUri = "journal-transactions";
+                //var httpClient = new HttpClientService(identityService);
+                var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+                response.EnsureSuccessStatusCode();
             }
 
-            items = items.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
-            {
-                COA = s.First().COA,
-                Debit = s.Sum(sm => Math.Round(sm.Debit.GetValueOrDefault(), 4))
-            }).ToList();
-
-            var bankJournalItem = new JournalTransactionItem()
-            {
-                COA = new COA()
-                {
-                    Code = model.BankAccountCOA
-                },
-                Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
-            };
-            items.Add(bankJournalItem);
-
-            var modelToPost = new JournalTransaction()
-            {
-                Date = DateTimeOffset.Now,
-                Description = "Bukti Pengeluaran Bank",
-                ReferenceNo = model.DocumentNo,
-                Items = items
-            };
-
-            string journalTransactionUri = "journal-transactions";
-            //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-            response.EnsureSuccessStatusCode();
+            
         }
 
-        private void ReverseJournalTransaction(string referenceNo)
+        private void ReverseJournalTransaction(BankExpenditureNoteModel model)
         {
-            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
-            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-            response.EnsureSuccessStatusCode();
+            foreach (var detail in model.Details)
+            {
+                string journalTransactionUri = $"journal-transactions/reverse-transactions/{model.DocumentNo + " / " + detail.UnitPaymentOrderNo}";
+                var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+                response.EnsureSuccessStatusCode();
+            }
         }
 
         public async Task<int> Delete(int Id, IdentityService identityService)
@@ -344,7 +349,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 try
                 {
-                    BankExpenditureNoteModel bankExpenditureNote = dbContext.BankExpenditureNotes.Single(p => p.Id == Id);
+                    BankExpenditureNoteModel bankExpenditureNote = dbContext.BankExpenditureNotes.Include(entity => entity.Details).Single(p => p.Id == Id);
 
                     ICollection<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>(dbContext.BankExpenditureNoteDetails.Where(p => p.BankExpenditureNoteId.Equals(Id)));
 
@@ -384,7 +389,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Count = await dbContext.SaveChangesAsync();
                     DeleteDailyBankTransaction(bankExpenditureNote.DocumentNo, identityService);
                     DeleteCreditorAccount(bankExpenditureNote, identityService);
-                    ReverseJournalTransaction(bankExpenditureNote.DocumentNo);
+                    ReverseJournalTransaction(bankExpenditureNote);
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)
