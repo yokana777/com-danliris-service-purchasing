@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
                 DivisionId = "DivisionId",
                 DivisionCode = "DivisionCode",
                 DivisionName = "DivisionName",
-                CategoryId = "CategoryId",
+                CategoryId = "1",
                 CategoryCode = "CategoryCode",
                 CategoryName = "CategoryName",
                 Remark = "Remark",
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
                 DivisionId = "DivisionId",
                 DivisionCode = "DivisionCode",
                 DivisionName = "DivisionName",
-                CategoryId = "CategoryId",
+                CategoryId = "1",
                 CategoryCode = "BB",
                 CategoryName = "CategoryName",
                 Remark = "Remark",
@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
                 },
                 category = new CategoryViewModel
                 {
-                    _id = "CategoryId",
+                    _id = "1",
                     code = "CategoryCode",
                     name = "CategoryName",
                 },

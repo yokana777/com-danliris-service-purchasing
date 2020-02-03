@@ -1201,6 +1201,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             StockCOA = "9999.00"
                         };
                     }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(category.ImportDebtCOA))
+                        {
+                            category.ImportDebtCOA = "9999.00";
+                        }
+                        if (string.IsNullOrEmpty(category.LocalDebtCOA))
+                        {
+                            category.LocalDebtCOA = "9999.00";
+                        }
+                        if (string.IsNullOrEmpty(category.PurchasingCOA))
+                        {
+                            category.PurchasingCOA = "9999.00";
+                        }
+                        if (string.IsNullOrEmpty(category.StockCOA))
+                        {
+                            category.StockCOA = "9999.00";
+                        }
+                    }
 
                     var total = 0.1 * (urnItem.PricePerDealUnit * urnItem.ReceiptQuantity);
                     journalCreditItems.Add(new JournalTransactionItem()

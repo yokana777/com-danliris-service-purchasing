@@ -349,7 +349,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
                 CurrencyCode = "CurrencyCode",
                 UseIncomeTax = true,
                 UseVat = false,
-                CategoryId = "CategoryId"
+                CategoryId = "1"
             });
 
             var response = facade.ReadBySupplierUnit(Filter: filter);
