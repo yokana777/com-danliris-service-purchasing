@@ -56,7 +56,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                         Conversion = poDistDetail.Conversion,
                                         UomCCUnit = poDistDetail.UomCCUnit,
                                         DONo = poDist.DONo,
-                                        SupplierName = poDist.SupplierName
+                                        SupplierName = poDist.SupplierName,
+                                        OverUsageReason = poDistDetail.OverUsageReason
                                     };
                         garmentPOMasterDistributions = Query.ToList();
                     }
@@ -100,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Ket. Kelebihan Barang", DataType = typeof(string) });
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
@@ -115,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     var lastMergedRowPosition = rowPosition;
                     foreach (var i in d.Items)
                     {
-                        result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, i.ROMaster, i.POMaster, i.DistributionQuantity, i.UomCCUnit, i.DONo, i.SupplierName);
+                        result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, i.ROMaster, i.POMaster, i.DistributionQuantity, i.UomCCUnit, i.DONo, i.SupplierName, i.OverUsageReason);
                         lastMergedRowPosition = rowPosition++;
                     }
                     foreach (var col in new[] { "A", "B", "C", "D", "E", "F" })
@@ -128,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 }
                 else
                 {
-                    result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, "", "", null, "", "", "");
+                    result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, "", "", null, "", "", "", "");
                     rowPosition++;
                 }
             }
