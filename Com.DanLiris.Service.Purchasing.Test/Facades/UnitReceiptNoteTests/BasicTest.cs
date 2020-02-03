@@ -336,25 +336,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         }
 
         [Fact]
-        public void Should_Success_Read_DataBySupplier()
+        public async Task Should_Success_Read_DataBySupplier()
         {
-            var dbContext = _dbContext(GetCurrentMethod());
-            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-            var dataUtil = _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var currentMethod = GetCurrentMethod();
+            var dbContext = _dbContext(currentMethod);
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(currentMethod).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, currentMethod).GetTestData(USERNAME);
             var filter = JsonConvert.SerializeObject(new
             {
-                DivisionId = "DivisionId",
-                SupplierId = "supId",
-                PaymentMethod = "test",
-                CurrencyCode = "CurrencyCode",
-                UseIncomeTax = true,
-                UseVat = false,
-                CategoryId = "CategoryId"
+                dataUtil.DivisionId,
+                dataUtil.SupplierId
             });
 
             var response = facade.ReadBySupplierUnit(Filter: filter);
 
-            Assert.NotEmpty(response.Data);
+            Assert.NotNull(response.Data);
         }
 
         [Fact]
