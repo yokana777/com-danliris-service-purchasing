@@ -38,26 +38,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
           //  DateTimeOffset YEAR = year == null ? new DateTime(1970) : (DateTimeOffset)year;
             var Query1 = (from a in dbContext.GarmentDeliveryOrders
-                         join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId into i
-                          from b in i.DefaultIfEmpty()
+                         join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId// into i from b in i.DefaultIfEmpty()
 
-                          join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId into j
-                          from c in j.DefaultIfEmpty()
-                          join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id into k
-                          from d in k.DefaultIfEmpty()
-                          join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id into l
-                          from e in l.DefaultIfEmpty()
+                          join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId //into j from c in j.DefaultIfEmpty()
+                          join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id //into k //from d in k.DefaultIfEmpty()
+                          join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id //into l from e in l.DefaultIfEmpty()
 
                           where
                          a.CustomsId != 0
-                         &&e.SupplierImport == supplier //(supplier.HasValue ? supplier : e.SupplierImport)
+                         && e.SupplierImport == supplier //(supplier.HasValue ? supplier : e.SupplierImport)
                          && a.PaymentMethod == (string.IsNullOrWhiteSpace(jnsbyr) ? a.PaymentMethod : jnsbyr)
                          && c.UnitId == (string.IsNullOrWhiteSpace(unit) ? c.UnitId : unit)
                          && (string.IsNullOrWhiteSpace(category) ? true : (category == "BAHAN BAKU" ? c.ProductName == "FABRIC" : c.ProductName == category))
                          && d.ArrivalDate.Value.Year == Year
-                         //&& (d.ArrivalDate.Value.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0))).ToString("yyyy") == Year
+                          //&& (d.ArrivalDate.Value.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0))).ToString("yyyy") == Year
 
-                         select new {
+                          select new {
                              SupplierName = a.SupplierName,
                              UomUnit = c.UomUnit,
                              c.ReceiptQuantity,

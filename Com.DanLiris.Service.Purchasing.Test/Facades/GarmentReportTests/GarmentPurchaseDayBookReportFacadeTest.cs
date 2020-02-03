@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
             int year = DateTimeOffset.Now.Year;
             var Facade = new GarmentPurchaseDayBookReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetReport(null,false,null,null,year,0,"",1,25);
+            var Response = Facade.GetReport(null,true,null,null,year,0,"",1,25);
             Assert.NotNull(Response.Item1);
         }
 
@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
             int year = DateTimeOffset.Now.Year;
             var Facade = new GarmentPurchaseDayBookReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcel(null, false, null, null, year, 0);
+            var Response = Facade.GenerateExcel(null, true, null, null, year, 0);
             Assert.NotNull(Response);
         }
     }
