@@ -22,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string UomCCUnit { get; set; }
         public string DONo { get; set; }
         public string SupplierName { get; set; }
+        public string OverUsageReason { get; set; }
     }
 }
