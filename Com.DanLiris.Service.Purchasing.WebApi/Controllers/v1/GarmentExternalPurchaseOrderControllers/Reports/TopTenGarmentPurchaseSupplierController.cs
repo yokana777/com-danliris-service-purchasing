@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         }
 
         [HttpGet]
-        public IActionResult GetReport(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+        public IActionResult GetReport(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
 
 
         [HttpGet("download")]
-        public IActionResult GetXls(string unit, bool? jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXls(string unit, bool jnsSpl, string payMtd, string category, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try
@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
 
                 var xls = _facade.GenerateExcelTopTenGarmentPurchaseSupplier(unit, jnsSpl, payMtd, category, dateFrom, dateTo, offset);
 
-                string filename = String.Format("Laporan 10 Teratas Pembelian Garment ke Supplier - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.Format("Laporan Top Ten Supplier - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
