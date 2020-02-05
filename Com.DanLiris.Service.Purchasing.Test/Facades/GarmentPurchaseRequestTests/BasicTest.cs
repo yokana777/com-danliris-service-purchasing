@@ -786,7 +786,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facadevld.GetDisplayReport(model.UnitId, null, null, "{}", 7);
+            var Response = facadevld.GetDisplayReport(model.UnitId, model.SectionName, null, null, "{}", 7);
 
             Assert.NotEmpty(Response.Item1);
         }
@@ -799,7 +799,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facadevld.GetDisplayReport(model.UnitId, model.ShipmentDate.DateTime.AddDays(30), model.ShipmentDate.DateTime.AddDays(30), "{}", 7);
+            var Response = facadevld.GetDisplayReport(model.UnitId, model.SectionName, model.ValidatedMD2Date.DateTime.AddDays(30), model.ValidatedMD2Date.DateTime.AddDays(30), "{}", 7);
 
         }
 
@@ -811,7 +811,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facadevld.GenerateExcel(model.UnitId, null, null, 7);
+            var Response = facadevld.GenerateExcel(model.UnitId, model.SectionName, null, null, 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -824,7 +824,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facadevld.GenerateExcel(model.UnitId, model.ShipmentDate.DateTime.AddDays(30), model.ShipmentDate.DateTime.AddDays(30), 7);
+            var Response = facadevld.GenerateExcel(model.UnitId, model.SectionName, model.ValidatedMD2Date.DateTime.AddDays(30), model.ValidatedMD2Date.DateTime.AddDays(30), 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }

@@ -68,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
             var facade = new BudgetMasterSampleDisplayFacade(mockServiceProvider.Object, dbContext);
 
-            var Response = facade.GetMonitoring(dataGarmentPurchaseRequest.Id);
+            var Response = facade.GetDisplayQuery(dataGarmentPurchaseRequest.Id);
             Assert.NotEmpty(Response);
         }
 
@@ -85,8 +85,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
             var facade = new BudgetMasterSampleDisplayFacade(mockServiceProvider.Object, dbContext);
 
-            var Response = facade.GetExcel(dataGarmentPurchaseRequest.Id);
-            Assert.NotNull(Response.Item2);
+            var Response = facade.GenerateExcel(dataGarmentPurchaseRequest.Id);
+            Assert.NotNull(Response);
         }
     }
 }

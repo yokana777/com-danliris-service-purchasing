@@ -28,16 +28,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
             //this.IdentityService = serviceProvider.GetService<IdentityService>();
         }
 
-        public IQueryable<PRMasterValidationReportViewModel> GetDisplayQuery(string unit, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<PRMasterValidationReportViewModel> GetDisplayQuery(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
             var Query = (from a in dbContext.GarmentPurchaseRequests
                          where a.IsDeleted == false
+                               && a.PRType != "JOB ORDER"
+                               && a.IsValidatedMD2 == true
                                && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
-                               && a.ShipmentDate.AddHours(offset).Date >= DateFrom.Date
-                               && a.ShipmentDate.AddHours(offset).Date <= DateTo.Date
+                               && a.SectionName == (string.IsNullOrWhiteSpace(sectionName) ? a.SectionName : sectionName)
+                               && a.ValidatedMD2Date.AddHours(offset).Date >= DateFrom.Date
+                               && a.ValidatedMD2Date.AddHours(offset).Date <= DateTo.Date
 
                          select new PRMasterValidationReportViewModel
                          {
@@ -50,19 +53,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
                              BuyerName = a.BuyerName,
                              Article = a.Article,
                              StaffName = a.CreatedBy,
-                             ValidatedMD = a.IsValidatedMD1 == true ? "SUDAH" : "BELUM",
-                             ValidatedPurch = a.IsValidatedPurchasing == true ? "SUDAH" : "BELUM",
-                             ValidatedKadiv = a.IsValidatedMD2 == true ? "SUDAH" : "BELUM",
+                             ValidatedKadiv = a.ValidatedMD2By,
                              ValidatedDate = a.ValidatedMD2Date, 
                          }
                          );
             return Query;
         }
 
-        public Tuple<List<PRMasterValidationReportViewModel>, int> GetDisplayReport(string unit, DateTime? dateFrom, DateTime? dateTo, string Order, int offset)
+        public Tuple<List<PRMasterValidationReportViewModel>, int> GetDisplayReport(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo, string Order, int offset)
 
         {
-            var Query = GetDisplayQuery(unit, dateFrom, dateTo, offset);
+            var Query = GetDisplayQuery(unit, sectionName, dateFrom, dateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -81,9 +82,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
             return Tuple.Create(data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string unit, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcel(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetDisplayQuery(unit, dateFrom, dateTo, offset);
+            var Query = GetDisplayQuery(unit, sectionName, dateFrom, dateTo, offset);
             Query = Query.OrderBy(b => b.RO_Number).ThenBy(b => b.BuyerCode);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -96,13 +97,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Brand Buyer", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Article", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Shipment", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Valid Kabag Merchandiser", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Valid Kabag Purchasing", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Valid Kadiv Merchandiser", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kadiv Merchandiser", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Valid Kadiv Merchandiser", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -114,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFa
                     string ShipDate = item.DeliveryDate == new DateTime(1970, 1, 1) ? "-" : item.DeliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string ValidDate = item.ValidatedDate == null ? "-" : item.ValidatedDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
-                    result.Rows.Add(index, item.RO_Number, item.StaffName ,item.UnitName, PRMDate, item.SectionName, item.BuyerCode, item.BuyerName, item.Article, ShipDate, item.ValidatedMD, item.ValidatedPurch, item.ValidatedKadiv, ValidDate);
+                    result.Rows.Add(index, item.RO_Number, item.StaffName ,item.UnitName, PRMDate, item.SectionName, item.BuyerCode, item.BuyerName, item.Article, ShipDate, item.ValidatedKadiv, ValidDate);
                 }
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Valid PR Maser") }, true);
