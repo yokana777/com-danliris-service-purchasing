@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -74,6 +75,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
         private int GetStatusCode(IActionResult response)
         {
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
+        }
+
+        private int GetStatusCodeGet(Mock<IGarmentPurchaseRequestItemFacade> mockFacade)
+        {
+            GarmentPurchaseRequestItemController controller = GetController(mockFacade, null, new Mock<IMapper>());
+
+            IActionResult response = controller.Get();
+
+            return GetStatusCode(response);
+        }
+
+        [Fact]
+        public void Get_Ok()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestItemFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new ReadResponse<dynamic>(new List<dynamic>(), 0, new Dictionary<string, string>()));
+
+            int statusCode = GetStatusCodeGet(mockFacade);
+            Assert.Equal((int)HttpStatusCode.OK, statusCode);
+        }
+
+        [Fact]
+        public void Get_InternalServerError()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseRequestItemFacade>();
+
+            mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception("Error"));
+
+            int statusCode = GetStatusCodeGet(mockFacade);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, statusCode);
         }
 
         private async Task<int> GetStatusCodePatchOne(Mock<IGarmentPurchaseRequestItemFacade> mockFacade, Mock<IMapper> mockMapper, int id)
