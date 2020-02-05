@@ -148,6 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributio
                                 {
                                     oldDetail.Conversion = newDetail.Conversion;
                                     oldDetail.Quantity = newDetail.Quantity;
+                                    oldDetail.OverUsageReason = newDetail.OverUsageReason;
 
                                     EntityExtension.FlagForUpdate(oldDetail, identityService.Username, USER_AGENT);
                                 }
