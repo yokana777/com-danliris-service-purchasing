@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
     public static class QueryHelper<TModel>
         //where TModel : IStandardEntity
     {
-        public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword, bool ToLowerCase = false, string SearchWith = "Contains")
+        public static IQueryable<TModel> ConfigureSearch(IQueryable<TModel> Query, List<string> SearchAttributes, string Keyword, bool ToLowerCase = false, string SearchWith = "Contains", bool WithAny = true)
         {
             /* Search with Keyword */
             if (Keyword != null)
@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 string SearchQuery = String.Empty;
                 foreach (string Attribute in SearchAttributes)
                 {
-                    if (Attribute.Contains("."))
+                    if (WithAny && Attribute.Contains("."))
                     {
                         var Key = Attribute.Split(".");
                         SearchQuery = string.Concat(SearchQuery, Key[0], $".Any({Key[1]}.", SearchWith,"(@0)) OR ");
@@ -83,7 +83,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 string Key = OrderDictionary.Keys.First();
                 string OrderType = OrderDictionary[Key];
 
-                Query = Query.OrderBy(string.Concat(Key.Replace(".", ""), " ", OrderType));
+                try
+                {
+                    Query = Query.OrderBy(string.Concat(Key, " ", OrderType));
+                }
+                catch (Exception)
+                {
+                    Query = Query.OrderBy(string.Concat(Key.Replace(".", ""), " ", OrderType));
+                }
             }
             return Query;
         }
