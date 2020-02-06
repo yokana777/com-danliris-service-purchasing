@@ -88,22 +88,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             var Response = facade.GenerateExcel(dataGarmentPurchaseRequest.Id);
             Assert.NotNull(Response);
         }
-
-        [Fact]
-        public async void Should_Error_Get_Excel()
-        {
-            var mockServiceProvider = GetMockServiceProvider();
-
-            var dbContext = GetDbContext(GetCurrentMethod());
-
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, dbContext);
-            var dataUtil = GetDataUtil(garmentPurchaseRequestFacade);
-            var dataGarmentPurchaseRequest = await dataUtil.GetTestData();
-
-            var facade = new BudgetMasterSampleDisplayFacade(mockServiceProvider.Object, dbContext);
-
-            var Response = facade.GenerateExcel(dataGarmentPurchaseRequest.Id);
-            Assert.NotNull(Response);
-        }
     }
 }
