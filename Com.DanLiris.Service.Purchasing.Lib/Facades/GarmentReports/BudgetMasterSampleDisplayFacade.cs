@@ -100,16 +100,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Harga", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(string) });
 
-            if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
-            else
+            if (Query.ToArray().Count() != 0)
+            //    result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            //else
             {
                 var index = 0;
                 foreach (var item in Query)
                 {
                     index++;
 
-                    string ShipDate = item.DeliveryDate == new DateTime(1970, 1, 1) ? "-" : item.DeliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string ShipDate = item.DeliveryDate == null ? "-" : item.DeliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string QtyBgt = string.Format("{0:N2}", item.Quantity);
                     string BgtPrc = string.Format("{0:N2}", item.Price);
                     string BgtAmt = string.Format("{0:N2}", item.Quantity * item.Price);
