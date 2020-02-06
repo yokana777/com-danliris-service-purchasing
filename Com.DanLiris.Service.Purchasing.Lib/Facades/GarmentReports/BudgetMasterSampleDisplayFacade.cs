@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     result.Rows.Add(index, item.RO_Number, item.BuyerCode, item.BuyerName, item.Article, ShipDate, item.ProductCode, item.Remark, QtyBgt, BgtPrc, BgtAmt, item.POSerialNumber);
                 }
             }
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Display RO Maser") }, true);
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Display RO Master") }, true);
         }
     }
 
