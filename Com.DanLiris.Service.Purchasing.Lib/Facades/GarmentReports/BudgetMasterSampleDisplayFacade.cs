@@ -100,10 +100,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Harga", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(string) });
 
-            if (Query.ToArray().Count() != 0)
-            //    result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            //if (Query.ToArray().Count() != 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             //else
-            {
+            //{
                 var index = 0;
                 foreach (var item in Query)
                 {
@@ -116,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                     result.Rows.Add(index, item.RO_Number, item.BuyerCode, item.BuyerName, item.Article, ShipDate, item.ProductCode, item.Remark, QtyBgt, BgtPrc, BgtAmt, item.POSerialNumber);
                 }
-            }
+            //}
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Display RO Master") }, true);
         }
     }
