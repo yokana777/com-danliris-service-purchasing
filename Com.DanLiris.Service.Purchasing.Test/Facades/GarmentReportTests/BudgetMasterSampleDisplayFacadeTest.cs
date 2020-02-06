@@ -13,7 +13,7 @@ using System.Diagnostics;
 using System.Text;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReport    Tests
+namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 {
     public class BudgetMasterSampleDisplayFacadeTest
     {
