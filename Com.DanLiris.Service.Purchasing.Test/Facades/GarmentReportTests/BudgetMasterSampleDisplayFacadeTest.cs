@@ -68,8 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
             var facade = new BudgetMasterSampleDisplayFacade(mockServiceProvider.Object, dbContext);
 
-            var Response = facade.GetDisplayQuery(dataGarmentPurchaseRequest.Id);
-            Assert.NotEmpty(Response);
+            var Response = facade.GetMonitoring(dataGarmentPurchaseRequest.Id, "{}");
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
