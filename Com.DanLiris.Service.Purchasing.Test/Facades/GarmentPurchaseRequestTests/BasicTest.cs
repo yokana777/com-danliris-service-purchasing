@@ -454,8 +454,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                         BudgetPrice = 2,
                         PriceConversion = 1,
                         IsOpenPO = false,
+                        OpenPOBy = null,
+                        OpenPODate = DateTimeOffset.MinValue,
                         IsApprovedOpenPOMD = false,
-                        IsApprovedOpenPOPurchasing = false
+                        ApprovedOpenPOMDBy = null,
+                        ApprovedOpenPOPurchasingDate = DateTimeOffset.MinValue,
+                        IsApprovedOpenPOPurchasing = false,
+                        ApprovedOpenPOPurchasingBy = null,
+                        ApprovedOpenPOMDDate = DateTimeOffset.MinValue,
                     }
                 }
             });
