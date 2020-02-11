@@ -1341,6 +1341,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             {
                 "URNNo", "DONo",
             };
+
             Query = QueryHelper<UnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
@@ -1389,7 +1390,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             Query = QueryHelper<UnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<UnitReceiptNote> pageable = new Pageable<UnitReceiptNote>(Query, Page - 1, Size);
-            List<UnitReceiptNote> Data = pageable.Data.ToList<UnitReceiptNote>();
+            List<UnitReceiptNote> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
 
             return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);

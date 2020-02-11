@@ -82,9 +82,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             var serviceProviders = services.BuildServiceProvider();
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
 
+            //var memoryCacheService = serviceProviders.GetService<IMemoryCacheManager>();
+            //memoryCacheService.Set(MemoryCacheConstant.Categories, new List<CategoryCOAResult>() { new CategoryCOAResult() { _id = 1 } });
+
+            var memoryCacheManager = new MemoryCacheManager(memoryCache);
+            memoryCacheManager.Set(MemoryCacheConstant.Categories, new List<CategoryCOAResult>() { new CategoryCOAResult() { _id = 1 } });
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
-                .Returns(new MemoryCacheManager(memoryCache));
+                .Returns(memoryCacheManager);
 
             var mockCurrencyProvider = new Mock<ICurrencyProvider>();
             mockCurrencyProvider
@@ -96,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
 
             return serviceProvider;
         }
+
         private UnitPaymentOrderDataUtil _dataUtil(UnitPaymentOrderFacade facade, string testName)
         {
             

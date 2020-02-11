@@ -356,7 +356,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         {
                             oldM.Article = m.Article;
                             oldM.Date = m.Date;
-                            oldM.ExpectedDeliveryDate = m.ExpectedDeliveryDate;
+                            oldM.ShipmentDate = m.ShipmentDate;
                             oldM.Remark = m.Remark;
                         }
                         oldM.IsUsed = m.IsUsed;
