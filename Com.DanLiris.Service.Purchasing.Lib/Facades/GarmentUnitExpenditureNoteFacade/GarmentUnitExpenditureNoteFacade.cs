@@ -24,6 +24,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -1458,6 +1461,129 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 			return viewModel;
 
 		}
- 
-	}
+        public Tuple<List<MonitoringOutViewModel>, int> GetReportOut(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset)
+        {
+            var Query = GetReportQueryOut(dateFrom, dateTo, type, offset);
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.UENNo).ThenBy(b => b.PONo);
+            }
+
+
+            Pageable<MonitoringOutViewModel> pageable = new Pageable<MonitoringOutViewModel>(Query, page - 1, size);
+            List<MonitoringOutViewModel> Data = pageable.Data.ToList<MonitoringOutViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public IQueryable<MonitoringOutViewModel> GetReportQueryOut(DateTime? dateFrom, DateTime? dateTo, string type, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
+                                           join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+                                           where a.IsDeleted == false && b.IsDeleted == false
+                                           && a.StorageName == "GUDANG BAHAN BAKU"
+                                           && a.CreatedUtc >= DateFrom
+                                           && a.CreatedUtc <= DateTo
+                                           select new MonitoringOutViewModel
+                                           {
+                                               CreatedUtc = a.CreatedUtc,
+                                               ExTo = a.ExpenditureTo,
+                                               ItemCode = b.ProductCode,
+                                               PONo = b.POSerialNumber,
+                                               Quantity = b.Quantity,
+                                               Storage = a.StorageName,
+                                               UENNo = a.UENNo,
+                                               UnitCode = a.UnitRequestCode,
+                                               UnitName = a.UnitRequestName,
+                                               UnitQtyName = b.UomUnit
+                                           }
+                        : type == "NON FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
+                                                 join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+                                                 where a.IsDeleted == false && b.IsDeleted == false
+                                                 && a.StorageName != "GUDANG BAHAN BAKU"
+                                                 && a.CreatedUtc >= DateFrom
+                                                 && a.CreatedUtc <= DateTo
+                                                 select new MonitoringOutViewModel
+                                                 {
+                                                     CreatedUtc = a.CreatedUtc,
+                                                     ExTo = a.ExpenditureTo,
+                                                     ItemCode = b.ProductCode,
+                                                     PONo = b.POSerialNumber,
+                                                     Quantity = b.Quantity,
+                                                     Storage = a.StorageName,
+                                                     UENNo = a.UENNo,
+                                                     UnitCode = a.UnitRequestCode,
+                                                     UnitName = a.UnitRequestName,
+                                                     UnitQtyName = b.UomUnit
+                                                 }
+                                                 : from a in dbContext.GarmentUnitExpenditureNotes
+                                                   join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+                                                   where a.IsDeleted == false && b.IsDeleted == false
+                                                   && a.StorageName == a.StorageName
+                                                   && a.CreatedUtc >= DateFrom
+                                                   && a.CreatedUtc <= DateTo
+                                                   select new MonitoringOutViewModel
+                                                   {
+                                                       CreatedUtc = a.CreatedUtc,
+                                                       ExTo = a.ExpenditureTo,
+                                                       ItemCode = b.ProductCode,
+                                                       PONo = b.POSerialNumber,
+                                                       Quantity = b.Quantity,
+                                                       Storage = a.StorageName,
+                                                       UENNo = a.UENNo,
+                                                       UnitCode = a.UnitRequestCode,
+                                                       UnitName = a.UnitRequestName,
+                                                       UnitQtyName = b.UomUnit
+                                                   };
+            return Query.AsQueryable();
+
+        }
+        public MemoryStream GenerateExcelMonOut(DateTime? dateFrom, DateTime? dateTo, string category, int offset)
+        {
+            var Query = GetReportQueryOut(dateFrom, dateTo, category, offset);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Pengeluaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tujuan Pengeluaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Gudang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Pembuatan", DataType = typeof(String) });
+
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            if (Query.ToArray().Count() == 0)
+            {
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (MonitoringOutViewModel data in Query)
+                {
+                    index++;
+                    string tgl1 = data.CreatedUtc == null ? "-" : data.CreatedUtc.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //string tgl2 = data.TanggalBuatBon == null ? "-" : data.TanggalBuatBon.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.UENNo, data.PONo, data.ItemCode, data.UnitCode, data.UnitName, data.ExTo, data.Storage, data.Quantity, data.UnitQtyName, tgl1);
+
+                }
+
+            }
+
+            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+    }
 }
