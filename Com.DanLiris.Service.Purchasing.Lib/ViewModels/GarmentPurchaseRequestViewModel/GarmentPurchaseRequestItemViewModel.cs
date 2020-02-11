@@ -37,7 +37,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         /* For PR Master Validation */
 
         public bool IsOpenPO { get; set; }
+        public string OpenPOBy { get; set; }
+        public DateTimeOffset OpenPODate { get; set; }
+
         public bool IsApprovedOpenPOMD { get; set; }
+        public string ApprovedOpenPOMDBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOMDDate { get; set; }
+
         public bool IsApprovedOpenPOPurchasing { get; set; }
+        public string ApprovedOpenPOPurchasingBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOPurchasingDate { get; set; }
     }
 }
