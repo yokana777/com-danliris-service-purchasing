@@ -270,12 +270,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         private async Task CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
-            var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId);
-            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
+            //var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId).ToList();
+            //var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
             var items = new List<JournalTransactionItem>();
             foreach (var detail in model.Details)
             {
-                var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(entity => entity.Id == detail.UnitPaymentOrderId);
+                //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(entity => entity.Id == detail.UnitPaymentOrderId);
                 var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
                     UnitCode = s.Key,
@@ -297,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     };
 
                     var vatCOA = "";
-                    if (unitPaymentOrder.UseVat)
+                    if (detail.Vat > 0)
                     {
                         if (model.SupplierImport)
                         {
