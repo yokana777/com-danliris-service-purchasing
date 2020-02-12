@@ -8,8 +8,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
 	public interface IPRMasterValidationReportFacade
 	{
-       Tuple<List<PRMasterValidationReportViewModel>, int> GetDisplayReport(string unit, DateTime? dateFrom, DateTime? dateTo, string Order, int offset);
+       Tuple<List<PRMasterValidationReportViewModel>, int> GetDisplayReport(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo, string Order, int offset);
 
-       MemoryStream GenerateExcel(string unit, DateTime? dateFrom, DateTime? dateTo, int offset);
+       MemoryStream GenerateExcel(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }

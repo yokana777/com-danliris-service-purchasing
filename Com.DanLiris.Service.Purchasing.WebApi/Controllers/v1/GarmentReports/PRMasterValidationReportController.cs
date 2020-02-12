@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
 		[HttpGet]
-		public IActionResult GetReport(string unit, DateTime? dateFrom, DateTime? dateTo, string Order = "{}")
+		public IActionResult GetReport(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo, string Order = "{}")
 		{
 			int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
 			string accept = Request.Headers["Accept"];
@@ -37,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			try
 			{
 
-				var data = facade.GetDisplayReport(unit, dateFrom, dateTo, Order, offset);
+				var data = facade.GetDisplayReport(unit, sectionName, dateFrom, dateTo, Order, offset);
 
 				return Ok(new
 				{
@@ -58,16 +58,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 		}
 	
 		[HttpGet("download")]
-		public IActionResult GetXls(string unit, DateTime? dateFrom, DateTime? dateTo)
+		public IActionResult GetXls(string unit, string sectionName, DateTime? dateFrom, DateTime? dateTo)
 		{
 			try
 			{
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcel(unit, dateFrom, dateTo, offset);
+				var xls = facade.GenerateExcel(unit, sectionName, dateFrom, dateTo, offset);
 
-				string filename = "Monitoring PR Master Vaidation";
+				string filename = "Monitoring PR Master Validation";
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
 				if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
 				filename += ".xlsx";

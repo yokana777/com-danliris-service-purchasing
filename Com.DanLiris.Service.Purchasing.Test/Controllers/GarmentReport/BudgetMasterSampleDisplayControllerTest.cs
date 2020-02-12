@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports;
@@ -64,42 +65,61 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         public void Should_Success_Get_Monitoring()
         {
             var mockFacade = new Mock<IBudgetMasterSampleDisplayFacade>();
-            mockFacade.Setup(s => s.GetMonitoring(It.IsAny<long>()))
-                .Returns(new List<BudgetMasterSampleDisplayViewModel>());
+            mockFacade.Setup(s => s.GetMonitoring(It.IsAny<long>(), "{}"))
+                .Returns(Tuple.Create(new List<BudgetMasterSampleDisplayViewModel>()
+                {
+                    new BudgetMasterSampleDisplayViewModel
+                    {
+
+                    }
+                }, 1));
 
             var controller = GetController(mockFacade);
 
-            IActionResult result = controller.GetMonitoring(It.IsAny<long>());
+            IActionResult result = controller.GetReport(It.IsAny<long>(), "{}");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(result));
         }
 
         [Fact]
         public void Should_Success_Get_Excel_Monitoring()
         {
-            var fileName = "filename";
-
             var mockFacade = new Mock<IBudgetMasterSampleDisplayFacade>();
-            mockFacade.Setup(s => s.GetExcel(It.IsAny<long>()))
-                .Returns(new Tuple<MemoryStream, string>(new MemoryStream(), fileName));
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<long>()))
+                .Returns(new MemoryStream());
 
-            var controller = GetController(mockFacade);
-            controller.ControllerContext.HttpContext.Request.Headers["accept"] = "application/xls";
+            var mockMapper = new Mock<IMapper>();
 
-            FileContentResult result = controller.GetMonitoring(It.IsAny<long>()) as FileContentResult;
-            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.ContentType);
-            Assert.Equal($"{fileName}.xlsx", result.FileDownloadName);
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            BudgetMasterSampleDisplayController controller = GetController(mockFacade);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(It.IsAny<long>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+
         }
 
         [Fact]
         public void Should_Error_Get_Monitoring()
         {
             var mockFacade = new Mock<IBudgetMasterSampleDisplayFacade>();
-            mockFacade.Setup(s => s.GetMonitoring(It.IsAny<long>()))
+            mockFacade.Setup(s => s.GetMonitoring(It.IsAny<long>(), "{}"))
                 .Throws(new Exception(string.Empty));
 
             var controller = GetController(mockFacade);
 
-            IActionResult result = controller.GetMonitoring(It.IsAny<long>());
+            IActionResult result = controller.GetReport(It.IsAny<long>(), "{}");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(result));
         }
     }
