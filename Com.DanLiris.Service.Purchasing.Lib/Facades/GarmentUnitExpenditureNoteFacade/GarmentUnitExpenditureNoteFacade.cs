@@ -190,6 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             GarmentDeliveryOrderItem garmentDeliveryOrderItem = dbContext.GarmentDeliveryOrderItems.FirstOrDefault(d => d.Id.Equals(garmentDeliveryOrderDetail.GarmentDOItemId));
 
                             double priceTotalAfter = Math.Round((Math.Round(garmentUnitDeliveryOrderItem.ReturQuantity,2) *(double) garmentDeliveryOrderDetail.PricePerDealUnitCorrection),2);
+                            garmentDeliveryOrderDetail.PriceTotalCorrection = (garmentDeliveryOrderDetail.QuantityCorrection - garmentDeliveryOrderDetail.ReturQuantity) * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
 
                             GarmentCorrectionNoteItem correctionNoteItem = new GarmentCorrectionNoteItem
                             {
