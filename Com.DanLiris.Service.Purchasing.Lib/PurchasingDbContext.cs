@@ -175,6 +175,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib
                 .HasIndex(i => i.CorrectionNo)
                 .IsUnique()
                 .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            #region Purchasing
+
+            modelBuilder.Entity<PurchaseRequest>()
+                .HasIndex(i => i.No)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<ExternalPurchaseOrder>()
+                .HasIndex(i => i.EPONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<UnitReceiptNote>()
+                .HasIndex(i => i.URNNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<UnitPaymentOrder>()
+                .HasIndex(i => i.UPONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<UnitPaymentCorrectionNote>()
+                .HasIndex(i => i.UPCNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            #endregion
         }
     }
 }
