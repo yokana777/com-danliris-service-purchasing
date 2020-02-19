@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringCorrectionNoteReceptionViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports;
 using Microsoft.AspNetCore.Http;
@@ -9,25 +9,27 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
+namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 {
-    public class MonitoringCorrectionNoteReceptionControllerTest
+    public class GarmentPurchaseDayBookReportControllerTest
     {
-        private MonitoringCorrectionNoteReceptionViewModel ViewModel
+        private GarmentPurchaseDayBookReportViewModel ViewModel
         {
             get
             {
-                return new MonitoringCorrectionNoteReceptionViewModel
+                return new GarmentPurchaseDayBookReportViewModel
                 {
 
                 };
             }
         }
+
         private Mock<IServiceProvider> GetServiceProvider()
         {
             var serviceProvider = new Mock<IServiceProvider>();
@@ -42,24 +44,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
             return serviceProvider;
         }
 
-        private MonitoringCorrectionNoteReceptionController GetController(Mock<IMonitoringCorrectionNoteReceptionFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> facadeDO)
+        private GarmentPurchaseDayBookReportController GetController(Mock<IGarmentPurchaseDayBookReport> facadeMock, Mock<IValidateService> validateMock = null, Mock<IMapper> mapperMock = null)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
             {
-                new Claim("username", "unittestusername")
+            new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
 
             var servicePMock = GetServiceProvider();
-            if (validateM != null)
+            if (validateMock != null)
             {
                 servicePMock
                     .Setup(x => x.GetService(typeof(IValidateService)))
-                    .Returns(validateM.Object);
+                    .Returns(validateMock.Object);
+            }
+            if (mapperMock != null)
+            {
+                servicePMock
+                    .Setup(x => x.GetService(typeof(IMapper)))
+                    .Returns(mapperMock.Object);
             }
 
-            var controller = new MonitoringCorrectionNoteReceptionController(servicePMock.Object, facadeM.Object)
+            GarmentPurchaseDayBookReportController controller = new GarmentPurchaseDayBookReportController(servicePMock.Object, facadeMock.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -75,21 +83,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 
             return controller;
         }
+
         protected int GetStatusCode(IActionResult response)
         {
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
         [Fact]
-        public void Should_Error_Get_Report_Data()
+        public void Should_Success_Get_All_Data()
         {
-            var mockFacade = new Mock<IMonitoringCorrectionNoteReceptionFacade>();
-            mockFacade.Setup(x => x.GetMonitoringTerimaNKReport(null, null, null, 1, 25, "{}", 7))
-                .Returns(Tuple.Create(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel }, 25));
+            var mockFacade = new Mock<IGarmentPurchaseDayBookReport>();
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<GarmentPurchaseDayBookReportViewModel> { ViewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<MonitoringCorrectionNoteReceptionViewModel>>(It.IsAny<List<MonitoringCorrectionNoteReceptionViewModel>>()))
-                .Returns(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -97,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            MonitoringCorrectionNoteReceptionController controller = new MonitoringCorrectionNoteReceptionController(GetServiceProvider().Object, mockFacade.Object);
+            GarmentPurchaseDayBookReportController controller = GetController(mockFacade, null, mockMapper);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -105,21 +112,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                     User = user.Object
                 }
             };
+
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport(null, null, null, 1, 25, "{}");
+            var year = DateTime.UtcNow.Year;
+            var response = controller.GetReport(null, false, null,null,year, 0, 0, "");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_All_Data()
+        {
+            var mockFacade = new Mock<IGarmentPurchaseDayBookReport>();
+
+            var mockMapper = new Mock<IMapper>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentPurchaseDayBookReportController controller = GetController(mockFacade, null, mockMapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var year = DateTime.UtcNow.Year;
+            var response = controller.GetReport(null, false, null, null, year, 0, 0, "");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
-        public void Should_Error_Get_Report_Xls_Data()
+        public void Should_Success_Xls_Get_All_Data()
         {
-            var mockFacade = new Mock<IMonitoringCorrectionNoteReceptionFacade>();
-            mockFacade.Setup(x => x.GetMonitoringTerimaNKReport(null, null, null, 1, 25, "{}", 7))
-                .Returns(Tuple.Create(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel }, 25));
+            var mockFacade = new Mock<IGarmentPurchaseDayBookReport>();
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<MonitoringCorrectionNoteReceptionViewModel>>(It.IsAny<List<MonitoringCorrectionNoteReceptionViewModel>>()))
-                .Returns(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -127,7 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            MonitoringCorrectionNoteReceptionController controller = new MonitoringCorrectionNoteReceptionController(GetServiceProvider().Object, mockFacade.Object);
+            GarmentPurchaseDayBookReportController controller = GetController(mockFacade, null, mockMapper);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -135,50 +170,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                     User = user.Object
                 }
             };
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(null, null, null, 1, 25, "{}");
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
-        }
-        [Fact]
-        public void Should_Error_Get_Report_By_User_Data()
-        {
-            var mockFacade = new Mock<IMonitoringCorrectionNoteReceptionFacade>();
-            mockFacade.Setup(x => x.GetMonitoringTerimaNKByUserReport(null, null, null, 1, 25, "{}", 7))
-                .Returns(Tuple.Create(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel }, 25));
 
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<MonitoringCorrectionNoteReceptionViewModel>>(It.IsAny<List<MonitoringCorrectionNoteReceptionViewModel>>()))
-                .Returns(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel });
-
-            var user = new Mock<ClaimsPrincipal>();
-            var claims = new Claim[]
-            {
-                new Claim("username", "unittestusername")
-            };
-            user.Setup(u => u.Claims).Returns(claims);
-            MonitoringCorrectionNoteReceptionController controller = new MonitoringCorrectionNoteReceptionController(GetServiceProvider().Object, mockFacade.Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = user.Object
-                }
-            };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReportByUser(null, null, null, null, 1, 25, "{}");
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+            var year = DateTime.UtcNow.Year;
+            var response = controller.GetXls(null, false, null, null, year, 0, 0, "");
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
         }
 
         [Fact]
-        public void Should_Error_Get_Report_By_User_Xls_Data()
+        public void Should_Error_Xls_Get_All_Data()
         {
-            var mockFacade = new Mock<IMonitoringCorrectionNoteReceptionFacade>();
-            mockFacade.Setup(x => x.GetMonitoringTerimaNKByUserReport(null, null, null, 1, 25, "{}", 7))
-                .Returns(Tuple.Create(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel }, 25));
+            var mockFacade = new Mock<IGarmentPurchaseDayBookReport>();
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<MonitoringCorrectionNoteReceptionViewModel>>(It.IsAny<List<MonitoringCorrectionNoteReceptionViewModel>>()))
-                .Returns(new List<MonitoringCorrectionNoteReceptionViewModel> { ViewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -186,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            MonitoringCorrectionNoteReceptionController controller = new MonitoringCorrectionNoteReceptionController(GetServiceProvider().Object, mockFacade.Object);
+            GarmentPurchaseDayBookReportController controller = GetController(mockFacade, null, mockMapper);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -194,9 +198,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                     User = user.Object
                 }
             };
+
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXlsByUser(null, null, null, null, 1, 25, "{}");
+            var year = DateTime.UtcNow.Year;
+            var response = controller.GetXls(null, false, null, null, year, 0, 0, "");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
     }
 }

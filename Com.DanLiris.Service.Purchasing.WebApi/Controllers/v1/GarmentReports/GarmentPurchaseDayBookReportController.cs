@@ -1,48 +1,53 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 {
+
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/display/budget-master-sample")]
+    [Route("v{version:apiVersion}/garment-purchase-book-reports")]
     [Authorize]
-    public class BudgetMasterSampleDisplayController : Controller
+    public class GarmentPurchaseDayBookReportController : Controller
     {
-        private readonly string ApiVersion = "1.0.0";
+
+        private string ApiVersion = "1.0.0";
+        private readonly IMapper mapper;
+        private readonly IGarmentPurchaseDayBookReport facade;
         private readonly IServiceProvider serviceProvider;
-        private readonly IBudgetMasterSampleDisplayFacade facade;
         private readonly IdentityService identityService;
 
-        public BudgetMasterSampleDisplayController(IServiceProvider serviceProvider)
+        public GarmentPurchaseDayBookReportController(IServiceProvider serviceProvider, IGarmentPurchaseDayBookReport facade)
         {
             this.serviceProvider = serviceProvider;
+            this.facade = facade;
+            this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 
-            facade = (IBudgetMasterSampleDisplayFacade)serviceProvider.GetService(typeof(IBudgetMasterSampleDisplayFacade)); ;
-            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
         [HttpGet]
-        public IActionResult GetReport(long prId, string Order = "{}")
+        public IActionResult GetReport(string unit, bool jnsSpl, string payMtd, string category, int year, int size = 25, int page = 1, string Order = "{}")
         {
+            if (year == 0)
+                year = ((DateTimeOffset.UtcNow).Year)-1;
+
+            //if (dateFrom == null)
+            //    dateFrom = DateTimeOffset.MinValue;
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
-
             try
             {
 
-                var data = facade.GetMonitoring(prId, Order);
+                var data = facade.GetReport(unit, jnsSpl, payMtd, category, year, offset, Order, page, size);
 
                 return Ok(new
                 {
@@ -59,20 +64,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+
             }
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(long prId)
+        public IActionResult GetXls(string unit, bool jnsSpl, string payMtd, string category, int year, int size = 25, int page = 1, string Order = "{}")
         {
+            if (year == 0)
+                year = ((DateTimeOffset.UtcNow).Year) - 1;
+            //if (dateTo == null)
+            //    dateTo = DateTimeOffset.UtcNow;
+
+            //if (dateFrom == null)
+            //    dateFrom = DateTimeOffset.MinValue;
+
             try
             {
                 byte[] xlsInBytes;
 
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                var xls = facade.GenerateExcel(prId);
+                var xls = facade.GenerateExcel(unit, jnsSpl, payMtd, category, year, offset);
 
-                string filename = "Display Budget Master";
+                string filename =String.Format("Laporan Buku Harian Pembelian - " + year  );
+
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);

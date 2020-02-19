@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
@@ -28,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
+        private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         public readonly IServiceProvider serviceProvider;
 
@@ -40,6 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             this.bankDocumentNumberGenerator = new BankDocumentNumberGenerator(dbContext);
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
+            unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
             this.serviceProvider = serviceProvider;
         }
 
@@ -195,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     DeleteDailyBankTransaction(model.DocumentNo, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     UpdateCreditorAccount(model, identityService);
-                    ReverseJournalTransaction(model.DocumentNo);
+                    ReverseJournalTransaction(model);
                     CreateJournalTransaction(model, identityService);
                     transaction.Commit();
                 }
@@ -250,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    CreateJournalTransaction(model, identityService);
+                    await CreateJournalTransaction(model, identityService);
                     CreateDailyBankTransaction(model, identityService);
                     CreateCreditorAccount(model, identityService);
                     transaction.Commit();
@@ -265,16 +268,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             return Created;
         }
 
-        private void CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
+        private async Task CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
+            //var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId).ToList();
+            //var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
             var items = new List<JournalTransactionItem>();
             foreach (var detail in model.Details)
             {
+                //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(entity => entity.Id == detail.UnitPaymentOrderId);
                 var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
-                    s.First().UnitCode,
+                    UnitCode = s.Key,
                     Total = s.Sum(sm => sm.Price)
                 });
+
+                
 
                 foreach (var datum in sumDataByUnit)
                 {
@@ -284,18 +292,46 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, datum.UnitCode)
                         },
-                        Debit = Convert.ToDecimal(datum.Total)
+                        Debit = Convert.ToDecimal(datum.Total),
+                        Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
                     };
+
+                    var vatCOA = "";
+                    if (detail.Vat > 0)
+                    {
+                        if (model.SupplierImport)
+                        {
+                            vatCOA = "1510.00." + COAGenerator.GetDivisionAndUnitCOACode(detail.DivisionName, datum.UnitCode);
+                        }
+                        else
+                        {
+                            vatCOA = "1509.00." + COAGenerator.GetDivisionAndUnitCOACode(detail.DivisionName, datum.UnitCode);
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(vatCOA))
+                    {
+                        var vatItem = new JournalTransactionItem()
+                        {
+                            COA = new COA()
+                            {
+                                Code = vatCOA
+                            },
+                            Debit = Convert.ToDecimal(datum.Total * 0.1)
+                        };
+
+                        items.Add(vatItem);
+                    }
 
                     items.Add(item);
                 }
             }
 
-            items = items.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
-            {
-                COA = s.First().COA,
-                Debit = s.Sum(sm => Math.Round(sm.Debit.GetValueOrDefault(), 4))
-            }).ToList();
+            //items = items.GroupBy(g => g.COA.Code).Select(s => new JournalTransactionItem()
+            //{
+            //    COA = s.First().COA,
+            //    Debit = s.Sum(sm => Math.Round(sm.Debit.GetValueOrDefault(), 4))
+            //}).ToList();
 
             var bankJournalItem = new JournalTransactionItem()
             {
@@ -318,16 +354,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             string journalTransactionUri = "journal-transactions";
             //var httpClient = new HttpClientService(identityService);
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
             response.EnsureSuccessStatusCode();
         }
 
-        private void ReverseJournalTransaction(string referenceNo)
+        private void ReverseJournalTransaction(BankExpenditureNoteModel model)
         {
-            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
-            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-            response.EnsureSuccessStatusCode();
+            foreach (var detail in model.Details)
+            {
+                string journalTransactionUri = $"journal-transactions/reverse-transactions/{model.DocumentNo + " / " + detail.UnitPaymentOrderNo}";
+                var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+                response.EnsureSuccessStatusCode();
+            }
         }
 
         public async Task<int> Delete(int Id, IdentityService identityService)
@@ -344,7 +383,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 try
                 {
-                    BankExpenditureNoteModel bankExpenditureNote = dbContext.BankExpenditureNotes.Single(p => p.Id == Id);
+                    BankExpenditureNoteModel bankExpenditureNote = dbContext.BankExpenditureNotes.Include(entity => entity.Details).Single(p => p.Id == Id);
 
                     ICollection<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>(dbContext.BankExpenditureNoteDetails.Where(p => p.BankExpenditureNoteId.Equals(Id)));
 
@@ -384,7 +423,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Count = await dbContext.SaveChangesAsync();
                     DeleteDailyBankTransaction(bankExpenditureNote.DocumentNo, identityService);
                     DeleteCreditorAccount(bankExpenditureNote, identityService);
-                    ReverseJournalTransaction(bankExpenditureNote.DocumentNo);
+                    ReverseJournalTransaction(bankExpenditureNote);
                     transaction.Commit();
                 }
                 catch (DbUpdateConcurrencyException e)

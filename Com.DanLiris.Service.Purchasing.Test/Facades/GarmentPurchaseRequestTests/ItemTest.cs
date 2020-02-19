@@ -83,6 +83,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		}
 
         [Fact]
+        public async Task Should_Success_Get_Items()
+        {
+            var ServiceProvider = GetServiceProvider().Object;
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            GarmentPurchaseRequestItemFacade itemFacade = new GarmentPurchaseRequestItemFacade(ServiceProvider, dbContext(GetCurrentMethod()));
+
+            var Response = itemFacade.Read(Select: "new(Id)");
+            Assert.NotEmpty(Response.Data);
+        }
+
+        [Fact]
         public async Task Should_Success_Patch_Item()
         {
             var ServiceProvider = GetServiceProvider().Object;
