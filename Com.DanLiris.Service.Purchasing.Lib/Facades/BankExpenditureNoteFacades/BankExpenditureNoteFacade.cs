@@ -309,7 +309,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         }
                     }
 
-                    if (string.IsNullOrWhiteSpace(vatCOA))
+                    if (!string.IsNullOrWhiteSpace(vatCOA))
                     {
                         var vatItem = new JournalTransactionItem()
                         {
