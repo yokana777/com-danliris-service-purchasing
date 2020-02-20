@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,5 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> UpdateIsPreparing(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote);
         Task<int> UpdateReturQuantity(int id, double quantity, double quantityBefore);
         GarmentUnitExpenditureNote ReadByUENId(int id);
+        Tuple<List<MonitoringOutViewModel>, int> GetReportOut(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcelMonOut(DateTime? dateFrom, DateTime? dateTo, string category, int offset);
     }
 }
