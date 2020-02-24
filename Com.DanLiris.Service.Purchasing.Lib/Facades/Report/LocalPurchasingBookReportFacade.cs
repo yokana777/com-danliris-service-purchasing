@@ -32,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         {
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
+            this.dbContext.Database.SetCommandTimeout(1000 * 60 * 15);
             this.dbSet = dbContext.Set<UnitReceiptNote>();
             _currencyProvider = (ICurrencyProvider)serviceProvider.GetService(typeof(ICurrencyProvider));
         }
