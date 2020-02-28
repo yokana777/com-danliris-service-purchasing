@@ -282,6 +282,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                 .Returns(paymentOrders);
 
             var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<UnitPaymentOrderViewModel>>(It.IsAny<List<UnitPaymentOrder>>()))
+                .Returns(new List<UnitPaymentOrderViewModel> { ViewModel });
 
             UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             controller.ControllerContext = new ControllerContext()
@@ -305,8 +307,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                 .Returns(paymentOrders);
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
-                .Throws(new Exception("Error Mapping"));
+
 
             UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.GetEpo(It.IsAny<string>());
@@ -385,6 +386,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                 .Returns(new ExternalPurchaseOrder { PaymentDueDays = "0" });
 
             var mockMapper = new Mock<IMapper>();
+
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
