@@ -262,6 +262,57 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
+        public void Should_Success_Get_Data_By_EPONo()
+        {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
+            List<UnitPaymentOrder> paymentOrders = new List<UnitPaymentOrder>();
+            paymentOrders.Add(Model);
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.ReadByEPONo(It.IsAny<string>()))
+                .Returns(paymentOrders);
+
+            var mockMapper = new Mock<IMapper>();
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_By_EPONo()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            List<UnitPaymentOrder> paymentOrders = new List<UnitPaymentOrder>();
+            paymentOrders.Add(Model);
+            mockFacade.Setup(x => x.ReadByEPONo(It.IsAny<string>()))
+                .Returns(paymentOrders);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
+                .Throws(new Exception("Error Mapping"));
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        [Fact]
         public void Should_Success_Get_PDF_Data_By_Id()
         {
             var Model = this.Model;

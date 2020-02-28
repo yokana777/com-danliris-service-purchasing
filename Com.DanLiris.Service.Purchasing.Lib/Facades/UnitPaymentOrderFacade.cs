@@ -113,6 +113,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Result;
         }
 
+        public List<UnitPaymentOrder> ReadByEPONo(string no)
+        {
+            var Result = dbSet
+                .Include(m => m.Items)
+                    .ThenInclude(i => i.Details).Where(m => m.Items.Any(d => d.Details.Any(f => f.EPONo==no)))
+                .ToList();
+            return Result;
+        }
+
         public async Task<int> Create(UnitPaymentOrder model, string user, bool isImport, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
