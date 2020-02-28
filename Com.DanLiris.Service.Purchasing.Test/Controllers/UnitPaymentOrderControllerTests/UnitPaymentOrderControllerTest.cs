@@ -291,7 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
 
-            var response = controller.Get(It.IsAny<int>());
+            var response = controller.GetEpo(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
@@ -309,7 +309,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                 .Throws(new Exception("Error Mapping"));
 
             UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            var response = controller.Get(It.IsAny<int>());
+            var response = controller.GetEpo(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
