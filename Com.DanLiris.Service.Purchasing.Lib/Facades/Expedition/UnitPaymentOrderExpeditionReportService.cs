@@ -58,10 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 query = query.Where(document => document.DivisionCode.Equals(divisionCode));
             }
 
-            if (status != 0)
-            {
-                query = query.Where(document => document.Position.Equals(status));
-            }
+            //if (status != 0)
+            //{
+            //    query = query.Where(document => document.Position.Equals(status));
+            //}
 
 
             query = query.Where(document => document.Date >= dateFrom && document.Date <= dateTo);
@@ -119,7 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         CreatedBy = expeditionDocument.CreatedBy != null ? expeditionDocument.CreatedBy : "-",
                         
                     }
-                );
+                ).Where(document => document.Position.Equals(FormatPosition(status)));
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             /* Default Order */
@@ -191,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 decimal selisih = ((d.DueDate.Value) - (d.Date.Value)).Days;
 
                 dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-",
-                    d.Currency ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", d.Position,
+                    d.Currency ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
                     GetFormattedDate(d.SendToVerificationDivisionDate),
                     d.CreatedBy,
                     GetFormattedDate(d.VerificationDivisionDate),
@@ -268,6 +268,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             {
                 return dateTime.Value.ToOffset(new TimeSpan(7, 0, 0)).DateTime;
             }
+        }
+
+        string GetFormattedPosition(ExpeditionPosition position) {
+            string name;
+
+            return name = position == ExpeditionPosition.PURCHASING_DIVISION ? "Bag. Pembelian": position == ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION ? "Di Kirim ke Bag. Verifikasi":
+                          position == ExpeditionPosition.VERIFICATION_DIVISION ? "Bag. Verifikasi": position == ExpeditionPosition.SEND_TO_CASHIER_DIVISION ? "Di Kirim ke Bag. Keuangan": 
+                          position == ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION ? "Di Kirim ke Bag. Accounting":position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION ? "Di Kirim ke Bag. Pembelian" :
+                          position == ExpeditionPosition.CASHIER_DIVISION ? "Bag. Kasir": position == ExpeditionPosition.FINANCE_DIVISION ? "Bag. Keuangan"
+                          : "-";
+        }
+
+        ExpeditionPosition FormatPosition(int num) {
+            ExpeditionPosition posisi;
+
+            return
+            posisi = num == 1? ExpeditionPosition.PURCHASING_DIVISION :
+                     num == 2 ? ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION :
+                     num == 3 ? ExpeditionPosition.VERIFICATION_DIVISION :
+                     num == 4 ? ExpeditionPosition.SEND_TO_CASHIER_DIVISION :
+                     num == 5 ? ExpeditionPosition.SEND_TO_ACCOUNTING_DIVISION :
+                     num == 6 ? ExpeditionPosition.SEND_TO_PURCHASING_DIVISION:
+                     num == 7 ? ExpeditionPosition.CASHIER_DIVISION :
+                     num == 8 ? ExpeditionPosition.FINANCE_DIVISION :
+                     ExpeditionPosition.INVALID;
+
         }
 
 
