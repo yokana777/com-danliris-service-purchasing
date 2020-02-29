@@ -47,7 +47,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 UseIncomeTax = m.UseIncomeTax,
                 UseVat = m.UseVat,
                 CreatedBy = m.CreatedBy,
-                LastModifiedUtc = m.LastModifiedUtc
+                LastModifiedUtc = m.LastModifiedUtc,
+                Items=m.Items.ToList()
             });
 
             List<string> searchAttributes = new List<string>()
