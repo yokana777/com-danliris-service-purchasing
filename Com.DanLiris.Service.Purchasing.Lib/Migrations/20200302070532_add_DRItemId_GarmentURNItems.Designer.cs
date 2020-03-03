@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200302070532_add_DRItemId_GarmentURNItems")]
+    partial class add_DRItemId_GarmentURNItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -999,10 +1000,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("UseVat");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EPONo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
 
                     b.ToTable("ExternalPurchaseOrders");
                 });
@@ -4513,10 +4510,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("No")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
-
                     b.ToTable("PurchaseRequests");
                 });
 
@@ -4948,10 +4941,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UPCNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
-
                     b.ToTable("UnitPaymentCorrectionNotes");
                 });
 
@@ -5179,10 +5168,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UPONo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
 
                     b.ToTable("UnitPaymentOrders");
                 });
@@ -5434,10 +5419,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("URNNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
 
                     b.ToTable("UnitReceiptNotes");
                 });

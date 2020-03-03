@@ -351,7 +351,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                             Id = "1"
                         },
                         Conversion = 10,
-                        CorrectionConversion= 10
+                        CorrectionConversion= 10,
+                        DRItemId=It.IsAny<string>()
                     }
                 }
             };
