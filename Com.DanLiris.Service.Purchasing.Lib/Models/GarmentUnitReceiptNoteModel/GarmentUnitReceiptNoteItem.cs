@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         public long DODetailId { get; set; }
 
         public long EPOItemId { get; set; }
+        public string DRItemId { get; set; }
 
         public long PRId { get; set; }
         [MaxLength(255)]
