@@ -148,6 +148,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             var Response = facade.ReadById((int)model.Id);
             Assert.NotNull(Response);
         }
+        [Fact]
+        public async Task Should_Success_Get_Data_By_EPONo()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            foreach(var i in model.Items)
+            {
+                foreach(var d in i.Details)
+                {
+                    d.EPONo = "EPONo";
+                }
+            }
+            await facade.Create(model, "Unit Test", false);
+            var Response = facade.ReadByEPONo("EPONo");
+            Assert.NotNull(Response);
+        }
 
         [Fact]
         public async Task Should_Success_Create_Data()
