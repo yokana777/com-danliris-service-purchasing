@@ -56,6 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          && (string.IsNullOrWhiteSpace(category) ? true : (category == "BAHAN PENDUKUNG" ? (b.ProductName != "FABRIC" && b.ProductName != "INTERLINING") : b.ProductName == category))
                          && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
                          && a.OrderDate.AddHours(offset).Date <= DateTo.Date
+                         && a.SupplierCode != "GDG"
                          group new { DealQuantity = b.DealQuantity, PricePerDealUnit = b.PricePerDealUnit, Rate = a.CurrencyRate } by new { a.SupplierName, c.UnitName, b.ProductName, a.CurrencyCode, b.DealUomUnit, a.PaymentMethod } into G
                          select new
                          {
