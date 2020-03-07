@@ -169,7 +169,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentReceiptCorrectionReportFacade, GarmentReceiptCorrectionReportFacade>()
                 .AddTransient<IGarmentTopTenPurchaseSupplier, TopTenGarmentPurchaseFacade>()
                 .AddTransient<IGarmentFlowDetailMaterialReport, GarmentFlowDetailMaterialReportFacade>()
-                .AddTransient<IGarmentPurchaseDayBookReport, GarmentPurchaseDayBookReportFacade>(); ;                
+                .AddTransient<IGarmentPurchaseDayBookReport, GarmentPurchaseDayBookReportFacade>()
+                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmenInternNotePaymentStatusFacade, GarmentInternNotePaymentStatusFacade>();                
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -210,11 +212,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
             string env = Configuration.GetValue<string>(Constant.ASPNETCORE_ENVIRONMENT);
+            string connectionStringLocalCashFlow = Configuration.GetConnectionString("LocalDbCashFlowConnection") ?? Configuration["LocalDbCashFlowConnection"];
             APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
 
             /* Register */
             //services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
             services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(1000 * 60 * 20)));
+            services.AddTransient<ILocalDbCashFlowDbContext>(s => new LocalDbCashFlowDbContext(connectionStringLocalCashFlow));
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
