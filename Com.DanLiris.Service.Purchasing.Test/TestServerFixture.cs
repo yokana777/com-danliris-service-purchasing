@@ -43,9 +43,9 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     //DANLIRISTESTENVIRONMENT
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
-                    //new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
-                   new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com-danliris-db-test;Trusted_Connection=True;MultipleActiveResultSets=true"),
-                    //new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.controller.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;"),
+                    new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
+                   //new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com-danliris-db-test;Trusted_Connection=True;MultipleActiveResultSets=true"),
+                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.controller.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;"),
                     new KeyValuePair<string, string>(Constant.MONGODB_CONNECTION, "mongodb://localhost:27017/admin")
                 })
                 .Build();
@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
 
             HttpClient httpClient = new HttpClient();
 
-            var response = httpClient.PostAsync("https://dl-auth-api-dev.azurewebsites.net/v1/authenticate", new StringContent(JsonConvert.SerializeObject(User).ToString(), Encoding.UTF8, "application/json")).Result;
+            var response = httpClient.PostAsync("http://localhost:5000/v1/authenticate", new StringContent(JsonConvert.SerializeObject(User).ToString(), Encoding.UTF8, "application/json")).Result;
             response.EnsureSuccessStatusCode();
 
             var data = response.Content.ReadAsStringAsync();
