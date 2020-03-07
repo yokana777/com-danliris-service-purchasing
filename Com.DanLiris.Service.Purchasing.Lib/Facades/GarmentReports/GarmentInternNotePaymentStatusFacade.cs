@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     i.Tgl = data.GetDateTime(1);
                     i.Jumlah = (decimal)data["jumlah"];
                 };
-                data.Close();
+                //data.Close();
                 paymentStatus.Add(i);
               
 
@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         });
                     }
                 
-                data2.Close();
+                //data2.Close();
             };
             var datastatus = status == "BB" ? paymentStatus.Where(x => Convert.ToDouble(x.Jumlah) - x.PriceTot < 0) : status == "SB" ? paymentStatus.Where(x => Convert.ToDouble(x.Jumlah) - x.PriceTot >= 0) : paymentStatus;
             //return paymentStatus.Distinct().AsQueryable();
