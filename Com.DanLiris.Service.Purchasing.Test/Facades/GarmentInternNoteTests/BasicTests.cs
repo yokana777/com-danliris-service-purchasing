@@ -445,8 +445,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor","1970,1,1",0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Returns(dataTable.CreateDataReader());
 
@@ -507,8 +505,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor", "1970,1,1", 0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Returns(dataTable.CreateDataReader());
 
@@ -566,8 +562,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor", "1970,1,1", 0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Returns(dataTable.CreateDataReader());
 
@@ -632,8 +626,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor", "1970,1,1", 0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Throws(new Exception("Error ExecuteReader"));
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Throws(new Exception("Error ExecuteReader"));
 

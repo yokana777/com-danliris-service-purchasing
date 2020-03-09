@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             foreach (GarmentInternNotePaymentStatusViewModel i in Data)
             {
-                string cmddetail = "Select nomor,tgl,jumlah from RincianDetil where no_bon = '" + i.BillNo + "' and no_sj = '" + i.DoNo + "'";
+                string cmddetail = "Select nomor,tgl,jumlah from RincianDetil where no_bon = @bon and no_sj = @do";
                 string cmdmemo = "Select nomor,tgl,jumlah from RincianMemo where no_bon = @bon";
                 List<SqlParameter> parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("bon", i.BillNo));
@@ -125,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 List<SqlParameter> parameters2 = new List<SqlParameter>();
                 parameters2.Add(new SqlParameter("bon", i.BillNo));
 
-                var data = dbContextLocal.ExecuteReaderOnlyQuery(cmddetail);
+                var data = dbContextLocal.ExecuteReader(cmddetail, parameters);
                 
                 while (data.Read())
                 {
