@@ -362,7 +362,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             foreach (var detail in model.Details)
             {
-                string journalTransactionUri = $"journal-transactions/reverse-transactions/{model.DocumentNo + " / " + detail.UnitPaymentOrderNo}";
+                //string journalTransactionUri = $"journal-transactions/reverse-transactions/{model.DocumentNo + "/" + detail.UnitPaymentOrderNo}";
+                string journalTransactionUri = $"journal-transactions/reverse-transactions/{model.DocumentNo}";
                 var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
                 var response = httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
                 response.EnsureSuccessStatusCode();
