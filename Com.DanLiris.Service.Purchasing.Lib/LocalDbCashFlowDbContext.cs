@@ -38,10 +38,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
             return command.ExecuteReader();
         }
+        public IDataReader ExecuteReaderOnlyQuery(string query)
+        {
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            return command.ExecuteReader();
+        }
     }
     public interface ILocalDbCashFlowDbContext
     {
         IDataReader ExecuteReader(string query, ICollection<SqlParameter> parameters);
+        IDataReader ExecuteReaderOnlyQuery(string query);
     }
 
 }

@@ -445,6 +445,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor","1970,1,1",0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Returns(dataTable.CreateDataReader());
 
@@ -505,6 +507,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor", "1970,1,1", 0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Returns(dataTable.CreateDataReader());
 
@@ -562,6 +566,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor", "1970,1,1", 0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Returns(dataTable.CreateDataReader());
 
@@ -626,6 +632,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             dataTable.Rows.Add("Nomor", "1970,1,1", 0);
 
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Throws(new Exception("Error ExecuteReader"));
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
                 .Throws(new Exception("Error ExecuteReader"));
 
@@ -635,5 +643,65 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
 
 
         }
+        [Fact]
+        public async Task Should_Error_Get_Xls_Payment()
+        {
+            var httpClientService = new Mock<IHttpClientService>();
+            httpClientService.Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService { Username = "Username", TimezoneOffset = 7 });
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+            var dbContext = _dbContext(GetCurrentMethod());
+            //var serviceProvider = GetServiceProvider().Object;
+
+            var facade = new GarmentInternNoteFacades(dbContext, serviceProviderMock.Object);
+            var garmentcorrectionfacade = new Lib.Facades.GarmentCorrectionNoteFacades.GarmentCorrectionNotePriceFacade(serviceProviderMock.Object, dbContext);
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(serviceProviderMock.Object, dbContext);
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbContext);
+            var garmentInvoiceFacade = new GarmentInvoiceFacade(dbContext, serviceProviderMock.Object);
+            var prdatautil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+            var internalPoDatautil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, prdatautil);
+            var datautilexpo = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, internalPoDatautil);
+            var dataUtilDo = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, datautilexpo);
+            var garmentInvoiceDetailDataUtil = new GarmentInvoiceDetailDataUtil();
+            var garmentInvoiceItemDataUtil = new GarmentInvoiceItemDataUtil(garmentInvoiceDetailDataUtil);
+            var garmentInvoieDataUtil = new GarmentInvoiceDataUtil(garmentInvoiceItemDataUtil, garmentInvoiceDetailDataUtil, dataUtilDo, garmentInvoiceFacade);
+            var corecctiondatautil = new GarmentCorrectionNoteDataUtil(garmentcorrectionfacade, dataUtilDo);
+
+            var dataDo = await dataUtilDo.GetTestData();
+            var dataCorr = await corecctiondatautil.GetTestData(dataDo);
+            var invoData = await garmentInvoieDataUtil.GetTestData2("Test", dataDo);
+            var dataIntern = await dataUtil(facade, GetCurrentMethod()).GetNewData(invoData);
+            dataIntern.Items.FirstOrDefault().Details.FirstOrDefault().PaymentDueDate = DateTimeOffset.Now;
+            await facade.Create(dataIntern, false, "Unit Test");
+
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Rows.Add("Nomor", "1970,1,1", 0);
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Throws(new Exception("Error ExecuteReader"));
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Throws(new Exception("Error ExecuteReader"));
+
+            var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
+            var Response = Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetXLs(null, null, null, null, null, null, null, null, null, null, null, null, 7));
+            Assert.NotNull(Response);
+        }
+
     }
 }
