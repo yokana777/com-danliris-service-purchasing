@@ -144,5 +144,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentCorrectionNote
             var response = controller.Get();
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
+        [Fact]
+        public void Should_Error_Get_All_Data() {
+            var mockFacade = new Mock<IGarmentCorrectionNoteFacade>();
+            var mockMapper = new Mock<IMapper>();
+            GarmentCorrectionNoteController controller = new GarmentCorrectionNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.Get();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
