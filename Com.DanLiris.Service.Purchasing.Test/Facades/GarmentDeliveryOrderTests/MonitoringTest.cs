@@ -596,9 +596,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var bookReportFacade = new GarmentPurchasingBookReportFacade(serviceProvider, dbContext);
             var Response = bookReportFacade.GenerateExcelBookReport(null, null, null, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
-
-
         }
+
+        
 
     }
 }
