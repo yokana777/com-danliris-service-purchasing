@@ -1490,8 +1490,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                            join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                            where a.IsDeleted == false && b.IsDeleted == false
                                            && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.CreatedUtc >= DateFrom
-                                           && a.CreatedUtc <= DateTo
+                                           && a.CreatedUtc.Date >= DateFrom.Date
+                                           && a.CreatedUtc.Date <= DateTo.Date
                                            select new MonitoringOutViewModel
                                            {
                                                CreatedUtc = a.CreatedUtc,
@@ -1510,8 +1510,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                  join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                  where a.IsDeleted == false && b.IsDeleted == false
                                                  && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.CreatedUtc >= DateFrom
-                                                 && a.CreatedUtc <= DateTo
+                                                 && a.CreatedUtc.Date >= DateFrom.Date
+                                                 && a.CreatedUtc.Date <= DateTo.Date
                                                  select new MonitoringOutViewModel
                                                  {
                                                      CreatedUtc = a.CreatedUtc,
@@ -1530,8 +1530,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                    join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                    where a.IsDeleted == false && b.IsDeleted == false
                                                    && a.StorageName == a.StorageName
-                                                   && a.CreatedUtc >= DateFrom
-                                                   && a.CreatedUtc <= DateTo
+                                                   && a.CreatedUtc.Date >= DateFrom.Date
+                                                   && a.CreatedUtc.Date <= DateTo.Date
                                                    select new MonitoringOutViewModel
                                                    {
                                                        CreatedUtc = a.CreatedUtc,
