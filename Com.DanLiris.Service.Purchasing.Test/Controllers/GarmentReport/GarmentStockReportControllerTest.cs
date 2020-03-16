@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDailyPurchasingReportViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports;
 using Microsoft.AspNetCore.Http;
@@ -15,33 +15,39 @@ using System.Security.Claims;
 using System.Text;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
+namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 {
-    public class DailyGarmentPurchaseReportControllerTest
+    public class GarmentStockReportControllerTest
     {
-        private GarmentDailyPurchasingReportViewModel ViewModel
+        private GarmentStockReportViewModel viewModel
         {
             get
             {
-                return new GarmentDailyPurchasingReportViewModel
+                return new GarmentStockReportViewModel
                 {
-                    SupplierName = "",
-                    UnitName = "",
-                    BillNo = "",
-                    PaymentBill = "",
-                    DONo = "",
-                    InternNo = "",
+
+                    ProductCode = "",
+                    RO = "",
+                    PlanPo = "",
+                    NoArticle = "",
                     ProductName = "",
-                    CodeRequirement = "",
-                    UOMUnit = "",
-                    Quantity = 0,
-                    Amount = 0,
-                    Amount1 = 0,
-                    Amount2 = 0,
-                    Amount3 = 0,
+                    ProductRemark = "",
+                    Buyer = "",
+                    BeginningBalanceQty = 0,
+                    BeginningBalanceUom = "",
+                    ReceiptCorrectionQty = 0,
+                    ReceiptQty = 0,
+                    ReceiptUom = "",
+                    ExpendQty = 0,
+                    ExpandUom = "",
+                    EndingBalanceQty = 0,
+                    EndingUom = "",
+                    PaymentMethod = ""
+
                 };
             }
         }
+
         private Mock<IServiceProvider> GetServiceProvider()
         {
             var serviceProvider = new Mock<IServiceProvider>();
@@ -56,9 +62,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
             return serviceProvider;
         }
 
-        private GarmentDailyPurchasingReportController GetController(Mock<IGarmentDailyPurchasingReportFacade> facadeM)
+        private GarmentStockReportController GetController(Mock<IGarmentStockReportFacade> facadeM)
         {
-            var user = new Mock<ClaimsPrincipal>();
+            var user = new Mock<System.Security.Claims.ClaimsPrincipal>();
             var claims = new Claim[]
             {
                 new Claim("username", "unittestusername")
@@ -67,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 
             var servicePMock = GetServiceProvider();
 
-            var controller = new GarmentDailyPurchasingReportController(facadeM.Object, servicePMock.Object)
+            var controller = new GarmentStockReportController(facadeM.Object, servicePMock.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -83,22 +89,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 
             return controller;
         }
+
         protected int GetStatusCode(IActionResult response)
         {
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
-
         [Fact]
         public void Should_Success_Get_Report()
         {
-            var mockFacade = new Mock<IGarmentDailyPurchasingReportFacade>();
-            mockFacade.Setup(x => x.GetGDailyPurchasingReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<GarmentDailyPurchasingReportViewModel> { ViewModel }, 25));
+            var mockFacade = new Mock<IGarmentStockReportFacade>();
+            mockFacade.Setup(x => x.GetStockReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(Tuple.Create(new List<GarmentStockReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<GarmentDailyPurchasingReportViewModel>>(It.IsAny<List<GarmentDailyPurchasingReportViewModel>>()))
-                .Returns(new List<GarmentDailyPurchasingReportViewModel> { ViewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentStockReportViewModel>>(It.IsAny<List<GarmentStockReportViewModel>>()))
+                .Returns(new List<GarmentStockReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -106,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            GarmentDailyPurchasingReportController controller = new GarmentDailyPurchasingReportController(mockFacade.Object, GetServiceProvider().Object);
+            GarmentStockReportController controller = new GarmentStockReportController(mockFacade.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -115,21 +121,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 }
             };
 
-            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>());
+            var response = controller.GetReportGarmentStock(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 
         }
-
         [Fact]
         public void Should_Success_Get_Xls()
         {
-            var mockFacade = new Mock<IGarmentDailyPurchasingReportFacade>();
-            mockFacade.Setup(x => x.GenerateExcelGDailyPurchasingReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
+            var mockFacade = new Mock<IGarmentStockReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelStockReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(new MemoryStream());
-        
+
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<GarmentDailyPurchasingReportViewModel>>(It.IsAny<List<GarmentDailyPurchasingReportViewModel>>()))
-                .Returns(new List<GarmentDailyPurchasingReportViewModel> { ViewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentStockReportViewModel>>(It.IsAny<List<GarmentStockReportViewModel>>()))
+                .Returns(new List<GarmentStockReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -137,7 +142,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            GarmentDailyPurchasingReportController controller = new GarmentDailyPurchasingReportController(mockFacade.Object, GetServiceProvider().Object);
+            GarmentStockReportController controller = new GarmentStockReportController(mockFacade.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -147,20 +152,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>());
+            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
-           }
+        }
 
         [Fact]
         public void Should_Error_Get_Report_Data()
         {
-            var mockFacade = new Mock<IGarmentDailyPurchasingReportFacade>();
-            mockFacade.Setup(x => x.GetGDailyPurchasingReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<GarmentDailyPurchasingReportViewModel> { ViewModel }, 25));
+            var mockFacade = new Mock<IGarmentStockReportFacade>();
+            mockFacade.Setup(x => x.GetStockReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(Tuple.Create(new List<GarmentStockReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<GarmentDailyPurchasingReportViewModel>>(It.IsAny<List<GarmentDailyPurchasingReportViewModel>>()))
-                .Returns(new List<GarmentDailyPurchasingReportViewModel> { ViewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentStockReportViewModel>>(It.IsAny<List<GarmentStockReportViewModel>>()))
+                .Returns(new List<GarmentStockReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -168,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            GarmentDailyPurchasingReportController controller = new GarmentDailyPurchasingReportController(mockFacade.Object, GetServiceProvider().Object);
+            GarmentStockReportController controller = new GarmentStockReportController(mockFacade.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -177,20 +182,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 }
             };
             //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport(null, It.IsAny<bool>(), null, null,null, null);
+            var response = controller.GetReportGarmentStock(null, null, null, null, 0, 0, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
         public void Should_Error_Get_Report_Xls_Data()
         {
-            var mockFacade = new Mock<IGarmentDailyPurchasingReportFacade>();
-            mockFacade.Setup(x => x.GetGDailyPurchasingReport(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<GarmentDailyPurchasingReportViewModel> { ViewModel }, 25));
+            var mockFacade = new Mock<IGarmentStockReportFacade>();
+            mockFacade.Setup(x => x.GetStockReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(Tuple.Create(new List<GarmentStockReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<GarmentDailyPurchasingReportViewModel>>(It.IsAny<List<GarmentDailyPurchasingReportViewModel>>()))
-                .Returns(new List<GarmentDailyPurchasingReportViewModel> { ViewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentStockReportViewModel>>(It.IsAny<List<GarmentStockReportViewModel>>()))
+                .Returns(new List<GarmentStockReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -198,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            GarmentDailyPurchasingReportController controller = new GarmentDailyPurchasingReportController(mockFacade.Object, GetServiceProvider().Object);
+            GarmentStockReportController controller = new GarmentStockReportController(mockFacade.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -207,7 +212,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
                 }
             };
             //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>());
+            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }

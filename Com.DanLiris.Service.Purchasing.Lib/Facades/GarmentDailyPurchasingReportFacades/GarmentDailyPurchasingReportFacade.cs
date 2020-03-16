@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
         #region GarmentDailyPurchasingAll
-        public IEnumerable<GarmentDailyPurchasingReportViewModel> GetGarmentDailyPurchasingReportQuery(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IEnumerable<GarmentDailyPurchasingReportViewModel> GetGarmentDailyPurchasingReportQuery(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -44,7 +44,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && e.SupplierImport == supplierType
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? a.SupplierCode.Substring(0, 2) == "DL" : a.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && d.ArrivalDate >= DateFrom.Date && d.ArrivalDate <= DateTo.Date
-                                                                 && d.BeacukaiNo.Substring(0, 4) != "BCDL"
+                                                                 && (string.IsNullOrWhiteSpace(jnsbc) ? true : (jnsbc == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
+                                                                 //&& d.BeacukaiNo.Substring(0, 4) != "BCDL"
+                                                                 && a.SupplierCode != "GDG"
+
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
                                                                      SuplName = a.SupplierName,
@@ -73,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && epo.SupplierImport == supplierType
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && gc.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -87,7 +91,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Quantity = (decimal)gci.Quantity,
                                                                      Satuan = gci.UomIUnit,
                                                                      Kurs = (double)gdo.DOCurrencyRate,
-                                                                     Amount = (double)(gci.PriceTotalAfter),
+                                                                     // Amount = (double)(gci.PriceTotalAfter),
+                                                                     //Amount =(double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? (decimal)gdo.DOCurrencyRate * gci.PriceTotalAfter : (decimal)gdo.DOCurrencyRate * (gci.PriceTotalAfter - gci.PriceTotalBefore))
+                                                                     //Amount = (double)((decimal)gdo.DOCurrencyRate * (gci.PriceTotalAfter - gci.PriceTotalBefore))
+                                                                     Amount = (double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? gci.PriceTotalAfter : (gci.PriceTotalAfter - gci.PriceTotalBefore))
                                                                  };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d3 = from gc in dbContext.GarmentCorrectionNotes
@@ -104,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && gc.NKPN != null
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && gc.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -135,6 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && gc.NKPH != null
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && gc.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -168,6 +177,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && inv.NPN != null
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && inv.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -200,7 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && inv.NPH != null
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
-
+                                                                 && inv.SupplierCode != "GDG"
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
                                                                      SuplName = inv.SupplierName,
@@ -237,15 +247,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             return Query.AsQueryable();
         }
 
-        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
-            List<GarmentDailyPurchasingReportViewModel> result = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, offset).ToList();
+            List<GarmentDailyPurchasingReportViewModel> result = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset).ToList();
             return Tuple.Create(result, result.Count);
         }
 
-        public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
-            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, offset);
+            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });

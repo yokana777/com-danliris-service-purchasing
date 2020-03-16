@@ -179,6 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                          && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
                          //&& d.BeacukaiDate.AddHours(offset).Date >= d1.Date && d.BeacukaiDate.AddHours(offset).Date <= d2.Date
                           && ((d1 != new DateTime(1970, 1, 1)) ? (d.ArrivalDate >= d1.Date && d.ArrivalDate <= d2.Date) : true)
+                          && a.SupplierCode != "GDG"
                          //
                          select new SelectedId
                          {
