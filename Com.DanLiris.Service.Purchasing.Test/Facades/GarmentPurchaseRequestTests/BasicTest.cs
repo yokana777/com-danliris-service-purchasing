@@ -692,7 +692,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data,false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
 			Assert.NotNull(Response.Item1);
 
 		}
@@ -704,7 +704,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
+			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
 			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
@@ -727,7 +727,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			var datas = dataUtil(facade, GetCurrentMethod()).GetNewDoubleCorrectionData(USERNAME);
 		
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var Response = Facade.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			var Response = Facade.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
 			Assert.NotNull(Response.Item1);
 
 		}
@@ -739,7 +739,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var Response = Facade.GenerateExcelByUserPurchase(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			var Response = Facade.GenerateExcelByUserPurchase(null, null, null, null, null, null, null, null, null, null, null, null,  null, null, 1, 25, "{}", 7);
 			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
@@ -751,7 +751,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var Response = Facade.GenerateExcelByUserPurchase("coba", null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+			var Response = Facade.GenerateExcelByUserPurchase("coba", null, null, null, null, null, null, null, null, null, null,null, null, null, 1, 25, "{}", 7);
 			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
