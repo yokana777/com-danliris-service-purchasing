@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public string UENNo { get; set; }
         public string PONo { get; set; }
         public string ItemCode { get; set; }
+        public string ItemName { get; set; }
         public string UnitCode { get; set; }
         public string UnitName { get; set; }
         public string ExTo { get; set; }

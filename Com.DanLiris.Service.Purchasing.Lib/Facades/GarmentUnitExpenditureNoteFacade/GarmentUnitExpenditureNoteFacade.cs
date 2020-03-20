@@ -1490,13 +1490,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                            join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                            where a.IsDeleted == false && b.IsDeleted == false
                                            && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.CreatedUtc >= DateFrom
-                                           && a.CreatedUtc <= DateTo
+                                           && a.CreatedUtc.Date >= DateFrom.Date
+                                           && a.CreatedUtc.Date <= DateTo.Date
                                            select new MonitoringOutViewModel
                                            {
                                                CreatedUtc = a.CreatedUtc,
                                                ExTo = a.ExpenditureTo,
                                                ItemCode = b.ProductCode,
+                                               ItemName = b.ProductName,
                                                PONo = b.POSerialNumber,
                                                Quantity = b.Quantity,
                                                Storage = a.StorageName,
@@ -1509,13 +1510,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                  join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                  where a.IsDeleted == false && b.IsDeleted == false
                                                  && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.CreatedUtc >= DateFrom
-                                                 && a.CreatedUtc <= DateTo
+                                                 && a.CreatedUtc.Date >= DateFrom.Date
+                                                 && a.CreatedUtc.Date <= DateTo.Date
                                                  select new MonitoringOutViewModel
                                                  {
                                                      CreatedUtc = a.CreatedUtc,
                                                      ExTo = a.ExpenditureTo,
                                                      ItemCode = b.ProductCode,
+                                                     ItemName = b.ProductName,
                                                      PONo = b.POSerialNumber,
                                                      Quantity = b.Quantity,
                                                      Storage = a.StorageName,
@@ -1528,13 +1530,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                    join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                    where a.IsDeleted == false && b.IsDeleted == false
                                                    && a.StorageName == a.StorageName
-                                                   && a.CreatedUtc >= DateFrom
-                                                   && a.CreatedUtc <= DateTo
+                                                   && a.CreatedUtc.Date >= DateFrom.Date
+                                                   && a.CreatedUtc.Date <= DateTo.Date
                                                    select new MonitoringOutViewModel
                                                    {
                                                        CreatedUtc = a.CreatedUtc,
                                                        ExTo = a.ExpenditureTo,
                                                        ItemCode = b.ProductCode,
+                                                       ItemName = b.ProductName,
                                                        PONo = b.POSerialNumber,
                                                        Quantity = b.Quantity,
                                                        Storage = a.StorageName,
@@ -1555,6 +1558,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             result.Columns.Add(new DataColumn() { ColumnName = "No Pengeluaran", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tujuan Pengeluaran", DataType = typeof(String) });
@@ -1568,7 +1572,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             if (Query.ToArray().Count() == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "",""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1578,7 +1582,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     index++;
                     string tgl1 = data.CreatedUtc == null ? "-" : data.CreatedUtc.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     //string tgl2 = data.TanggalBuatBon == null ? "-" : data.TanggalBuatBon.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.UENNo, data.PONo, data.ItemCode, data.UnitCode, data.UnitName, data.ExTo, data.Storage, data.Quantity, data.UnitQtyName, tgl1);
+                    result.Rows.Add(index, data.UENNo, data.PONo, data.ItemCode, data.ItemName, data.UnitCode, data.UnitName, data.ExTo, data.Storage, data.Quantity, data.UnitQtyName, tgl1);
 
                 }
 

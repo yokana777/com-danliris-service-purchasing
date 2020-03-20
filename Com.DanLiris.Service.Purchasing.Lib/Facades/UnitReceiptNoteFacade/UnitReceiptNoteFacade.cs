@@ -272,16 +272,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             var creditorAccount = new
             {
-                DPP = dpp,
-                Products = productList,
                 PPN = useIncomeTaxFlag ? 0.1 * dpp : 0,
+                DPP = dpp,
                 model.SupplierCode,
                 model.SupplierName,
+                model.SupplierIsImport,
+                UnitReceiptNoteDate = model.ReceiptDate,
                 Code = model.URNNo,
-                Date = model.ReceiptDate,
                 Currency = currencyCode,
                 CurrencyRate = currencyRate,
-                PaymentDuration = paymentDuration
+                PaymentDuration = paymentDuration,
+                Products = productList
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
