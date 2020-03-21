@@ -47,6 +47,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
             {
                 yield return new ValidationResult("Tgl. Delivery Order harus diisi", new List<string> { "UnitDODate" });
             }
+            if (DateTimeOffset.Compare(DateTimeOffset.Now, UnitDODate) < 0)
+            {
+                yield return new ValidationResult("Tidak Bisa Melakukan Input Diatas Tgl "+DateTimeOffset.Now, new List<string> {"UnitDODate"}); //menambah kondisi validasi
+            }
 
             if (UnitDOType != "RETUR" &&(UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
             {
