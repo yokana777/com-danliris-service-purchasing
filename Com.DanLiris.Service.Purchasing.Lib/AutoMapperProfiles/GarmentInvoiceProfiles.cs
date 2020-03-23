@@ -15,6 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.invoiceNo, opt => opt.MapFrom(s => s.InvoiceNo))
                 .ForMember(d => d.invoiceDate, opt => opt.MapFrom(s => s.InvoiceDate))
+                .ForMember(d => d.isPayVat, opt => opt.MapFrom(s => s.IsPayVat))
                 .ForMember(d => d.isPayTax, opt => opt.MapFrom(s => s.IsPayTax))
                 .ForMember(d => d.useVat, opt => opt.MapFrom(s => s.UseVat))
                 .ForMember(d => d.useIncomeTax, opt => opt.MapFrom(s => s.UseIncomeTax))

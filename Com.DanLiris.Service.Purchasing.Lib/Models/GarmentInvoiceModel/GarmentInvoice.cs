@@ -17,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
         public DateTimeOffset InvoiceDate { get; set; }
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }
+        public bool IsPayVat { get; set; }
         public bool IsPayTax { get; set; }
         public string VatNo { get; set; }
         public string IncomeTaxNo { get; set; }
