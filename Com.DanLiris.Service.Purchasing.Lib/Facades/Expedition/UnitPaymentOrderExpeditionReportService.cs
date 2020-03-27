@@ -42,7 +42,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var UPODetailQuery = _dbContext.Set<UnitPaymentOrderDetail>().AsQueryable();
 
             DateTime dt = DateTime.Parse("0001-01-01T00:00:00.0000000+00:00");
-            
+
+            DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)dateFrom;
+            DateTimeOffset DateTo = dateTo == null ? DateTimeOffset.Now : (DateTimeOffset)dateTo;
+
             if (!string.IsNullOrWhiteSpace(no))
             {
                 query = query.Where(document => document.UPONo.Equals(no));
@@ -64,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             //}
 
 
-            query = query.Where(document => document.Date >= dateFrom && document.Date <= dateTo);
+            query = query.Where(document => document.Date >= DateFrom && document.Date <= DateTo);
 
 
             var joinedQuery = query.GroupJoin(
@@ -98,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             name = expeditionDocument.SupplierName != null ? expeditionDocument.SupplierName : "-",
                         },
                         Currency = expeditionDocument.Currency,
-                        
+
                         Category = new CategoryViewModel()
                         {
                             Code = expeditionDocument.CategoryCode != null ? expeditionDocument.CategoryCode : "-",
@@ -114,12 +117,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             Code = expeditionDocument.DivisionCode != null ? expeditionDocument.DivisionCode : "-",
                             Name = expeditionDocument.DivisionName != null ? expeditionDocument.DivisionName : "-"
                         },
-                        
+
                         VerifiedBy = expeditionDocument.VerificationDivisionBy != null ? expeditionDocument.VerificationDivisionBy : "-",
                         CreatedBy = expeditionDocument.CreatedBy != null ? expeditionDocument.CreatedBy : "-",
-                        
+
                     }
-                ).Where(document => document.Position.Equals(FormatPosition(status)));
+                );//.Where(document => status == 0 ? document.Position.Equals(FormatPosition(status)): document.Position.Equals(FormatPosition(status)));
+
+
+            //if (!string.IsNullOrWhiteSpace(no))
+            //{
+            //    joinedQuery = joinedQuery.Where(document => document.No.Equals(no));
+            //}
+
+            //if (!string.IsNullOrWhiteSpace(supplierCode))
+            //{
+            //    joinedQuery = joinedQuery.Where(document => document.Supplier.code.Equals(supplierCode));
+            //}
+
+            //if (!string.IsNullOrWhiteSpace(divisionCode))
+            //{
+            //   joinedQuery  = joinedQuery.Where(document => document.Division.Code.Equals(divisionCode));
+            //}
+
+            if (status != 0)
+            {
+                joinedQuery = joinedQuery.Where(document => document.Position.Equals(FormatPosition(status)));
+            }
+
+
+            //joinedQuery = joinedQuery.Where(document => document.Date >= DateFrom && document.Date <= DateTo);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             /* Default Order */
@@ -188,12 +215,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
             foreach (var d in data)
             {
-                decimal selisih = ((d.DueDate.Value) - (d.Date.Value)).Days;
+                decimal selisih = d.DueDate != null && d.Date != null ? ((d.DueDate.Value) - (d.Date.Value)).Days : 0;
 
                 dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-",
                     d.Currency ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
                     GetFormattedDate(d.SendToVerificationDivisionDate),
-                    d.CreatedBy,
+                    d.CreatedBy ?? "-",
                     GetFormattedDate(d.VerificationDivisionDate),
                     GetFormattedDate(d.VerifyDate),
                     GetFormattedDate(d.SendDate),
@@ -284,7 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             ExpeditionPosition posisi;
 
             return
-            posisi = num == 1? ExpeditionPosition.PURCHASING_DIVISION :
+            posisi = num == 1 ? ExpeditionPosition.PURCHASING_DIVISION :
                      num == 2 ? ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION :
                      num == 3 ? ExpeditionPosition.VERIFICATION_DIVISION :
                      num == 4 ? ExpeditionPosition.SEND_TO_CASHIER_DIVISION :
