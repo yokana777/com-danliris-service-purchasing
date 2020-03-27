@@ -266,7 +266,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
                                         UsedBudget = 0,
-                                        Article = garmentExternalPurchaseOrderItem.Article
+                                        Article = garmentExternalPurchaseOrderItem.Article,
+                                        UENItemId = BUKItem.Id
 
                                     };
                                     epoItems.Add(newItem);
