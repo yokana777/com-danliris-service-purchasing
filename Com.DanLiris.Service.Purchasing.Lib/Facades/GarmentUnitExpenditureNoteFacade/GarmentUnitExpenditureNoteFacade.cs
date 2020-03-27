@@ -823,6 +823,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         {
             IQueryable<GarmentUnitExpenditureNote> Query = dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedBy"
+            };
+
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureOrder(Query, OrderDictionary);
+
             Query = Query.Select(m => new GarmentUnitExpenditureNote
             {
                 Id = m.Id,
@@ -850,19 +863,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 CreatedBy = m.CreatedBy,
                 LastModifiedUtc = m.LastModifiedUtc
             });
-
-            List<string> searchAttributes = new List<string>()
-            {
-                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedBy"
-            };
-
-            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureFilter(Query, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<GarmentUnitExpenditureNote> pageable = new Pageable<GarmentUnitExpenditureNote>(Query, Page - 1, Size);
             List<GarmentUnitExpenditureNote> Data = pageable.Data.ToList();
