@@ -45,6 +45,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         public string Remark { get; set; }
         public string OverBudgetRemark { get; set; }
         public bool IsOverBudget { get; set; }
+
+        public long? UENItemId { get; set; }
+
         public long GarmentEPOId { get; set; }
         [ForeignKey("GarmentEPOId")]
         public virtual GarmentExternalPurchaseOrder GarmentExternalPurchaseOrder { get; set; }
