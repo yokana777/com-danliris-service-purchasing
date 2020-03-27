@@ -52,9 +52,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Tidak Bisa Melakukan Input Diatas Tgl "+DateTimeOffset.Now, new List<string> {"UnitDODate"}); //menambah kondisi validasi
             }
 
-            if (UnitDOType != "RETUR" &&(UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" &&(UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
             {
-                yield return new ValidationResult("Unit yang meminta haris diisi", new List<string> { "UnitRequest" });
+                yield return new ValidationResult("Unit yang meminta harus diisi", new List<string> { "UnitRequest" });
             }
 
             if (UnitDOType == "TRANSFER" && (StorageRequest == null || string.IsNullOrWhiteSpace(StorageRequest._id)))
@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Gudang yang mengirim harus diisi", new List<string> { "Storage" });
             }
 
-            if (UnitDOType != "RETUR" && string.IsNullOrWhiteSpace(RONo) )
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(RONo) )
             {
                 yield return new ValidationResult("No RO harus diisi", new List<string> { "RONo" });
             }
