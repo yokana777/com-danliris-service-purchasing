@@ -1458,7 +1458,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 				viewModel = new ExpenditureROViewModel
 				{
 					DetailExpenditureId = item.Id,
-					ROAsal = unitDOItem.RONo
+					ROAsal = unitDOItem.RONo,
+					BuyerCode= item.BuyerCode
 				};
 			}
 			return viewModel;
