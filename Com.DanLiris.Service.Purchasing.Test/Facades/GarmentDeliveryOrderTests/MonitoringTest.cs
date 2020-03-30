@@ -432,7 +432,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime;
             DateTime d2 = dataBC.BeacukaiDate.DateTime;
 
-            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, null,7);
             Assert.NotNull(Response.Item1);
             Assert.NotEqual(-1, Response.Item2);
         }
@@ -455,7 +455,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
-            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.NotNull(Response.Item1);
             Assert.NotEqual(-1, Response.Item2);
         }
@@ -478,7 +478,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime;
             DateTime d2 = dataBC.BeacukaiDate.DateTime;
 
-            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -500,7 +500,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
-            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -596,9 +596,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var bookReportFacade = new GarmentPurchasingBookReportFacade(serviceProvider, dbContext);
             var Response = bookReportFacade.GenerateExcelBookReport(null, null, null, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
-
-
         }
+
+        
 
     }
 }

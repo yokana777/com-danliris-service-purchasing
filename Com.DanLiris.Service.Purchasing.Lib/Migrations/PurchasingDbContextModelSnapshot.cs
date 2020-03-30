@@ -2015,6 +2015,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("SmallUomUnit");
 
+                    b.Property<long?>("UENItemId");
+
                     b.Property<string>("UId")
                         .HasMaxLength(255);
 
@@ -2797,6 +2799,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsPayTax");
+
+                    b.Property<bool>("IsPayVat");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
@@ -3964,6 +3968,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("DOCurrencyRate");
 
                     b.Property<long>("DODetailId");
+
+                    b.Property<string>("DRItemId");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()

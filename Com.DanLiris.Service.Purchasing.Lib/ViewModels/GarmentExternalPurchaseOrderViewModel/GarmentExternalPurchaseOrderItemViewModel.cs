@@ -34,5 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 
         public DateTimeOffset ShipmentDate { get; set; }
         public bool IsOverBudget { get; set; }
+
+        public long? UENItemId { get; set; }
     }
 }

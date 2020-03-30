@@ -108,6 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 s.StorageName,
                 s.CreatedBy,
                 s.LastModifiedUtc,
+                s.UnitSenderName,
                 s.Items
             }));
 

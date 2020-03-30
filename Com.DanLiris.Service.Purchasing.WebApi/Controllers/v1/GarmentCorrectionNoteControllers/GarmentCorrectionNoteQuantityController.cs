@@ -60,7 +60,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentCorrectio
                             s.UseIncomeTax,
                             s.UseVat,
                             s.CreatedBy,
-                            s.LastModifiedUtc
+                            s.LastModifiedUtc,
+                            s.Items
                         })
                         .ToList()
                 );

@@ -351,7 +351,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                             Id = "1"
                         },
                         Conversion = 10,
-                        CorrectionConversion= 10
+                        CorrectionConversion= 10,
+                        DRItemId=It.IsAny<string>()
                     }
                 }
             };
@@ -1354,7 +1355,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime;
             DateTime d2 = dataNK.CorrectionDate.DateTime;
 
-            var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, null, 7);
             Assert.NotNull(Response.Item1);
             Assert.NotEqual(-1, Response.Item2);
         }
@@ -1377,7 +1378,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime;
             DateTime d2 = dataNK.CorrectionDate.DateTime;
 
-            var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataNK.GetGDailyPurchasingReport(null, true, null, null, null, null, 7);
             Assert.NotNull(Response.Item1);
             Assert.NotEqual(-1, Response.Item2);
         }
@@ -1400,7 +1401,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime;
             DateTime d2 = dataNK.CorrectionDate.DateTime;
 
-            var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -1422,7 +1423,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
             DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
 
-            var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, 7);
+            var Response = DataNK.GenerateExcelGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -1597,6 +1598,124 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var Response = facade.GenerateExcelMonIN(null, null, "", 7);
             Assert.IsType<MemoryStream>(Response);
         }
+
+        #region GarmentStockReport
+        [Fact]
+        public async void Should_Success_Get_Stock2_Report()
+        {
+            var serviceProvider = GetServiceProvider();
+            var dbContext = _dbContext(GetCurrentMethod());
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dataUtilUrn = dataUtil(facade, GetCurrentMethod());
+            Lib.Facades.GarmentUnitDeliveryOrderFacades.GarmentUnitDeliveryOrderFacade facadeUDO = new Lib.Facades.GarmentUnitDeliveryOrderFacades.GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
+            var dataUtilUDO = new GarmentUnitDeliveryOrderDataUtil(facadeUDO, dataUtilUrn);
+            GarmentUnitExpenditureNoteFacade facadeUEN = new GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
+            var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
+            GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+            var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
+
+            DateTimeOffset now = DateTimeOffset.Now;
+            long nowTicks = now.Ticks;
+            var dataUrn1 = await dataUtilUrn.GetNewData2(nowTicks);
+            dataUrn1.IsStorage = true;
+            dataUrn1.StorageId = nowTicks;
+            dataUrn1.StorageCode = string.Concat("StorageCode", nowTicks);
+            dataUrn1.StorageName = string.Concat("StorageName", nowTicks);
+            dataUrn1.UENNo = "BUK" + dataUrn1.UnitCode;
+            dataUrn1.ReceiptDate = new DateTime(2019, 12, 25);
+            var dataUrn2 = await dataUtilUrn.GetNewData2(nowTicks);
+            dataUrn2.IsStorage = true;
+            dataUrn2.StorageId = nowTicks;
+            dataUrn2.StorageCode = string.Concat("StorageCode", nowTicks);
+            dataUrn2.StorageName = string.Concat("StorageName", nowTicks);
+            dataUrn2.UENNo = "BUK" + dataUrn1.UnitCode;
+            dataUrn2.UnitCode = dataUrn1.UnitCode;
+            dataUrn2.ReceiptDate = new DateTime(2019, 12, 26);
+            foreach (var i in dataUrn1.Items)
+            {
+                i.UENItemId = 1;
+            }
+            foreach (var i in dataUrn2.Items)
+            {
+                i.UENItemId = 1;
+            }
+            //var dataUrn3 = await dataUtilUrn.GetNewData2(nowTicks + 1);
+            //dataUrn3.UENNo = "BUK" + dataUrn3.UnitCode;
+            //dataUrn3.IsStorage = true;
+            //dataUrn3.StorageId = nowTicks;
+            //dataUrn3.StorageCode = string.Concat("StorageCode", nowTicks);
+            //dataUrn3.StorageName = string.Concat("StorageName", nowTicks);
+            await facade.Create(dataUrn1);
+            await facade.Create(dataUrn2);
+            var dataUDO = await dataUtilUDO.GetNewDataMultipleItem(dataUrn1, dataUrn2);
+            await facadeUDO.Create(dataUDO);
+            var dataUEN = await dataUtilUEN.GetNewDataTypeTransfer(dataUDO);
+            await facadeUEN.Create(dataUEN);
+            var dataRC = await dataUtilRC.GetNewData(dataUrn1);
+            await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
+            var stockreport = new GarmentStockReportFacade(serviceProvider, dbContext);
+            var Response = stockreport.GetStockReport(7, dataUrn1.UnitCode, null, 1, 25, "{}", new DateTime(2019, 12, 26), new DateTime(2019, 12, 27));
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async void Should_Success_Get_Excel_Stock2_Report()
+        {
+            var serviceProvider = GetServiceProvider();
+            var dbContext = _dbContext(GetCurrentMethod());
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dataUtilUrn = dataUtil(facade, GetCurrentMethod());
+            Lib.Facades.GarmentUnitDeliveryOrderFacades.GarmentUnitDeliveryOrderFacade facadeUDO = new Lib.Facades.GarmentUnitDeliveryOrderFacades.GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
+            var dataUtilUDO = new GarmentUnitDeliveryOrderDataUtil(facadeUDO, dataUtilUrn);
+            GarmentUnitExpenditureNoteFacade facadeUEN = new GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
+            var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
+            GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+            var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
+
+            DateTimeOffset now = DateTimeOffset.Now;
+            long nowTicks = now.Ticks;
+            var dataUrn1 = await dataUtilUrn.GetNewData2(nowTicks);
+            dataUrn1.IsStorage = true;
+            dataUrn1.StorageId = nowTicks;
+            dataUrn1.StorageCode = string.Concat("StorageCode", nowTicks);
+            dataUrn1.StorageName = string.Concat("StorageName", nowTicks);
+            dataUrn1.UENNo = "BUK" + dataUrn1.UnitCode;
+            dataUrn1.ReceiptDate = new DateTime(2019, 12, 25);
+            var dataUrn2 = await dataUtilUrn.GetNewData2(nowTicks);
+            dataUrn2.IsStorage = true;
+            dataUrn2.StorageId = nowTicks;
+            dataUrn2.StorageCode = string.Concat("StorageCode", nowTicks);
+            dataUrn2.StorageName = string.Concat("StorageName", nowTicks);
+            dataUrn2.UENNo = "BUK" + dataUrn1.UnitCode;
+            dataUrn2.UnitCode = dataUrn1.UnitCode;
+            dataUrn2.ReceiptDate = new DateTime(2019, 12, 26);
+            foreach (var i in dataUrn1.Items)
+            {
+                i.UENItemId = 1;
+            }
+            foreach (var i in dataUrn2.Items)
+            {
+                i.UENItemId = 1;
+            }
+            //var dataUrn3 = await dataUtilUrn.GetNewData2(nowTicks + 1);
+            //dataUrn3.UENNo = "BUK" + dataUrn3.UnitCode;
+            //dataUrn3.IsStorage = true;
+            //dataUrn3.StorageId = nowTicks;
+            //dataUrn3.StorageCode = string.Concat("StorageCode", nowTicks);
+            //dataUrn3.StorageName = string.Concat("StorageName", nowTicks);
+            await facade.Create(dataUrn1);
+            await facade.Create(dataUrn2);
+            var dataUDO = await dataUtilUDO.GetNewDataMultipleItem(dataUrn1, dataUrn2);
+            await facadeUDO.Create(dataUDO);
+            var dataUEN = await dataUtilUEN.GetNewDataTypeTransfer(dataUDO);
+            await facadeUEN.Create(dataUEN);
+            var dataRC = await dataUtilRC.GetNewData(dataUrn1);
+            await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
+            var stockreport = new GarmentStockReportFacade(serviceProvider, dbContext);
+            var Response = stockreport.GenerateExcelStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        #endregion
     }
 
 

@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public long DODetailId { get; set; }
 
         public long EPOItemId { get; set; }
+        public string DRItemId { get; set; }
 
         public long PRId { get; set; }
         public string PRNo { get; set; }

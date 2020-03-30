@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         DODetailId = detail.Id,
 
                         EPOItemId = detail.EPOItemId,
-
+                        DRItemId = string.Concat("drItemId", nowTicks),
                         PRId = detail.PRId,
                         PRNo = detail.PRNo,
                         PRItemId = detail.PRItemId,
@@ -135,6 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         DODetailId = detail.Id,
 
                         EPOItemId = detail.EPOItemId,
+                        DRItemId = string.Concat("drItemId", nowTicks),
 
                         PRId = detail.PRId,
                         PRNo = detail.PRNo,
