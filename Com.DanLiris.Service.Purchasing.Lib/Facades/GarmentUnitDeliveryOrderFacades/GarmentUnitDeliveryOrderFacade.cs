@@ -214,7 +214,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         .Include(d => d.Items)
                         //.AsNoTracking()
                         .Single(m => m.Id == id);
-
+                    if (oldGarmentUnitDeliveryOrder.UnitDOType == "MARKETING")
+                    {
+                        oldGarmentUnitDeliveryOrder.UnitDODate = garmentUnitDeliveryOrder.UnitDODate;
+                    }
                     EntityExtension.FlagForUpdate(oldGarmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
 
                     foreach (var garmentUnitDeliveryOrderItem in garmentUnitDeliveryOrder.Items)
@@ -260,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         }
                     }
 
-                    //dbSet.Update(garmentUnitDeliveryOrder);
+                   // dbSet.Update(garmentUnitDeliveryOrder);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
