@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
             }
             if (DateTimeOffset.Compare(DateTimeOffset.Now, UnitDODate) < 0)
             {
-                yield return new ValidationResult("Tidak Bisa Melakukan Input Diatas Tgl "+DateTimeOffset.Now, new List<string> {"UnitDODate"}); //menambah kondisi validasi
+                yield return new ValidationResult("Tgl. Delivery Order tidak boleh lebih dari hari ini", new List<string> {"UnitDODate"}); //menambah kondisi validasi
             }
 
             if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" &&(UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
@@ -62,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Gudang yang meminta harus diisi", new List<string> { "StorageRequest" });
             }
 
-            if ((UnitDOType == "TRANSFER" || UnitDOType == "RETUR") && (UnitSender == null || string.IsNullOrWhiteSpace(UnitSender.Id)))
+            if ((UnitDOType == "TRANSFER" || UnitDOType == "RETUR" || UnitDOType == "MARKETING") && (UnitSender == null || string.IsNullOrWhiteSpace(UnitSender.Id)))
             {
                 yield return new ValidationResult("Unit yang mengirim harus diisi", new List<string> { "UnitSender" });
             }
