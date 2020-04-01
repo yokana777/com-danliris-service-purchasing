@@ -333,7 +333,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SupplierName = garmentExternalPurchaseOrder.SupplierName,
                                 Washing = garmentExternalPurchaseOrder.Washing,
                                 WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
-                                Items = epoItems
+                                Items = epoItems,
+                                UENId = garmentUnitExpenditureNote.Id
                             };
 
                             suppType = garmentExternalPurchaseOrder.SupplierImport;
