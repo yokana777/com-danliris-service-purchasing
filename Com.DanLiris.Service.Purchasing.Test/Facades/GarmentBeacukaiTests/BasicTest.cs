@@ -189,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
             };
             data.Items.Add(newModelItem);
 
-            List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>(viewModel.items);
+            List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>();
 			
 
             foreach(GarmentBeacukaiItem i in data.Items)
@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
                     {
                         Id= i.GarmentDOId,
                     },
-                    Id=i.Id
+                    Id=i.Id,
                 };
                 Newitems.Add(newItem);
             }
