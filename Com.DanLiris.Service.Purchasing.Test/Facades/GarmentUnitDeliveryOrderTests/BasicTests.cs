@@ -312,6 +312,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             };
             System.ComponentModel.DataAnnotations.ValidationContext validationDuplicateContext = new System.ComponentModel.DataAnnotations.ValidationContext(viewModelWithItemsQuantityOver, serviceProvider.Object, null);
             Assert.True(viewModelWithItemsQuantityOver.Validate(validationDuplicateContext).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModel1 = new GarmentUnitDeliveryOrderViewModel
+            {
+                UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitDOType = "MARKETING",
+                UnitDODate= DateTimeOffset.Now.AddDays(3)
+            };
+            Assert.True(viewModel1.Validate(null).Count() > 0);
         }
 
         [Fact]
