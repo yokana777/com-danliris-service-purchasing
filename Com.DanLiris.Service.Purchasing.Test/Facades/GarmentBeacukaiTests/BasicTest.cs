@@ -176,20 +176,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 	{
 			var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 			var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-			GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
 
-			//var ResponseUpdate = await facade.Update((int)data.Id, viewModel,data, USERNAME);
-			//Assert.NotEqual(ResponseUpdate, 0);
-			var newItem =
-				new GarmentBeacukaiItemViewModel
-				{
-					selected = true 
+			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetTestData1(USERNAME);
+
+           // var Vmodel = mapper.Map<GarmentBeacukaiViewModel>(data);
+            GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
+            
+            //GarmentBeacukaiViewModel viewmodel= await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
+            //var ResponseUpdate = await facade.Update((int)data.Id, viewModel,data, USERNAME);
+            //Assert.NotEqual(ResponseUpdate, 0);
+            var newItem =
+                new GarmentBeacukaiItemViewModel
+                {
+                    selected = true,
+                    deliveryOrder = viewModel.items.First().deliveryOrder
 				};
    			
 			List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>(viewModel.items);
 			Newitems.Add(newItem);
-			viewModel.items = Newitems;
+            Newitems.First().Id = data.Items.First().Id;
+            Newitems.First().deliveryOrder.Id = data.Items.First().GarmentDOId;
+            viewModel.Id = data.Id;
+            viewModel.items = Newitems;
 			//List<GarmentBeacukaiItem> Newitems = new List<GarmentBeacukaiItem>(data.Items);
 			var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
 			Assert.NotEqual(0, ResponseUpdate1);

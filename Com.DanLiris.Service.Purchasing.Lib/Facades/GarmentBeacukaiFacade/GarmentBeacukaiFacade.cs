@@ -255,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			{
 				try
 				{
-                    GarmentBeacukai modelBC = dbSet.AsNoTracking().Include(a=>a.Items).FirstOrDefault(s => s.Id == vm.Id);
+                    GarmentBeacukai modelBC = dbSet.AsNoTracking().Include(a=>a.Items).FirstOrDefault(s => s.Id == model.Id);
 
                     EntityExtension.FlagForUpdate(model, user, USER_AGENT);
 
@@ -264,7 +264,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                     foreach(GarmentBeacukaiItem item in model.Items)
                     {
                         GarmentBeacukaiItem oldItem= modelBC.Items.FirstOrDefault(s => s.Id.Equals(item.Id));
-                        GarmentBeacukaiItemViewModel itemVM= vm.items.FirstOrDefault(s => s.Id.Equals(item.Id));
+                        GarmentBeacukaiItemViewModel itemVM= vm.items.FirstOrDefault(s => s.deliveryOrder.Id.Equals(item.GarmentDOId));
                         if (itemVM.selected)
                         {
                             if (oldItem == null)

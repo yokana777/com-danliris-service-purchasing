@@ -152,5 +152,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 
 			return model;
 		}
-	}
+
+        public async Task<GarmentBeacukai> GetTestData1(string user)
+        {
+            var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+            GarmentBeacukai model = await GetNewData(user,garmentDO);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+    }
 }
