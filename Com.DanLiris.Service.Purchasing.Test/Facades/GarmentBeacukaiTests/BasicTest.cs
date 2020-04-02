@@ -179,29 +179,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 
 			GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetTestData1(USERNAME);
 
-           // var Vmodel = mapper.Map<GarmentBeacukaiViewModel>(data);
             GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
             
-            //GarmentBeacukaiViewModel viewmodel= await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
-            //var ResponseUpdate = await facade.Update((int)data.Id, viewModel,data, USERNAME);
-            //Assert.NotEqual(ResponseUpdate, 0);
-            var newItem =
+            var newModelItem = new GarmentBeacukaiItem
+            {
+                GarmentDOId= viewModel.items.First().deliveryOrder.Id,
+                TotalQty=1,
+                TotalAmount=1
+            };
+            data.Items.Add(newModelItem);
+
+            List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>(viewModel.items);
+			
+
+            foreach(GarmentBeacukaiItem i in data.Items)
+            {
+                var newItem =
                 new GarmentBeacukaiItemViewModel
                 {
                     selected = true,
-                    deliveryOrder = viewModel.items.First().deliveryOrder
-				};
-   			
-			List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>(viewModel.items);
-			Newitems.Add(newItem);
-            Newitems.First().Id = data.Items.First().Id;
-            Newitems.First().deliveryOrder.Id = data.Items.First().GarmentDOId;
+                    deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel
+                    {
+                        Id= i.GarmentDOId,
+                    },
+                    Id=i.Id
+                };
+                Newitems.Add(newItem);
+            }
+
             viewModel.Id = data.Id;
             viewModel.items = Newitems;
-			//List<GarmentBeacukaiItem> Newitems = new List<GarmentBeacukaiItem>(data.Items);
+			
 			var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
 			Assert.NotEqual(0, ResponseUpdate1);
-		}
+
+            var ResponseUpdate2 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
+            Assert.NotEqual(0, ResponseUpdate2);
+        }
 
 		[Fact]
 		public async Task Should_Success_Delete_Data()
