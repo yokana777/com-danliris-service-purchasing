@@ -315,10 +315,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             GarmentUnitDeliveryOrderViewModel viewModel1 = new GarmentUnitDeliveryOrderViewModel
             {
-                UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
-                {
-                    Id = "1"
-                },
                 UnitDOType = "MARKETING",
                 UnitDODate= DateTimeOffset.Now.AddDays(3)
             };
