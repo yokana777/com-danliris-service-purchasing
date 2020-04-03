@@ -20,6 +20,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteV
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -333,7 +334,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SupplierName = garmentExternalPurchaseOrder.SupplierName,
                                 Washing = garmentExternalPurchaseOrder.Washing,
                                 WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
-                                Items = epoItems
+                                Items = epoItems,
+                                UENId = garmentUnitExpenditureNote.Id
                             };
 
                             suppType = garmentExternalPurchaseOrder.SupplierImport;
@@ -1593,5 +1595,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
 
+        public async Task<int> PatchOne(long id, JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Where(d => d.Id == id)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, identityService.Username, USER_AGENT);
+
+                    jsonPatch.ApplyTo(data);
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw e;
+                }
+            }
+
+            return Updated;
+        }
     }
 }
