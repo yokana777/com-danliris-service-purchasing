@@ -302,6 +302,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             }
                             else if (oldItem != null)
                             {
+                                item.TotalAmount=oldItem.TotalAmount;
+                                item.TotalQty = oldItem.TotalQty;
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             }
 

@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
             List<string> searchAttributes = new List<string>()
             {
-                "UnitDONo", "RONo", "UnitDOType", "Article","UnitRequestName","StorageName","UnitSenderName"
+                "UnitDONo", "RONo", "UnitDOType", "Article","UnitRequestName","StorageName","UnitSenderName","CreatedBy"
             };
 
             Query = QueryHelper<GarmentUnitDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -214,10 +214,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         .Include(d => d.Items)
                         //.AsNoTracking()
                         .Single(m => m.Id == id);
-                    if (oldGarmentUnitDeliveryOrder.UnitDOType == "MARKETING")
-                    {
-                        oldGarmentUnitDeliveryOrder.UnitDODate = garmentUnitDeliveryOrder.UnitDODate;
-                    }
+                    //if (oldGarmentUnitDeliveryOrder.UnitDOType == "MARKETING")
+                    //{
+                    //    oldGarmentUnitDeliveryOrder.UnitDODate = garmentUnitDeliveryOrder.UnitDODate;
+                    //}
                     EntityExtension.FlagForUpdate(oldGarmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
 
                     foreach (var garmentUnitDeliveryOrderItem in garmentUnitDeliveryOrder.Items)
@@ -286,8 +286,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             string Day = dateTimeOffset.ToString("dd");
 
             string pre = model.UnitDOType == "MARKETING" ? "DOM" : "DO";
+            string unitCode= model.UnitDOType == "MARKETING" ? model.UnitSenderCode: model.UnitRequestCode;
 
-            string no = string.Concat(pre, model.UnitRequestCode, Year, Month, Day);
+            string no = string.Concat(pre, unitCode, Year, Month, Day);
             int Padding = 3;
 
             var lastDataByNo = await dbSet.Where(w => w.UnitDONo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UnitDONo).FirstOrDefaultAsync();
