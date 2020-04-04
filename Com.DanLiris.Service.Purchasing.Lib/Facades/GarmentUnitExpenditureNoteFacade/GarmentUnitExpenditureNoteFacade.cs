@@ -176,6 +176,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     bool suppType = true;
                     List<GarmentExternalPurchaseOrder> newEPOList = new List<GarmentExternalPurchaseOrder>();
 
+                    dbSet.Add(garmentUnitExpenditureNote);
+
+                    Created = await dbContext.SaveChangesAsync();
+
                     if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
                     {
                         List<long> epoItemIds = new List<long>();
@@ -335,7 +339,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 Washing = garmentExternalPurchaseOrder.Washing,
                                 WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
                                 Items = epoItems,
-                                UENId = garmentUnitExpenditureNote.Id
+                                UENId = garmentUnitExpenditureNote.Id,
+                                BudgetRate = garmentExternalPurchaseOrder.BudgetRate
                             };
 
                             suppType = garmentExternalPurchaseOrder.SupplierImport;
@@ -426,10 +431,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         garmentUnitDeliveryOrder.CorrectionNo = Correction.CorrectionNo;
 
                     }
-
-                    dbSet.Add(garmentUnitExpenditureNote);
-
-                    Created = await dbContext.SaveChangesAsync();
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
