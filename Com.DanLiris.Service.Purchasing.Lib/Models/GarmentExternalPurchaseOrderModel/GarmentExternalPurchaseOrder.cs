@@ -66,6 +66,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
 
         public long? UENId { get; set; }
 
+        public double BudgetRate { get; set; }
+
         public virtual ICollection<GarmentExternalPurchaseOrderItem> Items { get; set; }
     }
 }
