@@ -453,7 +453,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     ReceiptCorrection= (decimal)uenItem.Quantity / uenItem.Conversion,
                                     CorrectionConversion= uenItem.Conversion,
                                     OrderQuantity=0,
-                                    DOCurrencyRate= uenItem.DOCurrencyRate!=null ? (double)uenItem.DOCurrencyRate:0
+                                    DOCurrencyRate= uenItem.DOCurrencyRate!=null ? (double)uenItem.DOCurrencyRate:0,
+                                    UENItemId=uenItem.Id
                                 };
                                 urnItems.Add(garmentURNItem);
                                 EntityExtension.FlagForCreate(garmentURNItem, identityService.Username, USER_AGENT);
