@@ -270,7 +270,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         SmallQuantity = BUKItem.Quantity,
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
-                                        UsedBudget = 0,
+                                        UsedBudget = BUKItem.Quantity / (double)BUKItem.Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate,
                                         Article = garmentExternalPurchaseOrderItem.Article,
                                         UENItemId = BUKItem.Id
 
