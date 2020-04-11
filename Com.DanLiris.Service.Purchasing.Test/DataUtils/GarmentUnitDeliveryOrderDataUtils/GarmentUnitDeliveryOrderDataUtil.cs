@@ -81,6 +81,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             await facade.Create(data);
             return data;
         }
+
+        public async Task<GarmentUnitDeliveryOrder> GetTestDataMarketing()
+        {
+            var data = await GetNewData();
+            data.UnitDOType = "MARKETING";
+            await facade.Create(data);
+            return data;
+        }
         public async Task<GarmentUnitDeliveryOrder> GetNewDataMultipleItem(GarmentUnitReceiptNote unitReceiptNote1 = null, GarmentUnitReceiptNote unitReceiptNote2 = null)
         {
             DateTimeOffset now = DateTimeOffset.Now;

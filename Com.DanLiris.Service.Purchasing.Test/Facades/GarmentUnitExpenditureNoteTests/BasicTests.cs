@@ -39,6 +39,7 @@ using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using System.IO;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteTests
 {
@@ -697,6 +698,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var Response = facade.GenerateExcelMonOut(null, null, "", 7);
             Assert.IsType<MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Patch_One()
+        {
+            GarmentUnitExpenditureNoteFacade facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch = new JsonPatchDocument<GarmentUnitExpenditureNote>();
+            jsonPatch.Replace(m => m.IsPreparing, true);
+
+            var Response = await facade.PatchOne(model.Id, jsonPatch);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async void Should_Error_Patch_One()
+        {
+            GarmentUnitExpenditureNoteFacade facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch = new JsonPatchDocument<GarmentUnitExpenditureNote>();
+            jsonPatch.Replace(m => m.Id, 0);
+
+            var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.PatchOne(model.Id, jsonPatch));
+            Assert.NotNull(Response.Message);
         }
     }
 }

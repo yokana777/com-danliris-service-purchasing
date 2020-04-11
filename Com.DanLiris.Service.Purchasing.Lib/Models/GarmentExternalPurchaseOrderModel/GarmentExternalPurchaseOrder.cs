@@ -64,6 +64,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         [MaxLength(1000)]
         public string PieceLength { get; set; }
 
+        public long? UENId { get; set; }
+
+        public double BudgetRate { get; set; }
+
         public virtual ICollection<GarmentExternalPurchaseOrderItem> Items { get; set; }
     }
 }

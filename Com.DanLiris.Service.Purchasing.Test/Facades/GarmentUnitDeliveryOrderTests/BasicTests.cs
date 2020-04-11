@@ -163,6 +163,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         }
 
         [Fact]
+        public async Task Should_Success_Update_Data_MARKETING()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitDeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataMarketing();
+
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
+
+            var newItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
+            newItem.Id = 0;
+            newItem.IsSave = true;
+
+            data.Items.Add(newItem);
+
+            var ResponseUpdate = await facade.Update((int)data.Id, data);
+            Assert.NotEqual(0, ResponseUpdate);
+
+            var newData = dbContext.GarmentUnitDeliveryOrders
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
+
+            newData.Items = newData.Items.Take(1).ToList();
+            newData.Items.First().IsSave = true;
+
+            var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
+            Assert.NotEqual(0, ResponseUpdateRemoveItem);
+        }
+
+        [Fact]
         public async Task Should_Error_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -278,6 +312,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             };
             System.ComponentModel.DataAnnotations.ValidationContext validationDuplicateContext = new System.ComponentModel.DataAnnotations.ValidationContext(viewModelWithItemsQuantityOver, serviceProvider.Object, null);
             Assert.True(viewModelWithItemsQuantityOver.Validate(validationDuplicateContext).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModel1 = new GarmentUnitDeliveryOrderViewModel
+            {
+                UnitDOType = "MARKETING",
+                UnitDODate= DateTimeOffset.Now.AddDays(3)
+            };
+            Assert.True(viewModel1.Validate(null).Count() > 0);
         }
 
         [Fact]

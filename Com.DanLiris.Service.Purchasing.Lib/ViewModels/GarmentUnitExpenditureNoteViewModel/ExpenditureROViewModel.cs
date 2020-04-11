@@ -9,5 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
 		public long DetailExpenditureId { get; set; }
 
 		public string ROAsal { get; set; }
+		public string BuyerCode { get; set; }
 	}
 }

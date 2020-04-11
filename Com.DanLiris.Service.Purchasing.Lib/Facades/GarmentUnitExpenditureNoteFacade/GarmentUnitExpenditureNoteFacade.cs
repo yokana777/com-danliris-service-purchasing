@@ -20,6 +20,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteV
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -175,6 +176,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     bool suppType = true;
                     List<GarmentExternalPurchaseOrder> newEPOList = new List<GarmentExternalPurchaseOrder>();
 
+                    dbSet.Add(garmentUnitExpenditureNote);
+
+                    Created = await dbContext.SaveChangesAsync();
+
                     if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
                     {
                         List<long> epoItemIds = new List<long>();
@@ -266,7 +271,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
                                         UsedBudget = 0,
-                                        Article = garmentExternalPurchaseOrderItem.Article
+                                        Article = garmentExternalPurchaseOrderItem.Article,
+                                        UENItemId = BUKItem.Id
 
                                     };
                                     epoItems.Add(newItem);
@@ -332,7 +338,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SupplierName = garmentExternalPurchaseOrder.SupplierName,
                                 Washing = garmentExternalPurchaseOrder.Washing,
                                 WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
-                                Items = epoItems
+                                Items = epoItems,
+                                UENId = garmentUnitExpenditureNote.Id,
+                                BudgetRate = garmentExternalPurchaseOrder.BudgetRate
                             };
 
                             suppType = garmentExternalPurchaseOrder.SupplierImport;
@@ -423,10 +431,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         garmentUnitDeliveryOrder.CorrectionNo = Correction.CorrectionNo;
 
                     }
-
-                    dbSet.Add(garmentUnitExpenditureNote);
-
-                    Created = await dbContext.SaveChangesAsync();
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {
@@ -823,6 +827,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         {
             IQueryable<GarmentUnitExpenditureNote> Query = dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedBy"
+            };
+
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureOrder(Query, OrderDictionary);
+
             Query = Query.Select(m => new GarmentUnitExpenditureNote
             {
                 Id = m.Id,
@@ -850,19 +867,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 CreatedBy = m.CreatedBy,
                 LastModifiedUtc = m.LastModifiedUtc
             });
-
-            List<string> searchAttributes = new List<string>()
-            {
-                "UENNo", "UnitDONo", "ExpenditureType", "ExpenditureTo", "CreatedBy"
-            };
-
-            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureFilter(Query, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<GarmentUnitExpenditureNote> pageable = new Pageable<GarmentUnitExpenditureNote>(Query, Page - 1, Size);
             List<GarmentUnitExpenditureNote> Data = pageable.Data.ToList();
@@ -1457,7 +1461,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 				viewModel = new ExpenditureROViewModel
 				{
 					DetailExpenditureId = item.Id,
-					ROAsal = unitDOItem.RONo
+					ROAsal = unitDOItem.RONo,
+					BuyerCode= item.BuyerCode
 				};
 			}
 			return viewModel;
@@ -1591,5 +1596,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
 
+        public async Task<int> PatchOne(long id, JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var data = dbSet.Where(d => d.Id == id)
+                        .Single();
+
+                    EntityExtension.FlagForUpdate(data, identityService.Username, USER_AGENT);
+
+                    jsonPatch.ApplyTo(data);
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw e;
+                }
+            }
+
+            return Updated;
+        }
     }
 }

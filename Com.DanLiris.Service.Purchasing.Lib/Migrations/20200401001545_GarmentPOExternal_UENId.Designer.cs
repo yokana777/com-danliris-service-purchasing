@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200401001545_GarmentPOExternal_UENId")]
+    partial class GarmentPOExternal_UENId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1784,8 +1785,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Active");
-
-                    b.Property<double>("BudgetRate");
 
                     b.Property<string>("Category");
 
@@ -3671,8 +3670,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsPreparing");
-
-                    b.Property<bool>("IsReceived");
 
                     b.Property<bool>("IsTransfered");
 
