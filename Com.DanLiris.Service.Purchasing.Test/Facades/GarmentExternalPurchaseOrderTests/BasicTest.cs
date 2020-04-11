@@ -17,6 +17,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataU
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -53,6 +54,32 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             HttpClientService
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(message);
+
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsRegex($"^master/garment-suppliers")))
+                .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(new
+                    {
+                        apiVersion = "1.0",
+                        statusCode = 200,
+                        message = "Ok",
+                        data = JsonConvert.SerializeObject(new SupplierViewModel { })
+                    }))
+                });
+
+            HttpClientService
+                .Setup(x => x.GetAsync(It.IsRegex($"^master/garmentProducts")))
+                .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(new
+                    {
+                        apiVersion = "1.0",
+                        statusCode = 200,
+                        message = "Ok",
+                        data = JsonConvert.SerializeObject(new GarmentProductViewModel { })
+                    }))
+                });
 
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -547,5 +574,53 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         }
 
         #endregion
+
+        [Fact]
+        public void Should_Success_Get_SupplierViewModel()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var result = facade.GetSupplier(It.IsAny<long>());
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Null_Get_SupplierViewModel()
+        {
+            var serviceProviderMock = GetServiceProvider();
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(null);
+
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+            var result = facade.GetSupplier(It.IsAny<long>());
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void Should_Success_Get_GarmentProductViewModel()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var result = facade.GetProduct(It.IsAny<long>());
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void Should_Null_Get_GarmentProductViewModel()
+        {
+            var serviceProviderMock = GetServiceProvider();
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(null);
+
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+            var result = facade.GetProduct(It.IsAny<long>());
+
+            Assert.Null(result);
+        }
     }
 }
