@@ -427,8 +427,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
                         Product = new GarmentProductViewModel(),
                         DealUom = new UomViewModel(),
                         SmallUom= new UomViewModel(),
+
+                        PRId = 0,
+                        PONo = null,
+                        DefaultQuantity = 0,
+                        DefaultUom = null,
+                        SmallQuantity = 0,
+                        UsedBudget = 0,
+                        DOQuantity = 0,
+                        OverBudgetRemark = null,
+                        UENItemId = null
                     }
-                }
+                },
+
+                UENId = null,
+                BudgetRate = 0
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
