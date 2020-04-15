@@ -38,8 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
             List<GarmentReportCMTViewModel> reportData = new List<GarmentReportCMTViewModel>();
-                string cmdexpenditure = "select Invoice,e.ExpenditureGoodId, e.RO,Article, SUM(ed.Qty) as qtyBJ from Production.dbo.ExpenditureGood e join Production.dbo.ExpenditureGoodDetail ed on e.ExpenditureGoodId = ed.ExpenditureGoodId where e.ProcessDate between '" + DateFrom + "' and '" + DateTo + "' and e.UnitCode = '" + unit + "' and e.ExpenditureGoodId like '%GE%' group by e.RO,Invoice,e.ExpenditureGoodId,e.ProcessDate,e.UnitCode, Article";
-                string cmdexpenditure2 = "select Invoice,e.ExpenditureGoodId, e.RO,Article, SUM(ed.Qty) as qtyBJ from Production.dbo.ExpenditureGood e join Production.dbo.ExpenditureGoodDetail ed on e.ExpenditureGoodId = ed.ExpenditureGoodId where e.ProcessDate between '" + DateFrom + "' and '" + DateTo + "'  and e.ExpenditureGoodId like '%GE%' group by e.RO,Invoice,e.ExpenditureGoodId,e.ProcessDate,e.UnitCode, Article";
+                string cmdexpenditure = "select Invoice,e.ExpenditureGoodId, e.RO,Article, SUM(ed.Qty) as qtyBJ from Production.dbo.ExpenditureGood e join Production.dbo.ExpenditureGoodDetail ed on e.ExpenditureGoodId = ed.ExpenditureGoodId where e.ProcessDate between '" + DateFrom + "' and '" + DateTo + "' and e.UnitCode = '" + unit + "' and e.ExpenditureGoodId like '%GE%'  group by e.RO,Invoice,e.ExpenditureGoodId,e.ProcessDate,e.UnitCode, Article order by e.ProcessDate DESC";
+                string cmdexpenditure2 = "select Invoice,e.ExpenditureGoodId, e.RO,Article, SUM(ed.Qty) as qtyBJ from Production.dbo.ExpenditureGood e join Production.dbo.ExpenditureGoodDetail ed on e.ExpenditureGoodId = ed.ExpenditureGoodId where e.ProcessDate between '" + DateFrom + "' and '" + DateTo + "'  and e.ExpenditureGoodId like '%GE%'  group by e.RO,Invoice,e.ExpenditureGoodId,e.ProcessDate,e.UnitCode, Article order by e.ProcessDate DESC";
                 var querycmd = unit ==0 ? cmdexpenditure2 : cmdexpenditure;
                 //List<SqlParameter> parameters = new List<SqlParameter>();
                 //parameters.Add(new SqlParameter("start", dateFrom));
@@ -179,7 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         {
 
             var Query = GetQuery(dateFrom, dateTo, unitcode, offset);
-            Query = Query.OrderBy(b => b.Invoice).ThenBy(b => b.ExpenditureGoodId);
+            //Query = Query.OrderBy(b => b.Invoice).ThenBy(b => b.ExpenditureGoodId);
             var headers = new string[] { "No", "No Invoice", "No. BON", "RO","Artikel", "Qty BJ"};
             var subheaders = new string[] { "No. BON", "Keterangan", "Qty", "Asal", "No. BON", "Keterangan", "Qty", "Supplier", "No Nota", "No BON Kecil", "Surat Jalan" };
             DataTable result = new DataTable();
