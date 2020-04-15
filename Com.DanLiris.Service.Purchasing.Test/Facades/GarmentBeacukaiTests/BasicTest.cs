@@ -203,6 +203,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
                         Id= i.GarmentDOId,
                     },
                     Id=i.Id,
+
+                    billNo = null,
+                    quantity = 0
                 };
                 Newitems.Add(newItem);
             }
@@ -249,7 +252,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 				bruto=0,
 				packaging="",
 				currency = { },
-				items = { }
+				items = { },
+
+                billNo = null,
+                validationDate = DateTimeOffset.MinValue
 			};
 			Assert.True(viewModel.Validate(null).Count() > 0);
 
