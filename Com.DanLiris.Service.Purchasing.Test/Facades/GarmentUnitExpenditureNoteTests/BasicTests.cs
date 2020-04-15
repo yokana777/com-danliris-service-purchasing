@@ -40,6 +40,8 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using System.IO;
 using Microsoft.AspNetCore.JsonPatch;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteTests
 {
@@ -727,5 +729,108 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.PatchOne(model.Id, jsonPatch));
             Assert.NotNull(Response.Message);
         }
+
+        [Fact]
+        public async Task Should_Success_GetReport_CMT_Report()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            //long nowTicks = DateTimeOffset.Now.Ticks;
+            //string nowTicksA = $"{nowTicks}a";
+            //string RONo = $"RO{nowTicksA}";
+            string RO = modelLocalSupplier.Items.FirstOrDefault().RONo;
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Invoice", typeof(String));
+            dataTable.Columns.Add("ExpenditureGoodId", typeof(String));
+            dataTable.Columns.Add("RO", typeof(String));
+            dataTable.Columns.Add("Article", typeof(String));
+            dataTable.Columns.Add("qtyBJ", typeof(double));
+            dataTable.Rows.Add("", "", RO, "", 0);
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25,"", 0);
+
+
+
+            Assert.NotNull(results.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXls_CMT_Report()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            //long nowTicks = DateTimeOffset.Now.Ticks;
+            //string nowTicksA = $"{nowTicks}a";
+            string RO = modelLocalSupplier.Items.FirstOrDefault().RONo;
+
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Invoice", typeof(String));
+            dataTable.Columns.Add("ExpenditureGoodId", typeof(String));
+            dataTable.Columns.Add("RO", typeof(String));
+            dataTable.Columns.Add("Article", typeof(String));
+            dataTable.Columns.Add("qtyBJ", typeof(double));
+            dataTable.Rows.Add("Invoice", "Id", RO, "Article", 0);
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0);
+
+
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_Master_Unit()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            DataTable dataTable = new DataTable();
+            
+            dataTable.Columns.Add("UnitName", typeof(String));
+            dataTable.Columns.Add("UnitCode", typeof(double));
+            dataTable.Rows.Add("UnitName", "1");
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.Read(1, 25, "", "UnitName","");
+
+
+
+            Assert.NotNull(results);
+        }
+
     }
 }
