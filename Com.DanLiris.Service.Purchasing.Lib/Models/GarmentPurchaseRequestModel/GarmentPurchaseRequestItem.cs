@@ -56,6 +56,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public string ApprovedOpenPOPurchasingBy { get; set; }
         public DateTimeOffset ApprovedOpenPOPurchasingDate { get; set; }
 
+        public bool IsApprovedOpenPOKadivMd { get; set; }
+        [MaxLength(100)]
+        public string ApprovedOpenPOKadivMdBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOKadivMdDate { get; set; }
+
         public virtual long GarmentPRId { get; set; }
         [ForeignKey("GarmentPRId")]
         public virtual GarmentPurchaseRequest GarmentPurchaseRequest { get; set; }
