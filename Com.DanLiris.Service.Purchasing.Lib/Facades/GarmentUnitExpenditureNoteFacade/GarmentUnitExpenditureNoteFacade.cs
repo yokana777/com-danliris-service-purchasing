@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     Created = await dbContext.SaveChangesAsync();
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && garmentUnitExpenditureNote.ExpenditureTo== "PEMBELIAN")
                     {
                         List<long> epoItemIds = new List<long>();
                         List<long> epoIds = new List<long>();
