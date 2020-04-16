@@ -234,6 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             data.ExpenditureType = "EXTERNAL";
+            data.ExpenditureTo = "PEMBELIAN";
             var Response = await facade.Create(data);
 
             Assert.NotEqual(0, Response);
