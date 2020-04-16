@@ -31,8 +31,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
                     UId = null,
                     Items = new List<GarmentInternalPurchaseOrderItemViewModel>
                     {
-                        new GarmentInternalPurchaseOrderItemViewModel()
-                    }
+                        new GarmentInternalPurchaseOrderItemViewModel
+                        {
+                            GPRItemId = 0,
+                            PO_SerialNumber = null,
+                            BudgetPrice = 0,
+                            RemainingBudget = 0,
+                            Category = null,
+                            ProductRemark = null,
+                            Status = null
+                        }
+                    },
+
+                    PONo = null,
+                    PRId = 0,
+                    PRDate = null,
+                    ExpectedDeliveryDate = null,
+                    Unit = null,
+                    IsClosed = false,
+                    Remark = null
                 };
             }
         }

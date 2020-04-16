@@ -176,6 +176,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     bool suppType = true;
                     List<GarmentExternalPurchaseOrder> newEPOList = new List<GarmentExternalPurchaseOrder>();
 
+                    dbSet.Add(garmentUnitExpenditureNote);
+
+                    Created = await dbContext.SaveChangesAsync();
+
                     if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && garmentUnitExpenditureNote.ExpenditureTo== "PEMBELIAN")
                     {
                         List<long> epoItemIds = new List<long>();
@@ -266,7 +270,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         SmallQuantity = BUKItem.Quantity,
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
-                                        UsedBudget = 0,
+                                        UsedBudget = BUKItem.Quantity / (double)BUKItem.Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate,
                                         Article = garmentExternalPurchaseOrderItem.Article,
                                         UENItemId = BUKItem.Id
 
@@ -335,7 +339,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 Washing = garmentExternalPurchaseOrder.Washing,
                                 WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
                                 Items = epoItems,
-                                UENId = garmentUnitExpenditureNote.Id
+                                UENId = garmentUnitExpenditureNote.Id,
+                                BudgetRate = garmentExternalPurchaseOrder.BudgetRate
                             };
 
                             suppType = garmentExternalPurchaseOrder.SupplierImport;
@@ -426,10 +431,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         garmentUnitDeliveryOrder.CorrectionNo = Correction.CorrectionNo;
 
                     }
-
-                    dbSet.Add(garmentUnitExpenditureNote);
-
-                    Created = await dbContext.SaveChangesAsync();
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
                     {

@@ -478,6 +478,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 ExpenditureDate = DateTimeOffset.Now,
                 UnitDONo = "UnitDONO123",
                 
+                IsTransfered = false,
+                IsReceived = false
             };
             Assert.True(viewModelCheckUnitDeliveryOrder.Validate(null).Count() > 0);
             
