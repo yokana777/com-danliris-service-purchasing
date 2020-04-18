@@ -270,11 +270,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         SmallQuantity = BUKItem.Quantity,
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
-                                        UsedBudget = BUKItem.Quantity / (double)BUKItem.Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate,
+                                        UsedBudget = 0,
                                         Article = garmentExternalPurchaseOrderItem.Article,
                                         UENItemId = BUKItem.Id
 
                                     };
+
+                                    if (!(garmentExternalPurchaseOrder.PaymentMethod == "CMT" || garmentExternalPurchaseOrder.PaymentMethod == "FREE FROM BUYER") || !(garmentExternalPurchaseOrder.PaymentType == "FREE" || garmentExternalPurchaseOrder.PaymentType == "EX MASTER FREE"))
+                                    {
+                                        newItem.UsedBudget = BUKItem.Quantity / (double)BUKItem.Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate;
+                                    }
+
                                     epoItems.Add(newItem);
                                 }
                             }
