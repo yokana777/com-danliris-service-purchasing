@@ -458,10 +458,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
                         OpenPODate = DateTimeOffset.MinValue,
                         IsApprovedOpenPOMD = false,
                         ApprovedOpenPOMDBy = null,
-                        ApprovedOpenPOPurchasingDate = DateTimeOffset.MinValue,
+                        ApprovedOpenPOMDDate = DateTimeOffset.MinValue,
                         IsApprovedOpenPOPurchasing = false,
                         ApprovedOpenPOPurchasingBy = null,
-                        ApprovedOpenPOMDDate = DateTimeOffset.MinValue,
+                        ApprovedOpenPOPurchasingDate = DateTimeOffset.MinValue,
+                        IsApprovedOpenPOKadivMd = false,
+                        ApprovedOpenPOKadivMdBy = null,
+                        ApprovedOpenPOKadivMdDate = DateTimeOffset.MinValue,
                     }
                 }
             });
