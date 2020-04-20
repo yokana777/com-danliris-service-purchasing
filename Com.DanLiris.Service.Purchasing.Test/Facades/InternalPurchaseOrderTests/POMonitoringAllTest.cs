@@ -246,7 +246,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var Response = facade.GetReport(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
+            var Response = facade.GetReport(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, null, null, 1, 25, "{}", 7, "");
             Assert.NotNull(Response);
         }
 
@@ -264,7 +264,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
                 prNo = item.PRNo;
             }
 
-            var Response = monitoringFacade.GetReport(prNo, null, null, null, null, null, null, modelLocalSupplier.CreatedBy, null, null, null, 1, 25, "{}", 7, "");
+            var Response = monitoringFacade.GetReport(prNo, null, null, null, null, null, null, modelLocalSupplier.CreatedBy, null, null, null, null, null, 1, 25, "{}", 7, "");
             Assert.NotNull(Response);
         }
 
@@ -279,7 +279,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, false, USERNAME, 7);
             var today = DateTime.Now;
             var tomorrow = today.AddDays(1);
-            var Response = monitoringFacade.GetReport(null, null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
+            var Response = monitoringFacade.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, "");
 
             Assert.NotNull(Response);
         }
@@ -291,7 +291,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var Response = facade.GetReport(null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
+            var Response = facade.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
             Assert.NotEqual(Response.Item2, -1);
         }
 
@@ -302,7 +302,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var Response = facade.GenerateExcel(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, 7, "");
+            var Response = facade.GenerateExcel(model.PRNo, null, model.DivisionCode, model.UnitId, model.CategoryId, null, null, model.CreatedBy, null, null, null, null, null, 7, "");
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -313,7 +313,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var Response = facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, null, 7, "");
+            var Response = facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, null, null, null, 7, "");
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 

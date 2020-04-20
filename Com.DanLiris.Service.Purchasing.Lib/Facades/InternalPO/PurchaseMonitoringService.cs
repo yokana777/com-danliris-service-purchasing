@@ -70,8 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             _correctionItemDbSet = dbContext.Set<UnitPaymentCorrectionNoteItem>();
         }
 
-        public IQueryable<PurchaseMonitoringReportViewModel> GetReportQuery(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTimeOffset startDatePO, DateTimeOffset endDatePO, long poExtId, string supplierId)
+        public IQueryable<PurchaseMonitoringReportViewModel> GetReportQuery(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId)
         {
+            DateTime StartDatePO = startDatePO == null ? DateTime.MinValue : (DateTime)startDatePO;
+            DateTime EndDatePO = endDatePO == null ? DateTime.MinValue : (DateTime)endDatePO;
             var purchaseRequestItems = _purchaseRequestItemDbSet.Include(prItem => prItem.PurchaseRequest).Where(w => w.PurchaseRequest.Date >= startDate && w.PurchaseRequest.Date <= endDate);
             purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, purchaseRequestItems);
 
@@ -95,8 +97,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          join internalPOFulfillment in internalPurchaseOrderFulfillments on ipoItem.Id equals internalPOFulfillment.POItemId into joinFulfillment
                          from ipoFulfillment in joinFulfillment.DefaultIfEmpty()
 
-                         where epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date >= startDatePO.Date
-                         && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date <= endDatePO.Date
+                         where epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date >= StartDatePO.Date
+                         && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date <= EndDatePO.Date
 
                          select new PurchaseMonitoringReportViewModel()
                          {
@@ -239,7 +241,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         }
 
-        public async Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTimeOffset startDatePO, DateTimeOffset endDatePO, long poExtId, string supplierId, int page, int size)
+        public async Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int page, int size)
         {
             var query = GetReportQuery(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate, endDate, startDatePO, endDatePO, poExtId, supplierId);
 
@@ -276,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return purchaseRequestItems;
         }
 
-        public async Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTimeOffset startDatePO, DateTimeOffset endDatePO, long poExtId, string supplierId, int timezoneOffset)
+        public async Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int timezoneOffset)
         {
 
             DataTable result = new DataTable();
@@ -436,8 +438,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
     public interface IPurchaseMonitoringService
     {
-        Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTimeOffset startDatePO, DateTimeOffset endDatePO, long poExtId, string supplierId, int page, int size);
-        Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTimeOffset startDatePO, DateTimeOffset endDatePO, long poExtId, string supplierId, int timezoneOffset);
+        Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int page, int size);
+        Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int timezoneOffset);
     }
 
     public class ReportFormatter
