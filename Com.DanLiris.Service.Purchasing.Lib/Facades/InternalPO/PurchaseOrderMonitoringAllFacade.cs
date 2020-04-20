@@ -223,10 +223,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         List<PurchaseOrderMonitoringAllViewModel> listEPO2 = new List<PurchaseOrderMonitoringAllViewModel>();
 
-        private List<PurchaseOrderMonitoringAllViewModel> GetReportQuery(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, int offset, string user)
+        private List<PurchaseOrderMonitoringAllViewModel> GetReportQuery(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromPO, DateTime? dateToPO, string status, int page, int size, int offset, string user)
         {
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
                 DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+                DateTime DateFromPO = dateFromPO == null ? new DateTime(1970, 1, 1) : (DateTime)dateFromPO;
+                DateTime DateToPO = dateToPO == null ? DateTime.Now : (DateTime)dateToPO;
                 DateTime date = new DateTime(1970, 1, 1);
                 offset = 7;
 
@@ -291,7 +293,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                  && a.PRDate.AddHours(offset).Date <= DateTo.Date
                                  && b.Quantity > 0
                                  && a.CreatedBy == (string.IsNullOrWhiteSpace(user) ? a.CreatedBy : user)
-                                 
+                                 && epo.OrderDate.AddHours(offset).Date >= DateFromPO.Date
+                                 && epo.OrderDate.AddHours(offset).Date <= DateToPO.Date
+
 
                              select new SelectedId
                              {
@@ -489,7 +493,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             status = purchaseOrderInternalItem.Status,
                                             staff = purchaseOrderInternal.CreatedBy,
                                             division = purchaseOrderInternal.DivisionName,
-                                            LastModifiedUtc = purchaseOrderInternal.LastModifiedUtc
+                                            LastModifiedUtc = purchaseOrderInternal.LastModifiedUtc,
+                                            epoQty = purchaseOrderExternalDetail != null ? purchaseOrderExternalDetail.DealQuantity : 0,
+                                            Uomepo = purchaseOrderExternalDetail != null ? purchaseOrderExternalDetail.DealUomUnit : "-"
                                         });
                     listEPO2 = listEPO;
 
@@ -499,10 +505,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 return listEPO.Distinct().ToList();
         }
 
-        public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order, int offset, string user)
+        public Tuple<List<PurchaseOrderMonitoringAllViewModel>, int> GetReport(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromPO, DateTime? dateToPO, string status, int page, int size, string Order, int offset, string user)
         {
 
-            var Data = GetReportQuery(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, page, size, offset, user);
+            var Data = GetReportQuery(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, dateFromPO, dateToPO, status, page, size, offset, user);
 
             //List<PurchaseOrderMonitoringAllViewModel> Query = Data.ToList();
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
@@ -519,9 +525,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return Tuple.Create(Data, TotalCountReport);
         }
 
-        public MemoryStream GenerateExcel(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int offset, string user)
+        public MemoryStream GenerateExcel(string prNo, string supplierId, string divisionCode, string unitId, string categoryId, string budgetId, string epoNo, string staff, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromPO, DateTime? dateToPO, string status, int offset, string user)
         {
-            var Query = GetReportQuery(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, status, 1, int.MaxValue, offset, user);
+            var Query = GetReportQuery(prNo, supplierId, divisionCode, unitId, categoryId, budgetId, epoNo, staff, dateFrom, dateTo, dateFromPO, dateToPO, status, 1, int.MaxValue, offset, user);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -533,8 +539,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Budget", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang PR", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang PO", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang PO", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Barang", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Total", DataType = typeof(double) });
@@ -578,7 +586,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -607,7 +615,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                     //string correctionDate = item.correctionDate == new DateTime(1970, 1, 1) ? "-" : item.correctionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
-                    result.Rows.Add(index.ToString(), item.prDate, item.createdDatePR, item.prNo, item.category, item.division, item.budget, item.productName, item.productCode, item.quantity, item.uom,
+                    result.Rows.Add(index.ToString(), item.prDate, item.createdDatePR, item.prNo, item.category, item.division, item.budget, item.productName, item.productCode, item.quantity, item.uom, item.epoQty, item.Uomepo,
                         item.pricePerDealUnit, item.priceTotal, item.currencyCode, item.supplierCode, item.supplierName, item.receivedDatePO, item.epoDate, item.epoCreatedDate, item.epoExpectedDeliveryDate, item.epoDeliveryDate, item.epoNo, item.doDate,
                         item.doDeliveryDate, item.doNo, item.urnDate, item.urnNo, item.urnQuantity, item.urnUom, item.paymentDueDays, item.invoiceDate, item.invoiceNo, item.upoDate,
                         item.upoNo, item.upoPriceTotal, item.dueDate, item.vatDate, item.vatNo, item.vatValue, incomeTaxDate, item.incomeTaxNo, item.incomeTaxValue, item.correctionDates,
