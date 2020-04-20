@@ -306,9 +306,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            var exter = await externalPurchaseOrderDataUtil.GetTestData("Unit test");
-            var Response = facade.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, "");
-            Assert.NotEqual(Response.Item2, -1);
+            InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
+            await internalPurchaseOrderFacade.Create(d, "Unit test");
+            var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
+            await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
+            var today = DateTime.Now;
+            var tomorrow = today.AddDays(1);
+            //var exter = await externalPurchaseOrderDataUtil.GetTestData("Unit test");
+            var Response = facade.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, null);
+            //Assert.NotEqual(Response.Item2, -1);
+            Assert.NotNull(Response.Item1);
         }
 
         [Fact]
