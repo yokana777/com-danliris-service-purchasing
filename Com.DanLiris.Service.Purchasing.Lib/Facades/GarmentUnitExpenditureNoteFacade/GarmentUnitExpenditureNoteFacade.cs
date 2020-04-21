@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     Created = await dbContext.SaveChangesAsync();
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && garmentUnitExpenditureNote.ExpenditureTo== "PEMBELIAN")
                     {
                         List<long> epoItemIds = new List<long>();
                         List<long> epoIds = new List<long>();
@@ -275,6 +275,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         UENItemId = BUKItem.Id
 
                                     };
+
+                                    if (!(garmentExternalPurchaseOrder.PaymentMethod == "CMT" || garmentExternalPurchaseOrder.PaymentMethod == "FREE FROM BUYER") || !(garmentExternalPurchaseOrder.PaymentType == "FREE" || garmentExternalPurchaseOrder.PaymentType == "EX MASTER FREE"))
+                                    {
+                                        newItem.UsedBudget = BUKItem.Quantity / (double)BUKItem.Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate;
+                                    }
+
                                     epoItems.Add(newItem);
                                 }
                             }

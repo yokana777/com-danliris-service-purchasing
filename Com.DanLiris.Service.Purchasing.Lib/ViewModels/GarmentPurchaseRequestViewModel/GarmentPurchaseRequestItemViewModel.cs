@@ -47,5 +47,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public bool IsApprovedOpenPOPurchasing { get; set; }
         public string ApprovedOpenPOPurchasingBy { get; set; }
         public DateTimeOffset ApprovedOpenPOPurchasingDate { get; set; }
+
+        public bool IsApprovedOpenPOKadivMd { get; set; }
+        public string ApprovedOpenPOKadivMdBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOKadivMdDate { get; set; }
     }
 }
