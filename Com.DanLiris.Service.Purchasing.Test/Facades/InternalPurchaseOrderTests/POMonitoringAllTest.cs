@@ -5,13 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
@@ -29,10 +23,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -354,6 +346,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
             InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
+            d.Id = 10;
+            d.PRNo = "test21";
+            d.CreatedBy = "unittestdev2";
             await internalPurchaseOrderFacade.Create(d, "Unit test");
             var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
             await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
