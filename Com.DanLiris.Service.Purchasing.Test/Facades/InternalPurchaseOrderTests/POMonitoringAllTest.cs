@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
@@ -213,6 +214,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             return new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, facade, purchaseRequestDataUtil);
         }
 
+        private ExternalPurchaseOrderDataUtil _dataUtilEPO(ExternalPurchaseOrderFacade facade, string testName)
+        {
+            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(testName).Object, _dbContext(testName));
+            PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
+            PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
+
+            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(testName).Object, _dbContext(testName));
+            InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
+            InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
+
+            ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
+            ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
+
+            return new ExternalPurchaseOrderDataUtil(facade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
+
+        }
+
 
 
 
@@ -238,26 +256,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            ExternalPurchaseOrderFacade epofacade = new ExternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            ExternalPurchaseOrder model = await _dataUtilEPO(epofacade, GetCurrentMethod()).GetTestData("Unit Test");
             //InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             //InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
-            PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
-            InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
-
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
-            ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
-            ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
-
-            InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
-            await internalPurchaseOrderFacade.Create(d, "Unit test");
-            var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
-            await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
-            var Response = facade.GetReport(d.PRNo, null, d.DivisionCode, d.UnitId, d.CategoryId, null, null, d.CreatedBy, null, null, null, null, null, 1, 25, "{}", 7, "");
+            var Response = facade.GetReport(null, null, null, null, null, null, model.EPONo, null, null, null, null, null, null, 1, 25, "{}", 7, "");
             Assert.NotNull(Response);
         }
 
@@ -300,31 +304,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            //InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            //InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
-            PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
-
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
-            InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
-
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
-            ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
-            ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
-
-            InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
-            await internalPurchaseOrderFacade.Create(d, "Unit test");
-            var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
-            await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
-            var today = DateTime.Now;
-            var tomorrow = today.AddDays(1);
+            UnitPaymentPriceCorrectionNoteFacade facadeUPO = new UnitPaymentPriceCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await _dataUtil(facadeUPO, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facadeUPO.Create(modelLocalSupplier, false, USERNAME, 7);
             //var exter = await externalPurchaseOrderDataUtil.GetTestData("Unit test");
-            var Response = facade.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, tomorrow.ToShortDateString(), 1, 25, "{}", 7, null);
-            //Assert.NotEqual(Response.Item2, -1);
-            Assert.NotNull(Response.Item1);
+            var Response = facade.GetReport("", "0", null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7, null);
+            Assert.NotEqual(Response.Item2, -1);
+            //Assert.NotNull(Response.Item1);
         }
 
         [Fact]
@@ -332,32 +318,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
         {
             var dbContext = _dbContext(GetCurrentMethod());
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
-            PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
+            ExternalPurchaseOrderFacade epofacade = new ExternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
+            ExternalPurchaseOrder model = await _dataUtilEPO(epofacade, GetCurrentMethod()).GetTestData("Unit Test");
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
-            InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
-            ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
-            ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
-
-            InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
-            d.Id = 10;
-            d.PRNo = "test21";
-            d.CreatedBy = "unittestdev2";
-            await internalPurchaseOrderFacade.Create(d, "Unit test");
-            var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
-            await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
-            //UnitPaymentPriceCorrectionNoteFacade facadeUP = new UnitPaymentPriceCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
-            //var modelLocalSupplier = await _dataUtil(facadeUP, GetCurrentMethod()).GetNewData();
             //InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             //var model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
             ////ExternalPurchaseOrder modelexternal = 
-            var Response = facade.GenerateExcel(d.PRNo, null, d.DivisionCode, d.UnitId, d.CategoryId, null, null, d.CreatedBy, null, null, null, null, null, 7, "");
+            var Response = facade.GenerateExcel(null, null, null, null, null, null, model.EPONo, null, null, null, null, null, null, 7, "");
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -367,23 +335,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.InternalPurchaseOrderTest
             var dbContext = _dbContext(GetCurrentMethod());
             PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             //PurchaseOrderMonitoringAllFacade facade = new PurchaseOrderMonitoringAllFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
-            PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
+            //PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
+            //PurchaseRequestItemDataUtil purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
+            //PurchaseRequestDataUtil purchaseRequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
 
-            InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
-            InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
+            //InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
+            //InternalPurchaseOrderItemDataUtil internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
+            //InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaseRequestDataUtil);
 
-            ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
-            ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
-            ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
-            ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
+            //ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider("Unit test").Object, _dbContext("Unit test"));
+            //ExternalPurchaseOrderDetailDataUtil externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
+            //ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
+            //ExternalPurchaseOrderDataUtil externalPurchaseOrderDataUtil = new ExternalPurchaseOrderDataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil);
 
-            InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
-            await internalPurchaseOrderFacade.Create(d, "Unit test");
-            var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
-            await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
+            //InternalPurchaseOrder d = await internalPurchaseOrderDataUtil.GetNewData("Unit test");
+            //await internalPurchaseOrderFacade.Create(d, "Unit test");
+            //var model = await externalPurchaseOrderDataUtil.GetNewData("Unit test", d);
+            //await externalPurchaseOrderFacade.Create(model, "Unit test", 7);
+            UnitPaymentPriceCorrectionNoteFacade facadeUPO = new UnitPaymentPriceCorrectionNoteFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await _dataUtil(facadeUPO, GetCurrentMethod()).GetNewData();
+            var ResponseLocalSupplier = await facadeUPO.Create(modelLocalSupplier, false, USERNAME, 7);
             //InternalPurchaseOrderFacade ipoFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             //InternalPurchaseOrder model = await _dataUtilIPO(ipoFacade, GetCurrentMethod()).GetTestData("Unit test");
             var Response = facade.GenerateExcel("", "0", null, null, null, null, null, null, null, null, null, null, null, 7, "");

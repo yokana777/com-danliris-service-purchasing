@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public IQueryable<PurchaseMonitoringReportViewModel> GetReportQuery(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId)
         {
             DateTime StartDatePO = startDatePO == null ? DateTime.MinValue : (DateTime)startDatePO;
-            DateTime EndDatePO = endDatePO == null ? DateTime.MinValue : (DateTime)endDatePO;
+            DateTime EndDatePO = endDatePO == null ? DateTime.Now : (DateTime)endDatePO;
             var purchaseRequestItems = _purchaseRequestItemDbSet.Include(prItem => prItem.PurchaseRequest).Where(w => w.PurchaseRequest.Date >= startDate && w.PurchaseRequest.Date <= endDate);
             purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, purchaseRequestItems);
 
@@ -153,18 +153,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              DeliveryOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderItemId,
                              DelveryOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderDetailId,
                              UnitReceiptNoteId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitReceiptNoteId,
-                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate != DateTime.MinValue ? ipoFulfillment.UnitReceiptNoteDate.Date : (DateTime?)null,
+                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate.Date != DateTime.MinValue ? ipoFulfillment.UnitReceiptNoteDate.DateTime : (DateTime?)null,
                              UnitReceiptNoteNo = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteNo : "",
                              UnitReceiptNoteItemId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteItemId : 0,
                              UnitReceiptNoteQuantity = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteDeliveredQuantity : 0,
                              UnitReceiptNoteUomId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteUomId : "",
                              UnitReceiptNoteUomUnit = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteUom : "",
                              UnitPaymentOrderId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderId,
-                             UnitPaymentOrderInvoiceDate = ipoFulfillment != null && ipoFulfillment.InvoiceDate != DateTime.MinValue ? ipoFulfillment.InvoiceDate.Date : (DateTime?)null,
+                             UnitPaymentOrderInvoiceDate = ipoFulfillment != null && ipoFulfillment.InvoiceDate.Date != DateTime.MinValue ? ipoFulfillment.InvoiceDate.Date : (DateTime?)null,
                              UnitPaymentOrderInvoiceNo = ipoFulfillment != null ? ipoFulfillment.InvoiceNo : "",
-                             UnitPaymentOrderDate = ipoFulfillment != null && ipoFulfillment.InterNoteDate != DateTime.MinValue ? ipoFulfillment.InterNoteDate.Date : (DateTime?)null,
+                             UnitPaymentOrderDate = ipoFulfillment != null && ipoFulfillment.InterNoteDate.Date != DateTime.MinValue ? ipoFulfillment.InterNoteDate.Date : (DateTime?)null,
                              UnitPaymentOrderNo = ipoFulfillment != null ? ipoFulfillment.InterNoteNo : "",
-                             UnitPaymentOrderDueDate = ipoFulfillment != null && ipoFulfillment.InterNoteDueDate != DateTime.MinValue ? ipoFulfillment.InterNoteDueDate.Date : (DateTime?)null,
+                             UnitPaymentOrderDueDate = ipoFulfillment != null && ipoFulfillment.InterNoteDueDate.Date != DateTime.MinValue ? ipoFulfillment.InterNoteDueDate.Date : (DateTime?)null,
                              UnitPaymentOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderItemId,
                              UnitPaymentOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderDetailId,
                              UnitPaymentOrderTotalPrice = ipoFulfillment != null ? ipoFulfillment.InterNoteValue : 0,

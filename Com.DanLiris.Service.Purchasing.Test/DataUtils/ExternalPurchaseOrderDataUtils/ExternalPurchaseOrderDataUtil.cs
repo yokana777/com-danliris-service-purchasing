@@ -83,6 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 SupplierName = "Supplier",
                 PaymentMethod = "test",
                 Remark = "Remark",
+                EPONo = "EPONoTest123",
                 Items = new List<ExternalPurchaseOrderItem> { externalPurchaseOrderItemDataUtil.GetNewData(internalPurchaseOrder) }
             };
         }

@@ -285,16 +285,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                  && a.CategoryId == (string.IsNullOrWhiteSpace(categoryId) ? a.CategoryId : categoryId)
                                  && a.BudgetId == (string.IsNullOrWhiteSpace(budgetId) ? a.BudgetId : budgetId)
                                  && a.DivisionCode == (string.IsNullOrWhiteSpace(divisionCode) ? a.DivisionCode : divisionCode)
-                                 && epo.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? epo.SupplierId : supplierId)
-                                 && epo.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? epo.EPONo : epoNo)
-                                 && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
-                                 && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
-                                 && a.PRDate.AddHours(offset).Date >= DateFrom.Date
-                                 && a.PRDate.AddHours(offset).Date <= DateTo.Date
-                                 && b.Quantity > 0
-                                 && a.CreatedBy == (string.IsNullOrWhiteSpace(user) ? a.CreatedBy : user)
-                                 && epo.OrderDate.AddHours(offset).Date >= DateFromPO.Date
-                                 && epo.OrderDate.AddHours(offset).Date <= DateToPO.Date
+                             && epo.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? epo.SupplierId : supplierId)
+                             && epo.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? epo.EPONo : epoNo)
+                             && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
+                             && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
+                             && a.PRDate.AddHours(offset).Date >= DateFrom.Date
+                             && a.PRDate.AddHours(offset).Date <= DateTo.Date
+                             && b.Quantity > 0
+                             && a.CreatedBy == (string.IsNullOrWhiteSpace(user) ? a.CreatedBy : user)
+                             && epo.OrderDate.AddHours(offset).Date >= DateFromPO.Date
+                             && epo.OrderDate.AddHours(offset).Date <= DateToPO.Date
 
 
                              select new SelectedId
@@ -467,7 +467,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             doDate = deliveryOrder == null ? date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : deliveryOrder.DODate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                             doDeliveryDate = deliveryOrder == null ? date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : deliveryOrder.ArrivalDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                             doNo = deliveryOrder == null ? "-" : deliveryOrder.DONo,
-                                            //doDetailId = selectedCorrectionItems.Count == 0 ? 0 : unitPaymentOrderDetail.Id,
+                                            doDetailId = selectedCorrectionItems.Count == 0 ? 0 : unitPaymentOrderDetail.Id,
+                                            urnProductCode = "",
+                                            priceTotalBefore = 0,
                                             urnDate = unitReceiptNote == null ? date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : unitReceiptNote.ReceiptDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                             urnNo = unitReceiptNote == null ? "-" : unitReceiptNote.URNNo,
                                             urnQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity,
@@ -493,6 +495,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             status = purchaseOrderInternalItem.Status,
                                             staff = purchaseOrderInternal.CreatedBy,
                                             division = purchaseOrderInternal.DivisionName,
+                                            correctionRemark = "",
                                             LastModifiedUtc = purchaseOrderInternal.LastModifiedUtc,
                                             epoQty = purchaseOrderExternalDetail != null ? purchaseOrderExternalDetail.DealQuantity : 0,
                                             Uomepo = purchaseOrderExternalDetail != null ? purchaseOrderExternalDetail.DealUomUnit : "-"
