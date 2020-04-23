@@ -310,6 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             }
                             GarmentExternalPurchaseOrder newEpo = new GarmentExternalPurchaseOrder
                             {
+                                CreatedBy = garmentExternalPurchaseOrder.CreatedBy,
                                 EPONo = EPONo,
                                 Category = garmentExternalPurchaseOrder.Category,
                                 CurrencyCode = garmentExternalPurchaseOrder.CurrencyCode,
@@ -420,11 +421,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         #region EPO
                         foreach (var epo in newEPOList)
                         {
+                            var prevCreatedBy = epo.CreatedBy;
+
                             EntityExtension.FlagForCreate(epo, identityService.Username, USER_AGENT);
+                            epo.CreatedBy = prevCreatedBy;
 
                             foreach (var item in epo.Items)
                             {
                                 EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
+                                item.CreatedBy = prevCreatedBy;
                             }
                             dbSetGarmentExternalPurchaseOrder.Add(epo);
                         }
