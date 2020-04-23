@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			}
 		}
 		[HttpGet("download")]
-		public IActionResult GetXls(string epono, string unit,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order = "{}")
+		public IActionResult GetXls(string epono, string unit,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order = "{}")
 		{
 			try
 			{
@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 
 		}
 		[HttpGet("by-user/download")]
-		public IActionResult GetXlsByUser(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order = "{}")
+		public IActionResult GetXlsByUser(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order = "{}")
 		{
 			try
 			{
