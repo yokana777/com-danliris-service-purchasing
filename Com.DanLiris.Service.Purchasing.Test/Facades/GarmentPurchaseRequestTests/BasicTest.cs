@@ -707,7 +707,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-			var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1,25,"{}", 7);
+            
+            var dateTo = DateTime.Now;
+            var dateFrom = DateTime.Now.AddDays(-30);
+            var dateFromEx = DateTimeOffset.MinValue;
+            var dateToEx = DateTimeOffset.Now;
+            var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, dateFrom, dateTo, dateFromEx, dateToEx, 1,25,"{}", 7);
 			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
