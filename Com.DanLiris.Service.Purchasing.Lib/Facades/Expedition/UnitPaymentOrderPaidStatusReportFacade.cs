@@ -25,8 +25,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbContext = dbContext;
             this.dbSet = this.dbContext.Set<UnitPaymentOrder>();
         }
-        public IQueryable<UnitPaymentOrderPaidStatusViewModel> GetQuery(string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string Status, DateTimeOffset? DateFromDue, DateTimeOffset? DateToDue, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public IQueryable<UnitPaymentOrderPaidStatusViewModel> GetQuery(string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string SupplierType, string PaymentMethod, string Status, DateTimeOffset? DateFromDue, DateTimeOffset? DateToDue, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
+            bool? type;
+
+            if (SupplierType == "IMPORT")
+            {
+
+                type = true;
+            }
+            else if (SupplierType == "LOCAL")
+            {
+                type = false;
+            }
+            else
+            {
+                type = null;
+            }
+
+            //   bool? supType = SupplierType == "IMPORT" ? true : SupplierType == "LOCAL" ? false : null; 
+
 
             DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom;
             DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
@@ -52,6 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                   && a.UPONo == (string.IsNullOrWhiteSpace(UnitPaymentOrderNo) ? a.UPONo : UnitPaymentOrderNo)
                   && a.SupplierCode == (string.IsNullOrWhiteSpace(SupplierCode) ? a.SupplierCode : SupplierCode)
                   && a.DivisionCode == (string.IsNullOrWhiteSpace(DivisionCode) ? a.DivisionCode : DivisionCode)
+                  && a.PaymentMethod == (string.IsNullOrWhiteSpace(PaymentMethod) ? a.PaymentMethod : PaymentMethod)
+                  && f.SupplierIsImport == (type.HasValue ? type : f.SupplierIsImport)
+                  // && f.SupplierIsImport == true || f.SupplierIsImport == false
+                  //&& SupplierType == "IMPORT" ? f.SupplierIsImport==true : SupplierType == "LOCAL" ? f.SupplierIsImport == false : f.SupplierIsImport == true && f.SupplierIsImport == false
                   && a.DueDate.AddHours(Offset).Date >= dateFromDue.Date
                   && a.DueDate.AddHours(Offset).Date <= dateToDue.Date
                   && a.Date.AddHours(Offset).Date >= dateFrom.Date
@@ -80,7 +102,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                               a.UseIncomeTax,
                               a.UseVat,
                               a.CategoryName,
-                              position = d.Position == null ? ExpeditionPosition.INVALID : d.Position
+                              position = d.Position == null ? ExpeditionPosition.INVALID : d.Position,
+                              f.SupplierIsImport
                           });
 
             var Query = (from query in Query1
@@ -124,15 +147,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                              UseIncomeTax = groupdata.First().UseIncomeTax,
                              UseVat = groupdata.First().UseVat,
                              CategoryName = groupdata.First().CategoryName,
+                             SupplierImport = groupdata.First().SupplierIsImport == true ? "IMPORT" : "LOCAL"
 
                          });
 
             return Query;
         }
 
-        public ReadResponse<object> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string Status, DateTimeOffset? DateFromDue, DateTimeOffset? DateToDue, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
+        public ReadResponse<object> GetReport(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string SupplierType, string PaymentMethod, string Status, DateTimeOffset? DateFromDue, DateTimeOffset? DateToDue, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
-            var Query = GetQuery(UnitPaymentOrderNo, SupplierCode, DivisionCode, Status, DateFromDue, DateToDue, DateFrom, DateTo, Offset);
+            var Query = GetQuery(UnitPaymentOrderNo, SupplierCode, DivisionCode, SupplierType, PaymentMethod, Status, DateFromDue, DateToDue, DateFrom, DateTo, Offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
 
@@ -149,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
                 else if (Status.Equals("SUDAH BAYAR DPP+PPN"))
                 {
-                    Query = Query.Where(p => p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == false && p.BankExpenditureNoteNo != null || 
+                    Query = Query.Where(p => p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == false && p.BankExpenditureNoteNo != null ||
                                              p.IsPaid == true && p.IsPaidPPH == false && p.UseIncomeTax == true && p.UseVat == true);
                 }
                 else if (Status.Equals("SUDAH BAYAR PPH"))
@@ -203,7 +227,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     statuspph = datum.UseIncomeTax == true ? "IYA" : "TIDAK",
                     statusppn = datum.UseVat == true ? "IYA" : "TIDAK",
                     CategoryName = datum.CategoryName,
-                    UnitName = datum.UnitName
+                    UnitName = datum.UnitName,
+                    SupplierImport = datum.SupplierImport
                 });
             }
 
