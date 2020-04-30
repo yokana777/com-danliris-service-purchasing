@@ -25,9 +25,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             this.externalPurchaseOrderItemDataUtil = externalPurchaseOrderItemDataUtil;
         }
 
-        public async Task<ExternalPurchaseOrder> GetNewData(string user)
+        public async Task<ExternalPurchaseOrder> GetNewData(string user, InternalPurchaseOrder inPO = null)
         {
-            InternalPurchaseOrder internalPurchaseOrder = await internalPurchaseOrderDataUtil.GetTestData(user);
+            InternalPurchaseOrder internalPurchaseOrder = inPO ?? await internalPurchaseOrderDataUtil.GetTestData(user);
             //List<ExternalPurchaseOrderDetail> detail = new List<ExternalPurchaseOrderDetail>();
             //foreach (var POdetail in internalPurchaseOrder.Items)
             //{
@@ -83,6 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 SupplierName = "Supplier",
                 PaymentMethod = "test",
                 Remark = "Remark",
+                EPONo = "EPONoTest123",
                 Items = new List<ExternalPurchaseOrderItem> { externalPurchaseOrderItemDataUtil.GetNewData(internalPurchaseOrder) }
             };
         }

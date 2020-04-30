@@ -70,14 +70,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             _correctionItemDbSet = dbContext.Set<UnitPaymentCorrectionNoteItem>();
         }
 
-        public IQueryable<PurchaseMonitoringReportViewModel> GetReportQuery(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, long poExtId, string supplierId)
+        public IQueryable<PurchaseMonitoringReportViewModel> GetReportQuery(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId)
         {
+            DateTime StartDatePO = startDatePO == null ? DateTime.MinValue : (DateTime)startDatePO;
+            DateTime EndDatePO = endDatePO == null ? DateTime.Now : (DateTime)endDatePO;
             var purchaseRequestItems = _purchaseRequestItemDbSet.Include(prItem => prItem.PurchaseRequest).Where(w => w.PurchaseRequest.Date >= startDate && w.PurchaseRequest.Date <= endDate);
             purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, purchaseRequestItems);
 
             var internalPurchaseOrderFulfillments = _internalPurchaseOrderFulfillmentDbSet.AsQueryable();
             var internalPurchaseOrderItems = _internalPurchaseOrderItemDbSet.Include(ipoItem => ipoItem.InternalPurchaseOrder).AsQueryable();
             var externalPurchaseOrderDetails = _externalPurchaseOrderDetailDbSet.Include(epoDetail => epoDetail.ExternalPurchaseOrderItem).ThenInclude(epoItem => epoItem.ExternalPurchaseOrder).AsQueryable();
+            //externalPurchaseOrderDetails = externalPurchaseOrderDetails.Where(x => x.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate >= startDatePO && x.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate <= endDatePO);
+            //var d = externalPurchaseOrderDetails.Count();
             //var deliveryOrderDetails = _deliveryOrderDetailDbSet.Include(doDetail => doDetail.DeliveryOrderItem).ThenInclude(doItem => doItem.DeliveryOrder).AsQueryable();
             //var unitReceiptNoteItems = _unitReceiptNoteItemDbSet.Include(urnItem => urnItem.UnitReceiptNote).AsQueryable();
             //var unitPaymentOrderDetails = _unitPaymentOrderDetailDbSet.Include(upoDetail => upoDetail.UnitPaymentOrderItem).ThenInclude(upoItem => upoItem.UnitPaymentOrder).AsQueryable();
@@ -92,6 +96,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                          join internalPOFulfillment in internalPurchaseOrderFulfillments on ipoItem.Id equals internalPOFulfillment.POItemId into joinFulfillment
                          from ipoFulfillment in joinFulfillment.DefaultIfEmpty()
+
+                         where epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date >= StartDatePO.Date
+                         && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date <= EndDatePO.Date
 
                          select new PurchaseMonitoringReportViewModel()
                          {
@@ -130,6 +137,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              ExternalPurchaseOrderExpectedDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? ipoItem.InternalPurchaseOrder.ExpectedDeliveryDate.Date : (DateTime?)null,
                              ExternalPurchaseOrderDeliveryDate = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted && ipoItem != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.DeliveryDate.Date : (DateTime?)null,
                              ExternalPurchaseOrderNo = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.EPONo : "",
+                             ExternalPurchaseOrderQuantity = epoDetail != null ? epoDetail.DealQuantity : 0,
+                             ExternalPurchaseOrderUomUnit = epoDetail != null ? epoDetail.DealUomUnit : "-",
                              SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
                              SupplierCode = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierCode : "",
                              SupplierName = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierName : "",
@@ -144,22 +153,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              DeliveryOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderItemId,
                              DelveryOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.DeliveryOrderDetailId,
                              UnitReceiptNoteId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitReceiptNoteId,
-                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate != DateTime.MinValue ? ipoFulfillment.UnitReceiptNoteDate.Date : (DateTime?)null,
+                             UnitReceiptNoteDate = ipoFulfillment != null && ipoFulfillment.UnitReceiptNoteDate.Date != DateTime.MinValue ? ipoFulfillment.UnitReceiptNoteDate.DateTime : (DateTime?)null,
                              UnitReceiptNoteNo = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteNo : "",
                              UnitReceiptNoteItemId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteItemId : 0,
                              UnitReceiptNoteQuantity = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteDeliveredQuantity : 0,
                              UnitReceiptNoteUomId = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteUomId : "",
                              UnitReceiptNoteUomUnit = ipoFulfillment != null ? ipoFulfillment.UnitReceiptNoteUom : "",
                              UnitPaymentOrderId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderId,
-                             UnitPaymentOrderInvoiceDate = ipoFulfillment != null && ipoFulfillment.InvoiceDate != DateTime.MinValue ? ipoFulfillment.InvoiceDate.Date : (DateTime?)null,
+                             UnitPaymentOrderInvoiceDate = ipoFulfillment != null && ipoFulfillment.InvoiceDate.Date != DateTime.MinValue ? ipoFulfillment.InvoiceDate.Date : (DateTime?)null,
                              UnitPaymentOrderInvoiceNo = ipoFulfillment != null ? ipoFulfillment.InvoiceNo : "",
-                             UnitPaymentOrderDate = ipoFulfillment != null && ipoFulfillment.InterNoteDate != DateTime.MinValue ? ipoFulfillment.InterNoteDate.Date : (DateTime?)null,
+                             UnitPaymentOrderDate = ipoFulfillment != null && ipoFulfillment.InterNoteDate.Date != DateTime.MinValue ? ipoFulfillment.InterNoteDate.Date : (DateTime?)null,
                              UnitPaymentOrderNo = ipoFulfillment != null ? ipoFulfillment.InterNoteNo : "",
-                             UnitPaymentOrderDueDate = ipoFulfillment != null && ipoFulfillment.InterNoteDueDate != DateTime.MinValue ? ipoFulfillment.InterNoteDueDate.Date : (DateTime?)null,
+                             UnitPaymentOrderDueDate = ipoFulfillment != null && ipoFulfillment.InterNoteDueDate.Date != DateTime.MinValue ? ipoFulfillment.InterNoteDueDate.Date : (DateTime?)null,
                              UnitPaymentOrderItemId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderItemId,
                              UnitPaymentOrderDetailId = ipoFulfillment == null ? 0 : ipoFulfillment.UnitPaymentOrderDetailId,
                              UnitPaymentOrderTotalPrice = ipoFulfillment != null ? ipoFulfillment.InterNoteValue : 0,
-                             UnitPaymentOrderVATDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat && ipoFulfillment.UnitPaymentOrderVatDate!= DateTime.MinValue ? ipoFulfillment.UnitPaymentOrderVatDate.Date : (DateTime?)null,
+                             UnitPaymentOrderVATDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat && ipoFulfillment.UnitPaymentOrderVatDate != DateTime.MinValue ? ipoFulfillment.UnitPaymentOrderVatDate.Date : (DateTime?)null,
                              UnitPaymentOrderVATNo = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat ? ipoFulfillment.UnitPaymentOrderVatNo : "",
                              UnitPaymentOrderVAT = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseVat ? 0.1 * ipoFulfillment.InterNoteValue : 0,
                              UnitPaymentOrderIncomeTaxDate = ipoFulfillment != null && ipoFulfillment.UnitPaymentOrderUseIncomeTax && ipoFulfillment.UnitPaymentOrderIncomeTaxDate != DateTime.MinValue ? ipoFulfillment.UnitPaymentOrderIncomeTaxDate.Date : (DateTime?)null,
@@ -232,9 +241,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         }
 
-        public async Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, long poExtId, string supplierId, int page, int size)
+        public async Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int page, int size)
         {
-            var query = GetReportQuery(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate, endDate, poExtId, supplierId);
+            var query = GetReportQuery(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate, endDate, startDatePO, endDatePO, poExtId, supplierId);
 
             var result = await query.OrderByDescending(order => order.InternalPurchaseOrderLastModifiedDate).Skip((page - 1) * size).Take(size).ToListAsync();
             result = await MapCorrections(result);
@@ -269,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             return purchaseRequestItems;
         }
 
-        public async Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, long poExtId, string supplierId, int timezoneOffset)
+        public async Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int timezoneOffset)
         {
 
             DataTable result = new DataTable();
@@ -282,8 +291,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Budget", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang PR", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang PR", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang PO", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang PO", DataType = typeof(string) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Barang", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Total", DataType = typeof(double) });
@@ -327,11 +338,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(string) });
 
-            var query = GetReportQuery(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate, endDate, poExtId, supplierId);
+            var query = GetReportQuery(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate, endDate, startDatePO, endDatePO, poExtId, supplierId);
             var queryResult = await query.ToListAsync();
 
             if (queryResult.Count == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var upoDetailIds = queryResult.Select(item => item.UnitPaymentOrderDetailId).ToList();
@@ -411,7 +422,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     var unitPaymentOrderIncomeTaxDate = item.UnitPaymentOrderIncomeTaxDate.HasValue ? item.UnitPaymentOrderIncomeTaxDate.Value.AddHours(timezoneOffset).ToString("dd MMMM yyyy") : "";
 
 
-                    result.Rows.Add(index.ToString(), item.PurchaseRequestDate.ToString("dd MMMM yyyy"), item.PurchaseRequestCreatedDate.ToString("dd MMMM yyyy"), item.PurchaseRequestNo, item.CategoryName, item.DivisionName, item.BudgetName, item.ProductName, item.ProductCode, item.OrderQuantity, item.UOMUnit,
+                    result.Rows.Add(index.ToString(), item.PurchaseRequestDate.ToString("dd MMMM yyyy"), item.PurchaseRequestCreatedDate.ToString("dd MMMM yyyy"), item.PurchaseRequestNo, item.CategoryName, item.DivisionName, item.BudgetName, item.ProductName, item.ProductCode, item.OrderQuantity, item.UOMUnit, item.ExternalPurchaseOrderQuantity, item.ExternalPurchaseOrderUomUnit,
                         item.Price, item.PriceTotal, item.CurrencyCode, item.SupplierCode, item.SupplierName, internalPurchaseOrderCreatedDate, externalPurchaseOrderDate, externalPurchaseOrderCreatedDate, externalPurchaseOrderExpectedDeliveryDate, externalPurchaseOrderDeliveryDate, item.ExternalPurchaseOrderNo, deliveryOrderDate,
                         deliveryOrderArrivalDate, item.DeliveryOrderNo, unitReceiptNoteDate, item.UnitReceiptNoteNo, item.UnitReceiptNoteQuantity, item.UnitReceiptNoteUomUnit, item.ExternalPurchaseOrderPaymentDueDays, item.UnitPaymentOrderInvoiceDate, item.UnitPaymentOrderInvoiceNo, unitPaymentOrderDate,
                         item.UnitPaymentOrderNo, item.UnitPaymentOrderTotalPrice, unitPaymentOrderDueDate, unitPaymentOrderVATDate, item.UnitPaymentOrderVATNo, item.UnitPaymentOrderVAT, unitPaymentOrderIncomeTaxDate, item.UnitPaymentOrderIncomeTaxNo, item.UnitPaymentOrderIncomeTax, item.CorrectionDate,
@@ -427,8 +438,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
     public interface IPurchaseMonitoringService
     {
-        Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, long poExtId, string supplierId, int page, int size);
-        Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, long poExtId, string supplierId, int timezoneOffset);
+        Task<ReportFormatter> GetReport(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int page, int size);
+        Task<MemoryStream> GenerateExcel(string unitId, string categoryId, string divisionId, string budgetId, long prId, string createdBy, string status, DateTimeOffset startDate, DateTimeOffset endDate, DateTime? startDatePO, DateTime? endDatePO, long poExtId, string supplierId, int timezoneOffset);
     }
 
     public class ReportFormatter
@@ -489,6 +500,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public string SupplierName { get; set; }
         public string ExternalPurchaseOrderPaymentDueDays { get; set; }
         public string ExternalPurchaseOrderRemark { get; set; }
+        public double ExternalPurchaseOrderQuantity { get; set; }
+        public string ExternalPurchaseOrderUomUnit { get; set; }
         public long ExternalPurchaseOrderItemId { get; set; }
         public long ExternalPurchaseOrderDetailId { get; set; }
         public long DeliveryOrderId { get; set; }

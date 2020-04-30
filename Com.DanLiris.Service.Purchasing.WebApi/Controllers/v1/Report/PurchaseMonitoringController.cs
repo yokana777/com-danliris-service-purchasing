@@ -25,19 +25,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> Get(string unitId, string categoryId, string divisionId, string budgetId, string createdBy, string status, DateTime? startDate, DateTime? endDate, string supplierId, long prId = 0, long poExtId = 0, [FromQuery] int page = 1, [FromQuery] int size = 25)
+        public async Task<IActionResult> Get(string unitId, string categoryId, string divisionId, string budgetId, string createdBy, string status, DateTime? startDate, DateTime? endDate, DateTime? startDatePO, DateTime? endDatePO, string supplierId, long prId = 0, long poExtId = 0, [FromQuery] int page = 1, [FromQuery] int size = 25)
         {
             try
             {
                 startDate = startDate.GetValueOrDefault().Date;
                 endDate = endDate.HasValue ? endDate.Value.Date.AddDays(1).AddTicks(-1) : DateTime.Now.Date.AddDays(1).AddTicks(-1);
 
+                //startDatePO = startDatePO.GetValueOrDefault().Date;
+                //endDatePO = endDatePO.HasValue ? endDatePO.Value.Date.AddDays(1).AddTicks(-1) : DateTime.Now.Date.AddDays(1).AddTicks(-1);
+
                 var timezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 startDate = startDate.Value == DateTime.MinValue ? startDate.GetValueOrDefault() : startDate.Value.AddHours(timezoneOffset * -1).Date;
                 endDate = endDate.Value.AddHours(timezoneOffset * -1).Date;
 
-                var result = await _service.GetReport(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value.ToUniversalTime(), endDate.Value.ToUniversalTime(), poExtId, supplierId, page, size);
+                //startDatePO = startDatePO.Value == DateTime.MinValue ? startDatePO.GetValueOrDefault() : startDatePO.Value.AddHours(timezoneOffset * 1).Date;
+                //endDatePO = endDatePO.Value.AddHours(timezoneOffset * -1).Date;
+
+                var result = await _service.GetReport(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value.ToUniversalTime(), endDate.Value.ToUniversalTime(), startDatePO, endDatePO, poExtId, supplierId, page, size);
 
                 //var data = importPurchasingBookReportService.GetReport();
 
@@ -60,21 +66,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("all/download")]
-        public async Task<IActionResult> GetXls(string unitId, string categoryId, string divisionId, string budgetId, string createdBy, string status, DateTime? startDate, DateTime? endDate, string supplierId, long prId = 0, long poExtId = 0)
+        public async Task<IActionResult> GetXls(string unitId, string categoryId, string divisionId, string budgetId, string createdBy, string status, DateTime? startDate, DateTime? endDate, DateTime? startDatePO, DateTime? endDatePO, string supplierId, long prId = 0, long poExtId = 0)
         {
             try
             {
                 startDate = startDate.GetValueOrDefault().Date;
-                endDate = endDate.HasValue ? endDate.Value.Date.AddDays(1).AddTicks(-1) : DateTimeOffset.Now.Date.AddDays(1).AddTicks(-1);
+                endDate = endDate.HasValue ? endDate.Value.Date.AddDays(1).AddTicks(-1) : DateTime.Now.Date.AddDays(1).AddTicks(-1);
+
 
                 var timezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 startDate = startDate.Value == DateTime.MinValue ? startDate.GetValueOrDefault() : startDate.Value.AddHours(timezoneOffset * -1).Date;
                 endDate = endDate.Value.AddHours(timezoneOffset * -1).Date;
 
+                //startDatePO = startDatePO.Value == DateTime.MinValue ? startDatePO.GetValueOrDefault() : startDatePO.Value.AddHours(timezoneOffset * -1).Date;
+                //endDatePO = endDatePO.Value.AddHours(timezoneOffset * -1).Date;
+
                 byte[] xlsInBytes;
 
-                var xls = await _service.GenerateExcel(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value.ToUniversalTime(), endDate.Value.ToUniversalTime(), poExtId, supplierId, timezoneOffset);
+                var xls = await _service.GenerateExcel(unitId, categoryId, divisionId, budgetId, prId, createdBy, status, startDate.Value.ToUniversalTime(), endDate.Value.ToUniversalTime(), startDatePO, endDatePO, poExtId, supplierId, timezoneOffset);
 
                 string filename = $"Laporan Purchase All {startDate.Value.ToString("dd-MM-yyyy")}_{endDate.Value.ToString("dd-MM-yyyy")}";
                 filename += ".xlsx";
