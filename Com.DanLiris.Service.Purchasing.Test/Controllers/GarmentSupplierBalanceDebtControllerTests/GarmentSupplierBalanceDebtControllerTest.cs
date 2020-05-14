@@ -41,6 +41,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentSupplierBalanc
                     totalValas = 0,
                     totalAmountIDR = 0,
                     Year = 0,
+                    items = new List<GarmentSupplierBalanceDebtItemViewModel> {
+                        new GarmentSupplierBalanceDebtItemViewModel{
+                            valas = 0,
+                            IDR = 0,
+                        }
+                    }
                 };
             }
         }
