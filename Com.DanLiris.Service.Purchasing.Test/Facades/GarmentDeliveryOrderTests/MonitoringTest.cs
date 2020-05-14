@@ -660,7 +660,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             dataTable.Columns.Add("Nomor", typeof(string));
             dataTable.Columns.Add("Tgl", typeof(DateTime));
             dataTable.Rows.Add(0, 12, 12, "Nomor", DateTime.Now.Date.ToString());
+
+            DataTable dataTable2 = new DataTable();
+            dataTable2.Columns.Add("Jumlah", typeof(decimal));
+            dataTable2.Columns.Add("Rate", typeof(decimal));
+            dataTable2.Columns.Add("Rate1", typeof(decimal));
+            dataTable2.Columns.Add("Nomor", typeof(string));
+            dataTable2.Columns.Add("Tgl", typeof(DateTime));
+            dataTable2.Rows.Add(0, 12, 12, "Nomor", DateTime.MinValue.ToString());
+
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.Is<string>(x => x.Contains("DONo12345"))))
+                .Returns(dataTable2.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
                 .Returns(dataTable.CreateDataReader());
             mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
@@ -683,7 +694,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var dataBC = await datautilBC.GetTestData(USERNAME, data);
 
             var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data2.DONo = "DONo1234";
+            data2.DONo = "DONo12345";
             data2.SupplierCode = "SupplierCode";
             data2.SupplierName = "SupplierName";
             data2.DOCurrencyCode = "CurrencyCode123";

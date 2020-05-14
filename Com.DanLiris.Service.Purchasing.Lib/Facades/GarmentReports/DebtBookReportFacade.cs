@@ -319,7 +319,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             {
                 Dictionary<string, double?> TotalPerSupplier = new Dictionary<string, double?>();
                 Dictionary<string, double?> TotalIDRPerSupplier = new Dictionary<string, double?>();
-                Dictionary<string, int> SupplierCount = new Dictionary<string, int>();
+                //Dictionary<string, int> SupplierCount = new Dictionary<string, int>();
                 Dictionary<string, int> SupplierCurCodeCount = new Dictionary<string, int>();
                 double AmountTotalInitialBalance = 0;
                 double AmountTotalIDRInitialBalance = 0;
@@ -369,22 +369,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SupplierCurCodeCount[data.SupplierName + data.DOCurrencyCode] = 1;
                     }
 
-                    if (SupplierCount.TryGetValue(data.SupplierName, out value))
-                    {
-                        SupplierCount[data.SupplierName]++;
-                    }
-                    else
-                    {
-                        SupplierCount[data.SupplierName] = 1;
-                    }
-
+                    //if (SupplierCount.TryGetValue(data.SupplierName, out value))
+                    //{
+                    //    SupplierCount[data.SupplierName]++;
+                    //}
+                    //else
+                    //{
+                    //    SupplierCount[data.SupplierName] = 1;
+                    //}
                     if (!TotalIDRPerSupplier.ContainsKey(SupplierName))
                     {
                         TotalIDRPerSupplier.Add(SupplierName, 0);
                     };
 
-                    TotalPerSupplier[SupplierName] += data.TotalInitialBalance;
-                    TotalIDRPerSupplier[SupplierName] += data.TotalIDR;
+                    TotalPerSupplier[SupplierName] = data.TotalInitialBalance;
+                    TotalIDRPerSupplier[SupplierName] = data.TotalIDR;
                     supplier.Add(data.SupplierName);
                     AmountTotal += (double)data.InitialBalance;
                     AmountTotalIDR += (double)data.IDR;
@@ -400,8 +399,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var supp = supplier.Distinct().ToArray();
                 foreach (var i in supp)
                 {
-                    TotalPerSupplier[i] = TotalPerSupplier[i] / SupplierCount[i];
-                    TotalIDRPerSupplier[i] = TotalIDRPerSupplier[i] / SupplierCount[i];
+                    //TotalPerSupplier[i] = TotalPerSupplier[i] / SupplierCount[i];
+                    //TotalIDRPerSupplier[i] = TotalIDRPerSupplier[i] / SupplierCount[i];
 
                     AmountTotalInitialBalance += (double)TotalPerSupplier[i];
                     AmountTotalIDRInitialBalance += (double)TotalIDRPerSupplier[i];

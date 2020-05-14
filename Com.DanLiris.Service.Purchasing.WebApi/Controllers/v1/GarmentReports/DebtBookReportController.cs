@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 MemoryStream xls = _facade.GenerateExcelDebtReport(month, year, suppliertype, suppliername);
 
 
-                string filename = String.Format("Laporan Kartu Hutang - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.Format("Detail Rekap Saldo Hutang - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
