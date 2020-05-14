@@ -225,8 +225,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
                 }
             };
             var Responses = await facade.Create(data, USERNAME);
-            var Response = facade.Read((int)data.Id);
-            Assert.NotNull(Response.Item1);
+            var Response = facade.ReadById((int)data.Id);
+            Assert.NotNull(Response);
         }
         [Fact]
         public async Task Should_Success_Get_Loader()
