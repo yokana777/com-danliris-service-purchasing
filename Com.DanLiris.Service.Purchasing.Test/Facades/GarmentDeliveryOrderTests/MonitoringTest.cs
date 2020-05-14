@@ -659,7 +659,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             dataTable.Columns.Add("Rate1", typeof(decimal));
             dataTable.Columns.Add("Nomor", typeof(string));
             dataTable.Columns.Add("Tgl", typeof(DateTime));
-            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            dataTable.Rows.Add(0, 12, 12, "Nomor", DateTime.Now.Date.ToString());
             Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
             mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
                 .Returns(dataTable.CreateDataReader());
@@ -677,6 +677,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             data.SupplierCode = "SupplierCode";
             data.SupplierName = "SupplierName";
             data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
             await facade.Create(data, USERNAME);
 
             var dataBC = await datautilBC.GetTestData(USERNAME, data);
@@ -686,6 +687,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             data2.SupplierCode = "SupplierCode";
             data2.SupplierName = "SupplierName";
             data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
             await facade.Create(data2, USERNAME);
 
             var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
@@ -695,12 +697,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             data3.SupplierCode = "SupplierCode";
             //data3.SupplierName = "SupplierName";
             data3.DOCurrencyCode = "CurrencyCode123";
-            data3.ArrivalDate = new DateTimeOffset(new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, DateTime.Now.Day));
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
             await facade.Create(data3, USERNAME);
 
             var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
 
-            var result = reportFacade.GenerateExcelDebtReport(DateTime.Now.Month, DateTime.Now.Year, null, "");
+            var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
             Assert.IsType<System.IO.MemoryStream>(result);
         }
         [Fact]
@@ -730,6 +732,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             data.SupplierCode = "SupplierCode";
             data.SupplierName = "SupplierName";
             data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
             await facade.Create(data, USERNAME);
 
             var dataBC = await datautilBC.GetTestData(USERNAME, data);
@@ -739,6 +742,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             data2.SupplierCode = "SupplierCode";
             data2.SupplierName = "SupplierName";
             data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
             await facade.Create(data2, USERNAME);
 
             var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
@@ -748,7 +752,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             data3.SupplierCode = "SupplierCode";
             //data3.SupplierName = "SupplierName";
             data3.DOCurrencyCode = "CurrencyCode123";
-            data3.ArrivalDate = new DateTimeOffset(new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, DateTime.Now.Day));
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
             await facade.Create(data3, USERNAME);
 
             var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
