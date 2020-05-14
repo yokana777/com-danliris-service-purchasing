@@ -265,11 +265,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 }
                 //data.Close();
 
-                i.TotalEndingBalance = i.TotalInitialBalance + i.TotalKredit - (double)i.TotalDebit;
-                i.CurrencyEndingBalance = i.TotalCurrencyInitialBalance;
-                i.TotalIDREndingBalance = i.TotalEndingBalance * i.CurrencyEndingBalance;
+                //i.TotalEndingBalance = i.TotalInitialBalance + i.TotalKredit - (double)i.TotalDebit;
+                //i.CurrencyEndingBalance = i.TotalCurrencyInitialBalance;
+                //i.TotalIDREndingBalance = i.TotalEndingBalance * i.CurrencyEndingBalance;
                 report.Add(i);
             }
+            report.Aggregate(
+                new List<DebtBookReportViewModel>(),
+                (newList, element) =>
+                {
+                    element.TotalEndingBalance = element.TotalInitialBalance + element.TotalKredit - (double)element.TotalDebit;
+                    element.CurrencyEndingBalance = element.TotalCurrencyInitialBalance;
+                    element.TotalIDREndingBalance = element.TotalEndingBalance * element.CurrencyEndingBalance;
+                    newList.Add(element);
+                    return newList;
+                });
             return report;
         }
 
@@ -281,7 +291,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         public MemoryStream GenerateExcelDebtReport(int month, int year, bool? suppliertype, string suppliername)
         {
-            string Month = month == 1 ? "JANUARI" : month == 2 ? "FEBRUARI" : month == 3 ? "MARET" : month == 4 ? "APRIL" : month == 5 ? "MEI" : month == 6 ? "JUNI" : month == 7 ? "JULI" : month == 8 ? "AGUSTUS" : month == 9 ? "SEPTEMBER" : month == 10 ? "OKTOBER" : month == 11 ? "NOVEMBER" : month == 12 ? "DESEMBER" : "";
+            CultureInfo Id = new CultureInfo("id-ID");
+            //string Month = month == 1 ? "JANUARI" : month == 2 ? "FEBRUARI" : month == 3 ? "MARET" : month == 4 ? "APRIL" : month == 5 ? "MEI" : month == 6 ? "JUNI" : month == 7 ? "JULI" : month == 8 ? "AGUSTUS" : month == 9 ? "SEPTEMBER" : month == 10 ? "OKTOBER" : month == 11 ? "NOVEMBER" : month == 12 ? "DESEMBER" : "";
+            string Month = Id.DateTimeFormat.GetMonthName(month);
             Tuple<List<DebtBookReportViewModel>, int> Data = this.GetDebtBookReport(month, year, suppliertype, suppliername);
             DataTable result = new DataTable();
             ExcelPackage package = new ExcelPackage();

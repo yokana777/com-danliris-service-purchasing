@@ -266,6 +266,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
                     Name = "test"
                 },
 
+                items = new List<GarmentSupplierBalanceDebtItemViewModel> { }
+
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }

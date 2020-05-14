@@ -207,7 +207,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentSupplierBalanc
             var mockMapper = new Mock<IMapper>();
 
             GarmentSupplierBalanceDebtController controller = GetController(mockFacade, null, mockMapper);
-            var response = controller.GetLoader();
+            var response = controller.GetLoader(year:0);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+        [Fact]
+        public void Should_Success_Get_Loader_With_year()
+        {
+            var mockFacade = new Mock<IBalanceDebtFacade>();
+
+            mockFacade.Setup(x => x.ReadLoader(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new ReadResponse<dynamic>(new List<dynamic>(), 1, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentSupplierBalanceDebtController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetLoader(year: DateTime.Now.Year);
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
         [Fact]
