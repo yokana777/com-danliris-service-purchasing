@@ -45,6 +45,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentSupplierBalanc
                         new GarmentSupplierBalanceDebtItemViewModel{
                             valas = 0,
                             IDR = 0,
+                            deliveryOrder = new GarmentDelivOrderViewModel
+                            {
+                                arrivalDate = DateTimeOffset.Now,
+                                billNo = "Test",
+                                dONo = "DonOTest",
+                                Id =1,
+                                internNo = "InternTest",
+                                supplierName = "supplierTest"
+
+                            }
                         }
                     }
                 };

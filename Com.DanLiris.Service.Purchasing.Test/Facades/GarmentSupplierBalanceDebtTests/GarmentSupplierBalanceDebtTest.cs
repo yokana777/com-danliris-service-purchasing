@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSupplierBalanceDebtViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -18,6 +19,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -244,6 +246,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
             var facadedebt = new GarmentSupplierBalanceDebtFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = facadedebt.ReadLoader(Search: "[\"BillNo\"]", Select: "{ \"billNo\" : \"BillNo\", \"dONo\" : \"DONo\", \"ArrivalDate\" : 1 }", year: DateTime.Now.Year);
             Assert.NotEmpty(Response.Data);
+        }
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            GarmentSupplierBalanceDebtViewModel nullViewModel = new GarmentSupplierBalanceDebtViewModel
+            {
+                dOCurrencyRate = 0,
+            };
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
+
+            GarmentSupplierBalanceDebtViewModel viewModel = new GarmentSupplierBalanceDebtViewModel
+            {
+                supplier = new SupplierViewModel
+                {
+                    Id = 1,
+                    Code = "test",
+                    Import = true,
+                    Name = "test"
+                },
+
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
         }
 
     }
