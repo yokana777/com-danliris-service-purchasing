@@ -339,7 +339,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 {
 
                     string SupplierName = data.SupplierName;
-                    string TglDebit = data.TglDebit == new DateTime(1970, 1, 1) || data.TglDebit.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : data.TglDebit.Value.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string TglDebit = data.TglDebit.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : data.TglDebit.Value.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string TotalInitialBalance = string.Format("{0:N2}", data.TotalInitialBalance);
                     string TotalCurrencyInitialBalance = string.Format("{0:N2}", data.TotalCurrencyInitialBalance);
                     string TotalIDR = string.Format("{0:N2}", data.TotalIDR);
