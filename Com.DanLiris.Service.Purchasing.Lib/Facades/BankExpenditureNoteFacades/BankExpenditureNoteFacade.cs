@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+﻿ using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -610,9 +610,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 Nominal = model.GrandTotal,
                 ReferenceNo = model.DocumentNo,
                 ReferenceType = "Bayar Hutang",
+                Remark = model.CurrencyCode != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
                 SourceType = "Operasional",
                 Status = "OUT",
-                Supplier = new ViewModels.NewIntegrationViewModel.NewSupplierViewModel()
+                Supplier = new NewSupplierViewModel()
                 {
                     _id = model.SupplierId,
                     code = model.SupplierCode,
@@ -631,7 +632,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             string dailyBankTransactionUri = "daily-bank-transactions/by-reference-no/";
             //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}").Result;
             response.EnsureSuccessStatusCode();
         }
