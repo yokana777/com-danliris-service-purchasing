@@ -435,7 +435,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime;
             DateTime d2 = dataBC.BeacukaiDate.DateTime;
 
-            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, null, 7);
+            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, null,7);
             Assert.NotNull(Response.Item1);
             Assert.NotEqual(-1, Response.Item2);
         }
@@ -458,7 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
-            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null, null, 7);
+            var Response = DataSJ.GetGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.NotNull(Response.Item1);
             Assert.NotEqual(-1, Response.Item2);
         }
@@ -481,7 +481,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime;
             DateTime d2 = dataBC.BeacukaiDate.DateTime;
 
-            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, null, 7);
+            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -503,7 +503,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
 
-            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null, null, 7);
+            var Response = DataSJ.GenerateExcelGDailyPurchasingReport(null, true, null, null, null,null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -660,6 +660,64 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             dataTable2.Columns.Add("Rate1", typeof(decimal));
             dataTable2.Columns.Add("Nomor", typeof(string));
             dataTable2.Columns.Add("Tgl", typeof(DateTime));
+            dataTable2.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable2.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable2.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            DebtBookReportFacade reportFacade = new DebtBookReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo12356";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo12345";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Report_With_Date()
+        {
+
+            DataTable dataTable2 = new DataTable();
+            dataTable2.Columns.Add("Jumlah", typeof(decimal));
+            dataTable2.Columns.Add("Rate", typeof(decimal));
+            dataTable2.Columns.Add("Rate1", typeof(decimal));
+            dataTable2.Columns.Add("Nomor", typeof(string));
+            dataTable2.Columns.Add("Tgl", typeof(DateTime));
             dataTable2.Rows.Add(0, 12, 12, "Nomor", DateTime.Now.Date);
 
 
@@ -707,7 +765,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
             Assert.IsType<System.IO.MemoryStream>(result);
-        } 
+        }
         [Fact]
         public async Task Should_Success_Get_Xls_Debt_Report_Null_Parameter()
         {
