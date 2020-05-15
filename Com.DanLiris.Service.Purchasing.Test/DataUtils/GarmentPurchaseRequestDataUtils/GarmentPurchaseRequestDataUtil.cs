@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                     {
                         PO_SerialNumber = $"PO_SerialNumber{nowTicksA}",
 
-                        ProductId = $"{nowTicksA}",
+                        ProductId = "1",
                         ProductCode = $"ProductCode{nowTicksA}",
                         ProductName = $"ProductName{nowTicksA}",
 
