@@ -150,6 +150,66 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 
         }
         [Fact]
+        public void Should_Success_Get_Xls_Unit_C2A()
+        {
+            var mockFacade = new Mock<IAccountingStockReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelAStockReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccountingStockReportViewModel>>(It.IsAny<List<AccountingStockReportViewModel>>()))
+                .Returns(new List<AccountingStockReportViewModel> { viewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            AccountingStockReportController controller = new AccountingStockReportController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), "C2A");
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+        [Fact]
+        public void Should_Success_Get_Xls_Unit_C2B()
+        {
+            var mockFacade = new Mock<IAccountingStockReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelAStockReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccountingStockReportViewModel>>(It.IsAny<List<AccountingStockReportViewModel>>()))
+                .Returns(new List<AccountingStockReportViewModel> { viewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            AccountingStockReportController controller = new AccountingStockReportController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), "C2B");
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+        [Fact]
         public void Should_Success_Get_Xls()
         {
             var mockFacade = new Mock<IAccountingStockReportFacade>();
@@ -176,7 +236,97 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>());
+            var response = controller.GetXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), It.IsAny<string>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+        [Fact]
+        public void Should_Success_Get_Xls_Unit_C2C()
+        {
+            var mockFacade = new Mock<IAccountingStockReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelAStockReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccountingStockReportViewModel>>(It.IsAny<List<AccountingStockReportViewModel>>()))
+                .Returns(new List<AccountingStockReportViewModel> { viewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            AccountingStockReportController controller = new AccountingStockReportController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), "C2C");
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+        [Fact]
+        public void Should_Success_Get_Xls_Unit_C1B()
+        {
+            var mockFacade = new Mock<IAccountingStockReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelAStockReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccountingStockReportViewModel>>(It.IsAny<List<AccountingStockReportViewModel>>()))
+                .Returns(new List<AccountingStockReportViewModel> { viewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            AccountingStockReportController controller = new AccountingStockReportController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), "C1B");
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+        [Fact]
+        public void Should_Success_Get_Xls_Unit_C1A()
+        {
+            var mockFacade = new Mock<IAccountingStockReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelAStockReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<AccountingStockReportViewModel>>(It.IsAny<List<AccountingStockReportViewModel>>()))
+                .Returns(new List<AccountingStockReportViewModel> { viewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            AccountingStockReportController controller = new AccountingStockReportController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), "C1A");
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
         }
         [Fact]

@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetBookXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>());
+            var response = controller.GetBookXls(DateTime.Now, DateTime.Now, It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>());
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
         }
         [Fact]
@@ -205,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
             //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetBookXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>());
+            var response = controller.GetBookXls(null, null, null, null, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

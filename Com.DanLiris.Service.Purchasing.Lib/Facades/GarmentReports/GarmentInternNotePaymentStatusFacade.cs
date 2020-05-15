@@ -244,14 +244,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 foreach (var item in Data)
                 {
                     index++;
-                    string dateintern = item.INDate == new DateTime(1970, 1, 1) || item.INDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.INDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string dueDate = item.PaymentDueDate == new DateTime(1970, 1, 1) || item.PaymentDueDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.PaymentDueDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string invodate = item.InvoDate == new DateTime(1970, 1, 1) || item.InvoDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.InvoDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string doDate = item.DoDate == new DateTime(1970, 1, 1) || item.DoDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.DoDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string incometaxDate = item.IncomeTaxDate == new DateTime(1970, 1, 1) || item.IncomeTaxDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.IncomeTaxDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string VatDate = item.VatDate == new DateTime(1970, 1, 1) || item.VatDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.VatDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string corrDate = item.CorDate == new DateTime(1970, 1, 1) || item.CorDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.CorDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string kasbon = item.Tgl == new DateTime(1970, 1, 1) ? "-" : item.Tgl.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string dateintern = item.INDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string dueDate = item.PaymentDueDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.PaymentDueDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string invodate = item.InvoDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.InvoDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string doDate = item.DoDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.DoDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string incometaxDate = item.IncomeTaxDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.IncomeTaxDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string VatDate = item.VatDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.VatDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string corrDate = item.CorDate.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.CorDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string kasbon = item.Tgl.Value.ToString("dd MMM yyyy") == "01 Jan 0001" ? "-" : item.Tgl.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string nonpn = item.NPN == "" ? "-" : item.NPN;
                     string nonph = item.NPH == "" ? "-" : item.NPH;
                     string correction = item.CorrNo == "" ? "-" : item.CorrNo;
