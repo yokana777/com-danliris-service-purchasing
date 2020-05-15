@@ -821,6 +821,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var result = reportFacade.GenerateExcelDebtReport(DateTime.Now.Month + 1, DateTime.Now.Year + 1, null, "");
             Assert.IsType<System.IO.MemoryStream>(result);
         }
+        [Fact]
+        public void Create_Connection_Error()
+        {
+            var result = Assert.ThrowsAny<Exception>(() => new LocalDbCashFlowDbContext(""));
+            Assert.NotNull(result);
+        }
 
 
 
