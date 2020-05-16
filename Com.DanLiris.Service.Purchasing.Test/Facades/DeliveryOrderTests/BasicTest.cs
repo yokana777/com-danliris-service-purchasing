@@ -439,7 +439,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.DeliveryOrderTests
                 items = new List<DeliveryOrderItemViewModel>()
             };
             var context = new ValidationContext(vm, serviceProvider.Object, null);
-            Assert.NotEmpty(vm.Validate(context));
+            Assert.NotEmpty(vm.Validate(context).ToList());
         }
 
         [Fact]
