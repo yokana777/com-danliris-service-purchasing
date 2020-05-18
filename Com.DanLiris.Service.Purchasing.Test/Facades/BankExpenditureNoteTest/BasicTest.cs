@@ -316,6 +316,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         }
 
         [Fact]
+        public async Task Should_Success_Create_Daily_Bank_Transaction_IDR()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetNewDataIDR();
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+
+                Username = "Unit Test"
+            };
+            var Response = await facade.Create(model, identityService);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_ByPeriod()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
