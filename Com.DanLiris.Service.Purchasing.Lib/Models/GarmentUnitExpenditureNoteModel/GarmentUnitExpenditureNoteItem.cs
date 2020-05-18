@@ -54,5 +54,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
 
         [NotMapped]
         public bool IsSave { get; set; }
+
+        [MaxLength(25)]
+        public string ItemStatus { get; set; }
     }
 }
