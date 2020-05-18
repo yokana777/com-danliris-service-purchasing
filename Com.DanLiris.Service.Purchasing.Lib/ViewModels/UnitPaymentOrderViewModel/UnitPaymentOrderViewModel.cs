@@ -20,6 +20,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public string invoiceNo { get; set; }
         public DateTimeOffset? invoiceDate { get; set; }
         public string pibNo { get; set; }
+        public DateTimeOffset? pibDate { get; set; }
+        public double? importDuty { get; set; }
+        public double? totalIncomeTaxAmount { get; set; }
+        public double? totalVatAmount { get; set; }
 
         public bool useIncomeTax { get; set; }
         public IncomeTaxViewModel incomeTax { get; set; }

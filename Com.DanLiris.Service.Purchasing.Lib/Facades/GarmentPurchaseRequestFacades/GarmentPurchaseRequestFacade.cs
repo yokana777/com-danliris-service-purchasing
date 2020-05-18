@@ -1348,6 +1348,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                           && (supplier == null || (supplier != null && supplier != "" && epos.SupplierId.ToString() == supplier))
 
                           && (doNo == null || (doNo != null && doNo != "" && dos.DONo == doNo))
+                          && receipt.URNType == "PEMBELIAN"
 
                          //orderby a.Date descending
 
