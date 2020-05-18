@@ -73,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                             },
                             BasicPrice = 1,
                             ReturQuantity = 1,
+                            ItemStatus = "REJECT"
                         }
                     }
                 };
