@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDa
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
         }
 
-        public async Task<GarmentCorrectionNote> GetNewData()
+        public async Task<GarmentCorrectionNote> GetNewData(GarmentDeliveryOrder garmentDO = null)
         {
-            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+            var garmentDeliveryOrder = garmentDO ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
             GarmentCorrectionNote garmentCorrectionNote = new GarmentCorrectionNote
             {
