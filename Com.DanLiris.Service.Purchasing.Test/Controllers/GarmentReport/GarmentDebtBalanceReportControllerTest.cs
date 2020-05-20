@@ -27,27 +27,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 return new GarmentDebtBalanceViewModel
                 {
                     BillNo = "",
-                    CurrencyDebit = 0,
-                    CurrencyEndingBalance = 0,
-                    CurrencyInitialBalance = 0,
-                    CurrencyKredit = 0,
                     DOCurrencyCode = "",
                     DONo = "",
-                    IDR = 0,
                     InitialBalance = 0,
-                    INNo = "",
                     NoDebit = "",
                     PaymentBill = "",
                     SupplierCode = "",
                     SupplierName = "",
                     TglDebit = null,
-                    TotalCurrencyInitialBalance = 0,
                     TotalDebit = 0,
                     TotalEndingBalance = 0,
-                    TotalIDR = 0,
-                    TotalIDRDebit = 0,
-                    TotalIDREndingBalance = 0,
-                    TotalIDRKredit = 0,
                     TotalInitialBalance = 0,
                     TotalKredit = 0
                 };
