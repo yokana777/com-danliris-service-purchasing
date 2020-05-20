@@ -65,23 +65,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 BillNo = c.BillNo,
                                 DONo = c.DONo,
                                 PaymentBill = d.PaymentBill,
-                                INNo = c.InternNo,
                                 CodeRequirment = b.CodeRequirment,
-                                TotalCurrencyInitialBalance = b.DOCurrencyRate,                               
                                 InitialBalance = c.Valas,
-                                CurrencyInitialBalance = b.DOCurrencyRate,
-                                IDR = c.IDR,
                                 TotalDebit = 0,
-                                CurrencyDebit = 0,
-                                TotalIDRDebit = 0,
                                 NoDebit = "",
                                 TglDebit = DateTimeOffset.MinValue,
                                 TotalKredit = 0,
-                                CurrencyKredit = 0,
-                                TotalIDRKredit = 0,                               
-                                TotalEndingBalance = 0,
-                                CurrencyEndingBalance = 0,
-                                TotalIDREndingBalance = 0
+                                TotalEndingBalance = 0
                             };
 
             var SaldoAwalSeblmBulan = (from a in dbContext.GarmentDeliveryOrders
@@ -105,23 +95,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            BillNo = a.BillNo,
                                            DONo = a.DONo,
                                            PaymentBill = a.PaymentBill,
-                                           INNo = a.InternNo,
                                            CodeRequirment = d.CodeRequirment,                                           
                                            InitialBalance = a.TotalAmount,
-                                           TotalCurrencyInitialBalance = a.DOCurrencyRate,
-                                           CurrencyInitialBalance = a.DOCurrencyRate,
-                                           IDR = a.TotalAmount * a.DOCurrencyRate,
                                            TotalDebit = 0,
-                                           CurrencyDebit = 0,
-                                           TotalIDRDebit = 0,
                                            NoDebit = "",
                                            TglDebit = DateTimeOffset.MinValue,
                                            TotalKredit = 0,
-                                           CurrencyKredit = 0,
-                                           TotalIDRKredit = 0,
-                                           TotalEndingBalance = 0,
-                                           CurrencyEndingBalance = 0,
-                                           TotalIDREndingBalance = 0
+                                           TotalEndingBalance = 0
                                        }).Distinct();
             var SaldoAwalBulan = (from a in dbContext.GarmentDeliveryOrders
                                   join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
@@ -141,23 +121,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       BillNo = a.BillNo,
                                       DONo = a.DONo,
                                       PaymentBill = a.PaymentBill,
-                                      INNo = a.InternNo,
                                       CodeRequirment = d.CodeRequirment, 
                                       InitialBalance = 0,
-                                      CurrencyInitialBalance = 0,
-                                      IDR = 0,
                                       TotalDebit = 0,
-                                      CurrencyDebit = 0,
-                                      TotalIDRDebit = 0,
                                       NoDebit = "",
                                       TglDebit = DateTimeOffset.MinValue,
                                       TotalKredit = a.TotalAmount,
-                                      CurrencyKredit = a.DOCurrencyRate,
-                                      TotalIDRKredit = a.TotalAmount * a.DOCurrencyRate,
-                                      TotalEndingBalance = 0,
-                                      CurrencyEndingBalance = 0,
-                                      TotalIDREndingBalance = 0
-
+                                      TotalEndingBalance = 0
                                   }).Distinct();
             var SaldoAwaljoin = saldoawal.Union(SaldoAwalSeblmBulan).ToList();
             var SaldoAwaljoin2 = from a in supplier
@@ -170,22 +140,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      BillNo = b.BillNo,
                                      DONo = b.DONo,
                                      PaymentBill = b.PaymentBill,
-                                     INNo = b.INNo,
                                      CodeRequirment = b.CodeRequirment,
                                      InitialBalance = b.InitialBalance,
-                                     CurrencyInitialBalance = b.CurrencyInitialBalance,
-                                     IDR = b.IDR,
                                      TotalDebit = b.TotalDebit,
-                                     CurrencyDebit = b.CurrencyDebit,
-                                     TotalIDRDebit = b.TotalIDRDebit,
                                      NoDebit = b.NoDebit,
                                      TglDebit = b.TglDebit,
                                      TotalKredit = b.TotalKredit,
-                                     CurrencyKredit = b.CurrencyKredit,
-                                     TotalIDRKredit = b.TotalIDRKredit,                                     
-                                     TotalEndingBalance = b.TotalEndingBalance,
-                                     CurrencyEndingBalance = b.CurrencyEndingBalance,
-                                     TotalIDREndingBalance = b.TotalIDREndingBalance
+                                     TotalEndingBalance = b.TotalEndingBalance
                                  };
             var saldoawaltotal = from a in SaldoAwaljoin
                                  group a by new { a.DOCurrencyCode, a.SupplierCode } into groupdata
@@ -194,9 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      SupplierName = groupdata.FirstOrDefault().SupplierName,
                                      SupplierCode = groupdata.FirstOrDefault().SupplierCode,
                                      DOCurrencyCode = groupdata.FirstOrDefault().DOCurrencyCode,
-                                     TotalCurrencyInitialBalance = groupdata.FirstOrDefault().TotalCurrencyInitialBalance,
-                                     TotalInitialBalance = groupdata.Sum(x => x.InitialBalance),
-                                     TotalIDR = groupdata.Sum(x => x.IDR)
+                                     TotalInitialBalance = groupdata.Sum(x => x.InitialBalance)
                                  };
             var SaldoAkhir = SaldoAwaljoin2.Union(SaldoAwalBulan).ToList();
             var saldoawaljointotal = (from a in SaldoAkhir
@@ -209,27 +168,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                           SupplierCode = a.SupplierCode,
                                           DOCurrencyCode = a.DOCurrencyCode,
                                           TotalInitialBalance = ab != null ? ab.TotalInitialBalance : 0,
-                                          TotalCurrencyInitialBalance = ab != null ? ab.TotalCurrencyInitialBalance : 0,
-                                          TotalIDR = ab != null ? ab.TotalIDR : 0,
                                           BillNo = a.BillNo,
                                           DONo = a.DONo,
                                           PaymentBill = a.PaymentBill,
-                                          INNo = a.INNo,
                                           CodeRequirment = a.CodeRequirment,                                         
                                           InitialBalance = a.InitialBalance,
-                                          CurrencyInitialBalance = a.CurrencyInitialBalance,
-                                          IDR = a.IDR,
                                           TotalDebit = a.TotalDebit,
-                                          CurrencyDebit = a.CurrencyDebit,
-                                          TotalIDRDebit = a.TotalIDRDebit,
                                           NoDebit = a.NoDebit,
                                           TglDebit = a.TglDebit,
                                           TotalKredit = a.TotalKredit,
-                                          CurrencyKredit = a.CurrencyKredit,
-                                          TotalIDRKredit = a.TotalIDRKredit,                                         
-                                          TotalEndingBalance = a.TotalEndingBalance,
-                                          CurrencyEndingBalance = a.CurrencyEndingBalance,
-                                          TotalIDREndingBalance = a.TotalIDREndingBalance
+                                          TotalEndingBalance = a.TotalEndingBalance
                                       }).OrderBy(x => x.SupplierCode).ThenBy(x => x.DOCurrencyCode);
             
             foreach (GarmentDebtBalanceViewModel i in saldoawaljointotal)
@@ -239,8 +187,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 while (data.Read())
                 {
                     i.TotalDebit = (decimal)data["jumlah"];
-                    i.CurrencyDebit = (decimal)data["rate"];
-                    i.TotalIDRDebit = (decimal)data["jumlah"] * (decimal)data["rate"];
                     i.NoDebit = data["nomor"].ToString();
                     i.TglDebit = data.GetDateTime(4);
                 }
@@ -252,8 +198,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 (newList, element) =>
                 {
                     element.TotalEndingBalance = element.TotalInitialBalance + element.TotalKredit - (double)element.TotalDebit;
-                    element.CurrencyEndingBalance = element.TotalCurrencyInitialBalance;
-                    element.TotalIDREndingBalance = element.TotalEndingBalance * element.CurrencyEndingBalance;
                     newList.Add(element);
                     return newList;
                 });
@@ -351,7 +295,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     };
 
                     TotalPerSupplier[SupplierName] = data.TotalInitialBalance;
-                    TotalIDRPerSupplier[SupplierName] = data.TotalIDR;
                     supplier.Add(data.SupplierName);
                     AmountTotal += (double)data.InitialBalance;
                     //AmountTotalIDR += (double)data.IDR;
