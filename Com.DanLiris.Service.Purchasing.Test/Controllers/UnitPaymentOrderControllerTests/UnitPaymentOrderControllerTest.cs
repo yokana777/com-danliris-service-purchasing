@@ -58,6 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
                 return new UnitPaymentOrderViewModel
                 {
+                    pibDate = new DateTimeOffset(),
+                    importDuty = 0,
+                    totalIncomeTaxAmount = 0,
+                    totalVatAmount = 0,
                     UId = null,
                     supplier = new SupplierViewModel
                     {

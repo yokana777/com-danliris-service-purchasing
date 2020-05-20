@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 IncomeTaxRate = "1",
 
                 DeliveryDate = new DateTimeOffset(),
-                OrderDate = new DateTimeOffset(),
+                OrderDate = DateTimeOffset.Now,
 
                 CurrencyId = 1,
                 CurrencyCode = "currency1",
