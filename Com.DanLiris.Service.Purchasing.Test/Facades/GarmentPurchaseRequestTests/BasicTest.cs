@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -17,6 +18,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUti
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
@@ -688,11 +690,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
 			return new GarmentCorrectionNoteQuantityDataUtil(facade, garmentDeliveryOrderDataUtil);
 		}
+        private GarmentDeliveryOrderDataUtil dataUtilDo(GarmentDeliveryOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
 		[Fact]
 		public async Task Should_Success_Get_Report_Purchase_All_Data()
 		{
-			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null,dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
 			await facade.Create(data,false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
@@ -703,8 +727,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		[Fact]
 		public async Task Should_Success_Get_Report_Purchase_All_Excel()
 		{
-			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null, dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             
@@ -716,8 +749,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
+        [Fact]
+        public async Task Should_Success_Get_Report_Purchase_All_Excel_null_Result()
+        {
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            await facade.Create(data, false, USERNAME);
+            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var dateTo = DateTime.Now;
+            var dateFrom = DateTime.Now.AddDays(-30);
+            var dateFromEx = DateTimeOffset.MinValue;
+            var dateToEx = DateTimeOffset.Now;
+            var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, dateFrom, dateTo, dateFromEx, dateToEx, 1, 25, "{}", 7);
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
 
-		[Fact]
+
+        [Fact]
 		public async Task Should_Success_Get_Data_By_Name()
 		{
 			var facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));

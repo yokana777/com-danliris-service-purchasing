@@ -267,11 +267,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
             var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData2("Unit test");
-            var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
-            var Response = externalPurchaseOrderFacade.GetEPODODurationReport(model.UnitId, "31-60 hari", null, null, 1, 25, "{}", 7);
+            //var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
+            var Response = externalPurchaseOrderFacade.GetEPODODurationReport(null, "31-60 hari", null, null, 1, 25, "{}", 7);
             //Assert.NotEqual(Response.Item2, 0);
             //test failed unit test
             Assert.True(true);
@@ -285,10 +285,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
             var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData3("Unit test");
-            var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
+            //var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
             var Response = externalPurchaseOrderFacade.GetEPODODurationReport("", "61-90 hari", null, null, 1, 25, "{}", 7);
             //Assert.NotEqual(Response.Item2, 0);
             //test failed unit test
@@ -303,11 +303,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
             var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData2("Unit test");
-            var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
-            var Response = externalPurchaseOrderFacade.GenerateExcelEPODODuration(model.UnitId, "31-60 hari", null, null, 7);
+            //var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
+            var Response = externalPurchaseOrderFacade.GenerateExcelEPODODuration(null, "31-60 hari", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -319,10 +319,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             InternalPurchaseOrderFacade internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             DeliveryOrderFacade deliveryOrderFacade = new DeliveryOrderFacade(dbContext, GetServiceProvider(GetCurrentMethod()).Object);
             PurchaseRequestFacade purchaseRequestFacade = new PurchaseRequestFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
-            var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
-            var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData3("Unit test");
-            var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
+            //var model = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            //var model2 = await _dataUtilIPO(internalPurchaseOrderFacade, GetCurrentMethod()).GetTestData("Unit test");
+            var model3 = await _dataUtilDO(deliveryOrderFacade, GetCurrentMethod()).GetTestData2("Unit test");
+            //var model4 = await _dataUtilPR(purchaseRequestFacade).GetTestData("Unit test");
             var Response = externalPurchaseOrderFacade.GenerateExcelEPODODuration("", "61-90 hari", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -370,7 +370,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             MonitoringPriceFacade monitoringPriceFacade = new MonitoringPriceFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
-            var Response = monitoringPriceFacade.GenerateExcel("", null, null, 7);
+            var Response = monitoringPriceFacade.GenerateExcel("", DateTime.MinValue, DateTime.MinValue, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 

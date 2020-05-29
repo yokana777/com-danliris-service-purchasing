@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200513084209_Add_GarmentSupplierBalanceDebt")]
+    partial class Add_GarmentSupplierBalanceDebt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3932,9 +3933,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<string>("ItemStatus")
-                        .HasMaxLength(25);
-
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -5262,8 +5260,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("DueDate");
 
-                    b.Property<double>("ImportDuty");
-
                     b.Property<string>("IncomeTaxBy")
                         .HasMaxLength(255);
 
@@ -5304,8 +5300,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(255);
 
-                    b.Property<DateTimeOffset>("PibDate");
-
                     b.Property<string>("PibNo")
                         .HasMaxLength(255);
 
@@ -5324,10 +5318,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("SupplierName")
                         .HasMaxLength(1000);
-
-                    b.Property<double>("TotalIncomeTaxAmount");
-
-                    b.Property<double>("TotalVatAmount");
 
                     b.Property<string>("UId")
                         .HasMaxLength(255);

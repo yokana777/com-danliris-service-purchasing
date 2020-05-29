@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 IncomeTaxRate = "1",
 
                 DeliveryDate = new DateTimeOffset(),
-                OrderDate = new DateTimeOffset(),
+                OrderDate = DateTimeOffset.Now,
 
                 CurrencyId = 1,
                 CurrencyCode = "currency1",
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         POId=(int)datas[0].Id,
                         PONo=datas[0].PONo,
                         PRNo=datas[0].PRNo,
-                        PRId=1,
+                        PRId=(int)datas[0].PRId,
                         ProductId = 1,
                         ProductCode = "ProductCode1",
                         ProductName = "ProductName1",
@@ -390,7 +390,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         POId = (int)data.Id,
                         PONo = data.PONo,
                         PRNo = data.PRNo,
-                        PRId = 1,
+                        PRId = (int)data.PRId,
                         ProductId = 1,
                         ProductCode = "ProductCode1",
                         ProductName = "ProductName1",

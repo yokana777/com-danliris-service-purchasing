@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
@@ -81,6 +82,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
         public async Task<DeliveryOrder> GetNewDataDummy(string user)
         {
             var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestDataUnused(user);
+            List<ExternalPurchaseOrderItem> EPOItem = new List<ExternalPurchaseOrderItem>(externalPurchaseOrder.Items);
+            List<ExternalPurchaseOrderDetail> EPODetail= new List<ExternalPurchaseOrderDetail>(EPOItem[0].Details);
             return new DeliveryOrder
             {
                 DONo = DateTime.UtcNow.Ticks.ToString(),
@@ -94,15 +97,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
                 {
                     new DeliveryOrderItem()
                     {
-                        EPOId = 1,
+                        EPOId = externalPurchaseOrder.Id,
                         EPONo = "ExternalPONo",
                         Details = new List<DeliveryOrderDetail>
                         {
                             new DeliveryOrderDetail()
                             {
-                                EPODetailId = 1,
-                                POItemId = 1,
-                                PRId = 1,
+                                EPODetailId = EPODetail[0].Id,
+                                POItemId = EPOItem[0].POId,
+                                PRId = EPOItem[0].PRId,
                                 PRNo = "PRNo",
                                 PRItemId = 1,
                                 UnitId = "UnitId",

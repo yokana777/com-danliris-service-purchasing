@@ -313,8 +313,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Terima Unit", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon Terima Unit", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Diminta", DataType = typeof(double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Diminta", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Bon", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Bon", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tempo Pembayaran", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Invoice", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });

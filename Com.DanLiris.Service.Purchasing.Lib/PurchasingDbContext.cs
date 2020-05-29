@@ -27,6 +27,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -119,6 +120,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentPOMasterDistribution> GarmentPOMasterDistributions { get; set; }
         public DbSet<GarmentPOMasterDistributionItem> GarmentPOMasterDistributionItems { get; set; }
         public DbSet<GarmentPOMasterDistributionDetail> GarmentPOMasterDistributionDetails { get; set; }
+
+        public DbSet<GarmentSupplierBalanceDebt> GarmentSupplierBalanceDebts { get; set; }
+        public DbSet<GarmentSupplierBalanceDebtItem> GarmentSupplierBalanceDebtItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
