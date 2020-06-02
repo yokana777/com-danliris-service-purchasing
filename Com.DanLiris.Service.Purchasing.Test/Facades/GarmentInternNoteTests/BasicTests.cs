@@ -391,7 +391,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
         {
             GarmentInternNoteFacades facade = new GarmentInternNoteFacades(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var response = facade.GenerateExcelIn("", null, null, null, null, 8);
+            var response = facade.GenerateExcelIn("", "codeTest", null, null, null, 8);
             Assert.IsType<System.IO.MemoryStream>(response);
         }
         #endregion
