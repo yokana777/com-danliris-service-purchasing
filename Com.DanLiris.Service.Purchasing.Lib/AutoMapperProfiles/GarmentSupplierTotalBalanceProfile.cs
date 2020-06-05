@@ -33,6 +33,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.deliveryOrder.Id, opt => opt.MapFrom(c => c.DOId))
                 .ForPath(d => d.deliveryOrder.internNo, opt => opt.MapFrom(c => c.InternNo))
                 .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(c => c.ArrivalDate))
+                .ForPath(d => d.deliveryOrder.paymentType, opt => opt.MapFrom(c => c.PaymentType))
+                .ForPath(d => d.deliveryOrder.paymentMethod, opt => opt.MapFrom(c => c.PaymentMethod))
                 .ReverseMap();
 
         }
