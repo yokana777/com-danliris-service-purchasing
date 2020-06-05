@@ -124,6 +124,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 garmentUnitDeliveryOrderItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
                             }
                             garmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate == null ? 0 : garmentUnitDeliveryOrderItem.DOCurrencyRate;
+                            if (garmentUnitExpenditureNoteItem.DOCurrencyRate == 0)
+                            {
+                                throw new Exception("DOCurrencyRate tidak boleh 0");
+                            }
                             garmentUnitExpenditureNoteItem.Conversion = garmentUnitReceiptNoteItem.Conversion;
                             //var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * Math.Round(garmentUnitExpenditureNoteItem.Quantity / (double)garmentUnitExpenditureNoteItem.Conversion, 2) * garmentUnitExpenditureNoteItem.DOCurrencyRate) / (double)garmentUnitExpenditureNoteItem.Conversion;
                             var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * garmentUnitExpenditureNoteItem.DOCurrencyRate);
@@ -489,6 +493,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 UENItemId = item.Id,
                                 DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
                             };
+                            if (urnItem.DOCurrencyRate == 0)
+                            {
+                                throw new Exception("DOCurrencyRate tidak boleh 0");
+                            }
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
 
@@ -574,6 +582,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             UnitDOFromId= oldGarmentUnitDO.Id,
                             UnitDOFromNo=oldGarmentUnitDO.UnitDONo
                         };
+
                         garmentUnitDO.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDO);
                         EntityExtension.FlagForCreate(garmentUnitDO, identityService.Username, USER_AGENT);
 
@@ -615,6 +624,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 Conversion= gUenItem1.Conversion
 
                             };
+                            if (uenItem.DOCurrencyRate == 0)
+                            {
+                                throw new Exception("DOCurrencyRate tidak boleh 0");
+                            }
                             garmentUENItems.Add(uenItem);
 
                             EntityExtension.FlagForCreate(uenItem, identityService.Username, USER_AGENT);
