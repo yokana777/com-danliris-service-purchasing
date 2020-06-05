@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DebtBookReportViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports;
 using Microsoft.AspNetCore.Http;
@@ -15,42 +15,30 @@ using System.Security.Claims;
 using System.Text;
 using Xunit;
 
-
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 {
-    public class DebtBookReportControllerTest
+    public class DebtCardReportControllerTest
     {
-        private DebtBookReportViewModel viewModel
+        private GarmentDebtCardReportViewModel viewModel
         {
             get
             {
-                return new DebtBookReportViewModel
+                return new GarmentDebtCardReportViewModel
                 {
-                    BillNo = "",
-                    CurrencyDebit = 0,
-                    CurrencyEndingBalance = 0,
-                    CurrencyInitialBalance = 0,
-                    CurrencyKredit = 0,
-                    DebtAge = 0,
-                    DifferenceRate = 0,
-                    DOCurrencyCode = "",
+                    CurrencyCodeDebit = "",
+                    CurrencyCodeEndingBalance = "",
+                    CurrencyCodeKredit = "",
                     DONo = "",
-                    IDR = 0,
-                    InitialBalance = 0,
-                    INNo = "",
                     NoDebit = "",
-                    PaymentBill = "",
+                    NoKredit = "",
+                    Remark = "",
                     SupplierCode = "",
                     SupplierName = "",
-                    TglDebit = null,
-                    TotalCurrencyInitialBalance = 0,
                     TotalDebit = 0,
                     TotalEndingBalance = 0,
-                    TotalIDR = 0,
                     TotalIDRDebit = 0,
                     TotalIDREndingBalance = 0,
                     TotalIDRKredit = 0,
-                    TotalInitialBalance = 0,
                     TotalKredit = 0
                 };
             }
@@ -68,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 
             return serviceProvider;
         }
-        private DebtBookReportController GetController(Mock<IDebtBookReportFacade> facadeM, Mock<IMapper> mapper)
+        private DebtCardReportController GetController(Mock<IDebtCardReportFacade> facadeM, Mock<IMapper> mapper)
         {
             var user = new Mock<System.Security.Claims.ClaimsPrincipal>();
             var claims = new Claim[]
@@ -79,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 
             var servicePMock = GetServiceProvider();
 
-            var controller = new DebtBookReportController(facadeM.Object, mapper.Object, servicePMock.Object)
+            var controller = new DebtCardReportController(facadeM.Object, mapper.Object, servicePMock.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -102,13 +90,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         [Fact]
         public void Should_Success_Get_Report()
         {
-            var mockFacade = new Mock<IDebtBookReportFacade>();
-            mockFacade.Setup(x => x.GetDebtBookReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .Returns(Tuple.Create(new List<DebtBookReportViewModel> { viewModel }, 25));
+            var mockFacade = new Mock<IDebtCardReportFacade>();
+            mockFacade.Setup(x => x.GetDebtCardReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<GarmentDebtCardReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<DebtBookReportViewModel>>(It.IsAny<List<DebtBookReportViewModel>>()))
-                .Returns(new List<DebtBookReportViewModel> { viewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentDebtCardReportViewModel>>(It.IsAny<List<GarmentDebtCardReportViewModel>>()))
+                .Returns(new List<GarmentDebtCardReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -116,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            DebtBookReportController controller = new DebtBookReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
+            DebtCardReportController controller = new DebtCardReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -125,20 +113,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
 
-            var response = controller.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>());
+            var response = controller.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(),It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 
         }
         [Fact]
         public void Should_Success_Get_Xls()
         {
-            var mockFacade = new Mock<IDebtBookReportFacade>();
-            mockFacade.Setup(x => x.GenerateExcelDebtReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>()))
+            var mockFacade = new Mock<IDebtCardReportFacade>();
+            mockFacade.Setup(x => x.GenerateExcelCardReport(It.IsAny<int>(), It.IsAny<int>(),It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<DebtBookReportViewModel>>(It.IsAny<List<DebtBookReportViewModel>>()))
-                .Returns(new List<DebtBookReportViewModel> { viewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentDebtCardReportViewModel>>(It.IsAny<List<GarmentDebtCardReportViewModel>>()))
+                .Returns(new List<GarmentDebtCardReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -146,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            DebtBookReportController controller = new DebtBookReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
+            DebtCardReportController controller = new DebtCardReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -155,20 +143,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
 
-            //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>());
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(),It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
         }
         [Fact]
         public void Should_Error_Get_Report_Data()
         {
-            var mockFacade = new Mock<IDebtBookReportFacade>();
-            mockFacade.Setup(x => x.GetDebtBookReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .Returns(Tuple.Create(new List<DebtBookReportViewModel> { viewModel }, 25));
+            var mockFacade = new Mock<IDebtCardReportFacade>();
+            //mockFacade.Setup(x => x.GetDebtCardReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            //    .Returns(Tuple.Create(new List<GarmentDebtCardReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<DebtBookReportViewModel>>(It.IsAny<List<DebtBookReportViewModel>>()))
-                .Returns(new List<DebtBookReportViewModel> { viewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentDebtCardReportViewModel>>(It.IsAny<List<GarmentDebtCardReportViewModel>>()))
+                .Returns(new List<GarmentDebtCardReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -176,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            DebtBookReportController controller = new DebtBookReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
+            DebtCardReportController controller = new DebtCardReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -185,19 +173,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport(0, 0, null, null);
+            var response = controller.GetReport(0, 0, null, null, null, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
         public void Should_Error_Get_Report_Xls_Data()
         {
-            var mockFacade = new Mock<IDebtBookReportFacade>();
-            mockFacade.Setup(x => x.GetDebtBookReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .Returns(Tuple.Create(new List<DebtBookReportViewModel> { viewModel }, 25));
+            var mockFacade = new Mock<IDebtCardReportFacade>();
+            //mockFacade.Setup(x => x.GetDebtCardReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            //    .Returns(Tuple.Create(new List<GarmentDebtCardReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<DebtBookReportViewModel>>(It.IsAny<List<DebtBookReportViewModel>>()))
-                .Returns(new List<DebtBookReportViewModel> { viewModel });
+            mockMapper.Setup(x => x.Map<List<GarmentDebtCardReportViewModel>>(It.IsAny<List<GarmentDebtCardReportViewModel>>()))
+                .Returns(new List<GarmentDebtCardReportViewModel> { viewModel });
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -205,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 new Claim("username", "unittestusername")
             };
             user.Setup(u => u.Claims).Returns(claims);
-            DebtBookReportController controller = new DebtBookReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
+            DebtCardReportController controller = new DebtCardReportController(mockFacade.Object, mockMapper.Object, GetServiceProvider().Object);
             controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -214,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
             //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>());
+            var response = controller.GetXls(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

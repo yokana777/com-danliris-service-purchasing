@@ -21,5 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSupplierBalanceD
         public string internNo { get; set; }
         public string supplierName { get; set; }
         public DateTimeOffset arrivalDate { get; set; }
+        public string paymentType { get; set; }
+        public string paymentMethod { get; set; }
     }
 }
