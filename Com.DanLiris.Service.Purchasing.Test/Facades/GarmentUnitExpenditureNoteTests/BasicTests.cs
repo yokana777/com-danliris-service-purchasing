@@ -423,14 +423,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotNull(e.Message);
         }
 
-        [Fact]
-        public async Task Should_Error_Create_Data_DOCurrency()
-        {
-            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil_DOCurrency(facade, GetCurrentMethod()).GetNewData_DOCurrency();
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
-            Assert.NotNull(e.Message);
-        }
+        //[Fact]
+        //public async Task Should_Error_Create_Data_DOCurrency()
+        //{
+        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil_DOCurrency(facade, GetCurrentMethod()).GetNewData_DOCurrency();
+        //    Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
+        //    Assert.NotNull(e.Message);
+        //}
 
         [Fact]
         public async Task Should_Success_Update_Data()

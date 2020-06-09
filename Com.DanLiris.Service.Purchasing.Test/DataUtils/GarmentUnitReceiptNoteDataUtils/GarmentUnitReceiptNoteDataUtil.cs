@@ -319,6 +319,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return data;
         }
 
-
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage_DOCurrency(long? ticks = null)
+        {
+            var data = await GetNewDataWithStorage3(ticks);
+            await facade.Create(data);
+            return data;
+        }
     }
 }

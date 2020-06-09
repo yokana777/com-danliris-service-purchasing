@@ -183,8 +183,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             DateTimeOffset now = DateTimeOffset.Now;
             long nowTicks = now.Ticks;
 
-            var garmentUnitReceiptNote1 = unitReceiptNote1 ?? await Task.Run(() => UNDataUtil.GetNewData3());
-            var garmentUnitReceiptNote2 = unitReceiptNote2 ?? await Task.Run(() => UNDataUtil.GetNewData3(nowTicks + 1));
+            var garmentUnitReceiptNote1 = unitReceiptNote1 ?? await Task.Run(() => UNDataUtil.GetTestDataWithStorage_DOCurrency());
+            var garmentUnitReceiptNote2 = unitReceiptNote2 ?? await Task.Run(() => UNDataUtil.GetTestDataWithStorage_DOCurrency(nowTicks + 1));
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {
                 UnitDOType = "SAMPLE",

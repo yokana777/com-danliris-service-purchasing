@@ -359,7 +359,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetNewDataMultipleItem_DOCurrency());
+            var garmentUnitDeliveryOrder = await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem_DOCurrency());
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {
