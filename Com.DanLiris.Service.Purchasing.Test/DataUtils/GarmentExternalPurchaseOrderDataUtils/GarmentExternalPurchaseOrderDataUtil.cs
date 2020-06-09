@@ -433,6 +433,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
             return data;
         }
 
+        public async Task<GarmentExternalPurchaseOrder> GetTestData_DOCurrency()
+        {
+            var data = await GetNewDataFabric();
+            data.CurrencyRate = 0;
+            await facade.Create(data, "Unit Test");
+            return data;
+        }
+
         public async Task<GarmentExternalPurchaseOrder> GetTestDataFabric2()
         {
             var data = await GetNewDataFabric2();
