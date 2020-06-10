@@ -116,7 +116,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
                         DOId = 1,
                         InternNo = "InternNO1234",
                         IDR = DateTimeOffset.Now.Ticks,
-                        Valas =DateTimeOffset.Now.Ticks
+                        Valas =DateTimeOffset.Now.Ticks,
+                        PaymentMethod = "PaymentMethodTest",
+                        PaymentType = "PaymentMethodTest"
 
                     }
                 }
@@ -150,7 +152,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
                         DOId = 1,
                         InternNo = "InternNO1234",
                         IDR = DateTimeOffset.Now.Ticks,
-                        Valas =DateTimeOffset.Now.Ticks
+                        Valas =DateTimeOffset.Now.Ticks,
+                        PaymentMethod = "PaymentMethodTest",
+                        PaymentType = "PaymentMethodTest"
 
                     }
                 }
@@ -184,8 +188,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
                         DOId = 1,
                         InternNo = "InternNO1234",
                         IDR = DateTimeOffset.Now.Ticks,
-                        Valas =DateTimeOffset.Now.Ticks
-
+                        Valas =DateTimeOffset.Now.Ticks,
+                        PaymentMethod = "PaymentMethodTest",
+                        PaymentType = "PaymentMethodTest"
                     }
                 }
             };
@@ -219,8 +224,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
                         DOId = 1,
                         InternNo = "InternNO1234",
                         IDR = DateTimeOffset.Now.Ticks,
-                        Valas =DateTimeOffset.Now.Ticks
-
+                        Valas =DateTimeOffset.Now.Ticks,
+                        PaymentMethod = "PaymentMethodTest",
+                        PaymentType = "PaymentMethodTest"
                     }
                 }
             };

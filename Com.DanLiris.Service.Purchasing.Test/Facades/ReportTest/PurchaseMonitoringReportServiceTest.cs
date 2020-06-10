@@ -162,6 +162,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
+        public async Task ShouldSuccessGetReportXlsNullReport()
+        {
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
+
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
+
+            var correctionTestData = await correctionDataUtil.GetTestData();
+
+            var service = new PurchaseMonitoringService(dbContext);
+            var result = await service.GenerateExcel(null, null, null, null, 0, null, null, DateTimeOffset.MinValue, DateTimeOffset.Now, null, null, 0, "200", 1);
+
+            Assert.NotNull(result);
+            //Assert.IsType<System.IO.MemoryStream>(result);
+        }
+
+        [Fact]
         public async Task ShouldSuccessGetReportWithFilter()
         {
             var dbContext = GetDbContext(GetCurrentMethod());
