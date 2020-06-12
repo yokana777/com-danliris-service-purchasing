@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         InvoiceNo = expeditionDocument.InvoiceNo != null ? expeditionDocument.InvoiceNo : "-",
                         No = expeditionDocument.UnitPaymentOrderNo != null ? expeditionDocument.UnitPaymentOrderNo : "-",
                         Position = expeditionDocument.Position,
-                        DPP = expeditionDocument.TotalPaid,
+                        DPP = expeditionDocument.TotalPaid - expeditionDocument.Vat,
                         PPn = expeditionDocument.Vat,
                         PPh = expeditionDocument.IncomeTax,
                         TotalTax = expeditionDocument.TotalPaid,
