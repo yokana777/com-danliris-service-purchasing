@@ -94,8 +94,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          join externalPurchaseOrderDetail in externalPurchaseOrderDetails on new { ipoItem.POId, POItemId = ipoItem.Id } equals new { externalPurchaseOrderDetail.ExternalPurchaseOrderItem.POId, externalPurchaseOrderDetail.POItemId } into joinEPO
                          from epoDetail in joinEPO.DefaultIfEmpty()
 
-                         join internalPOFulfillment in internalPurchaseOrderFulfillments on ipoItem.Id equals internalPOFulfillment.POItemId into joinFulfillment
-                         from ipoFulfillment in joinFulfillment.DefaultIfEmpty()
+                         join yy in _dbContext.DeliveryOrderDetails on epoDetail.Id equals yy.EPODetailId into zz
+                         from doDetail in zz.DefaultIfEmpty()
+                         join m in _dbContext.DeliveryOrderItems on doDetail.DOItemId equals m.Id into n
+                         from doItem in n.DefaultIfEmpty()
+                         join o in _dbContext.DeliveryOrders on doItem.DOId equals o.Id into p
+                         from DO in p.DefaultIfEmpty()
+
+                             //URN
+                         join s in _dbContext.UnitReceiptNoteItems on doDetail.Id equals s.DODetailId into t
+                         from urnItem in t.DefaultIfEmpty()
+                         join q in _dbContext.UnitReceiptNotes on urnItem.URNId equals q.Id into r
+                         from urn in r.DefaultIfEmpty()
+
+                         join u in _dbContext.UnitPaymentOrderItems on urn.Id equals u.URNId into v
+                         from upoItem in v.DefaultIfEmpty()
+                         join w in _dbContext.UnitPaymentOrders on upoItem.UPOId equals w.Id into x
+                         from upo in x.DefaultIfEmpty()
+                         join y in _dbContext.UnitPaymentOrderDetails on urnItem.Id equals y.URNItemId into z
+                         from upoDetail in z.DefaultIfEmpty()
 
                          where epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date >= StartDatePO.Date
                          && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date <= EndDatePO.Date
@@ -104,16 +121,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          {
                              PurchaseRequestId = purchaseRequestItem.PurchaseRequestId,
                              PurchaseRequestItemId = purchaseRequestItem.Id,
-                             InternalPurchaseOrderFullfilmentId = ipoFulfillment == null ? 0 : ipoFulfillment.Id,
-                             InternalPurchaseOrderId = ipoItem == null ? 0 : ipoItem.POId,
-                             InternalPurchaseOrderLastModifiedDate = ipoItem == null ? (DateTime?)null : ipoItem.InternalPurchaseOrder.LastModifiedUtc,
+                             InternalPurchaseOrderId = ipoItem.POId,
+                             InternalPurchaseOrderLastModifiedDate = ipoItem.InternalPurchaseOrder.LastModifiedUtc,
+                             InternalPurchaseOrderItemId = ipoItem.Id,
+                             ExternalPurchaseOrderId = epoDetail != null ? epoDetail.ExternalPurchaseOrderItem.EPOId : 0,
+                             ExternalPurchaseOrderItemId = epoDetail != null ? epoDetail.ExternalPurchaseOrderItem.Id : 0,
+                             ExternalPurchaseOrderDetailId = epoDetail != null ? epoDetail.Id : 0,
+                             DOId = DO == null ? 0 : DO.Id,
+                             DOItemId = doItem == null ? 0 : doItem.Id,
+                             DODetailId = doDetail == null ? 0 : doDetail.Id,
+                             URNId = urn == null ? 0 : urn.Id,
+                             URNItemId = urnItem == null ? 0 : urnItem.Id,
+                             UPOId = upo == null ? 0 : upo.Id,
+                             UPOItemId = upoItem == null ? 0 : upoItem.Id,
+                             UPODetailId = upoDetail == null ? 0 : upoDetail.Id,
+                             SupplierId = epoDetail != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
                              InternalPurchaseOrderStaff = ipoItem != null ? ipoItem.InternalPurchaseOrder.CreatedBy : "",
-                             InternalPurchaseOrderItemId = ipoItem == null ? 0 : ipoItem.Id,
-                             InternalPurchaseOrderStatus = ipoItem != null ? ipoItem.Status : "",
-                             ExternalPurchaseOrderId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.EPOId : 0,
-                             SupplierId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
-                             ExternalPurchaseOrderItemId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.ExternalPurchaseOrderItem.Id : 0,
-                             ExternalPurchaseOrderDetailId = epoDetail != null && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IsPosted ? epoDetail.Id : 0,
+                             InternalPurchaseOrderStatus = ipoItem != null ? ipoItem.Status : ""
 
                          }).OrderBy(b => b.InternalPurchaseOrderLastModifiedDate).ToList();
 
@@ -129,8 +153,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             if (!string.IsNullOrWhiteSpace(status))
                 query = query.Where(w => w.InternalPurchaseOrderStatus.Equals(status)).ToList();
 
-            TotalCountReport = query.Count();
-            var queryresult = query.Skip((page - 1) * size).Take(size).ToList();
+            TotalCountReport = query.Distinct().Count();
+            var queryresult = query.Distinct().Skip((page - 1) * size).Take(size).ToList();
+
             var purchaserequestsIds = queryresult.Select(x => x.PurchaseRequestId).Distinct().ToList();
             var purchaserequests = _dbContext.PurchaseRequests.Where(x => purchaserequestsIds.Contains(x.Id)).Select(x => new { x.Id, x.Date, x.No, x.CreatedUtc, x.CategoryId, x.CategoryName, x.DivisionId, x.DivisionName, x.BudgetId, x.BudgetName }).ToList();
             var purchaserequestitemIds = queryresult.Select(x => x.PurchaseRequestItemId).Distinct().ToList();
@@ -139,14 +164,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var internalpurchaseorders = _dbContext.InternalPurchaseOrders.Where(x => internalpurchaseorderIds.Contains(x.Id)).Select(s => new { s.Id, s.PONo, s.CreatedUtc, s.CreatedBy, s.LastModifiedUtc, s.ExpectedDeliveryDate }).ToList();
             var internalpurchaseorderitemIds = queryresult.Select(x => x.InternalPurchaseOrderItemId).Distinct().ToList();
             var internalpurchaseorderitems = _dbContext.InternalPurchaseOrderItems.Where(x => internalpurchaseorderitemIds.Contains(x.Id)).Select(s => new { s.Id, s.Status }).ToList();
-            var internalpurchaseOrderfulfillmentIds = queryresult.Select(x => x.InternalPurchaseOrderFullfilmentId).Distinct().ToList();
-            var internalpurchaseOrderfulfillments = _dbContext.InternalPurchaseOrderFulfillments.Where(x => internalpurchaseOrderfulfillmentIds.Contains(x.Id)).Select(s => new { s.Id, s.DeliveryOrderId, s.SupplierDODate, s.DeliveryOrderDate, s.DeliveryOrderNo, s.DeliveryOrderItemId, s.DeliveryOrderDetailId, s.UnitReceiptNoteId, s.UnitReceiptNoteDate, s.UnitReceiptNoteNo, s.UnitReceiptNoteItemId, s.UnitReceiptNoteDeliveredQuantity, s.UnitReceiptNoteUomId, s.UnitReceiptNoteUom, s.UnitPaymentOrderId, s.InvoiceDate, s.InvoiceNo, s.InterNoteDate, s.InterNoteNo, s.InterNoteDueDate, s.UnitPaymentOrderItemId, s.UnitPaymentOrderDetailId, s.InterNoteValue, s.UnitPaymentOrderVatDate, s.UnitPaymentOrderVatNo, s.UnitPaymentOrderIncomeTaxDate, s.UnitPaymentOrderIncomeTaxNo, s.UnitPaymentOrderIncomeTaxRate, s.UnitPaymentOrderUseIncomeTax, s.UnitPaymentOrderUseVat }).ToList();
+            //var internalpurchaseOrderfulfillmentIds = queryresult.Select(x => x.InternalPurchaseOrderFullfilmentId).Distinct().ToList();
+            //var internalpurchaseOrderfulfillments = _dbContext.InternalPurchaseOrderFulfillments.Where(x => internalpurchaseOrderfulfillmentIds.Contains(x.Id)).Select(s => new { s.Id, s.DeliveryOrderId, s.SupplierDODate, s.DeliveryOrderDate, s.DeliveryOrderNo, s.DeliveryOrderItemId, s.DeliveryOrderDetailId, s.UnitReceiptNoteId, s.UnitReceiptNoteDate, s.UnitReceiptNoteNo, s.UnitReceiptNoteItemId, s.UnitReceiptNoteDeliveredQuantity, s.UnitReceiptNoteUomId, s.UnitReceiptNoteUom, s.UnitPaymentOrderId, s.InvoiceDate, s.InvoiceNo, s.InterNoteDate, s.InterNoteNo, s.InterNoteDueDate, s.UnitPaymentOrderItemId, s.UnitPaymentOrderDetailId, s.InterNoteValue, s.UnitPaymentOrderVatDate, s.UnitPaymentOrderVatNo, s.UnitPaymentOrderIncomeTaxDate, s.UnitPaymentOrderIncomeTaxNo, s.UnitPaymentOrderIncomeTaxRate, s.UnitPaymentOrderUseIncomeTax, s.UnitPaymentOrderUseVat }).ToList();
             var externalpurchaseorderIds = queryresult.Select(x => x.ExternalPurchaseOrderId).Distinct().ToList();
             var externalpurchaseorders = _dbContext.ExternalPurchaseOrders.Where(x => externalpurchaseorderIds.Contains(x.Id)).Select(x => new { x.Id, x.IsPosted, x.CurrencyId, x.CurrencyCode, x.CurrencyRate, x.CreatedUtc, x.OrderDate, x.DeliveryDate, x.EPONo, x.SupplierId, x.SupplierCode, x.SupplierName, x.PaymentDueDays, x.Remark }).ToList();
             var externalpurchaseorderitemIds = queryresult.Select(x => x.ExternalPurchaseOrderItemId).Distinct().ToList();
             var externalpurchaseorderitems = _dbContext.ExternalPurchaseOrderItems.Where(x => externalpurchaseorderitemIds.Contains(x.Id)).Select(x => new { x.Id }).ToList();
             var externalpurchaseorderdetailIds = queryresult.Select(x => x.ExternalPurchaseOrderDetailId).Distinct().ToList();
             var externalpurchaseorderdetails = _dbContext.ExternalPurchaseOrderDetails.Where(x => externalpurchaseorderdetailIds.Contains(x.Id)).Select(x => new { x.Id, x.DealQuantity, x.DealUomId, x.DealUomUnit, x.PricePerDealUnit }).ToList();
+            var deliveryOrderIds = queryresult.Select(s => s.DOId).Distinct().ToList();
+            var deliveryOrders = _dbContext.DeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.DONo, s.DODate, s.ArrivalDate }).ToList();
+            var unitReceiptNoteIds = queryresult.Select(s => s.URNId).Distinct().ToList();
+            var unitReceiptNotes = _dbContext.UnitReceiptNotes.Where(w => unitReceiptNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.URNNo, s.ReceiptDate }).ToList();
+            var unitReceiptNoteItemIds = queryresult.Select(s => s.URNItemId).Distinct().ToList();
+            var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ReceiptQuantity, s.Uom, s.UomId }).ToList();
+            var deliveryOrderItemIds = queryresult.Select(s => s.DOItemId).Distinct().ToList();
+            var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
+            var deliveryOrderDetailIds = queryresult.Select(s => s.DODetailId).Distinct().ToList();
+            var deliveryOrderDetails = _dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
+
+            var unitPaymentOrderIds = queryresult.Select(s => s.UPOId).Distinct().ToList();
+            var unitPaymentOrders = _dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, }).ToList();
+            var unitPaymentOrderItemIds = queryresult.Select(s => s.UPOItemId).Distinct().ToList();
+            var unitPaymentOrderItems = _dbContext.UnitPaymentOrderItems.Where(w => unitPaymentOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
+            var unitPaymentOrderDetailIds = queryresult.Select(s => s.UPODetailId).Distinct().ToList();
+            var unitPaymentOrderDetails = _dbContext.UnitPaymentOrderDetails.Where(w => unitReceiptNoteItemIds.Contains(w.URNItemId)).Select(s => new { s.Id, s.PriceTotal }).ToList();
 
             foreach (var data in queryresult)
             {
@@ -154,10 +196,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 var purchaserequestItem = purchaserequestItems.FirstOrDefault(x => x.Id.Equals(data.PurchaseRequestItemId));
                 var internalpurchaseorder = internalpurchaseorders.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderId));
                 var internalpurchaseorderitem = internalpurchaseorderitems.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderItemId));
-                var internalpurchaseOrderfulfillment = internalpurchaseOrderfulfillments.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderFullfilmentId));
+                //var internalpurchaseOrderfulfillment = internalpurchaseOrderfulfillments.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderFullfilmentId));
                 var externalpurchaseorder = externalpurchaseorders.FirstOrDefault(x => x.Id.Equals(data.ExternalPurchaseOrderId));
                 var externalpurchaseorderitem = externalpurchaseorderitems.FirstOrDefault(x => x.Id.Equals(data.ExternalPurchaseOrderItemId));
                 var externalpurchaseorderdetail = externalpurchaseorderdetails.FirstOrDefault(x => x.Id.Equals(data.ExternalPurchaseOrderDetailId));
+                var deliveryOrder = deliveryOrders.FirstOrDefault(f => f.Id.Equals(data.DOId));
+                var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(f => f.Id.Equals(data.DOItemId));
+                var deliveryOrderDetail = deliveryOrderDetails.FirstOrDefault(f => f.Id.Equals(data.DODetailId));
+
+                var unitReceiptNote = unitReceiptNotes.FirstOrDefault(f => f.Id.Equals(data.URNId));
+                var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(f => f.Id.Equals(data.URNItemId));
+
+                var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.Id.Equals(data.UPOId));
+                var unitPaymentOrderItem = unitPaymentOrderItems.FirstOrDefault(f => f.Id.Equals(data.UPOItemId));
+                var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(f => f.Id.Equals(data.UPODetailId));
 
                 reportdata.Add(new PurchaseMonitoringReportViewModel
                 {
@@ -205,34 +257,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     ExternalPurchaseOrderRemark = externalpurchaseorderdetail != null && externalpurchaseorder.IsPosted ? externalpurchaseorder.Remark : "",
                     ExternalPurchaseOrderItemId = externalpurchaseorderitem != null && externalpurchaseorder.IsPosted ? externalpurchaseorderitem.Id : 0,
                     ExternalPurchaseOrderDetailId = externalpurchaseorderdetail != null && externalpurchaseorder.IsPosted ? externalpurchaseorderdetail.Id : 0,
-                    DeliveryOrderId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.DeliveryOrderId,
-                    DeliveryOrderDate = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.SupplierDODate.Date : (DateTime?)null,
-                    DeliveryOrderArrivalDate = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.DeliveryOrderDate.Date : (DateTime?)null,
-                    DeliveryOrderNo = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.DeliveryOrderNo : "",
-                    DeliveryOrderItemId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.DeliveryOrderItemId,
-                    DelveryOrderDetailId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.DeliveryOrderDetailId,
-                    UnitReceiptNoteId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.UnitReceiptNoteId,
-                    UnitReceiptNoteDate = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitReceiptNoteDate.Date != DateTime.MinValue ? internalpurchaseOrderfulfillment.UnitReceiptNoteDate.DateTime : (DateTime?)null,
-                    UnitReceiptNoteNo = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.UnitReceiptNoteNo : "",
-                    UnitReceiptNoteItemId = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.UnitReceiptNoteItemId : 0,
-                    UnitReceiptNoteQuantity = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.UnitReceiptNoteDeliveredQuantity : 0,
-                    UnitReceiptNoteUomId = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.UnitReceiptNoteUomId : "",
-                    UnitReceiptNoteUomUnit = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.UnitReceiptNoteUom : "",
-                    UnitPaymentOrderId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.UnitPaymentOrderId,
-                    UnitPaymentOrderInvoiceDate = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.InvoiceDate.Date != DateTime.MinValue ? internalpurchaseOrderfulfillment.InvoiceDate.Date : (DateTime?)null,
-                    UnitPaymentOrderInvoiceNo = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.InvoiceNo : "",
-                    UnitPaymentOrderDate = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.InterNoteDate.Date != DateTime.MinValue ? internalpurchaseOrderfulfillment.InterNoteDate.Date : (DateTime?)null,
-                    UnitPaymentOrderNo = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.InterNoteNo : "",
-                    UnitPaymentOrderDueDate = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.InterNoteDueDate.Date != DateTime.MinValue ? internalpurchaseOrderfulfillment.InterNoteDueDate.Date : (DateTime?)null,
-                    UnitPaymentOrderItemId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.UnitPaymentOrderItemId,
-                    UnitPaymentOrderDetailId = internalpurchaseOrderfulfillment == null ? 0 : internalpurchaseOrderfulfillment.UnitPaymentOrderDetailId,
-                    UnitPaymentOrderTotalPrice = internalpurchaseOrderfulfillment != null ? internalpurchaseOrderfulfillment.InterNoteValue : 0,
-                    UnitPaymentOrderVATDate = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitPaymentOrderUseVat && internalpurchaseOrderfulfillment.UnitPaymentOrderVatDate.Date != DateTime.MinValue ? internalpurchaseOrderfulfillment.UnitPaymentOrderVatDate.Date : (DateTime?)null,
-                    UnitPaymentOrderVATNo = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitPaymentOrderUseVat ? internalpurchaseOrderfulfillment.UnitPaymentOrderVatNo : "",
-                    UnitPaymentOrderVAT = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitPaymentOrderUseVat ? 0.1 * internalpurchaseOrderfulfillment.InterNoteValue : 0,
-                    UnitPaymentOrderIncomeTaxDate = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitPaymentOrderUseIncomeTax && internalpurchaseOrderfulfillment.UnitPaymentOrderIncomeTaxDate.Date != DateTime.MinValue ? internalpurchaseOrderfulfillment.UnitPaymentOrderIncomeTaxDate.Date : (DateTime?)null,
-                    UnitPaymentOrderIncomeTaxNo = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitPaymentOrderUseIncomeTax ? internalpurchaseOrderfulfillment.UnitPaymentOrderIncomeTaxNo : "",
-                    UnitPaymentOrderIncomeTax = internalpurchaseOrderfulfillment != null && internalpurchaseOrderfulfillment.UnitPaymentOrderUseIncomeTax ? internalpurchaseOrderfulfillment.UnitPaymentOrderIncomeTaxRate * internalpurchaseOrderfulfillment.InterNoteValue : 0
+                    DeliveryOrderId = deliveryOrder == null ? 0 : deliveryOrder.Id,
+                    DeliveryOrderDate = deliveryOrder != null ? deliveryOrder.DODate.Date : (DateTime?)null,
+                    DeliveryOrderArrivalDate = deliveryOrder != null ? deliveryOrder.ArrivalDate.Date : (DateTime?)null,
+                    DeliveryOrderNo = deliveryOrder != null ? deliveryOrder.DONo : "",
+                    DeliveryOrderItemId = deliveryOrderItem == null ? 0 : deliveryOrderItem.Id,
+                    DelveryOrderDetailId = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.Id,
+                    UnitReceiptNoteId = unitReceiptNote == null ? 0 : unitReceiptNote.Id,
+                    UnitReceiptNoteDate = unitReceiptNote != null && unitReceiptNote.ReceiptDate.Date != DateTime.MinValue ? unitReceiptNote.ReceiptDate.DateTime : (DateTime?)null,
+                    UnitReceiptNoteNo = unitReceiptNote != null ? unitReceiptNote.URNNo : "",
+                    UnitReceiptNoteItemId = unitReceiptNoteItem != null ? unitReceiptNoteItem.Id : 0,
+                    UnitReceiptNoteQuantity = unitReceiptNoteItem != null ? unitReceiptNoteItem.ReceiptQuantity : 0,
+                    UnitReceiptNoteUomId = unitReceiptNoteItem != null ? unitReceiptNoteItem.UomId : "",
+                    UnitReceiptNoteUomUnit = unitReceiptNoteItem != null ? unitReceiptNoteItem.Uom : "",
+                    UnitPaymentOrderId = unitPaymentOrder == null ? 0 : unitPaymentOrder.Id,
+                    UnitPaymentOrderInvoiceDate = unitPaymentOrder != null && unitPaymentOrder.InvoiceDate.Date != DateTime.MinValue ? unitPaymentOrder.InvoiceDate.Date : (DateTime?)null,
+                    UnitPaymentOrderInvoiceNo = unitPaymentOrder != null ? unitPaymentOrder.InvoiceNo : "",
+                    UnitPaymentOrderDate = unitPaymentOrder != null && unitPaymentOrder.Date.Date != DateTime.MinValue ? unitPaymentOrder.Date.Date : (DateTime?)null,
+                    UnitPaymentOrderNo = unitPaymentOrder != null ? unitPaymentOrder.UPONo : "",
+                    UnitPaymentOrderDueDate = unitPaymentOrder != null && unitPaymentOrder.DueDate.Date != DateTime.MinValue ? unitPaymentOrder.DueDate.Date : (DateTime?)null,
+                    UnitPaymentOrderItemId = unitPaymentOrderItem == null ? 0 : unitPaymentOrderItem.Id,
+                    UnitPaymentOrderDetailId = unitPaymentOrderDetail == null ? 0 : unitPaymentOrderDetail.Id,
+                    UnitPaymentOrderTotalPrice = unitPaymentOrderDetail != null ? unitPaymentOrderDetail.PriceTotal : 0,
+                    UnitPaymentOrderVATDate = unitPaymentOrder != null && unitPaymentOrder.UseVat && unitPaymentOrder.VatDate.Date != DateTime.MinValue ? unitPaymentOrder.VatDate.Date : (DateTime?)null,
+                    UnitPaymentOrderVATNo = unitPaymentOrder != null && unitPaymentOrder.UseVat ? unitPaymentOrder.VatNo : "",
+                    UnitPaymentOrderVAT = unitPaymentOrder != null && unitPaymentOrder.UseVat ? 0.1 * unitPaymentOrderDetail.PriceTotal : 0,
+                    UnitPaymentOrderIncomeTaxDate = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxDate.Value.Date != DateTime.MinValue ? unitPaymentOrder.IncomeTaxDate.Value.Date : (DateTime?)null,
+                    UnitPaymentOrderIncomeTaxNo = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxNo : "",
+                    UnitPaymentOrderIncomeTax = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxRate * unitPaymentOrderDetail.PriceTotal : 0
                 });
             }
 
