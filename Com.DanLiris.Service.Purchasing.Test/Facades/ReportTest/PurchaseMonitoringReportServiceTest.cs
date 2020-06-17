@@ -143,6 +143,74 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
+        public async Task ShouldSuccessGetReport_CorrectionHargaSatuan()
+        {
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
+
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
+
+            var correctionTestData = await correctionDataUtil.GetNewData();
+
+            correctionTestData.CorrectionType = "Harga Satuan";
+
+            await unitPaymentCorrectionFacade.Create(correctionTestData, true, "Unit Test", 7);
+
+            var service = new PurchaseMonitoringService(dbContext);
+            var result = await service.GetReport(null, null, null, null, 0, null, null, DateTimeOffset.MinValue, DateTimeOffset.Now, null, null, 0, null, 1, 25);
+
+            Assert.NotEqual(0, result.Total);
+            //Assert.NotNull(result.Data);
+        }
+
+        [Fact]
+        public async Task ShouldSuccessGetReport_Quantity()
+        {
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
+
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
+
+            var correctionTestData = await correctionDataUtil.GetNewData();
+
+            correctionTestData.CorrectionType = "Jumlah";
+
+            await unitPaymentCorrectionFacade.Create(correctionTestData, true, "Unit Test", 7);
+
+            var service = new PurchaseMonitoringService(dbContext);
+            var result = await service.GetReport(null, null, null, null, 0, null, null, DateTimeOffset.MinValue, DateTimeOffset.Now, null, null, 0, null, 1, 25);
+
+            Assert.NotEqual(0, result.Total);
+            //Assert.NotNull(result.Data);
+        }
+        [Fact]
+        public async Task ShouldSuccessGetReport_noCorrection()
+        {
+            var dbContext = GetDbContext(GetCurrentMethod());
+            var serviceProvider = GetServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentCorrectionFacade = new UnitPaymentPriceCorrectionNoteFacade(serviceProvider, dbContext);
+
+            var correctionDataUtil = CorrectionDataUtil(unitPaymentCorrectionFacade, GetCurrentMethod(), serviceProvider);
+
+            var correctionTestData = await correctionDataUtil.GetNewData();
+
+            correctionTestData.CorrectionType = "";
+
+            await unitPaymentCorrectionFacade.Create(correctionTestData, true, "Unit Test", 7);
+
+            var service = new PurchaseMonitoringService(dbContext);
+            var result = await service.GetReport(null, null, null, null, 0, null, null, DateTimeOffset.MinValue, DateTimeOffset.Now, null, null, 0, null, 1, 25);
+
+            Assert.NotEqual(0, result.Total);
+            //Assert.NotNull(result.Data);
+        }
+
+        [Fact]
         public async Task ShouldSuccessGetReportXls()
         {
             var dbContext = GetDbContext(GetCurrentMethod());
