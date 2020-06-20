@@ -76,7 +76,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             DateTime EndDatePO = endDatePO == null ? DateTime.Now : (DateTime)endDatePO;
             var purchaseRequestItems = _purchaseRequestItemDbSet.Include(prItem => prItem.PurchaseRequest).Where(w => w.PurchaseRequest.Date >= startDate && w.PurchaseRequest.Date <= endDate);
             purchaseRequestItems = FilterPurchaseRequest(unitId, categoryId, divisionId, budgetId, prId, purchaseRequestItems);
-
             var internalPurchaseOrderFulfillments = _internalPurchaseOrderFulfillmentDbSet.AsQueryable();
             var internalPurchaseOrderItems = _internalPurchaseOrderItemDbSet.Include(ipoItem => ipoItem.InternalPurchaseOrder).AsQueryable();
             var externalPurchaseOrderDetails = _externalPurchaseOrderDetailDbSet.Include(epoDetail => epoDetail.ExternalPurchaseOrderItem).ThenInclude(epoItem => epoItem.ExternalPurchaseOrder).AsQueryable();
@@ -85,48 +84,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             //var deliveryOrderDetails = _deliveryOrderDetailDbSet.Include(doDetail => doDetail.DeliveryOrderItem).ThenInclude(doItem => doItem.DeliveryOrder).AsQueryable();
             //var unitReceiptNoteItems = _unitReceiptNoteItemDbSet.Include(urnItem => urnItem.UnitReceiptNote).AsQueryable();
             //var unitPaymentOrderDetails = _unitPaymentOrderDetailDbSet.Include(upoDetail => upoDetail.UnitPaymentOrderItem).ThenInclude(upoItem => upoItem.UnitPaymentOrder).AsQueryable();
-            List<PurchaseMonitoringReportViewModel> reportdata = new List<PurchaseMonitoringReportViewModel>();
-            var query = (from purchaseRequestItem in purchaseRequestItems
-
-                         join internalPurchaseOrderItem in internalPurchaseOrderItems on new { PRNo = purchaseRequestItem.PurchaseRequest.No, PRItemId = purchaseRequestItem.Id } equals new { internalPurchaseOrderItem.InternalPurchaseOrder.PRNo, internalPurchaseOrderItem.PRItemId } into joinIPO
-                         from ipoItem in joinIPO.DefaultIfEmpty()
-
-                         join externalPurchaseOrderDetail in externalPurchaseOrderDetails on new { ipoItem.POId, POItemId = ipoItem.Id } equals new { externalPurchaseOrderDetail.ExternalPurchaseOrderItem.POId, externalPurchaseOrderDetail.POItemId } into joinEPO
-                         from epoDetail in joinEPO.DefaultIfEmpty()
-
-                         join yy in _dbContext.DeliveryOrderDetails on epoDetail.Id equals yy.EPODetailId into zz
+            List<PurchaseMonitoringReportViewModel>reportdata = new List<PurchaseMonitoringReportViewModel>();
+            var query = (from a in _dbContext.InternalPurchaseOrders
+                         join b in _dbContext.InternalPurchaseOrderItems on a.Id equals b.POId
+                         //PR
+                         join d in _dbContext.PurchaseRequestItems on b.PRItemId equals d.Id
+                         join c in _dbContext.PurchaseRequests on d.PurchaseRequestId equals c.Id
+                         //EPO
+                         join e in _dbContext.ExternalPurchaseOrderItems on a.Id equals e.POId into f
+                         from epoitem in f.DefaultIfEmpty()
+                         join k in _dbContext.ExternalPurchaseOrderDetails on b.Id equals k.POItemId into l
+                         from epodetail in l.DefaultIfEmpty()
+                         join g in _dbContext.ExternalPurchaseOrders on epoitem.EPOId equals g.Id into h
+                         from epo in h.DefaultIfEmpty()
+                             //DO
+                         join yy in _dbContext.DeliveryOrderDetails on epodetail.Id equals yy.EPODetailId into zz
                          from doDetail in zz.DefaultIfEmpty()
                          join m in _dbContext.DeliveryOrderItems on doDetail.DOItemId equals m.Id into n
                          from doItem in n.DefaultIfEmpty()
                          join o in _dbContext.DeliveryOrders on doItem.DOId equals o.Id into p
                          from DO in p.DefaultIfEmpty()
-
-                             //URN
+                             //    //URN
                          join s in _dbContext.UnitReceiptNoteItems on doDetail.Id equals s.DODetailId into t
                          from urnItem in t.DefaultIfEmpty()
                          join q in _dbContext.UnitReceiptNotes on urnItem.URNId equals q.Id into r
                          from urn in r.DefaultIfEmpty()
-
+                             //    //UPO
                          join u in _dbContext.UnitPaymentOrderItems on urn.Id equals u.URNId into v
                          from upoItem in v.DefaultIfEmpty()
                          join w in _dbContext.UnitPaymentOrders on upoItem.UPOId equals w.Id into x
                          from upo in x.DefaultIfEmpty()
                          join y in _dbContext.UnitPaymentOrderDetails on urnItem.Id equals y.URNItemId into z
                          from upoDetail in z.DefaultIfEmpty()
-
-                         where epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date >= StartDatePO.Date
-                         && epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.OrderDate.Date <= EndDatePO.Date
-
-                         select new 
+                         where
+                          a.CreatedBy == (string.IsNullOrWhiteSpace(createdBy) ? a.CreatedBy : createdBy)
+                          && (poExtId > 0 ? epo.Id == poExtId : true )
+                          && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
+                          && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
+                          && a.CategoryId == (string.IsNullOrWhiteSpace(categoryId) ? a.CategoryId : categoryId)
+                          && a.DivisionId == (string.IsNullOrWhiteSpace(divisionId) ? a.DivisionId : divisionId)
+                          && a.BudgetId == (string.IsNullOrWhiteSpace(budgetId) ? a.BudgetId : budgetId)
+                          && (!string.IsNullOrWhiteSpace(supplierId) ? epo.SupplierId == supplierId : true) 
+                          && a.PRId == (prId > 0 ? prId.ToString() : a.PRId)
+                          && a.PRDate.Date >= startDate.Date 
+                          && a.PRDate.Date <= endDate.Date
+                          && epo.OrderDate.Date >= StartDatePO.Date
+                          && epo.OrderDate.Date <= EndDatePO.Date
+                         select new
                          {
-                             PurchaseRequestId = purchaseRequestItem.PurchaseRequestId,
-                             PurchaseRequestItemId = purchaseRequestItem.Id,
-                             InternalPurchaseOrderId = ipoItem.POId,
-                             InternalPurchaseOrderLastModifiedDate = ipoItem.InternalPurchaseOrder.LastModifiedUtc,
-                             InternalPurchaseOrderItemId = ipoItem.Id,
-                             ExternalPurchaseOrderId = epoDetail != null ? epoDetail.ExternalPurchaseOrderItem.EPOId : 0,
-                             ExternalPurchaseOrderItemId = epoDetail != null ? epoDetail.ExternalPurchaseOrderItem.Id : 0,
-                             ExternalPurchaseOrderDetailId = epoDetail != null ? epoDetail.Id : 0,
+                             PurchaseRequestId = c.Id,
+                             PurchaseRequestItemId = d.Id,
+                             InternalPurchaseOrderId = a.Id,
+                             InternalPurchaseOrderLastModifiedDate = a.LastModifiedUtc,
+                             InternalPurchaseOrderItemId = b.Id,
+                             ExternalPurchaseOrderId = epo != null ? epo.Id : 0,
+                             ExternalPurchaseOrderItemId = epoitem != null ? epoitem.Id : 0,
+                             ExternalPurchaseOrderDetailId = epodetail != null ? epodetail.Id : 0,
                              DOId = DO == null ? 0 : DO.Id,
                              DOItemId = doItem == null ? 0 : doItem.Id,
                              DODetailId = doDetail == null ? 0 : doDetail.Id,
@@ -135,23 +148,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              UPOId = upo == null ? 0 : upo.Id,
                              UPOItemId = upoItem == null ? 0 : upoItem.Id,
                              UPODetailId = upoDetail == null ? 0 : upoDetail.Id,
-                             SupplierId = epoDetail != null ? epoDetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.SupplierId : "",
-                             InternalPurchaseOrderStaff = ipoItem != null ? ipoItem.InternalPurchaseOrder.CreatedBy : "",
-                             InternalPurchaseOrderStatus = ipoItem != null ? ipoItem.Status : ""
+                             SupplierId = epo == null ? "0" : epo.SupplierId,
+                         }).OrderByDescending(b=>b.InternalPurchaseOrderLastModifiedDate).Distinct().ToList();
 
-                         }).OrderBy(b => b.InternalPurchaseOrderLastModifiedDate).ToList();
+            //if (!string.IsNullOrWhiteSpace(createdBy))
+            //    query = query.Where(w => w.InternalPurchaseOrderStaff == createdBy).ToList();
 
-            if (!string.IsNullOrWhiteSpace(createdBy))
-                query = query.Where(w => w.InternalPurchaseOrderStaff == createdBy).ToList();
+            //if (poExtId > 0)
+            //    query = query.Where(w => w.ExternalPurchaseOrderId == poExtId).ToList();
 
-            if (poExtId > 0)
-                query = query.Where(w => w.ExternalPurchaseOrderId == poExtId).ToList();
+            //if (!string.IsNullOrWhiteSpace(supplierId))
+            //    query = query.Where(w => w.SupplierId.Equals(supplierId)).ToList();
 
-            if (!string.IsNullOrWhiteSpace(supplierId))
-                query = query.Where(w => w.SupplierId.Equals(supplierId)).ToList();
-
-            if (!string.IsNullOrWhiteSpace(status))
-                query = query.Where(w => w.InternalPurchaseOrderStatus.Equals(status)).ToList();
+            //if (!string.IsNullOrWhiteSpace(status))
+            //    query = query.Where(w => w.InternalPurchaseOrderStatus.Equals(status)).ToList();
 
             TotalCountReport = query.Distinct().Count();
             var queryresult = query.Distinct().Skip((page - 1) * size).Take(size).ToList();
@@ -164,8 +174,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var internalpurchaseorders = _dbContext.InternalPurchaseOrders.Where(x => internalpurchaseorderIds.Contains(x.Id)).Select(s => new { s.Id, s.PONo, s.CreatedUtc, s.CreatedBy, s.LastModifiedUtc, s.ExpectedDeliveryDate }).ToList();
             var internalpurchaseorderitemIds = queryresult.Select(x => x.InternalPurchaseOrderItemId).Distinct().ToList();
             var internalpurchaseorderitems = _dbContext.InternalPurchaseOrderItems.Where(x => internalpurchaseorderitemIds.Contains(x.Id)).Select(s => new { s.Id, s.Status }).ToList();
-            //var internalpurchaseOrderfulfillmentIds = queryresult.Select(x => x.InternalPurchaseOrderFullfilmentId).Distinct().ToList();
-            //var internalpurchaseOrderfulfillments = _dbContext.InternalPurchaseOrderFulfillments.Where(x => internalpurchaseOrderfulfillmentIds.Contains(x.Id)).Select(s => new { s.Id, s.DeliveryOrderId, s.SupplierDODate, s.DeliveryOrderDate, s.DeliveryOrderNo, s.DeliveryOrderItemId, s.DeliveryOrderDetailId, s.UnitReceiptNoteId, s.UnitReceiptNoteDate, s.UnitReceiptNoteNo, s.UnitReceiptNoteItemId, s.UnitReceiptNoteDeliveredQuantity, s.UnitReceiptNoteUomId, s.UnitReceiptNoteUom, s.UnitPaymentOrderId, s.InvoiceDate, s.InvoiceNo, s.InterNoteDate, s.InterNoteNo, s.InterNoteDueDate, s.UnitPaymentOrderItemId, s.UnitPaymentOrderDetailId, s.InterNoteValue, s.UnitPaymentOrderVatDate, s.UnitPaymentOrderVatNo, s.UnitPaymentOrderIncomeTaxDate, s.UnitPaymentOrderIncomeTaxNo, s.UnitPaymentOrderIncomeTaxRate, s.UnitPaymentOrderUseIncomeTax, s.UnitPaymentOrderUseVat }).ToList();
             var externalpurchaseorderIds = queryresult.Select(x => x.ExternalPurchaseOrderId).Distinct().ToList();
             var externalpurchaseorders = _dbContext.ExternalPurchaseOrders.Where(x => externalpurchaseorderIds.Contains(x.Id)).Select(x => new { x.Id, x.IsPosted, x.CurrencyId, x.CurrencyCode, x.CurrencyRate, x.CreatedUtc, x.OrderDate, x.DeliveryDate, x.EPONo, x.SupplierId, x.SupplierCode, x.SupplierName, x.PaymentDueDays, x.Remark }).ToList();
             var externalpurchaseorderitemIds = queryresult.Select(x => x.ExternalPurchaseOrderItemId).Distinct().ToList();
@@ -196,7 +204,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 var purchaserequestItem = purchaserequestItems.FirstOrDefault(x => x.Id.Equals(data.PurchaseRequestItemId));
                 var internalpurchaseorder = internalpurchaseorders.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderId));
                 var internalpurchaseorderitem = internalpurchaseorderitems.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderItemId));
-                //var internalpurchaseOrderfulfillment = internalpurchaseOrderfulfillments.FirstOrDefault(x => x.Id.Equals(data.InternalPurchaseOrderFullfilmentId));
                 var externalpurchaseorder = externalpurchaseorders.FirstOrDefault(x => x.Id.Equals(data.ExternalPurchaseOrderId));
                 var externalpurchaseorderitem = externalpurchaseorderitems.FirstOrDefault(x => x.Id.Equals(data.ExternalPurchaseOrderItemId));
                 var externalpurchaseorderdetail = externalpurchaseorderdetails.FirstOrDefault(x => x.Id.Equals(data.ExternalPurchaseOrderDetailId));
