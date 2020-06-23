@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download")]
-        public IActionResult GetXlsOUT( DateTime? dateFrom, DateTime? dateTo, int unitcode)
+        public IActionResult GetXlsOUT( DateTime? dateFrom, DateTime? dateTo, int unitcode, string unitname)
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = _facade.GenerateExcel(dateFrom, dateTo, unitcode, offset);
+                var xls = _facade.GenerateExcel(dateFrom, dateTo, unitcode, offset, unitname);
 
                 string filename = String.Format("Laporan Realisasi CMT - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
