@@ -6,9 +6,11 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDailyPurchasingRepor
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -372,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 double totalBB = 0;
                 double totalPRC = 0;
 
-                int rowPosition = 1;
+                int rowPosition = 7;
 
                 foreach (KeyValuePair<string, List<GarmentDailyPurchasingReportViewModel>> SupplName in dataBySupplier)
                 {
@@ -403,7 +405,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
 
-            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            #region Kop Table
+            var col = (char)('A' + result.Columns.Count);
+            sheet.Cells[$"A1:{col}1"].Value = "PT. Dan Liris";
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = "Buku Harian";
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("Bulan {0} {1}", Month, DateTo.Year);
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+            sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
+            sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A4:{col}4"].Value = string.Format("Supplier {0}", supplierType == true ? "IMPORT" : "LOCAL");
+            sheet.Cells[$"A4:{col}4"].Merge = true;
+            sheet.Cells[$"A4:{col}4"].Style.Font.Bold = true;
+            sheet.Cells[$"A4:{col}4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A4:{col}4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A5:{col}5"].Value = string.Format("Konveksi {0}", string.IsNullOrWhiteSpace(unitName) ? "ALL" : unitName);
+            sheet.Cells[$"A5:{col}5"].Merge = true;
+            sheet.Cells[$"A5:{col}5"].Style.Font.Bold = true;
+            sheet.Cells[$"A5:{col}5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A5:{col}5"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            #endregion
+
+            foreach (var i in Enumerable.Range(0, result.Columns.Count))
+            {
+                var colheader = (char)('A' + i);
+                sheet.Cells[$"{colheader}7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
+            }
+            sheet.Cells["A7"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+            foreach ((string cells, Enum hAlign, Enum vAlign) in mergeCells)
+            {
+                sheet.Cells[cells].Merge = true;
+                sheet.Cells[cells].Style.HorizontalAlignment = (OfficeOpenXml.Style.ExcelHorizontalAlignment)hAlign;
+                sheet.Cells[cells].Style.VerticalAlignment = (OfficeOpenXml.Style.ExcelVerticalAlignment)vAlign;
+            }
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+            
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
         #endregion
     }
