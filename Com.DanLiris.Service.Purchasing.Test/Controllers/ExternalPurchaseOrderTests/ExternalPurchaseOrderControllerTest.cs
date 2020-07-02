@@ -221,7 +221,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDuplicateDataViewModel("dev2");
             var item = viewModel.items.FirstOrDefault();
             item.details = null;
-            viewModel.items.Add(item);
             HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
             httpContent.Headers.Add("x-timezone-offset", "0");
             var response = await this.Client.PostAsync(URI, httpContent);
