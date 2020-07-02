@@ -76,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 OrderDate = DateTime.Now,
                 SupplierCode = "sup",
                 SupplierId = "supId",
+                POCashType = "POCashType",
                 IncomeTaxName = "Final",
                 IncomeTaxRate = "1.5",
                 UseIncomeTax = true,
@@ -139,6 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 OrderDate = DateTime.Now,
                 SupplierCode = "sup",
                 SupplierId = "supId",
+                POCashType = "POCashType",
                 IncomeTaxName = "Final",
                 IncomeTaxRate = "1.5",
                 UseIncomeTax = true,
@@ -188,6 +190,50 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 poCashType = "test",
                 remark = "Remark",
                 items = new List<ExternalPurchaseOrderItemViewModel> { externalPurchaseOrderItemDataUtil.GetNewDataViewModel(internalPurchaseOrder) }
+            };
+        }
+
+        public async Task<ExternalPurchaseOrderViewModel> GetNewDuplicateDataViewModel(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await internalPurchaseOrderDataUtil.GetTestData(user);
+
+
+            return new ExternalPurchaseOrderViewModel
+            {
+                unit = new UnitViewModel
+                {
+                    _id = internalPurchaseOrder.UnitId,
+                    code = internalPurchaseOrder.UnitCode,
+                    name = internalPurchaseOrder.UnitName,
+                    division = new DivisionViewModel
+                    {
+                        _id = internalPurchaseOrder.DivisionId,
+                        code = internalPurchaseOrder.DivisionCode,
+                        name = internalPurchaseOrder.DivisionName,
+                    }
+                },
+                currency = new CurrencyViewModel
+                {
+                    code = "CurrencyCode",
+                    _id = "CurrencyId",
+                    rate = 0.5,
+                },
+                freightCostBy = "test",
+                deliveryDate = DateTime.Now.AddDays(1),
+                orderDate = DateTime.Now,
+                supplier = new SupplierViewModel
+                {
+                    code = "sup",
+                    _id = "supId",
+                    name = "Supplier",
+                },
+                paymentMethod = "test",
+                poCashType = "test",
+                remark = "Remark",
+                items = new List<ExternalPurchaseOrderItemViewModel> {
+                    externalPurchaseOrderItemDataUtil.GetNewDataViewModel(internalPurchaseOrder),
+                    externalPurchaseOrderItemDataUtil.GetNewDataViewModel(internalPurchaseOrder),
+                }
             };
         }
 
