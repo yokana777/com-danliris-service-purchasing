@@ -1332,10 +1332,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                          && (article == null || (article != null && article != "" && a.Article == article))
                          && (roNo == null || (roNo != null && roNo != "" && a.RONo == roNo))
                          && (a.Date.Date >= d1 && a.Date.Date <= d2)
-                         && (epos.OrderDate >= d3 && epos.OrderDate <= d4)
+                         //&& (epos.OrderDate >= d3 && epos.OrderDate <= d4)
                           //&& ((d1 != new DateTime(1970, 1, 1)) ? (a.Date.Date >= d1 && a.Date.Date <= d2) : true)
 
-                          //&& ((d3 != new DateTime(1970, 1, 1)) ? (epos.OrderDate.Date >= d3 && epos.OrderDate.Date <= d4) : true)
+                          && ((d3 != new DateTime(1970, 1, 1)) ? (epos.OrderDate >= d3 && epos.OrderDate <= d4) : true)
 
                           && (poSerialNumber == null || (poSerialNumber != null && poSerialNumber != "" && b.PO_SerialNumber == poSerialNumber))
                           && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true : b.IsUsed)
@@ -1347,7 +1347,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                           && (supplier == null || (supplier != null && supplier != "" && epos.SupplierId.ToString() == supplier))
 
                           && (doNo == null || (doNo != null && doNo != "" && dos.DONo == doNo))
-                          && receipt.URNType == "PEMBELIAN"
+                          && (receipt != null ? receipt.URNType == "PEMBELIAN" : true)
 
                          //orderby a.Date descending
 

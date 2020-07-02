@@ -28,7 +28,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
             {
                 return new GarmentUnitDeliveryOrderViewModel
                 {
-                    UId = null
+                    UId = null,
+                    Article = "ArticleCoba"
                 };
             }
         }

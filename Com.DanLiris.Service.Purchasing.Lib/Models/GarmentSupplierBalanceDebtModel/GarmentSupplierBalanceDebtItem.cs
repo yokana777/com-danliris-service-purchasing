@@ -17,6 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtM
         public string InternNo { get; set; }
         public string DONo { get; set; }
         public long DOId { get; set; }
+        public string PaymentType { get; set; }
+        public string PaymentMethod { get; set; }
 
 
         public virtual long GarmentDebtId { get; set; }

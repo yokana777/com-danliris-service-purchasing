@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200603061447_Add_paymentType_PaymentMethod_to_SupplierBalancaDebtItem")]
+    partial class Add_paymentType_PaymentMethod_to_SupplierBalancaDebtItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -966,8 +967,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<DateTimeOffset>("OrderDate");
-
-                    b.Property<string>("POCashType");
 
                     b.Property<string>("PaymentDueDays");
 
@@ -5296,8 +5295,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsPaid");
-
-                    b.Property<bool>("IsPosted");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()

@@ -218,8 +218,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
                         
-                        garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
-
+                        garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? 
+                            (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
+                        if (garmentUnitReceiptNoteItem.DOCurrencyRate == 0)
+                        {
+                            throw new Exception("DOCurrencyRate tidak boleh 0");
+                        }
                         garmentUnitReceiptNoteItem.CorrectionConversion = garmentUnitReceiptNoteItem.Conversion;
                         EntityExtension.FlagForCreate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.ReceiptCorrection = garmentUnitReceiptNoteItem.ReceiptQuantity;
@@ -635,6 +639,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     oldGarmentUnitReceiptNote.Remark = garmentUnitReceiptNote.Remark;
 
                     var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    
                     garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
 
                     Updated = await dbContext.SaveChangesAsync();
@@ -1400,8 +1405,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                            join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                                            where a.IsDeleted == false && b.IsDeleted == false
                                            && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.ReceiptDate.Date >= DateFrom.Date
-                                           && a.ReceiptDate.Date <= DateTo.Date
+                                           && a.CreatedUtc.Date >= DateFrom.Date
+                                           && a.CreatedUtc.Date <= DateTo.Date
                                            select new GarmentUnitReceiptNoteINReportViewModel
                                            {
                                                NoSuratJalan = a.DONo,
@@ -1425,8 +1430,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                                  join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                                                  where a.IsDeleted == false && b.IsDeleted == false
                                                  && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.ReceiptDate.Date >= DateFrom.Date
-                                                 && a.ReceiptDate.Date <= DateTo.Date
+                                                 && a.CreatedUtc.Date >= DateFrom.Date
+                                                 && a.CreatedUtc.Date <= DateTo.Date
                                                  select new GarmentUnitReceiptNoteINReportViewModel
                                                  {
                                                      NoSuratJalan = a.DONo,
@@ -1450,8 +1455,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                                    join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                                                    where a.IsDeleted == false && b.IsDeleted == false
                                                    && a.StorageName == a.StorageName
-                                                   && a.ReceiptDate.Date >= DateFrom.Date
-                                                   && a.ReceiptDate.Date <= DateTo.Date
+                                                   && a.CreatedUtc.Date >= DateFrom.Date
+                                                   && a.CreatedUtc.Date <= DateTo.Date
                                                    select new GarmentUnitReceiptNoteINReportViewModel
                                                    {
                                                        NoSuratJalan = a.DONo,

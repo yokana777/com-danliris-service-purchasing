@@ -70,8 +70,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebt
 
                         m.TotalValas += item.Valas;
                         m.TotalAmountIDR += item.IDR;
-
-
                     }
 
                     this.dbSet.Add(m);

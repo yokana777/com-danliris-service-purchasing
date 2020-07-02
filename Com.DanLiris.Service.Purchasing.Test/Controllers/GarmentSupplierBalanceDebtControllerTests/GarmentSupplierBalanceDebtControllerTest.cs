@@ -52,7 +52,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentSupplierBalanc
                                 dONo = "DonOTest",
                                 Id =1,
                                 internNo = "InternTest",
-                                supplierName = "supplierTest"
+                                supplierName = "supplierTest",
+                                paymentMethod = "paymentMethodTest",
+                                paymentType = "paymentTypeTest"
 
                             }
                         }

@@ -14,6 +14,7 @@ using System.IO;
 using OfficeOpenXml;
 using System.Data;
 using OfficeOpenXml.Style;
+using System.Globalization;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -64,6 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join h in dbContext.GarmentDeliveryOrders on g.GarmentDOId equals h.Id
                          where 
                          c.RONo == RONo
+                         && b.ProductName == "FABRIC"
                          //c.RONo == (string)data["e.RO"]
 
                          select new {
@@ -175,9 +177,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
 
-        public MemoryStream GenerateExcel( DateTime? dateFrom, DateTime? dateTo, int unitcode, int offset)
+        public MemoryStream GenerateExcel( DateTime? dateFrom, DateTime? dateTo, int unitcode, int offset, string unitname)
         {
-
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
             var Query = GetQuery(dateFrom, dateTo, unitcode, offset);
             //Query = Query.OrderBy(b => b.Invoice).ThenBy(b => b.ExpenditureGoodId);
             var headers = new string[] { "No", "No Invoice", "No. BON", "RO","Artikel", "Qty BJ"};
@@ -201,8 +204,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "No BON Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Surat Jalan", DataType = typeof(String) });
 
+            ExcelPackage package = new ExcelPackage();
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "","","","","","",""); // to allow column name to be generated properly for empty data as template
+            {
+                result.Rows.Add("", "", "", "", "", 0, "", "", 0, "", "", "", 0, "", "", "", "");
+                var sheet = package.Workbook.Worksheets.Add("Data");
+                sheet.Cells["A7"].LoadFromDataTable(result, false, OfficeOpenXml.Table.TableStyles.Light1);// to allow column name to be generated properly for empty data as template
+            }
             else
             {
                 var Qr = Query.ToArray();
@@ -224,97 +232,122 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Query = q.AsQueryable();
                 foreach (var item in Query)
                 {
-                    result.Rows.Add(item.Count, item.Invoice, item.ExpenditureGoodId, item.RO, item.Article, item.UnitQty,  item.ProductRemark, 
-                                    item.Quantity, item.Quantity, item.RONo, item.URNNo, item.ProductRemark2, item.ReceiptQuantity, item.SupplierName, item.BillNo,
+                    result.Rows.Add(item.Count, item.Invoice, item.ExpenditureGoodId, item.RO, item.Article, item.UnitQty, item.UENNo, item.ProductRemark,
+                                    item.Quantity, item.RONo, item.URNNo, item.ProductRemark2, item.ReceiptQuantity, item.SupplierName, item.BillNo,
                                     item.PaymentBill, item.DONo);
 
                 }
-            }
 
-            ExcelPackage package = new ExcelPackage();
-           // bool styling = true;
 
-            foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
-            {
-                var sheet = package.Workbook.Worksheets.Add(item.Value);
-                sheet.Cells["A3"].LoadFromDataTable(item.Key, false,  OfficeOpenXml.Table.TableStyles.Light16 );
-                sheet.Cells["G1"].Value = "BON PEMAKAIAN";
-                sheet.Cells["G1:J1"].Merge = true;
-                sheet.Cells["K1"].Value = "BON PENERIMAAN";
-                sheet.Cells["K1:Q1"].Merge = true;
 
-                foreach (var i in Enumerable.Range(0, 6))
+                // bool styling = true;
+
+                foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
                 {
-                    var col = (char)('A' + i);
-                    sheet.Cells[$"{col}1"].Value = headers[i];
-                    sheet.Cells[$"{col}1:{col}2"].Merge = true;
-                }
+                    var sheet = package.Workbook.Worksheets.Add(item.Value);
+                    #region KopTable
+                    sheet.Cells[$"A1:Q1"].Value = "LAPORAN DATA REALISASI CMT";
+                    sheet.Cells[$"A1:Q1"].Merge = true;
+                    sheet.Cells[$"A1:Q1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                    sheet.Cells[$"A1:Q1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    sheet.Cells[$"A1:Q1"].Style.Font.Bold = true;
+                    sheet.Cells[$"A2:Q2"].Value = string.Format("Periode Tanggal {0} s/d {1}", DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID")), DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID")));
+                    sheet.Cells[$"A2:Q2"].Merge = true;
+                    sheet.Cells[$"A2:Q2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                    sheet.Cells[$"A2:Q2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    sheet.Cells[$"A2:Q2"].Style.Font.Bold = true;
+                    sheet.Cells[$"A3:Q3"].Value = string.Format("Konfeksi {0}", string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname);
+                    sheet.Cells[$"A3:Q3"].Merge = true;
+                    sheet.Cells[$"A3:Q3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                    sheet.Cells[$"A3:Q3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    sheet.Cells[$"A3:Q3"].Style.Font.Bold = true;
+                    #endregion
 
-                foreach (var i in Enumerable.Range(0, 11))
-                {
-                    var col = (char)('G' + i);
-                    sheet.Cells[$"{col}2"].Value = subheaders[i];
 
-                }
-                sheet.Cells["A1:Q2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                sheet.Cells["A1:Q2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                sheet.Cells["A1:Q2"].Style.Font.Bold = true;
-                //sheet.Cells["C1:D1"].Merge = true;
-                //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                //sheet.Cells["E1:F1"].Merge = true;
-                //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A8"].LoadFromDataTable(item.Key, false, OfficeOpenXml.Table.TableStyles.Light16);
+                    sheet.Cells["G6"].Value = "BON PEMAKAIAN";
+                    sheet.Cells["G6:J6"].Merge = true;
+                    sheet.Cells["G6:J6"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                    sheet.Cells["K6"].Value = "BON PENERIMAAN";
+                    sheet.Cells["K6:Q6"].Merge = true;
+                    sheet.Cells["K6:Q6"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
 
-                Dictionary<string, int> counts = new Dictionary<string, int>();
-                Dictionary<string, int> countsType = new Dictionary<string, int>();
-                var docNo = Query.ToArray();
-                int value;
-                foreach (var a in Query)
-                {
-                    //FactBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo);
-                    if (counts.TryGetValue(a.Invoice + a.ExpenditureGoodId, out value))
+                    foreach (var i in Enumerable.Range(0, 6))
                     {
-                        counts[a.Invoice + a.ExpenditureGoodId]++;
+                        var col = (char)('A' + i);
+                        sheet.Cells[$"{col}6"].Value = headers[i];
+                        sheet.Cells[$"{col}6:{col}7"].Merge = true;
+                        sheet.Cells[$"{col}6:{col}7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
                     }
-                    else
+                    foreach (var i in Enumerable.Range(0, 11))
                     {
-                        counts[a.Invoice + a.ExpenditureGoodId] = 1;
+                        var col = (char)('G' + i);
+                        sheet.Cells[$"{col}7"].Value = subheaders[i];
+                        sheet.Cells[$"{col}7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
+                    }
+                    sheet.Cells["A6:Q7"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A6:Q7"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    sheet.Cells["A6:Q7"].Style.Font.Bold = true;
+                    //sheet.Cells["C1:D1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    //sheet.Cells["E1:F1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                    Dictionary<string, int> counts = new Dictionary<string, int>();
+                    Dictionary<string, int> countsType = new Dictionary<string, int>();
+                    var docNo = Query.ToArray();
+                    int value;
+                    foreach (var a in Query)
+                    {
+                        //FactBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo);
+                        if (counts.TryGetValue(a.Invoice + a.ExpenditureGoodId, out value))
+                        {
+                            counts[a.Invoice + a.ExpenditureGoodId]++;
+                        }
+                        else
+                        {
+                            counts[a.Invoice + a.ExpenditureGoodId] = 1;
+                        }
+
+                        //FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
+                        if (countsType.TryGetValue(a.Invoice, out value))
+                        {
+                            countsType[a.Invoice]++;
+                        }
+                        else
+                        {
+                            countsType[a.Invoice] = 1;
+                        }
                     }
 
-                    //FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
-                    if (countsType.TryGetValue(a.Invoice, out value))
+                    index = 8;
+                    foreach (KeyValuePair<string, int> b in counts)
                     {
-                        countsType[a.Invoice]++;
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        index += b.Value;
                     }
-                    else
+
+                    index = 8;
+                    foreach (KeyValuePair<string, int> c in countsType)
                     {
-                        countsType[a.Invoice] = 1;
+                        sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        index += c.Value;
                     }
-                }
+                    sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
 
-                int index = 3;
-                foreach (KeyValuePair<string, int> b in counts)
-                {
-                    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    index += b.Value;
-                }
 
-                index = 3;
-                foreach (KeyValuePair<string, int> c in countsType)
-                {
-                    sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    index += c.Value;
                 }
-                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
             }
             MemoryStream stream = new MemoryStream();
             package.SaveAs(stream);
