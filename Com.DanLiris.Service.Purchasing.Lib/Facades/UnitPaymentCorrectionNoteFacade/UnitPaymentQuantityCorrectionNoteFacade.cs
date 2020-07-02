@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     if (supplier != null)
                     {
                         m.SupplierNpwp = supplier.npwp;
-                        supplierImport = (bool)supplier.import;
+                        supplierImport = supplier.import;
                     }
                     m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, supplierImport, m.DivisionName);
                     if (m.useVat == true)

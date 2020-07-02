@@ -195,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                 var model = mapper.Map<UnitPaymentOrder>(viewModel);
 
                 int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                int result = await facade.Create(model, identityService.Username, (bool)viewModel.supplier.import, clientTimeZoneOffset);
+                int result = await facade.Create(model, identityService.Username, viewModel.supplier.import, clientTimeZoneOffset);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
