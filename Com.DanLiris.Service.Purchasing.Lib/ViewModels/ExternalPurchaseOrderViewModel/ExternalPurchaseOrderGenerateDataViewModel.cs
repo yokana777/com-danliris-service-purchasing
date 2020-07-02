@@ -23,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public DateTimeOffset DeliveryDate { get; set; }
         public string FreightCostBy { get; set; }
         public string PaymentMethod { get; set; }
+        public string POCashType { get; set; }
         public string PaymentDueDays { get; set; }
         public string CurrencyCode { get; set; }
         public double CurrencyRate { get; set; }

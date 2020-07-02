@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
             {
                 validateService.Validate(vm);
                 int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                int result = await _facade.Create(m, vm.supplier.import, identityService.Username, clientTimeZoneOffset);
+                int result = await _facade.Create(m, (bool)vm.supplier.import, identityService.Username, clientTimeZoneOffset);
 
                 if (result.Equals(0) || vm == null)
                 {

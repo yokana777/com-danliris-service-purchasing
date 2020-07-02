@@ -185,6 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                     name = "Supplier",
                 },
                 paymentMethod = "test",
+                poCashType = "test",
                 remark = "Remark",
                 items = new List<ExternalPurchaseOrderItemViewModel> { externalPurchaseOrderItemDataUtil.GetNewDataViewModel(internalPurchaseOrder) }
             };
