@@ -64,16 +64,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     POCashType = s.POCashType,
                     PaymentMethod = s.PaymentMethod,
                     LastModifiedUtc = s.LastModifiedUtc,
-                    UnitName=s.UnitName,
-                    UnitCode=s.UnitCode,
-                    CreatedBy=s.CreatedBy,
-                    IsPosted=s.IsPosted,
+                    UnitName = s.UnitName,
+                    UnitCode = s.UnitCode,
+                    CreatedBy = s.CreatedBy,
+                    IsPosted = s.IsPosted,
                     Items = s.Items.Select(
                         q => new ExternalPurchaseOrderItem
                         {
                             Id = q.Id,
                             POId = q.POId,
-                            PRNo = q.PRNo
+                            PRNo = q.PRNo,
+                            Details = q.Details.Select(
+
+                                r => new ExternalPurchaseOrderDetail
+                                {
+                                    POItemId = r.POItemId,
+                                    PRItemId = r.PRItemId,
+                                    PriceBeforeTax = r.PriceBeforeTax,
+                                    PricePerDealUnit = r.PricePerDealUnit,
+                                    ProductCode = r.ProductCode,
+                                    ProductId = r.ProductId,
+                                    ProductName = r.ProductName,
+                                    ProductRemark = r.ProductRemark,
+                                    ReceiptQuantity = r.ReceiptQuantity,
+                                    DispositionQuantity = r.DispositionQuantity
+                                }
+                                ).ToList()
                         }
                     )
                     .ToList()
@@ -122,11 +138,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                     foreach (var item in m.Items)
                     {
-                        
+
                         EntityExtension.FlagForCreate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            detail.PricePerDealUnit= detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
+                            detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
                             //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
                             //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
                             EntityExtension.FlagForCreate(detail, user, "Facade");
@@ -162,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 {
                     var existingModel = this.dbSet.AsNoTracking()
                         .Include(d => d.Items)
-                        .ThenInclude(d=>d.Details)
+                        .ThenInclude(d => d.Details)
                         .Single(epo => epo.Id == id && !epo.IsDeleted);
 
                     if (existingModel != null && id == externalPurchaseOrder.Id)
@@ -209,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         if (detail.Id != 0)
                                         {
-                                            
+
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
 
                                             foreach (var duplicateItem in duplicateExternalPurchaseOrderItems.ToList())
@@ -298,7 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
-                        
+
                     }
                     else
                     {
@@ -325,7 +341,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 {
                     var m = this.dbSet
                         .Include(d => d.Items)
-                        .ThenInclude(d=>d.Details)
+                        .ThenInclude(d => d.Details)
                         .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
                     EntityExtension.FlagForDelete(m, user, "Facade");
@@ -372,7 +388,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     var listData = this.dbSet
                         .Where(m => Ids.Contains(m.Id) && !m.IsDeleted)
                         .Include(d => d.Items)
-                        .ThenInclude(d=>d.Details)
+                        .ThenInclude(d => d.Details)
                         .ToList();
                     listData.ForEach(m =>
                     {
@@ -418,7 +434,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     var m = this.dbSet
                         .Include(d => d.Items)
                         .ThenInclude(d => d.Details)
-                        .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted );
+                        .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
                     EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.IsCanceled = true;
@@ -513,11 +529,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         EntityExtension.FlagForUpdate(item, user, "Facade");
                         foreach (var detail in item.Details)
                         {
-                            var existPR =( from a in this.dbContext.ExternalPurchaseOrderDetails
-                                          join b in dbContext.ExternalPurchaseOrderItems on a.EPOItemId equals b.Id
-                                          join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
-                                          where  a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId && c.IsPosted == true 
-                                          select a).FirstOrDefault();
+                            var existPR = (from a in this.dbContext.ExternalPurchaseOrderDetails
+                                           join b in dbContext.ExternalPurchaseOrderItems on a.EPOItemId equals b.Id
+                                           join c in dbContext.ExternalPurchaseOrders on b.EPOId equals c.Id
+                                           where a.PRItemId == detail.PRItemId && a.IsDeleted == false && b.EPOId != item.EPOId && c.IsPosted == true
+                                           select a).FirstOrDefault();
 
                             EntityExtension.FlagForUpdate(detail, user, "Facade");
 
@@ -639,7 +655,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             return Query.ToList();
         }
 
-        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "", string incomeTaxBy= "")
+        public List<EPOViewModel> ReadDisposition(string Keyword = null, string currencyId = "", string supplierId = "", string categoryId = "", string divisionId = "", string incomeTaxBy = "")
         {
             IQueryable<ExternalPurchaseOrder> Query = this.dbSet;
 
@@ -652,7 +668,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             List<EPOViewModel> list = new List<EPOViewModel>();
             list = Query
                 .Where(m => m.IsPosted == true && m.IsCanceled == false && m.IsClosed == false && m.IsDeleted == false
-                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId && m.IncomeTaxBy== (incomeTaxBy==null? "" : incomeTaxBy))
+                            && m.SupplierId == supplierId && m.CurrencyId == currencyId && m.DivisionId == divisionId && m.IncomeTaxBy == (incomeTaxBy == null ? "" : incomeTaxBy))
                 .Select(s => new EPOViewModel
                 {
                     _id = s.Id,
@@ -671,17 +687,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         name = s.IncomeTaxName,
                         rate = s.IncomeTaxRate,
                     },
-                    items = s.Items.Join(dbContext.InternalPurchaseOrders, 
-                                          i => i.POId,        
-                                          j => j.Id,   
+                    items = s.Items.Join(dbContext.InternalPurchaseOrders,
+                                          i => i.POId,
+                                          j => j.Id,
                                           (i, j) => new EPOItemViewModel
                                           {
                                               _id = i.Id,
-                                              IsDeleted=i.IsDeleted,
+                                              IsDeleted = i.IsDeleted,
                                               prId = i.PRId,
                                               poId = i.POId,
                                               prNo = i.PRNo,
-                                              ipoIsdeleted=j.IsDeleted,
+                                              ipoIsdeleted = j.IsDeleted,
                                               category = new CategoryViewModel
                                               {
                                                   _id = j.CategoryId,
@@ -695,15 +711,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                                             _id = d.Id,
                                                             poItemId = d.POItemId,
                                                             prItemId = d.PRItemId,
-                                                            product= new ProductViewModel
+                                                            product = new ProductViewModel
                                                             {
                                                                 _id = d.ProductId,
                                                                 code = d.ProductCode,
                                                                 name = d.ProductName,
                                                             },
-                                                            
+
                                                             dealQuantity = d.DealQuantity,
-                                                            dealUom= new UomViewModel
+                                                            dealUom = new UomViewModel
                                                             {
                                                                 _id = d.DealUomId,
                                                                 unit = d.DealUomUnit,
@@ -717,20 +733,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                                         })
                                                         .ToList()
                                           })
-                                          .Where(a=>a.category._id==categoryId && a.ipoIsdeleted==false && a.IsDeleted==false)
+                                          .Where(a => a.category._id == categoryId && a.ipoIsdeleted == false && a.IsDeleted == false)
                                           .ToList()
-                        
-                 })
+
+                })
                 .Where(m => m.items.Count > 0).ToList();
 
             //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             //Query = QueryHelper<ExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
-            
+
             //foreach(var data in Query)
             //{
             //    ExternalPurchaseOrderViewModel epo = new ExternalPurchaseOrderViewModel()
             //    {
-                    
+
             //    };
             //    foreach (var item in data.Items)
             //    {
@@ -872,7 +888,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             {
                 Query = Query.OrderByDescending(b => b.prCreatedDate);
             }
-          
+
             Pageable<ExternalPurchaseDeliveryOrderDurationReportViewModel> pageable = new Pageable<ExternalPurchaseDeliveryOrderDurationReportViewModel>(Query, page - 1, size);
             List<ExternalPurchaseDeliveryOrderDurationReportViewModel> Data = pageable.Data.ToList<ExternalPurchaseDeliveryOrderDurationReportViewModel>();
             int TotalData = pageable.TotalCount;
