@@ -87,9 +87,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     ProductName = r.ProductName,
                                     ProductRemark = r.ProductRemark,
                                     ReceiptQuantity = r.ReceiptQuantity,
-                                    DispositionQuantity = r.DispositionQuantity
+                                    DispositionQuantity = r.DispositionQuantity,
+                                    DefaultUomId = r.DefaultUomId,
+                                    DefaultUomUnit = r.DefaultUomUnit,
+                                    DefaultQuantity = r.DefaultQuantity,
+                                    DealUomId = r.DealUomId,
+                                    DealUomUnit = r.DealUomUnit,
+                                    
                                 }
-                                ).ToList()
+                            ).ToList()
                         }
                     )
                     .ToList()
