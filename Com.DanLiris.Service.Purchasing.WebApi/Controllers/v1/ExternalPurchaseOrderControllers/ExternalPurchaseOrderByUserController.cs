@@ -62,7 +62,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     },
                     s.isPosted,
                     s.items,
-                    s.poCashType
+                    s.poCashType,
+                    s.paymentMethod,
                 }).ToList()
             );
 

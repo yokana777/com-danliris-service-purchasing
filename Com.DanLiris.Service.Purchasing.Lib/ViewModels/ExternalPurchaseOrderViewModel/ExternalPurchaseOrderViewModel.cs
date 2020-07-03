@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
             {
                 yield return new ValidationResult("poCashType is required", new List<string> { "poCashType" });
             }
-            if (this.paymentMethod == "CASH" && this.poCashType == "DISPOSISI" && this.supplier == null)
+            if (this.poCashType != "VB" && this.supplier == null)
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
             }
