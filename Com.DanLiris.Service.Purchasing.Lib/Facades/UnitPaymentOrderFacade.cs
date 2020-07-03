@@ -87,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     Details = i.Details.ToList()
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
+                IsPosted = s.IsPosted,
                 LastModifiedUtc = s.LastModifiedUtc,
             });
 

@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
             List<string> searchAttributes = new List<string>()
             {
-                "EPONo", "SupplierName", "DivisionName","UnitName","Items.PRNo"
+                "EPONo", "SupplierName", "DivisionName","UnitName","Items.PRNo", "POCashType", "PaymentMethod"
             };
 
             Query = QueryHelper<ExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -61,6 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     SupplierName = s.SupplierName,
                     DivisionCode = s.DivisionCode,
                     DivisionName = s.DivisionName,
+                    POCashType = s.POCashType,
+                    PaymentMethod = s.PaymentMethod,
                     LastModifiedUtc = s.LastModifiedUtc,
                     UnitName=s.UnitName,
                     UnitCode=s.UnitCode,
