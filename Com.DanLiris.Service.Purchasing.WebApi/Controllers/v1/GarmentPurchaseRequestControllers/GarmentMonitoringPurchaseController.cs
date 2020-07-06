@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			try
 			{
 
-				var data = facade.GetMonitoringPurchaseByUserReport(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
+				var data = facade.GetMonitoringPurchaseReport(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
 
 				return Ok(new
 				{
