@@ -181,11 +181,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         units.Add(detail.unit.Code, detail.priceTotal);
                     }
 
-                    if (item.garmentInvoice.useVat == true && item.garmentInvoice.isPayTax == true)
+                    if (item.garmentInvoice.useVat == true && item.garmentInvoice.isPayVat == true)
                     {
                         ppn = 0.1 * totalPriceTotal;
                     }
-                    else if (item.garmentInvoice.isPayTax == false)
+                    else if (item.garmentInvoice.isPayVat == false)
                     {
                         ppn = 0;
                     }
@@ -203,7 +203,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     if (!koreksi.ContainsKey(detail.deliveryOrder.Id))
                     {
-                        totalcorrection += correctionNotes.Sum(s => s.TotalCorrection);
+                        totalcorrection += correctionNotes.Sum(s =>
+                        {
+                            if (s.CorrectionType.ToUpper() == "RETUR")
+                            {
+                                return s.Items.Sum(i => i.PricePerDealUnitAfter * i.Quantity);
+                            }
+                            else
+                            {
+                                return s.TotalCorrection;
+                            }
+                        });
                         koreksi.Add(detail.deliveryOrder.Id, correctionNotes.Sum(s => s.TotalCorrection));
                     }
 

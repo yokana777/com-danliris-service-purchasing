@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public string incomeTaxNo { get; set; }
         public bool useVat { get; set; }
         public bool useIncomeTax { get; set; }
+        public bool isPayVat { get; set; }
         public bool isPayTax { get; set; }
         public DateTimeOffset? incomeTaxDate { get; set; }
 		public long incomeTaxId { get; set; }

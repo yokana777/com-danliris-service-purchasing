@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 		{
             var mockFacade = new Mock<IPRMasterValidationReportFacade>();
 
-            mockFacade.Setup(x => x.GetDisplayReport(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetDisplayReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<PRMasterValidationReportViewModel>()
                 {
                     new PRMasterValidationReportViewModel
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             var mockMapper = new Mock<IMapper>();
 
             PRMasterValidationReportController controller = GetController(mockFacade, null, mockMapper);
-            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>());
+            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 
 		}
@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         public void Should_Success_Get_Xls()
         {
             var mockFacade = new Mock<IPRMasterValidationReportFacade>();
-            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
@@ -131,7 +131,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXls(It.IsAny<string>(),It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
 
         }
@@ -144,7 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             var mockMapper = new Mock<IMapper>();
 
             PRMasterValidationReportController controller = GetController(mockFacade, null, mockMapper);
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 
         }
@@ -158,7 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 
             PRMasterValidationReportController controller = GetController(mockFacade, null, mockMapper);
 
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 
         }

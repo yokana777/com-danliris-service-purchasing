@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         DODetailId = detail.Id,
 
                         EPOItemId = detail.EPOItemId,
-
+                        DRItemId = string.Concat("drItemId", nowTicks),
                         PRId = detail.PRId,
                         PRNo = detail.PRNo,
                         PRItemId = detail.PRItemId,
@@ -135,6 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         DODetailId = detail.Id,
 
                         EPOItemId = detail.EPOItemId,
+                        DRItemId = string.Concat("drItemId", nowTicks),
 
                         PRId = detail.PRId,
                         PRNo = detail.PRNo,
@@ -176,6 +177,85 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return garmentUnitReceiptNote;
         }
 
+        public async Task<GarmentUnitReceiptNote> GetNewData3(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder = null)
+        {
+            long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
+
+            garmentDeliveryOrder = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestDataDO_Currency());
+
+            var garmentUnitReceiptNote = new GarmentUnitReceiptNote
+            {
+                URNType = "PEMBELIAN",
+                UnitId = nowTicks,
+                UnitCode = string.Concat("UnitCode", nowTicks),
+                UnitName = string.Concat("UnitName", nowTicks),
+
+                SupplierId = garmentDeliveryOrder.SupplierId,
+                SupplierCode = garmentDeliveryOrder.SupplierCode,
+                SupplierName = garmentDeliveryOrder.SupplierName,
+
+                DOId = garmentDeliveryOrder.Id,
+                DONo = garmentDeliveryOrder.DONo,
+
+                DeletedReason = nowTicks.ToString(),
+
+                DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate,
+
+                ReceiptDate = DateTimeOffset.Now,
+
+                Items = new List<GarmentUnitReceiptNoteItem>()
+            };
+
+            foreach (var item in garmentDeliveryOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var garmentUnitReceiptNoteItem = new GarmentUnitReceiptNoteItem
+                    {
+                        DODetailId = detail.Id,
+
+                        EPOItemId = detail.EPOItemId,
+                        DRItemId = string.Concat("drItemId", nowTicks),
+                        PRId = detail.PRId,
+                        PRNo = detail.PRNo,
+                        PRItemId = detail.PRItemId,
+
+                        POId = detail.POId,
+                        POItemId = detail.POItemId,
+                        POSerialNumber = detail.POSerialNumber,
+
+                        ProductId = detail.ProductId,
+                        ProductCode = detail.ProductCode,
+                        ProductName = detail.ProductName,
+                        ProductRemark = detail.ProductRemark,
+
+                        RONo = detail.RONo,
+
+                        ReceiptQuantity = (decimal)detail.ReceiptQuantity,
+
+                        UomId = long.Parse(detail.UomId),
+                        UomUnit = detail.UomUnit,
+
+                        PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+                        DesignColor = string.Concat("DesignColor", nowTicks),
+
+                        SmallQuantity = (decimal)detail.SmallQuantity,
+
+                        SmallUomId = long.Parse(detail.SmallUomId),
+                        SmallUomUnit = detail.SmallUomUnit,
+                        Conversion = (decimal)detail.Conversion,
+                        CorrectionConversion = (decimal)detail.Conversion,
+                        DOCurrencyRate = 1
+                    };
+
+                    garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
+                }
+            }
+
+            return garmentUnitReceiptNote;
+        }
+
         public void SetDataWithStorage(GarmentUnitReceiptNote garmentUnitReceiptNote, long? unitId = null)
         {
             long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
@@ -198,6 +278,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
         public async Task<GarmentUnitReceiptNote> GetNewDataWithStorage2(long? ticks = null)
         {
             var data = await GetNewData2(ticks);
+            SetDataWithStorage(data, data.UnitId);
+
+            return data;
+        }
+
+        public async Task<GarmentUnitReceiptNote> GetNewDataWithStorage3(long? ticks = null)
+        {
+            var data = await GetNewData3(ticks);
             SetDataWithStorage(data, data.UnitId);
 
             return data;
@@ -231,6 +319,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return data;
         }
 
-
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage_DOCurrency(long? ticks = null)
+        {
+            var data = await GetNewDataWithStorage3(ticks);
+            await facade.Create(data);
+            return data;
+        }
     }
 }

@@ -218,8 +218,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
                         
-                        garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
-
+                        garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? 
+                            (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
+                        if (garmentUnitReceiptNoteItem.DOCurrencyRate == 0)
+                        {
+                            throw new Exception("DOCurrencyRate tidak boleh 0");
+                        }
                         garmentUnitReceiptNoteItem.CorrectionConversion = garmentUnitReceiptNoteItem.Conversion;
                         EntityExtension.FlagForCreate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.ReceiptCorrection = garmentUnitReceiptNoteItem.ReceiptQuantity;
@@ -453,7 +457,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     ReceiptCorrection= (decimal)uenItem.Quantity / uenItem.Conversion,
                                     CorrectionConversion= uenItem.Conversion,
                                     OrderQuantity=0,
-                                    DOCurrencyRate= uenItem.DOCurrencyRate!=null ? (double)uenItem.DOCurrencyRate:0
+                                    DOCurrencyRate= uenItem.DOCurrencyRate!=null ? (double)uenItem.DOCurrencyRate:0,
+                                    UENItemId=uenItem.Id
                                 };
                                 urnItems.Add(garmentURNItem);
                                 EntityExtension.FlagForCreate(garmentURNItem, identityService.Username, USER_AGENT);
@@ -634,6 +639,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     oldGarmentUnitReceiptNote.Remark = garmentUnitReceiptNote.Remark;
 
                     var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    
                     garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
 
                     Updated = await dbContext.SaveChangesAsync();
@@ -1399,8 +1405,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                            join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                                            where a.IsDeleted == false && b.IsDeleted == false
                                            && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.ReceiptDate >= DateFrom
-                                           && a.ReceiptDate <= DateTo
+                                           && a.CreatedUtc.Date >= DateFrom.Date
+                                           && a.CreatedUtc.Date <= DateTo.Date
                                            select new GarmentUnitReceiptNoteINReportViewModel
                                            {
                                                NoSuratJalan = a.DONo,
@@ -1416,14 +1422,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                                JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
                                                Satuan = b.UomUnit,
                                                JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                               NamaBarang = b.ProductName
+                                               NamaBarang = b.ProductName,
+                                               KodeBarang = b.ProductCode,
+                                               Supplier = a.SupplierName
                                            }
                         : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
                                                  join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                                                  where a.IsDeleted == false && b.IsDeleted == false
                                                  && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.ReceiptDate >= DateFrom
-                                                 && a.ReceiptDate <= DateTo
+                                                 && a.CreatedUtc.Date >= DateFrom.Date
+                                                 && a.CreatedUtc.Date <= DateTo.Date
                                                  select new GarmentUnitReceiptNoteINReportViewModel
                                                  {
                                                      NoSuratJalan = a.DONo,
@@ -1439,14 +1447,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                                      JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
                                                      Satuan = b.UomUnit,
                                                      JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                                     NamaBarang = b.ProductName
+                                                     NamaBarang = b.ProductName,
+                                                     KodeBarang = b.ProductCode,
+                                                     Supplier = a.SupplierName
                                                  }
                                                  : from a in dbContext.GarmentUnitReceiptNotes
                                                    join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                                                    where a.IsDeleted == false && b.IsDeleted == false
                                                    && a.StorageName == a.StorageName
-                                                   && a.ReceiptDate >= DateFrom
-                                                   && a.ReceiptDate <= DateTo
+                                                   && a.CreatedUtc.Date >= DateFrom.Date
+                                                   && a.CreatedUtc.Date <= DateTo.Date
                                                    select new GarmentUnitReceiptNoteINReportViewModel
                                                    {
                                                        NoSuratJalan = a.DONo,
@@ -1462,7 +1472,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                                        JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
                                                        Satuan = b.UomUnit,
                                                        JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                                       NamaBarang = b.ProductName
+                                                       NamaBarang = b.ProductName,
+                                                       KodeBarang = b.ProductCode,
+                                                       Supplier = a.SupplierName
                                                    };
             return Query.AsQueryable();
 
@@ -1483,6 +1495,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Gudang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Asal Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor RO", DataType = typeof(String) });
@@ -1495,7 +1508,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             if (Query.ToArray().Count() == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1505,7 +1518,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     index++;
                     string tgl1 = data.TanggalMasuk == null ? "-" : data.TanggalMasuk.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     //string tgl2 = data.TanggalBuatBon == null ? "-" : data.TanggalBuatBon.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.NoBUM, data.NoPO, data.NoSuratJalan, data.UNit, tgl1, data.TanggalBuatBon, data.Gudang, data.Supplier, data.AsalTerima, data.NamaBarang, data.Keterangan, data.NoRO, data.JumlahDiterima, data.Satuan, data.JumlahKecil);
+                    result.Rows.Add(index, data.NoBUM, data.NoPO, data.NoSuratJalan, data.UNit, tgl1, data.TanggalBuatBon, data.Gudang, data.Supplier, data.AsalTerima, data.KodeBarang, data.NamaBarang, data.Keterangan, data.NoRO, data.JumlahDiterima, data.Satuan, data.JumlahKecil);
 
                 }
 

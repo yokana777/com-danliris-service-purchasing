@@ -43,10 +43,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 			{
 				yield return new ValidationResult("Date is required", new List<string> { "beacukaiDate" });
 			}
-			if (validationDate.Equals(DateTimeOffset.MinValue) || beacukaiDate == null)
-			{
-				yield return new ValidationResult("Validate Date is required", new List<string> { "validationDate" });
-			}
+			//if (validationDate.Equals(DateTimeOffset.MinValue) || beacukaiDate == null)
+			//{
+			//	yield return new ValidationResult("Validate Date is required", new List<string> { "validationDate" });
+			//}
 			if (currency == null )
 			{
 				yield return new ValidationResult("Currency is required", new List<string> { "currency" });
@@ -75,32 +75,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 			{
 				yield return new ValidationResult("Packaging is required", new List<string> { "packaging" });
 			}
-			int itemErrorCount = 0;
-
 			if (this.items == null || this.items.Count == 0)
 			{
 				yield return new ValidationResult("DeliveryOrder is required", new List<string> { "itemscount" });
 			}
-			else
-			{
-				string itemError = "[";
-				foreach (var item in items)
-				{
-					itemError += "{";
+            //else
+            //{
+            //    int itemErrorCount = 0;
 
-					//if (item.deliveryOrder == null)
-					//{
-					//	itemErrorCount++;
-					//	itemError += "deliveryOrder: 'No deliveryOrder selected', ";
-					//}
-					//itemError += "}, ";
-				}
+            //    string itemError = "[";
+            //    foreach (var item in items)
+            //    {
+            //        itemError += "{";
 
-				itemError += "]";
+            //        //if (item.deliveryOrder == null)
+            //        //{
+            //        //	itemErrorCount++;
+            //        //	itemError += "deliveryOrder: 'No deliveryOrder selected', ";
+            //        //}
+            //        //itemError += "}, ";
+            //    }
 
-				if (itemErrorCount > 0)
-					yield return new ValidationResult(itemError, new List<string> { "items" });
-			}
-		}
+            //    itemError += "]";
+
+            //    if (itemErrorCount > 0)
+            //        yield return new ValidationResult(itemError, new List<string> { "items" });
+            //}
+        }
 	}
 }

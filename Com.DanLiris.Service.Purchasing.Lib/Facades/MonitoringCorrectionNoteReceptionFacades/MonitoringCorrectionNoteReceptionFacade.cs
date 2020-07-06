@@ -30,15 +30,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
         }
 
         #region MonitoringCorrectionNoteReceptionAll
-        public Tuple<List<MonitoringCorrectionNoteReceptionViewModel>, int> GetMonitoringTerimaNKReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<MonitoringCorrectionNoteReceptionViewModel>, int> GetMonitoringTerimaNKReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, offset, page, size);
+            var Query = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, jnsBC, offset, page, size);
 
             return Tuple.Create(Query, TotalCountReport);
         }
-        public MemoryStream GenerateExcelMonitoringTerimaNK(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public MemoryStream GenerateExcelMonitoringTerimaNK(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Query =  GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, jnsBC, offset, 1, int.MaxValue);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
             result.Columns.Add(new DataColumn() { ColumnName = "No Faktur", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Faktur", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PO Pembelian", DataType = typeof(String) });
-        
+
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
 
             if (Query.ToArray().Count() == 0)
 
-            result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
         #endregion
         #region MonitoringCorrectionNoteReceptionByUser
         public int TotalCountReport { get; set; } = 0;
-        private List<MonitoringCorrectionNoteReceptionViewModel> GetMonitoringTerimaNKByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
+        private List<MonitoringCorrectionNoteReceptionViewModel> GetMonitoringTerimaNKByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int offset, int page, int size)
         {
 
 
@@ -162,7 +162,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                          n in dbContext.GarmentCorrectionNotes
                          join o in dbContext.GarmentCorrectionNoteItems on n.Id equals o.GCorrectionId
                          //DeliveryOrders
-                         join c in dbContext.GarmentDeliveryOrderDetails on o.DODetailId equals c.Id 
+                         join c in dbContext.GarmentDeliveryOrderDetails on o.DODetailId equals c.Id
                          join b in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals b.Id
                          join a in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals a.Id
                          //BeaCukais
@@ -173,25 +173,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                          join f in dbContext.GarmentInternalPurchaseOrderItems on c.POItemId equals f.Id
                          join g in dbContext.GarmentInternalPurchaseOrders on f.GPOId equals g.Id
                          //Invoice
-                         join p in dbContext.GarmentInvoiceDetails  on c.Id equals p.DODetailId into nn
+                         join p in dbContext.GarmentInvoiceDetails on c.Id equals p.DODetailId into nn
                          from DInv in nn.DefaultIfEmpty()
                          join h in dbContext.GarmentInvoiceItems on a.Id equals h.DeliveryOrderId into hh
                          from Inv in hh.DefaultIfEmpty()
                          join j in dbContext.GarmentInvoices on Inv.InvoiceId equals j.Id into jj
                          from HInv in jj.DefaultIfEmpty()
-                         //Intern Note
+                             //Intern Note
                          join k in dbContext.GarmentInternNotes on a.InternNo equals k.INNo into kk
                          from NI in kk.DefaultIfEmpty()
-                         //Unit Receipt Note
+                             //Unit Receipt Note
                          join m in dbContext.GarmentUnitReceiptNoteItems on c.Id equals m.DODetailId into mm
                          from IURN in mm.DefaultIfEmpty()
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where
-                         n != null 
+                         n != null
                          && URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
-                         && d.BeacukaiNo.Substring(0, 4) != "BCDL" &&
-                         ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate.Date >= d1.Date && n.CorrectionDate.Date <= d2.Date) : true)
+                         && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
+                         //&& d.BeacukaiNo.Substring(0, 4) == jnsBC  
+                         && ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate.Date >= d1.Date && n.CorrectionDate.Date <= d2.Date) : true)
+                         && a.SupplierCode != "GDG"
 
                          select new SelectedId
                          {
@@ -206,38 +208,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                              EPOId = e.Id,
                              POId = g.Id,
                              POItemId = f.Id,
-                             INNo = a.InternNo, 
-                             INVId = HInv  == null ? 0 : HInv.Id,
+                             INNo = a.InternNo,
+                             INVId = HInv == null ? 0 : HInv.Id,
                              INVItemId = Inv == null ? 0 : Inv.Id,
                              URNId = URN == null ? 0 : URN.Id,
                              URNItemId = IURN == null ? 0 : IURN.Id,
                          });
-                #endregion
+            #endregion
 
             TotalCountReport = Query.Distinct().OrderByDescending(o => o.CorrectionDate).Count();
             var queryResult = Query.Distinct().OrderByDescending(o => o.CorrectionDate).Skip((page - 1) * size).Take(size).ToList();
-            var deliveryOrderIds = queryResult.Select(s => s.DOId).Distinct().ToList();            
+            var deliveryOrderIds = queryResult.Select(s => s.DOId).Distinct().ToList();
             var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.PaymentBill, s.DOCurrencyRate, s.PaymentMethod, s.SupplierCode, s.SupplierName, s.DONo, s.ArrivalDate, s.InternNo }).ToList();
             var deliveryOrderItemIds = queryResult.Select(s => s.DOItemId).Distinct().ToList();
-            var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo}).ToList();
+            var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo }).ToList();
             var deliveryOrderDetailIds = queryResult.Select(s => s.DODetailId).Distinct().ToList();
             var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.POSerialNumber, s.CodeRequirment, s.ProductCode, s.ProductName, s.DOQuantity, s.UomUnit, s.PricePerDealUnit, s.PriceTotal, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
             var beaCukaiIds = queryResult.Select(s => s.BCId).Distinct().ToList();
-            var beaCukais = dbContext.GarmentBeacukais.Where(w => beaCukaiIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.BeacukaiDate, s.CustomsType, s.BeacukaiNo}).ToList();
+            var beaCukais = dbContext.GarmentBeacukais.Where(w => beaCukaiIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.BeacukaiDate, s.CustomsType, s.BeacukaiNo }).ToList();
             var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
-            var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.SupplierName, s.SupplierImport}).ToList();
+            var purchaseOrderExternals = dbContext.GarmentExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.SupplierName, s.SupplierImport }).ToList();
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
             var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).Select(s => new { s.Id, s.BuyerName, s.Article, s.RONo, s.UnitName }).ToList();
             var purchaseOrderInternalItemIds = queryResult.Select(s => s.POItemId).Distinct().ToList();
-            var purchaseOrderInternalItems = dbContext.GarmentInternalPurchaseOrderItems.Where(w => purchaseOrderInternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ProductRemark}).ToList();
+            var purchaseOrderInternalItems = dbContext.GarmentInternalPurchaseOrderItems.Where(w => purchaseOrderInternalItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ProductRemark }).ToList();
             var invoiceIds = queryResult.Select(s => s.INVId).Distinct().ToList();
-            var invoices = dbContext.GarmentInvoices.Where(w => invoiceIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceNo, s.IncomeTaxNo, s.IncomeTaxDate}).ToList();
+            var invoices = dbContext.GarmentInvoices.Where(w => invoiceIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceNo, s.IncomeTaxNo, s.IncomeTaxDate }).ToList();
             var internNoteIds = queryResult.Select(s => s.INNo).Distinct().ToList();
-            var internNotes = dbContext.GarmentInternNotes.Where(w => internNoteIds.Contains(w.INNo)).Select(s => new { s.Id, s.INNo, s.INDate}).ToList();
+            var internNotes = dbContext.GarmentInternNotes.Where(w => internNoteIds.Contains(w.INNo)).Select(s => new { s.Id, s.INNo, s.INDate }).ToList();
             var unitReceiptNoteIds = queryResult.Select(s => s.URNId).Distinct().ToList();
             var unitReceiptNotes = dbContext.GarmentUnitReceiptNotes.Where(w => unitReceiptNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.URNNo, s.ReceiptDate, s.UnitName }).ToList();
             var unitReceiptNoteItemIds = queryResult.Select(s => s.URNItemId).Distinct().ToList();
-            var unitReceiptNoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ReceiptQuantity, s.UomUnit, s.PricePerDealUnit, s.Conversion, s.SmallQuantity, s.SmallUomUnit}).ToList();
+            var unitReceiptNoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ReceiptQuantity, s.UomUnit, s.PricePerDealUnit, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
             var correctionNoteIds = queryResult.Select(s => s.CorrectionId).Distinct().ToList();
             var correctionNotes = dbContext.GarmentCorrectionNotes.Where(w => correctionNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.CorrectionNo, s.CorrectionDate, s.CorrectionType, s.CurrencyCode }).ToList();
             var correctionNoteItemIds = queryResult.Select(s => s.CorrectionItemId).Distinct().ToList();
@@ -296,8 +298,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                 monitoringcorrectionnotereceptionViewModel.ProductRemark = purchaseOrderInternalItem.ProductRemark;
                 monitoringcorrectionnotereceptionViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcorrectionnotereceptionViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
-                monitoringcorrectionnotereceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit,2);
-                monitoringcorrectionnotereceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal,2);
+                monitoringcorrectionnotereceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit, 2);
+                monitoringcorrectionnotereceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal, 2);
                 monitoringcorrectionnotereceptionViewModel.Conversion = deliveryOrderDetail.Conversion;
                 monitoringcorrectionnotereceptionViewModel.SmallQuantity = deliveryOrderDetail.SmallQuantity;
                 monitoringcorrectionnotereceptionViewModel.SmallUOMUnit = deliveryOrderDetail.SmallUomUnit;
@@ -308,8 +310,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                 monitoringcorrectionnotereceptionViewModel.UnitName = unitReceiptNote == null ? "-" : unitReceiptNote.UnitName;
                 monitoringcorrectionnotereceptionViewModel.ReceiptQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity;
                 monitoringcorrectionnotereceptionViewModel.URNUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.UomUnit;
-                monitoringcorrectionnotereceptionViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit,2);
-                monitoringcorrectionnotereceptionViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,2);
+                monitoringcorrectionnotereceptionViewModel.URNPricePerDealUnit = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit, 2);
+                monitoringcorrectionnotereceptionViewModel.URNPriceTotal = unitReceiptNoteItem == null ? 0 : Math.Round((decimal)deliveryOrder.DOCurrencyRate * unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity, 2);
                 monitoringcorrectionnotereceptionViewModel.URNConversion = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.Conversion;
                 monitoringcorrectionnotereceptionViewModel.URNSmallQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.SmallQuantity;
                 monitoringcorrectionnotereceptionViewModel.URNSmallUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.SmallUomUnit;
@@ -321,18 +323,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
         }
 
 
-        public Tuple<List<MonitoringCorrectionNoteReceptionViewModel>, int> GetMonitoringTerimaNKByUserReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<MonitoringCorrectionNoteReceptionViewModel>, int> GetMonitoringTerimaNKByUserReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Data = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, offset, page, size);
+            var Data = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, jnsBC, offset, page, size);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-    
+
             return Tuple.Create(Data, TotalCountReport);
         }
 
-        public MemoryStream GenerateExcelMonitoringTerimaNKByUser(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public MemoryStream GenerateExcelMonitoringTerimaNKByUser(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query = GetMonitoringTerimaNKByUserReportQuery(dateFrom, dateTo, jnsBC, offset, 1, int.MaxValue);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -423,10 +425,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                     string URNPriceTotal = string.Format("{0:N2}", item.URNPriceTotal);
                     string URNConversion = string.Format("{0:N2}", item.URNConversion);
                     string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
-                    
+
                     result.Rows.Add(
-                        index, item.CorrectionNo, CorrectionDate, item.CorrectionType, CorrectionQuantity, item.CorrectionUOMUnit, CorrectionAmount, item.BillNo, BillDate, item.PaymentBill, 
-                        item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom, item.SupplierCode, item.SupplierName, item.Article, 
+                        index, item.CorrectionNo, CorrectionDate, item.CorrectionType, CorrectionQuantity, item.CorrectionUOMUnit, CorrectionAmount, item.BillNo, BillDate, item.PaymentBill,
+                        item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom, item.SupplierCode, item.SupplierName, item.Article,
                         item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode, item.ProductName, item.ProductRemark, DOQuantity,
                         item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit, item.InternNo, INDate, item.URNNo, ReceiptDate,
                         item.UnitName, ReceiptQuantity, item.URNUOMUnit, URNPricePerDealUnit, URNPriceTotal, URNConversion, URNSmallQuantity, item.URNSmallUOMUnit);

@@ -28,136 +28,145 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
         #region GarmentDailyPurchasingAll
-        public IEnumerable<GarmentDailyPurchasingReportViewModel> GetGarmentDailyPurchasingReportQuery(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IEnumerable<GarmentDailyPurchasingReportViewModel> GetGarmentDailyPurchasingReportQuery(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d1 = from a in dbContext.GarmentDeliveryOrders
-                                                               join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
-                                                               join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
-                                                               join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id
-                                                               join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
-                                                               join f in dbContext.GarmentInternalPurchaseOrders on c.POId equals f.Id
+                                                                 join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                                                                 join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                                                                 join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id
+                                                                 join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
+                                                                 join f in dbContext.GarmentInternalPurchaseOrders on c.POId equals f.Id
                                                                  where c.DOQuantity != 0
                                                                  && c.UnitId == (string.IsNullOrWhiteSpace(unitName) ? c.UnitId : unitName)
                                                                  && e.SupplierImport == supplierType
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? a.SupplierCode.Substring(0, 2) == "DL" : a.SupplierCode.Substring(0, 2) != "DL"))
-                                                                 && d.BeacukaiDate.AddHours(offset).Date >= DateFrom.Date && d.BeacukaiDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && d.ArrivalDate >= DateFrom.Date && d.ArrivalDate <= DateTo.Date
+                                                                 && (string.IsNullOrWhiteSpace(jnsbc) ? true : (jnsbc == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
+                                                                 //&& d.BeacukaiNo.Substring(0, 4) != "BCDL"
+                                                                 && a.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
-                                                               {
-                                                                   SuplName = a.SupplierName,
-                                                                   UnitName = f.UnitName,
-                                                                   BCNo = a.BillNo,
-                                                                   BonKecil = a.PaymentBill,
-                                                                   DONo = a.DONo,
-                                                                   INNo = a.InternNo,
-                                                                   ProductName = c.ProductName,
-                                                                   JnsBrg = c.CodeRequirment,
-                                                                   Quantity = (decimal)c.DOQuantity,
-                                                                   Satuan = c.UomUnit,
-                                                                   Kurs = (double)a.DOCurrencyRate,
-                                                                   Amount = c.PriceTotal,
-                                                               };
+                                                                 {
+                                                                     SuplName = a.SupplierName,
+                                                                     UnitName = f.UnitName,
+                                                                     BCNo = a.BillNo,
+                                                                     BonKecil = a.PaymentBill,
+                                                                     DONo = a.DONo,
+                                                                     INNo = a.InternNo,
+                                                                     ProductName = c.ProductName,
+                                                                     JnsBrg = c.CodeRequirment,
+                                                                     Quantity = (decimal)c.DOQuantity,
+                                                                     Satuan = c.UomUnit,
+                                                                     Kurs = (double)a.DOCurrencyRate,
+                                                                     Amount = c.PriceTotal,
+                                                                 };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d2 = from gc in dbContext.GarmentCorrectionNotes
-                                                               join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
-                                                               join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
-                                                               join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
-                                                               join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
-                                                               join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
-                                                               join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
-                                                               where gci.Quantity != 0
-                                                               && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
-                                                               && epo.SupplierImport == supplierType
-                                                               && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
-                                                               && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
+                                                                 join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
+                                                                 join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
+                                                                 join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                                                                 join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                                                                 join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
+                                                                 where gci.Quantity != 0
+                                                                 && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
+                                                                 && epo.SupplierImport == supplierType
+                                                                 && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
+                                                                 && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && gc.SupplierCode != "GDG"
 
-                                                               select new GarmentDailyPurchasingTempViewModel
-                                                               {                               
-                                                                   SuplName = gc.SupplierName,
-                                                                   UnitName = ipo.UnitName,
-                                                                   BCNo = gc.CorrectionNo,
-                                                                   BonKecil = gdo.PaymentBill,
-                                                                   DONo = gc.DONo,
-                                                                   INNo = gdo.InternNo,
-                                                                   ProductName = gci.ProductName,
-                                                                   JnsBrg = gdd.CodeRequirment,
-                                                                   Quantity = (decimal)gci.Quantity,
-                                                                   Satuan = gci.UomIUnit,
-                                                                   Kurs = (double)gdo.DOCurrencyRate,
-                                                                   Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore),
-                                                               };
+                                                                 select new GarmentDailyPurchasingTempViewModel
+                                                                 {
+                                                                     SuplName = gc.SupplierName,
+                                                                     UnitName = ipo.UnitName,
+                                                                     BCNo = gc.CorrectionNo,
+                                                                     BonKecil = gdo.PaymentBill,
+                                                                     DONo = gc.DONo,
+                                                                     INNo = gdo.InternNo,
+                                                                     ProductName = gci.ProductName,
+                                                                     JnsBrg = gdd.CodeRequirment,
+                                                                     Quantity = (decimal)gci.Quantity,
+                                                                     Satuan = gci.UomIUnit,
+                                                                     Kurs = (double)gdo.DOCurrencyRate,
+                                                                     // Amount = (double)(gci.PriceTotalAfter),
+                                                                     //Amount =(double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? (decimal)gdo.DOCurrencyRate * gci.PriceTotalAfter : (decimal)gdo.DOCurrencyRate * (gci.PriceTotalAfter - gci.PriceTotalBefore))
+                                                                     //Amount = (double)((decimal)gdo.DOCurrencyRate * (gci.PriceTotalAfter - gci.PriceTotalBefore))
+                                                                     Amount = (double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? gci.PriceTotalAfter : (gci.PriceTotalAfter - gci.PriceTotalBefore))
+                                                                 };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d3 = from gc in dbContext.GarmentCorrectionNotes
-                                                               join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
-                                                               join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
-                                                               join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
-                                                               join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
-                                                               join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
-                                                               join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
-                                                               where gci.Quantity != 0
-                                                               && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
-                                                               && epo.SupplierImport == supplierType
-                                                               && gc.UseVat == true
-                                                               && gc.NKPN != null 
-                                                               && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
-                                                               && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
+                                                                 join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
+                                                                 join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
+                                                                 join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                                                                 join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                                                                 join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
+                                                                 where gci.Quantity != 0
+                                                                 && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
+                                                                 && epo.SupplierImport == supplierType
+                                                                 && gc.UseVat == true
+                                                                 && gc.NKPN != null
+                                                                 && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
+                                                                 && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && gc.SupplierCode != "GDG"
 
-                                                               select new GarmentDailyPurchasingTempViewModel
-                                                               {
-                                                                   SuplName = gc.SupplierName,
-                                                                   UnitName = ipo.UnitName,
-                                                                   BCNo = gc.NKPN,
-                                                                   BonKecil = gdo.PaymentBill,
-                                                                   DONo = gc.DONo,
-                                                                   INNo = gdo.InternNo,
-                                                                   ProductName = gci.ProductName,
-                                                                   JnsBrg = gdd.CodeRequirment,
-                                                                   Quantity = (decimal)gci.Quantity,
-                                                                   Satuan = gci.UomIUnit,
-                                                                   Kurs = (double)gdo.DOCurrencyRate,
-                                                                   Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * 10/100,
-                                                               };
+                                                                 select new GarmentDailyPurchasingTempViewModel
+                                                                 {
+                                                                     SuplName = gc.SupplierName,
+                                                                     UnitName = ipo.UnitName,
+                                                                     BCNo = gc.NKPN,
+                                                                     BonKecil = gdo.PaymentBill,
+                                                                     DONo = gc.DONo,
+                                                                     INNo = gdo.InternNo,
+                                                                     ProductName = gci.ProductName,
+                                                                     JnsBrg = gdd.CodeRequirment,
+                                                                     Quantity = (decimal)gci.Quantity,
+                                                                     Satuan = gci.UomIUnit,
+                                                                     Kurs = (double)gdo.DOCurrencyRate,
+                                                                     Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * 10 / 100,
+                                                                 };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d4 = from gc in dbContext.GarmentCorrectionNotes
-                                                               join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
-                                                               join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
-                                                               join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
-                                                               join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
-                                                               join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
-                                                               join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
-                                                               where gci.Quantity != 0
-                                                               && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
-                                                               && epo.SupplierImport == supplierType
-                                                               && gc.UseIncomeTax == true
-                                                               && gc.NKPH != null
-                                                               && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
-                                                               && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
+                                                                 join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
+                                                                 join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
+                                                                 join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                                                                 join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                                                                 join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
+                                                                 where gci.Quantity != 0
+                                                                 && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
+                                                                 && epo.SupplierImport == supplierType
+                                                                 && gc.UseIncomeTax == true
+                                                                 && gc.NKPH != null
+                                                                 && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
+                                                                 && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && gc.SupplierCode != "GDG"
 
-                                                               select new GarmentDailyPurchasingTempViewModel
-                                                               {
-                                                                   SuplName = gc.SupplierName,
-                                                                   UnitName = ipo.UnitName,
-                                                                   BCNo = gc.NKPH,
-                                                                   BonKecil = gdo.PaymentBill,
-                                                                   DONo = gc.DONo,
-                                                                   INNo = gdo.InternNo,
-                                                                   ProductName = gci.ProductName,
-                                                                   JnsBrg = gdd.CodeRequirment,
-                                                                   Quantity = (decimal)gci.Quantity,
-                                                                   Satuan = gci.UomIUnit,
-                                                                   Kurs = (double)gdo.DOCurrencyRate,
-                                                                   Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * ((double)gc.IncomeTaxRate/100),
-                                                               };
+                                                                 select new GarmentDailyPurchasingTempViewModel
+                                                                 {
+                                                                     SuplName = gc.SupplierName,
+                                                                     UnitName = ipo.UnitName,
+                                                                     BCNo = gc.NKPH,
+                                                                     BonKecil = gdo.PaymentBill,
+                                                                     DONo = gc.DONo,
+                                                                     INNo = gdo.InternNo,
+                                                                     ProductName = gci.ProductName,
+                                                                     JnsBrg = gdd.CodeRequirment,
+                                                                     Quantity = (decimal)gci.Quantity,
+                                                                     Satuan = gci.UomIUnit,
+                                                                     Kurs = (double)gdo.DOCurrencyRate,
+                                                                     Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * ((double)gc.IncomeTaxRate / 100),
+                                                                 };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d5 = from inv in dbContext.GarmentInvoices
                                                                  join invi in dbContext.GarmentInvoiceItems on inv.Id equals invi.InvoiceId
                                                                  join invd in dbContext.GarmentInvoiceDetails on invi.Id equals invd.InvoiceItemId
                                                                  join gdd in dbContext.GarmentDeliveryOrderDetails on invd.DODetailId equals gdd.Id
                                                                  join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
-                                                                 join gdo in dbContext.GarmentDeliveryOrders on  gdi.GarmentDOId equals gdo.Id
+                                                                 join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
                                                                  join epo in dbContext.GarmentExternalPurchaseOrders on invd.EPOId equals epo.Id
                                                                  join ipo in dbContext.GarmentInternalPurchaseOrders on invd.IPOId equals ipo.Id
                                                                  where invd.DOQuantity != 0
@@ -168,59 +177,60 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && inv.NPN != null
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && inv.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
-                                                               {
-                                                                   SuplName = inv.SupplierName,
-                                                                   UnitName = ipo.UnitName,
-                                                                   BCNo = inv.NPN,
-                                                                   BonKecil = gdo.PaymentBill,
-                                                                   DONo = gdo.DONo,
-                                                                   INNo = gdo.InternNo,
-                                                                   ProductName = invd.ProductName,
-                                                                   JnsBrg = gdd.CodeRequirment,
-                                                                   Quantity = (decimal)invd.DOQuantity,
-                                                                   Satuan = invd.UomUnit,
-                                                                   Kurs = (double)gdo.DOCurrencyRate,
-                                                                   Amount = invd.DOQuantity * invd.PricePerDealUnit * 10 / 100,
-                                                               };
+                                                                 {
+                                                                     SuplName = inv.SupplierName,
+                                                                     UnitName = ipo.UnitName,
+                                                                     BCNo = inv.NPN,
+                                                                     BonKecil = gdo.PaymentBill,
+                                                                     DONo = gdo.DONo,
+                                                                     INNo = gdo.InternNo,
+                                                                     ProductName = invd.ProductName,
+                                                                     JnsBrg = gdd.CodeRequirment,
+                                                                     Quantity = (decimal)invd.DOQuantity,
+                                                                     Satuan = invd.UomUnit,
+                                                                     Kurs = (double)gdo.DOCurrencyRate,
+                                                                     Amount = invd.DOQuantity * invd.PricePerDealUnit * 10 / 100,
+                                                                 };
             IQueryable<GarmentDailyPurchasingTempViewModel> d6 = from inv in dbContext.GarmentInvoices
-                                                               join invi in dbContext.GarmentInvoiceItems on inv.Id equals invi.InvoiceId
-                                                               join invd in dbContext.GarmentInvoiceDetails on invi.Id equals invd.InvoiceItemId
-                                                               join gdd in dbContext.GarmentDeliveryOrderDetails on invd.DODetailId equals gdd.Id
-                                                               join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
-                                                               join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
-                                                               join epo in dbContext.GarmentExternalPurchaseOrders on invd.EPOId equals epo.Id
-                                                               join ipo in dbContext.GarmentInternalPurchaseOrders on invd.IPOId equals ipo.Id
-                                                               where invd.DOQuantity != 0
-                                                               && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
-                                                               && epo.SupplierImport == supplierType
-                                                               && inv.IsPayTax == true
-                                                               && inv.UseIncomeTax == true
-                                                               && inv.NPH != null
-                                                               && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
-                                                               && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
-
-                                                               select new GarmentDailyPurchasingTempViewModel
-                                                               {
-                                                                   SuplName = inv.SupplierName,
-                                                                   UnitName = ipo.UnitName,
-                                                                   BCNo = inv.NPH,
-                                                                   BonKecil = gdo.PaymentBill,
-                                                                   DONo = gdo.DONo,
-                                                                   INNo = gdo.InternNo,
-                                                                   ProductName = invd.ProductName,
-                                                                   JnsBrg = gdd.CodeRequirment,
-                                                                   Quantity = (decimal)invd.DOQuantity,
-                                                                   Satuan = invd.UomUnit,
-                                                                   Kurs = (double)gdo.DOCurrencyRate,
-                                                                   Amount = invd.DOQuantity * invd.PricePerDealUnit * inv.IncomeTaxRate / 100,
-                                                               };
+                                                                 join invi in dbContext.GarmentInvoiceItems on inv.Id equals invi.InvoiceId
+                                                                 join invd in dbContext.GarmentInvoiceDetails on invi.Id equals invd.InvoiceItemId
+                                                                 join gdd in dbContext.GarmentDeliveryOrderDetails on invd.DODetailId equals gdd.Id
+                                                                 join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                                                                 join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                                                                 join epo in dbContext.GarmentExternalPurchaseOrders on invd.EPOId equals epo.Id
+                                                                 join ipo in dbContext.GarmentInternalPurchaseOrders on invd.IPOId equals ipo.Id
+                                                                 where invd.DOQuantity != 0
+                                                                 && ipo.UnitId == (string.IsNullOrWhiteSpace(unitName) ? ipo.UnitId : unitName)
+                                                                 && epo.SupplierImport == supplierType
+                                                                 && inv.IsPayTax == true
+                                                                 && inv.UseIncomeTax == true
+                                                                 && inv.NPH != null
+                                                                 && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
+                                                                 && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
+                                                                 && inv.SupplierCode != "GDG"
+                                                                 select new GarmentDailyPurchasingTempViewModel
+                                                                 {
+                                                                     SuplName = inv.SupplierName,
+                                                                     UnitName = ipo.UnitName,
+                                                                     BCNo = inv.NPH,
+                                                                     BonKecil = gdo.PaymentBill,
+                                                                     DONo = gdo.DONo,
+                                                                     INNo = gdo.InternNo,
+                                                                     ProductName = invd.ProductName,
+                                                                     JnsBrg = gdd.CodeRequirment,
+                                                                     Quantity = (decimal)invd.DOQuantity,
+                                                                     Satuan = invd.UomUnit,
+                                                                     Kurs = (double)gdo.DOCurrencyRate,
+                                                                     Amount = invd.DOQuantity * invd.PricePerDealUnit * inv.IncomeTaxRate / 100,
+                                                                 };
             List<GarmentDailyPurchasingTempViewModel> CombineData = d1.Union(d2).Union(d3).Union(d4).Union(d5).Union(d6).ToList();
-            
+
             var Query = from data in CombineData
                         group data by new { data.SuplName, data.BCNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg } into groupData
-                        select new GarmentDailyPurchasingReportViewModel 
+                        select new GarmentDailyPurchasingReportViewModel
                         {
                             SupplierName = groupData.Key.SuplName,
                             UnitName = groupData.Key.UnitName,
@@ -232,20 +242,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             CodeRequirement = groupData.Key.JnsBrg,
                             UOMUnit = groupData.Key.Satuan,
                             Quantity = groupData.Sum(s => (double)s.Quantity),
-                            Amount = Math.Round(groupData.Sum(s =>Math.Round((s.Amount*s.Kurs),2)) ,2),
+                            Amount = Math.Round(groupData.Sum(s => Math.Round((s.Amount * s.Kurs), 2)), 2),
                         };
             return Query.AsQueryable();
         }
 
-        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
-            List<GarmentDailyPurchasingReportViewModel> result = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, offset).ToList();
+            List<GarmentDailyPurchasingReportViewModel> result = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset).ToList();
             return Tuple.Create(result, result.Count);
         }
-               
-        public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset)
-          {
-            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, offset);
+
+        public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
+        {
+            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
@@ -278,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 Dictionary<string, double> subTotalPRCSupplier = new Dictionary<string, double>();
 
                 foreach (GarmentDailyPurchasingReportViewModel data in Data.Item1)
-                {       
+                {
                     string SupplierName = data.SupplierName;
                     double Amount1 = 0, Amount2 = 0, Amount3 = 0, Amount4 = 0;
 
@@ -377,7 +387,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                     }
 
                     result.Rows.Add("SUB TOTAL", "", "", "", "", "", "", "", splCode, "", Math.Round(subTotalBESupplier[SupplName.Key], 2), Math.Round(subTotalBPSupplier[SupplName.Key], 2), Math.Round(subTotalBBSupplier[SupplName.Key], 2), Math.Round(subTotalPRCSupplier[SupplName.Key], 2));
-                   
+
                     rowPosition += 1;
                     mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
 
@@ -388,9 +398,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 }
 
                 result.Rows.Add("TOTAL", "", "", "", "", "", "", "", "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2));
-            
+
                 rowPosition += 1;
-                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
+                mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
 
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);

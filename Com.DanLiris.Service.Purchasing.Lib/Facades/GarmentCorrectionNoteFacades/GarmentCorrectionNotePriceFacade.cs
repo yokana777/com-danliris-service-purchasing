@@ -122,7 +122,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         if ((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA SATUAN")
                         {
                             garmentDeliveryOrderDetail.PricePerDealUnitCorrection = (double)item.PricePerDealUnitAfter;
-                            garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
+                            //garmentDeliveryOrderDetail.PriceTotalCorrection = (double)item.PriceTotalAfter;
+                            garmentDeliveryOrderDetail.PriceTotalCorrection = (garmentDeliveryOrderDetail.QuantityCorrection - garmentDeliveryOrderDetail.ReturQuantity) * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
+
                         }
                         else if ((garmentCorrectionNote.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
                         {

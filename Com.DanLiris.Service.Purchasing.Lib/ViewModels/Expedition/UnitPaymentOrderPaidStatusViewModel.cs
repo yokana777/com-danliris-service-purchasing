@@ -33,5 +33,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }
         public int Position { get; set; }
+        public string SupplierImport { get; set; }
     }
 }

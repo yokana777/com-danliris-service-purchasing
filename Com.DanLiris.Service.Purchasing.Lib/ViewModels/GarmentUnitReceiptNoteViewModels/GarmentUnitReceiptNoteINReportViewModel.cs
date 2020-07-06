@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public string Supplier { get; set; }
         public string AsalTerima { get; set; }
         public string NamaBarang { get; set; }
+        public string KodeBarang { get; set; }
         public string Keterangan { get; set; }
         public string NoRO { get; set; }
         public double JumlahDiterima { get; set; }

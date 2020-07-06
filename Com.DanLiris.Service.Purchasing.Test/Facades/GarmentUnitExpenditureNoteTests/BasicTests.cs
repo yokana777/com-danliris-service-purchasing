@@ -38,6 +38,10 @@ using Xunit;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+using System.IO;
+using Microsoft.AspNetCore.JsonPatch;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteTests
 {
@@ -145,6 +149,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             return serviceProviderMock.Object;
         }
 
+        private IServiceProvider GetServiceProviderUnitReceiptNote_DOCurrency()
+        {
+            HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+            httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":0.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+
+            var httpClientService = new Mock<IHttpClientService>();
+            httpClientService
+                .Setup(x => x.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(httpResponseMessage);
+
+            var mapper = new Mock<IMapper>();
+            mapper
+                .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
+                .Returns(new GarmentUnitReceiptNoteViewModel
+                {
+                    Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                    {
+                        new GarmentUnitReceiptNoteItemViewModel()
+                    }
+                });
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService { Username = "Username" });
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IMapper)))
+                .Returns(mapper.Object);
+
+            return serviceProviderMock.Object;
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetCurrentMethod()
         {
@@ -181,6 +220,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
             var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(testName));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(testName), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+
+            return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
+        }
+
+        private GarmentUnitExpenditureNoteDataUtil dataUtil_DOCurrency(GarmentUnitExpenditureNoteFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote_DOCurrency(), _dbContext(testName));
             var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
 
             var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(testName), GetServiceProvider());
@@ -232,6 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             data.ExpenditureType = "EXTERNAL";
+            data.ExpenditureTo = "PEMBELIAN";
             var Response = await facade.Create(data);
 
             Assert.NotEqual(0, Response);
@@ -359,6 +423,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotNull(e.Message);
         }
 
+        //[Fact]
+        //public async Task Should_Error_Create_Data_DOCurrency()
+        //{
+        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil_DOCurrency(facade, GetCurrentMethod()).GetNewData_DOCurrency();
+        //    Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
+        //    Assert.NotNull(e.Message);
+        //}
+
         [Fact]
         public async Task Should_Success_Update_Data()
         {
@@ -475,6 +548,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 ExpenditureDate = DateTimeOffset.Now,
                 UnitDONo = "UnitDONO123",
                 
+                IsTransfered = false,
+                IsReceived = false
             };
             Assert.True(viewModelCheckUnitDeliveryOrder.Validate(null).Count() > 0);
             
@@ -679,5 +754,154 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         #endregion
+        [Fact]
+        public async Task Should_Success_Get_Monitoring_Out()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var Response = facade.GetReportOut(null, null, "", 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Excel_Monitoring_Out()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            var Response = facade.GenerateExcelMonOut(null, null, "", 7);
+            Assert.IsType<MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async void Should_Success_Patch_One()
+        {
+            GarmentUnitExpenditureNoteFacade facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch = new JsonPatchDocument<GarmentUnitExpenditureNote>();
+            jsonPatch.Replace(m => m.IsPreparing, true);
+
+            var Response = await facade.PatchOne(model.Id, jsonPatch);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async void Should_Error_Patch_One()
+        {
+            GarmentUnitExpenditureNoteFacade facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch = new JsonPatchDocument<GarmentUnitExpenditureNote>();
+            jsonPatch.Replace(m => m.Id, 0);
+
+            var Response = await Assert.ThrowsAnyAsync<Exception>(async () => await facade.PatchOne(model.Id, jsonPatch));
+            Assert.NotNull(Response.Message);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetReport_CMT_Report()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            //long nowTicks = DateTimeOffset.Now.Ticks;
+            //string nowTicksA = $"{nowTicks}a";
+            //string RONo = $"RO{nowTicksA}";
+            string RO = modelLocalSupplier.Items.FirstOrDefault().RONo;
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Invoice", typeof(String));
+            dataTable.Columns.Add("ExpenditureGoodId", typeof(String));
+            dataTable.Columns.Add("RO", typeof(String));
+            dataTable.Columns.Add("Article", typeof(String));
+            dataTable.Columns.Add("qtyBJ", typeof(double));
+            dataTable.Rows.Add("", "", RO, "", 0);
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25,"", 0);
+
+
+
+            Assert.NotNull(results.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXls_CMT_Report()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            //long nowTicks = DateTimeOffset.Now.Ticks;
+            //string nowTicksA = $"{nowTicks}a";
+            string RO = modelLocalSupplier.Items.FirstOrDefault().RONo;
+
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Invoice", typeof(String));
+            dataTable.Columns.Add("ExpenditureGoodId", typeof(String));
+            dataTable.Columns.Add("RO", typeof(String));
+            dataTable.Columns.Add("Article", typeof(String));
+            dataTable.Columns.Add("qtyBJ", typeof(double));
+            dataTable.Rows.Add("Invoice", "Id", RO, "Article", 0);
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0);
+
+
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_Master_Unit()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            DataTable dataTable = new DataTable();
+            
+            dataTable.Columns.Add("UnitName", typeof(String));
+            dataTable.Columns.Add("UnitCode", typeof(double));
+            dataTable.Rows.Add("UnitName", "1");
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.Read(1, 25, "", "UnitName","");
+
+
+
+            Assert.NotNull(results);
+        }
+
     }
 }

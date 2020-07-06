@@ -220,11 +220,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
                 {
                     new GarmentCorrectionNoteItemViewModel
                     {
-                        Quantity = 0
+                        Quantity = 0,
+
+                        DODetailId = 0,
+                        EPOId = 0,
+                        EPONo = null,
+                        PRId = 0,
+                        PRNo = null,
+                        POId = 0,
+                        POSerialNumber = null,
+                        RONo = null,
+                        Product = null,
+                        Uom = null
                     },
-                }
+                },
+
+                DOId = 0,
+                Currency = null,
+                IncomeTax = null,
+                Remark = null,
+                TotalCorrection = 0,
+                NKPH = null,
+                NKPN = null
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Data()
+        {
+            var facade = new GarmentCorrectionNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var facadeQty = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeQty, GetCurrentMethod()).GetTestData(USERNAME);
+            var Response = facade.Read();
+            Assert.NotEmpty(Response.Item1);
         }
     }
 }

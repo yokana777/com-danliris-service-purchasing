@@ -89,6 +89,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
                 InvoiceNo = "INV000111",
                 InvoiceDate = new DateTimeOffset(),
                 PibNo = null,
+                PibDate = new DateTimeOffset(),
+                ImportDuty = 0,
+                TotalIncomeTaxAmount = 0,
+                TotalVatAmount = 0,
 
                 UseIncomeTax = false,
                 IncomeTaxId = null,

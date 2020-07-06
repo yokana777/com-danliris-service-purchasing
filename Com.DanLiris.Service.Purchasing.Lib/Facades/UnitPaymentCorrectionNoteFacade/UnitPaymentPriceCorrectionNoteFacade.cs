@@ -157,7 +157,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     foreach (var item in model.Items)
                     {
+                        
                         UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.Id == item.UPODetailId);
+                        item.PricePerDealUnitBefore = upoDetail.PricePerDealUnit;
+                        item.PriceTotalBefore = upoDetail.PriceTotal;
                         upoDetail.PricePerDealUnitCorrection = item.PricePerDealUnitAfter;
                         upoDetail.PriceTotalCorrection = item.PriceTotalAfter;
                         EntityExtension.FlagForCreate(item, username, USER_AGENT);
