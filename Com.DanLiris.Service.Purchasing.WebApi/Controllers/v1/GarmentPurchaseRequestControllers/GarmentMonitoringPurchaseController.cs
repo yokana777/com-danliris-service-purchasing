@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcelByUserPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
+				var xls = facade.GenerateExcelPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
 
 				string filename = "Laporan Pembelian Garment - " + username;
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
