@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             this.serviceProvider = serviceProvider;
         }
 
+        [HttpGet]
         public IActionResult GetReportGarmentStock(DateTime? dateFrom, DateTime? dateTo, string category, string unitcode, int page = 1, int size = 25, string Order = "{}")
         {
             try
