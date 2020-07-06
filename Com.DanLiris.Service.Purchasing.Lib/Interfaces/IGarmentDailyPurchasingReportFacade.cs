@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
-	public interface IGarmentDailyPurchasingReportFacade
+    public interface IGarmentDailyPurchasingReportFacade
     {
-        Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset);
-         MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, int offset);
+        Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset);
+        MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset);
     }
 }

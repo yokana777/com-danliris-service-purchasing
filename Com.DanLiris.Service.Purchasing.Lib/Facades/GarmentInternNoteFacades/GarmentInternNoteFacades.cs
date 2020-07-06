@@ -314,71 +314,107 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             }
         }
         #region Monitoring
-        public Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetReportInternNote(no, supplierCode, curencyCode, dateFrom, dateTo, offset);
+            var Query = GetReportInternNote(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset, page, size);
             //Console.WriteLine(Query);
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.iNDate);
-                Query = Query.OrderByDescending(b => b.invoiceNo);
+                Query = Query.OrderByDescending(b => b.iNDate).ToList();
+                Query = Query.OrderByDescending(b => b.invoiceNo).ToList();
             }
-            Pageable<GarmentInternNoteReportViewModel> pageable = new Pageable<GarmentInternNoteReportViewModel>(Query, page - 1, size);
-            List<GarmentInternNoteReportViewModel> Data = pageable.Data.ToList<GarmentInternNoteReportViewModel>();
-            int TotalData = pageable.TotalCount;
+            //Pageable<GarmentInternNoteReportViewModel> pageable = new Pageable<GarmentInternNoteReportViewModel>(Query, page - 1, size);
+            //List<GarmentInternNoteReportViewModel> Data = pageable.Data.ToList<GarmentInternNoteReportViewModel>();
+            //int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData);
+            return Tuple.Create(Query, TotalCountReport);
         }
-
-        public IQueryable<GarmentInternNoteReportViewModel> GetReportInternNote(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public int TotalCountReport { get; set; } = 0;
+        public List<GarmentInternNoteReportViewModel> GetReportInternNote(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
             //int i = 1;
-            //List<GarmentInternNoteReportViewModel> list = new List<GarmentInternNoteReportViewModel>();
+            List<GarmentInternNoteReportViewModel> list = new List<GarmentInternNoteReportViewModel>();
             var Query = (from a in dbContext.GarmentInternNotes
                          join b in dbContext.GarmentInternNoteItems on a.Id equals b.GarmentINId
                          join c in dbContext.GarmentInternNoteDetails on b.Id equals c.GarmentItemINId
+                         join d in dbContext.GarmentDeliveryOrders on c.DOId equals d.Id
                          where a.IsDeleted == false
                          && b.IsDeleted == false
                          && c.IsDeleted == false
+                         && d.IsDeleted == false
                          && a.INNo == (string.IsNullOrWhiteSpace(no) ? a.INNo : no)
+                         && b.InvoiceNo == (string.IsNullOrWhiteSpace(invoiceNo) ? b.InvoiceNo : invoiceNo)
+                         && c.DONo == (string.IsNullOrWhiteSpace(doNo) ? c.DONo : doNo)
+                         && d.BillNo == (string.IsNullOrWhiteSpace(billNo) ? d.BillNo : billNo)
+                         && d.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? d.PaymentBill : paymentBill)
                          && a.SupplierCode == (string.IsNullOrWhiteSpace(supplierCode) ? a.SupplierCode : supplierCode)
                          && a.INDate.AddHours(offset).Date >= DateFrom.Date
                          && a.INDate.AddHours(offset).Date <= DateTo.Date
                          && a.CurrencyCode == (string.IsNullOrWhiteSpace(curencyCode) ? a.CurrencyCode : curencyCode)
-                         group new { a, b, c } by new { c.DONo } into pg
+                         group new { a, b, c, d } by new { c.DONo } into pg
                          let firstproduct = pg.FirstOrDefault()
                          let IN = firstproduct.a
                          let InItem = firstproduct.b
                          let InDetail = firstproduct.c
-                         select new GarmentInternNoteReportViewModel
+                         let Do = firstproduct.d
+                         select new 
                          {
-                             inNo = IN.INNo,
-                             iNDate = IN.INDate,
-                             currencyCode = IN.CurrencyCode,
-                             supplierName = IN.SupplierName,
-                             invoiceNo = InItem.InvoiceNo,
-                             invoiceDate = InItem.InvoiceDate,
-                             //pOSerialNumber = String.Join(",",pg.Select(m=>m.c.POSerialNumber)),//InDetail.POSerialNumber,
-                             priceTotal = pg.Sum(m => m.c.PriceTotal),//InDetail.PriceTotal,
-                             doNo = InDetail.DONo,
-                             doDate = InDetail.DODate,
-                             supplierCode = IN.SupplierCode,
-                             createdBy = IN.CreatedBy
+                             InternNoteId = IN.Id,
+                             internNoteItemId = InItem.Id,
+                             internNoteDetailId = InDetail.Id,
+                             deliveryOrderId = Do.Id,
+                             priceTotal = pg.Sum(m => m.c.PriceTotal),
+                             INDate = IN.INDate
                          });
             //var Data = Query.GroupBy(s => s.doNo);
+            TotalCountReport = Query.Distinct().Count();
+            var queryResult = Query.Distinct().OrderByDescending(o => o.INDate).Skip((page - 1) * size).Take(size).ToList();
+            var internnoteIds = queryResult.Distinct().Select(x => x.InternNoteId).ToList();
+            var internnotes = dbContext.GarmentInternNotes.Where(x => internnoteIds.Contains(x.Id)).Select(x => new { x.Id, x.INNo, x.INDate, x.CurrencyCode, x.SupplierName, x.SupplierCode, x.CreatedBy }).ToList();
+            var internnoteitemIds = queryResult.Distinct().Select(x => x.internNoteItemId).ToList();
+            var internnoteitems = dbContext.GarmentInternNoteItems.Where(x => internnoteitemIds.Contains(x.Id)).Select(x => new { x.Id, x.InvoiceNo, x.InvoiceDate }).ToList();
+            var internnotedetailIds = queryResult.Distinct().Select(x => x.internNoteDetailId).ToList();
+            var internnotedetails = dbContext.GarmentInternNoteDetails.Where(x => internnotedetailIds.Contains(x.Id)).Select(x => new { x.Id, x.DONo, x.DODate }).ToList();
+            var deliveryorderIds = queryResult.Distinct().Select(x => x.deliveryOrderId).ToList();
+            var deliveryorders = dbContext.GarmentDeliveryOrders.Where(x => deliveryorderIds.Contains(x.Id)).Select(x => new { x.Id, x.BillNo, x.PaymentBill, x.DOCurrencyRate, x.PaymentMethod }).ToList();
 
-
-            return Query.AsQueryable();
+            foreach (var item in queryResult)
+            {
+                var internnote = internnotes.FirstOrDefault(x => x.Id.Equals(item.InternNoteId));
+                var internnoteitem = internnoteitems.FirstOrDefault(x => x.Id.Equals(item.internNoteItemId));
+                var internnotedetail = internnotedetails.FirstOrDefault(x => x.Id.Equals(item.internNoteDetailId));
+                var deliveryorder = deliveryorders.FirstOrDefault(x => x.Id.Equals(item.deliveryOrderId));
+                list.Add(new GarmentInternNoteReportViewModel
+                {
+                    inNo = internnote.INNo,
+                    iNDate = internnote.INDate,
+                    currencyCode = internnote.CurrencyCode,
+                    supplierName = internnote.SupplierName,
+                    invoiceNo = internnoteitem.InvoiceNo,
+                    invoiceDate = internnoteitem.InvoiceDate,
+                    //pOSerialNumber = String.Join(",",pg.Select(m=>m.c.POSerialNumber)),//InDetail.POSerialNumber,
+                    priceTotal = item.priceTotal,//InDetail.PriceTotal,
+                    doNo = internnotedetail.DONo,
+                    doDate = internnotedetail.DODate,
+                    supplierCode = internnote.SupplierCode,
+                    createdBy = internnote.CreatedBy,
+                    billNo = deliveryorder.BillNo,
+                    paymentBill = deliveryorder.PaymentBill,
+                    doCurrencyRate = deliveryorder.DOCurrencyRate,
+                    paymentType = deliveryorder.PaymentMethod
+                });
+            }
+            return list;
         }
 
-        public MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportInternNote(no, supplierCode, curencyCode, dateFrom, dateTo, offset);
-            Query = Query.OrderByDescending(b => b.iNDate);
-            Query = Query.OrderByDescending(c => c.invoiceNo);
+            var Query = GetReportInternNote(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset, 1, int.MaxValue);
+            Query = Query.OrderByDescending(b => b.iNDate).ToList();
+            Query = Query.OrderByDescending(c => c.invoiceNo).ToList();
             DataTable result = new DataTable();
 
             //result.Columns.Add(new DataColumn());
@@ -391,14 +427,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Invoice", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Bon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Bon Kecil", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bayar", DataType = typeof(String) });
             //result.Columns.Add(new DataColumn() { ColumnName = "poserialnumber", DataType = typeof(String) });
 
 
-            if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", "");
+            if (Query.Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "");
             else
             {
                 int index = 0;
@@ -414,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     //double totalHarga = item.pricePerDealUnit * item.quantity;
 
                     //result.Rows.Add(index, item.inNo, date, item.currencyCode, item.supplierName, item.paymentMethod, item.paymentType, DueDate, item.invoiceNo, invoDate, item.doNo, Dodate, item.pOSerialNumber, item.rONo, item.productCode, item.productName, item.quantity, item.uOMUnit, item.pricePerDealUnit, totalHarga);
-                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, priceTotal, item.currencyCode, item.createdBy);
+                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.currencyCode, item.doCurrencyRate, item.paymentType);
                 }
             }
 

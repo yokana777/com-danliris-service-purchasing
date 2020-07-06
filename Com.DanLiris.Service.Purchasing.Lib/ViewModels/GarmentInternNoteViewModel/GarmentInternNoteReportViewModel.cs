@@ -16,6 +16,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public double priceTotal { get; set; }
         public string doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
+        public string billNo { get; set; }
+        public string paymentBill { get; set; }
+        public double? doCurrencyRate { get; set; }
+        public string paymentType { get; set; }
         public string createdBy { get; set; }
     }
 }

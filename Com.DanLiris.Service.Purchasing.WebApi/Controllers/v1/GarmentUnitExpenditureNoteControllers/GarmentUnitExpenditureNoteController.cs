@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteV
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -265,6 +266,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                 await facade.Delete(id);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchOne(long id, [FromBody]JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PatchOne(id, jsonPatch);
+
                 return NoContent();
             }
             catch (Exception e)

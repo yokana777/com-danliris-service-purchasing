@@ -37,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cellHeaderContentLeft.Phrase = new Phrase("PT DAN LIRIS", bold_font4);
             tableHeader.AddCell(cellHeaderContentLeft);
-            cellHeaderContentRight.Phrase = new Phrase("FM-PB-00-06-009/R1", bold_font);
+            cellHeaderContentRight.Phrase = new Phrase("FM-PB-00-06-009/R2", bold_font);
             tableHeader.AddCell(cellHeaderContentRight);
 
             //cellHeaderContentLeft.Phrase = new Phrase("Head Office: Kelurahan Banaran", bold_font2);

@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         supplierImport = supplier.Import;
                     }
                     garmentCorrectionNote.CorrectionNo = await GenerateNo(garmentCorrectionNote, supplierImport, clientTimeZoneOffset);
-                    garmentCorrectionNote.TotalCorrection = (garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter))*(-1);
+                    garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter);
 
                     if (garmentCorrectionNote.UseIncomeTax == true)
                     {

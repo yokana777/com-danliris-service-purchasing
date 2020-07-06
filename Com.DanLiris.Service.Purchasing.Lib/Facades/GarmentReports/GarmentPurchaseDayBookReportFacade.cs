@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          && a.PaymentMethod == (string.IsNullOrWhiteSpace(jnsbyr) ? a.PaymentMethod : jnsbyr)
                          && c.UnitId == (string.IsNullOrWhiteSpace(unit) ? c.UnitId : unit)
                          && (string.IsNullOrWhiteSpace(category) ? true : (category == "BAHAN BAKU" ? c.ProductName == "FABRIC" : c.ProductName == category))
-                         && d.ArrivalDate.Value.Year == Year
+                         && d.ArrivalDate.Value.AddHours(offset).Year == Year
                           //&& (d.ArrivalDate.Value.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0))).ToString("yyyy") == Year
 
                           select new {
@@ -107,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //	Query = Query.OrderByDescending(b => b.poExtDate);
             //}
 
-            Pageable<GarmentPurchaseDayBookReportViewModel> pageable = new Pageable<GarmentPurchaseDayBookReportViewModel>(Query, page - 1, size);
+            Pageable<GarmentPurchaseDayBookReportViewModel> pageable = new Pageable<GarmentPurchaseDayBookReportViewModel>(Query, page - 1, size = int.MaxValue);
             List<GarmentPurchaseDayBookReportViewModel> Data = pageable.Data.ToList<GarmentPurchaseDayBookReportViewModel>();
             int TotalData = pageable.TotalCount;
 
@@ -118,6 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         {
             var Query = GetQuery(unit, supplier, jnsbyr,category,Year, offset);
             DataTable result = new DataTable();
+            DataTable result2 = new DataTable();
             var headers = new string[] { "No", "Supplier", "Satuan", "Total", "Total1", "Total2", "Total3", "Total4", "Total5", "Total6", "Total7", "Total8", "Total9", "Total10", "Total11", "Total12", "Total13", "Total14", "Total15", "Total16", "Total17", "Total18", "Total19", "Total20", "Total21", "Total22", "Total23" };
             var headers2 = new string[] {"Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember" };
             var subheaders = new string[] {"Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)", "Qty", "Nominal (Rp.)" };
@@ -127,15 +128,73 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
             }
 
+            for (int i = 0; i < headers.Length; i++)
+            {
+                result2.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
+            }
+
             var index = 1;
+            double qty_jan = 0;
+            double qty_feb = 0;
+            double qty_mar = 0;
+            double qty_apr = 0;
+            double qty_mei = 0;
+            double qty_jun = 0;
+            double qty_jul = 0;
+            double qty_aug = 0;
+            double qty_sep = 0;
+            double qty_oct = 0;
+            double qty_nov = 0;
+            double qty_dec = 0;
+
+            double nom_jan = 0;
+            double nom_feb = 0;
+            double nom_mar = 0;
+            double nom_apr = 0;
+            double nom_mei = 0;
+            double nom_jun = 0;
+            double nom_jul = 0;
+            double nom_aug = 0;
+            double nom_sep = 0;
+            double nom_oct = 0;
+            double nom_nov = 0;
+            double nom_dec = 0;
             foreach (var item in Query)
             {
-                result.Rows.Add( index++,item.SupplierName, item.UomUnit, NumberFormat(item.Qty_Jan), NumberFormat(item.Nominal_Jan), NumberFormat(item.Qty_Feb), NumberFormat(item.Nominal_Feb), NumberFormat(item.Qty_Mar),
+                result.Rows.Add(index++, item.SupplierName, item.UomUnit, NumberFormat(item.Qty_Jan), NumberFormat(item.Nominal_Jan), NumberFormat(item.Qty_Feb), NumberFormat(item.Nominal_Feb), NumberFormat(item.Qty_Mar),
                     NumberFormat(item.Nominal_Mar), NumberFormat(item.Qty_Apr), NumberFormat(item.Nominal_Apr), NumberFormat(item.Qty_Mei), NumberFormat(item.Nominal_Mei), NumberFormat(item.Qty_Jun), NumberFormat(item.Nominal_Jun),
                     NumberFormat(item.Qty_Jul), NumberFormat(item.Nominal_Jul), NumberFormat(item.Qty_Aug), NumberFormat(item.Nominal_Aug), NumberFormat(item.Qty_Sep), NumberFormat(item.Nominal_Sep), NumberFormat(item.Qty_Oct),
-                    NumberFormat(item.Nominal_Oct), NumberFormat(item.Qty_Nov), NumberFormat(item.Nominal_Nov),NumberFormat(item.Qty_Dec),NumberFormat(item.Nominal_Dec));
+                    NumberFormat(item.Nominal_Oct), NumberFormat(item.Qty_Nov), NumberFormat(item.Nominal_Nov), NumberFormat(item.Qty_Dec), NumberFormat(item.Nominal_Dec));
+                qty_jan += item.Qty_Jan;
+                qty_feb += item.Qty_Feb;
+                qty_mar += item.Qty_Mar;
+                qty_apr += item.Qty_Apr;
+                qty_mei += item.Qty_Mei;
+                qty_jun += item.Qty_Jun;
+                qty_jul += item.Qty_Jul;
+                qty_aug += item.Qty_Aug;
+                qty_sep += item.Qty_Sep;
+                qty_oct += item.Qty_Oct;
+                qty_nov += item.Qty_Nov;
+                qty_dec += item.Qty_Dec;
 
+                nom_jan += item.Nominal_Jan;
+                nom_feb += item.Nominal_Feb;
+                nom_mar += item.Nominal_Mar;
+                nom_apr += item.Nominal_Apr;
+                nom_mei += item.Nominal_Mei;
+                nom_jun += item.Nominal_Jun;
+                nom_jul += item.Nominal_Jul;
+                nom_aug += item.Nominal_Aug;
+                nom_sep += item.Nominal_Sep;
+                nom_oct += item.Nominal_Oct;
+                nom_nov += item.Nominal_Nov;
+                nom_dec += item.Nominal_Dec;
             }
+                result2.Rows.Add( "TOTAL . . . ", "", "", NumberFormat(qty_jan), NumberFormat(nom_jan), NumberFormat(qty_feb), NumberFormat(nom_feb), NumberFormat(qty_mar), NumberFormat(nom_mar),
+                                   NumberFormat(qty_apr), NumberFormat(nom_apr), NumberFormat(qty_mei), NumberFormat(nom_mei), NumberFormat(qty_jun), NumberFormat(nom_jun), NumberFormat(qty_jul), 
+                                   NumberFormat(nom_jul), NumberFormat(qty_aug), NumberFormat(nom_aug), NumberFormat(qty_sep), NumberFormat(nom_sep), NumberFormat(qty_oct), NumberFormat(nom_oct), 
+                                   NumberFormat(qty_nov), NumberFormat(nom_nov), NumberFormat(qty_dec), NumberFormat(nom_dec) );
 
             ExcelPackage package = new ExcelPackage();
             var sheet = package.Workbook.Worksheets.Add("Data");
@@ -199,6 +258,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             {
                 sheet.Column(i + 1).Width = widths[i];
             }
+
+
+            var countdata = (Query.Count())+4;
+
+            sheet.Cells[$"A{countdata}"].LoadFromDataTable(result2, false, OfficeOpenXml.Table.TableStyles.Light16);
+            sheet.Cells[$"A{countdata}:C{countdata}"].Merge = true;
+            sheet.Cells[$"A{countdata}:AA{countdata}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{countdata}:C{countdata}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
             MemoryStream stream = new MemoryStream();
             package.SaveAs(stream);

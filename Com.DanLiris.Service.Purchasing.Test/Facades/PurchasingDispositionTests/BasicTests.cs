@@ -110,6 +110,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseImportSupplier);
+
+            var modelDivisionGarment = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelDivisionGarment.DivisionName = "GARMENT";
+            var ResponseDivisionGarment= await facade.Create(modelDivisionGarment, USERNAME, 7);
+            Assert.NotEqual(0, ResponseLocalSupplier);
         }
 
         [Fact]

@@ -84,6 +84,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string correctionRemark { get; set; }
 		public string username { get; set; }
 		public string status { get; set; }
+        public string Bon { get; set; }
+        public string BonSmall { get; set; }
+        public string SupplierImport { get; set; }
         
     }
 }
