@@ -813,7 +813,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataBon = await datautilBon.GetTestData();
             var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
-            var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, "BCDL", 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
         }
 
@@ -841,7 +841,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
-            var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatReport(d1, d2, "BCDL", 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
         }
 
@@ -866,7 +866,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataBon = await datautilBon.GetTestData();
             var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
 
-            var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, 1, 25, "{}", 7);
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(dataBon.ReceiptDate.DateTime, dataBon.ReceiptDate.DateTime, "BCDL", 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
         }
 
@@ -893,7 +893,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
-            var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarBP.GetMonitoringKeluarBonPusatByUserReport(d1, d2, "BCDL", 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
         }
 
@@ -915,7 +915,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
 
-            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(null, null, 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(null, null, "BCDL", 1, 25, "{}", 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -943,7 +943,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
-            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusat(d1, d2, "BCDL", 1, 25, "{}", 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -966,7 +966,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataBC = await datautilBC.GetTestDataWithURN(USERNAME);
 
-            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(null, null, 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(null, null, null, 1, 25, "{}", 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -994,7 +994,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataBon.ReceiptDate.DateTime.AddDays(30);
             DateTime d2 = dataBon.ReceiptDate.DateTime.AddDays(30);
 
-            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarBP.GenerateExcelMonitoringKeluarBonPusatByUser(d1, d2,"BCDL", 1, 25, "{}", 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -1237,7 +1237,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
-            var Response = KeluarNK.GetMonitoringKeluarNKReport(dataNK.CorrectionDate.DateTime, dataNK.CorrectionDate.DateTime, 1, 25, "{}", 7);
+            var Response = KeluarNK.GetMonitoringKeluarNKReport(dataNK.CorrectionDate.DateTime, dataNK.CorrectionDate.DateTime, 1, 25, "{}", 7, "BCDL");
             Assert.NotNull(Response.Item1);
         }
 
@@ -1265,7 +1265,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
             DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
 
-            var Response = KeluarNK.GetMonitoringKeluarNKReport(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarNK.GetMonitoringKeluarNKReport(d1, d2, 1, 25, "{}", 7, "BCDL");
             Assert.NotNull(Response.Item1);
         }
 
@@ -1290,7 +1290,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
-            var Response = KeluarNK.GetMonitoringKeluarNKByUserReport(dataNK.CorrectionDate.DateTime, dataNK.CorrectionDate.DateTime, 1, 25, "{}", 7);
+            var Response = KeluarNK.GetMonitoringKeluarNKByUserReport(dataNK.CorrectionDate.DateTime, dataNK.CorrectionDate.DateTime, 1, 25, "{}", 7, "BCDL");
             Assert.NotNull(Response.Item1);
         }
 
@@ -1318,7 +1318,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
             DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
 
-            var Response = KeluarNK.GetMonitoringKeluarNKByUserReport(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarNK.GetMonitoringKeluarNKByUserReport(d1, d2, 1, 25, "{}", 7, "BCDL");
             Assert.NotNull(Response.Item1);
         }
 
@@ -1343,7 +1343,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
-            var Response = KeluarNK.GenerateExcelMonitoringKeluarNK(null, null, 1, 25, "{}", 7);
+            var Response = KeluarNK.GenerateExcelMonitoringKeluarNK(null, null, 1, 25, "{}", 7, null);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -1371,7 +1371,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
             DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
 
-            var Response = KeluarNK.GenerateExcelMonitoringKeluarNK(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarNK.GenerateExcelMonitoringKeluarNK(d1, d2, 1, 25, "{}", 7, "BCDL");
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -1397,7 +1397,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
             var dataNK = await datautilCN.GetTestDataNotaKoreksi();
 
-            var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(null, null, 1, 25, "{}", 7);
+            var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(null, null, 1, 25, "{}", 7, "BCDL");
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -1425,7 +1425,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             DateTime d1 = dataNK.CorrectionDate.DateTime.AddDays(30);
             DateTime d2 = dataNK.CorrectionDate.DateTime.AddDays(30);
 
-            var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(d1, d2, 1, 25, "{}", 7);
+            var Response = KeluarNK.GenerateExcelMonitoringKeluarNKByUser(d1, d2, 1, 25, "{}", 7, "BCDL");
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }

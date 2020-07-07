@@ -74,6 +74,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             HttpClientService
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(message);
+            HttpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
+            HttpClientService
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
+           
+            
 
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -450,10 +458,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
 
+
+
             GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
 
             var dataDO = await datautilDO.GetTestData();
             var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
 
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
@@ -473,10 +485,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
 
+            var garmentCorrection = new GarmentCorrectionNotePriceFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var dataUtilCorrection = new GarmentCorrectionNoteDataUtil(garmentCorrection, datautilDO);
+
             GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
             var dataDO = await datautilDO.GetTestData();
             var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
+            var dataCorrect = await dataUtilCorrection.GetNewData(dataDO);
+            dataCorrect.GarmentCorrectionNote.UseVat = true;
+            dataCorrect.GarmentCorrectionNote.UseIncomeTax = true;
+            dataCorrect.GarmentCorrectionNote.IncomeTaxId = (long)dataCorrect.GarmentDeliveryOrder.IncomeTaxId;
+            dataCorrect.GarmentCorrectionNote.IncomeTaxName = dataCorrect.GarmentDeliveryOrder.IncomeTaxName;
+            dataCorrect.GarmentCorrectionNote.IncomeTaxRate = (decimal)dataCorrect.GarmentDeliveryOrder.IncomeTaxRate;
+            await garmentCorrection.Create(dataCorrect.GarmentCorrectionNote);
 
             DateTime d1 = dataBC.BeacukaiDate.DateTime;
             DateTime d2 = dataBC.BeacukaiDate.DateTime;
@@ -495,10 +518,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
 
+            var garmentCorrection = new GarmentCorrectionNotePriceFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var dataUtilCorrection = new GarmentCorrectionNoteDataUtil(garmentCorrection, datautilDO);
+
             GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
             var dataDO = await datautilDO.GetTestData();
             var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
+
+            var dataCorrect = await dataUtilCorrection.GetNewData(dataDO);
+            dataCorrect.GarmentCorrectionNote.UseVat = true;
+            dataCorrect.GarmentCorrectionNote.UseIncomeTax = true;
+            dataCorrect.GarmentCorrectionNote.IncomeTaxId = (long)dataCorrect.GarmentDeliveryOrder.IncomeTaxId;
+            dataCorrect.GarmentCorrectionNote.IncomeTaxName = dataCorrect.GarmentDeliveryOrder.IncomeTaxName;
+            dataCorrect.GarmentCorrectionNote.IncomeTaxRate = (decimal)dataCorrect.GarmentDeliveryOrder.IncomeTaxRate;
+            await garmentCorrection.Create(dataCorrect.GarmentCorrectionNote);
 
             DateTime d1 = dataBC.BeacukaiDate.DateTime.AddDays(30);
             DateTime d2 = dataBC.BeacukaiDate.DateTime.AddDays(30);
