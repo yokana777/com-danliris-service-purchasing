@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public IntegrationViewModel.StorageViewModel StorageRequest { get; set; }
         public bool IsPreparing { get; set; }
         public bool IsTransfered { get; set; }
+        public bool IsReceived { get; set; }
 
         public List<GarmentUnitExpenditureNoteItemViewModel> Items { get; set; }
 

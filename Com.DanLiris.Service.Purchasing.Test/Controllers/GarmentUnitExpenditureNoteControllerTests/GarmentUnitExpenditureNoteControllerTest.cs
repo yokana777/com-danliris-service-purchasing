@@ -10,6 +10,7 @@ using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpenditureNoteControllers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -49,6 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                             UENId = It.IsAny<int>(),
                             URNItemId = It.IsAny<int>(),
                             DODetailId = It.IsAny<int>(),
+                            EPOItemId = It.IsAny<int>(),
                             UnitDOItemId = It.IsAny<int>(),
                             POItemId = It.IsAny<int>(),
                             PRItemId = It.IsAny<int>(),
@@ -71,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
                             },
                             BasicPrice = 1,
                             ReturQuantity = 1,
+                            ItemStatus = "REJECT"
                         }
                     }
                 };
@@ -822,6 +825,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
+        public async Task Should_Success_Patch_One()
+        {
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.PatchOne(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentUnitExpenditureNote>>()))
+               .ReturnsAsync(1);
 
+            var controller = GetController(mockFacade, new Mock<IGarmentUnitDeliveryOrderFacade>(), new Mock<IValidateService>(), new Mock<IMapper>());
+
+            var response = await controller.PatchOne(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentUnitExpenditureNote>>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Error_Patch_One()
+        {
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.PatchOne(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentUnitExpenditureNote>>()))
+               .ThrowsAsync(new Exception());
+
+            var controller = GetController(mockFacade, new Mock<IGarmentUnitDeliveryOrderFacade>(), new Mock<IValidateService>(), new Mock<IMapper>());
+
+            var response = await controller.PatchOne(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentUnitExpenditureNote>>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }

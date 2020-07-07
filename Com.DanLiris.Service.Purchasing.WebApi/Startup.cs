@@ -64,6 +64,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -136,6 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
+                .AddTransient<IGarmentDebtBalanceReportFacade, GarmentDebtBalanceReportFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
                 .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
@@ -172,7 +174,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentPurchaseDayBookReport, GarmentPurchaseDayBookReportFacade>()
                 .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
                 .AddTransient<IGarmentPurchaseDayBookReport, GarmentPurchaseDayBookReportFacade>()
-                .AddTransient<IGarmentStockReportFacade, GarmentStockReportFacade>(); 
+                .AddTransient<IGarmentStockReportFacade, GarmentStockReportFacade>()
+                .AddTransient<IGarmenInternNotePaymentStatusFacade, GarmentInternNotePaymentStatusFacade>()
+                .AddTransient<IGarmentReportCMTFacade, GarmentReportCMTFacade>()
+                .AddTransient<IDebtBookReportFacade, DebtBookReportFacade>()
+                .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
+                .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

@@ -58,12 +58,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
                 return new UnitPaymentOrderViewModel
                 {
+                    pibDate = new DateTimeOffset(),
+                    importDuty = 0,
+                    totalIncomeTaxAmount = 0,
+                    totalVatAmount = 0,
                     UId = null,
                     supplier = new SupplierViewModel
                     {
                         import = false
                     },
-                    items = items
+                    items = items,
+                    isPosted = false,
+                    position = 100,
                 };
             }
         }
@@ -113,6 +119,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     VatDate = new DateTimeOffset(),
 
                     Remark = null,
+
+                    IsPosted = false,
+                    Position = 100,
 
                     DueDate = new DateTimeOffset(), // ???
 

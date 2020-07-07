@@ -43,6 +43,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
         public string LightMedPerspiration { get; set; }
         public string PieceLength { get; set; }
 
+        public long? UENId { get; set; }
+
+        public double BudgetRate { get; set; }
+
         public List<GarmentExternalPurchaseOrderItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
