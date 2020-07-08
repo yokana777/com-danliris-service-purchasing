@@ -522,7 +522,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
             var dataDO = await datautilDO.GetTestData();
-;
             var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
 
             var dataCorrect = await dataUtilCorrection.GetNewData(dataDO);
@@ -557,6 +556,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataDO = await datautilDO.GetTestData();
 
             var dataDO = await datautilDO.GetNewData();
+            dataDO.Id = 63;
             foreach (var i in dataDO.Items)
             {
                 foreach (var j in i.Details)
@@ -596,6 +596,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataDO = await datautilDO.GetTestData();
 
             var dataDO = await datautilDO.GetNewData();
+            dataDO.Id = 53;
             foreach (var i in dataDO.Items)
             {
                 foreach (var j in i.Details)
@@ -637,6 +638,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataDO = await datautilDO.GetTestData();
 
             var dataDO = await datautilDO.GetNewData();
+            dataDO.Id = 43;
             foreach (var i in dataDO.Items)
             {
                 foreach (var j in i.Details)
