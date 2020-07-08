@@ -430,44 +430,44 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         {
             GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var datautilDO = dataUtil(facadeDO, GetCurrentMethod());
-            //var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User");
-            var garmentDeliveryOrder = await datautilDO.GetNewData();
-            foreach (var i in garmentDeliveryOrder.Items)
-            {
-                foreach(var j in i.Details)
-                {
-                    j.CodeRequirment = "BB";
-                }
-            }
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+            //var garmentDeliveryOrder = await datautilDO.GetNewData();
+            //foreach (var i in garmentDeliveryOrder.Items)
+            //{
+            //    foreach(var j in i.Details)
+            //    {
+            //        j.CodeRequirment = "BB";
+            //    }
+            //}
 
-            await facadeDO.Create(garmentDeliveryOrder, "Unit Test");
+            //await facadeDO.Create(garmentDeliveryOrder, "Unit Test");
 
             var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
 
             GarmentDailyPurchasingReportFacade DataSJ = new GarmentDailyPurchasingReportFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var dataDO = await datautilDO.GetTestData();
+            //var dataDO = await datautilDO.GetNewData();
+            //foreach (var i in dataDO.Items)
+            //{
+            //    foreach (var j in i.Details)
+            //    {
+            //        j.CodeRequirment = "BP";
+            //    }
+            //}
 
-            var dataDO = await datautilDO.GetNewData();
-            foreach (var i in dataDO.Items)
-            {
-                foreach (var j in i.Details)
-                {
-                    j.CodeRequirment = "BP";
-                }
-            }
+            //await facadeDO.Create(garmentDeliveryOrder, "Unit Test");
 
-            await facadeDO.Create(garmentDeliveryOrder, "Unit Test");
+            //var dataDO2 = await datautilDO.GetNewData();
+            //foreach (var i in dataDO2.Items)
+            //{
+            //    foreach (var j in i.Details)
+            //    {
+            //        j.CodeRequirment = "BE";
+            //    }
+            //}
 
-            var dataDO2 = await datautilDO.GetNewData();
-            foreach (var i in dataDO2.Items)
-            {
-                foreach (var j in i.Details)
-                {
-                    j.CodeRequirment = "BE";
-                }
-            }
-
-            await facadeDO.Create(garmentDeliveryOrder, "Unit Test");
+            //await facadeDO.Create(garmentDeliveryOrder, "Unit Test");
 
 
             var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
@@ -556,7 +556,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataDO = await datautilDO.GetTestData();
 
             var dataDO = await datautilDO.GetNewData();
-            dataDO.Id = 63;
             foreach (var i in dataDO.Items)
             {
                 foreach (var j in i.Details)
@@ -596,7 +595,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataDO = await datautilDO.GetTestData();
 
             var dataDO = await datautilDO.GetNewData();
-            dataDO.Id = 53;
             foreach (var i in dataDO.Items)
             {
                 foreach (var j in i.Details)
@@ -638,7 +636,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataDO = await datautilDO.GetTestData();
 
             var dataDO = await datautilDO.GetNewData();
-            dataDO.Id = 43;
             foreach (var i in dataDO.Items)
             {
                 foreach (var j in i.Details)
