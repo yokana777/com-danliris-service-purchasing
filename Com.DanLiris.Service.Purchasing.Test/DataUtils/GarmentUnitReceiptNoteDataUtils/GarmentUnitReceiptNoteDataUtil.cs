@@ -74,9 +74,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
                         RONo = detail.RONo,
 
-                        ReceiptQuantity = (decimal)detail.ReceiptQuantity,
+                        ReceiptQuantity =   (decimal)100,
 
-                        UomId = long.Parse(detail.UomId),
+						UomId = long.Parse(detail.UomId),
                         UomUnit = detail.UomUnit,
 
                         PricePerDealUnit = (decimal)detail.PricePerDealUnit,
@@ -84,11 +84,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         DesignColor = string.Concat("DesignColor", nowTicks),
 
                         SmallQuantity = (decimal)detail.SmallQuantity,
-
+						OrderQuantity=30,
                         SmallUomId = long.Parse(detail.SmallUomId),
                         SmallUomUnit = detail.SmallUomUnit,
-                        Conversion = (decimal)detail.Conversion,
-                        CorrectionConversion = (decimal)detail.Conversion,
+                        Conversion = (decimal)1,
+                        CorrectionConversion = (decimal)12,
+						
                         DOCurrencyRate=1
                     };
 
