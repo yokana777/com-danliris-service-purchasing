@@ -783,17 +783,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                          join h in dbContext.DeliveryOrders on g.DOId equals h.Id
                          //Conditions
                          where a.IsDeleted == false
-                            //&& b.Id == e.PRItemId
-                            && b.IsDeleted == false
-                            && c.IsDeleted == false
-                            && d.IsDeleted == false
-                            && e.IsDeleted == false
-                            && f.IsDeleted == false
-                            && g.IsDeleted == false
-                            && h.IsDeleted == false
-                            && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
-                            && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                         //&& b.Id == e.PRItemId
+                         && b.IsDeleted == false
+                         && c.IsDeleted == false
+                         && d.IsDeleted == false
+                         && e.IsDeleted == false
+                         && f.IsDeleted == false
+                         && g.IsDeleted == false
+                         && h.IsDeleted == false
+                         && a.UnitId == (string.IsNullOrWhiteSpace(unit) ? a.UnitId : unit)
+                         && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                         && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                          select new ExternalPurchaseDeliveryOrderDurationReportViewModel
                          {
                              prNo = d.No,
@@ -825,7 +825,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 var ePODate = new DateTimeOffset(item.ePOCreatedDate.Date, TimeSpan.Zero);
                 var doDate = new DateTimeOffset(item.dODate.Date, TimeSpan.Zero);
 
-                var datediff = (((TimeSpan)(doDate - ePODate)).Days)+1;
+                var datediff = (((TimeSpan)(doDate - ePODate)).Days) + 1;
                 ExternalPurchaseDeliveryOrderDurationReportViewModel _new = new ExternalPurchaseDeliveryOrderDurationReportViewModel
                 {
                     prNo = item.prNo,
@@ -856,6 +856,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                 listEPODUration.Add(_new);
             }
             return listEPODUration.Where(s => s.dateDiff >= start && s.dateDiff <= end).AsQueryable();
+
 
         }
 

@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Unit yang meminta dan Unit yang mengirim tidak boleh sama", new List<string> { "UnitSender" });
             }
 
-            if (string.IsNullOrWhiteSpace(Article))
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(Article))
             {
                 yield return new ValidationResult("Artikel harus diisi", new List<string> { "Article" });
             }

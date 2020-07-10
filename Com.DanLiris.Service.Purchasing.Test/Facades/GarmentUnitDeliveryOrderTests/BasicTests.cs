@@ -306,7 +306,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
                     {
                         URNItemId = item.Id,
                         IsSave = true,
-                        Quantity = (double)(item.SmallQuantity - item.OrderQuantity + 1)
+                        Quantity = (double)10000
                     }
                 }
             };

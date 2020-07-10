@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -17,6 +18,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUti
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
@@ -142,7 +144,114 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
             Assert.NotNull(e.Message);
         }
+        [Fact]
+        public async Task Should_Error_Create_Data_PRType_RONo()
+        {
+            var mockHttpClient = new Mock<IHttpClientService>();
+            mockHttpClient
+                .Setup(x => x.PatchAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
+            var mockServiceProvider = GetServiceProvider();
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClient.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            //model.PRType = "MASTER";
+            model.UnitCode = "C2A";
+            model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.PO_SerialNumber = null;
+            }
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            //var Response = await facade.Create(model, USERNAME);
+            //Assert.NotEqual(0, Response);
+            Assert.NotNull(e.Message);
+        }
+        [Fact]
+        public async Task Should_Error_Create_Data_UnitCode_RONo()
+        {
+            var mockHttpClient = new Mock<IHttpClientService>();
+            mockHttpClient
+                .Setup(x => x.PatchAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+
+            var mockServiceProvider = GetServiceProvider();
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClient.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.PRType = "MASTER";
+            //model.UnitCode = "C2A";
+            model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.PO_SerialNumber = null;
+            }
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            //var Response = await facade.Create(model, USERNAME);
+            //Assert.NotEqual(0, Response);
+            Assert.NotNull(e.Message);
+        }
+        [Fact]
+        public async Task Should_Error_Create_Data_PRType_POSerialNumber()
+        {
+            var mockHttpClient = new Mock<IHttpClientService>();
+            mockHttpClient
+                .Setup(x => x.PatchAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+
+            var mockServiceProvider = GetServiceProvider();
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClient.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            //model.PRType = "MASTER";
+            model.UnitCode = "C2A";
+            //model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.PO_SerialNumber = null;
+            }
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            //var Response = await facade.Create(model, USERNAME);
+            //Assert.NotEqual(0, Response);
+            Assert.NotNull(e.Message);
+        }
+        [Fact]
+        public async Task Should_Error_Create_Data_UnitCode_POSerialNumber()
+        {
+            var mockHttpClient = new Mock<IHttpClientService>();
+            mockHttpClient
+                .Setup(x => x.PatchAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+
+            var mockServiceProvider = GetServiceProvider();
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(mockHttpClient.Object);
+
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(mockServiceProvider.Object, _dbContext(GetCurrentMethod()));
+            var model = dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.PRType = "MASTER";
+            //model.UnitCode = "C2A";
+            //model.RONo = null;
+            foreach (var item in model.Items)
+            {
+                item.PO_SerialNumber = null;
+            }
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+            //var Response = await facade.Create(model, USERNAME);
+            //Assert.NotEqual(0, Response);
+            Assert.NotNull(e.Message);
+        }
         [Fact]
         public async Task Should_Error_Create_Data_Update_IsPR()
         {
@@ -186,6 +295,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var firstItem = newModel.Items.First();
             firstItem.Id = 0;
             firstItem.PO_SerialNumber = $"PO_SerialNumber{DateTime.Now.Ticks}";
+
+            var Response = await facade.Update((int)newModel.Id, newModel, USERNAME);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Update_Data_PRType()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var model = await dataUtil.GetTestData();
+
+            GarmentPurchaseRequest newModel = dataUtil.CopyData(model);
+            newModel.Items = new List<GarmentPurchaseRequestItem>();
+            foreach (var item in model.Items)
+            {
+                newModel.Items.Add(dataUtil.CopyDataItem(item));
+            }
+            newModel.PRType = "SAMPLE";
+            newModel.UnitCode = "C2A";
+            var firstItem = newModel.Items.First();
+            firstItem.Id = 0;
+            firstItem.PO_SerialNumber = null;
 
             var Response = await facade.Update((int)newModel.Id, newModel, USERNAME);
             Assert.NotEqual(0, Response);
@@ -688,11 +820,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
 			return new GarmentCorrectionNoteQuantityDataUtil(facade, garmentDeliveryOrderDataUtil);
 		}
+        private GarmentDeliveryOrderDataUtil dataUtilDo(GarmentDeliveryOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
 		[Fact]
 		public async Task Should_Success_Get_Report_Purchase_All_Data()
 		{
-			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null,dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
 			await facade.Create(data,false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
@@ -700,11 +854,60 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
 		}
 
-		[Fact]
+        [Fact]
+        public async Task Should_Success_Get_Report_Purchase_All_Data_Filter_Status_Belum()
+        {
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null, dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
+            await facade.Create(data, false, USERNAME);
+            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "BELUM", null, null, null, null, null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Purchase_All_Data_Filter_Status_Sudah()
+        {
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null, dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
+            await facade.Create(data, false, USERNAME);
+            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "SUDAH", null, null, null, null, null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
 		public async Task Should_Success_Get_Report_Purchase_All_Excel()
 		{
-			GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null, dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
 			await facade.Create(data, false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             
@@ -716,8 +919,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			Assert.IsType<System.IO.MemoryStream>(Response);
 
 		}
+        [Fact]
+        public async Task Should_Success_Get_Report_Purchase_All_Excel_null_Result()
+        {
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            await facade.Create(data, false, USERNAME);
+            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var dateTo = DateTime.Now;
+            var dateFrom = DateTime.Now.AddDays(-30);
+            var dateFromEx = DateTimeOffset.MinValue;
+            var dateToEx = DateTimeOffset.Now;
+            var Response = Facade.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, dateFrom, dateTo, dateFromEx, dateToEx, 1, 25, "{}", 7);
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
 
-		[Fact]
+
+        [Fact]
 		public async Task Should_Success_Get_Data_By_Name()
 		{
 			var facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));

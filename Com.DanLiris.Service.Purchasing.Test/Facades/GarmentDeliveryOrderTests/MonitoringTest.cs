@@ -26,6 +26,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -597,8 +600,589 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var Response = bookReportFacade.GenerateExcelBookReport(null, null, null, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
+        [Fact]
+        public async Task Should_Success_Get_Debt_Report()
+        {
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            DebtBookReportFacade reportFacade = new DebtBookReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
 
-        
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo123";
+            data.SupplierCode = "SupplierCode";
+            data.DOCurrencyCode = "CurrencyCode123";
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo1234";
+            data2.SupplierCode = "SupplierCode";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, DateTime.Now.Day));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GetDebtBookReport(DateTime.Now.Month, DateTime.Now.Year, null, "");
+            Assert.NotNull(result.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Report()
+        {
+
+            DataTable dataTable2 = new DataTable();
+            dataTable2.Columns.Add("Jumlah", typeof(decimal));
+            dataTable2.Columns.Add("Rate", typeof(decimal));
+            dataTable2.Columns.Add("Rate1", typeof(decimal));
+            dataTable2.Columns.Add("Nomor", typeof(string));
+            dataTable2.Columns.Add("Tgl", typeof(DateTime));
+            dataTable2.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable2.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable2.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            DebtBookReportFacade reportFacade = new DebtBookReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo12356";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo12345";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Report_With_Date()
+        {
+
+            DataTable dataTable2 = new DataTable();
+            dataTable2.Columns.Add("Jumlah", typeof(decimal));
+            dataTable2.Columns.Add("Rate", typeof(decimal));
+            dataTable2.Columns.Add("Rate1", typeof(decimal));
+            dataTable2.Columns.Add("Nomor", typeof(string));
+            dataTable2.Columns.Add("Tgl", typeof(DateTime));
+            dataTable2.Rows.Add(0, 12, 12, "Nomor", DateTime.Now.Date);
+
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable2.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable2.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            DebtBookReportFacade reportFacade = new DebtBookReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo12356";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo12345";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Report_Null_Parameter()
+        {
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            DebtBookReportFacade reportFacade = new DebtBookReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo123";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo1234";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(DateTime.Now.Month + 1, DateTime.Now.Year + 1, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public void Create_Connection_Error()
+        {
+            var result = Assert.ThrowsAny<Exception>(() => new LocalDbCashFlowDbContext(""));
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Debt_Balance_Report()
+        {
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDebtBalanceReportFacade reportFacade = new GarmentDebtBalanceReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo123";
+            data.SupplierCode = "SupplierCode";
+            data.DOCurrencyCode = "CurrencyCode123";
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo1234";
+            data2.SupplierCode = "SupplierCode";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, DateTime.Now.Day));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GetDebtBookReport(DateTime.Now.Month, DateTime.Now.Year, null, "");
+            Assert.NotNull(result.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Balance_Report()
+        {
+
+            DataTable dataTable2 = new DataTable();
+            dataTable2.Columns.Add("Jumlah", typeof(decimal));
+            dataTable2.Columns.Add("Rate", typeof(decimal));
+            dataTable2.Columns.Add("Rate1", typeof(decimal));
+            dataTable2.Columns.Add("Nomor", typeof(string));
+            dataTable2.Columns.Add("Tgl", typeof(DateTime));
+            dataTable2.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable2.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable2.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDebtBalanceReportFacade reportFacade = new GarmentDebtBalanceReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo12356";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo12345";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Balance_Report_With_Date()
+        {
+
+            DataTable dataTable2 = new DataTable();
+            dataTable2.Columns.Add("Jumlah", typeof(decimal));
+            dataTable2.Columns.Add("Rate", typeof(decimal));
+            dataTable2.Columns.Add("Rate1", typeof(decimal));
+            dataTable2.Columns.Add("Nomor", typeof(string));
+            dataTable2.Columns.Add("Tgl", typeof(DateTime));
+            dataTable2.Rows.Add(0, 12, 12, "Nomor", DateTime.Now.Date);
+
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable2.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable2.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDebtBalanceReportFacade reportFacade = new GarmentDebtBalanceReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo12356";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo12345";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(5, 2018, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Xls_Debt_Balance_Report_Null_Parameter()
+        {
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDebtBalanceReportFacade reportFacade = new GarmentDebtBalanceReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var datautilDO = dataUtil(facade, GetCurrentMethod());
+
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONo123";
+            data.SupplierCode = "SupplierCode";
+            data.SupplierName = "SupplierName";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.ArrivalDate = new DateTime(2018, 05, 05);
+            await facade.Create(data, USERNAME);
+
+            var dataBC = await datautilBC.GetTestData(USERNAME, data);
+
+            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONo1234";
+            data2.SupplierCode = "SupplierCode";
+            data2.SupplierName = "SupplierName";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.ArrivalDate = new DateTime(2018, 05, 20);
+            await facade.Create(data2, USERNAME);
+
+            var dataBC2 = await datautilBC.GetTestData(USERNAME, data2);
+
+            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+            data3.DONo = "DONo1234";
+            data3.SupplierCode = "SupplierCode";
+            //data3.SupplierName = "SupplierName";
+            data3.DOCurrencyCode = "CurrencyCode123";
+            data3.ArrivalDate = new DateTimeOffset(new DateTime(2018, 04, 20));
+            await facade.Create(data3, USERNAME);
+
+            var dataBC3 = await datautilBC.GetTestData(USERNAME, data3);
+
+            var result = reportFacade.GenerateExcelDebtReport(DateTime.Now.Month + 1, DateTime.Now.Year + 1, null, "");
+            Assert.IsType<System.IO.MemoryStream>(result);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Debt_Card_Report()
+        {
+            DataTable dataTable = new DataTable();
+            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //var datautilDO = dataUtil(deliveryOrderFacade, GetCurrentMethod());
+            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONoTest123";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.SupplierCode = "SupplierCodeTest123";
+            data.SupplierName = "SupplierNameTest123";
+            data.ArrivalDate = new DateTime(2020, 03, 12);
+            await deliveryOrderFacade.Create(data, "Unit Test");
+            var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONoTest12";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.SupplierCode = "SupplierCodeTest123";
+            data2.SupplierName = "SupplierNameTest123";
+            data2.ArrivalDate = new DateTime(2020, 04, 20);
+            await deliveryOrderFacade.Create(data2, "Unit Test");
+
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+            DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var Response = cardReportFacade.GetDebtCardReport(4, 2020, data.SupplierCode, data.SupplierName, data.DOCurrencyCode, null, 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Debt_Card_Report_With_Date() {
+            DataTable dataTable = new DataTable();
+            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", DateTime.Now);
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data.SupplierCode = "SupplierCode123";
+            data.SupplierName = "SupplierName234";
+            data.DOCurrencyCode = "Currency123";
+            data.ArrivalDate = new DateTime(2019, 03, 03);
+            await deliveryOrderFacade.Create(data, GetCurrentMethod());
+
+            DebtCardReportFacade debtCard = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var Response = debtCard.GetDebtCardReport(3, 2019, data.SupplierCode, null, data.DOCurrencyCode, null, 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Generate_Debt_Card_Report_Excel() {
+            DataTable dataTable = new DataTable();
+            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONoTest123";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.SupplierCode = "SupplierCodeTest123";
+            data.SupplierName = "SupplierNameTest123";
+            data.ArrivalDate = new DateTime(2020, 03, 12);
+            await deliveryOrderFacade.Create(data, "Unit Test");
+            var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONoTest12";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.SupplierCode = "SupplierCodeTest123";
+            data2.SupplierName = "SupplierNameTest123";
+            data2.ArrivalDate = new DateTime(2020, 04, 20);
+            await deliveryOrderFacade.Create(data2, "Unit Test");
+            DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var Response = cardReportFacade.GenerateExcelCardReport(4, 2020, data.SupplierCode, data.SupplierName, data.DOCurrencyCode, "CurrencyTest", null, 7);
+            Assert.IsType<System.IO.MemoryStream>(Response);
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Generate_Debt_Card_Report_Excel_Null_Parameters()
+        {
+            DataTable dataTable = new DataTable();
+            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            dataTable.Columns.Add("Jumlah", typeof(decimal));
+            dataTable.Columns.Add("Rate", typeof(decimal));
+            dataTable.Columns.Add("Rate1", typeof(decimal));
+            dataTable.Columns.Add("Nomor", typeof(string));
+            dataTable.Columns.Add("Tgl", typeof(DateTime));
+            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data.DONo = "DONoTest123";
+            data.DOCurrencyCode = "CurrencyCode123";
+            data.SupplierCode = "SupplierCodeTest123";
+            data.SupplierName = "SupplierNameTest123";
+            data.ArrivalDate = new DateTime(2020, 03, 12);
+            await deliveryOrderFacade.Create(data, "Unit Test");
+            var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+            data2.DONo = "DONoTest12";
+            data2.DOCurrencyCode = "CurrencyCode123";
+            data2.SupplierCode = "SupplierCodeTest123";
+            data2.SupplierName = "SupplierNameTest123";
+            data2.ArrivalDate = new DateTime(2020, 04, 20);
+            await deliveryOrderFacade.Create(data2, "Unit Test");
+            DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var Response = cardReportFacade.GenerateExcelCardReport(4, 2020, null, null, null, "", null, 7);
+            Assert.IsType<System.IO.MemoryStream>(Response);
+
+        }
 
     }
 }

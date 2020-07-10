@@ -203,6 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         [Fact]
         public async Task Should_Success_Update_Data()
         {
+            //string nowTicksA = $"{nowTicks}a";
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataFabric();
             List<GarmentExternalPurchaseOrderItem> item = new List<GarmentExternalPurchaseOrderItem>(data.Items);
@@ -228,6 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             Assert.NotEqual(0, ResponseUpdate);
             var newItem = new GarmentExternalPurchaseOrderItem
             {
+
                 PO_SerialNumber = "PO_SerialNumber",
                 ProductId = item[0].ProductId,
                 PRId = item[0].PRId,

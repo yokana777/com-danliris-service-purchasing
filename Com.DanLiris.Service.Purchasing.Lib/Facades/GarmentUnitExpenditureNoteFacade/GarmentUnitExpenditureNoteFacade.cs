@@ -124,6 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 garmentUnitDeliveryOrderItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
                             }
                             garmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate == null ? 0 : garmentUnitDeliveryOrderItem.DOCurrencyRate;
+                            
                             garmentUnitExpenditureNoteItem.Conversion = garmentUnitReceiptNoteItem.Conversion;
                             //var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * Math.Round(garmentUnitExpenditureNoteItem.Quantity / (double)garmentUnitExpenditureNoteItem.Conversion, 2) * garmentUnitExpenditureNoteItem.DOCurrencyRate) / (double)garmentUnitExpenditureNoteItem.Conversion;
                             var basicPrice = (garmentUnitExpenditureNoteItem.PricePerDealUnit * garmentUnitExpenditureNoteItem.DOCurrencyRate);
@@ -405,15 +406,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             item.PriceTotalAfter = item.PriceTotalAfter *(-1);
                             EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
 
-                            var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
-                            var epoDetail = dbContext.GarmentExternalPurchaseOrderItems.First(d => d.Id == garmentDeliveryOrderDetail.EPOItemId);
-                            //garmentDeliveryOrderDetail.QuantityCorrection = ((double)item.Quantity * (-1)) + garmentDeliveryOrderDetail.QuantityCorrection;
-                            //garmentDeliveryOrderDetail.PriceTotalCorrection = garmentDeliveryOrderDetail.QuantityCorrection * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
-                            //18/02/20 *update by mb Nila
-                            //garmentDeliveryOrderDetail.ReturQuantity = garmentDeliveryOrderDetail.ReturQuantity + ((double)item.Quantity * (-1));
+                            //var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
+                            //var epoDetail = dbContext.GarmentExternalPurchaseOrderItems.First(d => d.Id == garmentDeliveryOrderDetail.EPOItemId);
+                            ////garmentDeliveryOrderDetail.QuantityCorrection = ((double)item.Quantity * (-1)) + garmentDeliveryOrderDetail.QuantityCorrection;
+                            ////garmentDeliveryOrderDetail.PriceTotalCorrection = garmentDeliveryOrderDetail.QuantityCorrection * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
+                            ////18/02/20 *update by mb Nila
+                            ////garmentDeliveryOrderDetail.ReturQuantity = garmentDeliveryOrderDetail.ReturQuantity + ((double)item.Quantity * (-1));
 
-                            epoDetail.DOQuantity = epoDetail.DOQuantity + (double)item.Quantity;
-                            EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, identityService.Username, USER_AGENT);
+                            //epoDetail.DOQuantity = epoDetail.DOQuantity + (double)item.Quantity;
+                            //EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, identityService.Username, USER_AGENT);
                         }
                         dbSetGarmentCorrectionNote.Add(Correction);
                         #endregion
@@ -574,6 +575,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             UnitDOFromId= oldGarmentUnitDO.Id,
                             UnitDOFromNo=oldGarmentUnitDO.UnitDONo
                         };
+
                         garmentUnitDO.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDO);
                         EntityExtension.FlagForCreate(garmentUnitDO, identityService.Username, USER_AGENT);
 
@@ -1067,7 +1069,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == oldGarmentUnitExpenditureNoteItem.UnitDOItemId);
                             garmentUnitDeliveryOrderItem.Quantity = 0;
 
-                            oldGarmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate;
+                            oldGarmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate.GetValueOrDefault();
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitExpenditureNoteItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
@@ -1088,8 +1090,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 garmentUnitDeliveryOrderItem.Quantity = newGarmentUnitExpenditureNoteItem.Quantity;
                             }
                             oldGarmentUnitExpenditureNoteItem.Quantity = garmentUnitExpenditureNote.Items.FirstOrDefault(i => i.Id == oldGarmentUnitExpenditureNoteItem.Id).Quantity;
-                            oldGarmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate;
+                            oldGarmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate.GetValueOrDefault();
                             oldGarmentUnitExpenditureNoteItem.Conversion = garmentUnitReceiptNoteItem.Conversion;
+                            oldGarmentUnitExpenditureNoteItem.ItemStatus = newGarmentUnitExpenditureNoteItem.ItemStatus;
                         }
                         var basicPrice = (oldGarmentUnitExpenditureNoteItem.PricePerDealUnit * Math.Round(oldGarmentUnitExpenditureNoteItem.Quantity / (double)oldGarmentUnitExpenditureNoteItem.Conversion, 2) * oldGarmentUnitExpenditureNoteItem.DOCurrencyRate) / (double)oldGarmentUnitExpenditureNoteItem.Conversion;
                         oldGarmentUnitExpenditureNoteItem.BasicPrice = Math.Round((decimal)basicPrice, 4);
