@@ -708,8 +708,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 		[Fact]
 		public async Task Should_Error_Get_Data_By_Id()
 		{
-			var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-			var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
+            var dbString = GetCurrentMethod() + "Task Should_Error_Get_Data_By_Id";
+			var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(dbString));
+			var data = await dataUtil(facade, dbString).GetTestDataAcc();
 			var Response = facade.GetROAsalById((int)data.Id);
 			Assert.NotEqual(0, Response.DetailExpenditureId);
 		}
