@@ -30,15 +30,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteEx
         }
 
         #region MonitoringCorrectionNoteExpenditureAll
-        public Tuple<List<MonitoringCorrectionNoteExpenditureViewModel>, int> GetMonitoringKeluarNKReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<MonitoringCorrectionNoteExpenditureViewModel>, int> GetMonitoringKeluarNKReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string jnsBC)
         {
-            var Query = GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, page, size);
+            var Query = GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, page, size, jnsBC);
 
             return Tuple.Create(Query, TotalCountReport);
         }
-        public MemoryStream GenerateExcelMonitoringKeluarNK(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public MemoryStream GenerateExcelMonitoringKeluarNK(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string jnsBC)
         {
-            var Query =  GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query =  GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue, jnsBC);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteEx
         #endregion
         #region MonitoringCorrectionNoteExpenditureByUser
         public int TotalCountReport { get; set; } = 0;
-        private List<MonitoringCorrectionNoteExpenditureViewModel> GetMonitoringKeluarNKByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
+        private List<MonitoringCorrectionNoteExpenditureViewModel> GetMonitoringKeluarNKByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size, string jnsBC)
         {
 
 
@@ -188,8 +188,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteEx
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where
-                         n != null && URN.URNType == "PEMBELIAN" && d.BeacukaiNo.Substring(0, 4) != "BCDL" &&
+                         n != null && URN.URNType == "PEMBELIAN" && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL")) 
+                         &&
                          ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate >= d1 && n.CorrectionDate <= d2) : true)
+
 
                          select new SelectedId
                          {
@@ -325,18 +327,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteEx
         }
 
 
-        public Tuple<List<MonitoringCorrectionNoteExpenditureViewModel>, int> GetMonitoringKeluarNKByUserReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<MonitoringCorrectionNoteExpenditureViewModel>, int> GetMonitoringKeluarNKByUserReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string JnsBC)
         {
-            var Data = GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, page, size);
+            var Data = GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, page, size, JnsBC);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
     
             return Tuple.Create(Data, TotalCountReport);
         }
 
-        public MemoryStream GenerateExcelMonitoringKeluarNKByUser(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public MemoryStream GenerateExcelMonitoringKeluarNKByUser(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset, string JnsBC)
         {
-            var Query = GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query = GetMonitoringKeluarNKByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue, JnsBC);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
