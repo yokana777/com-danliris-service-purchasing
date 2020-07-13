@@ -990,7 +990,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
                 .SelectMany(x => x.Items
-                .Where(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
+                .Where(i => (( i.ReceiptCorrection * i.CorrectionConversion )- i.OrderQuantity >0 ) &&  i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 .Select(y => new
                 {
                     x.URNNo,
@@ -1045,7 +1045,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     (!hasStorageFilter ? true : x.StorageId == storageId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && ((i.ReceiptCorrection * i.CorrectionConversion) - i.OrderQuantity > 0) && (hasRONoFilter ? (i.RONo != RONo) : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
@@ -1071,7 +1071,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.ReceiptCorrection,
                     y.Conversion,
                     y.CorrectionConversion,
-                    Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+                    Article = dbContext.GarmentExternalPurchaseOrderItems.Where( m => m.Id == y.EPOItemId ).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             List<object> result = new List<object>(readForUnitDO);
             return result;
