@@ -52,6 +52,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
         }
 
         [Fact]
+        public void Should_Success_HideUnpost()
+        {
+            POExternalUpdateModel model = new POExternalUpdateModel
+            {
+                IsCreateOnVBRequest = true
+            };
+            var Response = Facade.HideUnpost("Test", "Test", model);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
         public async Task Should_Success_EPOClose()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("Unit test");
