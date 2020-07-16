@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -159,6 +160,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
             });
         }
 
+        
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -304,6 +307,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                 _facade.EPOPost(
                     ListExternalPurchaseOrderViewModel.Select(vm => _mapper.Map<ExternalPurchaseOrder>(vm)).ToList(), identityService.Username
                 );
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
+        [HttpPut("update-from-vb-with-po-req-finance/{PONo}")]
+        public IActionResult UpdateFromSalesReceiptAsync([FromRoute] string PONo, [FromBody] POExternalUpdateModel model)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                _facade.HideUnpost(PONo, identityService.Username, model);
 
                 return NoContent();
             }

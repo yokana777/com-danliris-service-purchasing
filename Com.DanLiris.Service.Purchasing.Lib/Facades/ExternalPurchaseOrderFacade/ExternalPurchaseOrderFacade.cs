@@ -93,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     DefaultQuantity = r.DefaultQuantity,
                                     DealUomId = r.DealUomId,
                                     DealUomUnit = r.DealUomUnit,
-                                    
+
                                 }
                             ).ToList()
                         }
@@ -554,6 +554,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
                         }
                     }
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public int HideUnpost(string PONo, string user, POExternalUpdateModel model)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet.SingleOrDefault(epo => epo.EPONo == PONo && !epo.IsDeleted);
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsCreateOnVBRequest = model.IsCreateOnVBRequest;
 
                     Updated = dbContext.SaveChanges();
                     transaction.Commit();
