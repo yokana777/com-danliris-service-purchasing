@@ -61,6 +61,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.PutAsync($"{URI}/unpost/0", new StringContent("", Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_HideUnpost()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/{model.EPONo}", new StringContent("", Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_HideUnpost_Data_InvalidId()
+        {
+            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/0", new StringContent("", Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
         [Fact]
         public async Task Should_Success_EPOCancel()
         {
