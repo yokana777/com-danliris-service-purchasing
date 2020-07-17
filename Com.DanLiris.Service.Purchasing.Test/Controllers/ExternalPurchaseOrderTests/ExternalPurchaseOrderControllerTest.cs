@@ -66,7 +66,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         public async Task Should_Success_HideUnpost()
         {
             ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
-            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/{model.EPONo}", new StringContent("", Encoding.UTF8, MediaType));
+            POExternalUpdateModel modelupdate = new POExternalUpdateModel
+            {
+                IsCreateOnVBRequest = true
+            };
+            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/{model.EPONo}", new StringContent(JsonConvert.SerializeObject(modelupdate).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
