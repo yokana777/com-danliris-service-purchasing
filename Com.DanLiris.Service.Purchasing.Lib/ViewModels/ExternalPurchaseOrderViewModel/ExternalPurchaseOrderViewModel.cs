@@ -36,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public bool isClosed { get; set; }
         public bool isCanceled { get; set; }
         public string remark { get; set; }
+        public bool IsCreateOnVBRequest { get; set; }
         public List<ExternalPurchaseOrderItemViewModel> items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
