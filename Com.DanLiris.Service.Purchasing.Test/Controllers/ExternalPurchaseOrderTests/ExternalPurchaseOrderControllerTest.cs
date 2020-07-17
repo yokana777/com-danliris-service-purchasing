@@ -77,7 +77,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
         [Fact]
         public async Task Should_Error_HideUnpost_Data_InvalidId()
         {
-            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/0", new StringContent("", Encoding.UTF8, MediaType));
+            POExternalUpdateModel modelupdate = new POExternalUpdateModel
+            {
+                IsCreateOnVBRequest = true
+            };
+
+            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/0", new StringContent(JsonConvert.SerializeObject(modelupdate).ToString(), Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
