@@ -58,7 +58,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                         s.unit.name
                     },
                     s.isPosted,
-                    s.items
+                    s.items,
+                    s.IsCreateOnVBRequest
                 }).ToList()
             );
 
