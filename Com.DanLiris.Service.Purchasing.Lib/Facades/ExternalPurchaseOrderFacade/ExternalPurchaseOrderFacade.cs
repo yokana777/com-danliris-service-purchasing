@@ -576,7 +576,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             {
                 try
                 {
-                    var m = this.dbSet.SingleOrDefault(epo => epo.EPONo == PONo && !epo.IsDeleted);
+                    var m = this.dbSet.SingleOrDefault(epo => epo.EPONo == PONo);
                     EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.IsCreateOnVBRequest = model.IsCreateOnVBRequest;
 
