@@ -59,7 +59,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     },
                     s.isPosted,
                     s.items,
-                    s.IsCreateOnVBRequest
+                    s.IsCreateOnVBRequest,
+                    CurrencyCode = s.currency.code,
+                    CurrencyRate = s.currency.rate,
+                    s.useVat,
+                    s.incomeTax,
+                    s.incomeTaxBy
                 }).ToList()
             );
 
