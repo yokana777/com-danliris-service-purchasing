@@ -546,6 +546,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             GarmentUnitExpenditureNoteViewModel viewModelCheckUnitDeliveryOrder = new GarmentUnitExpenditureNoteViewModel
             {
                 ExpenditureDate = DateTimeOffset.Now,
+                UnitDODate= DateTimeOffset.Now.AddDays(2),
                 UnitDONo = "UnitDONO123",
                 
                 IsTransfered = false,
