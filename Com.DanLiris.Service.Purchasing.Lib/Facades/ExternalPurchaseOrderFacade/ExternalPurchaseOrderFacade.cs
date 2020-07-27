@@ -68,6 +68,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     UnitCode = s.UnitCode,
                     CreatedBy = s.CreatedBy,
                     IsPosted = s.IsPosted,
+                    UseVat = s.UseVat,
+                    IncomeTaxId = s.IncomeTaxId,
+                    IncomeTaxName = s.IncomeTaxName,
+                    IncomeTaxRate = s.IncomeTaxRate,
+                    IncomeTaxBy = s.IncomeTaxBy,
                     Items = s.Items.Select(
                         q => new ExternalPurchaseOrderItem
                         {
@@ -93,6 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     DefaultQuantity = r.DefaultQuantity,
                                     DealUomId = r.DealUomId,
                                     DealUomUnit = r.DealUomUnit,
+                                    IncludePpn = r.IncludePpn,
 
                                 }
                             ).ToList()
