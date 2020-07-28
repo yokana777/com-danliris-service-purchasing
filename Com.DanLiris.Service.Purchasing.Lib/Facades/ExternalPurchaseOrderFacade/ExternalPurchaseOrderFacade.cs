@@ -73,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     IncomeTaxName = s.IncomeTaxName,
                     IncomeTaxRate = s.IncomeTaxRate,
                     IncomeTaxBy = s.IncomeTaxBy,
+                    IsCreateOnVBRequest = s.IsCreateOnVBRequest,
                     Items = s.Items.Select(
                         q => new ExternalPurchaseOrderItem
                         {
