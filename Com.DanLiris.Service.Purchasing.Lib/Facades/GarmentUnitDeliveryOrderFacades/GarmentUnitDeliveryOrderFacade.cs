@@ -318,6 +318,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     Id = m.Id,
                     UnitDONo = m.UnitDONo,
                     UnitDOType = m.UnitDOType,
+                    UnitDODate = m.UnitDODate,
                     UnitSenderId = m.UnitSenderId,
                     UnitSenderCode = m.UnitSenderCode,
                     UnitSenderName = m.UnitSenderName,
@@ -381,6 +382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     s.UnitRequest,
                     s.UnitSender,
                     s.CreatedBy,
+                    s.UnitDODate,
                     s.LastModifiedUtc,
                     Items = s.Items.Select(i => new
                     {
