@@ -378,11 +378,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     s.UnitDOType,
                     s.IsUsed,
                     s.Storage,
+                    s.UnitDODate,
                     s.StorageRequest,
                     s.UnitRequest,
                     s.UnitSender,
                     s.CreatedBy,
-                    s.UnitDODate,
                     s.LastModifiedUtc,
                     Items = s.Items.Select(i => new
                     {
