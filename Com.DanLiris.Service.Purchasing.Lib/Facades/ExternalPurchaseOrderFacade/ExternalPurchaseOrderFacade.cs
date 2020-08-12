@@ -97,6 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     DefaultUomId = r.DefaultUomId,
                                     DefaultUomUnit = r.DefaultUomUnit,
                                     DefaultQuantity = r.DefaultQuantity,
+                                    DealQuantity = r.DealQuantity,
                                     DealUomId = r.DealUomId,
                                     DealUomUnit = r.DealUomUnit,
                                     IncludePpn = r.IncludePpn,
