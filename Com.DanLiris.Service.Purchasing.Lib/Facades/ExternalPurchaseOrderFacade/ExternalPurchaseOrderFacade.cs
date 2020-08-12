@@ -84,6 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 
                                 r => new ExternalPurchaseOrderDetail
                                 {
+                                    Conversion = r.Conversion,
                                     POItemId = r.POItemId,
                                     PRItemId = r.PRItemId,
                                     PriceBeforeTax = r.PriceBeforeTax,
