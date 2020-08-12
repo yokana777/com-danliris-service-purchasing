@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 		public void Should_Error_Get_Report_Data()
 		{
 			var mockFacade = new Mock<IMonitoringCentralBillExpenditureFacade>();
-			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatReport(null, null, 1, 25, "{}", 7))
+			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatReport(null, null, null, 1, 25, "{}", 7))
 				.Returns(Tuple.Create(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel }, 25));
 
 			var mockMapper = new Mock<IMapper>();
@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetReport(null, null, 1, 25, "{}");
+			var response = controller.GetReport(null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 
@@ -114,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 		public void Should_Error_Get_Report_Xls_Data()
 		{
 			var mockFacade = new Mock<IMonitoringCentralBillExpenditureFacade>();
-			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatReport(null, null, 1, 25, "{}", 7))
+			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatReport(null, null, null, 1, 25, "{}", 7))
 				.Returns(Tuple.Create(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel }, 25));
 
 			var mockMapper = new Mock<IMapper>();
@@ -136,14 +136,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetXls(null, null, 1, 25, "{}");
+			var response = controller.GetXls(null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 		[Fact]
 		public void Should_Error_Get_Report_By_User_Data()
 		{
 			var mockFacade = new Mock<IMonitoringCentralBillExpenditureFacade>();
-			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatByUserReport(null, null, 1, 25, "{}", 7))
+			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatByUserReport(null, null, null, 1, 25, "{}", 7))
 				.Returns(Tuple.Create(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel }, 25));
 
 			var mockMapper = new Mock<IMapper>();
@@ -165,7 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetReportByUser(null, null, null, 1, 25, "{}");
+			var response = controller.GetReportByUser(null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 
@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 		public void Should_Error_Get_Report_By_User_Xls_Data()
 		{
 			var mockFacade = new Mock<IMonitoringCentralBillExpenditureFacade>();
-			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatByUserReport(null, null, 1, 25, "{}", 7))
+			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatByUserReport(null, null, null, 1, 25, "{}", 7))
 				.Returns(Tuple.Create(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel }, 25));
 
 			var mockMapper = new Mock<IMapper>();
@@ -195,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 				}
 			};
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetXlsByUser(null, null, null, 1, 25, "{}");
+			var response = controller.GetXlsByUser(null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
 	}

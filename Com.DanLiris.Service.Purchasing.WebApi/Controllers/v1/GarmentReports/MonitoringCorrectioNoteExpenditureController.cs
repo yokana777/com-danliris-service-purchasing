@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
 		[HttpGet]
-		public IActionResult GetReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order = "{}")
 		{
 			int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
 			string accept = Request.Headers["Accept"];
@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			try
 			{
 
-				var data = facade.GetMonitoringKeluarNKReport(dateFrom, dateTo, page, size, Order, offset);
+				var data = facade.GetMonitoringKeluarNKReport(dateFrom, dateTo, page, size, Order, offset, jnsBC);
 
 				return Ok(new
 				{
@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			}
 		}
 		[HttpGet("by-user")]
-		public IActionResult GetReportByUser(string username, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetReportByUser(string username, DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order = "{}")
 		{
 			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 			username = identityService.Username;
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			try
 			{
 
-				var data = facade.GetMonitoringKeluarNKByUserReport(dateFrom, dateTo, page, size, Order, offset);
+				var data = facade.GetMonitoringKeluarNKByUserReport(dateFrom, dateTo, page, size, Order, offset, jnsBC);
 
 				return Ok(new
 				{
@@ -89,14 +89,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			}
 		}
 		[HttpGet("download")]
-		public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order = "{}")
 		{
 			try
 			{
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcelMonitoringKeluarNK(dateFrom, dateTo, page, size, Order, offset);
+				var xls = facade.GenerateExcelMonitoringKeluarNK(dateFrom, dateTo, page, size, Order, offset, jnsBC);
 
 				string filename = "Monitoring Pengeluaran Nota Koreksi";
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
 		}
 		[HttpGet("by-user/download")]
-		public IActionResult GetXlsByUser(string username, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetXlsByUser(string username, DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order = "{}")
 		{
 			try
 			{
@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcelMonitoringKeluarNKByUser(dateFrom, dateTo, page, size, Order, offset);
+				var xls = facade.GenerateExcelMonitoringKeluarNKByUser(dateFrom, dateTo, page, size, Order, offset, jnsBC);
 
 				string filename = "Monitoring Pengeluaran  Nota Koreksi - " + username;
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");

@@ -68,6 +68,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     UnitCode = s.UnitCode,
                     CreatedBy = s.CreatedBy,
                     IsPosted = s.IsPosted,
+                    UseVat = s.UseVat,
+                    IncomeTaxId = s.IncomeTaxId,
+                    IncomeTaxName = s.IncomeTaxName,
+                    IncomeTaxRate = s.IncomeTaxRate,
+                    IncomeTaxBy = s.IncomeTaxBy,
+                    IsCreateOnVBRequest = s.IsCreateOnVBRequest,
                     Items = s.Items.Select(
                         q => new ExternalPurchaseOrderItem
                         {
@@ -91,9 +97,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     DefaultUomId = r.DefaultUomId,
                                     DefaultUomUnit = r.DefaultUomUnit,
                                     DefaultQuantity = r.DefaultQuantity,
+                                    DealQuantity = r.DealQuantity,
                                     DealUomId = r.DealUomId,
                                     DealUomUnit = r.DealUomUnit,
-                                    
+                                    IncludePpn = r.IncludePpn,
+
                                 }
                             ).ToList()
                         }
@@ -554,6 +562,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             internalPurchaseOrderItem.Status = "Sudah dibuat PO Eksternal";
                         }
                     }
+
+                    Updated = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+        public int HideUnpost(string PONo, string user, POExternalUpdateModel model)
+        {
+            int Updated = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var m = this.dbSet.SingleOrDefault(epo => epo.EPONo == PONo);
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsCreateOnVBRequest = model.IsCreateOnVBRequest;
 
                     Updated = dbContext.SaveChanges();
                     transaction.Commit();

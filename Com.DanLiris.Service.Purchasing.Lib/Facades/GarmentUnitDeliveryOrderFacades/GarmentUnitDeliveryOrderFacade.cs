@@ -306,16 +306,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
         public ReadResponse<object> ReadForUnitExpenditureNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			var username = identityService.Username;
+
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             //string unitDOType = "";
             bool hasUnitDOTypeFilter = FilterDictionary.ContainsKey("UnitDOType");
             IQueryable<GarmentUnitDeliveryOrder> Query = dbSet
-                .Where(x => x.UnitDONo.Contains(Keyword ?? ""))
+                .Where(x => x.UnitDONo.Contains(Keyword ?? "") && x.CreatedBy == username)
                 .Select(m => new GarmentUnitDeliveryOrder
                 {
                     Id = m.Id,
                     UnitDONo = m.UnitDONo,
                     UnitDOType = m.UnitDOType,
+                    UnitDODate = m.UnitDODate,
                     UnitSenderId = m.UnitSenderId,
                     UnitSenderCode = m.UnitSenderCode,
                     UnitSenderName = m.UnitSenderName,
@@ -375,6 +378,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     s.UnitDOType,
                     s.IsUsed,
                     s.Storage,
+                    s.UnitDODate,
                     s.StorageRequest,
                     s.UnitRequest,
                     s.UnitSender,
