@@ -143,6 +143,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
                         GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
                         
+                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+                        if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0)
+                        {
+                            throw new Exception("garmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
+                        }
                         garmentUnitReceiptNote.IsUnitDO = true;
 
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
@@ -241,6 +246,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         else
                         {
                             EntityExtension.FlagForCreate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
+                            GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                            garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+                            if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0)
+                            {
+                                throw new Exception("oldGarmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
+                            }
                             oldGarmentUnitDeliveryOrder.Items.Add(garmentUnitDeliveryOrderItem);
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
