@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         [MaxLength(255)]
         public string PRNo { get; set; }
         public long PRItemId { get; set; }
-
+		public string UId { get; set; }
         public long POId { get; set; }
         public long POItemId { get; set; }
         [MaxLength(1000)]

@@ -8,8 +8,10 @@ using System.Text;
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel
 {
     public class GarmentUnitDeliveryOrderItem : StandardEntity<long>
-    {
-        public long URNId { get; set; }
+	{
+		[MaxLength(255)]
+		public string UId { get; set; }
+		public long URNId { get; set; }
         [MaxLength(255)]
         public string URNNo { get; set; }
 
@@ -27,7 +29,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         public string ProductCode { get; set; }
         [MaxLength(1000)]
         public string ProductName { get; set; }
-        public string ProductRemark { get; set; }
+		[MaxLength(1000)]
+		public string ProductRemark { get; set; }
 
         [MaxLength(255)]
         public string RONo { get; set; }
@@ -42,8 +45,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         public double PricePerDealUnit { get; set; }
         [MaxLength(255)]
         public string FabricType { get; set; }
-
-        public string DesignColor { get; set; }
+		[MaxLength(1000)]
+		public string DesignColor { get; set; }
 
         public double? DOCurrencyRate { get; set; }
 
