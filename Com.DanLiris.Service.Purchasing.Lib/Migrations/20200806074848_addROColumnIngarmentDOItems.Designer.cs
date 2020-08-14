@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200806074848_addROColumnIngarmentDOItems")]
+    partial class addROColumnIngarmentDOItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3719,8 +3720,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DesignColor")
-                        .HasMaxLength(1000);
+                    b.Property<string>("DesignColor");
 
                     b.Property<long>("EPOItemId");
 
@@ -3756,8 +3756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ProductName")
                         .HasMaxLength(1000);
 
-                    b.Property<string>("ProductRemark")
-                        .HasMaxLength(1000);
+                    b.Property<string>("ProductRemark");
 
                     b.Property<double>("Quantity");
 
@@ -3771,8 +3770,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ReturUomUnit")
                         .HasMaxLength(255);
 
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
+                    b.Property<string>("UId");
 
                     b.Property<long>("URNId");
 
@@ -4038,10 +4036,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DesignColor")
-                        .HasMaxLength(255);
+                    b.Property<string>("DesignColor");
 
-                    b.Property<long>("DetailReferenceId");
+                    b.Property<string>("DetailReferenceId");
 
                     b.Property<long>("EPOItemId");
 
@@ -4074,8 +4071,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("ProductName")
                         .HasMaxLength(1000);
 
-                    b.Property<string>("RO")
-                        .HasMaxLength(255);
+                    b.Property<string>("RO");
 
                     b.Property<decimal>("RemainingQuantity");
 
