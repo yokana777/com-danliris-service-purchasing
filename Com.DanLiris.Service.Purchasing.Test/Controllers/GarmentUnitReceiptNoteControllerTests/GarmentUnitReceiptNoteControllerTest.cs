@@ -233,6 +233,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         }
 
         [Fact]
+        public void Should_Error_Get_Data_DOItems_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadDOItemsByURNItemId(It.IsAny<int>()))
+                .Returns((GarmentDOItems)null);
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetDOItems(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_PDF_By_Id()
         {
             var Model = this.Model;
