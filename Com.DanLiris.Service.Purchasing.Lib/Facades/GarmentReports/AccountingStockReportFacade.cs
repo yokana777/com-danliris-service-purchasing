@@ -350,10 +350,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             double? EndingQty = Query.Sum(x => Convert.ToDouble(x.EndingBalanceQty));
             double? EndingTotal = Query.Sum(x => Convert.ToDouble(x.EndingBalancePrice));
             DataTable result = new DataTable();
-            var headers = new string[] { "No", "Kode", "Nama Barang", "RO", "Buyer", "PlanPO", "No Artikel", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M B E L I A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "Saldo Akhir", "Saldo Akhir 1" };
+            var headers = new string[] { "No", "Kode", "Nama Barang", "RO", "Buyer", "PlanPO", "No Artikel", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "Saldo Akhir", "Saldo Akhir 1" };
             var headers2 = new string[] { "Koreksi", "Pembelian", "Proses", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C", "KONFEKSI 1 MNS", "KONFEKSI 2D", "Retur", "Sisa", "Proses", "Sample", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C", "KONFEKSI 1 MNS", "KONFEKSI 2D" };
             var subheaders = new string[] { "Jumlah", "Sat", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp" };
-            for (int i = 0; i < headers.Length; i++)
+            for (int i = 0; i < 7; i++)
             {
                 result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
             }
@@ -368,16 +368,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             {
                 var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon2DQty : unitcode == "C1A" ? item.ReceiptPurchaseQty + item.ReceiptKon1MNSQty : item.ReceiptPurchaseQty + item.ReceiptKon2AQty + item.ReceiptKon2BQty + item.ReceiptKon2CQty + item.ReceiptKon2DQty + item.ReceiptKon1MNSQty;
                 var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon2DPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1MNSPrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon2DPrice + item.ReceiptKon1MNSPrice;
-                var ReceiptKon2AQty = unitcode == "C2A" ? "-" : item.ReceiptKon2AQty.ToString();
-                var ReceiptKon2APrice = unitcode == "C2A" ? "-" : item.ReceiptKon2APrice.ToString();
-                var ReceiptKon2BPrice = unitcode == "C2B" ? "-" : item.ReceiptKon2BPrice.ToString();
-                var ReceiptKon2BQty = unitcode == "C2B" ? "-" : item.ReceiptKon2BQty.ToString();
-                var ReceiptKon2CPrice = unitcode == "C2C" ? "-" : item.ReceiptKon2CQty.ToString();
-                var ReceiptKon2CQty = unitcode == "C2C" ? "-" : item.ReceiptKon2CQty.ToString();
-                var ReceiptKon2DPrice = unitcode == "C1B" ? "-" : item.ReceiptKon2DPrice.ToString();
-                var ReceiptKon2DQty = unitcode == "C1B" ? "-" : item.ReceiptKon2DQty.ToString();
-                var ReceiptKon1MNSQty = unitcode == "C1A" ? "-" : item.ReceiptKon1MNSQty.ToString();
-                var ReceiptKon1MNSPrice = unitcode == "C1A" ? "-" : item.ReceiptKon1MNSPrice.ToString();
+                var ReceiptKon2AQty = unitcode == "C2A" ? 0 : item.ReceiptKon2AQty;
+                var ReceiptKon2APrice = unitcode == "C2A" ? 0 : item.ReceiptKon2APrice;
+                var ReceiptKon2BPrice = unitcode == "C2B" ? 0 : item.ReceiptKon2BPrice;
+                var ReceiptKon2BQty = unitcode == "C2B" ? 0 : item.ReceiptKon2BQty;
+                var ReceiptKon2CPrice = unitcode == "C2C" ? 0 : item.ReceiptKon2CQty;
+                var ReceiptKon2CQty = unitcode == "C2C" ? 0 : item.ReceiptKon2CQty;
+                var ReceiptKon2DPrice = unitcode == "C1B" ? 0 : item.ReceiptKon2DPrice;
+                var ReceiptKon2DQty = unitcode == "C1B" ? 0 : item.ReceiptKon2DQty;
+                var ReceiptKon1MNSQty = unitcode == "C1A" ? 0 : item.ReceiptKon1MNSQty;
+                var ReceiptKon1MNSPrice = unitcode == "C1A" ? 0 : item.ReceiptKon1MNSPrice;
                 var ReceiptCorrection = item.ReceiptCorrectionPrice;
 
                 result.Rows.Add(index++, item.ProductCode, item.ProductName, item.RO, item.Buyer, item.PlanPo, item.NoArticle,
