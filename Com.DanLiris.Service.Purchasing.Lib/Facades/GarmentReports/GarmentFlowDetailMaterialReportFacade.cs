@@ -5,9 +5,11 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -87,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string category, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcel(string category, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
         {
             var Query = GetQuery(category, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.CreatedUtc);
@@ -119,14 +121,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 foreach (var item in Query)
                 {
                     index++;
-
+                    string tanggal = item.ExpenditureDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
-                        item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UnitDOType, item.UENNo, item.ExpenditureDate, NumberFormat(item.Quantity),
+                        item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UnitDOType, item.UENNo, tanggal, NumberFormat(item.Quantity),
                         item.UomUnit, NumberFormat(item.Total));
                 }
             }
+            ExcelPackage package = new ExcelPackage();
+            //DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom.Value.DateTime;
+            //DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo.Value.DateTime;
+            CultureInfo Id = new CultureInfo("id-ID");
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            var col = (char)('A' + result.Columns.Count);
+            string tglawal = dateFrom.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            string tglakhir = dateTo.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENGELUARAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = string.Format("Periode {0} - {1}", tglawal, tglakhir);
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("KONFEKSI : {0}", unitname);
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+            sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
+            sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
         String NumberFormat(double? numb)
