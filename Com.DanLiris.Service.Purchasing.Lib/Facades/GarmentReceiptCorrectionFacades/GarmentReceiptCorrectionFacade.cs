@@ -203,7 +203,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                             GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
-                            garmentDOItems.RemainingQuantity += (decimal)item.CorrectionQuantity;
+                            if(garmentDOItems!=null)
+                                garmentDOItems.RemainingQuantity += (decimal)item.CorrectionQuantity;
                         }
                         else
                         {
