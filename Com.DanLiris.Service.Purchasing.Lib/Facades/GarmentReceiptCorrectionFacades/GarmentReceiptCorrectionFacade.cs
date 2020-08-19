@@ -188,6 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                     foreach (var item in m.Items)
                     {
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == item.URNItemId);
+                        GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
 
                         if (item.CorrectionQuantity < 0)
                         {
@@ -202,9 +203,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             var garmentInventoryDocument = GenerateGarmentInventoryDocument(m, item, type);
                             dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
-                            GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
                             if(garmentDOItems!=null)
                                 garmentDOItems.RemainingQuantity += (decimal)item.CorrectionQuantity;
+
                         }
                         else
                         {
@@ -214,6 +215,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             item.SmallQuantity =(double) garmentUnitReceiptNoteItem.ReceiptCorrection * item.CorrectionConversion;
                             //garmentUnitReceiptNoteItem.ReceiptCorrection += diff;
                             garmentUnitReceiptNoteItem.CorrectionConversion = (decimal)item.CorrectionConversion;
+
+                            if (garmentDOItems != null)
+                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((garmentUnitReceiptNoteItem.CorrectionConversion * garmentUnitReceiptNoteItem.ReceiptQuantity) - garmentDOItems.RemainingQuantity);
                         }
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
