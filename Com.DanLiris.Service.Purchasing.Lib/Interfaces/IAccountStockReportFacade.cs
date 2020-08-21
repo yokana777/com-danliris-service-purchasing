@@ -9,6 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface IAccountingStockReportFacade
     {
         Tuple<List<AccountingStockReportViewModel>, int> GetStockReport(int offset, string unitcode, string tipebarang, int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo);
-        MemoryStream GenerateExcelAStockReport(string ctg, string unitcode, DateTime? datefrom, DateTime? dateto, int offset);
+        MemoryStream GenerateExcelAStockReport(string ctg, string categoryname, string unitcode, string unitname, DateTime? datefrom, DateTime? dateto, int offset);
     }
 }

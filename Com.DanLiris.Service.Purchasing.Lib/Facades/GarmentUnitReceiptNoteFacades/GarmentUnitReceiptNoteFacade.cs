@@ -29,6 +29,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
+using OfficeOpenXml;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -1410,7 +1411,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         }
 
 
-        public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset)
+        public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
         {
             var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset);
 
@@ -1451,8 +1452,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 }
 
             }
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
 
-            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+            var col = (char)('A' + result.Columns.Count);
+            string tglawal = DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            string tglakhir = DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENERIMAAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = string.Format("Periode {0} - {1}", tglawal, tglakhir);
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("KONFEKSI : {0}", (string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname));
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+            sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
+            sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
 
         #endregion

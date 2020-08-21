@@ -371,17 +371,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 
 
         [HttpGet("laporan/download")]
-        public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order = "{}")
+        public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, string unitname, int page, int size, string Order = "{}")
         {
             try
             {
                 byte[] xlsInBytes;
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                var xls = facade.GenerateExcelLow(dateFrom, dateTo, unit, category, offset);
+                var xls = facade.GenerateExcelLow(dateFrom, dateTo, unit, category, categoryname, offset, unitname);
 
-                string filename = "Laporan Flow Detail Penerimaan";
-                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
-                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                string filename = "Laporan Rekap BUM";
+                        if (dateFrom != null) filename += " " + ((DateTime) dateFrom).ToString("dd-MM-yyyy");
+                        if (dateTo != null) filename += "_" + ((DateTime) dateTo).ToString("dd-MM-yyyy");
                 filename += ".xlsx";
 
                 xlsInBytes = xls.ToArray();
