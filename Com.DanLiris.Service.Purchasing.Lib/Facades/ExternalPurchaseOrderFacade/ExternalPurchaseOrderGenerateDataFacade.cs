@@ -51,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                              DeliveryDate = a.DeliveryDate,
                              FreightCostBy = a.FreightCostBy,
                              PaymentMethod = a.PaymentMethod,
+                             POCashType = a.POCashType,
                              PaymentDueDays = a.PaymentDueDays,
                              CurrencyCode = a.CurrencyCode,
                              CurrencyRate = a.CurrencyRate,
@@ -115,6 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             result.Columns.Add(new DataColumn() { ColumnName = "DELIVERY", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "ONGKIR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PAYMENT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PO CASH", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TEMPO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "MATA UANG", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "RATE", DataType = typeof(double) });
@@ -133,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             result.Columns.Add(new DataColumn() { ColumnName = "STATUS POST", DataType = typeof(string) });
    
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, 0, "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, 0, "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -143,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                     string EPODate = item.EPODate == new DateTime(1970, 1, 1) ? "-" : item.EPODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
                     string DeliveryDate = item.DeliveryDate == null ? "-" : item.DeliveryDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
 
-                    result.Rows.Add(item.EPONo, EPODate, item.SupplierCode, item.SupplierName, DeliveryDate, item.FreightCostBy, item.PaymentMethod, item.PaymentDueDays,
+                    result.Rows.Add(item.EPONo, EPODate, item.SupplierCode, item.SupplierName, DeliveryDate, item.FreightCostBy, item.PaymentMethod, item.POCashType, item.PaymentDueDays,
                                     item.CurrencyCode, item.CurrencyRate, item.UseVat, item.UseIncomeTax, item.IncomeTaxRate, item.Remark, item.PRNo, item.ProductCode,
                                     item.ProductName,item.DealQuantity, item.UOMUnit, item.PricePerDealUnit, item.Amount, item.UserCreated, item.IsPosted);
                 }

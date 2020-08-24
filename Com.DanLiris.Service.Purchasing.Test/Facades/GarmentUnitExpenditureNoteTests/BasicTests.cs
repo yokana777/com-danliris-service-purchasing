@@ -579,6 +579,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             GarmentUnitExpenditureNoteViewModel viewModelCheckUnitDeliveryOrder = new GarmentUnitExpenditureNoteViewModel
             {
                 ExpenditureDate = DateTimeOffset.Now,
+                UnitDODate= DateTimeOffset.Now.AddDays(2),
                 UnitDONo = "UnitDONO123",
                 
                 IsTransfered = false,
@@ -782,7 +783,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var reportService = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
-            var results = reportService.GenerateExcel("", dateFrom, dateTo, 0);
+            var results = reportService.GenerateExcel("", "", "", "", dateFrom, dateTo, 0);
+
+
+
+            Assert.NotNull(results);
+        }
+        [Fact]
+        public async Task Should_Success_GetXLS_Flow_Detail_Expend()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            modelLocalSupplier.ExpenditureDate = DateTimeOffset.MinValue;
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            var reportService = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel("", "", "", "", dateFrom, dateTo, 0);
+
+
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXLS_Flow_Detail_NUll_Result()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            var reportService = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel("BB", "", "", "", dateFrom, dateTo, 0);
 
 
 
@@ -842,7 +879,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
             var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
 
             //long nowTicks = DateTimeOffset.Now.Ticks;
@@ -878,6 +915,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            //long nowTicks = DateTimeOffset.Now.Ticks;
+            //string nowTicksA = $"{nowTicks}a";
+            string RO = modelLocalSupplier.Items.FirstOrDefault().RONo;
+
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("Invoice", typeof(String));
+            dataTable.Columns.Add("ExpenditureGoodId", typeof(String));
+            dataTable.Columns.Add("RO", typeof(String));
+            dataTable.Columns.Add("Article", typeof(String));
+            dataTable.Columns.Add("qtyBJ", typeof(double));
+            dataTable.Rows.Add("Invoice", "Id", RO, "Article", 0);
+
+            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+                .Returns(dataTable.CreateDataReader());
+            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+                .Returns(dataTable.CreateDataReader());
+
+            var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0, null);
+
+
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXls_CMT_Report_Null_Result()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
             var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
 
@@ -902,7 +975,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var reportService = new GarmentReportCMTFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()), mockDbContext.Object);
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
-            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0);
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0, null);
 
 
 

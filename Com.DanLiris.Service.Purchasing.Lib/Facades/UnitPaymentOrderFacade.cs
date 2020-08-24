@@ -87,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     Details = i.Details.ToList()
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
+                IsPosted = s.IsPosted,
                 LastModifiedUtc = s.LastModifiedUtc,
             });
 
@@ -117,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         {
             var Result = dbSet
                 .Include(m => m.Items)
-                    .ThenInclude(i => i.Details).Where(m => m.Items.Any(d => d.Details.Any(f => f.EPONo==no)))
+                    .ThenInclude(i => i.Details).Where(m => m.Items.Any(d => d.Details.Any(f => f.EPONo == no)))
                 .ToList();
             return Result;
         }
@@ -1293,6 +1294,84 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
 
             response.EnsureSuccessStatusCode();
+        }
+
+        private List<long> GetUPOIds(List<long> poExtIds)
+        {
+            if (poExtIds.Count > 0)
+            {
+                var epoItemIds = dbContext.ExternalPurchaseOrderItems.Where(entity => poExtIds.Contains(entity.EPOId)).Select(entity => entity.Id).ToList();
+                var epoDetailIds = dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
+                var upoItemIds = dbContext.UnitPaymentOrderDetails.Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
+                return dbContext.UnitPaymentOrderItems.Where(entity => upoItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
+            }
+            else
+            {
+                poExtIds = dbContext.ExternalPurchaseOrders.Where(entity => entity.POCashType == "VB").Select(entity => entity.Id).ToList();
+                var epoItemIds = dbContext.ExternalPurchaseOrderItems.Where(entity => poExtIds.Contains(entity.EPOId)).Select(entity => entity.Id).ToList();
+                var epoDetailIds = dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
+                var upoItemIds = dbContext.UnitPaymentOrderDetails.Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
+                return dbContext.UnitPaymentOrderItems.Where(entity => upoItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
+            }
+        }
+
+        public Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> Read(List<long> poExtIds, int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<UnitPaymentOrder> Query = this.dbSet;
+
+            var upoIds = GetUPOIds(poExtIds);
+            Query = Query.Where(entity => upoIds.Contains(entity.Id));
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "UPONo", "DivisionName", "SupplierName", "Items.URNNo", "Items.DONo"
+            };
+
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Select(s => new UnitPaymentOrder
+            {
+                Id = s.Id,
+                DivisionId = s.DivisionId,
+                DivisionCode = s.DivisionCode,
+                DivisionName = s.DivisionName,
+                SupplierId = s.SupplierId,
+                SupplierCode = s.SupplierCode,
+                SupplierName = s.SupplierName,
+                CategoryCode = s.CategoryCode,
+                CategoryId = s.CategoryId,
+                CategoryName = s.CategoryName,
+                Date = s.Date,
+                UPONo = s.UPONo,
+                DueDate = s.DueDate,
+                UseIncomeTax = s.UseIncomeTax,
+                UseVat = s.UseVat,
+                CurrencyCode = s.CurrencyCode,
+                CurrencyDescription = s.CurrencyDescription,
+                CurrencyId = s.CurrencyId,
+                CurrencyRate = s.CurrencyRate,
+                Items = s.Items.Select(i => new UnitPaymentOrderItem
+                {
+                    URNNo = i.URNNo,
+                    DONo = i.DONo,
+                    Details = i.Details.ToList()
+                }).ToList(),
+                CreatedBy = s.CreatedBy,
+                IsPosted = s.IsPosted,
+                LastModifiedUtc = s.LastModifiedUtc,
+            });
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<UnitPaymentOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<UnitPaymentOrder> pageable = new Pageable<UnitPaymentOrder>(Query, Page - 1, Size);
+            List<UnitPaymentOrder> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
         }
     }
 }

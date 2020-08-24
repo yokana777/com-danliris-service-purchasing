@@ -47,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
         public double CurrencyRate { get; set; }
 
         public string PaymentMethod { get; set; }
+        public string POCashType { get; set; }
         public string PaymentDueDays { get; set; }
         public bool UseIncomeTax { get; set; }
 
@@ -65,6 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
         public bool IsClosed { get; set; }
         public bool IsCanceled { get; set; }
         public string Remark { get; set; }
+        public bool IsCreateOnVBRequest { get; set; }
         public virtual ICollection<ExternalPurchaseOrderItem> Items { get; set; }
     }
 }

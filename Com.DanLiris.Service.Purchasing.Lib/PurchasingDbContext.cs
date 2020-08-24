@@ -104,6 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<GarmentUnitReceiptNote> GarmentUnitReceiptNotes { get; set; }
         public DbSet<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItems { get; set; }
+        public DbSet<GarmentDOItems> GarmentDOItems { get; set; }
 
         public DbSet<GarmentInventoryDocument> GarmentInventoryDocuments { get; set; }
         public DbSet<GarmentInventoryDocumentItem> GarmentInventoryDocumentItems { get; set; }
@@ -123,6 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<GarmentSupplierBalanceDebt> GarmentSupplierBalanceDebts { get; set; }
         public DbSet<GarmentSupplierBalanceDebtItem> GarmentSupplierBalanceDebtItems { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
