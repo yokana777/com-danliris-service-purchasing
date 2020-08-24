@@ -264,6 +264,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderR
             GarmentUnitDeliveryOrderViewModel viewModelWithItems2 = new GarmentUnitDeliveryOrderViewModel
             {
                 DONo = "DONo",
+                UnitDOType = "RETUR",
                 Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                 {
                     new GarmentUnitDeliveryOrderItemViewModel
