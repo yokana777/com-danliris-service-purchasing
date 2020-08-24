@@ -187,6 +187,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                     var type = "IN";
                     foreach (var item in m.Items)
                     {
+                        
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == item.URNItemId);
                         GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
 
