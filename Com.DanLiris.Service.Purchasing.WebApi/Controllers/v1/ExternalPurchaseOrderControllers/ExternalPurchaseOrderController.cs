@@ -54,8 +54,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     s.supplier,
                     unit = new
                     {
-                        division = new { s.unit.division.name },
-                        s.unit.name
+                        division = new { 
+                            s.unit.division.name,
+                            s.unit.division._id,
+                            s.unit.division.code
+                        },
+                        s.unit.name,
+                        s.unit._id,
+                        s.unit.code
                     },
                     s.isPosted,
                     s.items,
