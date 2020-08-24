@@ -260,6 +260,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderR
             };
             System.ComponentModel.DataAnnotations.ValidationContext validationDuplicateContext = new System.ComponentModel.DataAnnotations.ValidationContext(viewModelWithItemsQuantityOver, serviceProvider.Object, null);
             Assert.True(viewModelWithItemsQuantityOver.Validate(validationDuplicateContext).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModelWithItems2 = new GarmentUnitDeliveryOrderViewModel
+            {
+                DONo = "DONo",
+                Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                {
+                    new GarmentUnitDeliveryOrderItemViewModel
+                    {
+                        IsSave = true,
+                        Quantity = 10,
+                        ReturQtyCheck=1
+                    }
+                }
+            };
+            Assert.True(viewModelWithItems2.Validate(null).Count() > 0);
         }
     }
 }

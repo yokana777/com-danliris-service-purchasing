@@ -104,6 +104,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah tidak boleh 0', ";
                             }
+                            else if(UnitDOType == "RETUR")
+                            {
+                                if (item.Quantity > item.ReturQtyCheck)
+                                {
+                                    itemErrorCount++;
+                                    itemError += $"Quantity: 'Jumlah tidak boleh lebih dari {item.ReturQtyCheck}', ";
+                                }
+                            }
                             else
                             {
                                 PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
