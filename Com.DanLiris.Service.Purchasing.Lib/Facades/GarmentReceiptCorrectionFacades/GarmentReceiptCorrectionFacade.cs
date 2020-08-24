@@ -187,6 +187,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                     var type = "IN";
                     foreach (var item in m.Items)
                     {
+                        
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == item.URNItemId);
                         GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
 
@@ -204,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                             if(garmentDOItems!=null)
-                                garmentDOItems.RemainingQuantity += (decimal)item.CorrectionQuantity;
+                                garmentDOItems.RemainingQuantity += (decimal)item.SmallQuantity;
 
                         }
                         else
@@ -217,7 +218,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                             garmentUnitReceiptNoteItem.CorrectionConversion = (decimal)item.CorrectionConversion;
 
                             if (garmentDOItems != null)
-                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((garmentUnitReceiptNoteItem.CorrectionConversion * garmentUnitReceiptNoteItem.ReceiptQuantity) - garmentDOItems.RemainingQuantity);
+                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((garmentUnitReceiptNoteItem.CorrectionConversion * garmentUnitReceiptNoteItem.ReceiptCorrection) - garmentDOItems.RemainingQuantity);
                         }
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
