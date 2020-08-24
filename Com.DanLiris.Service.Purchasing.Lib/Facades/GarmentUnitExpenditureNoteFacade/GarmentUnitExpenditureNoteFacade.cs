@@ -52,6 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         private readonly DbSet<GarmentCorrectionNote> dbSetGarmentCorrectionNote;
         private readonly DbSet<GarmentExternalPurchaseOrder> dbSetGarmentExternalPurchaseOrder;
         private readonly DbSet<GarmentUnitReceiptNote> dbSetGarmentUnitReceiptNote;
+        private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
 
         //private GarmentReturnCorrectionNoteFacade garmentReturnCorrectionNoteFacade;
 
@@ -74,6 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             dbSetGarmentCorrectionNote= dbContext.Set<GarmentCorrectionNote>();
             dbSetGarmentExternalPurchaseOrder= dbContext.Set<GarmentExternalPurchaseOrder>();
             dbSetGarmentUnitReceiptNote= dbContext.Set<GarmentUnitReceiptNote>();
+            dbSetGarmentDOItems= dbContext.Set<GarmentDOItems>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
 
@@ -105,6 +107,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitDOItem.Quantity;
                             unitDOItem.Quantity = 0;
+
+                            GarmentDOItems garmentDOItems= dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == unitDOItem.URNItemId);
+                            garmentDOItems.RemainingQuantity += (decimal)unitDOItem.Quantity;
                         }
                     }
 
@@ -122,6 +127,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 EntityExtension.FlagForUpdate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
                                 garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNoteItem.Quantity);
                                 garmentUnitDeliveryOrderItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
+
+                                GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == garmentUnitDeliveryOrderItem.URNItemId);
+                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNoteItem.Quantity);
                             }
                             garmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate == null ? 0 : garmentUnitDeliveryOrderItem.DOCurrencyRate;
                             
