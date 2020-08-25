@@ -10,6 +10,9 @@
 
         public UOMDto(string dealUomId, string dealUomUnit)
         {
+            int.TryParse(dealUomId, out var id);
+            Id = id;
+            Unit = dealUomUnit;
         }
 
         public int Id { get; private set; }

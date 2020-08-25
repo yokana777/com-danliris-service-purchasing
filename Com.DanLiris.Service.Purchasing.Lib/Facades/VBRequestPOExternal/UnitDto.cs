@@ -6,8 +6,13 @@
         {
         }
 
-        public UnitDto(string unitId, string unitCode, string unitName)
+        public UnitDto(string unitId, string unitCode, string unitName, string divisionCode, string divisionId, string divisionName)
         {
+            int.TryParse(unitId, out var id);
+            Id = id;
+            Code = unitCode;
+            Name = unitName;
+            Division = new DivisionDto(divisionCode, divisionId, divisionName);
         }
 
         public int Id { get; private set; }
