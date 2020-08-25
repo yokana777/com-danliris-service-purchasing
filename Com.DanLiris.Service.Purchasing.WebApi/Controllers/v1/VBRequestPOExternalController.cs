@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
 {
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    [Route("v{version:apiVersion}/internal-purchase-orders")]
+    [Route("v{version:apiVersion}/vb-request-po-external")]
     [Authorize]
     public class VBRequestPOExternalController : Controller
     {
