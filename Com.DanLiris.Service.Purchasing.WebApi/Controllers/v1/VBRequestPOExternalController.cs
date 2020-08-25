@@ -28,19 +28,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         public IActionResult Get([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string currencyCode)
         {
 
-            var result = _service.ReadPOExternal(keyword, division, currencyCode);
-            return Ok(new
+            try
             {
-                apiVersion = ApiVersion,
-                statusCode = General.OK_STATUS_CODE,
-                message = General.OK_MESSAGE,
-                data = result,
-                info = new Dictionary<string, object>
+                var result = _service.ReadPOExternal(keyword, division, currencyCode);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result,
+                    info = new Dictionary<string, object>
                 {
                     { "page", 1 },
                     { "size", 10 }
                 },
-            });
+                });
+            } catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
         }
     }
 }
