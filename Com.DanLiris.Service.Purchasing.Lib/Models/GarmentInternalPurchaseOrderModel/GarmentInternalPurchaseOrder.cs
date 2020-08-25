@@ -37,6 +37,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrde
         [MaxLength(1000)]
         public string UnitName { get; set; }
 
+        [MaxLength(255)]
+        public string DivisionId { get; set; }
+        [MaxLength(255)]
+        public string DivisionCode { get; set; }
+        [MaxLength(1000)]
+        public string DivisionName { get; set; }
+
         public bool IsPosted { get; set; }
         public bool IsClosed { get; set; }
         public string Remark { get; set; }

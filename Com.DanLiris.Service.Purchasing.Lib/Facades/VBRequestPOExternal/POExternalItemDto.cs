@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Conversion = element.Conversion;
             Price = element.PricePerDealUnit;
             UseVat = entity.UseVat;
-            Unit = new UnitDto(entity.UnitId, entity.UnitCode, entity.UnitName);
+            Unit = new UnitDto(entity.UnitId, entity.UnitCode, entity.UnitName, entity.DivisionCode, entity.DivisionId, entity.DivisionName);
             IncomeTax = new IncomeTaxDto(entity.IncomeTaxId, entity.IncomeTaxName, entity.IncomeTaxRate);
             IncomeTaxBy = entity.IncomeTaxBy;
             UseIncomeTax = entity.UseIncomeTax;
@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Conversion = element.Conversion;
             Price = element.PricePerDealUnit;
             UseVat = entity.IsUseVat;
-            Unit = new UnitDto(purchaseOrder.UnitId, purchaseOrder.UnitCode, purchaseOrder.UnitName);
+            Unit = new UnitDto(purchaseOrder.UnitId, purchaseOrder.UnitCode, purchaseOrder.UnitName, purchaseOrder.DivisionCode, purchaseOrder.DivisionId, purchaseOrder.DivisionName);
             IncomeTax = new IncomeTaxDto(entity.IncomeTaxId, entity.IncomeTaxName, entity.IncomeTaxRate);
             UseIncomeTax = entity.IsIncomeTax;
             EPOId = (int)entity.Id;
