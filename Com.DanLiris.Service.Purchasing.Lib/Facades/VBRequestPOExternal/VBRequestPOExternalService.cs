@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         {
             var result = new List<POExternalDto>();
 
-            if (division.ToUpper() == "GARMENT")
+            if (!string.IsNullOrWhiteSpace(division) && division.ToUpper() == "GARMENT")
             {
                 var query = _dbContext.GarmentExternalPurchaseOrders.Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Include(entity => entity.Items).AsQueryable();
 
