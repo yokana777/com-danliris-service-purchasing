@@ -25,10 +25,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] string keyword, [FromQuery] string division)
+        public IActionResult Get([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string currencyCode)
         {
 
-            var result = _service.ReadPOExternal(keyword, division);
+            var result = _service.ReadPOExternal(keyword, division, currencyCode);
             return Ok(new
             {
                 apiVersion = ApiVersion,

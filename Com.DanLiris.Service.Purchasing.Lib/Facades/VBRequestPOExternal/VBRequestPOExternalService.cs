@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             _dbContext = dbContext;
         }
 
-        public List<POExternalDto> ReadPOExternal(string keyword, string division)
+        public List<POExternalDto> ReadPOExternal(string keyword, string division, string currencyCode)
         {
             var result = new List<POExternalDto>();
 
@@ -23,9 +23,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             {
                 var query = _dbContext.GarmentExternalPurchaseOrders.Include(entity => entity.Items).AsQueryable();
 
-                if (string.IsNullOrWhiteSpace(keyword))
+                if (!string.IsNullOrWhiteSpace(keyword))
                 {
                     query = query.Where(entity => entity.EPONo.Contains(keyword));
+                }
+
+                if (!string.IsNullOrWhiteSpace(currencyCode))
+                {
+                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
                 }
 
                 var queryResult = query.Take(10).ToList();
@@ -40,9 +45,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             else
             {
                 var query = _dbContext.ExternalPurchaseOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable();
-                if (string.IsNullOrWhiteSpace(keyword))
+                
+                if (!string.IsNullOrWhiteSpace(keyword))
                 {
                     query = query.Where(entity => entity.EPONo.Contains(keyword));
+                }
+
+                if (!string.IsNullOrWhiteSpace(currencyCode))
+                {
+                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
                 }
 
                 var queryResult = query.Take(10).ToList();
