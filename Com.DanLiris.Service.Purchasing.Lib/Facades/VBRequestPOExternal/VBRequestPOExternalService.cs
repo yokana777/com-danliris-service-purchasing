@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             if (division.ToUpper() == "GARMENT")
             {
-                var query = _dbContext.GarmentExternalPurchaseOrders.Include(entity => entity.Items).AsQueryable();
+                var query = _dbContext.GarmentExternalPurchaseOrders.Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Include(entity => entity.Items).AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
@@ -44,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             }
             else
             {
-                var query = _dbContext.ExternalPurchaseOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable();
+                var query = _dbContext.ExternalPurchaseOrders.Where(entity => entity.POCashType == "VB" && entity.IsPosted).Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable();
                 
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
