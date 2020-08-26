@@ -46,5 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
         public string ReturUomUnit { get; set; }
         public long? ReturUomId { get; set; }
         public double ReturQtyCheck { get; set; }
+
+        public int DOItemsId { get; set; }
     }
 }
