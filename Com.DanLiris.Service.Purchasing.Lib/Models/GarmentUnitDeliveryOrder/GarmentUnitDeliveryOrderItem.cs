@@ -55,8 +55,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         [MaxLength(255)]
         public string ReturUomUnit { get; set; }
         public long? ReturUomId { get; set; }
-        
 
+        public int DOItemsId { get; set; }
 
         [NotMapped]
         public bool IsSave { get; set; }
