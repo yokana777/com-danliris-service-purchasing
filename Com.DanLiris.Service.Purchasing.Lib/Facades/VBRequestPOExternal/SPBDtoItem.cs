@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Amount = item.Details.Sum(detail => detail.PricePerDealUnit);
             UseVat = element.UseVat;
             UseIncomeTax = element.UseIncomeTax;
-            IncomeTaxDto = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
+            IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
         }
 
@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         public double Amount { get; private set; }
         public bool UseVat { get; private set; }
         public bool UseIncomeTax { get; private set; }
-        public IncomeTaxDto IncomeTaxDto { get; private set; }
+        public IncomeTaxDto IncomeTax { get; private set; }
         public string IncomeTaxBy { get; private set; }
     }
 }
