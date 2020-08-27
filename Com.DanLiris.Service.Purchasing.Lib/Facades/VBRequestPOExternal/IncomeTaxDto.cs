@@ -13,6 +13,16 @@
             Name = incomeTaxName;
         }
 
+        public IncomeTaxDto(string incomeTaxId, string incomeTaxName, double incomeTaxRate)
+        {
+            int.TryParse(incomeTaxId, out var id);
+            Id = id;
+
+            Rate = incomeTaxRate;
+
+            Name = incomeTaxName;
+        }
+
         public int Id { get; private set; }
         public double Rate { get; private set; }
         public string Name { get; private set; }
