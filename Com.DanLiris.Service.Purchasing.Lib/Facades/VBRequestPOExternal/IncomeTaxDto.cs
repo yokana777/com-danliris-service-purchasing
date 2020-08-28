@@ -23,6 +23,15 @@
             Name = incomeTaxName;
         }
 
+        public IncomeTaxDto(long incomeTaxId, string incomeTaxName, double incomeTaxRate)
+        {
+            Id = (int)incomeTaxId;
+
+            Rate = incomeTaxRate;
+
+            Name = incomeTaxName;
+        }
+
         public int Id { get; private set; }
         public double Rate { get; private set; }
         public string Name { get; private set; }
