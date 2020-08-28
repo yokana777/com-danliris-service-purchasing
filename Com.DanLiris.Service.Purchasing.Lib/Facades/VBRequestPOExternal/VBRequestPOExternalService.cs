@@ -66,6 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         }
 
         public List<SPBDto> ReadSPB(string keyword, string division, List<int> epoIds)
+
         {
             var result = new List<SPBDto>();
 
@@ -77,7 +78,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 }
 
                 var internNoteItemIds = _dbContext.GarmentInternNoteDetails.Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.GarmentItemINId).ToList();
-                var internNoteIds = _dbContext.GarmentInternNoteItems.Where(entity => internNoteItemIds.Contains(entity.Id)).Select(entity => entity.Id).ToList();
+                var internNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
+                var internNoteIds = internNoteItems.Select(entity => entity.Id).ToList();
+
+                
 
                 var query = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id)).AsQueryable();
                 if (!string.IsNullOrWhiteSpace(keyword))
@@ -85,7 +89,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
                 var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 
-                result = queryResult.Select(element => new SPBDto(element)).ToList();
+                var invoiceIds = queryResult.SelectMany(element => element.Items).Select(element => element.InvoiceId).ToList();
+                var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).ToList();
+
+                result = queryResult.Select(element => new SPBDto(element, invoices)).ToList();
 
             }
             else
