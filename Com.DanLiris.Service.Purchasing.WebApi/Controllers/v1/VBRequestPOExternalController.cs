@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,12 +51,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet("spb")]
-        public IActionResult GetSPB([FromQuery] string keyword, [FromQuery] string division, [FromQuery] int[] epoIds)
+        public IActionResult GetSPB([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string epoIds)
         {
 
             try
             {
-                var result = _service.ReadSPB(keyword, division, epoIds.ToList());
+                var epoIdList = JsonConvert.DeserializeObject<List<int>>(epoIds);
+                var result = _service.ReadSPB(keyword, division, epoIdList);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
