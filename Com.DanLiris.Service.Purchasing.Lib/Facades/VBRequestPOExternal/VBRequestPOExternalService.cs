@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.Moonlay.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq.Clauses.ResultOperators;
 using System;
 using System.Collections.Generic;
@@ -10,10 +13,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
     public class VBRequestPOExternalService : IVBRequestPOExternalService
     {
         private readonly PurchasingDbContext _dbContext;
+        private readonly IdentityService _identityService;
+        private const string UserAgent = "service-purchasing";
 
-        public VBRequestPOExternalService(PurchasingDbContext dbContext)
+        public VBRequestPOExternalService(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             _dbContext = dbContext;
+            _identityService = serviceProvider.GetService<IdentityService>();
         }
 
         public List<POExternalDto> ReadPOExternal(string keyword, string division, string currencyCode)
@@ -83,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
 
 
-                var query = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id)).AsQueryable();
+                var query = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
                 if (!string.IsNullOrWhiteSpace(keyword))
                     query = query.Where(entity => entity.INNo.Contains(keyword));
 
@@ -112,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var spbItemIds = _dbContext.UnitPaymentOrderDetails.Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
                 var spbIds = _dbContext.UnitPaymentOrderItems.Where(entity => spbItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
 
-                var query = _dbContext.UnitPaymentOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => spbIds.Contains(entity.Id)).AsQueryable();
+                var query = _dbContext.UnitPaymentOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => spbIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(keyword))
                     query = query.Where(entity => entity.UPONo.Contains(keyword));
@@ -132,6 +138,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             }
 
             return result;
+        }
+
+        public int UpdateSPB(string division, int spbId)
+        {
+            if (division == "GARMENT")
+            {
+                var model = _dbContext.GarmentInternNotes.FirstOrDefault(entity => entity.Id == spbId);
+                model.IsCreatedVB = !model.IsCreatedVB;
+
+                EntityExtension.FlagForUpdate(model, _identityService.Username, UserAgent);
+                _dbContext.GarmentInternNotes.Update(model);
+            }
+            else
+            {
+                var model = _dbContext.UnitPaymentOrders.FirstOrDefault(entity => entity.Id == spbId);
+                model.IsCreatedVB = !model.IsCreatedVB;
+
+                EntityExtension.FlagForUpdate(model, _identityService.Username, UserAgent);
+                _dbContext.UnitPaymentOrders.Update(model);
+            }
+
+            return _dbContext.SaveChanges();
         }
     }
 

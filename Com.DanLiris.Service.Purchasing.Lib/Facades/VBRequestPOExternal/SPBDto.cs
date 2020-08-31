@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             No = element.UPONo;
             Date = element.Date;
 
-            Amount = element.Items.SelectMany(item => item.Details).Sum(detail => detail.PriceTotal);
+            
 
             Supplier = new SupplierDto(element);
 
@@ -65,6 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTaxBy = element.IncomeTaxBy;
 
             UnitCosts = spbDetails.Select(detail => new UnitCostDto(detail, spbItems, unitReceiptNoteItems, unitReceiptNotes, element)).ToList();
+            Amount = spbDetails.Sum(detail => detail.PriceTotal);
         }
 
         public SPBDto(GarmentInternNote element, List<GarmentInvoice> invoices, List<GarmentInternNoteItem> internNoteItems, List<GarmentInternNoteDetail> internNoteDetails)
@@ -76,7 +77,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             var invoiceIds = element.Items.Select(item => item.InvoiceId).ToList();
             var elementInvoice = invoices.FirstOrDefault(entity => invoiceIds.Contains(entity.Id));
 
-            Amount = element.Items.SelectMany(item => item.Details).Sum(detail => detail.PriceTotal);
 
             Supplier = new SupplierDto(element);
 
@@ -89,6 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             }
 
             UnitCosts = internNoteDetails.Select(detail => new UnitCostDto(detail, internNoteItems, element, elementInvoice)).ToList();
+            Amount = internNoteDetails.Sum(detail => detail.PriceTotal);
         }
 
         public long Id { get; private set; }
