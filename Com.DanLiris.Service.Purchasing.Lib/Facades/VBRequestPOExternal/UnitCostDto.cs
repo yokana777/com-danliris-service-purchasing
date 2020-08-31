@@ -14,6 +14,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Amount = detail.PriceTotal;
         }
 
+        public UnitCostDto(UnitPaymentOrderDetail detail, List<UnitReceiptNote> unitReceiptNotes, List<UnitReceiptNoteItem> unitReceiptNoteItems)
+        {
+            var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(item => item.Id == detail.URNItemId);
+            var unitReceiptNote = unitReceiptNotes.FirstOrDefault(item => item.Id == unitReceiptNoteItem.URNId);
+
+            Unit = new UnitDto(unitReceiptNote.UnitId, unitReceiptNote.UnitCode, unitReceiptNote.UnitName, unitReceiptNote.DivisionCode, unitReceiptNote.DivisionId, unitReceiptNote.DivisionName);
+            Amount = detail.PriceTotal;
+        }
+
         public UnitCostDto(UnitPaymentOrderDetail detail, List<UnitPaymentOrderItem> spbItems, List<UnitReceiptNoteItem> unitReceiptNoteItems, List<UnitReceiptNote> unitReceiptNotes)
         {
             var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(item => item.Id == detail.URNItemId);
