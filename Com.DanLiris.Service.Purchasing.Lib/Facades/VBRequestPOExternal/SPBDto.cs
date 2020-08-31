@@ -58,6 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             
 
             Supplier = new SupplierDto(element);
+            Division = new DivisionDto(element.DivisionCode, element.DivisionId, element.DivisionName);
 
             UseVat = element.UseVat;
             UseIncomeTax = element.UseIncomeTax;
@@ -79,9 +80,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
 
             Supplier = new SupplierDto(element);
+            
 
             if (elementInvoice != null)
             {
+                Division = new DivisionDto("", "0", "GARMENT");
                 UseVat = elementInvoice.UseVat;
                 UseIncomeTax = elementInvoice.UseIncomeTax;
                 IncomeTax = new IncomeTaxDto(elementInvoice.IncomeTaxId, elementInvoice.IncomeTaxName, elementInvoice.IncomeTaxRate);
@@ -98,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         public List<SPBDtoItem> Items { get; private set; }
         public double Amount { get; private set; }
         public SupplierDto Supplier { get; private set; }
+        public DivisionDto Division { get; private set; }
         public bool UseVat { get; private set; }
         public bool UseIncomeTax { get; private set; }
         public IncomeTaxDto IncomeTax { get; private set; }
