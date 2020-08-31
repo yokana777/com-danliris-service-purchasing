@@ -57,6 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             Amount = element.Items.SelectMany(item => item.Details).Sum(detail => detail.PriceTotal);
 
+            Supplier = new SupplierDto(element);
+
             UseVat = element.UseVat;
             UseIncomeTax = element.UseIncomeTax;
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
@@ -76,6 +78,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             Amount = element.Items.SelectMany(item => item.Details).Sum(detail => detail.PriceTotal);
 
+            Supplier = new SupplierDto(element);
+
             if (elementInvoice != null)
             {
                 UseVat = elementInvoice.UseVat;
@@ -92,6 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         public DateTimeOffset Date { get; private set; }
         public List<SPBDtoItem> Items { get; private set; }
         public double Amount { get; private set; }
+        public SupplierDto Supplier { get; private set; }
         public bool UseVat { get; private set; }
         public bool UseIncomeTax { get; private set; }
         public IncomeTaxDto IncomeTax { get; private set; }
