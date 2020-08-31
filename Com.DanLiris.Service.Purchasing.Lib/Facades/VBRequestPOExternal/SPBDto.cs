@@ -62,6 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
 
+            UnitCosts = spbDetails.Select(detail => new UnitCostDto(detail, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList();
         }
 
         public SPBDto(GarmentInternNote element, List<GarmentInvoice> invoices, List<GarmentInternNoteItem> internNoteItems, List<GarmentInternNoteDetail> internNoteDetails)
