@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var internNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
                 var internNoteIds = internNoteItems.Select(entity => entity.Id).ToList();
 
-                
+
 
                 var query = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id)).AsQueryable();
                 if (!string.IsNullOrWhiteSpace(keyword))
@@ -92,7 +92,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var invoiceIds = queryResult.SelectMany(element => element.Items).Select(element => element.InvoiceId).ToList();
                 var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).ToList();
 
-                result = queryResult.Select(element => new SPBDto(element, invoices)).ToList();
+                internNoteIds = queryResult.Select(element => element.Id).ToList();
+                internNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internNoteIds.Contains(entity.GarmentINId)).ToList();
+                internNoteItemIds = internNoteItems.Select(element => element.Id).ToList();
+                var internNoteDetails = _dbContext.GarmentInternNoteDetails.Where(entity => internNoteItemIds.Contains(entity.GarmentItemINId)).ToList();
+
+                result = queryResult.Select(element => new SPBDto(element, invoices, internNoteItems, internNoteDetails)).ToList();
 
             }
             else
@@ -114,7 +119,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
                 var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 
-                result = queryResult.Select(element => new SPBDto(element)).ToList();
+                spbIds = queryResult.Select(element => element.Id).ToList();
+                var spbItems = _dbContext.UnitPaymentOrderItems.Where(entity => spbIds.Contains(entity.UPOId)).ToList();
+                spbItemIds = spbItems.Select(element => element.Id).ToList();
+                var spbDetails = _dbContext.UnitPaymentOrderDetails.Where(entity => spbItemIds.Contains(entity.UPOItemId)).ToList();
+                var unitReceiptNoteItemIds = spbDetails.Select(element => element.URNItemId).ToList();
+                var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteItemIds.Contains(entity.Id)).ToList();
+                var unitReceiptNoteIds = unitReceiptNoteItems.Select(entity => entity.URNId).ToList();
+                var unitReceiptNotes = _dbContext.UnitReceiptNotes.Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
+
+                result = queryResult.Select(element => new SPBDto(element, spbDetails, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList();
             }
 
             return result;
