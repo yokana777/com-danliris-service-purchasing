@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     total += detail.PriceTotal * 0.1;
                 }
 
-                if (elementInvoice.UseIncomeTax)
+                if (elementInvoice.UseIncomeTax && !elementInvoice.IsPayTax)
                 {
-                    total += detail.PriceTotal * (elementInvoice.IncomeTaxRate / 100);
+                    total -= detail.PriceTotal * (elementInvoice.IncomeTaxRate / 100);
                 }
             }
 
@@ -63,9 +63,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     total += detail.PriceTotal * 0.1;
                 }
 
-                if (element.UseIncomeTax)
+                if (element.UseIncomeTax && (element.IncomeTaxBy == "Supplier" || element.IncomeTaxBy == "SUPPLIER"))
                 {
-                    total += detail.PriceTotal * (element.IncomeTaxRate / 100);
+                    total -= detail.PriceTotal * (element.IncomeTaxRate / 100);
                 }
             }
 

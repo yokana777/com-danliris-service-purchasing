@@ -76,5 +76,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
             }
         }
+
+        [HttpPut("spb/{id}")]
+        public IActionResult UpdateVBCreatedFlag([FromQuery] string division, [FromRoute] int id)
+        {
+
+            try
+            {
+                var result = _service.UpdateSPB(division, id);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result,
+                    info = new Dictionary<string, object>
+                {
+                    { "page", 1 },
+                    { "size", 10 }
+                },
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
     }
 }
