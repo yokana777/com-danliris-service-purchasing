@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
 
-            UnitCosts = spbDetails.Select(detail => new UnitCostDto(detail, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList();
+            UnitCosts = spbDetails.Select(detail => new UnitCostDto(detail, spbItems, unitReceiptNoteItems, unitReceiptNotes, element)).ToList();
         }
 
         public SPBDto(GarmentInternNote element, List<GarmentInvoice> invoices, List<GarmentInternNoteItem> internNoteItems, List<GarmentInternNoteDetail> internNoteDetails)
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
             }
 
-            UnitCosts = internNoteDetails.Select(detail => new UnitCostDto(detail, internNoteItems, element)).ToList();
+            UnitCosts = internNoteDetails.Select(detail => new UnitCostDto(detail, internNoteItems, element, elementInvoice)).ToList();
         }
 
         public long Id { get; private set; }
