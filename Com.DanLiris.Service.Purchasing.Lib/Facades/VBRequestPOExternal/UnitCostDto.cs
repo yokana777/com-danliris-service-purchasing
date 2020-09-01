@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 }
             }
 
+            PriceTotal = detail.PriceTotal;
             Amount = total;
         }
 
@@ -73,6 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         }
 
         public UnitDto Unit { get; private set; }
+        internal double PriceTotal { get; private set; }
         public double Amount { get; private set; }
     }
 }
