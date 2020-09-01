@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
     public class VBRequestPOExternalController : Controller
     {
         private readonly IVBRequestPOExternalService _service;
+        private readonly IdentityService _identityService;
         private const string ApiVersion = "1.0";
 
-        public VBRequestPOExternalController(IVBRequestPOExternalService service)
+        public VBRequestPOExternalController(IVBRequestPOExternalService service, IServiceProvider serviceProvider)
         {
             _service = service;
+            _identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
@@ -84,6 +87,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
 
             try
             {
+                _identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
                 var result = _service.UpdateSPB(division, id);
                 return Ok(new
                 {
