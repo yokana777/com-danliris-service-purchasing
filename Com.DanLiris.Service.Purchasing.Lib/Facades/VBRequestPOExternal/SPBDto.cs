@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTaxBy = element.IncomeTaxBy;
 
             UnitCosts = spbDetails.Select(detail => new UnitCostDto(detail, spbItems, unitReceiptNoteItems, unitReceiptNotes, element)).ToList();
-            Amount = spbDetails.Sum(detail => detail.PriceTotal);
+            Amount = UnitCosts.Sum(detail => detail.Amount);
         }
 
         public SPBDto(GarmentInternNote element, List<GarmentInvoice> invoices, List<GarmentInternNoteItem> internNoteItems, List<GarmentInternNoteDetail> internNoteDetails)
@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             }
 
             UnitCosts = internNoteDetails.Select(detail => new UnitCostDto(detail, internNoteItems, element, elementInvoice)).ToList();
-            Amount = internNoteDetails.Sum(detail => detail.PriceTotal);
+            Amount = UnitCosts.Sum(detail => detail.Amount);
         }
 
         public long Id { get; private set; }
