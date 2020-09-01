@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             return result;
         }
 
-        public List<SPBDto> ReadSPB(string keyword, string division, List<int> epoIds)
+        public List<SPBDto> ReadSPB(string keyword, string division, List<int> epoIds, string currencyCode)
 
         {
             var result = new List<SPBDto>();
@@ -92,6 +92,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var query = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
                 if (!string.IsNullOrWhiteSpace(keyword))
                     query = query.Where(entity => entity.INNo.Contains(keyword));
+
+                if (!string.IsNullOrWhiteSpace(currencyCode))
+                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
 
                 var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 
@@ -122,6 +125,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
                 if (!string.IsNullOrWhiteSpace(keyword))
                     query = query.Where(entity => entity.UPONo.Contains(keyword));
+
+                if (!string.IsNullOrWhiteSpace(currencyCode))
+                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
 
                 var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 

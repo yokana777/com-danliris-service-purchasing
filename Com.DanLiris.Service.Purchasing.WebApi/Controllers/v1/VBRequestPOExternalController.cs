@@ -44,20 +44,21 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                     { "size", 10 }
                 },
                 });
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
             }
         }
 
         [HttpGet("spb")]
-        public IActionResult GetSPB([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string epoIds)
+        public IActionResult GetSPB([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string epoIds, [FromQuery] string currencyCode)
         {
 
             try
             {
                 var epoIdList = JsonConvert.DeserializeObject<List<int>>(epoIds);
-                var result = _service.ReadSPB(keyword, division, epoIdList);
+                var result = _service.ReadSPB(keyword, division, epoIdList, currencyCode);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
