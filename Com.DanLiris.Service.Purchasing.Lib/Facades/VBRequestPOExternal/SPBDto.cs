@@ -65,8 +65,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
 
-            UnitCosts = spbDetails.Select(detail => new UnitCostDto(detail, spbItems, unitReceiptNoteItems, unitReceiptNotes, element)).ToList();
-            Amount = UnitCosts.Sum(detail => detail.Amount);
+            //var selectedSPBDetails = spbDetails.Where(detail =)
+            var selectedSPBItems = spbItems.Where(item => item.UPOId == element.Id).ToList();
+            var selectedSPBItemIds = selectedSPBItems.Select(item => item.Id).ToList();
+            var selectedSPBDetails = spbDetails.Where(detail => selectedSPBItemIds.Contains(detail.UPOItemId)).ToList();
+
+
+            UnitCosts = selectedSPBDetails.Select(detail => new UnitCostDto(detail, selectedSPBItems, unitReceiptNoteItems, unitReceiptNotes, element)).ToList();
+            Amount = selectedSPBDetails.Sum(detail => detail.PriceTotal);
         }
 
         public SPBDto(GarmentInternNote element, List<GarmentInvoice> invoices, List<GarmentInternNoteItem> internNoteItems, List<GarmentInternNoteDetail> internNoteDetails)
@@ -91,8 +97,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
             }
 
-            UnitCosts = internNoteDetails.Select(detail => new UnitCostDto(detail, internNoteItems, element, elementInvoice)).ToList();
-            Amount = UnitCosts.Sum(detail => detail.Amount);
+            var selectedInternNoteItems = internNoteItems.Where(item => item.GarmentINId == element.Id).ToList();
+            var selectedInternNoteItemIds = selectedInternNoteItems.Select(item => item.Id).ToList();
+            var selectedInternNoteDetails = internNoteDetails.Where(detail => selectedInternNoteItemIds.Contains(detail.GarmentItemINId)).ToList();
+
+            UnitCosts = selectedInternNoteDetails.Select(detail => new UnitCostDto(detail, selectedInternNoteItems, element, elementInvoice)).ToList();
+            Amount = selectedInternNoteDetails.Sum(detail => detail.PriceTotal);
         }
 
         public long Id { get; private set; }
