@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
             return serviceProvider;
         }
 
-        private GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController GetController(Mock<IGarmentInternalPurchaseOrderFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper)
+        private GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController GetController(Mock<IServiceProvider> serviceProviderMock, Mock<IMapper> mapperMock, Mock<IGarmentInternalPurchaseOrderFacade> facadeMock)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -58,14 +58,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
             user.Setup(u => u.Claims).Returns(claims);
 
             var servicePMock = GetServiceProvider();
-            if (validateM != null)
-            {
-                servicePMock
-                    .Setup(x => x.GetService(typeof(IValidateService)))
-                    .Returns(validateM.Object);
-            }
-
-            var controller = new GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController(servicePMock.Object, mapper.Object, facadeM.Object)
+           
+            var controller = new GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController(serviceProviderMock.Object, mapperMock.Object, facadeMock.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -87,34 +81,53 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
+
+
         [Fact]
-        public void Should_Success_Get_Report_Data()
+        public void Should_Success_GetReport()
         {
-            var mockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
-            mockFacade.Setup(x => x.GetIPOEPODurationReport(null,It.IsAny<string>(),null, null, It.IsAny<int>(), It.IsAny<int>(), "{}", It.IsAny<int>()))
+            //Setup
+            var serviceProviderMock = GetServiceProvider();
+            var facadeMock = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetIPOEPODurationReport(null, It.IsAny<string>(), null, null, It.IsAny<int>(), It.IsAny<int>(), "{}", It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> { ViewModel }, 25));
 
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
                 .Returns(new List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> { ViewModel });
 
-            var user = new Mock<ClaimsPrincipal>();
-            var claims = new Claim[]
-            {
-                new Claim("username", "unittestusername")
-            };
-            user.Setup(u => u.Claims).Returns(claims);
-            GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController controller = new GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = user.Object
-                }
-            };
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport(null, It.IsAny<string>(),null,null, 1, 25, "{}");
+            //Act
+            GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController controller = GetController(serviceProviderMock, mapperMock, facadeMock);
+            var response = controller.GetReport(null, It.IsAny<string>(), null, null, 1, 25, "{}");
+
+            //Assert
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+
+        [Fact]
+        public void Should_Fail_GetReport()
+        {
+            //Setup
+            var serviceProviderMock = GetServiceProvider();
+            var facadeMock = new Mock<IGarmentInternalPurchaseOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetIPOEPODurationReport(null, It.IsAny<string>(), null, null, It.IsAny<int>(), It.IsAny<int>(), "{}", It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
+                .Returns(new List<GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportViewModel> { ViewModel });
+
+            //Act
+            GarmentInternalPurchaseOrderExternalPurchaseOrderDurationReportController controller = GetController(serviceProviderMock, mapperMock, facadeMock);
+            var response = controller.GetReport(null, It.IsAny<string>(), null, null, 1, 25, "{}");
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]

@@ -492,21 +492,47 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         [Fact]
         public void Should_Success_Delete_Data()
         {
+            //Setup
             var validateMock = new Mock<IValidateService>();
             var mockMapper = new Mock<IMapper>();
 
             var mockFacade = new Mock<IGarmentInternNoteFacade>();
-            mockFacade.Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+            mockFacade
+                .Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
                 .Returns(1);
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-
             var INVFacade = new Mock<IGarmentInvoice>();
 
+            //Act
             var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade);
-
             var response = controller.Delete(It.IsAny<int>());
+
+            //Assert
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Fail_Delete()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            var mapperMock = new Mock<IMapper>();
+
+            var garmentInternNoteFacadeMock = new Mock<IGarmentInternNoteFacade>();
+            garmentInternNoteFacadeMock
+                .Setup(x => x.Delete(It.IsAny<int>(), "unittestusername"))
+                .Throws(new Exception());
+
+            var garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            var GarmentInvoiceMock = new Mock<IGarmentInvoice>();
+
+            //Act
+            var controller = GetController(garmentInternNoteFacadeMock, garmentDeliveryOrderFacadeMock, validateMock, mapperMock, GarmentInvoiceMock);
+            var response = controller.Delete(It.IsAny<int>());
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
@@ -748,6 +774,91 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var response = controller.GetInternNotePDF(It.IsAny<int>());
             Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Return_OK_GetInternNotePDF()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentInternNoteFacade>();
+            mockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper
+                .Setup(x => x.Map<GarmentInternNoteViewModel>(It.IsAny<GarmentInternNote>()))
+                .Returns(ViewModelPDF);
+
+            mockMapper
+                .Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
+                .Returns(new GarmentDeliveryOrderViewModel
+                {
+                    Id = 1,
+                    doNo = "Dono",
+                    doDate = DateTimeOffset.Now,
+                    paymentMethod = "PaymentMethod",
+                    paymentType = "PaymentType",
+                    docurrency = new CurrencyViewModel
+                    {
+                        Id = It.IsAny<int>(),
+                        Code = "IDR",
+                        Rate = 1,
+                    }
+                });
+
+            mockMapper
+                .Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(new GarmentInvoiceViewModel { Id = 1, useIncomeTax = true, useVat = true, incomeTaxId = It.IsAny<int>(), incomeTaxRate = 2, isPayTax = true });
+
+            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            IPOmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentDeliveryOrder { Id = 1, DOCurrencyRate = 1 });
+
+            var INVmockFacade = new Mock<IGarmentInvoice>();
+            INVmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentInvoice());
+
+            var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
+                .Returns(new List<GarmentCorrectionNote>());
+
+            //Act
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
+           
+            //Assert
+            var response = controller.GetInternNotePDF(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Fail_GetInternNotePDF_ById()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
+            var facadeMock = new Mock<IGarmentInternNoteFacade>();
+            facadeMock
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(() => null);
+
+            var mapperMock = new Mock<IMapper>();
+            var garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            var garmentInvoiceFacadeMock = new Mock<IGarmentInvoice>();
+            var garmentCorrectionNoteFacadeMock = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+           
+            //Act
+            GarmentInternNoteController controller = GetController(facadeMock, garmentDeliveryOrderFacadeMock, validateMock, mapperMock, garmentInvoiceFacadeMock, garmentCorrectionNoteFacadeMock);
+            var response = controller.GetInternNotePDF(It.IsAny<int>());
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
