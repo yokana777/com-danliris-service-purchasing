@@ -353,6 +353,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return data;
         }
 
+        public GarmentDOItems ReadDOItemsByURNItemId(int id)
+        {
+            return facade.ReadDOItemsByURNItemId(id);
+        }
+
         public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage2(long? ticks = null)
         {
             var data = await GetNewDataWithStorage2(ticks);

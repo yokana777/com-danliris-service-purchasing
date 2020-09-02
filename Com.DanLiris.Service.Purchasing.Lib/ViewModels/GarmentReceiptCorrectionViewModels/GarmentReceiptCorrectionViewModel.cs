@@ -39,33 +39,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReceiptCorrectio
                 {
                     itemError += "{";
 
-                    if (CorrectionType.ToUpper() == "JUMLAH")
+                    if (item.IsSave)
                     {
-                        if (item.CorrectionQuantity == 0)
+                        if (CorrectionType.ToUpper() == "JUMLAH")
                         {
-                            itemErrorCount++;
-                            itemError += "CorrectionQuantity: 'Jumlah Koreksi tidak boleh sama dengan 0', ";
+                            if (item.CorrectionQuantity == 0)
+                            {
+                                itemErrorCount++;
+                                itemError += "CorrectionQuantity: 'Jumlah Koreksi tidak boleh sama dengan 0', ";
+                            }
+                            else if (item.CorrectionQuantity + item.QuantityCheck < 0)
+                            {
+                                itemErrorCount++;
+                                itemError += $"CorrectionQuantity: 'Jumlah Koreksi tidak boleh < -{item.QuantityCheck}', ";
+                            }
                         }
-                        else if (item.CorrectionQuantity + item.QuantityCheck < 0)
+                        else if (CorrectionType.ToUpper() == "KONVERSI")
                         {
-                            itemErrorCount++;
-                            itemError += $"CorrectionQuantity: 'Jumlah Koreksi tidak boleh < -{item.QuantityCheck}', ";
+                            double qty = item.Quantity * item.CorrectionConversion;
+                            if (item.CorrectionConversion <= 0)
+                            {
+                                itemErrorCount++;
+                                itemError += "CorrectionConversion: 'Konversi tidak boleh kurang dari 0', ";
+                            }
+                            else if (qty < item.OrderQuantity)
+                            {
+                                itemErrorCount++;
+                                itemError += "CorrectionConversion: 'Konversi tidak Sesuai. Stok minus', ";
+                            }
                         }
                     }
-                    else if (CorrectionType.ToUpper() == "KONVERSI")
-                    {
-                        double qty = item.Quantity * item.CorrectionConversion;
-                        if (item.CorrectionConversion <= 0)
-                        {
-                            itemErrorCount++;
-                            itemError += "CorrectionConversion: 'Konversi tidak boleh kurang dari 0', ";
-                        }
-                        else if (qty<item.OrderQuantity)
-                        {
-                            itemErrorCount++;
-                            itemError += "CorrectionConversion: 'Konversi tidak Sesuai. Stok minus', ";
-                        }
-                    }
+                    
 
                     itemError += "}, ";
                 }

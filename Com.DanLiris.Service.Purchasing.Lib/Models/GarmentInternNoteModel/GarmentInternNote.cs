@@ -30,5 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public string SupplierName { get; set; }
         public virtual ICollection<GarmentInternNoteItem> Items { get; set; }
 
+        public bool IsCreatedVB { get; set; }
+
     }
 }
