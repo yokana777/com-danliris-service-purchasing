@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
@@ -158,6 +159,94 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(1);
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = await controller.Delete(1);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDetail()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetAccuracyOfArrivalDetail(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Returns(new List<AccuracyOfArrivalReportDetail>() { new AccuracyOfArrivalReportDetail()});
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response =  controller.GetReportDetail(null,null,null,null);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDetail2()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetReportDetailAccuracyofDelivery(It.IsAny<string>(),  It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(new Tuple<List<AccuracyOfArrivalReportViewModel>, int>(new List<AccuracyOfArrivalReportViewModel>(),1));
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetReportDetail2(null, null, null, null,null);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Delete()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
+                .Throws(new Exception());
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = await controller.Delete(1);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
