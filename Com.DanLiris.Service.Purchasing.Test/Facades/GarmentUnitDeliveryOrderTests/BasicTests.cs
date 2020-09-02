@@ -331,7 +331,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             Assert.True(viewModelWithItems.Validate(null).Count() > 0);
 
             var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = await garmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, GetCurrentMethod()).GetTestData();
+            var dataUtil = garmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, GetCurrentMethod());
+            var data = await dataUtil.GetTestData();
             var item = data.Items.First();
 
             var serviceProvider = GetServiceProvider();
@@ -346,6 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
                     new GarmentUnitDeliveryOrderItemViewModel
                     {
                         URNItemId = item.Id,
+                        DOItemsId = (int)dataUtil.ReadDOItemsByURNItemId((int)item.Id).Id,
                         IsSave = true,
                         Quantity = (double)10000
                     }

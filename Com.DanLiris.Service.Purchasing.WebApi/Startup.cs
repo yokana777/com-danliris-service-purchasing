@@ -65,6 +65,7 @@ using System.Linq;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -145,6 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
                 .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
+                .AddTransient<IGarmentDOItemFacade, GarmentDOItemFacade>()
                 .AddTransient<IMonitoringUnitReceiptAllFacade, MonitoringUnitReceiptAllFacade>()
                 .AddTransient<IGarmentUnitDeliveryOrderFacade, GarmentUnitDeliveryOrderFacade>()
                 .AddTransient<IGarmentUnitExpenditureNoteFacade, GarmentUnitExpenditureNoteFacade>()
@@ -179,7 +181,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentReportCMTFacade, GarmentReportCMTFacade>()
                 .AddTransient<IDebtBookReportFacade, DebtBookReportFacade>()
                 .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
-                .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>();
+                .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
+                .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
