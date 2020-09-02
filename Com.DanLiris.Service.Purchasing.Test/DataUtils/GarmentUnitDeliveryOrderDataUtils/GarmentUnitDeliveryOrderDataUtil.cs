@@ -47,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
             foreach (var item in garmentUnitReceiptNote.Items)
             {
+                var garmentDOItems = UNDataUtil.ReadDOItemsByURNItemId((int)item.Id);
                 garmentUnitDeliveryOrder.Items.Add(
                     new GarmentUnitDeliveryOrderItem
                     {
@@ -69,6 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         UomUnit = item.UomUnit,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
+                        DOItemsId = (int)garmentDOItems.Id
                     });
             }
 

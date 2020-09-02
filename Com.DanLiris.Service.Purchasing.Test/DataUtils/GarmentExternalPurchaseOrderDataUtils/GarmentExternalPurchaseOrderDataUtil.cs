@@ -99,6 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         SmallUomId = 1,
                         SmallUomUnit = "UomUnit1",
+                        SmallQuantity = 50
                     }
                 }
             };

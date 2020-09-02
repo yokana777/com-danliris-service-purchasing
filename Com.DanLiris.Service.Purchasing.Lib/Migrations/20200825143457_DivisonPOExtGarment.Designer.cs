@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200825143457_DivisonPOExtGarment")]
+    partial class DivisonPOExtGarment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2267,8 +2268,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("INNo")
                         .HasMaxLength(255);
 
-                    b.Property<bool>("IsCreatedVB");
-
                     b.Property<bool>("IsDeleted");
 
                     b.Property<string>("LastModifiedAgent")
@@ -3718,8 +3717,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<long>("DODetailId");
 
-                    b.Property<int>("DOItemsId");
-
                     b.Property<double>("DefaultDOQuantity");
 
                     b.Property<string>("DeletedAgent")
@@ -4002,9 +3999,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("ReturQuantity");
 
                     b.Property<long>("UENId");
-
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
 
                     b.Property<long>("URNItemId");
 
@@ -5426,8 +5420,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<bool>("IsCorrection");
-
-                    b.Property<bool>("IsCreatedVB");
 
                     b.Property<bool>("IsDeleted");
 

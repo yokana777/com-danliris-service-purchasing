@@ -154,7 +154,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReceiptCo
 
                 validateService.Validate(ViewModel);
 
-                var model = mapper.Map<GarmentReceiptCorrection>(ViewModel);
+                GarmentReceiptCorrectionViewModel vm = ViewModel;
+                vm.Items = ViewModel.Items.Where(a => a.IsSave).ToList();
+
+                var model = mapper.Map<GarmentReceiptCorrection>(vm);
 
                 await facade.Create(model,identityService.Username);
 
