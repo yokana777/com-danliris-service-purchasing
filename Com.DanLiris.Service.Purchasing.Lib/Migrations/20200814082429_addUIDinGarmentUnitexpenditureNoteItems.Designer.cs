@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200814082429_addUIDinGarmentUnitexpenditureNoteItems")]
+    partial class addUIDinGarmentUnitexpenditureNoteItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2080,15 +2081,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<string>("DivisionCode")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DivisionId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DivisionName")
-                        .HasMaxLength(1000);
-
                     b.Property<DateTimeOffset?>("ExpectedDeliveryDate");
 
                     b.Property<bool>("IsClosed");
@@ -2266,8 +2258,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("INNo")
                         .HasMaxLength(255);
-
-                    b.Property<bool>("IsCreatedVB");
 
                     b.Property<bool>("IsDeleted");
 
@@ -3717,8 +3707,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double?>("DOCurrencyRate");
 
                     b.Property<long>("DODetailId");
-
-                    b.Property<int>("DOItemsId");
 
                     b.Property<double>("DefaultDOQuantity");
 
@@ -5426,8 +5414,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<bool>("IsCorrection");
-
-                    b.Property<bool>("IsCreatedVB");
 
                     b.Property<bool>("IsDeleted");
 
