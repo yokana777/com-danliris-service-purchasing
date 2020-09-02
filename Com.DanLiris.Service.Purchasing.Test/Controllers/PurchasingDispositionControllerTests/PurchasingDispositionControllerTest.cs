@@ -272,6 +272,60 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
         }
 
         [Fact]
+        public void GetPDF_Return_OK()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>()))
+                .Verifiable();
+
+            var facadeMock = new Mock<IPurchasingDispositionFacade>();
+            facadeMock
+                .Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+            
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
+                .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
+
+            //Act
+            PurchasingDispositionController controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetPDF(It.IsAny<int>());
+            
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetPDF_Return_InternalServerError()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>()))
+                .Verifiable();
+
+            var facadeMock = new Mock<IPurchasingDispositionFacade>();
+            facadeMock
+                .Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
+                .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
+
+            //Act
+            PurchasingDispositionController controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetPDF(It.IsAny<int>());
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Error_Get_All_Data()
         {
             var mockFacade = new Mock<IPurchasingDispositionFacade>();
@@ -321,6 +375,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             PurchasingDispositionController controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_By_Id_When_InvalidId()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade
+                .Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper
+                .Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(()=>null);
+
+            //Act
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+            var response = controller.Get(It.IsAny<int>());
+            
+            //Assert
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
