@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReceiptCorrect
 {
     public class GarmentReceiptCorrectionControllerTest
     {
-        
+
         private GarmentReceiptCorrectionViewModel ViewModel
         {
             get
@@ -32,17 +32,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReceiptCorrect
                 return new GarmentReceiptCorrectionViewModel
                 {
                     URNNo = "Test",
-                    Storage=new StorageViewModel
+                    Storage = new StorageViewModel
                     {
-                        name="test",
-                        _id="1",
-                        code="test"
+                        name = "test",
+                        _id = "1",
+                        code = "test"
                     },
-                    Unit=new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                    Unit = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
                     {
-                        Id="1",
-                        Name="testUnit",
-                        Code="unitCode"
+                        Id = "1",
+                        Name = "testUnit",
+                        Code = "unitCode"
                     },
                     Items = new List<GarmentReceiptCorrectionItemViewModel>
                     {
@@ -56,8 +56,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReceiptCorrect
         {
             get
             {
-                return new GarmentReceiptCorrection {
-                    
+                return new GarmentReceiptCorrection
+                {
+
                     Items = new List<GarmentReceiptCorrectionItem>
                     {
                         new GarmentReceiptCorrectionItem()
@@ -178,14 +179,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReceiptCorrect
         [Fact]
         public void Should_Error_Get_Data_By_Id()
         {
+            //Setup
             var mockFacade = new Mock<IGarmentReceiptCorrectionFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
 
             var mockMapper = new Mock<IMapper>();
-
-            GarmentReceiptCorrectionController controller = new GarmentReceiptCorrectionController(GetServiceProvider().Object, mockFacade.Object);
+            mockMapper
+                .Setup(s => s.Map<GarmentReceiptCorrectionViewModel>(It.IsAny<GarmentReceiptCorrection>()))
+                .Returns(()=>null);
+                
+            //Act
+            GarmentReceiptCorrectionController controller = GetController(mockFacade, null, mockMapper); 
             var response = controller.Get(It.IsAny<int>());
+
+            //Assert
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -223,6 +231,56 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReceiptCorrect
 
             var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetByUser()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentReceiptCorrectionViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+            var facadeMock = new Mock<IGarmentReceiptCorrectionFacade>();
+            facadeMock
+                .Setup(s => s.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new Tuple<List<GarmentReceiptCorrection>, int, Dictionary<string, string>>(new List<GarmentReceiptCorrection>(), 1, new Dictionary<string, string>()));
+
+            mapperMock
+                .Setup(s => s.Map<List<GarmentReceiptCorrectionViewModel>>(It.IsAny<List<GarmentReceiptCorrection>>()))
+                .Returns(new List<GarmentReceiptCorrectionViewModel>());
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetByUser();
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Fail_GetByUser()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentReceiptCorrectionViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+            var facadeMock = new Mock<IGarmentReceiptCorrectionFacade>();
+            facadeMock
+                .Setup(s => s.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new Tuple<List<GarmentReceiptCorrection>, int, Dictionary<string, string>>(new List<GarmentReceiptCorrection>(), 1, new Dictionary<string, string>()));
+
+            mapperMock
+                .Setup(s => s.Map<List<GarmentReceiptCorrectionViewModel>>(It.IsAny<List<GarmentReceiptCorrection>>()))
+                .Throws(new Exception());
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetByUser();
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
