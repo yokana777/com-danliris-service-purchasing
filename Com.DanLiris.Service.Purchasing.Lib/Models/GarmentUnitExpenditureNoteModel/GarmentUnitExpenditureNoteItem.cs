@@ -57,5 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
 
         [MaxLength(25)]
         public string ItemStatus { get; set; }
-    }
+		[MaxLength(255)]
+		public string UId { get; set; }
+	}
 }
