@@ -18,7 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
         private ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil;
         private readonly ExternalPurchaseOrderFacade facade;
 
-       
+        public ExternalPurchaseOrderDataUtil(ExternalPurchaseOrderFacade facade)
+        {
+            this.facade = facade;
+        }
 
         public ExternalPurchaseOrderDataUtil(ExternalPurchaseOrderFacade facade, InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil, ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil)
         {
@@ -285,7 +288,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             return externalPurchaseOrder;
         }
 
+        public ExternalPurchaseOrder GetNewData_VBRequestPOExternal()
+        {
+            return new ExternalPurchaseOrder()
+            {
+                Items=new List<ExternalPurchaseOrderItem>()
+                {
+                    new ExternalPurchaseOrderItem()
+                    {
+                        Details=new List<ExternalPurchaseOrderDetail>()
+                        {
+                            new ExternalPurchaseOrderDetail()
+                            {
+                                ExternalPurchaseOrderItem=new ExternalPurchaseOrderItem()
+                                {
+                                    Details =new List<ExternalPurchaseOrderDetail>()
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
 
+        public async Task<ExternalPurchaseOrder> GetTestData_VBRequestPOExternal()
+        {
+            var data = GetNewData_VBRequestPOExternal();
+            await facade.Create(data, "", 7);
+
+            return data;
+        }
     }
 }
 
