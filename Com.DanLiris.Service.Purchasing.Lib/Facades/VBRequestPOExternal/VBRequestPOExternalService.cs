@@ -1,12 +1,22 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Services;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.Moonlay.Models;
+using iTextSharp.text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Remotion.Linq.Clauses.ResultOperators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 {
@@ -14,13 +24,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
     {
         private readonly PurchasingDbContext _dbContext;
         private readonly IdentityService _identityService;
+        private readonly IMemoryCacheManager _cacheManager;
+        private readonly ICurrencyProvider _currencyProvider;
+        private readonly IServiceProvider _serviceProvider;
         private const string UserAgent = "service-purchasing";
 
         public VBRequestPOExternalService(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             _dbContext = dbContext;
             _identityService = serviceProvider.GetService<IdentityService>();
+            _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
+            _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
+
+            _serviceProvider = serviceProvider;
         }
+
+        private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
+        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
+        private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
 
         public List<POExternalDto> ReadPOExternal(string keyword, string division, string currencyCode)
         {
@@ -166,6 +188,180 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             }
 
             return _dbContext.SaveChanges();
+        }
+
+        public async Task<int> AutoJournalVBRequest(VBFormDto form)
+        {
+            var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.Where(entity => form.EPOIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IncomeTaxId, entity.UseIncomeTax, entity.IncomeTaxName, entity.IncomeTaxRate, entity.CurrencyCode, entity.IncomeTaxBy, entity.SupplierIsImport }).ToList();
+            var externalPurchaseOrderItems = _dbContext.ExternalPurchaseOrderItems.Where(entity => form.EPOIds.Contains(entity.EPOId)).Select(entity => new { entity.Id, entity.EPOId, entity.PRId, entity.UnitId }).ToList();
+            var epoItemIds = externalPurchaseOrderItems.Select(element => element.Id).ToList();
+            var externalPurchaseOrderDetails = _dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => new { entity.Id, entity.EPOItemId, entity.DealQuantity, entity.PricePerDealUnit, entity.IncludePpn }).ToList();
+
+            var purchaseRequestIds = externalPurchaseOrderItems.Select(element => element.PRId).ToList();
+            var purchaseRequests = _dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId, s.UnitId, s.DivisionId }).ToList();
+
+            var journalTransactionToPost = new JournalTransaction()
+            {
+                Date = form.Date,
+                Description = "Approval VB",
+                ReferenceNo = form.DocumentNo,
+                Status = "POSTED",
+                Items = new List<JournalTransactionItem>()
+            };
+
+            var journalDebitItems = new List<JournalTransactionItem>();
+            var journalCreditItems = new List<JournalTransactionItem>();
+
+            foreach (var externalPurchaseOrderDetail in externalPurchaseOrderDetails)
+            {
+                var externalPurchaseOrderItem = externalPurchaseOrderItems.FirstOrDefault(element => element.Id == externalPurchaseOrderDetail.EPOItemId);
+                var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => element.Id == externalPurchaseOrderItem.EPOId);
+                var purchaseRequest = purchaseRequests.FirstOrDefault(element => element.Id == externalPurchaseOrderItem.PRId);
+
+                int.TryParse(purchaseRequest.CategoryId, out var categoryId);
+                var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
+                if (category == null)
+                {
+                    category = new CategoryCOAResult()
+                    {
+                        ImportDebtCOA = "9999.00",
+                        LocalDebtCOA = "9999.00",
+                        PurchasingCOA = "9999.00",
+                        StockCOA = "9999.00"
+                    };
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(category.ImportDebtCOA))
+                    {
+                        category.ImportDebtCOA = "9999.00";
+                    }
+                    if (string.IsNullOrEmpty(category.LocalDebtCOA))
+                    {
+                        category.LocalDebtCOA = "9999.00";
+                    }
+                    if (string.IsNullOrEmpty(category.PurchasingCOA))
+                    {
+                        category.PurchasingCOA = "9999.00";
+                    }
+                    if (string.IsNullOrEmpty(category.StockCOA))
+                    {
+                        category.StockCOA = "9999.00";
+                    }
+                }
+
+                int.TryParse(purchaseRequest.DivisionId, out var divisionId);
+                var division = Divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
+                if (division == null)
+                {
+                    division = new IdCOAResult()
+                    {
+                        COACode = "0"
+                    };
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(division.COACode))
+                    {
+                        division.COACode = "0";
+                    }
+                }
+
+                int.TryParse(purchaseRequest.UnitId, out var unitId);
+                var unit = Units.FirstOrDefault(f => f.Id.Equals(unitId));
+                if (unit == null)
+                {
+                    unit = new IdCOAResult()
+                    {
+                        COACode = "00"
+                    };
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(unit.COACode))
+                    {
+                        unit.COACode = "0";
+                    }
+                }
+
+                int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
+                var incomeTax = IncomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
+
+                if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
+                {
+                    incomeTax = new IncomeTaxCOAResult()
+                    {
+                        COACodeCredit = "9999.00"
+                    };
+                }
+
+                double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+
+                var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
+                var currencyRate = currency != null ? currency.Rate.GetValueOrDefault() : 1;
+
+                var basePrice = externalPurchaseOrderDetail.PricePerDealUnit * externalPurchaseOrderDetail.DealQuantity * currencyRate;
+                var totalPrice = basePrice;
+
+                if (!externalPurchaseOrderDetail.IncludePpn)
+                    totalPrice += basePrice * 0.1;
+
+                if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                    totalPrice -= basePrice * (incomeTaxRate / 100);
+
+                
+                journalDebitItems.Add(new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = externalPurchaseOrder.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                    },
+                    Debit = (decimal)totalPrice
+                });
+
+
+
+                journalCreditItems.Add(new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = currency.Code.ToUpper() == "IDR" ? $"1011.00.{division.COACode}.{unit.COACode}" : $"1012.00.{division.COACode}.{unit.COACode}"
+                    },
+                    Credit = (decimal)totalPrice
+                });
+
+            }
+
+            journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.Key
+                },
+                Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
+                Credit = 0
+            }).ToList();
+            journalTransactionToPost.Items.AddRange(journalDebitItems);
+
+            journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = s.Key
+                },
+                Debit = 0,
+                Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4))
+            }).ToList();
+            journalTransactionToPost.Items.AddRange(journalCreditItems);
+
+            if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
+                journalTransactionToPost.Status = "DRAFT";
+
+            var journalTransactionUri = "journal-transactions";
+            var httpClient = _serviceProvider.GetService<IHttpClientService>();
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            return (int)response.StatusCode;
         }
     }
 
