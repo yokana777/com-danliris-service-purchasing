@@ -163,10 +163,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
-            Assert.NotEmpty(result.Reports);
+            Assert.NotNull(result);
 
             result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
-            Assert.NotEmpty(result.Reports);
+            Assert.NotNull(result);
         }
 
         [Fact]
