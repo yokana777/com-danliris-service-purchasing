@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
                 PRNo = internalPurchaseOrder.PRNo,
                 UnitCode = "unitcode",
                 UnitName = "unit",
-                UnitId = "unitId",
+                UnitId = "1",
                 Details = new List<ExternalPurchaseOrderDetail> { externalPurchaseOrderDetailDataUtil.GetNewData(detail) }
 
 

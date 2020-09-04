@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
@@ -11,6 +12,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
@@ -20,10 +24,10 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataU
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
@@ -37,7 +41,7 @@ using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 {
-   public class VBRequestPOExternalServiceTest
+    public class VBRequestPOExternalServiceTest
     {
 
         protected string GetCurrentAsyncMethod([CallerMemberName] string methodName = "")
@@ -62,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
             optionsBuilder
                 .UseInMemoryDatabase(databaseName)
                 .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                 .UseInternalServiceProvider(serviceProvider);
+                .UseInternalServiceProvider(serviceProvider);
 
             PurchasingDbContext DbContex = new PurchasingDbContext(optionsBuilder.Options);
             return DbContex;
@@ -70,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
         private Mock<IServiceProvider> GetServiceProvider()
         {
-           
+
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
                 .Setup(x => x.GetService(typeof(IdentityService)))
@@ -79,6 +83,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
             serviceProvider
                .Setup(x => x.GetService(typeof(IHttpClientService)))
                .Returns(new HttpClientTestService());
+
+            Mock<ICurrencyProvider> currencyProvider = new Mock<ICurrencyProvider>();
+            currencyProvider.Setup(x => x.GetCurrencyByCurrencyCode(It.IsAny<string>())).ReturnsAsync(new Currency() { Rate = 1, Code = "IDR", Date = DateTime.Now });
+
+            serviceProvider
+               .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+               .Returns(currencyProvider.Object);
 
             return serviceProvider;
         }
@@ -93,7 +104,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
             return new GarmentInternNoteDataUtil(facades);
         }
 
-        
+        public UnitPaymentOrderDataUtil dataUtil(PurchasingDbContext dbContext)
+        {
+            return new UnitPaymentOrderDataUtil(dbContext);
+        }
 
         public ExternalPurchaseOrderDataUtil dataUtil(ExternalPurchaseOrderFacade facade, InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil, ExternalPurchaseOrderItemDataUtil externalPurchaseOrderItemDataUtil)
         {
@@ -114,9 +128,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             GarmentInternalPurchaseOrderFacade internalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
             GarmentInternalPurchaseOrderDataUtil garmentPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(internalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
-            
+
             var data = await _dataUtil(facade, garmentPurchaseOrderDataUtil).GetTestData_VBRequestPOExternal();
-            
+
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
             var result = service.ReadPOExternal("PO700100001", "GARMENT", "IDR");
@@ -127,12 +141,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
         }
 
         [Fact]
-        public async Task ReadPOExternal_with_NoGarment_Return_Success()
+        public async Task ShouldSuccess_ReadPOExternal_with_NoGarment()
         {
             //Setup
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
             var serviceProviderMock = GetServiceProvider();
-            
+
             var purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
             var purchaseRequestFacade = new PurchaseRequestFacade(serviceProviderMock.Object, dbContext);
             var purchaserequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
@@ -157,7 +171,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
 
         [Fact]
-        public async Task ReadSPB_with_GARMENT_Return_Success()
+        public async Task ShouldSuccess_ReadSPB_with_Garment()
         {
             //Setup
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
@@ -174,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
-            var result = service.ReadSPB("","GARMENT",new List<int>(),"IDR");
+            var result = service.ReadSPB("", "GARMENT", new List<int>(), "IDR");
 
             //Assert
             Assert.NotNull(result);
@@ -182,7 +196,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
         }
 
         [Fact]
-        public async Task ReadSPB_Return_Success()
+        public async Task ShouldSuccess_ReadSPB_with_NonGarment()
         {
             //Setup
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
@@ -219,17 +233,169 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
-            var result = service.UpdateSPB("GARMENT",1);
+            var result = service.UpdateSPB("GARMENT", 1);
 
             //Assert
-            Assert.NotEqual(0,result);
+            Assert.NotEqual(0, result);
+
+        }
+
+        [Fact]
+        public void ShouldSuccess_UpdateSPB_with_NonGarmentDivision()
+        {
+            //Setup
+            PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
+            var serviceProviderMock = GetServiceProvider();
+
+            var data =  dataUtil(dbContext).GetTestData_VBRequestPOExternal();
+
+            //Act
+            VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
+            var result = service.UpdateSPB("", 1);
+
+            //Assert
+            Assert.NotEqual(0, result);
 
         }
 
 
-      
+        [Fact]
+        public async Task Should_Success_AutoJournalVBRequest()
+        {
+            //Setup
+            PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
 
-        
+            var serviceProviderMock = GetServiceProvider();
+            var memoryCacheManagerMock = new Mock<IMemoryCacheManager>();
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+                .Returns(new List<CategoryCOAResult>());
+
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+                .Returns(new List<IdCOAResult>());
+
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.Divisions, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+                .Returns(new List<IdCOAResult>());
+
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
+                .Returns(new List<IncomeTaxCOAResult>());
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(memoryCacheManagerMock.Object);
+
+
+            var purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
+            var purchaseRequestFacade = new PurchaseRequestFacade(serviceProviderMock.Object, dbContext);
+            var purchaserequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
+
+            var internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
+            var internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            var internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaserequestDataUtil);
+
+            var externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            var externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
+            var externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
+            var data = await dataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil).GetTestData("user");
+
+            //Act
+            VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
+
+            VBFormDto dto = new VBFormDto()
+            {
+                EPOIds = new List<long>()
+                {
+                    1
+                }
+            };
+            var result = await service.AutoJournalVBRequest(dto);
+
+            //Assert
+            Assert.NotEqual(0, result);
+
+        }
+
+
+        [Fact]
+        public async Task Should_Success_AutoJournalVBRequest_when_MemoryCacheResult_Exist()
+        {
+            //Setup
+            PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
+
+            var serviceProviderMock = GetServiceProvider();
+            var memoryCacheManagerMock = new Mock<IMemoryCacheManager>();
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
+                .Returns(new List<CategoryCOAResult>() {
+                    new CategoryCOAResult()
+                    {
+                        _id=1,
+                    }
+                });
+
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+                .Returns(new List<IdCOAResult>() { 
+                    new IdCOAResult()
+                    {
+                        Id=1,
+                    }
+                });
+
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.Divisions, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+                .Returns(new List<IdCOAResult>(){
+                    new IdCOAResult()
+                    {
+                          Id=1,
+                    }
+                });
+
+            memoryCacheManagerMock
+                .Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
+                .Returns(new List<IncomeTaxCOAResult>() { 
+                     new IncomeTaxCOAResult()
+                     {
+                         Id=1,
+                     }
+                });
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(memoryCacheManagerMock.Object);
+
+            var purchaseRequestItemDataUtil = new PurchaseRequestItemDataUtil();
+            var purchaseRequestFacade = new PurchaseRequestFacade(serviceProviderMock.Object, dbContext);
+            var purchaserequestDataUtil = new PurchaseRequestDataUtil(purchaseRequestItemDataUtil, purchaseRequestFacade);
+
+            var internalPurchaseOrderItemDataUtil = new InternalPurchaseOrderItemDataUtil();
+            var internalPurchaseOrderFacade = new InternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            var internalPurchaseOrderDataUtil = new InternalPurchaseOrderDataUtil(internalPurchaseOrderItemDataUtil, internalPurchaseOrderFacade, purchaserequestDataUtil);
+
+            var externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            var externalPurchaseOrderDetailDataUtil = new ExternalPurchaseOrderDetailDataUtil();
+            var externalPurchaseOrderItemDataUtil = new ExternalPurchaseOrderItemDataUtil(externalPurchaseOrderDetailDataUtil);
+            var data = await dataUtil(externalPurchaseOrderFacade, internalPurchaseOrderDataUtil, externalPurchaseOrderItemDataUtil).GetTestData("user");
+
+            //Act
+            VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
+
+            VBFormDto dto = new VBFormDto()
+            {
+                EPOIds = new List<long>()
+                {
+                    1
+                }
+            };
+            var result = await service.AutoJournalVBRequest(dto);
+
+            //Assert
+            Assert.NotEqual(0, result);
+
+        }
 
     }
 }
