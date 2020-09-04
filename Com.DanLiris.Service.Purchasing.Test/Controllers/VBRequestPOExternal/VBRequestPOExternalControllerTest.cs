@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.VBRequestPOExternal
@@ -252,5 +253,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.VBRequestPOExternal
             Assert.Equal((int)HttpStatusCode.InternalServerError, statusCode);
         }
 
+
+        [Fact]
+        public async Task AutoJournalEPO_Return_OK()
+        {
+            //Setup
+            Mock<IVBRequestPOExternalService> serviceMock = new Mock<IVBRequestPOExternalService>();
+            serviceMock.Setup(s => s.AutoJournalVBRequest(It.IsAny<VBFormDto>())).ReturnsAsync(1);
+
+            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+            serviceProviderMock.Setup(s => s.GetService(typeof(IVBRequestPOExternalService))).Returns(serviceMock.Object);
+
+            //Act
+            VBRequestPOExternalController controller = GetController(serviceProviderMock, serviceMock);
+            var response =await controller.AutoJournalEPO(new VBFormDto());
+
+            //Assert
+            int statusCode = this.GetStatusCode(response);
+            Assert.Equal((int)HttpStatusCode.OK, statusCode);
+        }
+
+        [Fact]
+        public async Task AutoJournalEPO_Return_InternalServerError()
+        {
+            //Setup
+            Mock<IVBRequestPOExternalService> serviceMock = new Mock<IVBRequestPOExternalService>();
+            serviceMock.Setup(s => s.AutoJournalVBRequest(It.IsAny<VBFormDto>())).Throws(new Exception());
+
+            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+            serviceProviderMock.Setup(s => s.GetService(typeof(IVBRequestPOExternalService))).Returns(serviceMock.Object);
+
+            //Act
+            VBRequestPOExternalController controller = GetController(serviceProviderMock, serviceMock);
+            var response = await controller.AutoJournalEPO(new VBFormDto());
+
+            //Assert
+            int statusCode = this.GetStatusCode(response);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, statusCode);
+        }
     }
 }
