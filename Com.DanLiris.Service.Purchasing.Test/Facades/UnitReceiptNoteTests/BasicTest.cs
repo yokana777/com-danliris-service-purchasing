@@ -343,10 +343,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var dataUtil = _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
             var filter = JsonConvert.SerializeObject(new
             {
-                DivisionId = "DivisionId",
-                SupplierId = "supId",
+                DivisionId = "1",
+                SupplierId = "1",
                 PaymentMethod = "test",
-                CurrencyCode = "CurrencyCode",
+                CurrencyCode = "IDR",
                 UseIncomeTax = true,
                 UseVat = false,
                 CategoryId = "1"
