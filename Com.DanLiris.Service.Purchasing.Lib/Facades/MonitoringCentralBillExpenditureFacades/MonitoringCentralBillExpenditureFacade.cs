@@ -30,15 +30,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
         }
 
         #region MonitoringCentralBillExpenditureAll
-        public Tuple<List<MonitoringCentralBillExpenditureViewModel>, int> GetMonitoringKeluarBonPusatReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<MonitoringCentralBillExpenditureViewModel>, int> GetMonitoringKeluarBonPusatReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, offset, page, size);
+            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, jnsBC, offset, page, size);
 
             return Tuple.Create(Query, TotalCountReport);
         }
-        public MemoryStream GenerateExcelMonitoringKeluarBonPusat(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public MemoryStream GenerateExcelMonitoringKeluarBonPusat(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, jnsBC, offset, 1, int.MaxValue);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
         #endregion
         #region MonitoringCentralBillExpenditureByUser
         public int TotalCountReport { get; set; } = 0;
-        private List<MonitoringCentralBillExpenditureViewModel> GetMonitoringKeluarBonPusatByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
+        private List<MonitoringCentralBillExpenditureViewModel> GetMonitoringKeluarBonPusatByUserReportQuery(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int offset, int page, int size)
         {
 
             //DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.GetValueOrDefault();
@@ -173,7 +173,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                          join l in dbContext.GarmentUnitReceiptNotes on IURN.URNId equals l.Id into ll
                          from URN in ll.DefaultIfEmpty()
                          where 
-                         URN != null && URN.URNType == "PEMBELIAN" && d.BeacukaiNo.Substring(0, 4) != "BCDL" &&
+                         URN != null && URN.URNType == "PEMBELIAN"
+                         && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
+                         &&
                          ((d1 != new DateTime(1970, 1, 1) && URN != null) ? (URN.ReceiptDate >= d1 && URN.ReceiptDate <= d2) : true)
                                                                              
                          select new SelectedId
@@ -289,18 +291,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
         }
 
 
-        public Tuple<List<MonitoringCentralBillExpenditureViewModel>, int> GetMonitoringKeluarBonPusatByUserReport(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<MonitoringCentralBillExpenditureViewModel>, int> GetMonitoringKeluarBonPusatByUserReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Data = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, offset, page, size);
+            var Data = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, jnsBC, offset, page, size);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
     
             return Tuple.Create(Data, TotalCountReport);
         }
 
-        public MemoryStream GenerateExcelMonitoringKeluarBonPusatByUser(DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public MemoryStream GenerateExcelMonitoringKeluarBonPusatByUser(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, jnsBC, offset, 1, int.MaxValue);
             DataTable result = new DataTable();
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });

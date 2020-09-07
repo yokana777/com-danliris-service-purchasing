@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         public void Should_Success_Get_Report_Xls()
         {
             var mockFacade = new Mock<IGarmentReportCMTFacade>();
-            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                 .Returns( new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
@@ -154,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             //var dateTo = DateTime.UtcNow.AddDays(1);
             //var dateFrom = dateTo.AddDays(-30);
 
-            var response = controller.GetXlsOUT(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+            var response = controller.GetXlsOUT(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
         }
 
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         public void Should_Fail_Get_Report_Xls()
         {
             var mockFacade = new Mock<IGarmentReportCMTFacade>();
-            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                 .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
@@ -247,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             //var dateTo = DateTime.UtcNow.AddDays(1);
             //var dateFrom = dateTo.AddDays(-30);
 
-            var response = controller.GetXlsOUT(null, null ,0);
+            var response = controller.GetXlsOUT(null, null ,0, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

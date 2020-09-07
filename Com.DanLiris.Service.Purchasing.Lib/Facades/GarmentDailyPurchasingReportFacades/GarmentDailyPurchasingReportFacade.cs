@@ -6,9 +6,11 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDailyPurchasingRepor
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -256,6 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
         public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
             Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
+            //List<GarmentDailyPurchasingReportViewModel> Data = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset).ToList();
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
@@ -272,12 +275,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             result.Columns.Add(new DataColumn() { ColumnName = "Bahan Pendukung (Rp)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Bahan Baku (Rp)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Proses (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH (Rp)", DataType = typeof(String) });
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
             if (Data.Item2 == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -286,11 +291,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 Dictionary<string, double> subTotalBPSupplier = new Dictionary<string, double>();
                 Dictionary<string, double> subTotalBBSupplier = new Dictionary<string, double>();
                 Dictionary<string, double> subTotalPRCSupplier = new Dictionary<string, double>();
+                Dictionary<string, double> subTotalPPNSupplier = new Dictionary<string, double>();
+                Dictionary<string, double> subTotalPPHSupplier = new Dictionary<string, double>();
 
                 foreach (GarmentDailyPurchasingReportViewModel data in Data.Item1)
                 {
                     string SupplierName = data.SupplierName;
-                    double Amount1 = 0, Amount2 = 0, Amount3 = 0, Amount4 = 0;
+                    double Amount1 = 0, Amount2 = 0, Amount3 = 0, Amount4 = 0, Amount5 = 0, Amount6 = 0;
 
                     switch (data.CodeRequirement)
                     {
@@ -299,12 +306,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             Amount2 = 0;
                             Amount3 = 0;
                             Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = 0;
                             break;
                         case "BP":
                             Amount1 = 0;
                             Amount2 = data.Amount;
                             Amount3 = 0;
                             Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = 0;
                             break;
 
                         case "BB":
@@ -312,13 +323,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             Amount2 = 0;
                             Amount3 = data.Amount;
                             Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = 0;
                             break;
                         default:
                             Amount1 = 0;
                             Amount2 = 0;
                             Amount3 = 0;
                             Amount4 = data.Amount;
+                            Amount5 = 0;
+                            Amount6 = 0;
                             break;
+                    }
+
+                    if (data.BillNo.Contains("NPN") || data.BillNo.Contains("NKPN"))
+                    {
+                        Amount1 = 0;
+                        Amount2 = 0;
+                        Amount3 = 0;
+                        Amount4 = 0;
+                        Amount5 = data.Amount;
+                        Amount6 = 0;
+                    }
+                    if (data.BillNo.Contains("NPH") || data.BillNo.Contains("NKPH"))
+                    {
+                        Amount1 = 0;
+                        Amount2 = 0;
+                        Amount3 = 0;
+                        Amount4 = 0;
+                        Amount5 = 0;
+                        Amount6 = data.Amount;
                     }
 
                     if (!dataBySupplier.ContainsKey(SupplierName)) dataBySupplier.Add(SupplierName, new List<GarmentDailyPurchasingReportViewModel> { });
@@ -339,6 +373,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                         Amount1 = Amount2,
                         Amount2 = Amount3,
                         Amount3 = Amount4,
+                        Amount4 = Amount5,
+                        Amount5 = Amount6
                     });
 
                     if (!subTotalBESupplier.ContainsKey(SupplierName))
@@ -361,18 +397,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                         subTotalPRCSupplier.Add(SupplierName, 0);
                     };
 
+                    if (!subTotalPPNSupplier.ContainsKey(SupplierName))
+                    {
+                        subTotalPPNSupplier.Add(SupplierName, 0);
+                    };
+
+                    if (!subTotalPPHSupplier.ContainsKey(SupplierName))
+                    {
+                        subTotalPPHSupplier.Add(SupplierName, 0);
+                    };
+
                     subTotalBESupplier[SupplierName] += Amount1;
                     subTotalBPSupplier[SupplierName] += Amount2;
                     subTotalBBSupplier[SupplierName] += Amount3;
                     subTotalPRCSupplier[SupplierName] += Amount4;
+                    subTotalPPNSupplier[SupplierName] += Amount5;
+                    subTotalPPHSupplier[SupplierName] += Amount6;
                 }
 
                 double totalBE = 0;
                 double totalBP = 0;
                 double totalBB = 0;
                 double totalPRC = 0;
+                double totalPPN = 0;
+                double totalPPH = 0;
 
-                int rowPosition = 1;
+                int rowPosition = 7;
 
                 foreach (KeyValuePair<string, List<GarmentDailyPurchasingReportViewModel>> SupplName in dataBySupplier)
                 {
@@ -381,12 +431,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                     foreach (GarmentDailyPurchasingReportViewModel data in SupplName.Value)
                     {
                         index++;
-                        result.Rows.Add(index, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2));
+                        result.Rows.Add(index, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
                         rowPosition += 1;
                         splCode = data.SupplierName;
                     }
 
-                    result.Rows.Add("SUB TOTAL", "", "", "", "", "", "", "", splCode, "", Math.Round(subTotalBESupplier[SupplName.Key], 2), Math.Round(subTotalBPSupplier[SupplName.Key], 2), Math.Round(subTotalBBSupplier[SupplName.Key], 2), Math.Round(subTotalPRCSupplier[SupplName.Key], 2));
+                    result.Rows.Add("SUB TOTAL", "", "", "", "", "", "", "", splCode, "", Math.Round(subTotalBESupplier[SupplName.Key], 2), Math.Round(subTotalBPSupplier[SupplName.Key], 2), Math.Round(subTotalBBSupplier[SupplName.Key], 2), Math.Round(subTotalPRCSupplier[SupplName.Key], 2), Math.Round(subTotalPPNSupplier[SupplName.Key], 2), Math.Round(subTotalPPHSupplier[SupplName.Key], 2));
 
                     rowPosition += 1;
                     mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
@@ -395,15 +445,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                     totalBP += subTotalBPSupplier[SupplName.Key];
                     totalBB += subTotalBBSupplier[SupplName.Key];
                     totalPRC += subTotalPRCSupplier[SupplName.Key];
+                    totalPPN += subTotalPPNSupplier[SupplName.Key];
+                    totalPPH += subTotalPPHSupplier[SupplName.Key];
                 }
 
-                result.Rows.Add("TOTAL", "", "", "", "", "", "", "", "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2));
+                result.Rows.Add("TOTAL", "", "", "", "", "", "", "", "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2), Math.Round(totalPPN, 2), Math.Round(totalPPH, 2));
 
                 rowPosition += 1;
                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
 
-            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            #region Kop Table
+            var col = (char)('A' + result.Columns.Count);
+            sheet.Cells[$"A1:{col}1"].Value = "PT. Dan Liris";
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = "Buku Harian";
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("Bulan {0} {1}", Month, DateTo.Year);
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+            sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
+            sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A4:{col}4"].Value = string.Format("Supplier {0}", supplierType == true ? "IMPORT" : "LOCAL");
+            sheet.Cells[$"A4:{col}4"].Merge = true;
+            sheet.Cells[$"A4:{col}4"].Style.Font.Bold = true;
+            sheet.Cells[$"A4:{col}4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A4:{col}4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A5:{col}5"].Value = string.Format("Konveksi {0}", string.IsNullOrWhiteSpace(unitName) ? "ALL" : unitName);
+            sheet.Cells[$"A5:{col}5"].Merge = true;
+            sheet.Cells[$"A5:{col}5"].Style.Font.Bold = true;
+            sheet.Cells[$"A5:{col}5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A5:{col}5"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            #endregion
+
+            foreach (var i in Enumerable.Range(0, result.Columns.Count))
+            {
+                var colheader = (char)('A' + i);
+                sheet.Cells[$"{colheader}7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
+            }
+            sheet.Cells["A7"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+            foreach ((string cells, Enum hAlign, Enum vAlign) in mergeCells)
+            {
+                sheet.Cells[cells].Merge = true;
+                sheet.Cells[cells].Style.HorizontalAlignment = (OfficeOpenXml.Style.ExcelHorizontalAlignment)hAlign;
+                sheet.Cells[cells].Style.VerticalAlignment = (OfficeOpenXml.Style.ExcelVerticalAlignment)vAlign;
+            }
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+            
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
         }
         #endregion
     }

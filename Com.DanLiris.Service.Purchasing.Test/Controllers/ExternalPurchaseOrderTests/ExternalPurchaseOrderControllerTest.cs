@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUt
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -60,6 +61,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
             var response = await this.Client.PutAsync($"{URI}/unpost/0", new StringContent("", Encoding.UTF8, MediaType));
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_Success_HideUnpost()
+        {
+            ExternalPurchaseOrder model = await DataUtil.GetTestData("dev2");
+            POExternalUpdateModel modelupdate = new POExternalUpdateModel
+            {
+                IsCreateOnVBRequest = true
+            };
+            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/{model.EPONo}", new StringContent(JsonConvert.SerializeObject(modelupdate).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_HideUnpost_Data_InvalidId()
+        {
+            POExternalUpdateModel modelupdate = new POExternalUpdateModel
+            {
+                IsCreateOnVBRequest = true
+            };
+
+            var response = await this.Client.PutAsync($"{URI}/update-from-vb-with-po-req-finance/0", new StringContent(JsonConvert.SerializeObject(modelupdate).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
         [Fact]
         public async Task Should_Success_EPOCancel()
         {
@@ -155,6 +181,74 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.ExternalPurchaseOrder
                 item.poNo = "";
             }
             var response = await this.Client.PostAsync(URI, new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType));
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_PO_Cash_Null()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.orderDate = DateTimeOffset.MinValue;
+            viewModel.paymentMethod = "CASH";
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_PO_Cash_String_Empty()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.orderDate = DateTimeOffset.MinValue;
+            viewModel.paymentMethod = "CASH";
+            viewModel.poCashType = "";
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Invalid_PO_Cash_Supplier_Null()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDataViewModel("dev2");
+            viewModel.orderDate = DateTimeOffset.MinValue;
+            viewModel.paymentMethod = "CASH";
+            viewModel.poCashType = "DISPOSISI";
+            viewModel.supplier = null;
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Duplicate_Item()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDuplicateDataViewModel("dev2");
+            var item = viewModel.items.FirstOrDefault();
+            var detail = item.details.FirstOrDefault();
+            detail.conversion = 0;
+            detail.productPrice = 0;
+            detail.priceBeforeTax = double.MaxValue;
+            item.details.Add(detail);
+            viewModel.items.Add(item);
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_Error_Create_Detail_Null()
+        {
+            ExternalPurchaseOrderViewModel viewModel = await DataUtil.GetNewDuplicateDataViewModel("dev2");
+            var item = viewModel.items.FirstOrDefault();
+            item.details = null;
+            HttpContent httpContent = new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, MediaType);
+            httpContent.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.PostAsync(URI, httpContent);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 

@@ -638,8 +638,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 .Throws(new Exception("Error ExecuteReader"));
 
             var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
-            var Response = Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7)) ;
-            Assert.NotNull(Response);
+            Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7)) ;
 
 
         }

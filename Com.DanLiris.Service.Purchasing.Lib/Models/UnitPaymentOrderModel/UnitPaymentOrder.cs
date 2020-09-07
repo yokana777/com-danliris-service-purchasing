@@ -85,6 +85,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
 
         public int Position { get; set; }
 
+        public bool IsPosted { get; set; }
+
+        public bool IsCreatedVB { get; set; }
+
         public virtual ICollection<UnitPaymentOrderItem> Items { get; set; }
     }
 }

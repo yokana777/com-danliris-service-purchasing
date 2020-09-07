@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface IUnitPaymentOrderFacade
     {
         Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> Read(List<long> poExtIds, int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         UnitPaymentOrder ReadById(int id);
         Task<int> Create(UnitPaymentOrder model, string username, bool isImport, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, UnitPaymentOrder model, string user);

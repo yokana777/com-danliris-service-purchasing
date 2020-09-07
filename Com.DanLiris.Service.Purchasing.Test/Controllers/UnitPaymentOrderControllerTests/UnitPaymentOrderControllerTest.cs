@@ -67,7 +67,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     {
                         import = false
                     },
-                    items = items
+                    items = items,
+                    isPosted = false,
+                    position = 100,
                 };
             }
         }
@@ -117,6 +119,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     VatDate = new DateTimeOffset(),
 
                     Remark = null,
+
+                    IsPosted = false,
+                    Position = 100,
 
                     DueDate = new DateTimeOffset(), // ???
 

@@ -21,10 +21,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<object> ReadForUnitDOHeader(string Keyword = null, string Filter = "{}");
         ReadResponse<object> ReadURNItem(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         Tuple<List<FlowDetailPenerimaanViewModels>, int> GetReportFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order, int offset);
-        MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset);
+        MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname);
 
         List<object> ReadItemByRO(string Keyword = null, string Filter = "{}");
         Tuple<List<GarmentUnitReceiptNoteINReportViewModel>, int> GetReportIN(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelMonIN(DateTime? dateFrom, DateTime? dateTo, string category, int offset);
+
+        GarmentDOItems ReadDOItemsByURNItemId(int id);
     }
 }
