@@ -369,7 +369,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             //string unitDOType = "";
             bool hasUnitDOTypeFilter = FilterDictionary.ContainsKey("UnitDOType");
             IQueryable<GarmentUnitDeliveryOrder> Query = dbSet
-                .Where(x => x.UnitDONo.Contains(Keyword ?? "") && x.CreatedBy == username)
+                .Where(x => x.UnitDONo.Contains(Keyword ?? ""))
                 .Select(m => new GarmentUnitDeliveryOrder
                 {
                     Id = m.Id,
@@ -390,6 +390,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     StorageRequestName = m.StorageRequestName,
                     IsUsed = m.IsUsed,
                     LastModifiedUtc = m.LastModifiedUtc,
+                    CreatedBy=m.CreatedBy,
                     Items = m.Items.Select(i => new GarmentUnitDeliveryOrderItem
                     {
                         Id = i.Id,
