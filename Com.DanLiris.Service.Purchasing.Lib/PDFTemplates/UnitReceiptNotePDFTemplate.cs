@@ -54,7 +54,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
 
             #endregion
-
+            var unitName = "";
+            var unitId = viewModel.unit._id;
+            if (unitId == "50")
+            {
+                unitName = "WEAVING";
+            }
+            else
+            {
+                unitName = viewModel.unit.name;
+            }
             #region Identity
 
 
@@ -68,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.unit.name, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + unitName, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Diterima dari", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);

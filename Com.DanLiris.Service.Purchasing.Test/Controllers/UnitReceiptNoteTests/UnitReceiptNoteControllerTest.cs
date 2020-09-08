@@ -247,6 +247,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             }
         }
 
+        private UnitReceiptNoteViewModel ViewModel2
+        {
+            get
+            {
+                List<UnitReceiptNoteItemViewModel> items = new List<UnitReceiptNoteItemViewModel>
+                {
+                    new UnitReceiptNoteItemViewModel()
+                    {
+                        epoDetailId= It.IsAny<long>(),
+                        epoId=It.IsAny<long>(),
+                        epoNo=It.IsAny<string>(),
+                        isPaid=false,
+                        product = new ProductViewModel()
+                        {
+                            uom = new UomViewModel()
+                        }
+                    }
+                };
+
+                return new UnitReceiptNoteViewModel
+                {
+                    UId = null,
+                    storage = new StorageViewModel(),
+                    supplier = new SupplierViewModel()
+                    {
+                        import = false
+                    },
+                    items = items,
+                    unit = new UnitViewModel()
+                    {
+                        _id = "50",
+                        division = new DivisionViewModel()
+                    }
+                };
+            }
+        }
+
         private UnitReceiptNote Model
         {
             get
@@ -361,6 +398,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<UnitReceiptNoteViewModel>(It.IsAny<UnitReceiptNote>()))
                 .Returns(ViewModel);
+
+            UnitReceiptNoteController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_GetPdf_ById_Except()
+        {
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<UnitReceiptNoteViewModel>(It.IsAny<UnitReceiptNote>()))
+                .Returns(ViewModel2);
 
             UnitReceiptNoteController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
