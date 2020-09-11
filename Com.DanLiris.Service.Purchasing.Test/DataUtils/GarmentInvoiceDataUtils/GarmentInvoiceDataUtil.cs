@@ -20,6 +20,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
         private readonly GarmentInvoiceFacade facade;
         private GarmentInvoiceDetailDataUtil GarmentInvoiceDetailDataUtil;
 
+        public GarmentInvoiceDataUtil(GarmentInvoiceFacade facade)
+        {
+            this.facade = facade;
+        }
+
         public GarmentInvoiceDataUtil(GarmentInvoiceItemDataUtil GarmentInvoiceItemDataUtil, GarmentInvoiceDetailDataUtil GarmentInvoiceDetailDataUtil, GarmentDeliveryOrderDataUtil GarmentDeliveryOrderDataUtil, GarmentInvoiceFacade facade)
         {
             this.garmentInvoiceItemDataUtil = GarmentInvoiceItemDataUtil;
@@ -210,6 +215,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInvoiceDataUtils
             return model;
         }
 
+        public GarmentInvoice GetNewData_VBRequestPOExternal()
+        {
+            return new GarmentInvoice()
+            {
+                Items=new List<GarmentInvoiceItem>()
+                {
+                    new GarmentInvoiceItem()
+                    {
+                        Details=new List<GarmentInvoiceDetail>()
+                        {
+                            new GarmentInvoiceDetail()
+                        }
+                    }
+                }
 
+            };
+        }
+        public async Task<GarmentInvoice> GetTestData_VBRequestPOExternal(string user)
+        {
+            GarmentInvoice model = GetNewData_VBRequestPOExternal();
+
+            await facade.Create(model, user);
+
+            return model;
+        }
     }
 }

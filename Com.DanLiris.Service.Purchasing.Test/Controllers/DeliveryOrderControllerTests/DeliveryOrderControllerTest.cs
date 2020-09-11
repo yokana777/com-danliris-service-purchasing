@@ -456,6 +456,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
         }
 
         [Fact]
+        public void Should_Fail_Get_ById_when_InvalidId()
+        {
+            var mockFacade = new Mock<IDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new Tuple<DeliveryOrder, List<long>>(Model, new List<long>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<DeliveryOrderViewModel>(It.IsAny<DeliveryOrder>()))
+                .Returns(()=>null);
+
+            DeliveryOrderController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Fail_Get_ById()
         {
             var mockFacade = new Mock<IDeliveryOrderFacade>();
@@ -471,6 +488,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.DeliveryOrderControll
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+
 
         [Fact]
         public async Task Should_Success_Create_Data()
