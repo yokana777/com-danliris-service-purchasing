@@ -203,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             var journalTransactionToPost = new JournalTransaction()
             {
                 Date = form.Date,
-                Description = "Approval VB",
+                Description = "Auto Journal Clearance VB",
                 ReferenceNo = form.DocumentNo,
                 Status = "POSTED",
                 Items = new List<JournalTransactionItem>()
