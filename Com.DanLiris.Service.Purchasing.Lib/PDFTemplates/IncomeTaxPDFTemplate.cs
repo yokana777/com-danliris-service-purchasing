@@ -74,12 +74,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             /* tambahan */
             if (supplier.npwp == "" || supplier.npwp == null)
             {
-                cellTaxLeft.Phrase = new Phrase("NPWP                  : 00.000.000.0-000.000", normal_font);
+                supplier.npwp = "00.000.000.0-000.000";
+                //cellTaxLeft.Phrase = new Phrase("NPWP                  : 00.000.000.0-000.000", normal_font);
             }
-            else
-            {
+            //else
+            //{
                 cellTaxLeft.Phrase = new Phrase($"NPWP                  : {supplier.npwp}", normal_font);
-            }
+            //}
             /* tambahan */
             tableIncomeTax.AddCell(cellTaxLeft);
 

@@ -64,12 +64,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             /* tambahan */
             if (supplier.npwp == "" || supplier.npwp == null)
             {
-                cellHeaderContentRight.AddElement(new Phrase("NPWP / NIK : 00.000.000.0-000.000", normal_font));
+                supplier.npwp = "00.000.000.0-000.000";
+                //cellHeaderContentRight.AddElement(new Phrase("NPWP / NIK : 00.000.000.0-000.000", normal_font));
             }
-            else
-            {
+            //else
+            //{
                 cellHeaderContentRight.AddElement(new Phrase($"NPWP / NIK : {supplier.npwp}", normal_font));
-            }
+            //}
             /* tambahan */
             tableHeader.AddCell(cellHeaderContentRight);
 
