@@ -16,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class UnitPaymentOrderPDFTemplate
     {
-        public MemoryStream Generate(UnitPaymentOrder model, IUnitPaymentOrderFacade facade, int clientTimeZoneOffset = 7, string userName = null)
+        public MemoryStream Generate(UnitPaymentOrder model, IUnitPaymentOrderFacade facade, SupplierViewModel supplier, int clientTimeZoneOffset = 7, string userName = null)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 12);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
@@ -61,6 +61,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderContentRight.AddElement(new Phrase($"SUKOHARJO, {model.Date.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font));
             cellHeaderContentRight.AddElement(new Phrase($"( {model.SupplierCode} ) {model.SupplierName}", normal_font));
             cellHeaderContentRight.AddElement(new Phrase(model.SupplierAddress, normal_font));
+            /* tambahan */
+            if (supplier.npwp == "" || supplier.npwp == null)
+            {
+                cellHeaderContentRight.AddElement(new Phrase("NPWP / NIK : 00.000.000.0-000.000", normal_font));
+            }
+            else
+            {
+                cellHeaderContentRight.AddElement(new Phrase($"NPWP / NIK : {supplier.npwp}", normal_font));
+            }
+            /* tambahan */
             tableHeader.AddCell(cellHeaderContentRight);
 
             PdfPCell cellHeader = new PdfPCell(tableHeader);
