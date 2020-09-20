@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
+﻿using Com.DanLiris.Service.Purchasing.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using System;
@@ -11,6 +12,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
     {
         private UnitReceiptNoteDataUtil unitReceiptNoteDataUtil;
         private readonly UnitPaymentOrderFacade facade;
+        private PurchasingDbContext _dbContext;
+        public UnitPaymentOrderDataUtil(PurchasingDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         public UnitPaymentOrderDataUtil(UnitReceiptNoteDataUtil unitReceiptNoteDataUtil, UnitPaymentOrderFacade facade)
         {
@@ -318,5 +324,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
             await facade.Create(data, "Unit Test", false);
             return data;
         }
+        public UnitPaymentOrder GetNewData_VBRequestPOExternal()
+        {
+            return new UnitPaymentOrder()
+            {
+                Items =new List<UnitPaymentOrderItem>()
+                {
+                    new UnitPaymentOrderItem()
+                    {
+                        Details =new List<UnitPaymentOrderDetail>()
+                        {
+
+                        }
+                    }
+                }
+            };
+        }
+
+        public  UnitPaymentOrder GetTestData_VBRequestPOExternal()
+        {
+            var data = GetNewData_VBRequestPOExternal();
+            _dbContext.UnitPaymentOrders.Add(data);
+            _dbContext.SaveChanges();
+            return data;
+        }
+
+
     }
 }

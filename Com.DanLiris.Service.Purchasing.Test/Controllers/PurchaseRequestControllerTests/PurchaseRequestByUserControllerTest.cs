@@ -85,6 +85,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         }
 
         [Fact]
+        public async Task Should_Success_Get_Data_PDF_By_Id_Except()
+        {
+            PurchaseRequest model = await DataUtil.GetTestDataPdf("dev2");
+            HttpRequestMessage requestMessage = new HttpRequestMessage()
+            {
+                RequestUri = new Uri($"{Client.BaseAddress}{URI}/{model.Id}"),
+                Method = HttpMethod.Get
+            };
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypePdf));
+            requestMessage.Headers.Add("x-timezone-offset", "0");
+            var response = await this.Client.SendAsync(requestMessage);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Should_Success_Create_Data()
         {
             PurchaseRequestViewModel viewModel = DataUtil.GetNewDataViewModel();

@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 var unitReceiptNoteDate = unitReceiptNote.ReceiptDate;
                 UnitReceiptNoteDates.Add(unitReceiptNoteDate);
 
-                var UnitName = unitReceiptNote.UnitName;
+                var UnitName = unitReceiptNote.UnitId == "50" ? "WEAVING" : unitReceiptNote.UnitName;
                 foreach (var detail in item.Details)
                 {
                     var PaymentDueDays = facade.GetExternalPurchaseOrder(detail.EPONo).PaymentDueDays;

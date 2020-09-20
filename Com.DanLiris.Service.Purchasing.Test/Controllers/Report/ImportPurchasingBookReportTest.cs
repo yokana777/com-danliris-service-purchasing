@@ -69,5 +69,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
+        public async Task Should_Success_GetXls()
+        {
+            //Setup
+            var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>())).ReturnsAsync(new MemoryStream());
+
+            //Act
+            var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+
+            //Assert
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response,null));
+            Assert.Equal("Laporan Buku Pembelian Impor 01-01-0001_01-01-0001.xlsx", response.GetType().GetProperty("FileDownloadName").GetValue(response, null));
+        }
+
+        [Fact]
+        public async Task Should_Throws_InternalServerError_GetXls()
+        {
+            //Setup
+            var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>())).Throws(new Exception());
+
+            //Act
+            var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
     }
 }

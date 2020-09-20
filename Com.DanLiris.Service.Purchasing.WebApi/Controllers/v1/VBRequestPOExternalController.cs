@@ -3,7 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         public VBRequestPOExternalController(IVBRequestPOExternalService service, IServiceProvider serviceProvider)
         {
             _service = service;
-            _identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            _identityService = serviceProvider.GetService<IdentityService>();
+        }
+
+        private void VerifyUser()
+        {
+            _identityService.Username = User.Claims.ToArray().SingleOrDefault(p => p.Type.Equals("username")).Value;
+            _identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            _identityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         }
 
         [HttpGet]
@@ -101,6 +108,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                     { "page", 1 },
                     { "size", 10 }
                 },
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpPost("auto-journal-epo")]
+        public async Task<IActionResult> AutoJournalEPO([FromBody] VBFormDto form)
+        {
+
+            try
+            {
+                VerifyUser();
+
+                var result = await _service.AutoJournalVBRequest(form);
+                
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
                 });
             }
             catch (Exception e)

@@ -317,11 +317,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             double total = 0;
             double totalPurchase = 0;
+            
             foreach (PurchasingDispositionItemViewModel item in viewModel.Items)
             {
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
                 {
                     PurchasingDispositionDetailViewModel detail = item.Details[indexItem];
+                    var unitName = detail.Unit._id == "50" ? "WEAVING" : detail.Unit.name;
                     cellLeft.Colspan = 0;
                     cellLeft.Phrase = new Phrase($"{detail.Product.name}", smaller_font);
                     tableContent.AddCell(cellLeft);
@@ -332,7 +334,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellCenter.Phrase = new Phrase($"{item.EPONo}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase($"{detail.Unit.name}", smaller_font);
+                    cellCenter.Phrase = new Phrase($"{unitName}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
                     //cellCenter.Phrase = new Phrase($"{detail.Category.name}", smaller_font);

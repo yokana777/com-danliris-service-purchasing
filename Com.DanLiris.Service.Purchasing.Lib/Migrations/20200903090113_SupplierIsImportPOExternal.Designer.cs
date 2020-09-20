@@ -12,70 +12,15 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200903090113_SupplierIsImportPOExternal")]
+    partial class SupplierIsImportPOExternal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.0.3-rtm-10026")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel.BalanceStock", b =>
-                {
-                    b.Property<string>("BalanceStockId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(30)");
-
-                    b.Property<string>("ArticleNo")
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<decimal?>("ClosePrice")
-                        .HasColumnType("Money");
-
-                    b.Property<double?>("CloseStock");
-
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("Datetime");
-
-                    b.Property<decimal?>("CreditPrice")
-                        .HasColumnType("Money");
-
-                    b.Property<double?>("CreditStock");
-
-                    b.Property<decimal?>("DebitPrice")
-                        .HasColumnType("Money");
-
-                    b.Property<double?>("DebitStock");
-
-                    b.Property<decimal?>("OpenPrice")
-                        .HasColumnType("Money");
-
-                    b.Property<double?>("OpenStock");
-
-                    b.Property<string>("POID")
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int?>("POItemId");
-
-                    b.Property<string>("PeriodeMonth")
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("PeriodeYear")
-                        .HasColumnType("varchar(10)");
-
-                    b.Property<string>("RO")
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("SmallestUnitQty")
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<int?>("StockId");
-
-                    b.HasKey("BalanceStockId");
-
-                    b.ToTable("BalanceStocks");
-                });
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.BankDocumentNumber.BankDocumentNumber", b =>
                 {
@@ -4060,9 +4005,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("ReturQuantity");
 
                     b.Property<long>("UENId");
-
-                    b.Property<string>("UId")
-                        .HasMaxLength(255);
 
                     b.Property<long>("URNItemId");
 

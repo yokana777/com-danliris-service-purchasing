@@ -15,6 +15,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
     {
         private readonly GarmentInvoiceDataUtil garmentInvoiceDataUtil;
         private readonly GarmentInternNoteFacades facade;
+
+        public GarmentInternNoteDataUtil(GarmentInternNoteFacades facade)
+        {
+            this.facade = facade;
+        }
         public GarmentInternNoteDataUtil(GarmentInvoiceDataUtil garmentInvoiceDataUtil, GarmentInternNoteFacades facade)
         {
             this.garmentInvoiceDataUtil = garmentInvoiceDataUtil;
@@ -143,6 +148,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternNoteDataUt
             await facade.Create(data,false, "Unit Test");
             return data;
         }
-        
+
+        public GarmentInternNote GetNewData_VBRequestPOExternal()
+        {
+            return new GarmentInternNote()
+            {
+                Remark= "Remark",
+                Items =new List<GarmentInternNoteItem>()
+                {
+                    new GarmentInternNoteItem()
+                    {
+                        Details=new List<GarmentInternNoteDetail>()
+                        {
+                            new GarmentInternNoteDetail()
+                        }
+                    }
+                }
+            };
+        }
+
+        public async Task<GarmentInternNote> GetTestData_VBRequestPOExternal()
+        {
+            var data = GetNewData_VBRequestPOExternal();
+            await facade.Create(data, false, "Unit Test");
+            return data;
+        }
+
     }
 }
