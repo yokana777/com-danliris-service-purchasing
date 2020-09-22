@@ -12,11 +12,13 @@ using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceControllers
 {
@@ -134,9 +136,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				else
 				{
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-					
-					IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
+
+                    /* tambahan */
+                    /* get gsupplier */
+                    string supplierUri = "master/garment-suppliers";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = httpClient.GetAsync($"{Lib.Helpers.APIEndpoint.Core}{supplierUri}/{model.SupplierId}").Result.Content.ReadAsStringAsync();
+                    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                    SupplierViewModel supplier = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                    /* tambahan */
+
+                    IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel,supplier,clientTimeZoneOffset, DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
@@ -225,8 +236,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				{
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-					VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
+                    /* tambahan */
+                    /* get gsupplier */
+                    string supplierUri = "master/garment-suppliers";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = httpClient.GetAsync($"{Lib.Helpers.APIEndpoint.Core}{supplierUri}/{model.SupplierId}").Result.Content.ReadAsStringAsync();
+                    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                    SupplierViewModel supplier = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                    /* tambahan */
+
+                    VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel,supplier,clientTimeZoneOffset, DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
