@@ -189,9 +189,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
         public async Task<int> AutoJournalVBRequest(VBFormDto form)
         {
-            var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.Where(entity => form.EPOIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IncomeTaxId, entity.UseIncomeTax, entity.IncomeTaxName, entity.IncomeTaxRate, entity.CurrencyCode, entity.IncomeTaxBy, entity.SupplierIsImport }).ToList();
+            var unitPaymentOrderItemIds = _dbContext.UnitPaymentOrderItems.Where(entity => form.EPOIds.Contains(entity.UPOId)).Select(entity => entity.Id).ToList();
+            var unitPaymentOrders = _dbContext.UnitPaymentOrders.Where(entity => form.EPOIds.Contains(entity.Id)).ToList();
+            var epoDetailIds = _dbContext.UnitPaymentOrderDetails.Where(entity => unitPaymentOrderItemIds.Contains(entity.UPOItemId)).Select(entity => entity.EPODetailId).ToList();
+
             var externalPurchaseOrderItems = _dbContext.ExternalPurchaseOrderItems.Where(entity => form.EPOIds.Contains(entity.EPOId)).Select(entity => new { entity.Id, entity.EPOId, entity.PRId, entity.UnitId }).ToList();
             var epoItemIds = externalPurchaseOrderItems.Select(element => element.Id).ToList();
+            var epoIds = externalPurchaseOrderItems.Select(element => element.EPOId).ToList();
+            var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.Where(entity => epoIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IncomeTaxId, entity.UseIncomeTax, entity.IncomeTaxName, entity.IncomeTaxRate, entity.CurrencyCode, entity.IncomeTaxBy, entity.SupplierIsImport }).ToList();
             var externalPurchaseOrderDetails = _dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => new { entity.Id, entity.EPOItemId, entity.DealQuantity, entity.PricePerDealUnit, entity.IncludePpn }).ToList();
 
             var purchaseRequestIds = externalPurchaseOrderItems.Select(element => element.PRId).ToList();
@@ -209,13 +214,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
 
-            foreach (var externalPurchaseOrderDetail in externalPurchaseOrderDetails)
+            foreach (var unitPaymentOrder in unitPaymentOrders)
             {
-                var externalPurchaseOrderItem = externalPurchaseOrderItems.FirstOrDefault(element => element.Id == externalPurchaseOrderDetail.EPOItemId);
-                var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => element.Id == externalPurchaseOrderItem.EPOId);
-                var purchaseRequest = purchaseRequests.FirstOrDefault(element => element.Id == externalPurchaseOrderItem.PRId);
+                //var externalPurchaseOrderItem = externalPurchaseOrderItems.FirstOrDefault(element => element.Id == externalPurchaseOrderDetail.EPOItemId);
+                //var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => element.Id == externalPurchaseOrderItem.EPOId);
+                //var purchaseRequest = purchaseRequests.FirstOrDefault(element => element.Id == externalPurchaseOrderItem.PRId);
+                var upo = form.UPOIds.FirstOrDefault(element => element.UPOId.GetValueOrDefault() == unitPaymentOrder.Id);
 
-                int.TryParse(purchaseRequest.CategoryId, out var categoryId);
+                int.TryParse(unitPaymentOrder.CategoryId, out var categoryId);
                 var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
                 if (category == null)
                 {
@@ -247,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     }
                 }
 
-                int.TryParse(purchaseRequest.DivisionId, out var divisionId);
+                int.TryParse(unitPaymentOrder.DivisionId, out var divisionId);
                 var division = Divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
                 if (division == null)
                 {
@@ -264,7 +270,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     }
                 }
 
-                int.TryParse(purchaseRequest.UnitId, out var unitId);
+                int.TryParse("0", out var unitId);
                 var unit = Units.FirstOrDefault(f => f.Id.Equals(unitId));
                 if (unit == null)
                 {
@@ -281,7 +287,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     }
                 }
 
-                int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
+                int.TryParse(unitPaymentOrder.IncomeTaxId, out var incomeTaxId);
                 var incomeTax = IncomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
 
                 if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
@@ -292,28 +298,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     };
                 }
 
-                double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+                //double.TryParse(unitPaymentOrder.IncomeTaxRate, out var incomeTaxRate);
 
-                var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
+                var currency = await _currencyProvider.GetCurrencyByCurrencyCode(unitPaymentOrder.CurrencyCode);
                 var currencyRate = currency != null ? currency.Rate.GetValueOrDefault() : 1;
 
-                var basePrice = externalPurchaseOrderDetail.PricePerDealUnit * externalPurchaseOrderDetail.DealQuantity * currencyRate;
-                var totalPrice = basePrice;
+                //var basePrice = externalPurchaseOrderDetail.PricePerDealUnit * externalPurchaseOrderDetail.DealQuantity * currencyRate;
+                //var totalPrice = basePrice;
 
-                if (!externalPurchaseOrderDetail.IncludePpn)
-                    totalPrice += basePrice * 0.1;
+                //if (!externalPurchaseOrderDetail.IncludePpn)
+                //    totalPrice += basePrice * 0.1;
 
-                if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
-                    totalPrice -= basePrice * (incomeTaxRate / 100);
+                //if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                //    totalPrice -= basePrice * (incomeTaxRate / 100);
 
 
                 journalDebitItems.Add(new JournalTransactionItem()
                 {
                     COA = new COA()
                     {
-                        Code = externalPurchaseOrder.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                        //Code = unitPaymentOrder.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                        Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                     },
-                    Debit = (decimal)totalPrice
+                    Debit = (decimal)upo.Amount
                 });
 
 
@@ -324,7 +331,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     {
                         Code = currency.Code.ToUpper() == "IDR" ? $"1011.00.{division.COACode}.{unit.COACode}" : $"1012.00.{division.COACode}.{unit.COACode}"
                     },
-                    Credit = (decimal)totalPrice
+                    Credit = (decimal)upo.Amount
                 });
 
             }

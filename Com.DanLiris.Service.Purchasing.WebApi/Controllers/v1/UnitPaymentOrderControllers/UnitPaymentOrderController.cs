@@ -7,11 +7,13 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrderControllers
 {
@@ -197,8 +199,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
                     identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
+                    /* tambahan */
+                    /* get Supplier */
+                    string supplierUri = "master/suppliers";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = httpClient.GetAsync($"{Lib.Helpers.APIEndpoint.Core}{supplierUri}/{model.SupplierId}").Result.Content.ReadAsStringAsync();
+                    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                    SupplierViewModel supplier = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                    /* tambahan */
+
                     UnitPaymentOrderPDFTemplate PdfTemplate = new UnitPaymentOrderPDFTemplate();
-                    var stream = PdfTemplate.Generate(model, facade, clientTimeZoneOffset, identityService.Username);
+                    var stream = PdfTemplate.Generate(model, facade, supplier ,clientTimeZoneOffset, identityService.Username);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
