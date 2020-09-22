@@ -50,45 +50,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             if (!string.IsNullOrWhiteSpace(division) && division.ToUpper() == "GARMENT")
             {
-                var query = _dbContext.GarmentExternalPurchaseOrders.Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Include(entity => entity.Items).AsQueryable();
+                var garmentQuery = _dbContext.GarmentExternalPurchaseOrders.Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Include(entity => entity.Items).AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
-                    query = query.Where(entity => entity.EPONo.Contains(keyword));
+                    garmentQuery = garmentQuery.Where(entity => entity.EPONo.Contains(keyword));
                 }
 
                 if (!string.IsNullOrWhiteSpace(currencyCode))
                 {
-                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
+                    garmentQuery = garmentQuery.Where(entity => entity.CurrencyCode == currencyCode);
                 }
 
-                var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
+                var garmentQueryResult = garmentQuery.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 
-                var epoIdAndPOIds = queryResult.SelectMany(element => element.Items).Select(element => new EPOIdAndPOId() { EPOId = element.GarmentEPOId, POId = element.POId }).ToList();
+                var epoIdAndPOIds = garmentQueryResult.SelectMany(element => element.Items).Select(element => new EPOIdAndPOId() { EPOId = element.GarmentEPOId, POId = element.POId }).ToList();
                 var poIds = epoIdAndPOIds.Select(element => element.POId).ToList();
                 var purchaseOrders = _dbContext.GarmentInternalPurchaseOrders.Where(entity => poIds.Contains(entity.Id)).ToList();
                 //var internalPOs = _dbContext
 
-                result = queryResult.Select(entity => new POExternalDto(entity, purchaseOrders)).ToList();
+                result = garmentQueryResult.Select(entity => new POExternalDto(entity, purchaseOrders)).ToList();
             }
-            else
+
+            var query = _dbContext.ExternalPurchaseOrders.Where(entity => entity.POCashType == "VB" && entity.IsPosted).Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
             {
-                var query = _dbContext.ExternalPurchaseOrders.Where(entity => entity.POCashType == "VB" && entity.IsPosted).Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable();
-
-                if (!string.IsNullOrWhiteSpace(keyword))
-                {
-                    query = query.Where(entity => entity.EPONo.Contains(keyword));
-                }
-
-                if (!string.IsNullOrWhiteSpace(currencyCode))
-                {
-                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
-                }
-
-                var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
-
-                result = queryResult.Select(entity => new POExternalDto(entity)).ToList();
+                query = query.Where(entity => entity.EPONo.Contains(keyword));
             }
+
+            if (!string.IsNullOrWhiteSpace(currencyCode))
+            {
+                query = query.Where(entity => entity.CurrencyCode == currencyCode);
+            }
+
+            var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
+
+            //result = queryResult.Select(entity => new POExternalDto(entity)).ToList();
+            result.AddRange(queryResult.Select(entity => new POExternalDto(entity)).ToList());
 
             return result;
         }
@@ -110,60 +109,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var internNoteIds = internNoteItems.Select(entity => entity.Id).ToList();
 
 
-
-                var query = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
+                var garmentQuery = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
                 if (!string.IsNullOrWhiteSpace(keyword))
-                    query = query.Where(entity => entity.INNo.Contains(keyword));
+                    garmentQuery = garmentQuery.Where(entity => entity.INNo.Contains(keyword));
 
                 if (!string.IsNullOrWhiteSpace(currencyCode))
-                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
+                    garmentQuery = garmentQuery.Where(entity => entity.CurrencyCode == currencyCode);
 
-                var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
+                var garmentQueryResult = garmentQuery.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 
-                var invoiceIds = queryResult.SelectMany(element => element.Items).Select(element => element.InvoiceId).ToList();
+                var invoiceIds = garmentQueryResult.SelectMany(element => element.Items).Select(element => element.InvoiceId).ToList();
                 var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).ToList();
 
-                internNoteIds = queryResult.Select(element => element.Id).ToList();
+                internNoteIds = garmentQueryResult.Select(element => element.Id).ToList();
                 internNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internNoteIds.Contains(entity.GarmentINId)).ToList();
                 internNoteItemIds = internNoteItems.Select(element => element.Id).ToList();
                 var internNoteDetails = _dbContext.GarmentInternNoteDetails.Where(entity => internNoteItemIds.Contains(entity.GarmentItemINId)).ToList();
 
-                result = queryResult.Select(element => new SPBDto(element, invoices, internNoteItems, internNoteDetails)).ToList();
+                result = garmentQueryResult.Select(element => new SPBDto(element, invoices, internNoteItems, internNoteDetails)).ToList();
 
             }
-            else
+
+            if (epoIds.Count <= 0)
             {
-                if (epoIds.Count <= 0)
-                {
-                    epoIds = _dbContext.ExternalPurchaseOrders.Where(entity => entity.PaymentMethod == "CASH" && entity.POCashType == "VB" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
-                }
-
-                var epoItemIds = _dbContext.ExternalPurchaseOrderItems.Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.Id).ToList();
-                var epoDetailIds = _dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
-                var spbItemIds = _dbContext.UnitPaymentOrderDetails.Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
-                var spbIds = _dbContext.UnitPaymentOrderItems.Where(entity => spbItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
-
-                var query = _dbContext.UnitPaymentOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => spbIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
-
-                if (!string.IsNullOrWhiteSpace(keyword))
-                    query = query.Where(entity => entity.UPONo.Contains(keyword));
-
-                if (!string.IsNullOrWhiteSpace(currencyCode))
-                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
-
-                var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
-
-                spbIds = queryResult.Select(element => element.Id).ToList();
-                var spbItems = _dbContext.UnitPaymentOrderItems.Where(entity => spbIds.Contains(entity.UPOId)).ToList();
-                spbItemIds = spbItems.Select(element => element.Id).ToList();
-                var spbDetails = _dbContext.UnitPaymentOrderDetails.Where(entity => spbItemIds.Contains(entity.UPOItemId)).ToList();
-                var unitReceiptNoteItemIds = spbDetails.Select(element => element.URNItemId).ToList();
-                var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteItemIds.Contains(entity.Id)).ToList();
-                var unitReceiptNoteIds = unitReceiptNoteItems.Select(entity => entity.URNId).ToList();
-                var unitReceiptNotes = _dbContext.UnitReceiptNotes.Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
-
-                result = queryResult.Select(element => new SPBDto(element, spbDetails, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList();
+                epoIds = _dbContext.ExternalPurchaseOrders.Where(entity => entity.PaymentMethod == "CASH" && entity.POCashType == "VB" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
             }
+
+            var epoItemIds = _dbContext.ExternalPurchaseOrderItems.Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.Id).ToList();
+            var epoDetailIds = _dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
+            var spbItemIds = _dbContext.UnitPaymentOrderDetails.Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
+            var spbIds = _dbContext.UnitPaymentOrderItems.Where(entity => spbItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
+
+            var query = _dbContext.UnitPaymentOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => spbIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+                query = query.Where(entity => entity.UPONo.Contains(keyword));
+
+            if (!string.IsNullOrWhiteSpace(currencyCode))
+                query = query.Where(entity => entity.CurrencyCode == currencyCode);
+
+            var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
+
+            spbIds = queryResult.Select(element => element.Id).ToList();
+            var spbItems = _dbContext.UnitPaymentOrderItems.Where(entity => spbIds.Contains(entity.UPOId)).ToList();
+            spbItemIds = spbItems.Select(element => element.Id).ToList();
+            var spbDetails = _dbContext.UnitPaymentOrderDetails.Where(entity => spbItemIds.Contains(entity.UPOItemId)).ToList();
+            var unitReceiptNoteItemIds = spbDetails.Select(element => element.URNItemId).ToList();
+            var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteItemIds.Contains(entity.Id)).ToList();
+            var unitReceiptNoteIds = unitReceiptNoteItems.Select(entity => entity.URNId).ToList();
+            var unitReceiptNotes = _dbContext.UnitReceiptNotes.Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
+
+            //result = queryResult.Select(element => new SPBDto(element, spbDetails, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList();
+            result.AddRange(queryResult.Select(element => new SPBDto(element, spbDetails, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList());
 
             return result;
         }
@@ -309,7 +306,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
                     totalPrice -= basePrice * (incomeTaxRate / 100);
 
-                
+
                 journalDebitItems.Add(new JournalTransactionItem()
                 {
                     COA = new COA()
