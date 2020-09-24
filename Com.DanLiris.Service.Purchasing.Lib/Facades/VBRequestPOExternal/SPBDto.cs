@@ -54,7 +54,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Id = element.Id;
             No = element.UPONo;
             Date = element.Date;
-
             
 
             Supplier = new SupplierDto(element);
@@ -72,7 +71,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
 
             UnitCosts = selectedSPBDetails.Select(detail => new UnitCostDto(detail, selectedSPBItems, unitReceiptNoteItems, unitReceiptNotes, element)).ToList();
-            Amount = selectedSPBDetails.Sum(detail => detail.PriceTotal);
+            //Amount = selectedSPBDetails.Sum(detail => detail.PriceTotal);
+            Amount = selectedSPBDetails.Sum(detail => {
+                var quantity = detail.ReceiptQuantity;
+                if (detail.QuantityCorrection > 0)
+                    quantity = detail.QuantityCorrection;
+
+                var price = detail.PricePerDealUnit;
+                if (detail.PricePerDealUnit > 0)
+                    price = detail.PricePerDealUnitCorrection;
+
+                var result = quantity * price;
+                if (detail.PriceTotalCorrection > 0)
+                    result = detail.PriceTotalCorrection;
+
+                return result;
+            });
         }
 
         public SPBDto(GarmentInternNote element, List<GarmentInvoice> invoices, List<GarmentInternNoteItem> internNoteItems, List<GarmentInternNoteDetail> internNoteDetails)
