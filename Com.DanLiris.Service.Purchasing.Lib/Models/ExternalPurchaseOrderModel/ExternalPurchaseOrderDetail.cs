@@ -20,15 +20,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel
         public double DefaultQuantity { get; set; }
         public double DealQuantity { get; set; }
 
+        [MaxLength(4000)]
         public string DefaultUomId { get; set; }
+
+        [MaxLength(4000)]
         public string DefaultUomUnit { get; set; }
+
+        [MaxLength(4000)]
         public string DealUomId { get; set; }
+
+        [MaxLength(4000)]
         public string DealUomUnit { get; set; }
 
         public double PricePerDealUnit { get; set; }
         public double PriceBeforeTax { get; set; }
         public double Conversion { get; set; }
         public bool IncludePpn { get; set; }
+
+        [MaxLength(4000)]
         public string ProductRemark { get; set; }
         public double DOQuantity { get; set; }
         public double ReceiptQuantity { get; set; }

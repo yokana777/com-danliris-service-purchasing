@@ -108,7 +108,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 UseVat = elementInvoice.UseVat;
                 UseIncomeTax = elementInvoice.UseIncomeTax;
                 IncomeTax = new IncomeTaxDto(elementInvoice.IncomeTaxId, elementInvoice.IncomeTaxName, elementInvoice.IncomeTaxRate);
-                IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
+                //IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
+                IncomeTaxBy = "Supplier";
             }
 
             var selectedInternNoteItems = internNoteItems.Where(item => item.GarmentINId == element.Id).ToList();
