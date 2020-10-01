@@ -62,13 +62,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet("spb")]
-        public IActionResult GetSPB([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string epoIds, [FromQuery] string currencyCode)
+        public IActionResult GetSPB([FromQuery] string keyword, [FromQuery] string division, [FromQuery] string epoIds, [FromQuery] string currencyCode, [FromQuery]string typePurchasing)
         {
 
             try
             {
                 var epoIdList = JsonConvert.DeserializeObject<List<long>>(epoIds);
-                var result = _service.ReadSPB(keyword, division, epoIdList, currencyCode);
+                var result = _service.ReadSPB(keyword, division, epoIdList, currencyCode, typePurchasing);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
