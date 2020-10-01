@@ -101,15 +101,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             {
                 if (epoIds.Count <= 0)
                 {
-                    epoIds = _dbContext.GarmentExternalPurchaseOrders.Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
+                    epoIds = _dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
                 }
 
-                var internNoteItemIds = _dbContext.GarmentInternNoteDetails.Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.GarmentItemINId).ToList();
-                var internNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
+                var internNoteItemIds = _dbContext.GarmentInternNoteDetails.AsNoTracking().Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.GarmentItemINId).ToList();
+                var internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
                 var internNoteIds = internNoteItems.Select(entity => entity.Id).ToList();
 
 
-                var garmentQuery = _dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
+                var garmentQuery = _dbContext.GarmentInternNotes.AsNoTracking().Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
                 if (!string.IsNullOrWhiteSpace(keyword))
                     garmentQuery = garmentQuery.Where(entity => entity.INNo.Contains(keyword));
 
@@ -122,9 +122,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).ToList();
 
                 internNoteIds = garmentQueryResult.Select(element => element.Id).ToList();
-                internNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internNoteIds.Contains(entity.GarmentINId)).ToList();
+                internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteIds.Contains(entity.GarmentINId)).ToList();
                 internNoteItemIds = internNoteItems.Select(element => element.Id).ToList();
-                var internNoteDetails = _dbContext.GarmentInternNoteDetails.Where(entity => internNoteItemIds.Contains(entity.GarmentItemINId)).ToList();
+                var internNoteDetails = _dbContext.GarmentInternNoteDetails.AsNoTracking().Where(entity => internNoteItemIds.Contains(entity.GarmentItemINId)).ToList();
 
                 result = garmentQueryResult.Select(element => new SPBDto(element, invoices, internNoteItems, internNoteDetails)).ToList();
 
@@ -132,15 +132,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             if (epoIds.Count <= 0)
             {
-                epoIds = _dbContext.ExternalPurchaseOrders.Where(entity => entity.PaymentMethod == "CASH" && entity.POCashType == "VB" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
+                epoIds = _dbContext.ExternalPurchaseOrders.AsNoTracking().Where(entity => entity.PaymentMethod == "CASH" && entity.POCashType == "VB" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
             }
 
-            var epoItemIds = _dbContext.ExternalPurchaseOrderItems.Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.Id).ToList();
-            var epoDetailIds = _dbContext.ExternalPurchaseOrderDetails.Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
-            var spbItemIds = _dbContext.UnitPaymentOrderDetails.Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
-            var spbIds = _dbContext.UnitPaymentOrderItems.Where(entity => spbItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
+            var epoItemIds = _dbContext.ExternalPurchaseOrderItems.AsNoTracking().Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.Id).ToList();
+            var epoDetailIds = _dbContext.ExternalPurchaseOrderDetails.AsNoTracking().Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
+            var spbItemIds = _dbContext.UnitPaymentOrderDetails.AsNoTracking().Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
+            var spbIds = _dbContext.UnitPaymentOrderItems.AsNoTracking().Where(entity => spbItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
 
-            var query = _dbContext.UnitPaymentOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => spbIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
+            var query = _dbContext.UnitPaymentOrders.AsNoTracking().Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => spbIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(entity => entity.UPONo.Contains(keyword));
@@ -151,13 +151,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             var queryResult = query.OrderByDescending(entity => entity.LastModifiedUtc).Take(10).ToList();
 
             spbIds = queryResult.Select(element => element.Id).ToList();
-            var spbItems = _dbContext.UnitPaymentOrderItems.Where(entity => spbIds.Contains(entity.UPOId)).ToList();
+            var spbItems = _dbContext.UnitPaymentOrderItems.AsNoTracking().Where(entity => spbIds.Contains(entity.UPOId)).ToList();
             spbItemIds = spbItems.Select(element => element.Id).ToList();
-            var spbDetails = _dbContext.UnitPaymentOrderDetails.Where(entity => spbItemIds.Contains(entity.UPOItemId)).ToList();
+            var spbDetails = _dbContext.UnitPaymentOrderDetails.AsNoTracking().Where(entity => spbItemIds.Contains(entity.UPOItemId)).ToList();
             var unitReceiptNoteItemIds = spbDetails.Select(element => element.URNItemId).ToList();
-            var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteItemIds.Contains(entity.Id)).ToList();
+            var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.AsNoTracking().Where(entity => unitReceiptNoteItemIds.Contains(entity.Id)).ToList();
             var unitReceiptNoteIds = unitReceiptNoteItems.Select(entity => entity.URNId).ToList();
-            var unitReceiptNotes = _dbContext.UnitReceiptNotes.Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
+            var unitReceiptNotes = _dbContext.UnitReceiptNotes.AsNoTracking().Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
 
             //result = queryResult.Select(element => new SPBDto(element, spbDetails, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList();
             result.AddRange(queryResult.Select(element => new SPBDto(element, spbDetails, spbItems, unitReceiptNoteItems, unitReceiptNotes)).ToList());

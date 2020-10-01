@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     quantity = detail.QuantityCorrection;
 
                 var price = detail.PricePerDealUnit;
-                if (detail.PricePerDealUnit > 0)
+                if (detail.PricePerDealUnitCorrection > 0)
                     price = detail.PricePerDealUnitCorrection;
 
                 var result = quantity * price;
