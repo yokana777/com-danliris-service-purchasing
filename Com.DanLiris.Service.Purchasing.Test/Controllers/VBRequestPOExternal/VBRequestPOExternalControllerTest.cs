@@ -182,7 +182,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.VBRequestPOExternal
         {
             //Setup
             Mock<IVBRequestPOExternalService> serviceMock = new Mock<IVBRequestPOExternalService>();
-            serviceMock.Setup(s => s.ReadSPB(It.IsAny<string>(),  It.IsAny<string>(), It.IsAny<List<int>>(), It.IsAny<string>())).Returns(new List<SPBDto>() { sPBDto });
+            serviceMock.Setup(s => s.ReadSPB(It.IsAny<string>(),  It.IsAny<string>(), It.IsAny<List<long>>(), It.IsAny<string>())).Returns(new List<SPBDto>() { sPBDto });
 
             Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
             serviceProviderMock.Setup(s => s.GetService(typeof(IVBRequestPOExternalService))).Returns(serviceMock.Object);
@@ -201,7 +201,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.VBRequestPOExternal
         {
             //Setup
             Mock<IVBRequestPOExternalService> serviceMock = new Mock<IVBRequestPOExternalService>();
-            serviceMock.Setup(s => s.ReadSPB(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<int>>(), It.IsAny<string>())).Throws(new Exception());
+            serviceMock.Setup(s => s.ReadSPB(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<long>>(), It.IsAny<string>())).Throws(new Exception());
 
             Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
             serviceProviderMock.Setup(s => s.GetService(typeof(IVBRequestPOExternalService))).Returns(serviceMock.Object);

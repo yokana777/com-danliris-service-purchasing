@@ -92,21 +92,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             return result;
         }
 
-        public List<SPBDto> ReadSPB(string keyword, string division, List<int> epoIds, string currencyCode)
+        public List<SPBDto> ReadSPB(string keyword, string division, List<long> epoIds, string currencyCode)
 
         {
             var result = new List<SPBDto>();
 
             if (!string.IsNullOrWhiteSpace(division) && division.ToUpper() == "GARMENT")
             {
-                if (epoIds.Count <= 0)
-                {
-                    epoIds = _dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
-                }
+                //if (epoIds.Count <= 0)
+                //{
+                //    epoIds = _dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(entity => entity.PaymentType == "CASH" && entity.IsPosted).Select(entity => entity.Id).ToList();
+                //}
 
-                var internNoteItemIds = _dbContext.GarmentInternNoteDetails.AsNoTracking().Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.GarmentItemINId).ToList();
-                var internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
-                var internNoteIds = internNoteItems.Select(entity => entity.GarmentINId).ToList();
+                //var internNoteItemIds = _dbContext.GarmentInternNoteDetails.AsNoTracking().Where(entity => epoIds.Contains(entity.EPOId)).Select(entity => entity.GarmentItemINId).ToList();
+                //var internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
+                //var internNoteIds = internNoteItems.Select(entity => entity.GarmentINId).ToList();
+
+                List<long> internNoteIds = new List<long>();
+
+                if (epoIds.Count == 0)
+                {
+                    internNoteIds = (from garmentEPO in _dbContext.GarmentExternalPurchaseOrders.AsNoTracking()
+                                    join garmentINDetail in _dbContext.GarmentInternNoteDetails.AsNoTracking()
+                                    on garmentEPO.Id equals garmentINDetail.EPOId
+                                    join garmentINItem in _dbContext.GarmentInternNoteItems.AsNoTracking()
+                                    on garmentINDetail.GarmentItemINId equals garmentINItem.Id
+                                    where garmentEPO.PaymentType == "CASH" && garmentEPO.IsPosted
+                                    select garmentINItem.GarmentINId).ToList();
+
+                }
+                else
+                {
+                    internNoteIds = (from garmentINDetail in _dbContext.GarmentInternNoteDetails.AsNoTracking()
+                                     join garmentINItem in _dbContext.GarmentInternNoteItems.AsNoTracking()
+                                     on garmentINDetail.GarmentItemINId equals garmentINItem.Id
+                                     where epoIds.Contains(garmentINDetail.EPOId)
+                                     select garmentINItem.GarmentINId).ToList();
+                }
 
 
                 var garmentQuery = _dbContext.GarmentInternNotes.AsNoTracking().Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
@@ -122,8 +144,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).ToList();
 
                 internNoteIds = garmentQueryResult.Select(element => element.Id).ToList();
-                internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteIds.Contains(entity.GarmentINId)).ToList();
-                internNoteItemIds = internNoteItems.Select(element => element.Id).ToList();
+                var internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteIds.Contains(entity.GarmentINId)).ToList();
+                var internNoteItemIds = internNoteItems.Select(element => element.Id).ToList();
                 var internNoteDetails = _dbContext.GarmentInternNoteDetails.AsNoTracking().Where(entity => internNoteItemIds.Contains(entity.GarmentItemINId)).ToList();
 
                 result = garmentQueryResult.Select(element => new SPBDto(element, invoices, internNoteItems, internNoteDetails)).ToList();
@@ -132,10 +154,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             if (epoIds.Count <= 0)
             {
-                epoIds = _dbContext.ExternalPurchaseOrders.AsNoTracking().Where(entity => entity.PaymentMethod == "CASH" && entity.POCashType == "VB" && entity.IsPosted).Select(entity => (int)entity.Id).ToList();
+                epoIds = _dbContext.ExternalPurchaseOrders.AsNoTracking().Where(entity => entity.PaymentMethod == "CASH" && entity.POCashType == "VB" && entity.IsPosted).Select(entity => entity.Id).ToList();
             }
 
-            var epoItemIds = _dbContext.ExternalPurchaseOrderItems.AsNoTracking().Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.Id).ToList();
+            var epoItemIds = _dbContext.ExternalPurchaseOrderItems.AsNoTracking().Where(entity => epoIds.Contains(entity.EPOId)).Select(entity => entity.Id).ToList();
             var epoDetailIds = _dbContext.ExternalPurchaseOrderDetails.AsNoTracking().Where(entity => epoItemIds.Contains(entity.EPOItemId)).Select(entity => entity.Id).ToList();
             var spbItemIds = _dbContext.UnitPaymentOrderDetails.AsNoTracking().Where(entity => epoDetailIds.Contains(entity.EPODetailId)).Select(entity => entity.UPOItemId).ToList();
             var spbIds = _dbContext.UnitPaymentOrderItems.AsNoTracking().Where(entity => spbItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
