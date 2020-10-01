@@ -302,9 +302,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
-                context.Database.SetCommandTimeout(10 * 60 * 1000);
+                
                 if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
                 {
+                    context.Database.SetCommandTimeout(10 * 60 * 1000);
                     context.Database.Migrate();
                 }
             }
