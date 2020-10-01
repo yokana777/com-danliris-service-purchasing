@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
                 var internNoteItemIds = _dbContext.GarmentInternNoteDetails.AsNoTracking().Where(entity => epoIds.Contains((int)entity.EPOId)).Select(entity => entity.GarmentItemINId).ToList();
                 var internNoteItems = _dbContext.GarmentInternNoteItems.AsNoTracking().Where(entity => internNoteItemIds.Contains(entity.Id)).ToList();
-                var internNoteIds = internNoteItems.Select(entity => entity.Id).ToList();
+                var internNoteIds = internNoteItems.Select(entity => entity.GarmentINId).ToList();
 
 
                 var garmentQuery = _dbContext.GarmentInternNotes.AsNoTracking().Include(entity => entity.Items).ThenInclude(entity => entity.Details).Where(entity => internNoteIds.Contains(entity.Id) && !entity.IsCreatedVB).AsQueryable();
