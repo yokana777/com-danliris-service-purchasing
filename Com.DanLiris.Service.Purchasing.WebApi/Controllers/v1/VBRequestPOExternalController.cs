@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
 
             try
             {
-                var epoIdList = JsonConvert.DeserializeObject<List<int>>(epoIds);
+                var epoIdList = JsonConvert.DeserializeObject<List<long>>(epoIds);
                 var result = _service.ReadSPB(keyword, division, epoIdList, currencyCode);
                 return Ok(new
                 {

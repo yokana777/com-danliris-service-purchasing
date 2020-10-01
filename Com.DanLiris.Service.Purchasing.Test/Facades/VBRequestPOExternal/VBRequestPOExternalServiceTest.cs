@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
-            var result = service.ReadSPB("", "GARMENT", new List<int>(), "IDR");
+            var result = service.ReadSPB("", "GARMENT", new List<long>(), "IDR");
 
             //Assert
             Assert.NotNull(result);
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
-            var result = service.ReadSPB("", "NON_GARMENT", new List<int>(), "IDR");
+            var result = service.ReadSPB("", "NON_GARMENT", new List<long>(), "IDR");
 
             //Assert
             Assert.NotNull(result);
