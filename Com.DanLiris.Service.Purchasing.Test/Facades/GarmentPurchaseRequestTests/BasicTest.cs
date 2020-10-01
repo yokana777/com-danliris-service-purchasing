@@ -978,7 +978,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facadevld.GetDisplayReport(model.UnitId, model.SectionName, null, null, "{}", 7);
+            var Response = facadevld.GetDisplayReport(model.UnitId, model.SectionName, null, DateTime.UtcNow.AddDays(1), "{}", 7);
 
             Assert.NotEmpty(Response.Item1);
         }
