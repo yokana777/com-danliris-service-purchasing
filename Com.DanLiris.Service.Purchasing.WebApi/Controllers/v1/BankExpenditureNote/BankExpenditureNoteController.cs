@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             });
         }
 
-        [HttpGet]
+        [HttpGet("bank-document-no")]
         public async Task<IActionResult> GetDocumentNo(string type, string bankCode, string username)
         {
             var result = await _bankDocumentNumberGenerator.GenerateDocumentNumber(type, bankCode, username);
