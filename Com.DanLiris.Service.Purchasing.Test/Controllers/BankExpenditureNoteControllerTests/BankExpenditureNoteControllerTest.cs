@@ -144,6 +144,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         }
 
         [Fact]
+        public async Task Should_Success_Get_DocumentNo()
+        {
+            var mockFacade = new Mock<IBankExpenditureNoteFacade>();
+            mockFacade
+                .Setup(x => x.GetAllByPosition(1, int.MaxValue, "{}", null, "{}"))
+                .Returns(new ReadResponse<object>(new List<object>(), 1, new Dictionary<string, string>()));
+            var mockMapper = new Mock<IMapper>();
+            var mockDocumentNoGenerator = new Mock<IBankDocumentNumberGenerator>();
+            mockDocumentNoGenerator
+                .Setup(x => x.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync("DocumentNo");
+
+            var mockServiceProvider = GetServiceProvider();
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IBankDocumentNumberGenerator)))
+                .Returns(mockDocumentNoGenerator.Object);
+
+
+            var controller = new BankExpenditureNoteController(mockServiceProvider.Object, mockFacade.Object, mockMapper.Object);
+            var response = await controller.GetDocumentNo(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
