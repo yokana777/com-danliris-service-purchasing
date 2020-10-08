@@ -19,6 +19,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -258,7 +259,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     await DeleteDailyBankTransaction(model.No);
                     await CreateDailyBankTransaction(model);
-                    
+
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -514,6 +515,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         {
             var item = model.Items.FirstOrDefault();
             var spb = dbContext.UnitPaymentOrders.FirstOrDefault(entity => entity.UPONo == item.UnitPaymentOrderNo);
+
+            if (spb == null)
+                spb = new UnitPaymentOrder() { SupplierId = "1" };
+
             var modelToPost = new DailyBankTransactionViewModel()
             {
                 Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()

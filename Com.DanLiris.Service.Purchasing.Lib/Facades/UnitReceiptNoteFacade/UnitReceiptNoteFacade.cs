@@ -277,7 +277,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 model.SupplierCode,
                 model.SupplierName,
                 model.SupplierIsImport,
-                UnitReceiptNoteDate = model.ReceiptDate,
+                Date = model.ReceiptDate,
                 Code = model.URNNo,
                 Currency = currencyCode,
                 CurrencyRate = currencyRate,
