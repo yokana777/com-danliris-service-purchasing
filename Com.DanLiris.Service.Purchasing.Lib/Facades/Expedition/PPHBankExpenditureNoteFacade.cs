@@ -16,6 +16,9 @@ using System.Net.Http;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -26,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly DbSet<PurchasingDocumentExpedition> dbSetPurchasingDocumentExpedition;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IdentityService identityService;
         private readonly IMemoryCacheManager _cacheManager;
 
         public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator, IServiceProvider serviceProvider)
@@ -35,6 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSetPurchasingDocumentExpedition = dbContext.Set<PurchasingDocumentExpedition>();
             this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
             _serviceProvider = serviceProvider;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
             _cacheManager = (IMemoryCacheManager)serviceProvider.GetService(typeof(IMemoryCacheManager));
         }
 
@@ -250,6 +255,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     await ReverseJournalTransaction(model.No);
                     await AutoCreateJournalTransaction(model);
+
+                    await DeleteDailyBankTransaction(model.No);
+                    await CreateDailyBankTransaction(model);
                     
                     transaction.Commit();
                 }
@@ -425,6 +433,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
                     await AutoCreateJournalTransaction(model);
+                    await CreateDailyBankTransaction(model);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -482,6 +491,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Count = await this.dbContext.SaveChangesAsync();
 
                     await ReverseJournalTransaction(PPHBankExpenditureNote.No);
+                    await DeleteDailyBankTransaction(PPHBankExpenditureNote.No);
 
                     transaction.Commit();
                 }
@@ -498,6 +508,56 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             return Count;
+        }
+
+        private async Task CreateDailyBankTransaction(PPHBankExpenditureNote model)
+        {
+            var item = model.Items.FirstOrDefault();
+            var spb = dbContext.UnitPaymentOrders.FirstOrDefault(entity => entity.UPONo == item.UnitPaymentOrderNo);
+            var modelToPost = new DailyBankTransactionViewModel()
+            {
+                Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
+                {
+                    Id = int.Parse(model.BankId),
+                    Code = model.BankCode,
+                    AccountName = model.BankAccountName,
+                    AccountNumber = model.BankAccountNumber,
+                    BankCode = model.BankCode,
+                    BankName = model.BankName,
+                    Currency = new ViewModels.NewIntegrationViewModel.CurrencyViewModel()
+                    {
+                        Code = model.Currency,
+                    }
+                },
+                Date = model.Date,
+                Nominal = model.TotalIncomeTax,
+                ReferenceNo = model.No,
+                ReferenceType = "Bayar Hutang",
+                //Remark = model.Currency != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
+                SourceType = "Operasional",
+                Status = "OUT",
+                Supplier = new NewSupplierViewModel()
+                {
+                    _id = long.Parse(spb.SupplierId),
+                    code = spb.SupplierCode,
+                    name = spb.SupplierName
+                }
+            };
+
+            string dailyBankTransactionUri = "daily-bank-transactions";
+            //var httpClient = new HttpClientService(identityService);
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+            response.EnsureSuccessStatusCode();
+        }
+
+        private async Task DeleteDailyBankTransaction(string documentNo)
+        {
+            string dailyBankTransactionUri = "daily-bank-transactions/by-reference-no/";
+            //var httpClient = new HttpClientService(identityService);
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }
