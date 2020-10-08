@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
-            var result = service.ReadSPB("", "GARMENT", new List<int>(), "IDR");
+            var result = service.ReadSPB("", "GARMENT", new List<long>(), "IDR", "UMUM");
 
             //Assert
             Assert.NotNull(result);
@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
-            var result = service.ReadSPB("", "NON_GARMENT", new List<int>(), "IDR");
+            var result = service.ReadSPB("", "NON_GARMENT", new List<long>(), "IDR", "UMUM");
 
             //Assert
             Assert.NotNull(result);
@@ -247,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
             var serviceProviderMock = GetServiceProvider();
 
-            var data =  dataUtil(dbContext).GetTestData_VBRequestPOExternal();
+            var data = dataUtil(dbContext).GetTestData_VBRequestPOExternal();
 
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
@@ -338,7 +338,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             memoryCacheManagerMock
                 .Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
-                .Returns(new List<IdCOAResult>() { 
+                .Returns(new List<IdCOAResult>() {
                     new IdCOAResult()
                     {
                         Id=1,
@@ -356,7 +356,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
             memoryCacheManagerMock
                 .Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
-                .Returns(new List<IncomeTaxCOAResult>() { 
+                .Returns(new List<IncomeTaxCOAResult>() {
                      new IncomeTaxCOAResult()
                      {
                          Id=1,

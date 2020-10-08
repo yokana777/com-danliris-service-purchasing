@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     quantity = detail.QuantityCorrection;
 
                 var price = detail.PricePerDealUnit;
-                if (detail.PricePerDealUnit > 0)
+                if (detail.PricePerDealUnitCorrection > 0)
                     price = detail.PricePerDealUnitCorrection;
 
                 var result = quantity * price;
@@ -122,7 +122,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 UseVat = elementInvoice.UseVat;
                 UseIncomeTax = elementInvoice.UseIncomeTax;
                 IncomeTax = new IncomeTaxDto(elementInvoice.IncomeTaxId, elementInvoice.IncomeTaxName, elementInvoice.IncomeTaxRate);
-                IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
+                //IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
+                IncomeTaxBy = "Supplier";
             }
 
             var selectedInternNoteItems = internNoteItems.Where(item => item.GarmentINId == element.Id).ToList();

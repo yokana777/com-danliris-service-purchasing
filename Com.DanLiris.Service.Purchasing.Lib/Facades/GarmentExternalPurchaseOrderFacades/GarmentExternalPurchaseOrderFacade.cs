@@ -1061,7 +1061,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              DealQuantity = i.DealQuantity,
                              DealUomId = i.DealUomId,
                              DealUomUnit = i.DealUomUnit,
-                             Article=i.Article
+                             Article=i.Article,
+                             CreatedUtc=i.CreatedUtc
                          });
                 
                 
