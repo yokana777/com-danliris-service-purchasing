@@ -51,5 +51,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             return stream;
         }
 
+        public static MemoryStream CreateExcel(List<KeyValuePair<DataTable, string>> dtSourceList, string title, string dateFrom, string dateTo, bool styling = false)
+        {
+            ExcelPackage package = new ExcelPackage();
+            foreach (KeyValuePair<DataTable, string> item in dtSourceList)
+            {
+                var sheet = package.Workbook.Worksheets.Add(item.Value);
+
+                sheet.Cells["A2"].Value = title;
+                sheet.Cells["A2:D2"].Merge = true;
+
+                sheet.Cells["A3"].Value = $"PERIODE : {dateFrom} sampai dengan {dateTo}";
+                sheet.Cells["A3:D3"].Merge = true;
+
+                sheet.Cells["A5"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
+                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+            }
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+        }
     }
 }

@@ -83,6 +83,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
         public MemoryStream GenerateExcel(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset, string type)
         {
+            string title = type == "history" ? "Histori Surat Perintah Bayar Not Verified" : "Laporan Surat Perintah Bayar Not Verified",
+                dateFromXls = dateFrom == null ? "-" : dateFrom.Value.Date.ToString("dd MMMM yyyy"),
+                dateToXls = dateTo == null ? "-" : dateTo.Value.Date.ToString("dd MMMM yyyy");
             var Query = GetReportQuery(no, supplier, division, dateFrom, dateTo, offset,type);
             Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             DataTable result = new DataTable();
@@ -111,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
             }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, title, dateToXls, dateFromXls, true);
         }
 
         

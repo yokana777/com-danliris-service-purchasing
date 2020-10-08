@@ -85,6 +85,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 if (detail.PriceTotalCorrection > 0)
                     result = detail.PriceTotalCorrection;
 
+                var total = result;
+                if (element != null)
+                {
+                    if (element.UseVat)
+                    {
+                        result += total * 0.1;
+                    }
+
+                    if (element.UseIncomeTax && (element.IncomeTaxBy == "Supplier" || element.IncomeTaxBy == "SUPPLIER"))
+                    {
+                        result -= total * (element.IncomeTaxRate / 100);
+                    }
+                }
+
                 return result;
             });
         }
