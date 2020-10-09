@@ -53,15 +53,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
 
             var unitName = "";
-            var unitcode = viewModel.unit.code;
-            if (unitcode == "W2")
+            var unitId = viewModel.unit._id;
+            if (unitId == "50")
             {
                 unitName = "WEAVING";
             }
-            else if (unitcode == "S3")
-            {
-                unitName = "SPINNING 1";
-            }
+            else if (unitId == "35")
+               {
+                  unitName = "SPINNING 1";
+               }
             else
             {
                 unitName = viewModel.unit.name;
