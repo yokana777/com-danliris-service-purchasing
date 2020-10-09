@@ -146,12 +146,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 //var UnitName = unitReceiptNote.UnitId == "50" ? "WEAVING" : unitReceiptNote.UnitName;
                 var UnitName = "";
-                var unitId = unitReceiptNote.UnitCode;
-                if (unitId == "W2")
+                var unitcode = unitReceiptNote.UnitCode;
+                if (unitcode == "W2")
                 {
                     UnitName = "WEAVING";
                 }
-                else if (unitId == "S3")
+                else if (unitcode == "S3")
                 {
                     UnitName = "SPINNING 1";
                 }

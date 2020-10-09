@@ -325,12 +325,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     PurchasingDispositionDetailViewModel detail = item.Details[indexItem];
                     //var unitName = detail.Unit._id == "50" ? "WEAVING" : detail.Unit.name;
                     var unitName = "";
-                    var unitId = detail.Unit.code;
-                    if (unitId == "W2")
+                    var unitcode = detail.Unit.code;
+                    if (unitcode == "W2")
                     {
                         unitName = "WEAVING";
                     }
-                    else if (unitId == "S3")
+                    else if (unitcode == "S3")
                     {
                         unitName = "SPINNING 1";
                     }
