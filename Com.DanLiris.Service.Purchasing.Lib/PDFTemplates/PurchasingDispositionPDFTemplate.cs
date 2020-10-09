@@ -323,7 +323,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
                 {
                     PurchasingDispositionDetailViewModel detail = item.Details[indexItem];
-                    var unitName = detail.Unit._id == "50" ? "WEAVING" : detail.Unit.name;
+                    //var unitName = detail.Unit._id == "50" ? "WEAVING" : detail.Unit.name;
+                    var unitName = "";
+                    var unitId = detail.Unit.code;
+                    if (unitId == "W2")
+                    {
+                        unitName = "WEAVING";
+                    }
+                    else if (unitId == "S3")
+                    {
+                        unitName = "SPINNING 1";
+                    }
+                    else
+                    {
+                        unitName = detail.Unit.name;
+                    }
                     cellLeft.Colspan = 0;
                     cellLeft.Phrase = new Phrase($"{detail.Product.name}", smaller_font);
                     tableContent.AddCell(cellLeft);
