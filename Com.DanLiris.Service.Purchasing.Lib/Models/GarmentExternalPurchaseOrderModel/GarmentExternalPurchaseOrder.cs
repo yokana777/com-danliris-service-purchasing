@@ -16,17 +16,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         public int SupplierId { get; set; }
         [MaxLength(255)]
         public string SupplierCode { get; set; }
-        [MaxLength(255)]
         public bool SupplierImport { get; set; }
 
         public DateTimeOffset OrderDate { get; set; }
         public DateTimeOffset DeliveryDate { get; set; }
+        [MaxLength(256)]
         public string FreightCostBy { get; set; }
+        [MaxLength(256)]
         public string PaymentType { get; set; }
+        [MaxLength(256)]
         public string PaymentMethod { get; set; }
         public int PaymentDueDays { get; set; }
         public int CurrencyId { get; set; }
         public double CurrencyRate { get; set; }
+        [MaxLength(256)]
         public string CurrencyCode { get; set; }
         public bool IsIncomeTax { get; set; }
 
@@ -38,7 +41,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         public string IncomeTaxRate { get; set; }
 
         public bool IsUseVat { get; set; }
+        [MaxLength(1024)]
         public string Category { get; set; }
+        [MaxLength(4000)]
         public string Remark { get; set; }
         public bool IsPosted { get; set; }
         public bool IsOverBudget { get; set; }

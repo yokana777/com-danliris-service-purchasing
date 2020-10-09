@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 	public class IncomeTaxPDFTemplate
 	{
 
-	public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset,IGarmentDeliveryOrderFacade DOfacade)
+	public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, SupplierViewModel supplier, int clientTimeZoneOffset,IGarmentDeliveryOrderFacade DOfacade)
 		{
-			Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
+            
+            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
 			Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
 			Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 			//Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
@@ -69,9 +71,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			tableIncomeTax.AddCell(cellTaxLeft);
 			cellTaxLeft.Phrase = new Phrase("Nama Supplier" + "     :" + viewModel.supplier.Name, normal_font);
 			tableIncomeTax.AddCell(cellTaxLeft);
-	 
+            /* tambahan */
+            if (supplier.npwp == "" || supplier.npwp == null)
+            {
+                supplier.npwp = "00.000.000.0-000.000";
+                //cellTaxLeft.Phrase = new Phrase("NPWP                  : 00.000.000.0-000.000", normal_font);
+            }
+            //else
+            //{
+                cellTaxLeft.Phrase = new Phrase($"NPWP                  : {supplier.npwp}", normal_font);
+            //}
+            /* tambahan */
+            tableIncomeTax.AddCell(cellTaxLeft);
 
-			PdfPCell cellSupplier = new PdfPCell(tableIncomeTax); // dont remove
+            cellTaxLeft.Phrase = new Phrase($"Faktur Pajak        : {viewModel.incomeTaxNo.ToString()}", normal_font);
+            tableIncomeTax.AddCell(cellTaxLeft);
+
+
+            PdfPCell cellSupplier = new PdfPCell(tableIncomeTax); // dont remove
 			tableIncomeTax.ExtendLastRow = false;
 			tableIncomeTax.SpacingAfter = 10f;
 			document.Add(tableIncomeTax);
@@ -81,17 +98,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 			PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
-			PdfPTable tableContent = new PdfPTable(6);
-			tableContent.SetWidths(new float[] { 4.5f, 5f, 3.5f, 4f, 2.2f, 5f });
-			cellCenter.Phrase = new Phrase("No Surat Jalan", bold_font);
+			PdfPTable tableContent = new PdfPTable(8);
+			tableContent.SetWidths(new float[] { 4.5f, 5f, 3.5f, 5f, 4f, 5f, 2.2f, 5f });
+            cellCenter.Phrase = new Phrase("No Surat Jalan", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("Tanggal Surat Jalan", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("No Invoice", bold_font);
 			tableContent.AddCell(cellCenter);
-			cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
+            cellCenter.Phrase = new Phrase("Tanggal Invoice", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
 			tableContent.AddCell(cellCenter);
-			cellCenter.Phrase = new Phrase("Rate PPh", bold_font);
+            cellCenter.Phrase = new Phrase("DPP", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Rate PPh", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("Sub Total PPh", bold_font);
 			tableContent.AddCell(cellCenter);
@@ -117,10 +138,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 					cellLeft.Phrase = new Phrase(viewModel.invoiceNo, normal_font);
 					tableContent.AddCell(cellLeft);
 
-					cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
+                    string invoiceDate = viewModel.invoiceDate.Value.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+
+                    cellLeft.Phrase = new Phrase(invoiceDate, normal_font);
+                    tableContent.AddCell(cellLeft);
+
+                    cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
 
-					cellRight.Phrase = new Phrase( viewModel.incomeTaxRate.ToString(), normal_font);
+                    cellRight.Phrase = new Phrase(Math.Round(detail.pricePerDealUnit * detail.doQuantity, 2).ToString("N2"), normal_font);
+                    tableContent.AddCell(cellRight);
+
+                    cellRight.Phrase = new Phrase( viewModel.incomeTaxRate.ToString(), normal_font);
 					tableContent.AddCell(cellRight);
 
 					cellRight.Phrase = new Phrase(Math.Round(viewModel.incomeTaxRate * detail.pricePerDealUnit * detail.doQuantity / 100,2).ToString("N2"), normal_font);
@@ -135,17 +164,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 					totalPPHIDR += ((viewModel.incomeTaxRate * detail.pricePerDealUnit * detail.doQuantity / 100) *rate);/**dikali rate DO*/
 				}
 			}
-			cellRight.Phrase = new Phrase("Total Pph", normal_font);
-			cellRight.Colspan = 5;
+            cellRight.Phrase = new Phrase("Total DPP", normal_font);
+            cellRight.Colspan = 7;
+            tableContent.AddCell(cellRight);
+            cellRight.Phrase = new Phrase(total.ToString("N2"), normal_font);
+            cellRight.Colspan = 7;
+            tableContent.AddCell(cellRight);
+            cellRight.Phrase = new Phrase("Total Pph", normal_font);
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 			cellRight.Phrase = new Phrase( totalPPH.ToString("N2"), normal_font);
-			cellRight.Colspan = 5;
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 			cellRight.Phrase = new Phrase("Total Pph IDR", normal_font);
-			cellRight.Colspan = 5;
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 			cellRight.Phrase = new Phrase(totalPPHIDR.ToString("N2"), normal_font);
-			cellRight.Colspan = 5;
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 
 			PdfPCell cellContent = new PdfPCell(tableContent); // dont remove

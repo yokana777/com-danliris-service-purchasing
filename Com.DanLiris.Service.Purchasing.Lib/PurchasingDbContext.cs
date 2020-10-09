@@ -36,6 +36,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
     {
         public PurchasingDbContext(DbContextOptions<PurchasingDbContext> options) : base(options)
         {
+            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+                Database.SetCommandTimeout(1000 * 60 * 20);
         }
 
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
