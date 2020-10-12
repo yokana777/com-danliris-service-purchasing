@@ -171,7 +171,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
 
 
         [Fact]
-        public async Task ShouldSuccess_ReadSPB_with_Garment()
+        public async Task ShouldSuccess_ReadSPB_Garment()
         {
             //Setup
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
@@ -196,7 +196,57 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
         }
 
         [Fact]
-        public async Task ShouldSuccess_ReadSPB_with_NonGarment()
+        public async Task ShouldSuccess_ReadSPB_Garment_WithEpoIds()
+        {
+            //Setup
+            PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
+            var serviceProviderMock = GetServiceProvider();
+
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            GarmentPurchaseRequestFacade garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(serviceProviderMock.Object, dbContext);
+            GarmentPurchaseRequestDataUtil garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            GarmentInternalPurchaseOrderFacade internalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            GarmentInternalPurchaseOrderDataUtil garmentPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(internalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var data = await _dataUtil(facade, garmentPurchaseOrderDataUtil).GetTestData_VBRequestPOExternal();
+
+            //Act
+            VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
+            var result = service.ReadSPB("", "GARMENT", new List<long>{1L, 2L, 3L}, "IDR", "UMUM");
+
+            //Assert
+            Assert.NotNull(result);
+
+        }
+
+        [Fact]
+        public async Task ShouldSuccess_ReadSPB_Garment_WithGarmentTypePurchasing()
+        {
+            //Setup
+            PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
+            var serviceProviderMock = GetServiceProvider();
+
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(serviceProviderMock.Object, dbContext);
+            GarmentPurchaseRequestFacade garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(serviceProviderMock.Object, dbContext);
+            GarmentPurchaseRequestDataUtil garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            GarmentInternalPurchaseOrderFacade internalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            GarmentInternalPurchaseOrderDataUtil garmentPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(internalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var data = await _dataUtil(facade, garmentPurchaseOrderDataUtil).GetTestData_VBRequestPOExternal();
+
+            //Act
+            VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
+            var result = service.ReadSPB("", "GARMENT", new List<long> { 1L, 2L, 3L }, "IDR", "GARMENT");
+
+            //Assert
+            Assert.NotNull(result);
+
+        }
+
+        [Fact]
+        public async Task ShouldSuccess_ReadSPB_NonGarment()
         {
             //Setup
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
