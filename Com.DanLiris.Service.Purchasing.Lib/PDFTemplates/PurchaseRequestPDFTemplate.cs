@@ -58,6 +58,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 unitName = "WEAVING";
             }
+            else if (unitId == "35")
+               {
+                  unitName = "SPINNING 1";
+               }
             else
             {
                 unitName = viewModel.unit.name;
