@@ -630,14 +630,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             response.EnsureSuccessStatusCode();
         }
 
-        public void DeleteDailyBankTransaction(string documentNo, IdentityService identityService)
-        {
-            string dailyBankTransactionUri = "daily-bank-transactions/by-reference-no/";
-            //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}").Result;
-            response.EnsureSuccessStatusCode();
-        }
+        //public void DeleteDailyBankTransaction(string documentNo, IdentityService identityService)
+        //{
+        //    string dailyBankTransactionUri = "daily-bank-transactions/by-reference-no/";
+        //    //var httpClient = new HttpClientService(identityService);
+        //    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    var response = httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}").Result;
+        //    response.EnsureSuccessStatusCode();
+        //}
 
         private void CreateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
         {
