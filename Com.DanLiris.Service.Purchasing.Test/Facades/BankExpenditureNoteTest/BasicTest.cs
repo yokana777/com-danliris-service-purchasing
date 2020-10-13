@@ -113,6 +113,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         }
 
         [Fact]
+        public async Task Should_Success_Get_Unit_Payment_Order_Verification_Filter()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            _dataUtil(facade, GetCurrentMethod());
+            PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
+
+            var filter = new
+            {
+                verificationFilter = 1
+            };
+            var filterJson = JsonConvert.SerializeObject(filter);
+
+            var Response = facade.GetAllByPosition(1, 25, "{}", model.UnitPaymentOrderNo, filterJson);
+            Assert.NotNull(Response.Data);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
