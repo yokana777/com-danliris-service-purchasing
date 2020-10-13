@@ -233,6 +233,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             string dateFromXls = dateFrom == DateTimeOffset.MinValue ? "-" : dateFrom.Date.ToString("dd MMMM yyyy"),
                 dateToXls = dateFrom == DateTimeOffset.MinValue && dateTo.Date == DateTimeOffset.UtcNow.Date ? "-" : dateTo.Date.ToString("dd MMMM yyyy");
 
+            sheet.Cells["A1"].Value = "PT.Dan Liris";
+            sheet.Cells["A1:D1"].Merge = true;
+
             sheet.Cells["A2"].Value = "Laporan Expedisi Surat Perintah Bayar";
             sheet.Cells["A2:D2"].Merge = true;
 
