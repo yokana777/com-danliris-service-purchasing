@@ -283,6 +283,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         }
 
         [Fact]
+        public async Task Should_NoContent_PostingData()
+        {
+            var mockFacade = new Mock<IBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.Posting(It.IsAny<List<long>>()))
+               .ReturnsAsync(1);
+
+            var mockMapper = new Mock<IMapper>();
+
+            BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            var response = await controller.Posting(It.IsAny<List<long>>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
         public async Task Should_Success_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();

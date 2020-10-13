@@ -267,6 +267,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             });
         }
 
+        [HttpPut("posting")]
+        public async Task<IActionResult> Posting([FromBody] List<long> ids)
+        {
+            var result = await facade.Posting(ids);
+
+            return NoContent();
+        }
+
         [HttpGet("reports/list")]
         public ActionResult GetReport(string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Size = 25, int Page = 1)
         {

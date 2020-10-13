@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                     {
                         FileDownloadName = $"PPH Bank Expenditure Note {viewModel.No}pdf"
                     };
-                }     
+                }
             }
             catch (Exception e)
             {
@@ -228,6 +228,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
+        }
+
+        [HttpPut("posting")]
+        public async Task<IActionResult> Posting([FromBody] List<long> ids)
+        {
+            var result = await PPHBankExpenditureNoteFacade.Posting(ids);
+
+            return NoContent();
         }
     }
 }
