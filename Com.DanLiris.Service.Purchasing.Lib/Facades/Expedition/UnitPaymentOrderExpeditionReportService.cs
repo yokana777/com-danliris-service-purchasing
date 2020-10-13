@@ -218,7 +218,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 decimal selisih = d.DueDate != null && d.Date != null ? ((d.DueDate.Value) - (d.Date.Value)).Days : 0;
 
                 dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-",
-                    d.Currency ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
+                    d.Currency ?? "-", d.DPP.ToString("#,##0.#0"), d.PPn.ToString("#,##0.#0"), d.PPh.ToString("#,##0.#0"), d.TotalTax.ToString("#,##0.#0"), Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
                     GetFormattedDate(d.SendToVerificationDivisionDate),
                     d.CreatedBy ?? "-",
                     GetFormattedDate(d.VerificationDivisionDate),
