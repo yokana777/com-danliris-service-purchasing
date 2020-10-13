@@ -18,5 +18,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Delete(int Id, IdentityService identityService);
         ReadResponse<object> GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
         List<ExpenditureInfo> GetByPeriod(int month, int year, int timeoffset);
+        Task<int> Posting(List<long> ids);
     }
 }
