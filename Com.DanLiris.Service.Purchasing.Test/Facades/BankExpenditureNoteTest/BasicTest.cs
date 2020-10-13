@@ -172,8 +172,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
-            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
-            model.Details.FirstOrDefault().Vat = 0;
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetNewDataVatZero();
             IdentityService identityService = new IdentityService()
             {
                 Token = "Token",
