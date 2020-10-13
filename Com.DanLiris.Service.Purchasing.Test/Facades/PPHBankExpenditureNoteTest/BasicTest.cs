@@ -245,6 +245,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(mockMemoryCache.Object);
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { TimezoneOffset = 1, Token = "token", Username = "username" });
 
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
