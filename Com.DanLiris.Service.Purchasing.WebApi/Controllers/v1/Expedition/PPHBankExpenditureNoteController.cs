@@ -233,6 +233,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         [HttpPut("posting")]
         public async Task<IActionResult> Posting([FromBody] List<long> ids)
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
             var result = await PPHBankExpenditureNoteFacade.Posting(ids);
 
             return NoContent();
