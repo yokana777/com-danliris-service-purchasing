@@ -74,6 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     SupplierName = s.SupplierName,
                     GrandTotal = s.GrandTotal,
                     BankCurrencyCode = s.BankCurrencyCode,
+                    IsPosted = s.IsPosted,
                     Details = s.Details.Where(w => w.BankExpenditureNoteId == s.Id).ToList()
                 });
 
@@ -106,6 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.SupplierName,
                    s.GrandTotal,
                    s.BankCurrencyCode,
+                   s.IsPosted,
                    Details = s.Details.Select(sl => new { sl.SupplierName, sl.UnitPaymentOrderNo }).ToList(),
                }).ToList()
             );

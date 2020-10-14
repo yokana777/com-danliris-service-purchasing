@@ -147,7 +147,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     TotalIncomeTax = s.TotalIncomeTax,
                     Currency = s.Currency,
                     Items = s.Items.Select(p => new PPHBankExpenditureNoteItem { UnitPaymentOrderNo = p.UnitPaymentOrderNo, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId }).Where(p => p.PPHBankExpenditureNoteId == s.Id).ToList(),
-                    LastModifiedUtc = s.LastModifiedUtc
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    IsPosted = s.IsPosted
                 });
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(filter);
@@ -175,7 +176,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    TotalIncomeTax = s.TotalIncomeTax,
                    Currency = s.Currency,
                    Items = s.Items.Select(p => new { UnitPaymentOrderNo = p.UnitPaymentOrderNo, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId }).Where(p => p.PPHBankExpenditureNoteId == s.Id).ToList(),
-                   LastModifiedUtc = s.LastModifiedUtc
+                   LastModifiedUtc = s.LastModifiedUtc,
+                   s.IsPosted
                }).ToList()
             );
 
