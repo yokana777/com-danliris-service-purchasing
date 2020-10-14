@@ -218,7 +218,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 decimal selisih = d.DueDate != null && d.Date != null ? ((d.DueDate.Value) - (d.Date.Value)).Days : 0;
 
                 dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-",
-                    d.Currency ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
+                    d.Currency ?? "-", d.DPP.ToString("#,##0.#0"), d.PPn.ToString("#,##0.#0"), d.PPh.ToString("#,##0.#0"), d.TotalTax.ToString("#,##0.#0"), Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
                     GetFormattedDate(d.SendToVerificationDivisionDate),
                     d.CreatedBy ?? "-",
                     GetFormattedDate(d.VerificationDivisionDate),
@@ -232,6 +232,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var sheet = package.Workbook.Worksheets.Add("Data");
             string dateFromXls = dateFrom == DateTimeOffset.MinValue ? "-" : dateFrom.Date.ToString("dd MMMM yyyy"),
                 dateToXls = dateFrom == DateTimeOffset.MinValue && dateTo.Date == DateTimeOffset.UtcNow.Date ? "-" : dateTo.Date.ToString("dd MMMM yyyy");
+
+            sheet.Cells["A1"].Value = "PT.Dan Liris";
+            sheet.Cells["A1:D1"].Merge = true;
 
             sheet.Cells["A2"].Value = "Laporan Expedisi Surat Perintah Bayar";
             sheet.Cells["A2:D2"].Merge = true;
