@@ -190,12 +190,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddScoped<IdentityService>()
                 .AddScoped<ValidateService>()
+                .AddScoped<IHttpClientService, HttpClientService>()
                 .AddScoped<IValidateService, ValidateService>();
 
-            if (isTest == false)
-            {
-                services.AddScoped<IHttpClientService, HttpClientService>();
-            }
+            //if (isTest == false)
+            //{
+            //    services.AddScoped<IHttpClientService, HttpClientService>();
+            //}
         }
 
         private void RegisterSerializationProvider()
