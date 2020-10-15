@@ -16,16 +16,22 @@ using System.Net.Http;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
     public class PPHBankExpenditureNoteFacade : IPPHBankExpenditureNoteFacade, IReadByIdable<PPHBankExpenditureNote>
     {
+        private const string UserAgent = "Facade";
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<PPHBankExpenditureNote> dbSet;
         private readonly DbSet<PurchasingDocumentExpedition> dbSetPurchasingDocumentExpedition;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         private readonly IServiceProvider _serviceProvider;
+        //private readonly IdentityService identityService;
         private readonly IMemoryCacheManager _cacheManager;
 
         public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator, IServiceProvider serviceProvider)
@@ -35,6 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.dbSetPurchasingDocumentExpedition = dbContext.Set<PurchasingDocumentExpedition>();
             this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
             _serviceProvider = serviceProvider;
+            //identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
             _cacheManager = (IMemoryCacheManager)serviceProvider.GetService(typeof(IMemoryCacheManager));
         }
 
@@ -140,7 +147,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     TotalIncomeTax = s.TotalIncomeTax,
                     Currency = s.Currency,
                     Items = s.Items.Select(p => new PPHBankExpenditureNoteItem { UnitPaymentOrderNo = p.UnitPaymentOrderNo, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId }).Where(p => p.PPHBankExpenditureNoteId == s.Id).ToList(),
-                    LastModifiedUtc = s.LastModifiedUtc
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    IsPosted = s.IsPosted
                 });
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(filter);
@@ -168,7 +176,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    TotalIncomeTax = s.TotalIncomeTax,
                    Currency = s.Currency,
                    Items = s.Items.Select(p => new { UnitPaymentOrderNo = p.UnitPaymentOrderNo, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId }).Where(p => p.PPHBankExpenditureNoteId == s.Id).ToList(),
-                   LastModifiedUtc = s.LastModifiedUtc
+                   LastModifiedUtc = s.LastModifiedUtc,
+                   s.IsPosted
                }).ToList()
             );
 
@@ -183,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             {
                 try
                 {
-                    EntityExtension.FlagForUpdate(model, username, "Facade");
+                    EntityExtension.FlagForUpdate(model, username, UserAgent);
                     dbContext.Entry(model).Property(x => x.Date).IsModified = true;
                     dbContext.Entry(model).Property(x => x.TotalDPP).IsModified = true;
                     dbContext.Entry(model).Property(x => x.TotalIncomeTax).IsModified = true;
@@ -196,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     {
                         if (item.Id == 0)
                         {
-                            EntityExtension.FlagForCreate(item, username, "Facade");
+                            EntityExtension.FlagForCreate(item, username, UserAgent);
                             dbContext.PPHBankExpenditureNoteItems.Add(item);
 
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
@@ -207,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                 BankExpenditureNotePPHDate = model.Date
                             };
 
-                            EntityExtension.FlagForUpdate(pde, username, "Facade");
+                            EntityExtension.FlagForUpdate(pde, username, UserAgent);
                             //dbContext.Attach(pde);
                             dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
@@ -224,7 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                         if (itemModel == null)
                         {
-                            EntityExtension.FlagForDelete(item, username, "Facade");
+                            EntityExtension.FlagForDelete(item, username, UserAgent);
                             this.dbContext.PPHBankExpenditureNoteItems.Update(item);
 
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
@@ -235,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                 BankExpenditureNotePPHNo = null
                             };
 
-                            EntityExtension.FlagForUpdate(pde, username, "Facade");
+                            EntityExtension.FlagForUpdate(pde, username, UserAgent);
                             //dbContext.Attach(pde);
                             dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
@@ -248,9 +257,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     Updated = await dbContext.SaveChangesAsync();
 
-                    await ReverseJournalTransaction(model.No);
-                    await AutoCreateJournalTransaction(model);
-                    
+                    //await ReverseJournalTransaction(model.No);
+                    //await AutoCreateJournalTransaction(model);
+
+                    //await DeleteDailyBankTransaction(model.No);
+                    //await CreateDailyBankTransaction(model);
+
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -263,7 +275,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Updated;
         }
 
-        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        //private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
         private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
         private List<BankAccountCOAResult> BankAccounts => _cacheManager.Get(MemoryCacheConstant.BankAccounts, entry => { return new List<BankAccountCOAResult>(); });
         private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
@@ -369,14 +381,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             response.EnsureSuccessStatusCode();
         }
 
-        private async Task ReverseJournalTransaction(string referenceNo)
-        {
-            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
-            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
+        //private async Task ReverseJournalTransaction(string referenceNo)
+        //{
+        //    string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
+        //    var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+        //    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-            response.EnsureSuccessStatusCode();
-        }
+        //    response.EnsureSuccessStatusCode();
+        //}
 
         public async Task<PPHBankExpenditureNote> ReadById(int id)
         {
@@ -397,12 +409,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             {
                 try
                 {
-                    EntityExtension.FlagForCreate(model, username, "Facade");
+                    EntityExtension.FlagForCreate(model, username, UserAgent);
                     model.No = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
 
                     foreach (var item in model.Items)
                     {
-                        EntityExtension.FlagForCreate(item, username, "Facade");
+                        EntityExtension.FlagForCreate(item, username, UserAgent);
 
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                         {
@@ -412,7 +424,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             BankExpenditureNotePPHDate = model.Date
                         };
 
-                        EntityExtension.FlagForUpdate(pde, username, "Facade");
+                        EntityExtension.FlagForUpdate(pde, username, UserAgent);
                         //dbContext.Attach(pde);
                         dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
@@ -424,7 +436,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    await AutoCreateJournalTransaction(model);
+                    //await AutoCreateJournalTransaction(model);
+                    //await CreateDailyBankTransaction(model);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -456,7 +469,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
                     foreach (PPHBankExpenditureNoteItem item in Items)
                     {
-                        EntityExtension.FlagForDelete(item, username, "Facade");
+                        EntityExtension.FlagForDelete(item, username, UserAgent);
                         this.dbContext.PPHBankExpenditureNoteItems.Update(item);
 
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
@@ -467,7 +480,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                             BankExpenditureNotePPHDate = null
                         };
 
-                        EntityExtension.FlagForUpdate(pde, username, "Facade");
+                        EntityExtension.FlagForUpdate(pde, username, UserAgent);
                         //dbContext.Attach(pde);
                         dbContext.Entry(pde).Property(x => x.IsPaidPPH).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.BankExpenditureNotePPHNo).IsModified = true;
@@ -477,11 +490,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
                     }
 
-                    EntityExtension.FlagForDelete(PPHBankExpenditureNote, username, "Facade");
+                    EntityExtension.FlagForDelete(PPHBankExpenditureNote, username, UserAgent);
                     this.dbSet.Update(PPHBankExpenditureNote);
                     Count = await this.dbContext.SaveChangesAsync();
 
-                    await ReverseJournalTransaction(PPHBankExpenditureNote.No);
+                    //await ReverseJournalTransaction(PPHBankExpenditureNote.No);
+                    //await DeleteDailyBankTransaction(PPHBankExpenditureNote.No);
 
                     transaction.Commit();
                 }
@@ -498,6 +512,78 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             return Count;
+        }
+
+        private async Task CreateDailyBankTransaction(PPHBankExpenditureNote model)
+        {
+            var item = model.Items.FirstOrDefault();
+            var spb = dbContext.UnitPaymentOrders.FirstOrDefault(entity => entity.UPONo == item.UnitPaymentOrderNo);
+
+            if (spb == null)
+                spb = new UnitPaymentOrder() { SupplierId = "1" };
+
+            var modelToPost = new DailyBankTransactionViewModel()
+            {
+                Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
+                {
+                    Id = int.Parse(model.BankId),
+                    Code = model.BankCode,
+                    AccountName = model.BankAccountName,
+                    AccountNumber = model.BankAccountNumber,
+                    BankCode = model.BankCode,
+                    BankName = model.BankName,
+                    Currency = new ViewModels.NewIntegrationViewModel.CurrencyViewModel()
+                    {
+                        Code = model.Currency,
+                    }
+                },
+                Date = model.Date,
+                Nominal = model.TotalIncomeTax,
+                ReferenceNo = model.No,
+                ReferenceType = "Bayar Hutang",
+                //Remark = model.Currency != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
+                SourceType = "Operasional",
+                Status = "OUT",
+                Supplier = new NewSupplierViewModel()
+                {
+                    _id = long.Parse(spb.SupplierId),
+                    code = spb.SupplierCode,
+                    name = spb.SupplierName
+                },
+                IsPosted = true
+            };
+
+            string dailyBankTransactionUri = "daily-bank-transactions";
+            //var httpClient = new HttpClientService(identityService);
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+            response.EnsureSuccessStatusCode();
+        }
+
+        //private async Task DeleteDailyBankTransaction(string documentNo)
+        //{
+        //    string dailyBankTransactionUri = "daily-bank-transactions/by-reference-no/";
+        //    //var httpClient = new HttpClientService(identityService);
+        //    var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+        //    var response = await httpClient.DeleteAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}{documentNo}");
+        //    response.EnsureSuccessStatusCode();
+        //}
+
+        public async Task<int> Posting(List<long> ids)
+        {
+            var models = dbContext.PPHBankExpenditureNotes.Include(entity => entity.Items).Where(entity => ids.Contains(entity.Id)).ToList();
+            var identityService = _serviceProvider.GetService<IdentityService>();
+
+            foreach (var model in models)
+            {
+                model.IsPosted = true;
+                await AutoCreateJournalTransaction(model);
+                await CreateDailyBankTransaction(model);
+                EntityExtension.FlagForUpdate(model, identityService.Username, UserAgent);
+            }
+
+            dbContext.PPHBankExpenditureNotes.UpdateRange(models);
+            return dbContext.SaveChanges();
         }
     }
 }
