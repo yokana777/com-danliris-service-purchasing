@@ -213,6 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
             }
 
+            int cells = 7; // initial start body data
             foreach (var d in data)
             {
                 decimal selisih = d.DueDate != null && d.Date != null ? ((d.DueDate.Value) - (d.Date.Value)).Days : 0;
@@ -226,6 +227,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     GetFormattedDate(d.SendDate),
                     GetFormattedDate(d.CashierDivisionDate),
                     d.BankExpenditureNoteNo ?? "-");
+                    cells++;
             }
 
             ExcelPackage package = new ExcelPackage();
@@ -279,6 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             sheet.Cells["A5:V6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells["A5:V6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells["A5:V6"].Style.Font.Bold = true;
+            sheet.Cells[$"G7:J{cells}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
             foreach (var headerDateType in headersDateType)
             {
