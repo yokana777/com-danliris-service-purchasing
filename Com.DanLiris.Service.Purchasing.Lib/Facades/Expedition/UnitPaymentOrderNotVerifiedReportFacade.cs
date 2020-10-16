@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
             }
 
-            return Excel.CreateExcelUnitPaymentExpeditionReport(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, title, dateFromXls, dateToXls, true, index);
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, title, dateFromXls, dateToXls, true, index);
         }
 
         

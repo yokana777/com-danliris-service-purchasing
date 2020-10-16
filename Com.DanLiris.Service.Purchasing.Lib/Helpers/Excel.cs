@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             return stream;
         }
 
-        public static MemoryStream CreateExcelUnitPaymentExpeditionReport(List<KeyValuePair<DataTable, string>> dtSourceList, string title, string dateFrom, string dateTo, bool styling = false, int index = 0)
+        public static MemoryStream CreateExcel(List<KeyValuePair<DataTable, string>> dtSourceList, string title, string dateFrom, string dateTo, bool styling = false, int index = 0)
         {
             ExcelPackage package = new ExcelPackage();
             foreach (KeyValuePair<DataTable, string> item in dtSourceList)
