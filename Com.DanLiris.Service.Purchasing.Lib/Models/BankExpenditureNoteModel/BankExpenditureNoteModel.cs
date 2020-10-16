@@ -47,5 +47,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         public string CurrencyCode { get; set; }
         public int CurrencyId { get; set; }
         public double CurrencyRate { get; set; }
+        public bool IsPosted { get; set; }
     }
 }

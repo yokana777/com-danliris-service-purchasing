@@ -67,6 +67,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
             };
         }
 
+        public PurchaseRequest GetNewDataPdf1()
+        {
+            return new PurchaseRequest
+            {
+                No = "No1",
+                Date = DateTimeOffset.Now,
+                ExpectedDeliveryDate = DateTimeOffset.Now,
+                BudgetId = "BudgetId",
+                BudgetCode = "BudgetCode",
+                BudgetName = "BudgetName",
+                UnitId = "35",
+                UnitCode = "UnitCode",
+                UnitName = "UnitName",
+                DivisionId = "DivisionId",
+                DivisionCode = "DivisionCode",
+                DivisionName = "DivisionName",
+                CategoryId = "1",
+                CategoryCode = "CategoryCode",
+                CategoryName = "CategoryName",
+                Remark = "Remark",
+                Items = new List<PurchaseRequestItem> { purchaseRequestItemDataUtil.GetNewData() }
+            };
+        }
+
         public PurchaseRequest GetNewHavingStockData()
         {
             return new PurchaseRequest
@@ -139,6 +163,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PurchaseRequestDataUtil
         public async Task<PurchaseRequest> GetTestDataPdf(string user)
         {
             PurchaseRequest purchaseRequest = GetNewDataPdf();
+
+            await facade.Create(purchaseRequest, user);
+
+            return purchaseRequest;
+        }
+
+        public async Task<PurchaseRequest> GetTestDataPdf1(string user)
+        {
+            PurchaseRequest purchaseRequest = GetNewDataPdf1();
 
             await facade.Create(purchaseRequest, user);
 

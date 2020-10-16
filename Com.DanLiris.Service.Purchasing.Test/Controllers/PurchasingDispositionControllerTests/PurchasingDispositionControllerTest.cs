@@ -74,6 +74,64 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
                     });
 
+                details.Add(
+                    new PurchasingDispositionDetailViewModel
+                    {
+                        UId = null,
+                        //EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
+                        PRNo = "test",
+
+                        PricePerDealUnit = 1000,
+                        PriceTotal = 10000,
+                        DealQuantity = 10,
+                        Product = new ProductViewModel
+                        {
+                            name = "test"
+                        },
+                        DealUom = new UomViewModel
+                        {
+                            unit = "test"
+                        },
+                        Unit = new UnitViewModel
+                        {
+                            _id = "35",
+                            name = "test 35",
+
+                        }
+
+
+                    });
+
+                details.Add(
+                    new PurchasingDispositionDetailViewModel
+                    {
+                        UId = null,
+                        //EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
+                        PRNo = "test",
+
+                        PricePerDealUnit = 1000,
+                        PriceTotal = 10000,
+                        DealQuantity = 10,
+                        Product = new ProductViewModel
+                        {
+                            name = "test"
+                        },
+                        DealUom = new UomViewModel
+                        {
+                            unit = "test"
+                        },
+                        Unit = new UnitViewModel
+                        {
+                            _id = "50",
+                            name = "test 50",
+
+                        }
+
+
+                    });
+
                 return new PurchasingDispositionViewModel
                 {
                     UId = null,

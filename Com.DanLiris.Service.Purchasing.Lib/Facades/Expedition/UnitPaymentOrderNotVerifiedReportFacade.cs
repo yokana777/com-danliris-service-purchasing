@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal SPB", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Divisi", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Total Bayar", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Total Bayar", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Alasan", DataType = typeof(String) });
             
@@ -110,11 +110,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     string verifyDate = vDate == new DateTime(1970, 1, 1) ? "-" : vDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     result.Rows.Add(verifyDate,item.UnitPaymentOrderNo, item.UPODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")), 
-                        item.SupplierName, item.DivisionName, item.TotalPaid, item.Currency, item.NotVerifiedReason);
+                        item.SupplierName, item.DivisionName, item.TotalPaid.ToString("#,##0.#0"), item.Currency, item.NotVerifiedReason);
                 }
             }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, title, dateToXls, dateFromXls, true);
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, title, dateFromXls, dateToXls, true);
         }
 
         
