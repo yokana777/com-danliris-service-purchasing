@@ -550,7 +550,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
                                 SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
                                 SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
-                                RemainingQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                RemainingQuantity = 0,
                                 DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
                                 URNItemId = garmentUnitReceiptNoteItem.Id,
                                 DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
