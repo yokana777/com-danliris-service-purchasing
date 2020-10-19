@@ -163,6 +163,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                         item.PriceTotalBefore = upoDetail.PriceTotal;
                         upoDetail.PricePerDealUnitCorrection = item.PricePerDealUnitAfter;
                         upoDetail.PriceTotalCorrection = item.PriceTotalAfter;
+
+                        if (item.PriceTotalAfter > 0 && item.PricePerDealUnitAfter <= 0)
+                        {
+                            upoDetail.PricePerDealUnitCorrection = upoDetail.PricePerDealUnit;
+                        }
+                            
                         EntityExtension.FlagForCreate(item, username, USER_AGENT);
                     }
 
