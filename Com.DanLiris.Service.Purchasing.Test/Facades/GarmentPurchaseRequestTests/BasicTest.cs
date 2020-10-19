@@ -854,7 +854,47 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
 		}
 
-		[Fact]
+        [Fact]
+        public async Task Should_Success_Get_Report_Purchase_All_Data_Filter_Status_Belum()
+        {
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null, dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
+            await facade.Create(data, false, USERNAME);
+            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "BELUM", null, null, null, null, null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_Purchase_All_Data_Filter_Status_Sudah()
+        {
+            GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));
+            var datautildelivery = dataUtilDo(facadeDo, GetCurrentMethod());
+            var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
+
+            GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var dataUrn = await datautilURN.GetNewData(null, dataDo);
+            await facadeURN.Create(dataUrn);
+
+            GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
+            await facade.Create(data, false, USERNAME);
+            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "SUDAH", null, null, null, null, null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
 		public async Task Should_Success_Get_Report_Purchase_All_Excel()
 		{
             GarmentDeliveryOrderFacade facadeDo = new GarmentDeliveryOrderFacade(GetServiceProviderDO().Object, _dbContext(GetCurrentMethod()));

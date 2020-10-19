@@ -129,6 +129,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         }
 
         [Fact]
+        public async Task Should_Error_Create_Data_DOCurrencyRate()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitDeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+            foreach (var item in data.Items)
+            {
+                var urn = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == item.URNId);
+                urn.DOCurrencyRate = 0;
+            }
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -210,6 +226,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             }
 
             data.Items = null;
+
+            Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
+            Assert.NotNull(errorNullItems.Message);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_DOCurrencyRate()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitDeliveryOrderFacade(dbContext, GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            dbContext.Entry(data).State = EntityState.Detached;
+            foreach (var item in data.Items)
+            {
+                dbContext.Entry(item).State = EntityState.Detached;
+            }
+
+            var newItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().Single(m => m.Id == data.Items.First().Id);
+            newItem.Id = 0;
+            newItem.IsSave = true;
+            var urn = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == newItem.URNId);
+            urn.DOCurrencyRate = 0;
+
+            data.Items.Add(newItem);
 
             Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
             Assert.NotNull(errorNullItems.Message);

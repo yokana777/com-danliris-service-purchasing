@@ -144,10 +144,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         EntityExtension.FlagForCreate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
 
                         GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                        
                         garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+                        if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0)
+                        {
+                            throw new Exception("garmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
+                        }
                         garmentUnitReceiptNote.IsUnitDO = true;
 
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
+                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate;
+
                         EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
 
@@ -265,6 +272,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         else
                         {
                             EntityExtension.FlagForCreate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
+                            GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                            garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+                            if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0)
+                            {
+                                throw new Exception("oldGarmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
+                            }
                             oldGarmentUnitDeliveryOrder.Items.Add(garmentUnitDeliveryOrderItem);
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
@@ -289,9 +302,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                             EntityExtension.FlagForDelete(oldGarmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
 
                             GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNId);
-                            oldGarmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate;
+                            
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNItemId);
+                            oldGarmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate;
+
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitDeliveryOrderItem.Quantity;
 
@@ -354,7 +369,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             //string unitDOType = "";
             bool hasUnitDOTypeFilter = FilterDictionary.ContainsKey("UnitDOType");
             IQueryable<GarmentUnitDeliveryOrder> Query = dbSet
-                .Where(x => x.UnitDONo.Contains(Keyword ?? "") && x.CreatedBy == username)
+                .Where(x => x.UnitDONo.Contains(Keyword ?? ""))
                 .Select(m => new GarmentUnitDeliveryOrder
                 {
                     Id = m.Id,
@@ -375,6 +390,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                     StorageRequestName = m.StorageRequestName,
                     IsUsed = m.IsUsed,
                     LastModifiedUtc = m.LastModifiedUtc,
+                    CreatedBy=m.CreatedBy,
                     Items = m.Items.Select(i => new GarmentUnitDeliveryOrderItem
                     {
                         Id = i.Id,
