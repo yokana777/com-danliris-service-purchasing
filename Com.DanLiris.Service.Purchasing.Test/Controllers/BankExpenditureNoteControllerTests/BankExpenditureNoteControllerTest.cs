@@ -291,7 +291,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
 
             var mockMapper = new Mock<IMapper>();
 
-            BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            var controller = GetController(mockFacade, new Mock<IValidateService>(), mockMapper);
+
             var response = await controller.Posting(It.IsAny<List<long>>());
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }

@@ -160,7 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             mockFacade.Setup(x => x.Posting(It.IsAny<List<long>>()))
                .ReturnsAsync(1);
 
-            PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
+            PPHBankExpenditureNoteController controller = GetController(mockFacade, new Mock<IValidateService>());
 
             var response = await controller.Posting(It.IsAny<List<long>>());
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
