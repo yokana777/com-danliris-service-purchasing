@@ -144,7 +144,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 var unitReceiptNoteDate = unitReceiptNote.ReceiptDate;
                 UnitReceiptNoteDates.Add(unitReceiptNoteDate);
 
-                var UnitName = unitReceiptNote.UnitId == "50" ? "WEAVING" : unitReceiptNote.UnitName;
+                //var UnitName = unitReceiptNote.UnitId == "50" ? "WEAVING" : unitReceiptNote.UnitName;
+                var UnitName = "";
+                var unitId = unitReceiptNote.UnitId;
+                if (unitId == "50")
+                {
+                    UnitName = "WEAVING";
+                }
+                else if (unitId == "35")
+                {
+                    UnitName = "SPINNING 1";
+                }
+                else
+                {
+                    UnitName = unitReceiptNote.UnitName;
+                }
+
                 foreach (var detail in item.Details)
                 {
                     var PaymentDueDays = facade.GetExternalPurchaseOrder(detail.EPONo).PaymentDueDays;

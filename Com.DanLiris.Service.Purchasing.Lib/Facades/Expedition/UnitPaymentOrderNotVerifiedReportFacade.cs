@@ -83,6 +83,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
         public MemoryStream GenerateExcel(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset, string type)
         {
+            string title = type == "history" ? "Histori Surat Perintah Bayar Not Verified" : "Laporan Surat Perintah Bayar Not Verified",
+                dateFromXls = dateFrom == null ? "-" : dateFrom.Value.Date.ToString("dd MMMM yyyy"),
+                dateToXls = dateTo == null ? "-" : dateTo.Value.Date.ToString("dd MMMM yyyy");
             var Query = GetReportQuery(no, supplier, division, dateFrom, dateTo, offset,type);
             Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             DataTable result = new DataTable();
@@ -91,27 +94,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal SPB", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Divisi", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Total Bayar", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Total Bayar", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Alasan", DataType = typeof(String) });
-            
+
+            int index = 0;
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", 0, "", ""); // to allow column name to be generated properly for empty data as template
+            {
+                result.Rows.Add("", "", "", "", "", 0.ToString("#,##0.#0"), "", ""); // to allow column name to be generated properly for empty data as template'
+                index++;
+            }
             else
             {
-                int index = 0;
                 foreach (var item in Query)
                 {
                     index++;
-                    DateTimeOffset vDate= item.VerifyDate ?? new DateTime(1970, 1, 1);
+                    DateTimeOffset vDate = item.VerifyDate ?? new DateTime(1970, 1, 1);
                     string verifyDate = vDate == new DateTime(1970, 1, 1) ? "-" : vDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
-                    result.Rows.Add(verifyDate,item.UnitPaymentOrderNo, item.UPODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")), 
-                        item.SupplierName, item.DivisionName, item.TotalPaid, item.Currency, item.NotVerifiedReason);
+                    result.Rows.Add(verifyDate, item.UnitPaymentOrderNo, item.UPODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID")),
+                        item.SupplierName, item.DivisionName, item.TotalPaid.ToString("#,##0.#0"), item.Currency, item.NotVerifiedReason);
                 }
             }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, title, dateFromXls, dateToXls, true, index);
         }
 
         

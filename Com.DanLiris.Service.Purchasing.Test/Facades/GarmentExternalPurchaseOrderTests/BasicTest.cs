@@ -499,11 +499,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcelEPODODuration("", "", "0-30 hari", null, null, 7);
+            var Response = Facade.GenerateExcelEPODODuration("", "", "0-30 hari", DateTime.MinValue, DateTime.MaxValue, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
 
-            var Response1 = Facade.GenerateExcelEPODODuration("", "", ">60 hari", null, null, 7);
+            var Response1 = Facade.GenerateExcelEPODODuration("", "", "0-30 hari", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response1);
+
+            var Response2 = Facade.GenerateExcelEPODODuration("", "", ">60 hari", null, null, 7);
+            Assert.IsType<System.IO.MemoryStream>(Response2);
         }
 
         //OVER BUDGET

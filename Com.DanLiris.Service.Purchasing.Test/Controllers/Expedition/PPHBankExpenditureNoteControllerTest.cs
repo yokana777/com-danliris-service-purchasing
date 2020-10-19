@@ -154,6 +154,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         }
 
         [Fact]
+        public async Task Should_NoContent_PostingData()
+        {
+            var mockFacade = new Mock<IPPHBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.Posting(It.IsAny<List<long>>()))
+               .ReturnsAsync(1);
+
+            PPHBankExpenditureNoteController controller = GetController(mockFacade, new Mock<IValidateService>());
+
+            var response = await controller.Posting(It.IsAny<List<long>>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_All_Data()
         {
             var mockFacade = new Mock<IPPHBankExpenditureNoteFacade>();

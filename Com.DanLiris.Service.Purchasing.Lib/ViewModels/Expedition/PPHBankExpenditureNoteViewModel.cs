@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public int Id { get; set; }
         public string No { get; set; }
         public DateTimeOffset? Date { get; set; }
+        public bool IsPosted { get; set; }
         public BankViewModel Bank { get; set; }
         public IncomeTaxExpeditionViewModel IncomeTax { get; set; }
         public string Currency { get; set; }
@@ -59,6 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
             TotalIncomeTax = model.TotalIncomeTax;
             TotalDPP = model.TotalDPP;
             Date = model.Date;
+            IsPosted = model.IsPosted;
             Bank = new BankViewModel()
             {
                 _id = model.BankId,
