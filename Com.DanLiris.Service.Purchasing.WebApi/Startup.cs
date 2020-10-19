@@ -280,7 +280,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Spinning API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "Purchasing API", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new ApiKeyScheme { In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
                 c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
                 {
