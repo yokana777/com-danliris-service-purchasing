@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     result = detail.PriceTotalCorrection;
 
                 var total = result;
-                if (element != null)
+                /*if (element != null)
                 {
                     if (element.UseVat)
                     {
@@ -97,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                     {
                         result -= total * (element.IncomeTaxRate / 100);
                     }
-                }
+                }*/
 
                 return result;
             });
