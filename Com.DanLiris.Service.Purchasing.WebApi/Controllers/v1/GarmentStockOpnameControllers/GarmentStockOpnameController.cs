@@ -1,9 +1,11 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,9 +74,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentStockOpna
                 VerifyUser();
 
                 var readData = _facade.ReadById(id);
+                var viewData = JsonConvert.DeserializeObject<GarmentStockOpname>(JsonConvert.SerializeObject(readData, Formatting.None, new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                }));
 
                 Dictionary<string, object> Result = new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(readData);
+                    .Ok(viewData);
                 return Ok(Result);
             }
             catch (Exception e)
