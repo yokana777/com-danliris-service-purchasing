@@ -30,14 +30,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet]
-        public IActionResult GetReport(string inno, string invono, string dono, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int page = 1, int size = 25, string Order = "{}")
+        public IActionResult GetReport(string inno, string invono, string dono, string billno, string paymentbill, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = _facade.GetReport(inno, invono, dono, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, page , size, Order,offset);
+                var data = _facade.GetReport(inno, invono, dono, billno, paymentbill, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, page , size, Order,offset);
 
                 return Ok(new
                 {
@@ -57,13 +57,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             }
         }
         [HttpGet("download")]
-        public IActionResult GetXlsPayment(string inno, string invono, string dono, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int page = 1, int size = 25, string Order = "{}")
+        public IActionResult GetXlsPayment(string inno, string invono, string dono, string billno, string paymentbill, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
                 byte[] xlsInBytes;
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                var xls = _facade.GetXLs(inno, invono, dono, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);
+                var xls = _facade.GetXLs(inno, invono, dono, billno, paymentbill, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);
 
                 string filename = status == "BB" ? String.Format("Laporan Status Bayar Nota Intern Belum Bayar - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : status == "SB" ? String.Format("Laporan Status Bayar Nota Intern Sudah Bayar - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : String.Format("Laporan Status Bayar Nota Intern All - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
