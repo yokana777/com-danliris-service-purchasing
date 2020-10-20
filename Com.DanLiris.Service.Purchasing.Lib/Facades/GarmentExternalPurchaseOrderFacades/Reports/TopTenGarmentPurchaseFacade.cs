@@ -114,23 +114,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             }
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", 0, ""); // to allow column name to be generated properly for empty data as template
+                if (jnsSpl == false)
+                {
+                    result.Rows.Add("", "", 0, ""); // to allow column name to be generated properly for empty data as template
+                }
+                else
+                {
+                    result.Rows.Add("", "", "", 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                }
             else
             {
-                int index = 0;
-                foreach (var item in Query)
-                {
-                    index++;
-                    if (jnsSpl == false)
+                    int index = 0;
+                    foreach (var item in Query)
                     {
-                        result.Rows.Add(index, item.SupplierName, (Decimal)Math.Round((item.Amount), 2), item.ProductName);
-                    }
-                    else
-                    {
-                        result.Rows.Add(index, item.SupplierName, item.CurrencyCode, (Decimal)Math.Round((item.Amount), 2), (Decimal)Math.Round((item.AmountIDR), 2), item.ProductName);
+                        index++;
+                        if (jnsSpl == false)
+                        {
+                            result.Rows.Add(index, item.SupplierName, (Decimal)Math.Round((item.Amount), 2), item.ProductName);
+                        }
+                        else
+                        {
+                            result.Rows.Add(index, item.SupplierName, item.CurrencyCode, (Decimal)Math.Round((item.Amount), 2), (Decimal)Math.Round((item.AmountIDR), 2), item.ProductName);
+                        }
                     }
                 }
-            }
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
         }
