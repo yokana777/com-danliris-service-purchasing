@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -51,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             return stream;
         }
 
-        public static MemoryStream CreateExcel(List<KeyValuePair<DataTable, string>> dtSourceList, string title, string dateFrom, string dateTo, bool styling = false)
+        public static MemoryStream CreateExcel(List<KeyValuePair<DataTable, string>> dtSourceList, string title, string dateFrom, string dateTo, bool styling = false, int index = 0)
         {
             ExcelPackage package = new ExcelPackage();
             foreach (KeyValuePair<DataTable, string> item in dtSourceList)
@@ -69,6 +70,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 
                 sheet.Cells["A5"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
                 sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+                int cells = 6;
+                sheet.Cells[$"F{cells}:F{cells + index}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
             }
             MemoryStream stream = new MemoryStream();
             package.SaveAs(stream);
