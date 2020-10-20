@@ -66,6 +66,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -182,7 +183,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IDebtBookReportFacade, DebtBookReportFacade>()
                 .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
                 .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
-                .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>();
+                .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>()
+                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

@@ -29,6 +29,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -127,6 +128,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<GarmentSupplierBalanceDebt> GarmentSupplierBalanceDebts { get; set; }
         public DbSet<GarmentSupplierBalanceDebtItem> GarmentSupplierBalanceDebtItems { get; set; }
+
+        public DbSet<GarmentStockOpname> GarmentStockOpnames { get; set; }
+        public DbSet<GarmentStockOpnameItem> GarmentStockOpnameItems { get; set; }
 
         public DbSet<BalanceStock> BalanceStocks { get; set; }
 
