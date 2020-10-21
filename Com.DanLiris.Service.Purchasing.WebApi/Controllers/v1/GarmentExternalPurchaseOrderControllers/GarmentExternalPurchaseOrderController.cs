@@ -455,7 +455,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                         i.DealQuantity,
                         i.DealUom,
                         i.GarmentEPOId,
-                        i.Article
+                        i.Article,
+                        i.CreatedUtc
                     }).ToList()
                 );
 

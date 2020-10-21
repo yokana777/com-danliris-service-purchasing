@@ -423,14 +423,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotNull(e.Message);
         }
 
-        //[Fact]
-        //public async Task Should_Error_Create_Data_DOCurrency()
-        //{
-        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var data = await dataUtil_DOCurrency(facade, GetCurrentMethod()).GetNewData_DOCurrency();
-        //    Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
-        //    Assert.NotNull(e.Message);
-        //}
+        [Fact]
+        public async Task Should_Error_Create_Data_DOCurrency()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+
+            foreach (var garmentUnitExpenditureNoteItem in data.Items)
+            {
+                var garmentUnitDeliveryOrderItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(s => s.Id == garmentUnitExpenditureNoteItem.UnitDOItemId);
+                garmentUnitDeliveryOrderItem.DOCurrencyRate = 0;
+            }
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(data));
+            Assert.NotNull(e.Message);
+        }
 
         [Fact]
         public async Task Should_Success_Update_Data()
@@ -508,6 +516,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             data.Items = null;
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
+            Assert.NotNull(e.Message);
+        }
+
+        [Fact]
+        public async Task Should_Error_Update_Data_Type_DOCurrency()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var dataTransfer = await dataUtil.GetTestDataAcc();
+
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == dataTransfer.Id);
+
+            foreach (var garmentUnitExpenditureNoteItem in newData.Items)
+            {
+                var garmentUnitDeliveryOrderItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(s => s.Id == garmentUnitExpenditureNoteItem.UnitDOItemId);
+                garmentUnitDeliveryOrderItem.DOCurrencyRate = 0;
+            }
+
+            newData.Items.First().IsSave = true;
+
+            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)newData.Id, newData));
             Assert.NotNull(e.Message);
         }
 
@@ -709,10 +742,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 		[Fact]
 		public async Task Should_Error_Get_Data_By_Id()
 		{
-			var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-			var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataAcc();
-			var Response = facade.GetROAsalById((int)data.Id);
-			Assert.NotEqual(0, Response.DetailExpenditureId);
+            var dbString = GetCurrentMethod() + "Task Should_Error_Get_Data_By_Id";
+			var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(dbString));
+			var data = await dataUtil(facade, dbString).GetTestDataAcc();
+			//var Response = facade.GetROAsalById((int)data.Id);
+           
+             Assert.Throws<System.InvalidOperationException> (() => facade.GetROAsalById((int)data.Id));
+         //   Assert.NotEqual(0, Response.DetailExpenditureId);
 		}
 
 
