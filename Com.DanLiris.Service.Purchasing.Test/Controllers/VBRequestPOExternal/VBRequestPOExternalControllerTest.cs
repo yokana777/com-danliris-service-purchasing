@@ -2,6 +2,8 @@
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +12,7 @@ using Moq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
@@ -291,5 +294,111 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.VBRequestPOExternal
             int statusCode = this.GetStatusCode(response);
             Assert.Equal((int)HttpStatusCode.InternalServerError, statusCode);
         }
+
+        [Fact]
+        public void Should_Success_Construct_SPBDto()
+        {
+            var upoDetails = new List<UnitPaymentOrderDetail>()
+            {
+                new UnitPaymentOrderDetail()
+                {
+                    Id=1,
+                    UPOItemId=1,
+                    URNItemId=1,
+                }
+            };
+            var upoItems = new List<UnitPaymentOrderItem>()
+            {
+                new UnitPaymentOrderItem()
+                {
+                    Id=1,
+                    UPOId=1,
+                    URNId=1,
+                    Details=upoDetails
+
+                }
+            };
+            var upo = new UnitPaymentOrder()
+            {
+                Id = 1,
+                Items = upoItems,
+
+
+            };
+            var urnItems = new List<UnitReceiptNoteItem>()
+            {
+                new UnitReceiptNoteItem()
+                {
+                    Id=1,
+                    URNId=1,
+
+                }
+            };
+            var urns = new List<UnitReceiptNote>()
+            {
+                new UnitReceiptNote()
+                {
+                    Id=1,
+                    Items=urnItems
+
+                }
+            };
+            var dto = new SPBDto(upo, upoDetails, upoItems, urnItems, urns);
+            Assert.NotNull(dto);
+        }
+
+        [Fact]
+        public void Should_QuantityCorrection_Greater_Than_Zero_SPBDto()
+        {
+            var upoDetails = new List<UnitPaymentOrderDetail>()
+            {
+                new UnitPaymentOrderDetail()
+                {
+                    Id=1,
+                    UPOItemId=1,
+                    QuantityCorrection=1,
+                    URNItemId=1,
+                }
+            };
+            var upoItems = new List<UnitPaymentOrderItem>()
+            {
+                new UnitPaymentOrderItem()
+                {
+                    Id=1,
+                    UPOId=1,
+                    URNId=1,
+                    Details=upoDetails
+
+                }
+            };
+            var upo = new UnitPaymentOrder()
+            {
+                Id = 1,
+                Items = upoItems,
+                
+                
+            };
+            var urnItems = new List<UnitReceiptNoteItem>()
+            {
+                new UnitReceiptNoteItem()
+                {
+                    Id=1,
+                    URNId=1,
+                    
+                }
+            };
+            var urns = new List<UnitReceiptNote>()
+            {
+                new UnitReceiptNote()
+                {
+                    Id=1,
+                    Items=urnItems
+                    
+                }
+            };
+            var dto = new SPBDto(upo, upoDetails, upoItems, urnItems, urns);
+            Assert.NotNull(dto);
+        }
+    
     }
 }
