@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbSet = dbContext.Set<GarmentInternNote>();
         }
 
-        public IQueryable<GarmentInternNotePaymentStatusViewModel> GetQuery(string inno, string invono, string dono, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int offset)
+        public IQueryable<GarmentInternNotePaymentStatusViewModel> GetQuery(string inno, string invono, string dono, string billno, string paymentbill, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int offset)
         {
             DateTime DateNIFrom = dateNIFrom == null ? new DateTime(1070, 1, 1) : (DateTime)dateNIFrom;
             DateTime DateNITo = dateNITo == null ? DateTime.Now : (DateTime)dateNITo;
@@ -49,6 +49,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         && a.INNo == (String.IsNullOrWhiteSpace(inno) ? a.INNo : inno)
                         && b.InvoiceNo == (String.IsNullOrWhiteSpace(invono) ? b.InvoiceNo : invono)
                         && c.DONo == (String.IsNullOrWhiteSpace(dono) ? c.DONo : dono)
+                        && d.BillNo == (String.IsNullOrWhiteSpace(billno) ? d.BillNo : billno)
+                        && d.PaymentBill == (String.IsNullOrWhiteSpace(paymentbill) ? d.PaymentBill : paymentbill)
                         && (e.NPN != null ? e.NPN == (String.IsNullOrWhiteSpace(npn) ? e.NPN : npn) : true )
                         && t.CorrectionNo == (String.IsNullOrWhiteSpace(corrno) ? t.CorrectionNo : corrno)
                         && (e.NPH != null ? e.NPH == (String.IsNullOrWhiteSpace(nph) ? e.NPH : nph) : true ) 
@@ -177,9 +179,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return datastatus.AsQueryable();
            
         }
-        public Tuple<List<GarmentInternNotePaymentStatusViewModel>, int> GetReport(string inno, string invono, string dono, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int page, int size, string Order, int offset)
+        public Tuple<List<GarmentInternNotePaymentStatusViewModel>, int> GetReport(string inno, string invono, string dono, string billno, string paymentbill, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int page, int size, string Order, int offset)
         {
-            var Query = GetQuery(inno, invono, dono, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);
+            var Query = GetQuery(inno, invono, dono, billno, paymentbill, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);
             Query.OrderBy(x => x.BillNo).ThenBy(x => x.CorDate).ThenBy(x => x.CorrNo).ThenBy(x => x.CorrType).ThenBy(x => x.CurrCode).ThenBy(x => x.DoDate).ThenBy(x => x.DoNo).ThenBy(x => x.IncomeTaxDate).ThenBy(x => x.INDate).ThenBy(x => x.INNo).ThenBy(x => x.InvoDate).ThenBy(x => x.InvoiceNo).ThenBy(x => x.NPH).ThenBy(x => x.NPN).ThenBy(x => x.PayBill).ThenBy(x => x.PaymentDueDate).ThenBy(x => x.PaymentMethod).ThenBy(x => x.PriceTot).ThenBy(x => x.SuppCode).ThenBy(x => x.SuppName).ThenBy(x => x.VatDate);
             //Console.WriteLine(Query);
             var b = Query.ToArray();
@@ -204,9 +206,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GetXLs(string inno, string invono, string dono, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int offset)
+        public MemoryStream GetXLs(string inno, string invono, string dono, string billno, string paymentbill, string npn, string nph, string corrno, string supplier, DateTime? dateNIFrom, DateTime? dateNITo, DateTime? dueDateFrom, DateTime? dueDateTo, string status, int offset)
         {
-            var Data = GetQuery(inno, invono, dono, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);
+            var Data = GetQuery(inno, invono, dono, billno, paymentbill, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });

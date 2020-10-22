@@ -62,16 +62,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          {
                              SupplierName = G.Key.SupplierName,
                              Amount = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit), 2),
+                             Currencycode = G.Key.CurrencyCode,
+                             Amount1 = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit * c.Rate), 2),
                              ProductName = G.Key.ProductName == "FABRIC" ? "BAHAN BAKU" : G.Key.ProductName == "INTERLINING" ? "INTERLINING" : "BAHAN PENDUKUNG" 
                          });
 
             var Query = (from a in Query1
-                         group a by new { a.SupplierName, a.ProductName } into G
+                         group a by new { a.SupplierName, a.Currencycode, a.ProductName } into G
                          orderby G.Sum(a => a.Amount) descending
                          select new TopTenGarmenPurchasebySupplierViewModel
                          {
                              SupplierName = G.Key.SupplierName,
                              Amount = G.Sum(a => a.Amount),
+                             CurrencyCode = G.Key.Currencycode,
+                             AmountIDR = G.Sum(a => a.Amount1),
                              ProductName = G.FirstOrDefault().ProductName
                          }
                          );
@@ -92,22 +96,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             var Query = GetTotalGarmentPurchaseBySupplierReportQuery(unit, jnsSpl, payMtd, category, dateFrom, dateTo, offset);
             DataTable result = new DataTable();
 
-            result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(decimal) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bahan", DataType = typeof(String) });
-
-            if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", 0, ""); // to allow column name to be generated properly for empty data as template
+            if (jnsSpl == false)
+            {
+                result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(decimal) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bahan", DataType = typeof(String) });
+            }
             else
             {
-                int index = 0;
-                foreach (var item in Query)
-                {
-                    index++;
-                    result.Rows.Add(index, item.SupplierName,  (Decimal)Math.Round((item.Amount), 2), item.ProductName);
-                }
+                result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Nominal VALAS", DataType = typeof(decimal) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Nominal IDR", DataType = typeof(decimal) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bahan", DataType = typeof(String) });
             }
+
+            if (Query.ToArray().Count() == 0)
+                if (jnsSpl == false)
+                {
+                    result.Rows.Add("", "", 0, ""); // to allow column name to be generated properly for empty data as template
+                }
+                else
+                {
+                    result.Rows.Add("", "", "", 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                }
+            else
+            {
+                    int index = 0;
+                    foreach (var item in Query)
+                    {
+                        index++;
+                        if (jnsSpl == false)
+                        {
+                            result.Rows.Add(index, item.SupplierName, (Decimal)Math.Round((item.Amount), 2), item.ProductName);
+                        }
+                        else
+                        {
+                            result.Rows.Add(index, item.SupplierName, item.CurrencyCode, (Decimal)Math.Round((item.Amount), 2), (Decimal)Math.Round((item.AmountIDR), 2), item.ProductName);
+                        }
+                    }
+                }
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
         }
