@@ -35,5 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public DateTimeOffset URNDate { get; set; }
         public string UnitName { get; set; }
         public string EPOcreatedBy { get; set; }
+        public string INNo { get; set; }
+        public string TermPayment { get; set; }
     }
 }

@@ -312,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         }
                     }
 
-                    if (string.IsNullOrWhiteSpace(vatCOA))
+                    if (!string.IsNullOrWhiteSpace(vatCOA))
                     {
                         var vatItem = new JournalTransactionItem()
                         {
@@ -342,7 +342,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 {
                     Code = model.BankAccountCOA
                 },
-                Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
+                //Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
+                Credit = items.Sum(s => s.Debit.GetValueOrDefault())
             };
             items.Add(bankJournalItem);
 

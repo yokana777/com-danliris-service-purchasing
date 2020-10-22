@@ -63,6 +63,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
             };
         }
 
+        public async Task<ExternalPurchaseOrder> GetNewDataValas(string user, InternalPurchaseOrder inPO = null)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = inPO ?? await internalPurchaseOrderDataUtil.GetTestData(user);
+
+            return new ExternalPurchaseOrder
+            {
+                CurrencyCode = "USD",
+                CurrencyId = "1",
+                CurrencyRate = 0.5,
+                UnitId = "1",
+                UnitCode = "UnitCode",
+                UnitName = "UnitName",
+                DivisionId = "1",
+                DivisionCode = "DivisionCode",
+                DivisionName = "DivisionName",
+                FreightCostBy = "test",
+                DeliveryDate = DateTime.Now.AddDays(1),
+                OrderDate = DateTime.Now,
+                SupplierCode = "sup",
+                SupplierId = "1",
+                POCashType = "VB",
+                IncomeTaxName = "Final",
+                IncomeTaxRate = "1.5",
+                UseIncomeTax = true,
+                IncomeTaxBy = "Supplier",
+                SupplierName = "Supplier",
+                PaymentMethod = "test",
+                Remark = "Remark",
+                EPONo = "EPONoTest123",
+                Items = new List<ExternalPurchaseOrderItem> { externalPurchaseOrderItemDataUtil.GetNewData(internalPurchaseOrder) }
+            };
+        }
+
         public async Task<ExternalPurchaseOrder> GetNewHavingStockData(string user)
         {
             InternalPurchaseOrder internalPurchaseOrder = await internalPurchaseOrderDataUtil.GetTestHavingStockData(user);
@@ -238,6 +271,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDa
         public async Task<ExternalPurchaseOrder> GetTestDataUnused(string user)
         {
             ExternalPurchaseOrder externalPurchaseOrder = await GetNewData(user);
+            externalPurchaseOrder.IsPosted = true;
+            foreach (var item in externalPurchaseOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.DOQuantity = 0;
+                    detail.DealQuantity = 2;
+                }
+            }
+
+            await facade.Create(externalPurchaseOrder, user, 7);
+
+            return externalPurchaseOrder;
+        }
+
+        public async Task<ExternalPurchaseOrder> GetTestDataUnusedValas(string user)
+        {
+            ExternalPurchaseOrder externalPurchaseOrder = await GetNewDataValas(user);
             externalPurchaseOrder.IsPosted = true;
             foreach (var item in externalPurchaseOrder.Items)
             {

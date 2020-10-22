@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string CurrencyCode { get; set; }
         public int CurrencyId { get; set; }
         public double CurrencyRate { get; set; }
+        public bool IsPosted { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

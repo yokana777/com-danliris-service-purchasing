@@ -1338,7 +1338,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                           && ((d3 != new DateTime(1970, 1, 1)) ? (epos.OrderDate >= d3 && epos.OrderDate <= d4) : true)
 
                           && (poSerialNumber == null || (poSerialNumber != null && poSerialNumber != "" && b.PO_SerialNumber == poSerialNumber))
-                          && b.IsUsed == (ipoStatus == "BELUM" ? false : ipoStatus == "SUDAH" ? true : b.IsUsed)
+                          && b.IsUsed == (ipoStatus != "BELUM" && (ipoStatus == "SUDAH" || b.IsUsed))
 
                           && (username == null || (username != null && username != "" && ipo.CreatedBy == username))
                           && (status == null || (status != null && status != "" && ipoitem.Status == status))
@@ -1494,11 +1494,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         }
                         j++;
                     }
-
-
                 }
-
-
 
                 listEPO.Add(
                     new MonitoringPurchaseAllUserViewModel
@@ -1610,7 +1606,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         {
             var Data = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx,dateToEx, offset, page, size);
 
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //if (OrderDictionary.Count.Equals(0))
             //{
             //	Query = Query.OrderByDescending(b => b.prDate);

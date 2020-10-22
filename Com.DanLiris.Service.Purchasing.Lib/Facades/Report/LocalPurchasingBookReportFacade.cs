@@ -67,6 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnWithItem.ProductName,
                             urnWithItem.UnitReceiptNote.ReceiptDate,
                             urnWithItem.UnitReceiptNote.SupplierName,
+                            urnWithItem.UnitReceiptNote.SupplierCode,
                             urnWithItem.UnitReceiptNote.SupplierIsImport,
                             urnWithItem.UnitReceiptNote.UnitCode,
                             urnWithItem.UnitReceiptNote.UnitName,
@@ -124,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
                 //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-                var currency = currencies.FirstOrDefault(f => f.Code.Equals(item.CurrencyCode));
+                var currency = currencies.FirstOrDefault(f => f.Code == item.CurrencyCode);
 
                 decimal dpp = 0;
                 decimal dppCurrency = 0;
@@ -162,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     Total = (dpp + dppCurrency + ppn) * (decimal)currencyRate,
                     ProductName = item.ProductName,
                     ReceiptDate = item.ReceiptDate,
-                    SupplierName = item.SupplierName,
+                    SupplierName = item.SupplierCode + " - " + item.SupplierName,
                     UnitName = item.UnitName,
                     UPONo = item.UPONo,
                     URNNo = item.URNNo,
@@ -412,7 +413,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             if (result.Reports.Count > 0)
             {
-                foreach (var report in result.Reports) { 
+                foreach (var report in result.Reports)
+                {
                     if (isValas)
                     {
                         reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.CurrencyRate, report.DPPCurrency, report.VAT, report.Total);

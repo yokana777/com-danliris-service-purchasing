@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     Created = await dbContext.SaveChangesAsync();
 
 
-                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES")
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN")
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -320,6 +320,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var GarmentDR = GetDR(garmentUnitReceiptNote.DRId);
                         var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentDR.UnitDOId);
                         List<GarmentUnitDeliveryOrderItem> unitDOItems = new List<GarmentUnitDeliveryOrderItem>();
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            GarmentDOItems garmentDOItems = new GarmentDOItems
+                            {
+                                DOItemNo = await GenerateNoDOItems(garmentUnitReceiptNote),
+                                UnitId = garmentUnitReceiptNote.UnitId,
+                                UnitCode = garmentUnitReceiptNote.UnitCode,
+                                UnitName = garmentUnitReceiptNote.UnitName,
+                                StorageCode = garmentUnitReceiptNote.StorageCode,
+                                StorageId = garmentUnitReceiptNote.StorageId,
+                                StorageName = garmentUnitReceiptNote.StorageName,
+                                POId = garmentUnitReceiptNoteItem.POId,
+                                POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                RemainingQuantity = GarmentUnitDO.UnitDOFromId != 0? 0: garmentUnitReceiptNoteItem.SmallQuantity,
+                                DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                URNItemId = garmentUnitReceiptNoteItem.Id,
+                                DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                RO = garmentUnitReceiptNoteItem.RONo,
+
+                            };
+                            EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                            dbSetGarmentDOItems.Add(garmentDOItems);
+                            await dbContext.SaveChangesAsync();
+                        }
+
                         if (GarmentUnitDO.UnitDOFromId != 0)
                         {
                             GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
@@ -559,8 +594,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 await dbContext.SaveChangesAsync();
                             }
 
+                            foreach (var garmentUnitReceiptNoteItem in garmentUrn.Items)
+                            {
+                                GarmentDOItems garmentDOItems = new GarmentDOItems
+                                {
+                                    DOItemNo = await GenerateNoDOItems(garmentUrn),
+                                    UnitId = garmentUrn.UnitId,
+                                    UnitCode = garmentUrn.UnitCode,
+                                    UnitName = garmentUrn.UnitName,
+                                    StorageCode = garmentUrn.StorageCode,
+                                    StorageId = garmentUrn.StorageId,
+                                    StorageName = garmentUrn.StorageName,
+                                    POId = garmentUnitReceiptNoteItem.POId,
+                                    POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                    POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                    ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                    ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                    ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                    DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                    SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                    SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                    SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                    RemainingQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                    DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                    URNItemId = garmentUnitReceiptNoteItem.Id,
+                                    DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                    EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                    PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                    RO = garmentUnitReceiptNoteItem.RONo,
+
+                                };
+                                EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                                dbSetGarmentDOItems.Add(garmentDOItems);
+                                await dbContext.SaveChangesAsync();
+                            }
+
                             await dbContext.SaveChangesAsync();
                         }
+                        
                     }
 
                     
