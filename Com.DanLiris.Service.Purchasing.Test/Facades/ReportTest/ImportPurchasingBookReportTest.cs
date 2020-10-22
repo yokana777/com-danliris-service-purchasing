@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
 
             var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider,dbContext);
-            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestImportData();
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestImportDataValas();
 
             var urnId = dataUtil.Items.FirstOrDefault().URNId;
             var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
