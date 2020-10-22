@@ -495,7 +495,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.Vat,
                 s.IncomeTax,
                 s.IsPaid,
-                TotalPaid = s.TotalPaid - s.IncomeTax,
+                s.TotalPaid,
                 s.Currency,
                 s.PaymentMethod,
                 Items = s.Items.Select(sl => new
