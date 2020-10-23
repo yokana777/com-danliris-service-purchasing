@@ -522,11 +522,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             if (spb == null)
                 spb = new UnitPaymentOrder() { SupplierId = "1" };
 
+            int.TryParse(model.BankId, out var bankId);
+            long.TryParse(spb.SupplierId, out var supplierId);
             var modelToPost = new DailyBankTransactionViewModel()
             {
                 Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
                 {
-                    Id = int.Parse(model.BankId),
+                    Id = bankId,
                     Code = model.BankCode,
                     AccountName = model.BankAccountName,
                     AccountNumber = model.BankAccountNumber,
@@ -546,7 +548,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 Status = "OUT",
                 Supplier = new NewSupplierViewModel()
                 {
-                    _id = long.Parse(spb.SupplierId),
+                    _id = supplierId,
                     code = spb.SupplierCode,
                     name = spb.SupplierName
                 },
