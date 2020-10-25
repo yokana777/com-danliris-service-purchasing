@@ -20,6 +20,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -434,6 +435,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
                     }
 
+                    if (model.Currency != "IDR")
+                    {
+                        var garmentCurrency = await GetGarmentCurrency(model.Currency);
+                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
+                    }
+
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
                     //await AutoCreateJournalTransaction(model);
@@ -448,6 +455,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             return Created;
+        }
+
+        private async Task<Currency> GetGarmentCurrency(string codeCurrency)
+        {
+            string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={date}";
+
+            var http = _serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<Currency>(responseString, jsonSerializationSetting);
+
+            return result;
         }
 
         public async Task<int> Delete(int id, string username)
@@ -554,6 +577,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 },
                 IsPosted = true
             };
+
+            if (model.Currency != "IDR")
+                modelToPost.NominalValas = model.TotalIncomeTax * model.CurrencyRate;
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);

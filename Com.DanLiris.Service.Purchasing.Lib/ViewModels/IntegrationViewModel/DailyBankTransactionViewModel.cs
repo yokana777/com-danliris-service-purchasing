@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public NewIntegrationViewModel.BuyerViewModel Buyer { get; set; }
         public DateTimeOffset? Date { get; set; }
         public double? Nominal { get; set; }
+        public double? NominalValas { get; set; }
         public string ReferenceNo { get; set; }
         public string ReferenceType { get; set; }
         public string Remark { get; set; }

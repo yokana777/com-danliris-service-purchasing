@@ -74,6 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     SupplierName = s.SupplierName,
                     GrandTotal = s.GrandTotal,
                     BankCurrencyCode = s.BankCurrencyCode,
+                    CurrencyRate = s.CurrencyRate,
                     IsPosted = s.IsPosted,
                     Details = s.Details.Where(w => w.BankExpenditureNoteId == s.Id).ToList()
                 });
@@ -625,6 +626,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 },
                 IsPosted = true
             };
+
+            if (model.BankCurrencyCode != "IDR")
+                modelToPost.NominalValas = model.GrandTotal * model.CurrencyRate;
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
