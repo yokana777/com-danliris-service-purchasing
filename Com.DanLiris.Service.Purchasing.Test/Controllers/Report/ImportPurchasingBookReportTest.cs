@@ -100,5 +100,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
+        public async Task Should_Success_GetImportPurchasingBookReport_Pdf()
+        {
+            var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+
+            var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task Should_Failed_GetImportPurchasingBookReport_Pdf_WithException()
+        {
+            var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new Exception());
+
+            var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
     }
 }

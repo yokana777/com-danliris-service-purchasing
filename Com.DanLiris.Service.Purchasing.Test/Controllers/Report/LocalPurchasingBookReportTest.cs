@@ -72,5 +72,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public async Task Should_Success_GetLocalPurchasingBookReport_Pdf()
+        {
+            var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+
+            var controller = new LocalPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), false);
+
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetLocalPurchasingBookReport_Pdf_ForeignCurrency()
+        {
+            var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+
+            var controller = new LocalPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), true);
+
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task Should_Failed_GetLocalPurchasingBookReport_Pdf_WithException()
+        {
+            var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ThrowsAsync(new Exception());
+
+            var controller = new LocalPurchasingBookReportController(mockFacade.Object);
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>());
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
