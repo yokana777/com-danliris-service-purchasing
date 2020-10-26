@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json;
@@ -113,7 +114,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
                 Reports = new List<PurchasingReport>() { new PurchasingReport() }
             });
 
-            var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+            var controller = new ImportPurchasingBookReportController(mockFacade.Object)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        
+                    }
+                }
+            };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
             var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
 
@@ -126,7 +136,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
             var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
             mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new Exception());
 
-            var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+            var controller = new ImportPurchasingBookReportController(mockFacade.Object) 
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        
+                    }
+                }
+            };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
             var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
 
