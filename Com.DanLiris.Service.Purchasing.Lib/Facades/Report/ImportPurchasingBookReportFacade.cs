@@ -462,6 +462,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     ReceiptDate = item.ReceiptDate,
                     SupplierName = item.SupplierCode + " - "+ item.SupplierName,
                     UnitName = item.UnitName,
+                    UnitCode = item.UnitCode,
                     UPONo = item.UPONo,
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,

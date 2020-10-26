@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +41,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
                     statusCode = General.OK_STATUS_CODE
 
                 });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("pdf")]
+        public async Task<IActionResult> GetPdf(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        {
+            try
+            {
+                var clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                //var data = importPurchasingBookReportService.GetReport();
+
+                var stream = ImportPurchasingBookReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateFrom, dateTo);
+
+                var filename = "Laporan Buku Pembelian Import.pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = filename
+                };
             }
             catch (Exception e)
             {
