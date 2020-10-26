@@ -284,6 +284,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
 
             PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
             PPHBankExpenditureNote model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            model.Currency = "USD";
             var Response = await facade.Create(model, "Unit Test");
             Assert.NotEqual(0, Response);
         }
