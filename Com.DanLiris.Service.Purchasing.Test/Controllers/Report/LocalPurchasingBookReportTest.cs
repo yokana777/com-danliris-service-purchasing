@@ -77,9 +77,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Success_GetLocalPurchasingBookReport_Pdf()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
+            {
+                CategorySummaries = new List<Summary>() { new Summary() },
+                CategorySummaryTotal = 1,
+                CurrencySummaries = new List<Summary>() { new Summary() },
+                GrandTotal = 1,
+                Reports = new List<PurchasingReport>() { new PurchasingReport() }
+            });
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
             var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), false);
 
             Assert.NotNull(response);
@@ -89,9 +97,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Success_GetLocalPurchasingBookReport_Pdf_ForeignCurrency()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
+            {
+                CategorySummaries = new List<Summary>() { new Summary() },
+                CategorySummaryTotal = 1,
+                CurrencySummaries = new List<Summary>() { new Summary() },
+                GrandTotal = 1,
+                Reports = new List<PurchasingReport>() { new PurchasingReport() }
+            });
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
             var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), true);
 
             Assert.NotNull(response);
@@ -104,6 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
             mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>())).ThrowsAsync(new Exception());
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
             var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
