@@ -1,11 +1,13 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchaseOrder;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OfficeOpenXml;
@@ -26,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<UnitReceiptNote> dbSet;
         private readonly ICurrencyProvider _currencyProvider;
+        private readonly IdentityService _identityService;
 
         public ImportPurchasingBookReportFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -38,6 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<UnitReceiptNote>();
             _currencyProvider = (ICurrencyProvider)serviceProvider.GetService(typeof(ICurrencyProvider));
+            _identityService = serviceProvider.GetService<IdentityService>();
 
         }
 
@@ -390,7 +394,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnUPOItem.UnitPaymentOrder.InvoiceNo,
                             urnUPOItem.UnitPaymentOrder.UPONo,
                             urnUPOItem.UnitPaymentOrder.VatNo,
-                            urnUPOItem.UnitPaymentOrder.PibNo
+                            urnUPOItem.UnitPaymentOrder.PibNo,
+                            urnUPOItem.UnitPaymentOrder.PibDate,
+                            urnPR.Remark
                         };
 
 
@@ -433,8 +439,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 var currencyCode = "IDR";
                 if (currency != null && !currency.Code.Equals("IDR"))
                 {
-                    dppCurrency = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
                     currencyRate = currency.Rate.GetValueOrDefault();
+                    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                    dppCurrency = dpp * (decimal)currencyRate;
                     currencyCode = currency.Code;
                 }
                 else
@@ -467,7 +474,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,
                     CurrencyCode = currencyCode,
-                    PIBNo = item.PibNo
+                    PIBNo = item.PibNo,
+                    PIBDate = item.PibDate,
+                    Remark = item.Remark,
+                    Quantity = item.ReceiptQuantity
                 };
                 reportItem.PIBBM = reportItem.Total * 0.1m;
 
@@ -506,25 +516,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             //var Data = reportResult.Reports;
             var reportDataTable = new DataTable();
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tipe", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kuantiti", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB Tanggal", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB No", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB BM", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB PPH22", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB PPN Impor", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Nilai", DataType = typeof(decimal) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
 
             var categoryDataTable = new DataTable();
@@ -539,9 +543,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo,
-                        report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName,
-                        report.UnitName, "", report.PIBNo, report.PIBBM, 0, 0, report.DPP, report.DPPCurrency, report.VAT, report.CurrencyRate, report.Total);
+                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.Remark, report.SupplierName, report.URNNo, report.InvoiceNo, report.UPONo, report.CategoryCode, report.UnitName, report.CurrencyCode, report.Quantity, report.Uom, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.DPP, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
@@ -552,10 +554,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             using (var package = new ExcelPackage())
             {
+                var company = "PT DAN LIRIS";
+                var title = "BUKU PEMBELIAN Import";
+                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
-                worksheet.Cells["A1"].LoadFromDataTable(reportDataTable, true);
-                worksheet.Cells[$"A{1 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true);
-                worksheet.Cells[$"A{1 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
+                worksheet.Cells["A1"].Value = company;
+                worksheet.Cells["A2"].Value = title;
+                worksheet.Cells["A3"].Value = period;
+                worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
+                worksheet.Cells[$"A{4 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true);
+                worksheet.Cells[$"A{4 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
