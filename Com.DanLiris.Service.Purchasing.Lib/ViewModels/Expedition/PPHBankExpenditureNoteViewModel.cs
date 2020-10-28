@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public string No { get; set; }
         public DateTimeOffset? Date { get; set; }
         public bool IsPosted { get; set; }
-        public BankViewModel Bank { get; set; }
+        public NewIntegrationViewModel.AccountBankViewModel Bank { get; set; }
         public IncomeTaxExpeditionViewModel IncomeTax { get; set; }
         public string Currency { get; set; }
         public string BGNo { get; set; }
@@ -55,22 +55,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
 
         public PPHBankExpenditureNoteViewModel(PPHBankExpenditureNote model)
         {
+            int.TryParse(model.BankId, out var bankId);
             Id = model.Id;
             No = model.No;
             TotalIncomeTax = model.TotalIncomeTax;
             TotalDPP = model.TotalDPP;
             Date = model.Date;
             IsPosted = model.IsPosted;
-            Bank = new BankViewModel()
+            Bank = new NewIntegrationViewModel.AccountBankViewModel()
             {
-                _id = model.BankId,
-                code = model.BankCode,
-                bankName = model.BankName,
-                accountName = model.BankAccountName,
-                accountNumber = model.BankAccountNumber,
-                currency = new CurrencyViewModel()
+                Id = bankId,
+                Code = model.BankCode,
+                BankName = model.BankName,
+                AccountName = model.BankAccountName,
+                AccountNumber = model.BankAccountNumber,
+                Currency = new NewIntegrationViewModel.CurrencyViewModel()
                 {
-                    code = model.Currency
+                    Code = model.Currency
                 }
             };
             IncomeTax = new IncomeTaxExpeditionViewModel()
@@ -136,11 +137,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 Date = Date.Value,
                 TotalIncomeTax = TotalIncomeTax,
                 TotalDPP = TotalDPP,
-                BankId = Bank._id,
-                BankCode = Bank.code,
-                BankName = Bank.bankName,
-                BankAccountName = Bank.accountName,
-                BankAccountNumber = Bank.accountNumber,
+                BankId = Bank.Id.ToString(),
+                BankCode = Bank.Code,
+                BankName = Bank.BankName,
+                BankAccountName = Bank.AccountName,
+                BankAccountNumber = Bank.AccountNumber,
                 IncomeTaxId = IncomeTax._id,
                 IncomeTaxName = IncomeTax.name,
                 IncomeTaxRate = IncomeTax.rate,

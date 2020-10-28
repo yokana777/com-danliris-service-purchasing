@@ -53,5 +53,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string Uom { get; set; }
         public string PIBNo { get; set; }
         public decimal PIBBM { get; set; }
+        public string Remark { get; set; }
+        public decimal IncomeTax { get; internal set; }
+        public DateTimeOffset PIBDate { get; internal set; }
     }
 }

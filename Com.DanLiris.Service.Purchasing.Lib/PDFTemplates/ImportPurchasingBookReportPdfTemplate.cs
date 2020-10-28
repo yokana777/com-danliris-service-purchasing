@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfWriter.GetInstance(document, stream);
             document.Open();
 
-            SetHeader(document, d1, d2);
+            SetHeader(document, d1, d2, timezoneOffset);
 
             SetReportTable(document, viewModel.Reports, viewModel.GrandTotal, timezoneOffset);
 
@@ -166,21 +166,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetReportTable(Document document, List<PurchasingReport> reports, decimal grandTotal, int timezoneOffset)
         {
-            var table = new PdfPTable(21)
+            var table = new PdfPTable(16)
             {
                 WidthPercentage = 95
             };
 
             var widths = new List<float>();
-            for (var i = 0; i < 21; i++)
+            for (var i = 0; i < 16; i++)
             {
-                if (i == 10)
+                if (i == 9 || i == 8)
                 {
                     widths.Add(1f);
                     continue;
                 }
 
-                if (i == 1)
+                if (i == 1 || i == 2)
                 {
                     widths.Add(3f);
                     continue;
@@ -209,16 +209,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cell.Phrase = new Phrase(element.ReceiptDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                 table.AddCell(cell);
 
+                cell.Phrase = new Phrase(element.Remark, _smallerFont);
+                table.AddCell(cell);
+
                 cell.Phrase = new Phrase(element.SupplierName, _smallerFont);
-                table.AddCell(cell);
-
-                cell.Phrase = new Phrase(element.ProductName, _smallerFont);
-                table.AddCell(cell);
-
-                cell.Phrase = new Phrase(element.IPONo, _smallerFont);
-                table.AddCell(cell);
-
-                cell.Phrase = new Phrase(element.DONo, _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.URNNo, _smallerFont);
@@ -239,31 +233,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cell.Phrase = new Phrase(element.UnitCode, _smallerFont);
                 table.AddCell(cell);
 
-                cell.Phrase = new Phrase("", _smallerFont);
+                cell.Phrase = new Phrase(element.CurrencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Quantity), _smallerFont);
+                table.AddCell(cellAlignRight);
+
+                cell.Phrase = new Phrase(element.Uom, _smallerFont);
+                table.AddCell(cell);
+
+                cell.Phrase = new Phrase(element.PIBDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.PIBNo, _smallerFont);
                 table.AddCell(cell);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.PIBBM), _smallerFont);
-                table.AddCell(cellAlignRight);
-
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-                table.AddCell(cellAlignRight);
-
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-                table.AddCell(cellAlignRight);
-
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.DPP), _smallerFont);
-                table.AddCell(cellAlignRight);
-
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.DPPCurrency), _smallerFont);
-                table.AddCell(cellAlignRight);
-
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.VAT), _smallerFont);
-                table.AddCell(cellAlignRight);
-
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.CurrencyRate), _smallerFont);
                 table.AddCell(cellAlignRight);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Total), _smallerFont);
@@ -274,7 +259,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 HorizontalAlignment = Element.ALIGN_RIGHT,
                 VerticalAlignment = Element.ALIGN_CENTER,
-                Colspan = 20
+                Colspan = 16
             };
 
             cellGrandTotal.Phrase = new Phrase("Grand Total", _smallerBoldFont);
@@ -294,18 +279,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            var cellColspan3 = new PdfPCell()
+            var cellColspan2 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_CENTER,
-                Colspan = 3
-            };
-
-            var cellColspan5 = new PdfPCell()
-            {
-                HorizontalAlignment = Element.ALIGN_CENTER,
-                VerticalAlignment = Element.ALIGN_CENTER,
-                Colspan = 5
+                Colspan = 2
             };
 
             var cellRowspan2 = new PdfPCell()
@@ -318,46 +296,46 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellRowspan2.Phrase = new Phrase("Tanggal", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Supplier", _smallerFont);
-            table.AddCell(cellRowspan2);
-
             cellRowspan2.Phrase = new Phrase("Keterangan", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No PO", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Supplier", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No Surat Jalan", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No Bon Penerimaan", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("No. Inv.", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No Invoice", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("No. Faktur Pajak", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No Faktur Pajak", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("No. SPB/NI", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No SPB/NI", _smallerFont);
-            table.AddCell(cellRowspan2);
-
-            cellRowspan2.Phrase = new Phrase("Kategori", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Tipe", _smallerFont);
             table.AddCell(cellRowspan2);
 
             cellRowspan2.Phrase = new Phrase("Unit", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellColspan5.Phrase = new Phrase("PIB", _smallerFont);
-            table.AddCell(cellColspan5);
-
-            cellColspan3.Phrase = new Phrase("Pembelian", _smallerFont);
-            table.AddCell(cellColspan3);
-
-            cellRowspan2.Phrase = new Phrase("Rate", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Mata Uang", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Total (IDR)", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Kuantiti", _smallerFont);
+            table.AddCell(cellRowspan2);
+
+            cellRowspan2.Phrase = new Phrase("Satuan", _smallerFont);
+            table.AddCell(cellRowspan2);
+
+            cellColspan2.Phrase = new Phrase("PIB", _smallerFont);
+            table.AddCell(cellColspan2);
+
+            cellRowspan2.Phrase = new Phrase("Nilai", _smallerFont);
+            table.AddCell(cellRowspan2);
+
+            cellRowspan2.Phrase = new Phrase("Total", _smallerFont);
             table.AddCell(cellRowspan2);
 
             cell.Phrase = new Phrase("Tanggal", _smallerFont);
@@ -365,41 +343,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cell.Phrase = new Phrase("No", _smallerFont);
             table.AddCell(cell);
-
-            cell.Phrase = new Phrase("BM", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("PPh 22", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("PPN Impor", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("DPP", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("DPP Valas", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("PPN", _smallerFont);
-            table.AddCell(cell);
         }
 
-        private static void SetHeader(Document document, DateTime dateFrom, DateTime dateTo)
+        private static void SetHeader(Document document, DateTime dateFrom, DateTime dateTo, int timezoneOffset)
         {
-            var table = new PdfPTable(1);
+            var table = new PdfPTable(1)
+            {
+                WidthPercentage = 95
+            };
             var cell = new PdfPCell()
             {
                 Border = Rectangle.NO_BORDER,
-                HorizontalAlignment = Element.ALIGN_CENTER,
-                Phrase = new Phrase("LAPORAN BUKU PEMBELIAN IMPORT", _headerFont)
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                Phrase = new Phrase("PT DAN LIRIS", _headerFont)
             };
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase("", _headerFont);
+            cell.Phrase = new Phrase("BUKU PEMBELIAN IMPOR", _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"Periode {dateFrom:yyyy-dd-MM} s/d {dateTo:yyyy-dd-MM}", _subHeaderFont);
+            cell.Phrase = new Phrase($"Dari {dateFrom.AddHours(timezoneOffset):yyyy-dd-MM} Sampai {dateTo.AddHours(timezoneOffset):yyyy-dd-MM}", _subHeaderFont);
             table.AddCell(cell);
 
             cell.Phrase = new Phrase("", _headerFont);
