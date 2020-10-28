@@ -412,6 +412,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 {
                     EntityExtension.FlagForCreate(model, username, UserAgent);
                     model.No = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
+                    model.CurrencyRate = 1;
 
                     foreach (var item in model.Items)
                     {
@@ -457,7 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Created;
         }
 
-        private async Task<Currency> GetGarmentCurrency(string codeCurrency)
+        private async Task<GarmentCurrency> GetGarmentCurrency(string codeCurrency)
         {
             string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
             string queryString = $"code={codeCurrency}&stringDate={date}";
@@ -468,9 +469,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var responseString = await response.Content.ReadAsStringAsync();
             var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
 
-            var result = JsonConvert.DeserializeObject<Currency>(responseString, jsonSerializationSetting);
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
 
-            return result;
+            return result.data;
         }
 
         public async Task<int> Delete(int id, string username)
@@ -564,6 +565,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 },
                 Date = model.Date,
                 Nominal = model.TotalIncomeTax,
+                CurrencyRate= 1,
                 ReferenceNo = model.No,
                 ReferenceType = "Bayar Hutang",
                 //Remark = model.Currency != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
@@ -579,7 +581,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             };
 
             if (model.Currency != "IDR")
+            {
                 modelToPost.NominalValas = model.TotalIncomeTax * model.CurrencyRate;
+                modelToPost.CurrencyRate = model.CurrencyRate.GetValueOrDefault();
+            }
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
