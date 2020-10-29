@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public NewIntegrationViewModel.NewSupplierViewModel Supplier { get; set; }
         public double? AfterNominal { get; set; }
         public double? BeforeNominal { get; set; }
+        public double CurrencyRate { get; set; }
         public bool IsPosted { get; set; }
     }
 }

@@ -613,6 +613,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 },
                 Date = model.Date,
                 Nominal = model.GrandTotal,
+                CurrencyRate = model.CurrencyRate,
                 ReferenceNo = model.DocumentNo,
                 ReferenceType = "Bayar Hutang",
                 Remark = model.CurrencyCode != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
