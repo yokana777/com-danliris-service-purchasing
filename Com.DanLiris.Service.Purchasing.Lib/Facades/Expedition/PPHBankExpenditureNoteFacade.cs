@@ -580,14 +580,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             };
 
             if (model.Currency != "IDR")
-            {
                 modelToPost.NominalValas = model.TotalIncomeTax * model.CurrencyRate;
-            }
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+            var httpClient = (IHttpClientService)this._serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).GetAwaiter().GetResult();
             response.EnsureSuccessStatusCode();
         }
 

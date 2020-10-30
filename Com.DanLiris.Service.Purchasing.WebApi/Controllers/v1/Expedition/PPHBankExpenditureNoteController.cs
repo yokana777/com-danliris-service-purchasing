@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         {
             this.serviceProvider = serviceProvider;
             this.PPHBankExpenditureNoteFacade = PPHBankExpenditureNoteFacade;
-            this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet("loader/unit-payment-orders")]
