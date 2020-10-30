@@ -128,6 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 {
                     EntityExtension.FlagForUpdate(model, username, USER_AGENT);
                     dbContext.Entry(model).Property(x => x.GrandTotal).IsModified = true;
+                    dbContext.Entry(model).Property(x => x.BGCheckNumber).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
