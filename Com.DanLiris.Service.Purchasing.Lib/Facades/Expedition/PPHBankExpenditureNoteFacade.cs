@@ -413,6 +413,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     EntityExtension.FlagForCreate(model, username, UserAgent);
                     model.No = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
                     model.CurrencyRate = 1;
+                    if (model.Currency != "IDR")
+                    {
+                        var garmentCurrency = await GetGarmentCurrency(model.Currency);
+                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
+                    }
 
                     foreach (var item in model.Items)
                     {
@@ -434,12 +439,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
-                    }
-
-                    if (model.Currency != "IDR")
-                    {
-                        var garmentCurrency = await GetGarmentCurrency(model.Currency);
-                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
                     }
 
                     this.dbSet.Add(model);

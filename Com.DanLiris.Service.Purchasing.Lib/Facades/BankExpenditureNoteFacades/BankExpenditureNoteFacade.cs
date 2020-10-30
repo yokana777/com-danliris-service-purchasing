@@ -228,6 +228,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
 
+                    if (model.BankCurrencyCode != "IDR")
+                    {
+                        var garmentCurrency = await GetGarmentCurrency(model.BankCurrencyCode);
+                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
+                    }
+
                     foreach (var detail in model.Details)
                     {
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
@@ -361,6 +367,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
             response.EnsureSuccessStatusCode();
+        }
+
+        private async Task<GarmentCurrency> GetGarmentCurrency(string codeCurrency)
+        {
+            string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={date}";
+
+            var http = serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+            return result.data;
         }
 
         //private void ReverseJournalTransaction(BankExpenditureNoteModel model)
