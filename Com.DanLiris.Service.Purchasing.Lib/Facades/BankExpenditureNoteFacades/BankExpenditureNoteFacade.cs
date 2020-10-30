@@ -231,7 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     if (model.BankCurrencyCode != "IDR")
                     {
-                        var garmentCurrency = await GetGarmentCurrency(model.BankCurrencyCode);
+                        var garmentCurrency = await GetGarmentCurrency(model.CurrencyCode);
                         model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
                     }
 
