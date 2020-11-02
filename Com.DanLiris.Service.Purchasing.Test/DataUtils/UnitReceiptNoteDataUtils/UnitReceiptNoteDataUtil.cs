@@ -124,6 +124,33 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
                 Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
             };
         }
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetNewDataLocalSupplierValas(string user)
+        {
+            DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestDataValas(user);
+            List<DeliveryOrderItem> doItem = new List<DeliveryOrderItem>(deliveryOrder.Items);
+            List<DeliveryOrderDetail> doDetail = new List<DeliveryOrderDetail>(doItem[0].Details);
+            var dt = DateTime.Now;
+            dt = dt.Date;
+
+            doItem[0].Details = doDetail;
+            return new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote
+            {
+                UnitId = doDetail[0].UnitId,
+                UnitCode = doDetail[0].UnitCode,
+                UnitName = "UnitName",
+                Remark = "Test URN",
+                URNNo = "BPL-001",
+                SupplierCode = deliveryOrder.SupplierCode,
+                SupplierId = deliveryOrder.SupplierId,
+                SupplierName = deliveryOrder.SupplierName,
+                ReceiptDate = new DateTimeOffset(new DateTime(dt.Ticks), TimeSpan.Zero),
+                DOId = deliveryOrder.Id,
+                DONo = deliveryOrder.DONo,
+                Items = new List<Lib.Models.UnitReceiptNoteModel.UnitReceiptNoteItem> { unitReceiptNoteItemDataUtil.GetNewData(doItem) }
+            };
+        }
+
         public async Task<UnitReceiptNoteViewModel> GetNewDataViewModel(string user)
         {
             DeliveryOrder deliveryOrder = await deliveryOrderDataUtil.GetTestData(user);
@@ -178,6 +205,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtil
         public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestDataImportSupplier(string user)
         {
             Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDataLocalSupplier(user);
+
+            unitReceiptNote.SupplierIsImport = true;
+            await facade.Create(unitReceiptNote, user);
+
+            return unitReceiptNote;
+        }
+
+        public async Task<Lib.Models.UnitReceiptNoteModel.UnitReceiptNote> GetTestDataImportSupplierValas(string user)
+        {
+            Lib.Models.UnitReceiptNoteModel.UnitReceiptNote unitReceiptNote = await GetNewDataLocalSupplierValas(user);
 
             unitReceiptNote.SupplierIsImport = true;
             await facade.Create(unitReceiptNote, user);

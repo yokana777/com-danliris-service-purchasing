@@ -130,8 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
 
                 foreach (var d in data)
                 {
-                    for (int i = 0; i < 100; i++)
-                        table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor, d.BeforeQuantity, d.Quantity);
+                    table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor, d.BeforeQuantity, d.Quantity);
                 }
 
                 var excelPack = new ExcelPackage();
@@ -188,11 +187,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                         Quantity = (decimal)(double)ws.Cells[row, 8].Value
                     };
 
+                    EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
+                    data.Items.Add(item);
+
                     if (item.BeforeQuantity != item.Quantity)
                     {
-                        EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
-                        data.Items.Add(item);
-
                         item.DOItem = dbSetDOItem.Where(doi => doi.Id == item.DOItemId).Single();
                         item.DOItem.RemainingQuantity = item.Quantity;
                         EntityExtension.FlagForUpdate(item.DOItem, identityService.Username, USER_AGENT);

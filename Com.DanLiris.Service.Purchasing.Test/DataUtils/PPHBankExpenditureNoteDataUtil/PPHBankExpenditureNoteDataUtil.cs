@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
                 No = "No",
                 TotalDPP = 1100000,
                 TotalIncomeTax = 100000,
-                Currency = "IDR"
+                Currency = "USD"
             };
 
             return TestData;
