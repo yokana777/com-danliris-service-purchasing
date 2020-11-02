@@ -35,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string InvoiceNo { get; set; }
         public string CategoryName { get; set; }
         public string UnitName { get; set; }
+        public string UnitCode { get; set; }
         public decimal DPP { get; set; }
         public decimal DPPCurrency { get; set; }
         public decimal VAT { get; set; }
@@ -52,5 +53,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string Uom { get; set; }
         public string PIBNo { get; set; }
         public decimal PIBBM { get; set; }
+        public string Remark { get; set; }
+        public decimal IncomeTax { get; internal set; }
+        public DateTimeOffset PIBDate { get; internal set; }
     }
 }

@@ -8,7 +8,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
     {
 
         public string SupplierName {get; set;}
+        public string CurrencyCode { get; set; }
         public decimal Amount { get; set; }
+        public decimal AmountIDR { get; set; }
         public string ProductName { get; set; }
 
     }

@@ -586,7 +586,53 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
             var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
-            var Response = facadetotal.GenerateExcelTopTenGarmentPurchaseSupplier(model.garmentInternalPurchaseOrder.UnitId, model.garmentExternalPurchaseOrder.SupplierImport, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
+            var Response = facadetotal.GenerateExcelTopTenGarmentPurchaseSupplier(model.garmentInternalPurchaseOrder.UnitId, true, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_TopTen_Excel1()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            TopTenGarmentPurchaseFacade facadetotal = new TopTenGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData1();
+
+            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
+            var Response = facadetotal.GenerateExcelTopTenGarmentPurchaseSupplier(model.garmentInternalPurchaseOrder.UnitId, false, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, null, null, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_TopTen_Excel_Null_Parameter()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            TopTenGarmentPurchaseFacade facadetotal = new TopTenGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
+            var date1 = model.garmentExternalPurchaseOrder.OrderDate.AddDays(30);
+            var date2 = model.garmentExternalPurchaseOrder.OrderDate.AddDays(30);
+            var Response = facadetotal.GenerateExcelTopTenGarmentPurchaseSupplier(model.garmentInternalPurchaseOrder.UnitId, true, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, date1.Date, date2.Date, 7);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Report_TopTen_Excel_Null_Parameter1()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            TopTenGarmentPurchaseFacade facadetotal = new TopTenGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData1();
+
+            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
+            var date1 = model.garmentExternalPurchaseOrder.OrderDate.AddDays(30);
+            var date2 = model.garmentExternalPurchaseOrder.OrderDate.AddDays(30);
+            var Response = facadetotal.GenerateExcelTopTenGarmentPurchaseSupplier(model.garmentInternalPurchaseOrder.UnitId, false, model.garmentExternalPurchaseOrder.PaymentMethod, GEPODtl.ProductName, date1.Date, date2.Date, 7);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }

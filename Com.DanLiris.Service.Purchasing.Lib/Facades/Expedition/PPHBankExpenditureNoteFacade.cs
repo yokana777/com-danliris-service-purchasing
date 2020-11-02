@@ -20,6 +20,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -411,6 +412,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 {
                     EntityExtension.FlagForCreate(model, username, UserAgent);
                     model.No = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
+                    model.CurrencyRate = 1;
+                    if (model.Currency != "IDR")
+                    {
+                        var garmentCurrency = await GetGarmentCurrency(model.Currency);
+                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
+                    }
 
                     foreach (var item in model.Items)
                     {
@@ -448,6 +455,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             return Created;
+        }
+
+        private async Task<GarmentCurrency> GetGarmentCurrency(string codeCurrency)
+        {
+            string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={date}";
+
+            var http = _serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+            return result.data;
         }
 
         public async Task<int> Delete(int id, string username)
@@ -522,11 +545,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             if (spb == null)
                 spb = new UnitPaymentOrder() { SupplierId = "1" };
 
+            int.TryParse(model.BankId, out var bankId);
+            long.TryParse(spb.SupplierId, out var supplierId);
             var modelToPost = new DailyBankTransactionViewModel()
             {
                 Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
                 {
-                    Id = int.Parse(model.BankId),
+                    Id = bankId,
                     Code = model.BankCode,
                     AccountName = model.BankAccountName,
                     AccountNumber = model.BankAccountNumber,
@@ -539,6 +564,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 },
                 Date = model.Date,
                 Nominal = model.TotalIncomeTax,
+                CurrencyRate= model.CurrencyRate.GetValueOrDefault(),
                 ReferenceNo = model.No,
                 ReferenceType = "Bayar Hutang",
                 //Remark = model.Currency != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
@@ -546,17 +572,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 Status = "OUT",
                 Supplier = new NewSupplierViewModel()
                 {
-                    _id = long.Parse(spb.SupplierId),
+                    _id = supplierId,
                     code = spb.SupplierCode,
                     name = spb.SupplierName
                 },
                 IsPosted = true
             };
 
+            if (model.Currency != "IDR")
+                modelToPost.NominalValas = model.TotalIncomeTax * model.CurrencyRate;
+
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
-            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
-            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+            var httpClient = (IHttpClientService)this._serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).GetAwaiter().GetResult();
             response.EnsureSuccessStatusCode();
         }
 
