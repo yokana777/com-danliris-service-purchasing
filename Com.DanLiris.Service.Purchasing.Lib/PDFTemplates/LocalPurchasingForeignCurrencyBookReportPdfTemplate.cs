@@ -248,10 +248,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.DPPCurrency), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.VAT), _smallerFont);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.VAT * element.CurrencyRate), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.IncomeTax), _smallerFont);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.IncomeTax * element.CurrencyRate), _smallerFont);
                 table.AddCell(cellAlignRight);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Total), _smallerBoldFont);
