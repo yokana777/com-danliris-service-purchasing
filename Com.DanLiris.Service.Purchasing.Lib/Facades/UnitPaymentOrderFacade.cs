@@ -80,6 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 CurrencyDescription = s.CurrencyDescription,
                 CurrencyId = s.CurrencyId,
                 CurrencyRate = s.CurrencyRate,
+                ImportInfo = s.ImportInfo,
                 Items = s.Items.Select(i => new UnitPaymentOrderItem
                 {
                     URNNo = i.URNNo,
