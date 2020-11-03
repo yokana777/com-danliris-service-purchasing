@@ -367,7 +367,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
 
             var externalPurchaseOrderIds = model.Items.Select(s => s.EPOId).ToList();
-            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode }).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
 
 
 
@@ -435,14 +435,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 //double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
 
                 var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
-                var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : 1;
+                var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
 
                 //if (!externalPurchaseOrder.UseIncomeTax)
                 //    incomeTaxRate = 1;
                 //var externalPurchaseOrderDetail = externalPurchaseOrderDetails.FirstOrDefault(f => f.Id.Equals(item.EPODetailId));
                 var externalPOPriceTotal = externalPurchaseOrderDetails.Where(w => w.ProductId.Equals(item.ProductId) && w.Id.Equals(item.EPODetailId)).Sum(s => s.TotalPrice);
 
-                
+
 
                 int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                 var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
@@ -491,7 +491,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         };
                     }
 
-                    var incomeTaxTotal = (decimal)incomeTaxRate * grandTotal;
+                    var incomeTaxTotal = (decimal)incomeTaxRate / 100 * grandTotal;
 
                     journalDebitItems.Add(new JournalTransactionItem()
                     {
@@ -512,7 +512,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                     });
                 }
 
-                
+
                 if (model.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
                 {
                     //Purchasing Journal Item
@@ -585,7 +585,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             Remark = $"- {item.ProductName}"
                         });
                     }
-                    
+
 
                     //Debt Journal Item
                     journalCreditItems.Add(new JournalTransactionItem()
