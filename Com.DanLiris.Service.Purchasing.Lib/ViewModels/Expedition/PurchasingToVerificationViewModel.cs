@@ -106,7 +106,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     IncomeTaxRate = unitPaymentOrder.IncomeTaxRate,
                     TotalPaid = unitPaymentOrder.TotalPaid,
                     Currency = unitPaymentOrder.Currency,
-                    Items = Items
+                    Items = Items,
+                    URNId = unitPaymentOrder.URNId,
+                    URNNo = unitPaymentOrder.URNNo
                 });
             }
 

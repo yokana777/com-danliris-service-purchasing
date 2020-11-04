@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201104094720_Add_URNId_URNNo_PurchasingDOcumentExpedition")]
+    partial class Add_URNId_URNNo_PurchasingDOcumentExpedition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -274,11 +275,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("Quantity");
 
                     b.Property<string>("UId")
-                        .HasMaxLength(255);
-
-                    b.Property<long>("URNId");
-
-                    b.Property<string>("URNNo")
                         .HasMaxLength(255);
 
                     b.Property<string>("UnitCode")
