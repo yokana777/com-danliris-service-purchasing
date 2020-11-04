@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public decimal DPP { get; set; }
         public decimal DPPCurrency { get; set; }
         public decimal VAT { get; set; }
+        public decimal VATCurrency { get; set; }
         public decimal CurrencyRate { get; set; }
         public decimal Total { get; set; }
         public bool IsUseVat { get; set; }
@@ -52,10 +53,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string VATNo { get; set; }
         public double Quantity { get; set; }
         public string Uom { get; set; }
+        public DateTimeOffset PIBDate { get; internal set; }
         public string PIBNo { get; set; }
         public decimal PIBBM { get; set; }
+        public decimal PIBIncomeTax { get; set; }
+        public decimal PIBVat { get; set; }
+        public string PIBImportInfo { get; set; }
         public string Remark { get; set; }
         public decimal IncomeTax { get; internal set; }
-        public DateTimeOffset PIBDate { get; internal set; }
     }
 }
