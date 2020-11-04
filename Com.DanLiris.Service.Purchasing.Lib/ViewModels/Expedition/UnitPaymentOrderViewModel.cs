@@ -19,6 +19,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public string CategoryName { get; set; }
         public string DivisionCode { get; set; }
         public string DivisionName { get; set; }
+        public int URNId { get; set; }
+        public string URNNo { get; set; }
         public double IncomeTax { get; set; }
         public double Vat { get; set; }
         public string IncomeTaxId { get; set; }
