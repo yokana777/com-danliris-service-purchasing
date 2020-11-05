@@ -91,9 +91,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            urnUPOItem.UnitPaymentOrder.InvoiceNo,
-                            urnUPOItem.UnitPaymentOrder.UPONo,
-                            urnUPOItem.UnitPaymentOrder.VatNo,
+                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
+                            //urnUPOItem.UnitPaymentOrder.InvoiceNo,
+                            //urnUPOItem.UnitPaymentOrder.UPONo,
+                            //urnUPOItem.UnitPaymentOrder.VatNo,
                             urnPR.Remark
                         };
 
