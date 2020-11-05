@@ -530,6 +530,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.TotalPaid,
                 s.Currency,
                 s.PaymentMethod,
+                s.URNId,
+                s.URNNo,
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
@@ -541,7 +543,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     sl.ProductName,
                     sl.Quantity,
                     sl.Uom,
-                    sl.Price
+                    sl.Price,
+                    sl.URNId,
+                    sl.URNNo
                 }).ToList()
             }));
 

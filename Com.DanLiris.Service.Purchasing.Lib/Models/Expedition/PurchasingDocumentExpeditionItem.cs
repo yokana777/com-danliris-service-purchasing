@@ -17,6 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public string UnitId { get; set; }
         public string UnitCode { get; set; }
         public string UnitName { get; set; }
+        public int URNId { get; set; }
+        public string URNNo { get; set; }
         public virtual int PurchasingDocumentExpeditionId { get; set; }
         [ForeignKey("PurchasingDocumentExpeditionId")]
         public virtual PurchasingDocumentExpedition PurchasingDocumentExpedition { get; set; }
