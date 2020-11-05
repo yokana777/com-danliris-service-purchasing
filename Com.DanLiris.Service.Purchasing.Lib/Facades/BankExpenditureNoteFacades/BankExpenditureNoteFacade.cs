@@ -297,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
                     UnitCode = s.Key,
-                    Total = s.Sum(sm => sm.Price)
+                    Total = s.Sum(sm => sm.Price * model.CurrencyRate)
                 });
 
 
