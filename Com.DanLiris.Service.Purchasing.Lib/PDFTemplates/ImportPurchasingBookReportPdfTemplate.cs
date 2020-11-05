@@ -81,11 +81,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            var cellColspan2 = new PdfPCell()
+            var cellColspan5 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_CENTER,
-                Colspan = 2
+                Colspan = 5
             };
 
             var cellRowspan2 = new PdfPCell()
@@ -98,10 +98,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellRowspan2.Phrase = new Phrase("Tanggal", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Keterangan", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Kode Suppl.", _smallerFont);
             table.AddCell(cellRowspan2);
 
             cellRowspan2.Phrase = new Phrase("Supplier", _smallerFont);
+            table.AddCell(cellRowspan2);
+
+            cellRowspan2.Phrase = new Phrase("Keterangan", _smallerFont);
             table.AddCell(cellRowspan2);
 
             cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerFont);
@@ -110,29 +113,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellRowspan2.Phrase = new Phrase("No. Inv.", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Faktur Pajak", _smallerFont);
-            table.AddCell(cellRowspan2);
-
             cellRowspan2.Phrase = new Phrase("No. SPB/NI", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Tipe", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Kategori", _smallerFont);
             table.AddCell(cellRowspan2);
 
             cellRowspan2.Phrase = new Phrase("Unit", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Mata Uang", _smallerFont);
-            table.AddCell(cellRowspan2);
+            cellColspan5.Phrase = new Phrase("PIB", _smallerFont);
+            table.AddCell(cellColspan5);
 
-            cellRowspan2.Phrase = new Phrase("Kuantiti", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Ket. Nilai Impor", _smallerFont);
             table.AddCell(cellRowspan2);
-
-            cellRowspan2.Phrase = new Phrase("Satuan", _smallerFont);
-            table.AddCell(cellRowspan2);
-
-            cellColspan2.Phrase = new Phrase("PIB", _smallerFont);
-            table.AddCell(cellColspan2);
 
             cellRowspan2.Phrase = new Phrase("Nilai", _smallerFont);
             table.AddCell(cellRowspan2);
@@ -145,17 +139,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             cell.Phrase = new Phrase("No", _smallerFont);
             table.AddCell(cell);
+
+            cell.Phrase = new Phrase("BM", _smallerFont);
+            table.AddCell(cell);
+
+            cell.Phrase = new Phrase("PPH Impor", _smallerFont);
+            table.AddCell(cell);
+
+            cell.Phrase = new Phrase("PPN Impor", _smallerFont);
+            table.AddCell(cell);
         }
 
         private static void SetReportTable(Document document, List<PurchasingReport> reports, decimal grandTotal, int timezoneOffset)
         {
-            var table = new PdfPTable(16)
+            var table = new PdfPTable(17)
             {
                 WidthPercentage = 95
             };
 
             var widths = new List<float>();
-            for (var i = 0; i < 16; i++)
+            for (var i = 0; i < 17; i++)
             {
                 if (i == 9 || i == 8)
                 {
@@ -192,19 +195,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cell.Phrase = new Phrase(element.ReceiptDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                 table.AddCell(cell);
 
-                cell.Phrase = new Phrase(element.Remark, _smallerFont);
+                cell.Phrase = new Phrase(element.SupplierCode, _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.SupplierName, _smallerFont);
+                table.AddCell(cell);
+
+                cell.Phrase = new Phrase(element.Remark, _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.URNNo, _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.InvoiceNo, _smallerFont);
-                table.AddCell(cell);
-
-                cell.Phrase = new Phrase(element.VATNo, _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.UPONo, _smallerFont);
@@ -216,22 +219,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cell.Phrase = new Phrase(element.UnitCode, _smallerFont);
                 table.AddCell(cell);
 
-                cell.Phrase = new Phrase(element.CurrencyCode, _smallerFont);
-                table.AddCell(cell);
-
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Quantity), _smallerFont);
-                table.AddCell(cellAlignRight);
-
-                cell.Phrase = new Phrase(element.Uom, _smallerFont);
-                table.AddCell(cell);
-
                 cell.Phrase = new Phrase(element.PIBDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                 table.AddCell(cell);
 
                 cell.Phrase = new Phrase(element.PIBNo, _smallerFont);
                 table.AddCell(cell);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.DPP), _smallerFont);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.PIBBM), _smallerFont);
+                table.AddCell(cellAlignRight);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.PIBIncomeTax), _smallerFont);
+                table.AddCell(cellAlignRight);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.PIBVat), _smallerFont);
+                table.AddCell(cellAlignRight);
+
+                cell.Phrase = new Phrase(element.PIBImportInfo, _smallerFont);
+                table.AddCell(cell);
+
+                cellAlignRight.Phrase = new Phrase(element.CurrencyCode + " " + string.Format("{0:n}", element.DPP), _smallerFont);
                 table.AddCell(cellAlignRight);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Total), _smallerFont);
@@ -242,7 +248,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 HorizontalAlignment = Element.ALIGN_RIGHT,
                 VerticalAlignment = Element.ALIGN_CENTER,
-                Colspan = 16
+                Colspan = 17
             };
 
             cellGrandTotal.Phrase = new Phrase("Grand Total", _smallerBoldFont);
