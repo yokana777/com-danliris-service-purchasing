@@ -44,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public decimal CurrencyRate { get; set; }
         public decimal Total { get; set; }
         public bool IsUseVat { get; set; }
+        public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
         public string IPONo { get; set; }
         public string DONo { get; set; }
