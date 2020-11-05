@@ -315,14 +315,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
 
-            journalCreditItems.Add(new JournalTransactionItem()
-            {
-                COA = new COA()
-                {
-                    Code = bankAccount.AccountCOA
-                },
-                Credit = (decimal)model.TotalIncomeTax
-            });
 
             var purchasingDocumentExpeditionIds = model.Items.Select(item => item.PurchasingDocumentExpeditionId).ToList();
             var purchasingDocumentExpeditions = await dbContext.PurchasingDocumentExpeditions.Include(entity => entity.Items).Where(entity => purchasingDocumentExpeditionIds.Contains(entity.Id)).ToListAsync();
@@ -344,9 +336,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     {
                         Code = $"{incomeTax.COACodeCredit}.{division.COACode}.00"
                     },
-                    Debit = (decimal)purchasingDocumentExpedition.IncomeTax
+                    Debit = (decimal)purchasingDocumentExpedition.IncomeTax * (decimal)model.CurrencyRate.GetValueOrDefault()
                 });
             }
+
+
+            journalCreditItems.Add(new JournalTransactionItem()
+            {
+                COA = new COA()
+                {
+                    Code = bankAccount.AccountCOA
+                },
+                Credit = journalDebitItems.Sum(element => element.Debit)
+            });
 
             journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
             {
@@ -585,7 +587,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
             var httpClient = (IHttpClientService)this._serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType)).GetAwaiter().GetResult();
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{dailyBankTransactionUri}", new StringContent(JsonConvert.SerializeObject(modelToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
             response.EnsureSuccessStatusCode();
         }
 
