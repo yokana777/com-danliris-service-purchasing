@@ -42,23 +42,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return stream;
         }
 
-        private static void SetCategoryCurrencySummaryTable(Document document, List<Summary> categorySummaries, decimal categorySummaryTotal, List<Summary> currencySummaries)
-        {
-            var table = new PdfPTable(3)
-            {
-                WidthPercentage = 95,
+        //private static void SetCategoryCurrencySummaryTable(Document document, List<Summary> categorySummaries, decimal categorySummaryTotal, List<Summary> currencySummaries)
+        //{
+        //    var table = new PdfPTable(3)
+        //    {
+        //        WidthPercentage = 95,
 
-            };
+        //    };
 
-            var widths = new List<float>() { 6f, 1f, 3f };
-            table.SetWidths(widths.ToArray());
+        //    var widths = new List<float>() { 6f, 1f, 3f };
+        //    table.SetWidths(widths.ToArray());
 
-            table.AddCell(GetCategorySummaryTable(categorySummaries, categorySummaryTotal));
-            table.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
-            table.AddCell(GetCurrencySummaryTable(currencySummaries));
+        //    table.AddCell(GetCategorySummaryTable(categorySummaries, categorySummaryTotal));
+        //    table.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+        //    table.AddCell(GetCurrencySummaryTable(currencySummaries));
 
-            document.Add(table);
-        }
+        //    document.Add(table);
+        //}
 
         private static PdfPCell GetCurrencySummaryTable(List<Summary> currencySummaries)
         {
