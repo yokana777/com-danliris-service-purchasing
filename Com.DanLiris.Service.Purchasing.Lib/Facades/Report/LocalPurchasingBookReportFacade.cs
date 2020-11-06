@@ -198,10 +198,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             }
 
             reportResult.CategorySummaries = reportResult.Reports
-                        .GroupBy(report => new { report.CategoryCode })
+                        .GroupBy(report => new { report.CategoryName })
                         .Select(report => new Summary()
                         {
-                            Category = report.Key.CategoryCode,
+                            Category = report.Key.CategoryName,
                             SubTotal = report.Sum(sum => sum.Total)
                         }).OrderBy(order => order.Category).ToList();
             reportResult.CurrencySummaries = reportResult.Reports
