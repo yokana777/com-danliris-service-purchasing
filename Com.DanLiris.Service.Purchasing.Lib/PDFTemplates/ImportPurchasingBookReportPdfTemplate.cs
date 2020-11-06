@@ -206,7 +206,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 table.AddCell(cellAlignLeft);
 
                 var totalUnit = new Dictionary<string, decimal>();
-                var totalCurrency = new Dictionary<string, decimal>();
+                var totalCurrency = new Dictionary<string, Dictionary<string, decimal>>();
+                decimal total = 0;
 
                 foreach (var element in cat)
                 {
@@ -270,9 +271,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         totalUnit.Add(element.UnitCode, element.Total);
 
                     if (totalCurrency.ContainsKey(element.CurrencyCode))
-                        totalCurrency[element.CurrencyCode] += element.DPP;
+                    {
+
+                        totalCurrency[element.CurrencyCode]["DPP"] += element.DPP;
+                        totalCurrency[element.CurrencyCode]["Total"] += element.Total;
+                    }
                     else
-                        totalCurrency.Add(element.CurrencyCode, element.DPP);
+                    { 
+                        totalCurrency.Add(element.CurrencyCode, new Dictionary<string, decimal>()
+                        {
+                            {"DPP", element.DPP },
+                            {"Total", element.Total }
+                        });
+                    }
+
+                    total += element.Total;
                 }
 
                 if (totalCurrency.Count() > 0)
@@ -287,12 +300,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         cellNoBorderRight.Phrase = new Phrase(v.Key, _smallerBoldFont);
                         table.AddCell(cellNoBorderRight);
 
-                        cellNoBorderLeft.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallerBoldFont);
-                        table.AddCell(cellNoBorderLeft);
-
-                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallerBoldFont);
-                        table.AddCell(cellAlignRight);
+                        foreach (var x in v.Value)
+                        {
+                            cellNoBorderLeft.Phrase = new Phrase(string.Format("{0:n}", x.Value), _smallerBoldFont);
+                            table.AddCell(cellNoBorderLeft);
+                        }
                     }
+                    cellAlignRight.Phrase = new Phrase("", _smallerBoldFont);
+                    cellAlignRight.Colspan = 17;
+                    table.AddCell(cellAlignRight);
+                    cellAlignRight.Colspan = 1;
+
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", total), _smallerBoldFont);
+                    table.AddCell(cellAlignRight);
 
                 if (totalUnit.Count() > 0)
                     foreach (var v in totalUnit)
