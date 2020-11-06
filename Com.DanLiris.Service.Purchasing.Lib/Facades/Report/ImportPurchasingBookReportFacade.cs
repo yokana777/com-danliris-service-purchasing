@@ -391,11 +391,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            urnUPOItem.UnitPaymentOrder.InvoiceNo,
-                            urnUPOItem.UnitPaymentOrder.UPONo,
-                            urnUPOItem.UnitPaymentOrder.VatNo,
-                            urnUPOItem.UnitPaymentOrder.PibNo,
-                            urnUPOItem.UnitPaymentOrder.PibDate,
+                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
+                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            //urnUPOItem.UnitPaymentOrder.PibDate,
+                            PibNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibNo : "",
+                            ImportDuty = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportDuty : 0,
+                            TotalIncomeTaxAmount = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
+                            TotalVatAmount = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.TotalVatAmount : 0,
+                            ImportInfo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportInfo : "",
+                            //urnUPOItem.UnitPaymentOrder.InvoiceNo,
+                            //urnUPOItem.UnitPaymentOrder.UPONo,
+                            //urnUPOItem.UnitPaymentOrder.VatNo,
+                            //urnUPOItem.UnitPaymentOrder.PibDate,
+                            //urnUPOItem.UnitPaymentOrder.PibNo,
+                            //urnUPOItem.UnitPaymentOrder.ImportDuty,
+                            //urnUPOItem.UnitPaymentOrder.TotalIncomeTaxAmount,
+                            //urnUPOItem.UnitPaymentOrder.TotalVatAmount,
+                            //urnUPOItem.UnitPaymentOrder.ImportInfo,
                             urnPR.Remark
                         };
 
@@ -404,6 +418,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             //    .Where(urn => urn.ReceiptDate >= d1.ToUniversalTime() && urn.ReceiptDate.ToUniversalTime() <= d2 && !urn.SupplierIsImport);
 
             query = query.Where(urn => urn.CurrencyCode != "IDR");
+
             if (!string.IsNullOrWhiteSpace(no))
                 query = query.Where(urn => urn.URNNo == no);
 
@@ -433,24 +448,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 decimal dpp = 0;
                 decimal dppCurrency = 0;
                 decimal ppn = 0;
+                decimal ppnCurrency = 0;
 
                 //default IDR
                 double currencyRate = 1;
                 var currencyCode = "IDR";
+
+                if (item.UseVat)
+                    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
+
                 if (currency != null && !currency.Code.Equals("IDR"))
                 {
                     currencyRate = currency.Rate.GetValueOrDefault();
                     dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
                     dppCurrency = dpp * (decimal)currencyRate;
+                    ppnCurrency = ppn * (decimal)currencyRate;
                     currencyCode = currency.Code;
                 }
                 else
                     dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-
-                if (item.UseVat)
-                    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
-
-
 
                 var reportItem = new PurchasingReport()
                 {
@@ -464,22 +480,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     VATNo = item.VatNo,
                     IPONo = item.PONo,
                     VAT = ppn,
-                    Total = (dpp + dppCurrency + ppn) * (decimal)currencyRate,
+                    VATCurrency = ppnCurrency,
+                    Total = dpp * (decimal)currencyRate,
                     ProductName = item.ProductName,
                     ReceiptDate = item.ReceiptDate,
-                    SupplierName = item.SupplierCode + " - "+ item.SupplierName,
+                    SupplierCode = item.SupplierCode,
+                    SupplierName = item.SupplierName,
                     UnitName = item.UnitName,
                     UnitCode = item.UnitCode,
                     UPONo = item.UPONo,
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,
                     CurrencyCode = currencyCode,
-                    PIBNo = item.PibNo,
                     PIBDate = item.PibDate,
+                    PIBNo = item.PibNo,
+                    PIBBM = (decimal)item.ImportDuty,
+                    PIBIncomeTax = (decimal)item.TotalIncomeTaxAmount,
+                    PIBVat = (decimal)item.TotalVatAmount,
+                    PIBImportInfo = item.ImportInfo,
                     Remark = item.Remark,
                     Quantity = item.ReceiptQuantity
                 };
-                reportItem.PIBBM = reportItem.Total * 0.1m;
 
                 reportResult.Reports.Add(reportItem);
             }
@@ -496,7 +517,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 .Select(report => new Summary()
                 {
                     CurrencyCode = report.Key.CurrencyCode,
-                    SubTotal = report.Sum(sum => sum.DPP + sum.DPPCurrency + sum.VAT)
+                    SubTotal = report.Sum(sum => sum.DPP),
+                    SubTotalCurrency = report.Sum(sum => sum.Total)
                 }).OrderBy(order => order.CurrencyCode).ToList();
             reportResult.Reports = reportResult.Reports;
             reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
@@ -516,20 +538,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             //var Data = reportResult.Reports;
             var reportDataTable = new DataTable();
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tipe", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kuantiti", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB Tanggal", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB No", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Nilai", DataType = typeof(decimal) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB BM", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPH Impor", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPN Impor", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Ket. Nilai Import", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
 
             var categoryDataTable = new DataTable();
             categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
@@ -538,18 +566,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var currencyDataTable = new DataTable();
             currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
             currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
 
             if (result.Reports.Count > 0)
             {
                 foreach (var report in result.Reports)
                 {
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.Remark, report.SupplierName, report.URNNo, report.InvoiceNo, report.UPONo, report.CategoryCode, report.UnitName, report.CurrencyCode, report.Quantity, report.Uom, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.DPP, report.Total);
+                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode,  report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
 
                 foreach (var currencySummary in result.CurrencySummaries)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.SubTotal);
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.SubTotal, currencySummary.SubTotalCurrency);
             }
 
             using (var package = new ExcelPackage())
