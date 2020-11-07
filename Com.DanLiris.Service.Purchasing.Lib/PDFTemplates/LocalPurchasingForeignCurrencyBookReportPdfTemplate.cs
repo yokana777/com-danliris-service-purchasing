@@ -234,7 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var widths = new List<float>();
             for (var i = 0; i < 18; i++)
             {
-                if (i == 1)
+                if (i == 1 || i == 12)
                 {
                     widths.Add(1f);
                     continue;
@@ -377,7 +377,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.DPPCurrency), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.VATCurrency), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.VAT * data.CurrencyRate), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     //cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax * data.CurrencyRate), _smallerFont);
@@ -397,7 +397,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     {
                         totalCurrencies[data.CurrencyCode]["DPP"] += data.DPP;
                         totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT;
-                        totalCurrencies["IDR"]["VAT"] += data.VATCurrency;
+                        totalCurrencies["IDR"]["VAT"] += data.VAT * data.CurrencyRate;
                         totalCurrencies["IDR"]["DPP"] += data.DPPCurrency;
                     }
                     else
@@ -407,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             { "VAT", data.VAT }
                         } );
                         totalCurrencies["IDR"]["DPP"] += data.DPPCurrency;
-                        totalCurrencies["IDR"]["VAT"] += data.VATCurrency;
+                        totalCurrencies["IDR"]["VAT"] += data.VAT * data.CurrencyRate;
                     }
                 }
 
