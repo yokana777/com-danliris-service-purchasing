@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetReportTableHeader(table);
 
-            var listCategoryReports = viewModel.Reports.GroupBy(x => x.CategoryCode).ToList();
+            var grouppedByAccountingCategoriNames = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
 
             var cell = new PdfPCell()
             {
@@ -314,17 +314,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var summaryUnit = new Dictionary<string, decimal>();
 
-            foreach (var cat in listCategoryReports)
+            foreach (var grouppedAccountingCategory in grouppedByAccountingCategoriNames)
             {
-                var categoryName = cat.Select(x => x.CategoryName).FirstOrDefault();
-                categoryCell.Phrase = new Phrase(categoryName, _smallBoldFont);
+                var accountingCategoryName = grouppedAccountingCategory.Select(x => x.CategoryName).FirstOrDefault();
+                categoryCell.Phrase = new Phrase(accountingCategoryName, _smallBoldFont);
                 categoryCell.Colspan = 18;
                 table.AddCell(categoryCell);
 
                 var totalUnit = new Dictionary<string, decimal>();
                 var totalCurrencies = new Dictionary<string, Dictionary<string, decimal>>() { { "IDR", new Dictionary<string, decimal>() { { "DPP", 0 }, { "VAT", 0 } } } };
 
-                foreach (var data in cat)
+                foreach (var data in grouppedAccountingCategory)
                 {
                     cell.Phrase = new Phrase(data.ReceiptDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                     table.AddCell(cell);
@@ -387,10 +387,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     table.AddCell(cellAlignRight);
 
                     // Units summary
-                    if (totalUnit.ContainsKey(data.UnitName))
-                        totalUnit[data.UnitName] += data.Total;
+                    if (totalUnit.ContainsKey(data.AccountingUnitName))
+                        totalUnit[data.AccountingUnitName] += data.Total;
                     else
-                        totalUnit.Add(data.UnitName, data.Total);
+                        totalUnit.Add(data.AccountingUnitName, data.Total);
 
                     // Currencies summary
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
