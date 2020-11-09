@@ -338,7 +338,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (var grouppedAccountingCategory in grouppedByAccountingCategoriNames)
             {
-                var accountingCategoryName = grouppedAccountingCategory.Select(x => x.CategoryName).FirstOrDefault();
+                var accountingCategoryName = grouppedAccountingCategory.Select(x => x.AccountingCategoryName).FirstOrDefault();
                 categoryCell.Phrase = new Phrase(accountingCategoryName, _smallBoldFont);
                 categoryCell.Colspan = 18;
                 table.AddCell(categoryCell);
@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 //cellGrandTotal.Phrase = new Phrase(string.Format("{0:n}", grandTotal), _smallerBoldFont);
                 //table.AddCell(cellGrandTotal);
                 totalCell.Phrase = new Phrase($"TOTAL {accountingCategoryName}", _smallBoldFont);
-                totalCell.Colspan = 12;
+                totalCell.Colspan = 10;
                 table.AddCell(totalCell);
 
                 foreach (var totalCurrency in totalCurrencies)
@@ -477,7 +477,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     table.AddCell(cellAlignRight);
 
                     totalCellNoBorderTopAndBot.Phrase = new Phrase();
-                    totalCellNoBorderTopAndBot.Colspan = 12;
+                    totalCellNoBorderTopAndBot.Colspan = 10;
                     table.AddCell(totalCellNoBorderTopAndBot);
                 }
 
@@ -497,7 +497,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     foreach (var v in totalUnit)
                     {
                         totalCategoryUnitCell.Phrase = new Phrase($"{accountingCategoryName}", _smallBoldFont);
-                        totalCategoryUnitCell.Colspan = 10;
+                        totalCategoryUnitCell.Colspan = 8;
                         table.AddCell(totalCategoryUnitCell);
 
                         cellColspan2.Phrase = new Phrase($"{v.Key}  ", _smallBoldFont);
