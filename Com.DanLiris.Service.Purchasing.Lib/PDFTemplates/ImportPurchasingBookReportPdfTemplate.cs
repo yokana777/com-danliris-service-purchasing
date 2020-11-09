@@ -195,12 +195,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var listCategoryReports = viewModel.Reports.GroupBy(x => x.CategoryCode).ToList();
+            var listCategoryReports = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
             var summaryUnit = new Dictionary<string, decimal>();
 
             foreach (var cat in listCategoryReports)
             {
-                var categoryName = cat.Select(x => x.CategoryName).FirstOrDefault();
+                var categoryName = cat.Select(x => x.AccountingCategoryName).FirstOrDefault();
                 cellAlignLeft.Phrase = new Phrase(categoryName, _smallerBoldFont);
                 cellAlignLeft.Colspan = 18;
                 table.AddCell(cellAlignLeft);
@@ -265,10 +265,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Total), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    if (totalUnit.ContainsKey(element.UnitCode))
-                        totalUnit[element.UnitCode] += element.Total;
+                    if (totalUnit.ContainsKey(element.AccountingCategoryCode))
+                        totalUnit[element.AccountingUnitCode] += element.Total;
                     else
-                        totalUnit.Add(element.UnitCode, element.Total);
+                        totalUnit.Add(element.AccountingUnitCode, element.Total);
 
                     if (totalCurrency.ContainsKey(element.CurrencyCode))
                     {
