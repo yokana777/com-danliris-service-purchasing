@@ -285,8 +285,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
             {
                 BalanceStockId = "BS1807011000951",
                 StockId = 1801,
-                POID = "PM16205859",
-                POItemId = 1,
+                EPOID = "PM16205859",
+                EPOItemId = 1,
                 RO = "162004M",
                 ArticleNo = "FAB 28.12.16/M",
                 SmallestUnitQty = "9",

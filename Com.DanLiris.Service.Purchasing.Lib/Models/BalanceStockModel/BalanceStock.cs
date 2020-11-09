@@ -13,8 +13,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel
         public string BalanceStockId { get; set; }
         public int? StockId { get; set; }
         [Column(TypeName = "varchar(100)")]
-        public string POID { get; set; }
-        public int? POItemId { get; set; }
+        public string EPOID { get; set; }
+        public int? EPOItemId { get; set; }
         [Column(TypeName = "varchar(50)")]
         public string RO { get; set; }
         [Column(TypeName = "varchar(50)")]
