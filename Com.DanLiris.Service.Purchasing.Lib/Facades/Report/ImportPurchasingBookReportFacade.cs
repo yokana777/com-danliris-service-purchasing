@@ -345,7 +345,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //    return reportResult;
         //}
 
-        public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, string unit, string categoryCode, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, string unitCode, string categoryCode, DateTime? dateFrom, DateTime? dateTo)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
@@ -367,6 +367,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             // PR Info
                             urnPR.CategoryCode,
                             urnPR.CategoryName,
+                            urnPR.CategoryId,
 
                             urnWithItem.PRId,
                             urnWithItem.UnitReceiptNote.DOId,
@@ -379,6 +380,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnWithItem.UnitReceiptNote.SupplierCode,
                             urnWithItem.UnitReceiptNote.UnitCode,
                             urnWithItem.UnitReceiptNote.UnitName,
+                            urnWithItem.UnitReceiptNote.UnitId,
                             urnWithItem.EPODetailId,
                             urnWithItem.PricePerDealUnit,
                             urnWithItem.ReceiptQuantity,
@@ -422,8 +424,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (!string.IsNullOrWhiteSpace(no))
                 query = query.Where(urn => urn.URNNo == no);
 
-            if (!string.IsNullOrWhiteSpace(unit))
-                query = query.Where(urn => urn.UnitCode == unit);
+            if (!string.IsNullOrWhiteSpace(unitCode))
+                query = query.Where(urn => urn.UnitCode == unitCode);
 
             //var prIds = query.SelectMany(urn => urn.Items.Select(s => s.PRId)).ToList();
 
@@ -436,6 +438,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
+            var unitIds = queryResult.Select(item =>
+            {
+                int.TryParse(item.UnitId, out var unitId);
+                return unitId;
+            }).Distinct().ToList();
+            var units = await _currencyProvider.GetUnitsByUnitIds(unitIds);
+            var accountingUnits = await _currencyProvider.GetAccountingUnitsByUnitIds(unitIds);
+
+            var categoryIds = queryResult.Select(item =>
+            {
+                int.TryParse(item.CategoryId, out var categoryId);
+                return categoryId;
+            }).Distinct().ToList();
+            var categories = await _currencyProvider.GetCategoriesByCategoryIds(categoryIds);
+            var accountingCategories = await _currencyProvider.GetAccountingCategoriesByCategoryIds(categoryIds);
+
             var reportResult = new LocalPurchasingBookReportViewModel();
             foreach (var item in queryResult)
             {
@@ -444,6 +462,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
                 var currency = currencies.FirstOrDefault(f => f.Code == item.CurrencyCode);
+
+                int.TryParse(item.UnitId, out var unitId);
+                var unit = units.FirstOrDefault(element => element.Id == unitId);
+                var accountingUnit = new AccountingUnit();
+                if (unit != null)
+                {
+                    accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                }
+
+                int.TryParse(item.CategoryId, out var categoryId);
+                var category = categories.FirstOrDefault(element => element.Id == categoryId);
+                var accountingCategory = new AccountingCategory();
+                if (category != null)
+                {
+                    accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
+                }
 
                 decimal dpp = 0;
                 decimal dppCurrency = 0;
@@ -472,6 +506,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     CategoryName = item.CategoryName,
                     CategoryCode = item.CategoryCode,
+                    AccountingCategoryName = accountingCategory.Name,
+                    AccountingCategoryCode = accountingCategory.Code,
                     CurrencyRate = (decimal)currencyRate,
                     DONo = item.DONo,
                     DPP = dpp,
@@ -488,6 +524,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     SupplierName = item.SupplierName,
                     UnitName = item.UnitName,
                     UnitCode = item.UnitCode,
+                    AccountingUnitName = accountingUnit.Name,
+                    AccountingUnitCode = accountingUnit.Code,
                     UPONo = item.UPONo,
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,
@@ -506,10 +544,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             }
 
             reportResult.CategorySummaries = reportResult.Reports
-                        .GroupBy(report => new { report.CategoryCode })
+                        .GroupBy(report => new { report.AccountingCategoryName })
                         .Select(report => new Summary()
                         {
-                            Category = report.Key.CategoryCode,
+                            Category = report.Key.AccountingCategoryName,
                             SubTotal = report.Sum(sum => sum.Total)
                         }).OrderBy(order => order.Category).ToList();
             reportResult.CurrencySummaries = reportResult.Reports

@@ -418,7 +418,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             {
                 if (string.IsNullOrEmpty(unit.COACode))
                 {
-                    unit.COACode = "0";
+                    unit.COACode = "00";
                 }
             }
 

@@ -214,7 +214,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetReportTableHeader(table);
 
-            var listCategoryReports = viewModel.Reports.GroupBy(x => x.CategoryCode).ToList();
+            var listCategoryReports = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
 
             var cell = new PdfPCell()
             {
@@ -250,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (var cat in listCategoryReports)
             {
-                var categoryName = cat.Select(x => x.CategoryName).FirstOrDefault();
+                var categoryName = cat.Select(x => x.AccountingCategoryName).FirstOrDefault();
                 categoryCell.Phrase = new Phrase(categoryName, _smallBoldFont);
                 categoryCell.Colspan = 15;
                 table.AddCell(categoryCell);
@@ -312,10 +312,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerBoldFont);
                     table.AddCell(cellAlignRight);
 
-                    if (totalUnit.ContainsKey(data.UnitName))
-                        totalUnit[data.UnitName] += data.Total;
+                    if (totalUnit.ContainsKey(data.AccountingUnitName))
+                        totalUnit[data.AccountingUnitName] += data.Total;
                     else
-                        totalUnit.Add(data.UnitName, data.Total);
+                        totalUnit.Add(data.AccountingUnitName, data.Total);
 
                     totalDPP += data.DPP;
                     totalPPN += data.VAT;
