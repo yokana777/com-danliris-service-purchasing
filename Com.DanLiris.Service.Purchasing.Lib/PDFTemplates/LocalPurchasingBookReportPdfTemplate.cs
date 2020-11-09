@@ -188,13 +188,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetReportTable(Document document, LocalPurchasingBookReportViewModel viewModel, int timezoneOffset)
         {
-            var table = new PdfPTable(15)
+            var table = new PdfPTable(14)
             {
                 WidthPercentage = 95
             };
 
             var widths = new List<float>();
-            for (var i = 0; i < 15; i++)
+            for (var i = 0; i < 14; i++)
             {
                 if (i == 1)
                 {
@@ -214,7 +214,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetReportTableHeader(table);
 
-            var listCategoryReports = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
+            var listCategoryReports = viewModel.Reports.Where(x => x.AccountingUnitName != null).GroupBy(x => x.AccountingCategoryName).ToList();
+            //var listCategoryReports = viewModel.Reports.Where(x => x.AccountingUnitName == null || x.AccountingUnitCode == null).ToList();
 
             var cell = new PdfPCell()
             {
@@ -230,6 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var categoryCell = new PdfPCell()
             {
+                BorderWidthTop = 0,
                 HorizontalAlignment = Element.ALIGN_LEFT,
                 VerticalAlignment = Element.ALIGN_CENTER
             };
@@ -276,11 +278,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.Remark, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.IPONo, _smallerFont);
-                    table.AddCell(cell);
+                    //cell.Phrase = new Phrase(data.IPONo, _smallerFont);
+                    //table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.DONo, _smallerFont);
-                    table.AddCell(cell);
+                    //cell.Phrase = new Phrase(data.DONo, _smallerFont);
+                    //table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.URNNo, _smallerFont);
                     table.AddCell(cell);
@@ -306,8 +308,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.VAT), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    //cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax), _smallerFont);
-                    //table.AddCell(cellAlignRight);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax), _smallerFont);
+                    table.AddCell(cellAlignRight);
 
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerBoldFont);
                     table.AddCell(cellAlignRight);
@@ -336,8 +338,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 //cellGrandTotal.Phrase = new Phrase(string.Format("{0:n}", grandTotal), _smallerBoldFont);
                 //table.AddCell(cellGrandTotal);
 
-                totalCell.Phrase = new Phrase("Total  ", _smallBoldFont);
-                totalCell.Colspan = 12;
+                totalCell.Phrase = new Phrase($"TOTAL {categoryName}", _smallBoldFont);
+                totalCell.Colspan = 10;
+                //totalCell.Rowspan = totalUnit.Count();
                 table.AddCell(totalCell);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalDPP), _smallerFont);
@@ -346,8 +349,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalPPN), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                //cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalPPH), _smallerFont);
-                //table.AddCell(cellAlignRight);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalPPH), _smallerFont);
+                table.AddCell(cellAlignRight);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", total), _smallerBoldFont);
                 table.AddCell(cellAlignRight);
@@ -355,9 +358,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 if (totalUnit.Count() > 0)
                     foreach (var v in totalUnit)
                     {
-                        totalCell.Phrase = new Phrase($"{v.Key}  ", _smallBoldFont);
-                        totalCell.Colspan = 12;
+                        totalCell.Phrase = new Phrase($"{categoryName}", _smallBoldFont);
+                        totalCell.Colspan = 9;
                         table.AddCell(totalCell);
+
+                        cell.Phrase = new Phrase($"{v.Key}", _smallBoldFont);
+                        table.AddCell(cell);
 
                         totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallFont);
                         totalUnitCell.Colspan = 4;
@@ -396,19 +402,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             var cell = new PdfPCell()
             {
+                BorderWidth = 0.5f,
+                BorderColor = BaseColor.Blue,
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            var cellColspan2 = new PdfPCell()
+            var cellColspan3 = new PdfPCell()
             {
+                BorderWidth = 0.5f,
+                BorderColor = BaseColor.Blue,
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_CENTER,
-                Colspan = 2
+                Colspan = 3
             };
 
             var cellRowspan2 = new PdfPCell()
             {
+                BorderWidth = 0.5f,
+                BorderColor = BaseColor.Blue,
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_CENTER,
                 Rowspan = 2
@@ -426,11 +438,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellRowspan2.Phrase = new Phrase("Keterangan", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. PO", _smallerFont);
-            table.AddCell(cellRowspan2);
+            //cellRowspan2.Phrase = new Phrase("No. PO", _smallerFont);
+            //table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Surat Jalan", _smallerFont);
-            table.AddCell(cellRowspan2);
+            //cellRowspan2.Phrase = new Phrase("No. Surat Jalan", _smallerFont);
+            //table.AddCell(cellRowspan2);
 
             cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerFont);
             table.AddCell(cellRowspan2);
@@ -450,8 +462,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellRowspan2.Phrase = new Phrase("Unit", _smallerFont);
             table.AddCell(cellRowspan2);
 
-            cellColspan2.Phrase = new Phrase("Pembelian", _smallerFont);
-            table.AddCell(cellColspan2);
+            cellColspan3.Phrase = new Phrase("Pembelian", _smallerFont);
+            table.AddCell(cellColspan3);
 
             cellRowspan2.Phrase = new Phrase("Total", _smallerFont);
             table.AddCell(cellRowspan2);
@@ -460,6 +472,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             table.AddCell(cell);
 
             cell.Phrase = new Phrase("PPN", _smallerFont);
+            table.AddCell(cell);
+
+            cell.Phrase = new Phrase("PPH", _smallerFont);
             table.AddCell(cell);
         }
 
