@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string CurrencyCode { get; set; }
         public decimal SubTotal { get; set; }
         public decimal SubTotalCurrency { get; set; }
+        public int AccountingLayoutIndex { get; set; }
     }
 
     public class PurchasingReport
@@ -66,5 +67,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string AccountingCategoryCode { get; internal set; }
         public string AccountingUnitName { get; internal set; }
         public string AccountingUnitCode { get; internal set; }
+        public int AccountingLayoutIndex { get; set; }
     }
 }
