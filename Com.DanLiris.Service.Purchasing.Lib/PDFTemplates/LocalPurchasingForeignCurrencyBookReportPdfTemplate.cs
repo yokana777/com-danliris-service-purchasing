@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetReportTableHeader(table);
 
-            var grouppedByAccountingCategoriNames = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
+            var grouppedByAccountingCategoriNames = viewModel.Reports.OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
 
             var cell = new PdfPCell()
             {
@@ -490,28 +490,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var cell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
-                VerticalAlignment = Element.ALIGN_MIDDLE
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                BorderColor = BaseColor.Blue
             };
 
             var cellColspan5 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 5
+                Colspan = 5,
+                BorderColor = BaseColor.Blue
             };
 
             var cellColspan2 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 2
+                Colspan = 2,
+                BorderColor = BaseColor.Blue
             };
 
             var cellRowspan2 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Rowspan = 2
+                Rowspan = 2,
+                BorderColor = BaseColor.Blue
             };
 
             cellRowspan2.Phrase = new Phrase("Tanggal", _smallerFont);

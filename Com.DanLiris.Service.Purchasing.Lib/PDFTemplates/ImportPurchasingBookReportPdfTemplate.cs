@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+        private static readonly Font _smallerBoldBlueFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.Blue);
 
         public static MemoryStream Generate(LocalPurchasingBookReportViewModel viewModel, int timezoneOffset, DateTime? dateFrom, DateTime? dateTo)
         {
@@ -73,21 +74,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var cell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
-                VerticalAlignment = Element.ALIGN_MIDDLE
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                BorderColor = BaseColor.Blue
             };
 
             var cellColspan5 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 5
+                Colspan = 5,
+                BorderColor = BaseColor.Blue
             };
 
             var cellRowspan2 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Rowspan = 2
+                Rowspan = 2,
+                BorderColor = BaseColor.Blue
             };
 
             var cellColRowspan2 = new PdfPCell()
@@ -95,7 +99,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 2,
-                Rowspan = 2
+                Rowspan = 2,
+                BorderColor = BaseColor.Blue
             };
 
             cellRowspan2.Phrase = new Phrase("Tanggal", _smallerBoldFont);
@@ -195,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var listCategoryReports = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
+            var listCategoryReports = viewModel.Reports.OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
             var summaryUnit = new Dictionary<string, decimal>();
 
             foreach (var cat in listCategoryReports)
