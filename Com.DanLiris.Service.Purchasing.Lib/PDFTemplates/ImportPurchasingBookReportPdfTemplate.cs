@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+        private static readonly Font _smallerBoldBlueFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.Blue);
 
         public static MemoryStream Generate(LocalPurchasingBookReportViewModel viewModel, int timezoneOffset, DateTime? dateFrom, DateTime? dateTo)
         {
@@ -73,21 +74,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var cell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
-                VerticalAlignment = Element.ALIGN_MIDDLE
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                BorderColor = BaseColor.Blue
             };
 
             var cellColspan5 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 5
+                Colspan = 5,
+                BorderColor = BaseColor.Blue
             };
 
             var cellRowspan2 = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Rowspan = 2
+                Rowspan = 2,
+                BorderColor = BaseColor.Blue
             };
 
             var cellColRowspan2 = new PdfPCell()
@@ -95,7 +99,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 2,
-                Rowspan = 2
+                Rowspan = 2,
+                BorderColor = BaseColor.Blue
             };
 
             cellRowspan2.Phrase = new Phrase("Tanggal", _smallerBoldFont);
@@ -157,9 +162,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             var table = new PdfPTable(18)
             {
-                WidthPercentage = 95
+                WidthPercentage = 97
             };
-            table.SetWidths(new float[] { 5f, 5f, 7f, 5f, 5f, 5f, 5f, 7f, 2f, 5f, 5f, 5f, 5f, 5f, 5f, 3f, 7f, 9f, });
+            table.SetWidths(new float[] { 5f, 5f, 7f, 6f, 6f, 5f, 5f, 7f, 6f, 5f, 5f, 5f, 5f, 5f, 5f, 6f, 7f, 9f, });
 
             SetReportTableHeader(table);
 
@@ -195,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var listCategoryReports = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
+            var listCategoryReports = viewModel.Reports.OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
             var summaryUnit = new Dictionary<string, decimal>();
 
             foreach (var cat in listCategoryReports)
@@ -235,7 +240,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(element.CategoryCode + " - " + element.CategoryName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(element.UnitCode, _smallerFont);
+                    cell.Phrase = new Phrase(element.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.PIBDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
@@ -265,10 +270,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Total), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    if (totalUnit.ContainsKey(element.AccountingCategoryCode))
-                        totalUnit[element.AccountingUnitCode] += element.Total;
+                    if (totalUnit.ContainsKey(element.AccountingUnitName))
+                        totalUnit[element.AccountingUnitName] += element.Total;
                     else
-                        totalUnit.Add(element.AccountingUnitCode, element.Total);
+                        totalUnit.Add(element.AccountingUnitName, element.Total);
 
                     if (totalCurrency.ContainsKey(element.CurrencyCode))
                     {
@@ -371,14 +376,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 WidthPercentage = 100
             };
 
-            var widths = new List<float>() { 1f, 2f };
+            var widths = new List<float>() { 2f, 3f };
             table.SetWidths(widths.ToArray());
 
             // set header
             var cell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
-                VerticalAlignment = Element.ALIGN_CENTER
+                VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
             cell.Phrase = new Phrase("Kategori", _smallerBoldFont);
@@ -389,7 +394,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (var categorySummary in categorySummaries)
             {
-                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Phrase = new Phrase(categorySummary.Category, _smallerFont);
                 table.AddCell(cell);
 
@@ -414,7 +419,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 WidthPercentage = 100
             };
 
-            var widths = new List<float>() { 1f, 2f };
+            var widths = new List<float>() { 2f, 3f };
             table.SetWidths(widths.ToArray());
 
             // set header
@@ -433,7 +438,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             decimal totalSummary = 0;
             foreach (var unitSummary in unitSummaries)
             {
-                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Phrase = new Phrase(unitSummary.Key, _smallerFont);
                 table.AddCell(cell);
 

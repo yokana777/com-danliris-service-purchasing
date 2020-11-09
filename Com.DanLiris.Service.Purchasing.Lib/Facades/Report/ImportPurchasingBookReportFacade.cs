@@ -508,6 +508,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     CategoryCode = item.CategoryCode,
                     AccountingCategoryName = accountingCategory.Name,
                     AccountingCategoryCode = accountingCategory.Code,
+                    AccountingLayoutIndex = accountingCategory.AccountingLayoutIndex,
                     CurrencyRate = (decimal)currencyRate,
                     DONo = item.DONo,
                     DPP = dpp,
@@ -548,8 +549,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         .Select(report => new Summary()
                         {
                             Category = report.Key.AccountingCategoryName,
-                            SubTotal = report.Sum(sum => sum.Total)
-                        }).OrderBy(order => order.Category).ToList();
+                            SubTotal = report.Sum(sum => sum.Total),
+                            AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
+                        }).OrderBy(order => order.AccountingLayoutIndex).ToList();
             reportResult.CurrencySummaries = reportResult.Reports
                 .GroupBy(report => new { report.CurrencyCode })
                 .Select(report => new Summary()
