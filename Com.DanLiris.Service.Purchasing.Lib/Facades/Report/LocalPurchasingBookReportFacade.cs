@@ -215,7 +215,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     VATNo = item.VatNo,
                     IPONo = item.PONo,
                     VAT = ppn,
-                    Total = (dpp + ppn) * (decimal)currencyRate,
+                    Total = (dpp - ppn) * (decimal)currencyRate,
                     ProductName = item.ProductName,
                     ReceiptDate = item.ReceiptDate,
                     SupplierCode = item.SupplierCode,
