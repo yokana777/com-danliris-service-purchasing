@@ -435,6 +435,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     s.useVat,
                     s.vatNo,
                     s.incomeTax,
+                    s.incomeTaxBy,
                     s.vatDate,
                     s.remark,
                     s.dueDate,

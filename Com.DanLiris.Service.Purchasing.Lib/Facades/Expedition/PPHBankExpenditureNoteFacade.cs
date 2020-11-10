@@ -286,7 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var journalTransactionToPost = new JournalTransaction()
             {
                 Date = model.Date,
-                Description = "Bon Terima Unit",
+                Description = "Pengajuan Pembayaran PPh",
                 ReferenceNo = model.No,
                 Status = "POSTED",
                 Items = new List<JournalTransactionItem>()
