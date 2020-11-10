@@ -177,6 +177,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 decimal dppCurrency = 0;
                 decimal ppn = 0;
                 decimal incomeTax = 0;
+                decimal total = 0;
                 decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
 
                 //default IDR
@@ -198,6 +199,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (item.UseIncomeTax)
                     incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
 
+                if (item.IncomeTaxBy == "Supplier")
+                {
+                    total = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                } else
+                {
+                    total = (dpp + ppn) * (decimal)currencyRate;
+                }
 
 
                 var reportItem = new PurchasingReport()
@@ -215,7 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     VATNo = item.VatNo,
                     IPONo = item.PONo,
                     VAT = ppn,
-                    Total = (dpp - ppn) * (decimal)currencyRate,
+                    Total = total,
                     ProductName = item.ProductName,
                     ReceiptDate = item.ReceiptDate,
                     SupplierCode = item.SupplierCode,
@@ -250,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 .Select(report => new Summary()
                 {
                     CurrencyCode = report.Key.CurrencyCode,
-                    SubTotal = report.Sum(sum => sum.DPP + sum.VAT),
+                    SubTotal = report.Sum(sum => sum.Total),
                     SubTotalCurrency = report.Sum(sum => sum.Total)
                 }).OrderBy(order => order.CurrencyCode).ToList();
             reportResult.Reports = reportResult.Reports;
@@ -435,7 +443,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 dt.Columns.Add(new DataColumn() { ColumnName = "Kurs", DataType = typeof(string) });
                 dt.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
-                dt.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "DPP (IDR)", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPN (IDR)", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPH (IDR)", DataType = typeof(decimal) });
                 dt.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
             }
             else
@@ -483,7 +493,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     if (isValas)
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.VAT, report.Total);
+                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.Total);
                     }
                     else
                     {
