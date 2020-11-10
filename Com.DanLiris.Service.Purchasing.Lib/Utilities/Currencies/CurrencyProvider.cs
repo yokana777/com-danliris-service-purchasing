@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             return result.data;
         }
 
-        public async Task<List<AccountingCategory>> GetCategoriesByAccountingCategoryId(int id)
+        public async Task<List<Category>> GetCategoriesByAccountingCategoryId(int id)
         {
             var jsonSerializerSettings = new JsonSerializerSettings
             {
@@ -144,17 +144,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             var uri = APIEndpoint.Core + $"master/categories/by-accounting-category-id/{id}";
             var response = await httpClient.GetAsync(uri);
 
-            var result = new BaseResponse<List<AccountingCategory>>();
+            var result = new BaseResponse<List<Category>>();
 
             if (response.IsSuccessStatusCode)
             {
-                result = JsonConvert.DeserializeObject<BaseResponse<List<AccountingCategory>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+                result = JsonConvert.DeserializeObject<BaseResponse<List<Category>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
 
             return result.data;
         }
 
-        public async Task<List<AccountingUnit>> GetUnitsByAccountingUnitId(int id)
+        public async Task<List<Unit>> GetUnitsByAccountingUnitId(int id)
         {
             var jsonSerializerSettings = new JsonSerializerSettings
             {
@@ -166,11 +166,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             var uri = APIEndpoint.Core + $"master/units/by-accounting-unit-id/{id}";
             var response = await httpClient.GetAsync(uri);
 
-            var result = new BaseResponse<List<AccountingUnit>>();
+            var result = new BaseResponse<List<Unit>>();
 
             if (response.IsSuccessStatusCode)
             {
-                result = JsonConvert.DeserializeObject<BaseResponse<List<AccountingUnit>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+                result = JsonConvert.DeserializeObject<BaseResponse<List<Unit>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
             }
 
             return result.data;
@@ -267,7 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
         }
         public async Task<List<int>> GetCategoryIdsByAccountingCategoryId(int accountingCategoryId)
         {
-            var categories = new List<AccountingCategory>();
+            var categories = new List<Category>();
 
             if (accountingCategoryId > 0)
                 categories = await GetCategoriesByAccountingCategoryId(accountingCategoryId);
@@ -277,7 +277,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
         public async Task<List<int>> GetUnitsIdsByAccountingUnitId(int accountingUnitId)
         {
-            var units = new List<AccountingUnit>();
+            var units = new List<Unit>();
 
             if (accountingUnitId > 0)
                 units = await GetUnitsByAccountingUnitId(accountingUnitId);

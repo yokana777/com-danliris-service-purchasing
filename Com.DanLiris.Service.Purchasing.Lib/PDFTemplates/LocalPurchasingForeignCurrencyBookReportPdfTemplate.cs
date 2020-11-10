@@ -347,6 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 var totalUnit = new Dictionary<string, decimal>();
                 var totalCurrencies = new Dictionary<string, Dictionary<string, decimal>>();
                 decimal totalIdrDpp = 0;
+                decimal totalIdr = 0;
                 decimal totalIdrVat = 0;
                 decimal totalIdrTax = 0;
 
@@ -409,38 +410,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax * data.CurrencyRate), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    var totalIdr = data.IncomeTaxBy == "Supplier" ? data.Total + (data.IncomeTax * data.CurrencyRate) : data.Total;
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdr), _smallerFont);
+                    //var subTotalIdr = data.IncomeTaxBy == "Supplier" ? data.Total + (data.IncomeTax * data.CurrencyRate) : data.Total;
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     // Units summary
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
-                        totalUnit[data.AccountingUnitName] += totalIdr;
+                        totalUnit[data.AccountingUnitName] += data.Total;
                     else
-                        totalUnit.Add(data.AccountingUnitName, totalIdr);
+                        totalUnit.Add(data.AccountingUnitName, data.Total);
 
 
-                    var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
-                    var dppCurrency = data.IncomeTaxBy == "Supplier" ? data.DPPCurrency + (data.IncomeTax * data.CurrencyRate) : data.DPPCurrency;
+                    //var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
+                    //var dppCurrency = data.IncomeTaxBy == "Supplier" ? data.DPPCurrency + (data.IncomeTax * data.CurrencyRate) : data.DPPCurrency;
                     // Currencies summary
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
                     {
-                        totalCurrencies[data.CurrencyCode]["DPP"] += dpp;
+                        totalCurrencies[data.CurrencyCode]["DPP"] += data.DPP;
                         totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT;
                         totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax;
-                        totalCurrencies[data.CurrencyCode]["DPPIdr"] += dppCurrency;
+                        totalCurrencies[data.CurrencyCode]["DPPIdr"] += data.DPPCurrency;
                     }
                     else
                     {
                         totalCurrencies.Add(data.CurrencyCode, new Dictionary<string, decimal>() {
-                            { "DPP", dpp },
+                            { "DPP", data.DPP },
                             { "VAT", data.VAT },
                             { "TAX", data.IncomeTax},
-                            { "DPPIdr", dppCurrency }
+                            { "DPPIdr", data.DPP }
                         } );
                     }
 
-                    totalIdrDpp += dppCurrency - (data.VAT * data.CurrencyRate);
+                    totalIdr += data.Total;
+                    totalIdrDpp += data.DPPCurrency;
                     totalIdrTax += data.IncomeTax * data.CurrencyRate;
                     totalIdrVat += data.VAT * data.CurrencyRate;
                 }
@@ -495,7 +497,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrTax), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrDpp), _smallerBoldFont);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdr), _smallerBoldFont);
                 table.AddCell(cellAlignRight);
 
                 if (totalUnit.Count() > 0)

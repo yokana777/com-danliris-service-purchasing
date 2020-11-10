@@ -296,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.UPONo, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.CategoryCode + " - " + data.CategoryName, _smallerFont);
+                    cell.Phrase = new Phrase(data.AccountingCategoryName, _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.AccountingUnitName, _smallerFont);
@@ -311,8 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    var totalPPh = data.IncomeTaxBy == "Supplier" ? data.Total + data.IncomeTax : data.Total;
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalPPh), _smallerBoldFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerBoldFont);
                     table.AddCell(cellAlignRight);
 
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
@@ -323,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     totalDPP += data.DPP;
                     totalPPN += data.VAT;
                     totalPPH += data.IncomeTax;
-                    total += totalPPh;
+                    total += data.Total;
                 }
 
                 //var cellGrandTotal = new PdfPCell()

@@ -62,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public decimal PIBVat { get; set; }
         public string PIBImportInfo { get; set; }
         public string Remark { get; set; }
-        public decimal IncomeTax { get; internal set; }
+        public decimal IncomeTax { get; set; }
         public string AccountingCategoryName { get; internal set; }
         public string AccountingCategoryCode { get; internal set; }
         public string AccountingUnitName { get; internal set; }

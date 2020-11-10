@@ -25,11 +25,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public async Task<IActionResult> Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        //public async Task<IActionResult> Get(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
         {
             try
             {
-                var data = await localPurchasingBookReportFacade.GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+                var data = await localPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo, isValas);
+                //var data = await localPurchasingBookReportFacade.GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 return Ok(new
@@ -52,12 +54,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("pdf")]
-        public async Task<IActionResult> GetPdf(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        //public async Task<IActionResult> GetPdf(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public async Task<IActionResult> GetPdf(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
         {
             try
             {
                 var clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                var data = await localPurchasingBookReportFacade.GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+                var data = await localPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo, isValas);
+                //var data = await localPurchasingBookReportFacade.GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
 
                 var stream = isValas ? LocalPurchasingForeignCurrencyBookReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateFrom, dateTo) : LocalPurchasingBookReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateFrom, dateTo);
 
@@ -79,13 +83,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("download")]
-        public async Task<IActionResult> GetXls(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        //public async Task<IActionResult> GetXls(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public async Task<IActionResult> GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
         {
             try
             {
                 byte[] xlsInBytes;
 
-                var xls = await localPurchasingBookReportFacade.GenerateExcel(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+                var xls = await localPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo, isValas);
+                //var xls = await localPurchasingBookReportFacade.GenerateExcel(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
 
                 string filename = isValas ? "Laporan Buku Pembelian Lokal Valas" : "Laporan Buku Pembelian Lokal";
                 if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
