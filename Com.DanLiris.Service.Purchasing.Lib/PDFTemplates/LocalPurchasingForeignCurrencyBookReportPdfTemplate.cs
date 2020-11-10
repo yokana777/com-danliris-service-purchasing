@@ -408,34 +408,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax * data.CurrencyRate), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerFont);
+                    var totalIdr = data.IncomeTaxBy == "Supplier" ? data.Total + (data.IncomeTax * data.CurrencyRate) : data.Total;
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdr), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     // Units summary
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
-                        totalUnit[data.AccountingUnitName] += data.Total;
+                        totalUnit[data.AccountingUnitName] += totalIdr;
                     else
-                        totalUnit.Add(data.AccountingUnitName, data.Total);
+                        totalUnit.Add(data.AccountingUnitName, totalIdr);
 
+
+                    var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
+                    var dppCurrency = data.IncomeTaxBy == "Supplier" ? data.DPPCurrency + (data.IncomeTax * data.CurrencyRate) : data.DPPCurrency;
                     // Currencies summary
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
                     {
-                        totalCurrencies[data.CurrencyCode]["DPP"] += data.DPP;
+                        totalCurrencies[data.CurrencyCode]["DPP"] += dpp;
                         totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT;
                         totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax;
-                        totalCurrencies[data.CurrencyCode]["DPPIdr"] += data.DPPCurrency;
+                        totalCurrencies[data.CurrencyCode]["DPPIdr"] += dppCurrency;
                     }
                     else
                     {
                         totalCurrencies.Add(data.CurrencyCode, new Dictionary<string, decimal>() {
-                            { "DPP", data.DPP },
+                            { "DPP", dpp },
                             { "VAT", data.VAT },
                             { "TAX", data.IncomeTax},
-                            { "DPPIdr", data.DPPCurrency }
+                            { "DPPIdr", dppCurrency }
                         } );
                     }
 
-                    totalIdrDpp += data.DPP * data.CurrencyRate;
+                    totalIdrDpp += dppCurrency - (data.VAT * data.CurrencyRate);
                     totalIdrTax += data.IncomeTax * data.CurrencyRate;
                     totalIdrVat += data.VAT * data.CurrencyRate;
                 }
@@ -490,7 +494,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrTax), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", (totalIdrTax + totalIdrDpp) - totalIdrVat), _smallerBoldFont);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrDpp), _smallerBoldFont);
                 table.AddCell(cellAlignRight);
 
                 if (totalUnit.Count() > 0)

@@ -68,5 +68,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string AccountingUnitName { get; internal set; }
         public string AccountingUnitCode { get; internal set; }
         public int AccountingLayoutIndex { get; set; }
+        public string IncomeTaxBy { get; set; }
     }
 }

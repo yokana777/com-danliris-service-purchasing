@@ -132,6 +132,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             return result.data;
         }
 
+        public async Task<List<AccountingCategory>> GetCategoriesByAccountingCategoryId(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/categories/by-accounting-category-id/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<List<AccountingCategory>>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<List<AccountingCategory>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<List<AccountingUnit>> GetUnitsByAccountingUnitId(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/units/by-accounting-unit-id/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<List<AccountingUnit>>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<List<AccountingUnit>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
         public async Task<List<AccountingUnit>> GetAccountingUnitsByUnitIds(List<int> unitIds)
         {
             var unitTasks = unitIds.Select(unitId => GetUnitById(unitId));
@@ -220,6 +264,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
             var categoryTaskResult = await Task.WhenAll(categoryTasks);
 
             return categoryTaskResult.ToList();
+        }
+        public async Task<List<int>> GetCategoryIdsByAccountingCategoryId(int accountingCategoryId)
+        {
+            var categories = new List<AccountingCategory>();
+
+            if (accountingCategoryId > 0)
+                categories = await GetCategoriesByAccountingCategoryId(accountingCategoryId);
+
+            return categories.Select(x => x.Id).ToList();
+        }
+
+        public async Task<List<int>> GetUnitsIdsByAccountingUnitId(int accountingUnitId)
+        {
+            var units = new List<AccountingUnit>();
+
+            if (accountingUnitId > 0)
+                units = await GetUnitsByAccountingUnitId(accountingUnitId);
+
+            return units.Select(x => x.Id).ToList();
         }
     }
 }

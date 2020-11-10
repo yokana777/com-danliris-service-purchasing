@@ -310,7 +310,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerBoldFont);
+                    var totalPPh = data.IncomeTaxBy == "Supplier" ? data.Total + data.IncomeTax : data.Total;
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalPPh), _smallerBoldFont);
                     table.AddCell(cellAlignRight);
 
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
@@ -321,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     totalDPP += data.DPP;
                     totalPPN += data.VAT;
                     totalPPH += data.IncomeTax;
-                    total += data.Total;
+                    total += totalPPh;
                 }
 
                 //var cellGrandTotal = new PdfPCell()
