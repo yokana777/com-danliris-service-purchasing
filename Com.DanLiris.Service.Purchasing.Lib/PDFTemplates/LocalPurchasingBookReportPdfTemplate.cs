@@ -298,7 +298,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.CategoryCode + " - " + data.CategoryName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.UnitName, _smallerFont);
+                    cell.Phrase = new Phrase(data.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.DPP), _smallerFont);
