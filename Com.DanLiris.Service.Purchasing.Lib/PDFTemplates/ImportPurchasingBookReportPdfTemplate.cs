@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
-        private static readonly Font _smallerBoldBlueFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.Blue);
+        private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
 
         public static MemoryStream Generate(LocalPurchasingBookReportViewModel viewModel, int timezoneOffset, DateTime? dateFrom, DateTime? dateTo)
         {
@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                BorderColor = BaseColor.Blue
+                BackgroundColor = new BaseColor(23, 50, 80)
             };
 
             var cellColspan5 = new PdfPCell()
@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 5,
-                BorderColor = BaseColor.Blue
+                BackgroundColor = new BaseColor(23, 50, 80)
             };
 
             var cellRowspan2 = new PdfPCell()
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Rowspan = 2,
-                BorderColor = BaseColor.Blue
+                BackgroundColor = new BaseColor(23, 50, 80)
             };
 
             var cellColRowspan2 = new PdfPCell()
@@ -100,61 +100,61 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 2,
                 Rowspan = 2,
-                BorderColor = BaseColor.Blue
+                BackgroundColor = new BaseColor(23, 50, 80)
             };
 
-            cellRowspan2.Phrase = new Phrase("Tanggal", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Tanggal", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Kode Suppl.", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Kode Suppl.", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Supplier", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Supplier", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Keterangan", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Keterangan", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Inv.", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("No. Inv.", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. SPB/NI", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("No. SPB/NI", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Kategori", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Kategori", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Unit", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Unit", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellColspan5.Phrase = new Phrase("PIB", _smallerBoldFont);
+            cellColspan5.Phrase = new Phrase("PIB", _smallerBoldWhiteFont);
             table.AddCell(cellColspan5);
 
-            cellRowspan2.Phrase = new Phrase("Ket. Nilai Impor", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Ket. Nilai Impor", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellColRowspan2.Phrase = new Phrase("Nilai", _smallerBoldFont);
+            cellColRowspan2.Phrase = new Phrase("Nilai", _smallerBoldWhiteFont);
             table.AddCell(cellColRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Total (IDR)", _smallerBoldFont);
+            cellRowspan2.Phrase = new Phrase("Total (IDR)", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cell.Phrase = new Phrase("Tanggal", _smallerBoldFont);
+            cell.Phrase = new Phrase("Tanggal", _smallerBoldWhiteFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase("No", _smallerBoldFont);
+            cell.Phrase = new Phrase("No", _smallerBoldWhiteFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase("BM", _smallerBoldFont);
+            cell.Phrase = new Phrase("BM", _smallerBoldWhiteFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase("PPH Impor", _smallerBoldFont);
+            cell.Phrase = new Phrase("PPH Impor", _smallerBoldWhiteFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase("PPN Impor", _smallerBoldFont);
+            cell.Phrase = new Phrase("PPN Impor", _smallerBoldWhiteFont);
             table.AddCell(cell);
         }
 
