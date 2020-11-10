@@ -404,8 +404,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 BorderWidth = 0.5f,
                 BorderColor = BaseColor.Blue,
                 HorizontalAlignment = Element.ALIGN_CENTER,
-                VerticalAlignment = Element.ALIGN_CENTER,
-                BorderColor = BaseColor.Blue
+                VerticalAlignment = Element.ALIGN_CENTER
             };
 
             var cellColspan3 = new PdfPCell()
@@ -423,8 +422,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 BorderColor = BaseColor.Blue,
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_CENTER,
-                Rowspan = 2,
-                BorderColor = BaseColor.Blue
+                Rowspan = 2
             };
 
             cellRowspan2.Phrase = new Phrase("Tanggal", _smallerFont);
