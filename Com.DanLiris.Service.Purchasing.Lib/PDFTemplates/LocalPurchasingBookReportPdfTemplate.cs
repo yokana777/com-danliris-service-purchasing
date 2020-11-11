@@ -396,11 +396,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         cellAlignRightColspan9.Phrase = new Phrase($"{categoryName}", _smallBoldFont);
                         table.AddCell(cellAlignRightColspan9);
 
-                        cell.Phrase = new Phrase($"{v.Key}  ", _smallBoldFont);
+                        cell.Phrase = new Phrase($"{v.Key}  ", _smallerFont);
                         table.AddCell(cell);
 
                         cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["DPP"]), _smallerFont);
-                        table.AddCell(cell);
+                        table.AddCell(cellAlignRight);
 
                         cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["VAT"]), _smallerFont);
                         table.AddCell(cellAlignRight);

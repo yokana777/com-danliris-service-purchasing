@@ -258,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 .Select(report => new Summary()
                 {
                     CurrencyCode = report.Key.CurrencyCode,
-                    SubTotal = report.Sum(sum => sum.DPP + sum.VAT),
+                    SubTotal = report.Sum(sum => sum.Total),
                     SubTotalCurrency = report.Sum(sum => sum.Total)
                 }).OrderBy(order => order.CurrencyCode).ToList();
             reportResult.Reports = reportResult.Reports;

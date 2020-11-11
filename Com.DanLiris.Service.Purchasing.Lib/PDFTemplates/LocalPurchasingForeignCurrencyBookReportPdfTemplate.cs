@@ -446,8 +446,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
                     {
                         totalCurrencies[data.CurrencyCode]["DPP"] += data.DPP;
-                        totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT;
-                        totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax;
+                        totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT * data.CurrencyRate;
+                        totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax * data.CurrencyRate;
                         totalCurrencies[data.CurrencyCode]["DPPCurrency"] += data.DPPCurrency;
                         totalCurrencies[data.CurrencyCode]["TOTAL"] += data.Total;
                     }
@@ -455,8 +455,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     {
                         totalCurrencies.Add(data.CurrencyCode, new Dictionary<string, decimal>() {
                             { "DPP", data.DPP },
-                            { "VAT", data.VAT },
-                            { "TAX", data.IncomeTax},
+                            { "VAT", data.VAT * data.CurrencyRate},
+                            { "TAX", data.IncomeTax * data.CurrencyRate},
                             { "DPPCurrency", data.DPPCurrency },
                             { "TOTAL", data.Total }
                     } );
