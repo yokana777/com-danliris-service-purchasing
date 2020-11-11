@@ -223,22 +223,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+            var cellColspan2NoBorderLeft = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                Colspan = 2,
+                BorderWidthLeft = 0
+            };
+
+            var cellColspan8NoBorderRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                Colspan = 8,
+                BorderWidthRight = 0
+            };
+
             var cellAlignRight = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_RIGHT,
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+            var cellAlignRightColspan9 = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                Colspan = 9
+            };
+
             var categoryCell = new PdfPCell()
             {
                 BorderWidthTop = 0,
                 HorizontalAlignment = Element.ALIGN_LEFT,
-                VerticalAlignment = Element.ALIGN_CENTER
-            };
-
-            var totalCell = new PdfPCell()
-            {
-                HorizontalAlignment = Element.ALIGN_RIGHT,
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
@@ -262,7 +279,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 decimal totalPPN = 0;
                 decimal totalPPH = 0;
 
-                var totalUnit = new Dictionary<string, decimal>();
+                var totalUnit = new Dictionary<string, Dictionary<string, decimal>>();
 
                 foreach (var data in cat)
                 {
@@ -315,9 +332,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     table.AddCell(cellAlignRight);
 
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
-                        totalUnit[data.AccountingUnitName] += data.Total;
+                    {
+                        totalUnit[data.AccountingUnitName]["DPP"] += data.DPP;
+                        totalUnit[data.AccountingUnitName]["VAT"] += data.VAT * data.CurrencyRate;
+                        totalUnit[data.AccountingUnitName]["TAX"] += data.IncomeTax * data.CurrencyRate;
+                        totalUnit[data.AccountingUnitName]["TOTAL"] += data.Total;
+                    }
                     else
-                        totalUnit.Add(data.AccountingUnitName, data.Total);
+                    {
+                        totalUnit.Add(data.AccountingUnitName, new Dictionary<string, decimal>() {
+                            { "DPP", data.DPP },
+                            { "VAT", data.VAT * data.CurrencyRate},
+                            { "TAX", data.IncomeTax * data.CurrencyRate},
+                            { "TOTAL", data.Total }
+                        });
+                    }
+
+                    if (summaryUnit.ContainsKey(data.AccountingUnitName))
+                        summaryUnit[data.AccountingUnitName] += data.Total;
+                    else
+                        summaryUnit.Add(data.AccountingUnitName, data.Total);
 
                     totalDPP += data.DPP;
                     totalPPN += data.VAT;
@@ -338,10 +372,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 //cellGrandTotal.Phrase = new Phrase(string.Format("{0:n}", grandTotal), _smallerBoldFont);
                 //table.AddCell(cellGrandTotal);
 
-                totalCell.Phrase = new Phrase($"TOTAL {categoryName}", _smallBoldFont);
-                totalCell.Colspan = 10;
-                //totalCell.Rowspan = totalUnit.Count();
-                table.AddCell(totalCell);
+                cellColspan8NoBorderRight.Phrase = new Phrase();
+                table.AddCell(cellColspan8NoBorderRight);
+
+                cellColspan2NoBorderLeft.Phrase = new Phrase($"TOTAL {categoryName}", _smallBoldFont);
+                table.AddCell(cellColspan2NoBorderLeft);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalDPP), _smallerFont);
                 table.AddCell(cellAlignRight);
@@ -358,21 +393,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 if (totalUnit.Count() > 0)
                     foreach (var v in totalUnit)
                     {
-                        totalCell.Phrase = new Phrase($"{categoryName}", _smallBoldFont);
-                        totalCell.Colspan = 9;
-                        table.AddCell(totalCell);
+                        cellAlignRightColspan9.Phrase = new Phrase($"{categoryName}", _smallBoldFont);
+                        table.AddCell(cellAlignRightColspan9);
 
-                        cell.Phrase = new Phrase($"{v.Key}", _smallBoldFont);
+                        cell.Phrase = new Phrase($"{v.Key}  ", _smallerFont);
                         table.AddCell(cell);
 
-                        totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallFont);
-                        totalUnitCell.Colspan = 4;
-                        table.AddCell(totalUnitCell);
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["DPP"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
 
-                        if (summaryUnit.ContainsKey(v.Key))
-                            summaryUnit[v.Key] += v.Value;
-                        else
-                            summaryUnit.Add(v.Key, v.Value);
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["VAT"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["TAX"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["TOTAL"]), _smallerBoldFont);
+                        table.AddCell(cellAlignRight);
+
+                        //totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallFont);
+                        //totalUnitCell.Colspan = 4;
+                        //table.AddCell(totalUnitCell);
                     }
             }
 

@@ -344,7 +344,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 categoryCell.Colspan = 18;
                 table.AddCell(categoryCell);
 
-                var totalUnit = new Dictionary<string, decimal>();
+                var totalUnit = new Dictionary<string, Dictionary<string, decimal>>();
                 var totalCurrencies = new Dictionary<string, Dictionary<string, decimal>>();
                 decimal totalIdrDpp = 0;
                 decimal totalIdr = 0;
@@ -416,9 +416,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     // Units summary
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
-                        totalUnit[data.AccountingUnitName] += data.Total;
+                    {
+                        totalUnit[data.AccountingUnitName]["DPP"] += data.DPP;
+                        totalUnit[data.AccountingUnitName]["VAT"] += data.VAT * data.CurrencyRate;
+                        totalUnit[data.AccountingUnitName]["TAX"] += data.IncomeTax * data.CurrencyRate;
+                        totalUnit[data.AccountingUnitName]["DPPCurrency"] += data.DPPCurrency;
+                        totalUnit[data.AccountingUnitName]["TOTAL"] += data.Total;
+                    }
                     else
-                        totalUnit.Add(data.AccountingUnitName, data.Total);
+                    {
+                        totalUnit.Add(data.AccountingUnitName, new Dictionary<string, decimal>() {
+                            { "DPP", data.DPP },
+                            { "VAT", data.VAT * data.CurrencyRate},
+                            { "TAX", data.IncomeTax * data.CurrencyRate},
+                            { "DPPCurrency", data.DPPCurrency },
+                            { "TOTAL", data.Total }
+                        });
+                    }
+
+                    if(summaryUnit.ContainsKey(data.AccountingUnitName))
+                        summaryUnit[data.AccountingUnitName] += data.Total;
+                    else
+                        summaryUnit.Add(data.AccountingUnitName, data.Total);
 
 
                     //var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
@@ -427,18 +446,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
                     {
                         totalCurrencies[data.CurrencyCode]["DPP"] += data.DPP;
-                        totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT;
-                        totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax;
-                        totalCurrencies[data.CurrencyCode]["DPPIdr"] += data.DPPCurrency;
+                        totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT * data.CurrencyRate;
+                        totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax * data.CurrencyRate;
+                        totalCurrencies[data.CurrencyCode]["DPPCurrency"] += data.DPPCurrency;
+                        totalCurrencies[data.CurrencyCode]["TOTAL"] += data.Total;
                     }
                     else
                     {
                         totalCurrencies.Add(data.CurrencyCode, new Dictionary<string, decimal>() {
                             { "DPP", data.DPP },
-                            { "VAT", data.VAT },
-                            { "TAX", data.IncomeTax},
-                            { "DPPIdr", data.DPP }
-                        } );
+                            { "VAT", data.VAT * data.CurrencyRate},
+                            { "TAX", data.IncomeTax * data.CurrencyRate},
+                            { "DPPCurrency", data.DPPCurrency },
+                            { "TOTAL", data.Total }
+                    } );
                     }
 
                     totalIdr += data.Total;
@@ -471,7 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellNoBorderLeft.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPP"]), _smallerFont);
                     table.AddCell(cellNoBorderLeft);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPPIdr"]), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPPCurrency"]), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["VAT"]), _smallerFont);
@@ -480,7 +501,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["TAX"]), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPP"] - totalCurrency.Value["VAT"]), _smallerBoldFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["TOTAL"]), _smallerBoldFont);
                     table.AddCell(cellAlignRight);
 
                     totalCellNoBorderTopAndBot.Phrase = new Phrase();
@@ -510,14 +531,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         cellColspan2.Phrase = new Phrase($"{v.Key}  ", _smallBoldFont);
                         table.AddCell(cellColspan2);
 
-                        totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallFont);
-                        totalUnitCell.Colspan = 6;
-                        table.AddCell(totalUnitCell);
+                        cellAlignRightColspan3.Phrase = new Phrase(string.Format("{0:n}", v.Value["DPPCurrency"]), _smallerFont);
+                        table.AddCell(cellAlignRightColspan3);
 
-                        if (summaryUnit.ContainsKey(v.Key))
-                            summaryUnit[v.Key] += v.Value;
-                        else
-                            summaryUnit.Add(v.Key, v.Value);
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["VAT"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["TAX"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["TOTAL"]), _smallerBoldFont);
+                        table.AddCell(cellAlignRight);
+
+                        //totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallerFont);
+                        //totalUnitCell.Colspan = 6;
+                        //table.AddCell(totalUnitCell);
                     }
             }
 
