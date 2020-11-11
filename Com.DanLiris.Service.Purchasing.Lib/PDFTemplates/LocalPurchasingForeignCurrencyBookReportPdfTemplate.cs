@@ -347,6 +347,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 var totalUnit = new Dictionary<string, decimal>();
                 var totalCurrencies = new Dictionary<string, Dictionary<string, decimal>>();
                 decimal totalIdrDpp = 0;
+                decimal totalIdr = 0;
                 decimal totalIdrVat = 0;
                 decimal totalIdrTax = 0;
 
@@ -385,7 +386,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.CategoryCode + " - " + data.CategoryName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.UnitName, _smallerFont);
+                    cell.Phrase = new Phrase(data.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
                     cellNoBorderRight.Phrase = new Phrase(data.CurrencyCode, _smallerFont);
@@ -409,6 +410,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax * data.CurrencyRate), _smallerFont);
                     table.AddCell(cellAlignRight);
 
+                    //var subTotalIdr = data.IncomeTaxBy == "Supplier" ? data.Total + (data.IncomeTax * data.CurrencyRate) : data.Total;
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerFont);
                     table.AddCell(cellAlignRight);
 
@@ -418,6 +420,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     else
                         totalUnit.Add(data.AccountingUnitName, data.Total);
 
+
+                    //var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
+                    //var dppCurrency = data.IncomeTaxBy == "Supplier" ? data.DPPCurrency + (data.IncomeTax * data.CurrencyRate) : data.DPPCurrency;
                     // Currencies summary
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
                     {
@@ -432,11 +437,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             { "DPP", data.DPP },
                             { "VAT", data.VAT },
                             { "TAX", data.IncomeTax},
-                            { "DPPIdr", data.DPPCurrency }
+                            { "DPPIdr", data.DPP }
                         } );
                     }
 
-                    totalIdrDpp += data.DPP * data.CurrencyRate;
+                    totalIdr += data.Total;
+                    totalIdrDpp += data.DPPCurrency;
                     totalIdrTax += data.IncomeTax * data.CurrencyRate;
                     totalIdrVat += data.VAT * data.CurrencyRate;
                 }
@@ -491,7 +497,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrTax), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", (totalIdrTax + totalIdrDpp) - totalIdrVat), _smallerBoldFont);
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdr), _smallerBoldFont);
                 table.AddCell(cellAlignRight);
 
                 if (totalUnit.Count() > 0)

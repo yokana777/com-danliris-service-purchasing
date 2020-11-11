@@ -14,5 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
         Task<List<AccountingUnit>> GetAccountingUnitsByUnitIds(List<int> unitIds);
         Task<List<Unit>> GetUnitsByUnitIds(List<int> unitIds);
         Task<List<Category>> GetCategoriesByCategoryIds(List<int> categoryIds);
+        Task<List<int>> GetCategoryIdsByAccountingCategoryId(int accountingCategoryId);
+        Task<List<int>> GetUnitsIdsByAccountingUnitId(int accountingUnitId);
     }
 }
