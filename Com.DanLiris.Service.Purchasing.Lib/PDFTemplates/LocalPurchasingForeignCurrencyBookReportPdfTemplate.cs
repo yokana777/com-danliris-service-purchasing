@@ -411,7 +411,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     table.AddCell(cellAlignRight);
 
                     //var subTotalIdr = data.IncomeTaxBy == "Supplier" ? data.Total + (data.IncomeTax * data.CurrencyRate) : data.Total;
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.TotalCurrency), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     // Units summary
@@ -421,7 +421,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         totalUnit[data.AccountingUnitName]["VAT"] += data.VAT * data.CurrencyRate;
                         totalUnit[data.AccountingUnitName]["TAX"] += data.IncomeTax * data.CurrencyRate;
                         totalUnit[data.AccountingUnitName]["DPPCurrency"] += data.DPPCurrency;
-                        totalUnit[data.AccountingUnitName]["TOTAL"] += data.Total;
+                        totalUnit[data.AccountingUnitName]["TOTAL"] += data.TotalCurrency;
                     }
                     else
                     {
@@ -430,14 +430,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             { "VAT", data.VAT * data.CurrencyRate},
                             { "TAX", data.IncomeTax * data.CurrencyRate},
                             { "DPPCurrency", data.DPPCurrency },
-                            { "TOTAL", data.Total }
+                            { "TOTAL", data.TotalCurrency }
                         });
                     }
 
                     if(summaryUnit.ContainsKey(data.AccountingUnitName))
-                        summaryUnit[data.AccountingUnitName] += data.Total;
+                        summaryUnit[data.AccountingUnitName] += data.TotalCurrency;
                     else
-                        summaryUnit.Add(data.AccountingUnitName, data.Total);
+                        summaryUnit.Add(data.AccountingUnitName, data.TotalCurrency);
 
 
                     //var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
@@ -449,7 +449,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT * data.CurrencyRate;
                         totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax * data.CurrencyRate;
                         totalCurrencies[data.CurrencyCode]["DPPCurrency"] += data.DPPCurrency;
-                        totalCurrencies[data.CurrencyCode]["TOTAL"] += data.Total;
+                        totalCurrencies[data.CurrencyCode]["TOTAL"] += data.TotalCurrency;
                     }
                     else
                     {
@@ -458,11 +458,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             { "VAT", data.VAT * data.CurrencyRate},
                             { "TAX", data.IncomeTax * data.CurrencyRate},
                             { "DPPCurrency", data.DPPCurrency },
-                            { "TOTAL", data.Total }
+                            { "TOTAL", data.TotalCurrency }
                     } );
                     }
 
-                    totalIdr += data.Total;
+                    totalIdr += data.TotalCurrency;
                     totalIdrDpp += data.DPPCurrency;
                     totalIdrTax += data.IncomeTax * data.CurrencyRate;
                     totalIdrVat += data.VAT * data.CurrencyRate;

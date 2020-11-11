@@ -265,24 +265,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
             return categoryTaskResult.ToList();
         }
-        public async Task<List<int>> GetCategoryIdsByAccountingCategoryId(int accountingCategoryId)
+        public async Task<List<string>> GetCategoryIdsByAccountingCategoryId(int accountingCategoryId)
         {
             var categories = new List<Category>();
 
             if (accountingCategoryId > 0)
                 categories = await GetCategoriesByAccountingCategoryId(accountingCategoryId);
 
-            return categories.Select(x => x.Id).ToList();
+            return categories.Select(x => x.Id.ToString()).ToList();
         }
 
-        public async Task<List<int>> GetUnitsIdsByAccountingUnitId(int accountingUnitId)
+        public async Task<List<string>> GetUnitsIdsByAccountingUnitId(int accountingUnitId)
         {
             var units = new List<Unit>();
 
             if (accountingUnitId > 0)
                 units = await GetUnitsByAccountingUnitId(accountingUnitId);
 
-            return units.Select(x => x.Id).ToList();
+            return units.Select(x => x.Id.ToString()).ToList();
         }
     }
 }
