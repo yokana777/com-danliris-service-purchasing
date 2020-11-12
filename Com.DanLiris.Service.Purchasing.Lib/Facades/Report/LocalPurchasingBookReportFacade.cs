@@ -644,7 +644,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     SubTotalCurrency = report.Sum(sum => sum.TotalCurrency)
                 }).OrderBy(order => order.CurrencyCode).ToList();
             reportResult.Reports = reportResult.Reports;
-            reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
+            reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.TotalCurrency);
             reportResult.CategorySummaryTotal = reportResult.CategorySummaries.Sum(categorySummary => categorySummary.SubTotal);
 
             #region Old Query
@@ -820,8 +820,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             dt.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
             dt.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
             dt.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
-            dt.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
-            dt.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Kategori Pembelian", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Kategori Pembukuan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Unit Pembelian", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Unit Pembukuan", DataType = typeof(string) });
             dt.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(decimal) });
             dt.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
             dt.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
@@ -952,11 +954,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     if (isValas)
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.AccountingUnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.VAT, report.Total);
+                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.TotalCurrency);
                     }
                     else
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.AccountingUnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
+                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
                     }
                 }
                 foreach (var categorySummary in result.CategorySummaries)
