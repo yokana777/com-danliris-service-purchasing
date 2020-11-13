@@ -18,5 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDailyPurchasingR
         public string Satuan { get; set; }
         public double Kurs { get; set; }
         public double Amount { get; set; }
+        public string CurrencyCode { get; set; }
+        public double AmountIDR { get; set; }
     }
 }
