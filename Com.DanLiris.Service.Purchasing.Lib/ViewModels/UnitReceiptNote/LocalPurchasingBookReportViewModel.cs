@@ -25,6 +25,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string Category { get; set; }
         public string CurrencyCode { get; set; }
         public decimal SubTotal { get; set; }
+        public decimal SubTotalCurrency { get; set; }
+        public int AccountingLayoutIndex { get; set; }
     }
 
     public class PurchasingReport
@@ -39,9 +41,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public decimal DPP { get; set; }
         public decimal DPPCurrency { get; set; }
         public decimal VAT { get; set; }
+        public decimal VATCurrency { get; set; }
         public decimal CurrencyRate { get; set; }
         public decimal Total { get; set; }
+        public decimal TotalCurrency { get; set; }
         public bool IsUseVat { get; set; }
+        public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
         public string IPONo { get; set; }
         public string DONo { get; set; }
@@ -51,10 +56,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string VATNo { get; set; }
         public double Quantity { get; set; }
         public string Uom { get; set; }
+        public DateTimeOffset PIBDate { get; internal set; }
         public string PIBNo { get; set; }
         public decimal PIBBM { get; set; }
+        public decimal PIBIncomeTax { get; set; }
+        public decimal PIBVat { get; set; }
+        public string PIBImportInfo { get; set; }
         public string Remark { get; set; }
-        public decimal IncomeTax { get; internal set; }
-        public DateTimeOffset PIBDate { get; internal set; }
+        public decimal IncomeTax { get; set; }
+        public string AccountingCategoryName { get; internal set; }
+        public string AccountingCategoryCode { get; internal set; }
+        public string AccountingUnitName { get; internal set; }
+        public string AccountingUnitCode { get; internal set; }
+        public int AccountingLayoutIndex { get; set; }
+        public string IncomeTaxBy { get; set; }
     }
 }

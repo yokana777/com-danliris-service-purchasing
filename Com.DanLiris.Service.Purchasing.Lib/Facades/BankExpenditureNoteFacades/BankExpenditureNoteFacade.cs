@@ -61,6 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             IQueryable<BankExpenditureNoteModel> Query = this.dbSet;
 
+            var queryItems = Query.Select(x => x.Details.Select(y => y.Items).ToList());
+
             Query = Query
                 .Select(s => new BankExpenditureNoteModel
                 {
@@ -76,7 +78,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     BankCurrencyCode = s.BankCurrencyCode,
                     CurrencyRate = s.CurrencyRate,
                     IsPosted = s.IsPosted,
-                    Details = s.Details.Where(w => w.BankExpenditureNoteId == s.Id).ToList()
+                    Details = s.Details.Where(x => x.BankExpenditureNoteId == s.Id).Select(a => new BankExpenditureNoteDetailModel
+                    {
+                        SupplierName = a.SupplierName,
+                        UnitPaymentOrderNo = a.UnitPaymentOrderNo,
+                        Items = a.Items.Where(b => b.BankExpenditureNoteDetailId == a.Id).ToList()
+                    }).ToList()
                 });
 
             List<string> searchAttributes = new List<string>()
@@ -109,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.GrandTotal,
                    s.BankCurrencyCode,
                    s.IsPosted,
-                   Details = s.Details.Select(sl => new { sl.SupplierName, sl.UnitPaymentOrderNo }).ToList(),
+                   Details = s.Details.Select(sl => new { sl.SupplierName, sl.UnitPaymentOrderNo, sl.Items }).ToList(),
                }).ToList()
             );
 
@@ -290,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
                     UnitCode = s.Key,
-                    Total = s.Sum(sm => sm.Price)
+                    Total = s.Sum(sm => sm.Price * model.CurrencyRate)
                 });
 
 
@@ -472,7 +479,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         public ReadResponse<object> GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
         {
-            IQueryable<PurchasingDocumentExpedition> query = dbContext.PurchasingDocumentExpeditions;
+            var query = dbContext.PurchasingDocumentExpeditions.AsQueryable();
+
 
             query = query.Include(i => i.Items);
 
@@ -523,6 +531,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.TotalPaid,
                 s.Currency,
                 s.PaymentMethod,
+                s.URNId,
+                s.URNNo,
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
@@ -534,7 +544,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     sl.ProductName,
                     sl.Quantity,
                     sl.Uom,
-                    sl.Price
+                    sl.Price,
+                    sl.URNId,
+                    sl.URNNo
                 }).ToList()
             }));
 

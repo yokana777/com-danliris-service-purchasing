@@ -138,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 TotalIncomeTax = TotalIncomeTax,
                 TotalDPP = TotalDPP,
                 BankId = Bank.Id.ToString(),
-                BankCode = Bank.Code,
+                BankCode = Bank.BankCode,
                 BankName = Bank.BankName,
                 BankAccountName = Bank.AccountName,
                 BankAccountNumber = Bank.AccountNumber,

@@ -58,6 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     s.useVat,
                     s.category,
                     s.currency,
+                    s.importInfo,
                     items = s.items.Select(i => new
                     {
                         unitReceiptNote = new
@@ -96,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
             }
         }
 
-        [HttpGet("by-po-ext-ids")]
+        [HttpGet("by-po-ext-ids")] 
         public IActionResult GetByPOExtIds(List<long> poExtIds, int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             try
@@ -434,6 +435,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                     s.useVat,
                     s.vatNo,
                     s.incomeTax,
+                    s.incomeTaxBy,
                     s.vatDate,
                     s.remark,
                     s.dueDate,

@@ -12,9 +12,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201104094924_Add_URNId_URNNo_BankExpenditureNote")]
+    partial class Add_URNId_URNNo_BankExpenditureNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,15 +49,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double?>("DebitStock");
 
-                    b.Property<string>("EPOID")
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int?>("EPOItemId");
-
                     b.Property<decimal?>("OpenPrice")
                         .HasColumnType("Money");
 
                     b.Property<double?>("OpenStock");
+
+                    b.Property<string>("POID")
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int?>("POItemId");
 
                     b.Property<string>("PeriodeMonth")
                         .HasColumnType("varchar(50)");
@@ -938,10 +939,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("PurchasingDocumentExpeditionId");
 
                     b.Property<double>("Quantity");
-
-                    b.Property<int>("URNId");
-
-                    b.Property<string>("URNNo");
 
                     b.Property<string>("UnitCode");
 
