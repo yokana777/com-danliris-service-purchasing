@@ -39,6 +39,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string doDeliveryDate { get; set; }
         public string doNo { get; set; }
         public long doDetailId { get; set; }
+        public double doQuantity { get; set; }
+        public string doUom { get; set; }
 
         //URN
         public string urnDate { get; set; }
