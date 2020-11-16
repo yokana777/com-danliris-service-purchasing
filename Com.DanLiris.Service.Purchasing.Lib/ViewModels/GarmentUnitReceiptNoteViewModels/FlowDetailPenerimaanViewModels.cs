@@ -23,5 +23,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public double jumlahterima { get; set; }
         public string satuanterima { get; set; }
         public double jumlah { get; set; }
+        public string tipepembayaran { get; set; }
     }
 }
