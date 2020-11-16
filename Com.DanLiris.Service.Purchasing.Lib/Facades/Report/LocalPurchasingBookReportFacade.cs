@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             var queryResult = query.OrderByDescending(item => item.ReceiptDate).ToList();
             //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
-            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
+            var currencyTuples = queryResult.GroupBy(item => new { item.CurrencyCode, item.ReceiptDate }).Select(item => new Tuple<string, DateTimeOffset>(item.Key.CurrencyCode, item.Key.ReceiptDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
             var unitIds = queryResult.Select(item =>

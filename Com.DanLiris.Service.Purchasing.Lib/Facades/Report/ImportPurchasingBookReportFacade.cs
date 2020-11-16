@@ -435,7 +435,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var queryResult = query.OrderByDescending(item => item.ReceiptDate).ToList();
             //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
             //var receiptDates = queryResult.Select(item => item.ReceiptDate).ToList();
-            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
+            var currencyTuples = queryResult.GroupBy(item => new { item.CurrencyCode, item.ReceiptDate }).Select(item => new Tuple<string, DateTimeOffset>(item.Key.CurrencyCode, item.Key.ReceiptDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
             var unitIds = queryResult.Select(item =>
@@ -745,7 +745,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     ProductName = item.ProductName,
                     ReceiptDate = item.ReceiptDate,
                     SupplierCode = item.SupplierCode,
-                    SupplierName = item.SupplierName,
+                    SupplierName = item.SupplierCode + " - " + item.SupplierName,
                     UnitName = item.UnitName,
                     UnitCode = item.UnitCode,
                     AccountingUnitName = accountingUnit.Name,
