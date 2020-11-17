@@ -66,6 +66,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -182,7 +183,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IDebtBookReportFacade, DebtBookReportFacade>()
                 .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
                 .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
-                .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>();
+                .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>()
+                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -190,12 +192,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddScoped<IdentityService>()
                 .AddScoped<ValidateService>()
+                .AddScoped<IHttpClientService, HttpClientService>()
                 .AddScoped<IValidateService, ValidateService>();
 
-            if (isTest == false)
-            {
-                services.AddScoped<IHttpClientService, HttpClientService>();
-            }
+            //if (isTest == false)
+            //{
+            //    services.AddScoped<IHttpClientService, HttpClientService>();
+            //}
         }
 
         private void RegisterSerializationProvider()
@@ -302,9 +305,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
-                context.Database.SetCommandTimeout(10 * 60 * 1000);
+                
                 if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
                 {
+                    context.Database.SetCommandTimeout(10 * 60 * 1000);
                     context.Database.Migrate();
                 }
             }

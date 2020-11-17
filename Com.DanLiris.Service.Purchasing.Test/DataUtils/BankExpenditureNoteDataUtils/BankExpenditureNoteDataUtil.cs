@@ -225,6 +225,41 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             return TestData;
         }
 
+        public async Task<BankExpenditureNoteModel> GetNewDataVatZero()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+
+            var detail = await GetNewDetailSpinningData();
+            detail.Vat = 0;
+            List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
+            {
+                detail
+            };
+
+            BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
+            {
+                BankAccountNumber = "100020003000",
+                BankAccountCOA = "BankAccountCOA",
+                BankAccountName = "BankAccountName",
+                BankCode = "BankCode",
+                BankId = 1,
+                BankName = "BankName",
+                BankCurrencyCode = "CurrencyCode",
+                BankCurrencyId = 1,
+                BankCurrencyRate = "1",
+                GrandTotal = 120,
+                BGCheckNumber = "BGNo",
+                SupplierImport = false,
+                CurrencyRate = 1,
+                CurrencyId = 1,
+                CurrencyCode = "Code",
+                Details = Details,
+            };
+
+            return TestData;
+        }
+
         public async Task<BankExpenditureNoteModel> GetNewDataIDR()
         {
             PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());

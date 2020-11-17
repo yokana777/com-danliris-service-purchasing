@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSupplierBalanceDebtViewModel;
@@ -277,6 +278,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
         }
+        [Fact]
+        public void Should_Success_Create_Data_BalanceStock()
+        {
+            BalanceStock balanceStock = new BalanceStock
+            {
+                BalanceStockId = "BS1807011000951",
+                StockId = 1801,
+                EPOID = "PM16205859",
+                EPOItemId = 1,
+                RO = "162004M",
+                ArticleNo = "FAB 28.12.16/M",
+                SmallestUnitQty = "9",
+                PeriodeMonth = "9",
+                PeriodeYear = "2018",
+                OpenStock = 950.06,
+                DebitStock = 0,
+                CreditStock = 0,
+                CloseStock = 2.74280000000181,
+                OpenPrice = Convert.ToDecimal(21736103.1398),
+                DebitPrice = 0,
+                CreditPrice = 0,
+                ClosePrice = Convert.ToDecimal(62659.1333),
+                CreateDate = new DateTime(2018, 07, 01)
+
+            };
+
+            Assert.NotNull(balanceStock);
+        }
+
 
     }
 }

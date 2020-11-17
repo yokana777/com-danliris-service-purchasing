@@ -81,5 +81,208 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
             return result.ToList();
         }
+
+        public async Task<Unit> GetUnitById(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/units/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<Unit>()
+            {
+                data = new Unit()
+            };
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<Unit>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<AccountingUnit> GetAccountingUnitById(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/accounting-units/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<AccountingUnit>()
+            {
+                data = new AccountingUnit()
+            };
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<AccountingUnit>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<List<Category>> GetCategoriesByAccountingCategoryId(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/categories/by-accounting-category-id/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<List<Category>>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<List<Category>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<List<Unit>> GetUnitsByAccountingUnitId(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/units/by-accounting-unit-id/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<List<Unit>>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<List<Unit>>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<List<AccountingUnit>> GetAccountingUnitsByUnitIds(List<int> unitIds)
+        {
+            var unitTasks = unitIds.Select(unitId => GetUnitById(unitId));
+            var unitTaskResult = await Task.WhenAll(unitTasks);
+            var units = unitTaskResult.ToList();
+
+            var accountingUnitTasks = units.Select(unit => GetAccountingUnitById(unit.AccountingUnitId));
+            var accountingUnitTaskResult = await Task.WhenAll(accountingUnitTasks);
+
+            return accountingUnitTaskResult.ToList();
+        }
+
+        public async Task<List<Unit>> GetUnitsByUnitIds(List<int> unitIds)
+        {
+            var unitTasks = unitIds.Select(unitId => GetUnitById(unitId));
+            var unitTaskResult = await Task.WhenAll(unitTasks);
+
+            return unitTaskResult.ToList();
+        }
+
+        public async Task<Category> GetCategoryById(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/categories/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<Category>()
+            {
+                data = new Category()
+            };
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<Category>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<AccountingCategory> GetAccountingCategoryById(int id)
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var httpClient = (IHttpClientService)_serviceProvider.GetService(typeof(IHttpClientService));
+
+            var uri = APIEndpoint.Core + $"master/accounting-categories/{id}";
+            var response = await httpClient.GetAsync(uri);
+
+            var result = new BaseResponse<AccountingCategory>()
+            {
+                data = new AccountingCategory()
+            };
+
+            if (response.IsSuccessStatusCode)
+            {
+                result = JsonConvert.DeserializeObject<BaseResponse<AccountingCategory>>(response.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            }
+
+            return result.data;
+        }
+
+        public async Task<List<AccountingCategory>> GetAccountingCategoriesByCategoryIds(List<int> categoryIds)
+        {
+            var categoryTasks = categoryIds.Select(unitId => GetCategoryById(unitId));
+            var categoryTaskResult = await Task.WhenAll(categoryTasks);
+            var categories = categoryTaskResult.ToList();
+
+            var accountingCategoryTasks = categories.Select(unit => GetAccountingCategoryById(unit.AccountingCategoryId));
+            var accountingCategoryTaskResult = await Task.WhenAll(accountingCategoryTasks);
+
+            return accountingCategoryTaskResult.ToList();
+        }
+
+        public async Task<List<Category>> GetCategoriesByCategoryIds(List<int> categoryIds)
+        {
+            var categoryTasks = categoryIds.Select(unitId => GetCategoryById(unitId));
+            var categoryTaskResult = await Task.WhenAll(categoryTasks);
+
+            return categoryTaskResult.ToList();
+        }
+        public async Task<List<string>> GetCategoryIdsByAccountingCategoryId(int accountingCategoryId)
+        {
+            var categories = new List<Category>();
+
+            if (accountingCategoryId > 0)
+                categories = await GetCategoriesByAccountingCategoryId(accountingCategoryId);
+
+            return categories.Select(x => x.Id.ToString()).ToList();
+        }
+
+        public async Task<List<string>> GetUnitsIdsByAccountingUnitId(int accountingUnitId)
+        {
+            var units = new List<Unit>();
+
+            if (accountingUnitId > 0)
+                units = await GetUnitsByAccountingUnitId(accountingUnitId);
+
+            return units.Select(x => x.Id.ToString()).ToList();
+        }
     }
 }

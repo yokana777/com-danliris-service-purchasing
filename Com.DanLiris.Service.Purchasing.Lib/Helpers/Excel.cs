@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -51,5 +52,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             return stream;
         }
 
+        public static MemoryStream CreateExcel(List<KeyValuePair<DataTable, string>> dtSourceList, string title, string dateFrom, string dateTo, bool styling = false, int index = 0)
+        {
+            ExcelPackage package = new ExcelPackage();
+            foreach (KeyValuePair<DataTable, string> item in dtSourceList)
+            {
+                var sheet = package.Workbook.Worksheets.Add(item.Value);
+
+                sheet.Cells["A1"].Value = "PT.Dan Liris";
+                sheet.Cells["A1:D1"].Merge = true;
+
+                sheet.Cells["A2"].Value = title;
+                sheet.Cells["A2:D2"].Merge = true;
+
+                sheet.Cells["A3"].Value = $"PERIODE : {dateFrom} sampai dengan {dateTo}";
+                sheet.Cells["A3:D3"].Merge = true;
+
+                sheet.Cells["A5"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
+                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+                int cells = 6;
+                sheet.Cells[$"F{cells}:F{cells + index}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            }
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+        }
     }
 }

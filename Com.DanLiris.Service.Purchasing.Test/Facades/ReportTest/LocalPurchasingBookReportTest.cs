@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
@@ -163,10 +164,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
-            Assert.NotEmpty(result.Reports);
+            Assert.NotNull(result);
 
             result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
-            Assert.NotEmpty(result.Reports);
+            Assert.NotNull(result);
         }
 
         [Fact]
@@ -210,6 +211,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             result = await facade.GenerateExcel(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
             Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Should_Success_Generate_Pdf()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
+
+            var result = await facade.GetReport(urn.URNNo, urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
+
+            var localPdf = LocalPurchasingBookReportPdfTemplate.Generate(result, 1, null, null);
+            Assert.NotNull(localPdf);
+
+            var localCurrencyPdf = LocalPurchasingForeignCurrencyBookReportPdfTemplate.Generate(result, 1, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.NotNull(localCurrencyPdf);
+
+            var importPdf = ImportPurchasingBookReportPdfTemplate.Generate(result, 1, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.NotNull(importPdf);
         }
     }
 }

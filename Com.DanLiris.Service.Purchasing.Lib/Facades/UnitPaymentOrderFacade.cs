@@ -25,6 +25,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using System.Net.Http;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
@@ -34,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         private readonly DbSet<UnitPaymentOrder> dbSet;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMemoryCacheManager _cacheManager;
+        private readonly ICurrencyProvider _currencyProvider;
         private string USER_AGENT = "Facade";
 
         public UnitPaymentOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -42,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             this.dbSet = dbContext.Set<UnitPaymentOrder>();
             _serviceProvider = serviceProvider;
             _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
+            _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
         }
 
         private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
@@ -80,6 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 CurrencyDescription = s.CurrencyDescription,
                 CurrencyId = s.CurrencyId,
                 CurrencyRate = s.CurrencyRate,
+                ImportInfo = s.ImportInfo,
                 Items = s.Items.Select(i => new UnitPaymentOrderItem
                 {
                     URNNo = i.URNNo,
@@ -685,6 +689,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 IncomeTaxRate = s.IncomeTaxRate,
                 IncomeTaxNo = s.IncomeTaxNo,
                 IncomeTaxDate = s.IncomeTaxDate,
+                IncomeTaxBy = s.IncomeTaxBy,
                 UseVat = s.UseVat,
                 VatNo = s.VatNo,
                 VatDate = s.VatDate,
@@ -1185,6 +1190,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             {
                 var unitReceiptNote = unitReceiptNotes.FirstOrDefault(entity => entity.Id == item.URNId);
 
+                var externalPurchaseOrderIds = unitReceiptNote.Items.Select(s => s.EPOId).ToList();
+                var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
+
                 int.TryParse(unitReceiptNote.UnitId, out var unitId);
                 var unit = Units.FirstOrDefault(entity => entity.Id == unitId);
                 if (unit == null)
@@ -1198,6 +1206,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 foreach (var urnItem in unitReceiptNote.Items)
                 {
                     var purchaseRequest = purchaseRequests.FirstOrDefault(entity => entity.Id == urnItem.PRId);
+                    var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(entity => entity.Id == urnItem.EPOId);
+
+                    var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
+                    var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
+
+                    var grandTotal = Convert.ToDouble(urnItem.ReceiptQuantity * urnItem.PricePerDealUnit * (double)currencyRate);
 
                     int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                     var category = Categories.FirstOrDefault(entity => entity._id == categoryId);
@@ -1231,14 +1245,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
                     }
 
-                    var total = 0.1 * (urnItem.PricePerDealUnit * urnItem.ReceiptQuantity);
+                    var totalVAT = 0.1 * grandTotal;
                     journalCreditItems.Add(new JournalTransactionItem()
                     {
                         COA = new COA()
                         {
                             Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Credit = (decimal)total
+                        Credit = (decimal)totalVAT
                     });
 
                     journalDebitItems.Add(new JournalTransactionItem()
@@ -1247,7 +1261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         {
                             Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = (decimal)total
+                        Debit = (decimal)totalVAT
                     });
                 }
             }

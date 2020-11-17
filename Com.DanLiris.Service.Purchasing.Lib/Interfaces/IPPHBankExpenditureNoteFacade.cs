@@ -15,5 +15,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<PPHBankExpenditureNote> ReadById(int id);
         Task<int> Create(PPHBankExpenditureNote model, string username);
         Task<int> Delete(int id, string username);
+        Task<int> Posting(List<long> ids);
     }
 }

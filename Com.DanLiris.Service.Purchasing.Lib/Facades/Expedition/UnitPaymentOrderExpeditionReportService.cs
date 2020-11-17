@@ -213,12 +213,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 }
             }
 
+            int cells = 7; // initial start body data
             foreach (var d in data)
             {
                 decimal selisih = d.DueDate != null && d.Date != null ? ((d.DueDate.Value) - (d.Date.Value)).Days : 0;
 
                 dataTable.Rows.Add(d.No ?? "-", GetFormattedDate(d.Date), GetFormattedDate(d.DueDate), d.InvoiceNo ?? "-", d.Supplier.name ?? "-",
-                    d.Currency ?? "-", d.DPP, d.PPn, d.PPh, d.TotalTax, Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
+                    d.Currency ?? "-", d.DPP.ToString("#,##0.#0"), d.PPn.ToString("#,##0.#0"), d.PPh.ToString("#,##0.#0"), d.TotalTax.ToString("#,##0.#0"), Math.Abs(Math.Ceiling(selisih)), d.Category.Name ?? "-", d.Unit.Name ?? "-", d.Division.Name ?? "-", GetFormattedPosition(d.Position),
                     GetFormattedDate(d.SendToVerificationDivisionDate),
                     d.CreatedBy ?? "-",
                     GetFormattedDate(d.VerificationDivisionDate),
@@ -226,48 +227,61 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     GetFormattedDate(d.SendDate),
                     GetFormattedDate(d.CashierDivisionDate),
                     d.BankExpenditureNoteNo ?? "-");
+                    cells++;
             }
 
             ExcelPackage package = new ExcelPackage();
             var sheet = package.Workbook.Worksheets.Add("Data");
+            string dateFromXls = dateFrom == DateTimeOffset.MinValue ? "-" : dateFrom.Date.ToString("dd MMMM yyyy"),
+                dateToXls = dateFrom == DateTimeOffset.MinValue && dateTo.Date == DateTimeOffset.UtcNow.Date ? "-" : dateTo.Date.ToString("dd MMMM yyyy");
 
-            sheet.Cells["A3"].LoadFromDataTable(dataTable, false, OfficeOpenXml.Table.TableStyles.None);
+            sheet.Cells["A1"].Value = "PT.Dan Liris";
+            sheet.Cells["A1:D1"].Merge = true;
 
-            sheet.Cells["G1"].Value = headers[6];
-            sheet.Cells["G1:J1"].Merge = true;
-            sheet.Cells["R1"].Value = headers[17];
-            sheet.Cells["R1:T1"].Merge = true;
-            sheet.Cells["U1"].Value = headers[20];
-            sheet.Cells["U1:V1"].Merge = true;
+            sheet.Cells["A2"].Value = "Laporan Expedisi Surat Perintah Bayar";
+            sheet.Cells["A2:D2"].Merge = true;
+
+            sheet.Cells["A3"].Value = $"PERIODE : {dateFromXls} sampai dengan {dateToXls}";
+            sheet.Cells["A3:D3"].Merge = true;
+
+            sheet.Cells["A7"].LoadFromDataTable(dataTable, false, OfficeOpenXml.Table.TableStyles.None);
+
+            sheet.Cells["G5"].Value = headers[6];
+            sheet.Cells["G5:J5"].Merge = true;
+            sheet.Cells["R5"].Value = headers[17];
+            sheet.Cells["R5:T5"].Merge = true;
+            sheet.Cells["U5"].Value = headers[20];
+            sheet.Cells["U5:V5"].Merge = true;
 
             foreach (var i in Enumerable.Range(0, 6))
             {
                 var col = (char)('A' + i);
-                sheet.Cells[$"{col}1"].Value = headers[i];
-                sheet.Cells[$"{col}1:{col}2"].Merge = true;
+                sheet.Cells[$"{col}5"].Value = headers[i];
+                sheet.Cells[$"{col}5:{col}6"].Merge = true;
             }
 
             foreach (var i in Enumerable.Range(0, 4))
             {
                 var col = (char)('G' + i);
-                sheet.Cells[$"{col}2"].Value = subHeaders[i];
+                sheet.Cells[$"{col}5"].Value = subHeaders[i];
             }
 
             foreach (var i in Enumerable.Range(0, 7))
             {
                 var col = (char)('K' + i);
-                sheet.Cells[$"{col}1"].Value = headers[i + 10];
-                sheet.Cells[$"{col}1:{col}2"].Merge = true;
+                sheet.Cells[$"{col}5"].Value = headers[i + 10];
+                sheet.Cells[$"{col}5:{col}6"].Merge = true;
             }
 
             foreach (var i in Enumerable.Range(0, 5))
             {
                 var col = (char)('R' + i);
-                sheet.Cells[$"{col}2"].Value = subHeaders[i + 4];
+                sheet.Cells[$"{col}6"].Value = subHeaders[i + 4];
             }
-            sheet.Cells["A1:V2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells["A1:V2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells["A1:V2"].Style.Font.Bold = true;
+            sheet.Cells["A5:V6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells["A5:V6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells["A5:V6"].Style.Font.Bold = true;
+            sheet.Cells[$"G7:J{cells}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
             foreach (var headerDateType in headersDateType)
             {

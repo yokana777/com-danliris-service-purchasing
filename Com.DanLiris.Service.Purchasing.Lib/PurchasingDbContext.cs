@@ -28,6 +28,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -35,6 +37,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
     {
         public PurchasingDbContext(DbContextOptions<PurchasingDbContext> options) : base(options)
         {
+            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+                Database.SetCommandTimeout(1000 * 60 * 20);
         }
 
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
@@ -125,6 +129,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentSupplierBalanceDebt> GarmentSupplierBalanceDebts { get; set; }
         public DbSet<GarmentSupplierBalanceDebtItem> GarmentSupplierBalanceDebtItems { get; set; }
 
+        public DbSet<GarmentStockOpname> GarmentStockOpnames { get; set; }
+        public DbSet<GarmentStockOpnameItem> GarmentStockOpnameItems { get; set; }
+
+        public DbSet<BalanceStock> BalanceStocks { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -209,6 +218,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib
                 .IsUnique()
                 .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
 
+            #endregion
+            #region BalanceStock
+            //modelBuilder.Entity<BalanceStock>()
+            //    .HasIndex(i => i.BalanceStockId)
+            //    .IsUnique()
+            //    .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.OpenPrice)
+                .HasColumnType("Money");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.DebitPrice)
+                .HasColumnType("Money");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.CreditPrice)
+                .HasColumnType("Money");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.ClosePrice)
+                .HasColumnType("Money");
             #endregion
         }
     }

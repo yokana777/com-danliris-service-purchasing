@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     Created = await dbContext.SaveChangesAsync();
 
 
-                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES")
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN")
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -320,6 +320,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var GarmentDR = GetDR(garmentUnitReceiptNote.DRId);
                         var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentDR.UnitDOId);
                         List<GarmentUnitDeliveryOrderItem> unitDOItems = new List<GarmentUnitDeliveryOrderItem>();
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            GarmentDOItems garmentDOItems = new GarmentDOItems
+                            {
+                                DOItemNo = await GenerateNoDOItems(garmentUnitReceiptNote),
+                                UnitId = garmentUnitReceiptNote.UnitId,
+                                UnitCode = garmentUnitReceiptNote.UnitCode,
+                                UnitName = garmentUnitReceiptNote.UnitName,
+                                StorageCode = garmentUnitReceiptNote.StorageCode,
+                                StorageId = garmentUnitReceiptNote.StorageId,
+                                StorageName = garmentUnitReceiptNote.StorageName,
+                                POId = garmentUnitReceiptNoteItem.POId,
+                                POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                RemainingQuantity = GarmentUnitDO.UnitDOFromId != 0? 0: garmentUnitReceiptNoteItem.SmallQuantity,
+                                DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                URNItemId = garmentUnitReceiptNoteItem.Id,
+                                DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                RO = garmentUnitReceiptNoteItem.RONo,
+
+                            };
+                            EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                            dbSetGarmentDOItems.Add(garmentDOItems);
+                            await dbContext.SaveChangesAsync();
+                        }
+
                         if (GarmentUnitDO.UnitDOFromId != 0)
                         {
                             GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
@@ -559,8 +594,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 await dbContext.SaveChangesAsync();
                             }
 
+                            foreach (var garmentUnitReceiptNoteItem in garmentUrn.Items)
+                            {
+                                GarmentDOItems garmentDOItems = new GarmentDOItems
+                                {
+                                    DOItemNo = await GenerateNoDOItems(garmentUrn),
+                                    UnitId = garmentUrn.UnitId,
+                                    UnitCode = garmentUrn.UnitCode,
+                                    UnitName = garmentUrn.UnitName,
+                                    StorageCode = garmentUrn.StorageCode,
+                                    StorageId = garmentUrn.StorageId,
+                                    StorageName = garmentUrn.StorageName,
+                                    POId = garmentUnitReceiptNoteItem.POId,
+                                    POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                    POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                    ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                    ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                    ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                    DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                    SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                    SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                    SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                    RemainingQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                    DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                    URNItemId = garmentUnitReceiptNoteItem.Id,
+                                    DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                    EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                    PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                    RO = garmentUnitReceiptNoteItem.RONo,
+
+                                };
+                                EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                                dbSetGarmentDOItems.Add(garmentDOItems);
+                                await dbContext.SaveChangesAsync();
+                            }
+
                             await dbContext.SaveChangesAsync();
                         }
+                        
                     }
 
                     
@@ -1279,41 +1350,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             List<object> ListData = new List<object>(data);
             return ListData;
         }
-
         #region Flow Detail Penerimaan 
-        public IQueryable<FlowDetailPenerimaanViewModels> GetReportQueryFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset)
+        public IQueryable<FlowDetailPenerimaanViewModels> GetReportQueryFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset, int page, int size)
 
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
             var Status = new[] { "" };
-            switch (category)
-            {
-                case "Bahan Baku":
-                    Status = new[] { "FABRIC", "SUBKON" };
-                    break;
-                case "Bahan Pendukung":
-                    Status = new[] { "APPLICATION", "BADGES", "BUNGEE CORD", "BUCKLE", "BENANG HANGTAG", "BUTTON", "COLLAR BONE", "CARE LABEL",
-                    "DRAWSTRING", "ELASTIC", "EMBROIDERY", "LAIN-LAIN", "GROSS GRAIN", "GESPER", "HOOK & BAR", "HOOK & EYE",
-                    "INTERLINING", "KNACKS", "ID LABEL", "LABEL", "LACE", "MESS GUSSET", "METAL IGOT", "NECK LABEL",
-                    "PL PACKING", "PADDING", "PEN KRAH", "POLYCORD", "PLISKET", "POLYWOSHER", "PIPING", "PULLER","QUILTING","RIBBON","RIB","RING","STRAPPING BAND",
-                    "SLEEVE HEADER", "SIZE LABEL", "SAMPLE MATERIAL", "SHOULDER PAD", "SPONGE FOAM", "SPINDLE", "STOPPER", "SEWING THREAD","TAPE / DRYTEX","TRIMMING GROOMET","TASSEL","VELCRO","VITTER BAND",
-                    "WADDING", "WAPPEN", "WRAPBAND", "WASH", "ZIPPER","PROCESS",
-                    };
-                    break;
-                case "Bahan Embalase":
-                    Status = new[] { "ATTENTION NAME", "POLYBAG", "BACK CB", "BENANG KENUR", "BELT", "BIS NAME","BEARING STAMP","BUTTERFLY","CABLE TIES",
-                        "COLLAR CB", "CUFF STUD", "CLIPS", "DOCUMENT", "DOLL", "LAIN - LAIN","FOAM HANGER","FELT","GADGET","GLUE","GARMENT",
-                        "HANDLING", "HANGER", "HOOK", "HEAT TRANSFER", "ISOLASI", "INNER BOX","STAMPED INK","INSERT TAG","KLEM SENG","KARET GELANG","LACKBAND",
-                        "LICENSE SEAL", "LOOP", "INSERT CD/LAYER", "MACHINE", "MOULD", "METAL SLIDER","OUTER BOX","PLASTIC COLLAR","PIN","PLASTIC","PALLET",
-                        "PAPER", "PRINT", "TALI", "SILICA BAG", "SHAVING", "SILICA GEL","GARMENT SAMPLE","SHIPPING MARK","STUDS TRANSFER","SEAL TAG","STICKER",
-                        "STAMP", "STRING", "STATIONARY", "SWATCH CARD", "SIZE CHIP", "TAG","GARMENT TEST","TIE / DASI","TISSUE PAPER","TIGER TAIL",
-                    };
-                    break;
-                default:
-                    Status = new[] { "" };
-                    break;
-            }
+            //switch (category)
+            //{
+            //    case "Bahan Baku":
+            //        Status = new[] { "FABRIC", "SUBKON" };
+            //        break;
+            //    case "Bahan Pendukung":
+            //        Status = new[] { "APPLICATION", "BADGES", "BUNGEE CORD", "BUCKLE", "BENANG HANGTAG", "BUTTON", "COLLAR BONE", "CARE LABEL",
+            //        "DRAWSTRING", "ELASTIC", "EMBROIDERY", "LAIN-LAIN", "GROSS GRAIN", "GESPER", "HOOK & BAR", "HOOK & EYE",
+            //        "INTERLINING", "KNACKS", "ID LABEL", "LABEL", "LACE", "MESS GUSSET", "METAL IGOT", "NECK LABEL",
+            //        "PL PACKING", "PADDING", "PEN KRAH", "POLYCORD", "PLISKET", "POLYWOSHER", "PIPING", "PULLER","QUILTING","RIBBON","RIB","RING","STRAPPING BAND",
+            //        "SLEEVE HEADER", "SIZE LABEL", "SAMPLE MATERIAL", "SHOULDER PAD", "SPONGE FOAM", "SPINDLE", "STOPPER", "SEWING THREAD","TAPE / DRYTEX","TRIMMING GROOMET","TASSEL","VELCRO","VITTER BAND",
+            //        "WADDING", "WAPPEN", "WRAPBAND", "WASH", "ZIPPER","PROCESS",
+            //        };
+            //        break;
+            //    case "Bahan Embalase":
+            //        Status = new[] { "ATTENTION NAME", "POLYBAG", "BACK CB", "BENANG KENUR", "BELT", "BIS NAME","BEARING STAMP","BUTTERFLY","CABLE TIES",
+            //            "COLLAR CB", "CUFF STUD", "CLIPS", "DOCUMENT", "DOLL", "LAIN - LAIN","FOAM HANGER","FELT","GADGET","GLUE","GARMENT",
+            //            "HANDLING", "HANGER", "HOOK", "HEAT TRANSFER", "ISOLASI", "INNER BOX","STAMPED INK","INSERT TAG","KLEM SENG","KARET GELANG","LACKBAND",
+            //            "LICENSE SEAL", "LOOP", "INSERT CD/LAYER", "MACHINE", "MOULD", "METAL SLIDER","OUTER BOX","PLASTIC COLLAR","PIN","PLASTIC","PALLET",
+            //            "PAPER", "PRINT", "TALI", "SILICA BAG", "SHAVING", "SILICA GEL","GARMENT SAMPLE","SHIPPING MARK","STUDS TRANSFER","SEAL TAG","STICKER",
+            //            "STAMP", "STRING", "STATIONARY", "SWATCH CARD", "SIZE CHIP", "TAG","GARMENT TEST","TIE / DASI","TISSUE PAPER","TIGER TAIL",
+            //        };
+            //        break;
+            //    default:
+            //        Status = new[] { "" };
+            //        break;
+            //}
 
             List<FlowDetailPenerimaanViewModels> Data = new List<FlowDetailPenerimaanViewModels>();
 
@@ -1321,20 +1391,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                          join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                          join c in dbContext.GarmentInternalPurchaseOrders on b.POId equals c.Id
                          join d in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals d.Id
-                         join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
-                         join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
-
-
+                         join e in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals e.Id
+                         join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
+                         //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
+                         //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
                          where a.IsDeleted == false
                             && b.IsDeleted == false
                             && c.IsDeleted == false
                             && d.IsDeleted == false
-                            && e.IsDeleted == false
-                            && f.IsDeleted == false
+                            //&& e.IsDeleted == false
+                            //&& f.IsDeleted == false
                             && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                             && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                             && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
-                            && (category == "Bahan Baku" ? Status.Contains(b.ProductName) : (category == "Bahan Pendukung" ? Status.Contains(b.ProductName) : (category == "Bahan Embalase" ? Status.Contains(b.ProductName) : b.ProductName == b.ProductName)))
+                            && d.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? d.CodeRequirment : category)
+
+                         //&& (category == "Bahan Baku" ? Status.Contains(b.ProductName) : (category == "Bahan Pendukung" ? Status.Contains(b.ProductName) : (category == "Bahan Embalase" ? Status.Contains(b.ProductName) : b.ProductName == b.ProductName)))
 
                          select new FlowDetailPenerimaanViewModels
                          {
@@ -1347,23 +1419,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              kdbuyer = c.BuyerCode,
                              nobukti = a.URNNo,
                              tanggal = a.CreatedUtc,
-                             jumlahbeli = d.DOQuantity,
-                             satuanbeli = d.SmallUomUnit,
+                             jumlahbeli = a.URNType == "PEMBELIAN" ? d.DOQuantity : a.URNType == "PROSES" ? (double)b.SmallQuantity : (double)b.SmallQuantity,
+                             satuanbeli = a.URNType == "PEMBELIAN" ? d.SmallUomUnit : a.URNType == "PROSES" ? b.SmallUomUnit : b.SmallUomUnit,
                              jumlahterima = decimal.ToDouble(b.ReceiptQuantity),
                              satuanterima = b.SmallUomUnit,
-                             jumlah = f.DOCurrencyRate.GetValueOrDefault() * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
-
-
+                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
+                             asal = a.URNType,
+                             tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
 
                          });
+
+        
+
             var index = 1;
             foreach (var item in Query)
             {
-
+               
                 Data.Add(
                        new FlowDetailPenerimaanViewModels
                        {
-
                            no = index++,
                            kdbarang = item.kdbarang,
                            nmbarang = item.nmbarang,
@@ -1372,15 +1446,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                            noro = item.noro,
                            artikel = item.artikel,
                            kdbuyer = item.kdbuyer,
-                           asal = "Pembelian Eksternal",
+                           asal = item.asal,
                            nobukti = item.nobukti,
                            tanggal = item.tanggal,
                            jumlahbeli = item.jumlahbeli,
                            satuanbeli = item.satuanbeli,
-                           jumlahterima = item.jumlahterima,
+                           jumlahterima = (double)item.jumlahterima,
                            satuanterima = item.satuanterima,
                            jumlah = item.jumlah,
-
+                           tipepembayaran = item.tipepembayaran
 
                        });
 
@@ -1393,13 +1467,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public Tuple<List<FlowDetailPenerimaanViewModels>, int> GetReportFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order, int offset)
 
         {
-            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset);
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, page, size);
 
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderBy(b => b.no).ThenBy(b => b.no);
+                Query = Query.OrderBy(b => b.no);
             }
 
 
@@ -1413,7 +1487,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
         public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
         {
-            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset);
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, 1, int.MaxValue);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -1432,13 +1506,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Metode Pembayaran", DataType = typeof(String) });
 
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
             if (Query.ToArray().Count() == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1447,7 +1522,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     index++;
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah);
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
 
                 }
 
