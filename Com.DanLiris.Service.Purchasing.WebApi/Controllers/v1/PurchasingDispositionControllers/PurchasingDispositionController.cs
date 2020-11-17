@@ -402,5 +402,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
             }
             
         }
+
+        [HttpPut("update/is-paid-true/{id}")]
+        public async Task<IActionResult> SetIsPaidTrue([FromRoute] int id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var model = facade.ReadModelById(id);
+
+                if (model == null)
+                    return NotFound();
+
+                await facade.SetIsPaidTrue(id, identityService.Username);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+
+        }
     }
 }
