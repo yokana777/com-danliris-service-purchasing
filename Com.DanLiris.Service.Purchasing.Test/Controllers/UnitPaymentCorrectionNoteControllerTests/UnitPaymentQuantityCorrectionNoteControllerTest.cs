@@ -624,6 +624,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
         }
 
         [Fact]
+        public async Task Should_ThrowsException_Post()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<UnitPaymentCorrectionNoteViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+
+            var mockFacade = new Mock<IUnitPaymentQuantityCorrectionNoteFacade>();
+            mockFacade
+                .Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
+           
+            //Act
+            var controller = GetController(mockFacade, validateMock, mockMapper, mockFacadeSpb);
+            var response = await controller.Post(this.ViewModel);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Data()
         {
             var validateMock = new Mock<IValidateService>();

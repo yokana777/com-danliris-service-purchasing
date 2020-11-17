@@ -391,5 +391,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
 			var response = controller.ByName(null, null);
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
-	}
+
+        [Fact]
+        public void Should_Fail_GetByName()
+        {
+            //Setup
+            var facadeMock = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            facadeMock
+                .Setup(x => x.ReadName(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<GarmentInternalPurchaseOrderViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
+                .Returns(new List<GarmentInternalPurchaseOrderViewModel>());
+
+            //Act
+            GarmentInternalPurchaseOrderController controller = GetController(facadeMock, null, mapperMock);
+            var response = controller.ByName(null, null);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+    }
 }

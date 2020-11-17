@@ -56,7 +56,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
                 BankAccountNumber = "100020003000",
                 BankAccountName = "BankAccountName",
                 BankCode = "BankCode",
-                BankId = "BankId",
+                BankId = "1",
                 BankName = "BankName",
                 BGNo = "BGNo",
                 IncomeTaxId = "IncomeTaxId",
@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.PPHBankExpenditureNoteD
                 No = "No",
                 TotalDPP = 1100000,
                 TotalIncomeTax = 100000,
-                Currency = "IDR"
+                Currency = "USD"
             };
 
             return TestData;

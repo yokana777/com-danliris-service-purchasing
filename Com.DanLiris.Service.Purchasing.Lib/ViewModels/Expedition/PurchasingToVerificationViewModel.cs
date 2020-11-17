@@ -81,7 +81,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                         Price = item.Price,
                         UnitId = item.UnitId,
                         UnitCode = item.UnitCode,
-                        UnitName = item.UnitName
+                        UnitName = item.UnitName,
+                        URNId = item.URNId.GetValueOrDefault(),
+                        URNNo = item.URNNo
                     });
                 }
 
@@ -106,7 +108,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     IncomeTaxRate = unitPaymentOrder.IncomeTaxRate,
                     TotalPaid = unitPaymentOrder.TotalPaid,
                     Currency = unitPaymentOrder.Currency,
-                    Items = Items
+                    Items = Items,
+                    URNId = unitPaymentOrder.URNId,
+                    URNNo = unitPaymentOrder.URNNo
                 });
             }
 

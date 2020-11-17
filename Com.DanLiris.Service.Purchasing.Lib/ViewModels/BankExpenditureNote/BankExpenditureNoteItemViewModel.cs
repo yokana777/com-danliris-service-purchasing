@@ -15,5 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string UnitId { get; set; }
         public string UnitName { get; set; }
         public string Uom { get; set; }
+        public long URNId { get; set; }
+        public string URNNo { get; set; }
     }
 }

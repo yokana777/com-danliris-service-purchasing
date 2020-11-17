@@ -129,17 +129,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPOMasterDistri
         [Fact]
         public void Should_Error_Get_Data_By_Id()
         {
+           //Setup
             var mockFacade = new Mock<IGarmentPOMasterDistributionFacade>();
-            mockFacade.Setup(x => x.ReadById(It.IsAny<long>()))
-                .Throws(new Exception(string.Empty));
+            mockFacade
+                .Setup(x => x.ReadById(It.IsAny<long>()))
+                .Returns(()=>null);
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<GarmentPOMasterDistributionViewModel>(It.IsAny<GarmentPOMasterDistribution>()))
+            mockMapper
+                .Setup(x => x.Map<GarmentPOMasterDistributionViewModel>(It.IsAny<GarmentPOMasterDistribution>()))
                 .Returns(new GarmentPOMasterDistributionViewModel());
 
+            //Act
             GarmentPOMasterDistributionController controller = GetController(mockFacade, mockMapper, null);
-
             IActionResult response = controller.Get(It.IsAny<long>());
+
+            //Assert
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

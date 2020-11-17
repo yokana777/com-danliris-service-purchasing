@@ -51,6 +51,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #endregion
 
+
+            var unitName = "";
+            var unitId = viewModel.unit._id;
+            if (unitId == "50")
+            {
+                unitName = "WEAVING";
+            }
+            else if (unitId == "35")
+               {
+                  unitName = "SPINNING 1";
+               }
+            else
+            {
+                unitName = viewModel.unit.name;
+            }
             #region Identity
 
             PdfPTable tableIdentity = new PdfPTable(3);
@@ -59,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellIdentityContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
             cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.unit.name, normal_font2);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + unitName, normal_font2);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentRight.Phrase = new Phrase("Sukoharjo, " + viewModel.date.GetValueOrDefault().ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font2);
             tableIdentity.AddCell(cellIdentityContentRight);

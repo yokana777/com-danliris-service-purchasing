@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                 {
                     Date = DateTimeOffset.UtcNow,
                     IncomeTax = new IncomeTaxExpeditionViewModel(),
-                    Bank = new BankViewModel() { currency = new CurrencyViewModel() },
+                    Bank = new Lib.ViewModels.NewIntegrationViewModel.AccountBankViewModel() { Currency = new Lib.ViewModels.NewIntegrationViewModel.CurrencyViewModel() },
                     PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>() { new UnitPaymentOrderViewModel() { Items = new List<UnitPaymentOrderItemViewModel>() { new UnitPaymentOrderItemViewModel() } } }
                 };
             }
@@ -151,6 +151,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
             var response = controller.GetUPO(null, null, "IncomeTaxName", 2, "IDR");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_NoContent_PostingData()
+        {
+            var mockFacade = new Mock<IPPHBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.Posting(It.IsAny<List<long>>()))
+               .ReturnsAsync(1);
+
+            PPHBankExpenditureNoteController controller = GetController(mockFacade, new Mock<IValidateService>());
+
+            var response = await controller.Posting(It.IsAny<List<long>>());
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
         [Fact]

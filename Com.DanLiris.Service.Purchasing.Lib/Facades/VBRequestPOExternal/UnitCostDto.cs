@@ -56,21 +56,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
             Unit = new UnitDto(unitReceiptNote.UnitId, unitReceiptNote.UnitCode, unitReceiptNote.UnitName, unitReceiptNote.DivisionCode, unitReceiptNote.DivisionId, unitReceiptNote.DivisionName);
 
-            var total = detail.PriceTotal;
+            var quantity = detail.ReceiptQuantity;
+            if (detail.QuantityCorrection > 0)
+                quantity = detail.QuantityCorrection;
+
+            var price = detail.PricePerDealUnit;
+            if (detail.PricePerDealUnitCorrection > 0)
+                price = detail.PricePerDealUnitCorrection;
+
+            var result = quantity * price;
+            if (detail.PriceTotalCorrection > 0)
+                result = detail.PriceTotalCorrection;
+
+            var total = result;
             if (element != null)
             {
                 if (element.UseVat)
                 {
-                    total += detail.PriceTotal * 0.1;
+                    result += total * 0.1;
                 }
 
                 if (element.UseIncomeTax && (element.IncomeTaxBy == "Supplier" || element.IncomeTaxBy == "SUPPLIER"))
                 {
-                    total -= detail.PriceTotal * (element.IncomeTaxRate / 100);
+                    result -= total * (element.IncomeTaxRate / 100);
                 }
             }
 
-            Amount = total;
+            Amount = result;
         }
 
         public UnitDto Unit { get; private set; }

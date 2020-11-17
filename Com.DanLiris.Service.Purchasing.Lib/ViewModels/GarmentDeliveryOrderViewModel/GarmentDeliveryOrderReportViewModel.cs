@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string roNo { get; set; }
         public double price { get; set; }
         public string doCurrencyCode { get; set; }
+        public double? doCurrencyRate { get; set; }
         public string remark { get; set; }
         public string createdBy { get; set; }
         public bool isCustoms { get; set; }
@@ -35,5 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public DateTimeOffset URNDate { get; set; }
         public string UnitName { get; set; }
         public string EPOcreatedBy { get; set; }
+        public string INNo { get; set; }
+        public string TermPayment { get; set; }
     }
 }

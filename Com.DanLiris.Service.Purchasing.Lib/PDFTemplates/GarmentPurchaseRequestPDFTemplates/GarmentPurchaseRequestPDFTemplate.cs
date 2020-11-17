@@ -46,12 +46,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
 
             #region Identity
 
-            PdfPTable tableIdentity = new PdfPTable(4);
-            tableIdentity.SetWidths(new float[] { 0.5f, 2f, 2.5f, 5f });
+            PdfPTable tableIdentity = new PdfPTable(6);
+            tableIdentity.SetWidths(new float[] { 1f, 2f, 1f, 3f, 1f, 2f });
 
             cellLeftNoBorder.Phrase = new Phrase("RO", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(": " + viewModel.RONo, normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase("NO PRE S/C", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase(": " + viewModel.SCNo, normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("LEAD TIME : 35", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);

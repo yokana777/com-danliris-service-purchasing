@@ -451,7 +451,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 .Returns(dataTable.CreateDataReader());
 
             var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
-            var Response = facadepaymentstatus.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
+            var Response = facadepaymentstatus.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
 
 
@@ -513,7 +513,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 .Returns(dataTable.CreateDataReader());
 
             var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
-            var Response = facadepaymentstatus.GetXLs(null, null, null, null, null, null, null, null, null, null, null, null, 7);
+            var Response = facadepaymentstatus.GetXLs(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -572,7 +572,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 .Returns(dataTable.CreateDataReader());
 
             var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
-            var Response = facadepaymentstatus.GetXLs(null, "1", null, null, null, null, null, null, null, null, null, null, 7);
+            var Response = facadepaymentstatus.GetXLs(null, "1", null, null, null, null, null, null, null, null, null, null, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -638,7 +638,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 .Throws(new Exception("Error ExecuteReader"));
 
             var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
-            Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7)) ;
+            Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetReport(null, null, null, null, null, null, null, null, null, null, DateTime.Now.AddDays(1), null, DateTime.Now.AddDays(1), null, 1, 25, "{}", 7)) ;
 
 
         }
@@ -698,7 +698,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 .Throws(new Exception("Error ExecuteReader"));
 
             var facadepaymentstatus = new GarmentInternNotePaymentStatusFacade(serviceProviderMock.Object, dbContext, mockDbContext.Object);
-            var Response = Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetXLs(null, null, null, null, null, null, null, null, null, null, null, null, 7));
+            var Response = Assert.ThrowsAny<Exception>(() => facadepaymentstatus.GetXLs(null, null, null, null, null, null, null, null, null, null, DateTime.Now.AddDays(1), null, DateTime.Now.AddDays(1), null, 7));
             Assert.NotNull(Response);
         }
 

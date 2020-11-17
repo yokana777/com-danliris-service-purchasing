@@ -353,7 +353,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 //var deliveryOrderItemIds = queryResult.Select(s => s.DOItemId).Distinct().ToList();
                 //var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
                 var deliveryOrderDetailIds = queryResult.Select(s => s.DODetailId).Distinct().ToList();
-                var deliveryOrderDetails = dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
+                var deliveryOrderDetails = dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.DOQuantity, s.UomUnit }).ToList();
 
                 var unitPaymentOrderIds = queryResult.Select(s => s.UPOId).Distinct().ToList();
                 var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, }).ToList();
@@ -468,6 +468,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             doDeliveryDate = deliveryOrder == null ? date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : deliveryOrder.ArrivalDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                             doNo = deliveryOrder == null ? "-" : deliveryOrder.DONo,
                                             doDetailId = selectedCorrectionItems.Count == 0 ? 0 : unitPaymentOrderDetail.Id,
+                                            doQuantity = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.DOQuantity,
+                                            doUom = deliveryOrderDetail == null ? "-" : deliveryOrderDetail.UomUnit,
                                             urnProductCode = "",
                                             priceTotalBefore = 0,
                                             urnDate = unitReceiptNote == null ? date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : unitReceiptNote.ReceiptDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
@@ -562,6 +564,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Datang Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Surat Jalan", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Surat Jalan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Terima Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon Terima Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Bon", DataType = typeof(double) });
@@ -589,7 +593,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -620,7 +624,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                     result.Rows.Add(index.ToString(), item.prDate, item.createdDatePR, item.prNo, item.category, item.division, item.budget, item.productName, item.productCode, item.quantity, item.uom, item.epoQty, item.Uomepo,
                         item.pricePerDealUnit, item.priceTotal, item.currencyCode, item.supplierCode, item.supplierName, item.receivedDatePO, item.epoDate, item.epoCreatedDate, item.epoExpectedDeliveryDate, item.epoDeliveryDate, item.epoNo, item.doDate,
-                        item.doDeliveryDate, item.doNo, item.urnDate, item.urnNo, item.urnQuantity, item.urnUom, item.paymentDueDays, item.invoiceDate, item.invoiceNo, item.upoDate,
+                        item.doDeliveryDate, item.doNo, item.doQuantity, item.doUom, item.urnDate, item.urnNo, item.urnQuantity, item.urnUom, item.paymentDueDays, item.invoiceDate, item.invoiceNo, item.upoDate,
                         item.upoNo, item.upoPriceTotal, item.dueDate, item.vatDate, item.vatNo, item.vatValue, incomeTaxDate, item.incomeTaxNo, item.incomeTaxValue, item.correctionDates,
                         item.correctionNo, item.correctionQtys, item.correctionType, item.remark, item.status, item.staff);
                 }

@@ -752,7 +752,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             await facadeDO.Create(dataDO, "Unit Test");
             //var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
             var dataBC = await datautilBC.GetNewData(USERNAME, dataDO);
-            dataBC.ArrivalDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1);
+            //dataBC.ArrivalDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1);
+            dataBC.ArrivalDate = DateTime.Now.AddDays(-1);
             await garmentBeaCukaiFacade.Create(dataBC, USERNAME);
 
 
@@ -791,7 +792,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             //var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
 
             var dataBC = await datautilBC.GetNewData(USERNAME, dataDO);
-            dataBC.ArrivalDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1);
+            //dataBC.ArrivalDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1);
+            dataBC.ArrivalDate = DateTime.Now.AddDays(-1);
             await garmentBeaCukaiFacade.Create(dataBC, USERNAME);
 
 
@@ -832,7 +834,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
 
             //var dataBC = await datautilBC.GetTestData(USERNAME, dataDO);
             var dataBC = await datautilBC.GetNewData(USERNAME, dataDO);
-            dataBC.ArrivalDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1);
+
+            //int day = DateTime.Now.Day 
+
+            //dataBC.ArrivalDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1);
+            dataBC.ArrivalDate = DateTime.Now.AddDays(-1);
             await garmentBeaCukaiFacade.Create(dataBC, USERNAME);
             //var dataCorrect = await dataUtilCorrection.GetNewData(dataDO);
             //dataCorrect.GarmentCorrectionNote.UseVat = true;

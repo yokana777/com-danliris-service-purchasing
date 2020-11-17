@@ -15,6 +15,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureNote
 {
@@ -28,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         private readonly IServiceProvider serviceProvider;
         private readonly IBankExpenditureNoteFacade facade;
         private readonly IdentityService identityService;
+        private readonly IBankDocumentNumberGenerator _bankDocumentNumberGenerator;
         private readonly IMapper mapper;
 
         public BankExpenditureNoteController(IServiceProvider serviceProvider, IBankExpenditureNoteFacade facade, IMapper mapper)
@@ -36,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             this.facade = facade;
             this.mapper = mapper;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            _bankDocumentNumberGenerator = serviceProvider.GetService<IBankDocumentNumberGenerator>();
         }
 
 
@@ -56,6 +59,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                     { "page", page },
                     { "size", size }
                 },
+                message = General.OK_MESSAGE,
+                statusCode = General.OK_STATUS_CODE
+            });
+        }
+
+        [HttpGet("bank-document-no")]
+        public async Task<IActionResult> GetDocumentNo([FromQuery] string type, [FromQuery] string bankCode, [FromQuery] string username)
+        {
+            var result = await _bankDocumentNumberGenerator.GenerateDocumentNumber(type, bankCode, username);
+
+            return Ok(new
+            {
+                apiVersion = "1.0.0",
+                data = result,
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });
@@ -248,6 +265,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                 message = General.OK_MESSAGE,
                 statusCode = General.OK_STATUS_CODE
             });
+        }
+
+        [HttpPut("posting")]
+        public async Task<IActionResult> Posting([FromBody] List<long> ids)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
+            var result = await facade.Posting(ids);
+
+            return NoContent();
         }
 
         [HttpGet("reports/list")]
