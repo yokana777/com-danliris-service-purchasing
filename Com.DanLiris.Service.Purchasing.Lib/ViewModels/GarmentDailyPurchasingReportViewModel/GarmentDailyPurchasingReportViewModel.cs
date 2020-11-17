@@ -16,12 +16,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDailyPurchasingR
         public double Quantity { get; set; }
         public string UOMUnit { get; set; }
         public string CodeRequirement { get; set; }
+        public string CurrencyCode { get; set; }
+        public double Rate { get; set; }
         public double Amount { get; set; }
         public double Amount1 { get; set; }
         public double Amount2 { get; set; }
         public double Amount3 { get; set; }
         public double Amount4 { get; set; }
         public double Amount5 { get; set; }
-
+        public double Amount6 { get; set; }
     }
 }
