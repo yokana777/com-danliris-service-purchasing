@@ -37,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         public double IncomeTaxValue { get; set; }
         public double VatValue { get; set; }
         public double DPP { get; set; }
+        public bool IsPaid { get; set; }
 
         public virtual ICollection<PurchasingDispositionItem> Items { get; set; }
     }
