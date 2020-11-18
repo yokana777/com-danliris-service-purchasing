@@ -35,16 +35,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var bankAccountUri = APIEndpoint.Core + $"master/account-banks?size={int.MaxValue}";
             var bankAccountResponse = _http.GetAsync(bankAccountUri, token).Result;
 
-            var bankAccountResult = new BaseResponse<List<BankAccountCOAResult>>()
-            {
-                data = new List<BankAccountCOAResult>()
-            };
-            if (bankAccountResponse.IsSuccessStatusCode)
-            {
-                bankAccountResult = JsonConvert.DeserializeObject<BaseResponse<List<BankAccountCOAResult>>>(bankAccountResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
-            }
+            //var bankAccountResult = new BaseResponse<List<BankAccountCOAResult>>()
+            //{
+            //    data = new List<BankAccountCOAResult>()
+            //};
+            //if (bankAccountResponse.IsSuccessStatusCode)
+            //{
+            //    bankAccountResult = JsonConvert.DeserializeObject<BaseResponse<List<BankAccountCOAResult>>>(bankAccountResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            //}
             
-            _cacheManager.Set(MemoryCacheConstant.BankAccounts, bankAccountResult.data);
+            //_cacheManager.Set(MemoryCacheConstant.BankAccounts, bankAccountResult.data);
         }
 
         public void SetCategoryCOA()
@@ -59,16 +59,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var categoryUri = APIEndpoint.Core + $"master/categories?size={int.MaxValue}";
             var categoryResponse = _http.GetAsync(categoryUri, token).Result;
 
-            var categoryResult = new BaseResponse<List<CategoryCOAResult>>()
-            {
-                data = new List<CategoryCOAResult>()
-            };
-            if (categoryResponse.IsSuccessStatusCode)
-            {
-                categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<CategoryCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
-            }
+            //var categoryResult = new BaseResponse<List<CategoryCOAResult>>()
+            //{
+            //    data = new List<CategoryCOAResult>()
+            //};
+            //if (categoryResponse.IsSuccessStatusCode)
+            //{
+            //    categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<CategoryCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            //}
             
-            _cacheManager.Set(MemoryCacheConstant.Categories, categoryResult.data);
+            //_cacheManager.Set(MemoryCacheConstant.Categories, categoryResult.data);
         }
 
         public void SetDivisionCOA()
@@ -83,15 +83,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var categoryUri = APIEndpoint.Core + $"master/divisions?size={int.MaxValue}";
             var categoryResponse = _http.GetAsync(categoryUri, token).Result;
 
-            var categoryResult = new BaseResponse<List<IdCOAResult>>()
-            {
-                data = new List<IdCOAResult>()
-            };
-            if (categoryResponse.IsSuccessStatusCode)
-            {
-                categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
-            }
-            _cacheManager.Set(MemoryCacheConstant.Divisions, categoryResult.data);
+            //var categoryResult = new BaseResponse<List<IdCOAResult>>()
+            //{
+            //    data = new List<IdCOAResult>()
+            //};
+            //if (categoryResponse.IsSuccessStatusCode)
+            //{
+            //    categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            //}
+            //_cacheManager.Set(MemoryCacheConstant.Divisions, categoryResult.data);
         }
 
         public void SetPPhCOA()
@@ -106,15 +106,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var incomeTaxUri = APIEndpoint.Core + $"master/income-taxes?size={int.MaxValue}";
             var incomeTaxResponse = _http.GetAsync(incomeTaxUri, token).Result;
 
-            var incomeTaxResult = new BaseResponse<List<IncomeTaxCOAResult>>()
-            {
-                data = new List<IncomeTaxCOAResult>()
-            };
-            if (incomeTaxResponse.IsSuccessStatusCode)
-            {
-                incomeTaxResult = JsonConvert.DeserializeObject<BaseResponse<List<IncomeTaxCOAResult>>>(incomeTaxResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
-            }
-            _cacheManager.Set(MemoryCacheConstant.IncomeTaxes, incomeTaxResult.data);
+            //var incomeTaxResult = new BaseResponse<List<IncomeTaxCOAResult>>()
+            //{
+            //    data = new List<IncomeTaxCOAResult>()
+            //};
+            //if (incomeTaxResponse.IsSuccessStatusCode)
+            //{
+            //    incomeTaxResult = JsonConvert.DeserializeObject<BaseResponse<List<IncomeTaxCOAResult>>>(incomeTaxResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            //}
+            //_cacheManager.Set(MemoryCacheConstant.IncomeTaxes, incomeTaxResult.data);
         }
 
         public void SetUnitCOA()
@@ -129,15 +129,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager
             var categoryUri = APIEndpoint.Core + $"master/units?size={int.MaxValue}";
             var categoryResponse = _http.GetAsync(categoryUri, token).Result;
 
-            var categoryResult = new BaseResponse<List<IdCOAResult>>()
-            {
-                data = new List<IdCOAResult>()
-            };
-            if (categoryResponse.IsSuccessStatusCode)
-            {
-                categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
-            }
-            _cacheManager.Set(MemoryCacheConstant.Units, categoryResult.data);
+            //var categoryResult = new BaseResponse<List<IdCOAResult>>()
+            //{
+            //    data = new List<IdCOAResult>()
+            //};
+            //if (categoryResponse.IsSuccessStatusCode)
+            //{
+            //    categoryResult = JsonConvert.DeserializeObject<BaseResponse<List<IdCOAResult>>>(categoryResponse.Content.ReadAsStringAsync().Result, jsonSerializerSettings);
+            //}
+            //_cacheManager.Set(MemoryCacheConstant.Units, categoryResult.data);
         }
 
         protected async Task<string> GetTokenAsync()

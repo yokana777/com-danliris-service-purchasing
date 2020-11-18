@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
                 .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
-                code = "BB"
+                Code = "BB"
                 } });
             mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
                 .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
-                code = "BB"
+                Code = "BB"
                 } });
             mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });
@@ -186,7 +186,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var mockMemoryCache = new Mock<IMemoryCacheManager>();
             mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Categories, It.IsAny<Func<ICacheEntry, List<CategoryCOAResult>>>()))
                 .Returns(new List<CategoryCOAResult>() { new CategoryCOAResult() {
-                code = "BB"
+                Code = "BB"
                 } });
             mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Units, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
                .Returns(new List<IdCOAResult>() { new IdCOAResult() });

@@ -26,6 +26,7 @@ using System.Net.Http;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 {
@@ -34,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<UnitPaymentOrder> dbSet;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IMemoryCacheManager _cacheManager;
+        private readonly IDistributedCache _cacheManager;
         private readonly ICurrencyProvider _currencyProvider;
         private string USER_AGENT = "Facade";
 
@@ -43,13 +44,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<UnitPaymentOrder>();
             _serviceProvider = serviceProvider;
-            _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
+            _cacheManager = serviceProvider.GetService<IDistributedCache>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
         }
 
-        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
-        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
-        private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
+        //private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        //private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
+        //private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
+
+        private string _jsonCategories => _cacheManager.GetString(MemoryCacheConstant.Categories);
+        private string _jsonUnits => _cacheManager.GetString(MemoryCacheConstant.Units);
+        private string _jsonDivisions => _cacheManager.GetString(MemoryCacheConstant.Divisions);
 
         public Tuple<List<UnitPaymentOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
@@ -1167,11 +1172,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
 
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions, jsonSerializerSettings);
+            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits, jsonSerializerSettings);
+            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories, jsonSerializerSettings);
+
             //journal
             var inVATCOA = "1509.00";
 
             int.TryParse(model.DivisionId, out var divisionId);
-            var division = Divisions.FirstOrDefault(entity => entity.Id == divisionId);
+            var division = divisions.FirstOrDefault(entity => entity.Id == divisionId);
             if (division == null)
             {
                 division = new IdCOAResult()
@@ -1194,7 +1208,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
 
                 int.TryParse(unitReceiptNote.UnitId, out var unitId);
-                var unit = Units.FirstOrDefault(entity => entity.Id == unitId);
+                var unit = units.FirstOrDefault(entity => entity.Id == unitId);
                 if (unit == null)
                 {
                     unit = new IdCOAResult()
@@ -1214,7 +1228,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     var grandTotal = Convert.ToDouble(urnItem.ReceiptQuantity * urnItem.PricePerDealUnit * (double)currencyRate);
 
                     int.TryParse(purchaseRequest.CategoryId, out var categoryId);
-                    var category = Categories.FirstOrDefault(entity => entity._id == categoryId);
+                    var category = categories.FirstOrDefault(entity => entity.Id == categoryId);
                     if (category == null)
                     {
                         category = new CategoryCOAResult()
