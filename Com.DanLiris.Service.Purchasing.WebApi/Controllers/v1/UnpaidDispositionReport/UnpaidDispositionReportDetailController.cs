@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFacades;
 using System.Collections.Generic;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnpaidDispositionReport
 {
@@ -94,32 +95,41 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnpaidDispositio
             }
         }
 
-        //[HttpGet("download-pdf")]
-        //public IActionResult DownloadPdf([FromQuery] int categoryId, [FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
-        //{
+        [HttpGet("download-pdf")]
+        public async Task<IActionResult> DownloadPdfAsync([FromQuery] int categoryId, [FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dateTo, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
 
-        //    try
-        //    {
-        //        if (!dueDate.HasValue)
-        //            dueDate = DateTimeOffset.Now;
-        //        var result = _service.GetReport(categoryId, unitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
-        //        return Ok(new
-        //        {
-        //            apiVersion = ApiVersion,
-        //            statusCode = General.OK_STATUS_CODE,
-        //            message = General.OK_MESSAGE,
-        //            data = result,
-        //            info = new Dictionary<string, object>
-        //            {
-        //                { "page", 1 },
-        //                { "size", 10 }
-        //            },
-        //        });
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
-        //    }
-        //}
+            try
+            {
+                if (!dateTo.HasValue)
+                    dateTo = DateTimeOffset.Now;
+
+                var clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                var data = await _service.GetReport(categoryId, unitId, divisionId, dateTo, isImport, isForeignCurrency);
+
+                var stream = UnpaidDispositionReportDetailPDFTemplate.Generate(data, clientTimeZoneOffset, dateTo, isForeignCurrency, isImport);
+
+                var filename = "Laporan Buku Pembelian Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Buku Pembelian Lokal Valas";
+                else if (isImport)
+                    filename = "Laporan Buku Pembelian Import";
+
+                filename += ".pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
