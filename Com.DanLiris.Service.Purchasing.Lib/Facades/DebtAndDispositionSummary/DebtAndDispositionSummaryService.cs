@@ -154,17 +154,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             result.AddRange(debts);
             result.AddRange(dispositions);
 
-            result = result
-                .GroupBy(element => element.CategoryCode)
-                .Select(element => new DebtAndDispositionSummaryDto()
-                {
-                    CategoryCode = element.Key,
-                    CategoryName = element.FirstOrDefault().CategoryName,
-                    DebtTotal = element.Sum(sum => sum.DebtTotal),
-                    DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                    Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
-                })
-                .ToList();
+            if (!isImport && !isForeignCurrency)
+            {
+                result = result
+                    .GroupBy(element => element.CategoryCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CategoryCode = element.Key,
+                        CategoryName = element.FirstOrDefault().CategoryName,
+                        CurrencyCode = element.FirstOrDefault().CurrencyCode,
+                        DebtTotal = element.Sum(sum => sum.DebtTotal),
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                        Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                    })
+                    .ToList();
+            }
+            else
+            {
+                result = result
+                    .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CategoryCode = element.Key.CategoryCode,
+                        CategoryName = element.FirstOrDefault().CategoryName,
+                        CurrencyCode = element.Key.CurrencyCode,
+                        DebtTotal = element.Sum(sum => sum.DebtTotal),
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                        Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                    })
+                    .ToList();
+            }
 
             return new ReadResponse<DebtAndDispositionSummaryDto>(result, result.Count, new Dictionary<string, string>());
         }
