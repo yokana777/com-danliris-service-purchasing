@@ -143,8 +143,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                 }
                 else
                 {
-                    total = item.DPP + item.VatValue - item.IncomeTaxValue;
-                    totalCurrency = (item.DPP + item.VatValue - item.IncomeTaxValue) * item.CurrencyRate;
+                    total = item.DPP + item.VatValue;
+                    totalCurrency = (item.DPP + item.VatValue) * item.CurrencyRate;
                 }
 
 
