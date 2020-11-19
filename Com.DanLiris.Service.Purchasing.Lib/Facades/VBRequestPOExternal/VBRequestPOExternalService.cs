@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.Moonlay.Models;
 using iTextSharp.text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Remotion.Linq.Clauses.ResultOperators;
@@ -24,7 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
     {
         private readonly PurchasingDbContext _dbContext;
         private readonly IdentityService _identityService;
-        private readonly IMemoryCacheManager _cacheManager;
+        private readonly IDistributedCache _cacheManager;
         private readonly ICurrencyProvider _currencyProvider;
         private readonly IServiceProvider _serviceProvider;
         private const string UserAgent = "service-purchasing";
@@ -33,16 +34,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         {
             _dbContext = dbContext;
             _identityService = serviceProvider.GetService<IdentityService>();
-            _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
+            _cacheManager = serviceProvider.GetService<IDistributedCache>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
 
             _serviceProvider = serviceProvider;
         }
 
-        private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
-        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
-        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
-        private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
+        //private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
+        //private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        //private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
+        //private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
+
+        private string _jsonCategories => _cacheManager.GetString(MemoryCacheConstant.Categories);
+        private string _jsonUnits => _cacheManager.GetString(MemoryCacheConstant.Units);
+        private string _jsonDivisions => _cacheManager.GetString(MemoryCacheConstant.Divisions);
+        private string _jsonIncomeTaxes => _cacheManager.GetString(MemoryCacheConstant.IncomeTaxes);
 
         public List<POExternalDto> ReadPOExternal(string keyword, string division, string currencyCode)
         {
@@ -367,6 +373,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
 
         public async Task<int> AutoJournalVBRequest(VBFormDto form)
         {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions, jsonSerializerSettings);
+            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits, jsonSerializerSettings);
+            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories, jsonSerializerSettings);
+            var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes, jsonSerializerSettings);
+
             var unitPaymentOrderItemIds = _dbContext.UnitPaymentOrderItems.Where(entity => form.EPOIds.Contains(entity.UPOId)).Select(entity => entity.Id).ToList();
             var unitPaymentOrders = _dbContext.UnitPaymentOrders.Where(entity => form.EPOIds.Contains(entity.Id)).ToList();
             var epoDetailIds = _dbContext.UnitPaymentOrderDetails.Where(entity => unitPaymentOrderItemIds.Contains(entity.UPOItemId)).Select(entity => entity.EPODetailId).ToList();
@@ -400,7 +416,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 var upo = form.UPOIds.FirstOrDefault(element => element.UPOId.GetValueOrDefault() == unitPaymentOrder.Id);
 
                 int.TryParse(unitPaymentOrder.CategoryId, out var categoryId);
-                var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
+                var category = categories.FirstOrDefault(f => f.Id.Equals(categoryId));
                 if (category == null)
                 {
                     category = new CategoryCOAResult()
@@ -432,7 +448,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 }
 
                 int.TryParse(unitPaymentOrder.DivisionId, out var divisionId);
-                var division = Divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
+                var division = divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
                 if (division == null)
                 {
                     division = new IdCOAResult()
@@ -449,7 +465,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 }
 
                 int.TryParse("0", out var unitId);
-                var unit = Units.FirstOrDefault(f => f.Id.Equals(unitId));
+                var unit = units.FirstOrDefault(f => f.Id.Equals(unitId));
                 if (unit == null)
                 {
                     unit = new IdCOAResult()
@@ -466,7 +482,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 }
 
                 int.TryParse(unitPaymentOrder.IncomeTaxId, out var incomeTaxId);
-                var incomeTax = IncomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
+                var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
 
                 if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
                 {
