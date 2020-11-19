@@ -6,10 +6,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
 {
     public static class MemoryCacheConstant
     {
-        public const string Units = "Units";
-        public const string Divisions = "Divisions";
-        public const string Categories = "Categories";
-        public const string IncomeTaxes = "IncomeTaxes";
-        public const string BankAccounts = "BankAccounts";
+        public const string Units = "Unit";
+        public const string Divisions = "Division";
+        public const string Categories = "Category";
+        public const string IncomeTaxes = "IncomeTax";
+        public const string BankAccounts = "AccountBank";
     }
 }
