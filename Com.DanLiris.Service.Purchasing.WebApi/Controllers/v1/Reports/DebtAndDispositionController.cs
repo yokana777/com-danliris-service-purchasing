@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -98,23 +99,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             {
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.Now;
-                var result = _service.GetReport(categoryId, unitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
-                return Ok(new
+
+                var result = _service.GetSummary(categoryId, unitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), unitId, isImport, isForeignCurrency);
+
+                var filename = "LAPORAN REKAP DATA HUTANG DAN DISPOSISI";
+                filename += ".pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
                 {
-                    apiVersion = ApiVersion,
-                    statusCode = General.OK_STATUS_CODE,
-                    message = General.OK_MESSAGE,
-                    data = result,
-                    info = new Dictionary<string, object>
-                    {
-                        { "page", 1 },
-                        { "size", 10 }
-                    },
-                });
+                    FileDownloadName = filename
+                };
             }
             catch (Exception e)
             {
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
             }
         }
     }
