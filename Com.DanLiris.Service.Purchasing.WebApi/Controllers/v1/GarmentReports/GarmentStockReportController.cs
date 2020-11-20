@@ -33,8 +33,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         [HttpGet]
         public IActionResult GetReportGarmentStock(DateTime? dateFrom, DateTime? dateTo, string category, string unitcode, int page = 1, int size = 25, string Order = "{}")
         {
-            //try
-            //{
+            try
+            {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
@@ -50,14 +50,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
-            //}
-            //catch (Exception e)
-            //{
-            //    Dictionary<string, object> Result =
-            //        new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-            //        .Fail();
-            //    return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            //}
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
 
         [HttpGet("download")]
