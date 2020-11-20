@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         }
 
 
-        public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category,  DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
+        public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
         {
             //DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom;
             //DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
@@ -45,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join f in dbContext.GarmentDeliveryOrderDetails on e.DODetailId equals f.Id
                          where
                          f.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirment : category)
+                         && f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
                          && a.CreatedUtc.Date >= DateFrom
                          && a.CreatedUtc.Date <= DateTo
 
@@ -64,7 +65,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ExpenditureDate = b.ExpenditureDate,
                              Quantity = a.Quantity,
                              UomUnit = a.UomUnit,
-                             Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate
+                             Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate,
+                             UnitDestination = b.UnitRequestName
 
                          });
 
@@ -72,9 +74,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Query.AsQueryable();
         }
 
-        public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset, string order, int page, int size)
+        public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, string productcode, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset, string order, int page, int size)
         {
-            var Query = GetQuery( category, DateFrom, DateTo, offset);
+            var Query = GetQuery(category, productcode, DateFrom, DateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             //if (OrderDictionary.Count.Equals(0))
@@ -89,9 +91,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string category, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcel(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
         {
-            var Query = GetQuery(category, dateFrom, dateTo, offset);
+            var Query = GetQuery(category, productcode, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
@@ -137,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var col = (char)('A' + result.Columns.Count);
             string tglawal = dateFrom.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
             string tglakhir = dateTo.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENGELUARAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENGELUARAN {0}", string.IsNullOrWhiteSpace(productcode) ? categoryname : "INTERLINING");
             sheet.Cells[$"A1:{col}1"].Merge = true;
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
