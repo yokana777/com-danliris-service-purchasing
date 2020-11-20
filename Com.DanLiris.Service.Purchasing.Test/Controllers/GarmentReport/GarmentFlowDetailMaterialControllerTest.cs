@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         public void Should_Success_Get_All_Data()
         {
             var mockFacade = new Mock<IGarmentFlowDetailMaterialReport>();
-            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(),It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(),It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<GarmentFlowDetailMaterialViewModel> { ViewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -116,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
-            var response = controller.GetReport(null, null, null, null,  0, 0, "");
+            var response = controller.GetReport(null, null, null, null, null,  0, 0, "");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             var mockMapper = new Mock<IMapper>();
 
             GarmentFlowDetailMaterialController controller = GetController(mockFacade, null, null);
-            var response = controller.GetReport(null, null, null, null, 0, 0, "");
+            var response = controller.GetReport(null, null, null, null, null, 0, 0, "");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

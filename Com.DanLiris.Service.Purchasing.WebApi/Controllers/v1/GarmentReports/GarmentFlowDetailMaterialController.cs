@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet]
-        public IActionResult GetReport(string category, string productcode, DateTimeOffset? dateFrom, DateTimeOffset? dateTo,  int size = 25, int page = 1, string Order = "{}")
+        public IActionResult GetReport(string category, string productcode, string unit, DateTimeOffset? dateFrom, DateTimeOffset? dateTo,  int size = 25, int page = 1, string Order = "{}")
         {
             if (dateTo == null)
                 dateTo = DateTimeOffset.UtcNow;
@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             try
             {
 
-                var data = facade.GetReport(category, productcode, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset, Order, page, size);
+                var data = facade.GetReport(category, productcode, unit, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset, Order, 1, int.MaxValue);
 
                 return Ok(new
                 {
