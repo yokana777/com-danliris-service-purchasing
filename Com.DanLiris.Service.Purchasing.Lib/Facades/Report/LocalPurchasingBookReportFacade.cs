@@ -841,6 +841,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 dt.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
                 dt.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(decimal) });
                 dt.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
             }
 
@@ -958,7 +959,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     }
                     else
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
+                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.IncomeTax, report.Total);
                     }
                 }
                 foreach (var categorySummary in result.CategorySummaries)
