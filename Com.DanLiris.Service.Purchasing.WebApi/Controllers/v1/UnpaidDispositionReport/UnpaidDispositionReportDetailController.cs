@@ -37,12 +37,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnpaidDispositio
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int accountingUnitId, [FromQuery] int accountingCategoryId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dateTo, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        public async Task<IActionResult> Get([FromQuery] int accountingUnitId, [FromQuery] int categoryId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dateTo, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
         {
             try
             {
                 VerifyUser();
-                var data = await _service.GetReport(accountingUnitId, accountingCategoryId, divisionId, dateTo.GetValueOrDefault(), isImport, isForeignCurrency);
+
+                if (!dateTo.HasValue)
+                    dateTo = DateTimeOffset.Now;
+
+                var data = await _service.GetReport(accountingUnitId, categoryId, divisionId, dateTo.GetValueOrDefault(), isImport, isForeignCurrency);
 
                 return Ok(new
                 {
