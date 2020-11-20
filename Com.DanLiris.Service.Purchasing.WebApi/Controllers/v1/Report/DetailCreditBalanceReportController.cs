@@ -62,7 +62,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
                 var stream = DetailCreditBalanceReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateTo);
 
-                var filename = "Laporan Detail Saldo Hutang Usaha.pdf";
+                var filename = isImport ? "Laporan Detail Saldo Hutang Usaha Impor" : isForeignCurrency ? "Laporan Detail Saldo Hutang Usaha Lokal Valas" : "Laporan Detail Saldo Hutang Usaha Lokal";
+                filename += ".pdf";
 
                 return new FileStreamResult(stream, "application/pdf")
                 {
@@ -84,15 +85,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             try
             {
                 byte[] xlsInBytes;
-
                 var xls = await detailCreditBalanceReportFacade.GenerateExcel(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
-                string filename = "Laporan Detail Saldo Hutang Usaha";
+                string filename = isImport ? "Laporan Detail Saldo Hutang Usaha Impor" : isForeignCurrency ? "Laporan Detail Saldo Hutang Usaha Lokal Valas" : "Laporan Detail Saldo Hutang Usaha Lokal";
+                filename += ".xlsx";
 
                 //if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
-
                 if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
-                filename += ".xlsx";
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
