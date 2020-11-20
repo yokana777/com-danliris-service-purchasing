@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
         private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
 
-        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTime? dateTo)
+        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTime? dateTo, bool isImport, bool isForeignCurrency)
         {
             //var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfWriter.GetInstance(document, stream);
             document.Open();
 
-            SetHeader(document, d2, timezoneOffset);
+            SetHeader(document, d2, timezoneOffset, isImport, isForeignCurrency);
             document.Add(new Paragraph("\n"));
             SetReportTable(document, viewModel, timezoneOffset);
             //document.Add(new Paragraph("\n"));
@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return stream;
         }
 
-        private static void SetHeader(Document document, DateTime dateTo, int timezoneOffset)
+        private static void SetHeader(Document document, DateTime dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency)
         {
             var table = new PdfPTable(1)
             {
@@ -60,7 +60,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             };
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase("LAPORAN DETAIL SALDO HUTANG IMPOR", _headerFont);
+            var sTitle = isImport ? "IMPOR" : isForeignCurrency ? "LOKAL VALAS" : "LOKAL";
+
+            cell.Phrase = new Phrase($"LAPORAN SALDO HUTANG (DETAIL) {sTitle}", _headerFont);
             table.AddCell(cell);
 
             cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):yyyy-dd-MM}", _subHeaderFont);
@@ -113,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             var table = new PdfPTable(10)
             {
-                WidthPercentage = 97
+                WidthPercentage = 95
             };
             table.SetWidths(new float[] { 10f, 10f, 10f, 10f, 10f, 10f, 10f, 10f, 10f, 10f });
 

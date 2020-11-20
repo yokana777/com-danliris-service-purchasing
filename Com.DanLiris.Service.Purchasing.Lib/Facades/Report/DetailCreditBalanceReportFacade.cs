@@ -347,7 +347,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
-                var title = "Laporan Detail Saldo Hutang Usaha";
+                var sTitle = isImport ? "IMPOR" : isForeignCurrency ? "LOKAL VALAS" : "LOKAL";
+                var title = $"LAPORAN SALDO HUTANG (DETAIL) {sTitle}";
                 var period = $"Periode sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");

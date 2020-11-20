@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
                 var data = await detailCreditBalanceReportFacade.GetReport(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
-                var stream = DetailCreditBalanceReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateTo);
+                var stream = DetailCreditBalanceReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateTo, isImport, isForeignCurrency);
 
                 var filename = isImport ? "Laporan Detail Saldo Hutang Usaha Impor" : isForeignCurrency ? "Laporan Detail Saldo Hutang Usaha Lokal Valas" : "Laporan Detail Saldo Hutang Usaha Lokal";
                 filename += ".pdf";
@@ -87,7 +87,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
                 byte[] xlsInBytes;
                 var xls = await detailCreditBalanceReportFacade.GenerateExcel(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
-                string filename = isImport ? "Laporan Detail Saldo Hutang Usaha Impor" : isForeignCurrency ? "Laporan Detail Saldo Hutang Usaha Lokal Valas" : "Laporan Detail Saldo Hutang Usaha Lokal";
+
+                var sTitle = isImport ? "Impor" : isForeignCurrency ? "Lokal Valas" : "Lokal";
+                string filename = $"Laporan Saldo Hutang Usaha (Detail) {sTitle}";
                 filename += ".xlsx";
 
                 //if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
