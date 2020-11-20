@@ -106,6 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                     IncomeTaxId = unitPaymentOrder.IncomeTaxId,
                     IncomeTaxName = unitPaymentOrder.IncomeTaxName,
                     IncomeTaxRate = unitPaymentOrder.IncomeTaxRate,
+                    IncomeTaxBy = unitPaymentOrder.IncomeTaxBy,
                     TotalPaid = unitPaymentOrder.TotalPaid,
                     Currency = unitPaymentOrder.Currency,
                     Items = Items,
