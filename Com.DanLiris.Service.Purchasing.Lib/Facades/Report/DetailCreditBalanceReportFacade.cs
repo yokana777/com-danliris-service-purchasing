@@ -61,14 +61,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join pr in dbContext.PurchaseRequests on urnWithItem.PRId equals pr.Id into joinPurchaseRequest
                         from urnPR in joinPurchaseRequest.DefaultIfEmpty()
 
-                        // Additional
+                            // Additional
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrderDetails
                         from urnEPODetail in joinExternalPurchaseOrderDetails.DefaultIfEmpty()
 
-                        where urnUPOItem.UnitPaymentOrder.Date <= d2
-                        //&& urnEPO.CurrencyCode != "IDR"
-                        //&& urnWithItem.UnitReceiptNote.SupplierIsImport && urnUPO.IsPaid == false 
-                        //&& urnWithItem.IsDeleted == false && urnWithItem.PRId != 0
+                        where urnItemUrn != null && urnItemUrn.ReceiptDate != null  
+                        && urnEPO != null && urnEPO.PaymentDueDays != null
+                        && urnItemUrn.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) <= d2
+                        && urnUPO != null && urnUPO.IsPaid == false && urnEPO != null && urnEPO.SupplierIsImport == isImport
+                        //where urnItemUrn != null && urnItemUrn.ReceiptDate != null  
+                        //&& urnEPO != null && urnEPO.PaymentDueDays != null
+                        //&& urnItemUrn.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) <= d2 
+                        //&& urnUPO != null && urnUPO.IsPaid == false && urnEPO != null && urnEPO.SupplierIsImport == isImport
 
                         select new
                         {
@@ -80,7 +84,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnWithItem.UnitReceiptNote.SupplierName,
                             urnPR.CategoryName,
                             //AccountingUnitName = 
-                            DueDate = urnWithItem.UnitReceiptNote.ReceiptDate != null ? urnWithItem.UnitReceiptNote.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) : DateTimeOffset.Now, 
+                            //DueDate = urnWithItem.UnitReceiptNote.ReceiptDate != null ? urnWithItem.UnitReceiptNote.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) : DateTimeOffset.Now,
+                            DueDate = urnItemUrn != null && urnItemUrn.ReceiptDate != null && urnEPO != null ? urnItemUrn.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) : DateTimeOffset.Now,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
                             TotalSaldo = urnWithItem.PricePerDealUnit * urnWithItem.ReceiptQuantity,
 
@@ -90,6 +95,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
                             urnWithItem.ReceiptQuantity,
                             EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
+                            urnWithItem.IncomeTaxBy,
+                            urnEPO.UseIncomeTax,
+                            urnEPO.IncomeTaxRate,
 
                             //urnPR.CategoryCode,
                             //urnPR.DivisionCode,
@@ -136,10 +144,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (divisionId > 0)
                 query = query.Where(urn => urn.DivisionId == divisionId.ToString());
 
-            //if (!isForeignCurrency && !isImport)
-            //    query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR");
-            //else if (isForeignCurrency)
-            //    query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR");
+            if (!isForeignCurrency && !isImport)
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR");
+            else if (isForeignCurrency)
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR");
 
             var queryResult = query.OrderByDescending(item => item.Date).ToList();
             
@@ -195,6 +203,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 double currencyRate = 1;
                 var currencyCode = "IDR";
 
+                decimal totalDebt = 0;
+                decimal incomeTax = 0;
+                decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
+
+
                 if (item.UseVat)
                     ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
 
@@ -209,6 +222,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 else
                     dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
 
+                if (item.UseIncomeTax)
+                    incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
+
+                if (item.IncomeTaxBy == "Supplier")
+                {
+                    totalDebt = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                }
+                else
+                {
+                    totalDebt = (dpp + ppn) * (decimal)currencyRate;
+                }
+
                 var reportItem = new DetailCreditBalanceReport()
                 {
                     ReceiptDate = item.Date,
@@ -220,7 +245,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     AccountingUnitName = accountingUnit.Name,
                     DueDate = item.DueDate.ToString(),
                     CurrencyCode = currencyCode,
-                    TotalSaldo = (decimal)item.TotalSaldo
+                    TotalSaldo = totalDebt,
+                    //TotalSaldo = (decimal)item.TotalSaldo
                     //CategoryCode = item.CategoryCode,
                     //AccountingCategoryName = accountingCategory.Name,
                     //AccountingCategoryCode = accountingCategory.Code,
