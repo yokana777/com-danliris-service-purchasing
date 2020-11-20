@@ -101,11 +101,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var saldoawalunitexpenditureIds = SaldoAwals.Select(x => x.UENId).ToList();
             var saldoawalunitexpenditures = dbContext.GarmentUnitExpenditureNotes.Where(x => saldoawalunitexpenditureIds.Contains(x.Id)).Select(s => new { s.UnitRequestCode, s.UnitSenderCode, s.ExpenditureTo, s.Id }).ToList();
             //var saldoawalbalancestockepoitemids = SaldoAwals.Select(x => x.BSId).ToList();
-            var saldoawalbalancestocks = BalaceStock.Where(x => saldoawalunitexpenditureitemIds.Contains((long)x.EPOItemId)).Select(s => new { s.ArticleNo, s.ClosePrice, s.CloseStock, s.EPOID, s.EPOItemId, s.BalanceStockId }).ToList();
+            
             var saldoawalexternalpurchaseorderitemIds = SaldoAwals.Select(x => x.EPOItemId).ToList();
             var saldoawalexternalpurchaseorderitems = dbContext.GarmentExternalPurchaseOrderItems.Where(x => saldoawalexternalpurchaseorderitemIds.Contains(x.Id)).Select(s => new { s.Id }).ToList();
             var saldoawalexternalpurchaseorderIds = SaldoAwals.Select(x => x.EPOId).ToList();
             var saldoawalexternalpurchaseorders = dbContext.GarmentExternalPurchaseOrders.Where(x => saldoawalexternalpurchaseorderIds.Contains(x.Id)).Select(s => new { s.PaymentMethod, s.Id }).ToList();
+            var saldoawalbalancestocks = BalaceStock.Where(x => saldoawalexternalpurchaseorderitemIds.Contains((long)x.EPOItemId)).Select(s => new { s.ArticleNo, s.ClosePrice, s.CloseStock, s.EPOID, s.EPOItemId, s.BalanceStockId }).ToList();
             List<GarmentStockReportViewModel> SaldoAwal = new List<GarmentStockReportViewModel>();
             foreach (var i in SaldoAwals)
             {
