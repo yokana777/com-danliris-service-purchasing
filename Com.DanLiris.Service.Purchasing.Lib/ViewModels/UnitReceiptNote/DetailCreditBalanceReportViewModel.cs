@@ -16,8 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public List<DetailCreditBalanceReport> Reports { get; set; }
         public List<SummaryDCB> AccountingUnitSummaries { get; set; }
         public List<SummaryDCB> CurrencySummaries { get; set; }
-        //public decimal GrandTotal { get; set; }
         public decimal AccountingUnitSummaryTotal { get; set; }
+        //public decimal GrandTotal { get; set; }
     }
 
     public class SummaryDCB
