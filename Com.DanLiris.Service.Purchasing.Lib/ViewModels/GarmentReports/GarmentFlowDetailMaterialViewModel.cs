@@ -22,7 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double Quantity { get; set; }
         public string UomUnit { get; set; }
         public double PricePerDealUnit { get; set; }
-        public string DOCurrencyRate{ get; set; }
+        public string DOCurrencyRate { get; set; }
+        public string UnitDestination { get; set; }
         public double? Total { get; set; }
 
 

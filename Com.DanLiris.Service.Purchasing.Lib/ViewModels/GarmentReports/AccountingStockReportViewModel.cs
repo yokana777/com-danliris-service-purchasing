@@ -53,4 +53,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal? EndingBalanceQty { get; set; }
         public decimal? EndingBalancePrice { get; set; }
     }
+
+    public class AccountingStockTempViewModel
+    {
+        public DateTimeOffset ReceiptDate { get; set; }
+        public string CodeRequirment { get; set; }
+        public string ProductName { get; set; }
+        public string ProductCode { get; set; }
+        public string RO { get; set; }
+        public string Uom { get; set; }
+        public string Buyer { get; set; }
+        public string PlanPo { get; set; }
+        public string NoArticle { get; set; }
+        public decimal QtyReceipt { get; set; }
+        public double QtyCorrection { get; set; }
+        public double QtyExpend { get; set; }
+        public decimal PriceReceipt { get; set; }
+        public double PriceCorrection { get; set; }
+        public double PriceExpend { get; set; }
+        public long POId { get; set; }
+        public string URNType { get; set; }
+        public string UnitCode { get; set; }
+        public string UENNo { get; set; }
+        public string UnitSenderCode { get; set; }
+        public string UnitRequestName { get; set; }
+        public string ExpenditureTo { get; set; }
+        public double CloseStock { get; set; }
+        public decimal ClosePrice { get; set; }
+    }
 }
