@@ -257,9 +257,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                     }
 
                     foreach (var totalCurrency in totalCurrencies)
+                    {
                         reportDataTable.Rows.Add("", "", "", "", "", "", "", "", "", "Jumlah", totalCurrency.Key, string.Format("{0:n}", totalCurrency.Value));
+                        space++;
+                    }
 
-                    space++;
                 }
 
                 foreach (var unitSummary in result.UnitSummaries)
@@ -274,11 +276,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
-                var title = "BUKU PEMBELIAN LOKAL";
+                var title = "BUKU PEMBELIAN LOKAL - DETAIL";
                 if (isForeignCurrency)
-                    title = "BUKU PEMBELIAN LOKAL VALAS";
+                    title = "BUKU PEMBELIAN LOKAL VALAS - DETAIL";
                 else if (isImport)
-                    title = "BUKU PEMBELIAN IMPORT";
+                    title = "BUKU PEMBELIAN IMPORT - DETAIL";
                 var period = $"Periode sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
