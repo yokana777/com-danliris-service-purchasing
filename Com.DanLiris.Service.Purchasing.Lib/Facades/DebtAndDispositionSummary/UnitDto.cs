@@ -1,0 +1,8 @@
+﻿namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
+{
+    public class UnitDto
+    {
+        public int Id { get; set; }
+        public int AccountingUnitId { get; set; }
+    }
+}
