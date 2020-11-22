@@ -26,5 +26,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
         public double Total { get;  set; }
         public double DispositionTotal { get; set; }
         public double DebtTotal { get; set; }
+        public string IncomeTaxBy { get; internal set; }
+        public bool UseIncomeTax { get; internal set; }
+        public string IncomeTaxRate { get; internal set; }
     }
 }

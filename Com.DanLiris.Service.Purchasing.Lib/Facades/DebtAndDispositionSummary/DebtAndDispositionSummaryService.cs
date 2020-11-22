@@ -1,5 +1,8 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +13,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
     public class DebtAndDispositionSummaryService : IDebtAndDispositionSummaryService
     {
         private readonly PurchasingDbContext _dbContext;
+        private readonly List<UnitDto> _units;
+
+        //private readonly IDistributedCache _cache;
 
         public DebtAndDispositionSummaryService(IServiceProvider serviceProvider)
         {
             _dbContext = serviceProvider.GetService<PurchasingDbContext>();
+            var cache = serviceProvider.GetService<IDistributedCache>();
+            var jsonUnits = cache.GetString(MemoryCacheConstant.Units);
+            _units = JsonConvert.DeserializeObject<List<UnitDto>>(jsonUnits, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
         }
 
-        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(int categoryId, int unitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
+        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
         {
             var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.AsQueryable();
             var unitReceiptNotes = _dbContext.UnitReceiptNotes.AsQueryable();
@@ -61,7 +73,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             DebtPrice = unitReceiptNoteItem.PricePerDealUnit,
                             DebtQuantity = unitReceiptNoteItem.ReceiptQuantity,
                             DebtTotal = unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,
-                            DueDate = urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays))
+                            DueDate = urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)),
+                            IncomeTaxBy = urnEPO.IncomeTaxBy,
+                            UseIncomeTax = urnEPO.UseIncomeTax,
+                            IncomeTaxRate = urnEPO.IncomeTaxRate
                         };
 
             query = query.Where(entity => !entity.IsPaid && (entity.IsImport == isImport) && entity.DueDate <= dueDate);
@@ -69,8 +84,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (categoryId > 0)
                 query = query.Where(entity => entity.CategoryId == categoryId.ToString());
 
-            if (unitId > 0)
-                query = query.Where(entity => entity.UnitId == unitId.ToString());
+            if (accountingUnitId > 0)
+            {
+                var unitIds = _units.Where(unit => unit.AccountingUnitId == accountingUnitId).Select(unit => unit.Id.ToString()).ToList();
+                if (unitIds.Count == 0)
+                    // intentionally added to make the query returns empty data
+                    unitIds.Add("0");
+                query = query.Where(entity => unitIds.Contains(entity.UnitId));
+
+            }
 
             if (divisionId > 0)
                 query = query.Where(entity => entity.DivisionId == divisionId.ToString());
@@ -83,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return query;
         }
 
-        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(int categoryId, int unitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
+        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
         {
             var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
             var purchasingDispositionDetails = _dbContext.PurchasingDispositionDetails.AsQueryable();
@@ -120,7 +142,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             DispositionPrice = purchasingDispositionDetail.PricePerDealUnit,
                             DispositionQuantity = purchasingDispositionDetail.DealQuantity,
                             DispositionTotal = purchasingDispositionDetail.PriceTotal,
-                            DueDate = pdWithItem.PaymentDueDate
+                            DueDate = pdWithItem.PaymentDueDate,
+                            IncomeTaxBy = pdItemEPO.IncomeTaxBy,
+                            UseIncomeTax = pdItemEPO.UseIncomeTax,
+                            IncomeTaxRate = pdItemEPO.IncomeTaxRate
                         };
 
             query = query.Where(entity => !entity.IsPaid && (entity.IsImport == isImport) && entity.DueDate <= dueDate);
@@ -128,8 +153,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (categoryId > 0)
                 query = query.Where(entity => entity.CategoryId == categoryId.ToString());
 
-            if (unitId > 0)
-                query = query.Where(entity => entity.UnitId == unitId.ToString());
+            if (accountingUnitId > 0)
+            {
+                var unitIds = _units.Where(unit => unit.AccountingUnitId == accountingUnitId).Select(unit => unit.Id.ToString()).ToList();
+                if (unitIds.Count == 0)
+                    // intentionally added to make the query returns empty data
+                    unitIds.Add("0");
+                query = query.Where(entity => unitIds.Contains(entity.UnitId));
+
+            }
 
             if (divisionId > 0)
                 query = query.Where(entity => entity.DivisionId == divisionId.ToString());
@@ -142,10 +174,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return query;
         }
 
-        public ReadResponse<DebtAndDispositionSummaryDto> GetReport(int categoryId, int unitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
+        public ReadResponse<DebtAndDispositionSummaryDto> GetReport(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
         {
-            var debtQuery = GetDebtQuery(categoryId, unitId, divisionId, dueDate, isImport, isForeignCurrency);
-            var dispositionQuery = GetDispositionQuery(categoryId, unitId, divisionId, dueDate, isImport, isForeignCurrency);
+            var debtQuery = GetDebtQuery(categoryId, accountingUnitId, divisionId, dueDate, isImport, isForeignCurrency);
+            var dispositionQuery = GetDispositionQuery(categoryId, accountingUnitId, divisionId, dueDate, isImport, isForeignCurrency);
 
             var debts = debtQuery.ToList();
             var dispositions = dispositionQuery.ToList();
@@ -157,24 +189,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
             result = result
                 .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
-                .Select(element => new DebtAndDispositionSummaryDto()
+                .Select(element => 
                 {
-                    CategoryCode = element.Key.CategoryCode,
-                    CategoryName = element.FirstOrDefault().CategoryName,
-                    CurrencyCode = element.Key.CurrencyCode,
-                    DebtTotal = element.Sum(sum => sum.DebtTotal),
-                    DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                    Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                    double.TryParse(element.FirstOrDefault().IncomeTaxRate, out var incomeTaxRate);
+                    var debtTotal = element.Sum(sum => sum.DebtTotal);
+                    var dispositionTotal = element.Sum(sum => sum.DispositionTotal);
+
+                    if (element.FirstOrDefault().UseIncomeTax && element.FirstOrDefault().IncomeTaxBy.ToUpper() == "SUPPLIER")
+                    {
+                        debtTotal += debtTotal * incomeTaxRate;
+                        dispositionTotal += dispositionTotal * incomeTaxRate;
+                    }
+
+                    return new DebtAndDispositionSummaryDto()
+                    {
+                        CategoryCode = element.Key.CategoryCode,
+                        CategoryName = element.FirstOrDefault().CategoryName,
+                        CurrencyCode = element.Key.CurrencyCode,
+                        DebtTotal = debtTotal,
+                        DispositionTotal = dispositionTotal,
+                        Total = debtTotal + dispositionTotal
+                    };
                 })
                 .ToList();
 
             return new ReadResponse<DebtAndDispositionSummaryDto>(result, result.Count, new Dictionary<string, string>());
         }
 
-        public List<DebtAndDispositionSummaryDto> GetSummary(int categoryId, int unitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
+        public List<DebtAndDispositionSummaryDto> GetSummary(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
         {
-            var debtQuery = GetDebtQuery(categoryId, unitId, divisionId, dueDate, isImport, isForeignCurrency);
-            var dispositionQuery = GetDispositionQuery(categoryId, unitId, divisionId, dueDate, isImport, isForeignCurrency);
+            var debtQuery = GetDebtQuery(categoryId, accountingUnitId, divisionId, dueDate, isImport, isForeignCurrency);
+            var dispositionQuery = GetDispositionQuery(categoryId, accountingUnitId, divisionId, dueDate, isImport, isForeignCurrency);
 
             var debts = debtQuery.ToList();
             var dispositions = dispositionQuery.ToList();
@@ -182,6 +227,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             var result = new List<DebtAndDispositionSummaryDto>();
             result.AddRange(debts);
             result.AddRange(dispositions);
+
+            result = result.Select(element =>
+            {
+                double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                var debtTotal = element.DebtTotal;
+                var dispositionTotal = element.DispositionTotal;
+
+                if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                {
+                    debtTotal += debtTotal * incomeTaxRate;
+                    dispositionTotal += dispositionTotal * incomeTaxRate;
+                }
+
+                return new DebtAndDispositionSummaryDto()
+                {
+                    CategoryCode = element.CategoryCode,
+                    CategoryId = element.CategoryId,
+                    CategoryName = element.CategoryName,
+                    CurrencyCode = element.CurrencyCode,
+                    CurrencyId = element.CurrencyId,
+                    CurrencyRate = element.CurrencyRate,
+                    DebtPrice = element.DebtPrice,
+                    DebtQuantity = element.DebtQuantity,
+                    DebtTotal = debtTotal,
+                    DispositionPrice = element.DispositionPrice,
+                    DispositionQuantity = element.DispositionQuantity,
+                    DispositionTotal = dispositionTotal,
+                    DivisionCode = element.DivisionCode,
+                    DivisionId = element.DivisionId,
+                    DivisionName = element.DivisionName,
+                    DueDate = element.DueDate,
+                    IncomeTaxBy = element.IncomeTaxBy,
+                    IncomeTaxRate = element.IncomeTaxRate,
+                    IsImport = element.IsImport,
+                    IsPaid = element.IsPaid,
+                    Total = debtTotal + dispositionTotal,
+                    UnitCode = element.UnitCode,
+                    UnitId = element.UnitId,
+                    UnitName = element.UnitName,
+                    UseIncomeTax = element.UseIncomeTax
+                };
+            }).ToList();
 
             return result;
         }
