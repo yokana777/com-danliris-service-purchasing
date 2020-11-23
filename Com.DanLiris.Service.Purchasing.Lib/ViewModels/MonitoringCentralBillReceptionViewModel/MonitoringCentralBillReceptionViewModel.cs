@@ -50,5 +50,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringCentralBillRe
         public decimal URNConversion { get; set; }
         public decimal URNSmallQuantity { get; set; }
         public string URNSmallUOMUnit { get; set; }
+        public string URNType { get; set; }
     }
 }
