@@ -9,18 +9,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnpaidDispositionReport
         public UnpaidDispositionReportDetailViewModel()
         {
             Reports = new List<DispositionReport>();
-            UnitSummaries = new List<UnitSummary>();
+            UnitSummaries = new List<Summary>();
         }
         public List<DispositionReport> Reports { get; set; }
-        public List<UnitSummary> UnitSummaries { get; set; }
+        public List<Summary> UnitSummaries { get; set; }
+        public List<Summary> CurrencySummaries { get; set; }
         public decimal GrandTotal { get; set; }
         public decimal UnitSummaryTotal { get; set; }
     }
 
-    public class UnitSummary
+    public class Summary
     {
-        public string Unit { get; set; }
-        public string UnitCode { get; set; }
+        public string Name { get; set; }
         public string CurrencyCode { get; set; }
         public decimal SubTotal { get; set; }
         public decimal SubTotalCurrency { get; set; }

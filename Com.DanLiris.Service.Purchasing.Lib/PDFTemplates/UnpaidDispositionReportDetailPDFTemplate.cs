@@ -42,49 +42,53 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return stream;
         }
 
-        //private static PdfPCell GetCurrencySummaryTable(List<Summary> currencySummaries)
-        //{
-        //    var table = new PdfPTable(3)
-        //    {
-        //        WidthPercentage = 100
-        //    };
+        private static PdfPCell GetCurrencySummaryTable(List<Summary> currencySummaries)
+        {
+            var table = new PdfPTable(2)
+            {
+                WidthPercentage = 100
+            };
 
-        //    var widths = new List<float>() { 1f, 1f, 1f };
-        //    table.SetWidths(widths.ToArray());
+            var widths = new List<float>() { 1f, 2f };
+            table.SetWidths(widths.ToArray());
 
-        //    // set header
-        //    var cell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_CENTER,
-        //        VerticalAlignment = Element.ALIGN_CENTER
-        //    };
+            // set header
+            var cellHeader = new PdfPCell()
+            {
+                BackgroundColor = new BaseColor(23, 50, 80),
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
 
-        //    cell.Phrase = new Phrase("Mata Uang", _smallerFont);
-        //    table.AddCell(cell);
+            var cell = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
 
-        //    cell.Phrase = new Phrase("Total", _smallerFont);
-        //    table.AddCell(cell);
+            cellHeader.Phrase = new Phrase("Mata Uang", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
 
-        //    cell.Phrase = new Phrase("Total (IDR)", _smallerFont);
-        //    table.AddCell(cell);
+            cellHeader.Phrase = new Phrase("Total", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
 
-        //    foreach (var currency in currencySummaries)
-        //    {
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Phrase = new Phrase(currency.CurrencyCode, _smallerFont);
-        //        table.AddCell(cell);
+            foreach (var currency in currencySummaries)
+            {
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Phrase = new Phrase(currency.CurrencyCode, _smallerFont);
+                table.AddCell(cell);
 
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", currency.SubTotal), _smallerFont);
-        //        table.AddCell(cell);
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Phrase = new Phrase(string.Format("{0:n}", currency.SubTotal), _smallerFont);
+                table.AddCell(cell);
 
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", currency.SubTotalCurrency), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
+                //cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                //cell.Phrase = new Phrase(string.Format("{0:n}", currency.SubTotalCurrency), _smallerFont);
+                //table.AddCell(cell);
+            }
 
-        //    return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
-        //}
+            return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
+        }
 
         //private static PdfPCell GetCategorySummaryTable(List<Summary> categorySummaries, decimal categorySummaryTotal)
         //{
@@ -129,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         //    return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
         //}
 
-        private static PdfPCell GetUnitSummaryTable(List<UnitSummary> unitSummaries)
+        private static PdfPCell GetUnitSummaryTable(List<Summary> unitSummaries)
         {
             var table = new PdfPTable(2)
             {
@@ -167,7 +171,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             foreach (var unitSummary in unitSummaries)
             {
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                cell.Phrase = new Phrase(unitSummary.Unit, _smallerFont);
+                cell.Phrase = new Phrase(unitSummary.Name, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -184,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
         }
 
-        private static PdfPCell GetUnitSummaryValasTable(List<UnitSummary> unitSummaries)
+        private static PdfPCell GetUnitSummaryValasTable(List<Summary> unitSummaries)
         {
             var table = new PdfPTable(3)
             {
@@ -225,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             foreach (var unitSummary in unitSummaries)
             {
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                cell.Phrase = new Phrase(unitSummary.Unit, _smallerFont);
+                cell.Phrase = new Phrase(unitSummary.Name, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -365,13 +369,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             document.Add(new Paragraph("\n"));
 
-            var summaryTable = new PdfPTable(2)
+            var summaryTable = new PdfPTable(4)
             {
                 WidthPercentage = 95,
 
             };
 
-            var widthSummaryTable = new List<float>() { 3f, 7f };
+            var widthSummaryTable = new List<float>() { 3f, 1f, 3f, 3f };
             summaryTable.SetWidths(widthSummaryTable.ToArray());
 
             if (isValas || isImport)
@@ -379,6 +383,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             else
                 summaryTable.AddCell(GetUnitSummaryTable(viewModel.UnitSummaries));
 
+            summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+            summaryTable.AddCell(GetCurrencySummaryTable(viewModel.CurrencySummaries));
             summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
 
             document.Add(summaryTable);
