@@ -412,5 +412,228 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
             }
         }
+
+        [HttpGet("dispositions")]
+        public IActionResult GetDisposition([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
+
+            try
+            {
+                if (!dueDate.HasValue)
+                    dueDate = DateTimeOffset.MaxValue;
+                var result = _service.GetReportDisposition(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result,
+                    info = new Dictionary<string, object>
+                    {
+                        { "page", 1 },
+                        { "size", 10 }
+                    },
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("dispositions/download-excel")]
+        public IActionResult DownloadExcelDisposition([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
+
+            try
+            {
+                if (!dueDate.HasValue)
+                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
+
+                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+
+                var stream = GenerateExcelDisposition(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+
+                var filename = "Laporan Rekap Disposisi Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Rekap Disposisi Lokal Valas";
+                else if (isImport)
+                    filename = "Laporan Rekap Disposisi Import";
+                filename += ".xlsx";
+
+                var bytes = stream.ToArray();
+
+                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception e)
+            {
+                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
+            }
+        }
+
+        private MemoryStream GenerateExcelDisposition(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
+        {
+            var company = "PT DAN LIRIS";
+            var title = "LAPORAN REKAP DATA DISPOSISI LOKAL";
+            var unitName = "SEMUA UNIT";
+            var date = $"JATUH TEMPO S.D. {dueDate:yyyy-dd-MM}";
+
+            if (accountingUnitId > 0)
+            {
+                var datum = data.FirstOrDefault();
+                if (datum != null)
+                    unitName = datum.UnitName;
+
+            }
+
+            if (isForeignCurrency && !isImport)
+                title = "LAPORAN REKAP DATA DISPOSISI LOKAL VALAS";
+
+            if (isImport)
+                title = "LAPORAN REKAP DATA DISPOSISI IMPORT";
+
+            var categoryDataTable = GetCategoryDataTable(data);
+
+            const int headerRow = 1;
+            const int startingRow = 6;
+            const int tableGap = 3;
+            const int columnA = 1;
+            const int columnC = 3;
+            const int columnD = 4;
+            const int columnE = 5;
+
+            if (!isImport && !isForeignCurrency)
+            {
+                var unitDataTable = GetUnitDataTable(data);
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
+                    worksheet.Cells["A1"].Value = company;
+                    worksheet.Cells["A1:E1"].Merge = true;
+                    worksheet.Cells["A1:E1"].Style.Font.Size = 20;
+                    worksheet.Cells["A1:E1"].Style.Font.Bold = true;
+                    worksheet.Cells["A2"].Value = title;
+                    worksheet.Cells["A2:E2"].Merge = true;
+                    worksheet.Cells["A2:E2"].Style.Font.Size = 20;
+                    worksheet.Cells["A2:E2"].Style.Font.Bold = true;
+                    worksheet.Cells["A3"].Value = unitName;
+                    worksheet.Cells["A3:E3"].Merge = true;
+                    worksheet.Cells["A3:E3"].Style.Font.Size = 20;
+                    worksheet.Cells["A3:E3"].Style.Font.Bold = true;
+                    worksheet.Cells["A4"].Value = date;
+                    worksheet.Cells["A4:E4"].Merge = true;
+                    worksheet.Cells["A4:E4"].Style.Font.Size = 20;
+                    worksheet.Cells["A4:E4"].Style.Font.Bold = true;
+                    worksheet.Cells["A6"].LoadFromDataTable(categoryDataTable, true);
+                    worksheet.Cells[startingRow + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count, columnE].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[$"A{startingRow + headerRow + categoryDataTable.Rows.Count + tableGap}"].LoadFromDataTable(unitDataTable, true);
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
+
+                    var stream = new MemoryStream();
+                    package.SaveAs(stream);
+
+                    return stream;
+                }
+            }
+            else
+            {
+                var unitCurrencyDataTable = GetUnitCurrencyDataTable(data);
+                var separatedUnitCurrencyDataTable = GetSeparatedUnitCurrencyDataTable(data);
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
+                    worksheet.Cells["A1"].Value = company;
+                    worksheet.Cells["A1:E1"].Merge = true;
+                    worksheet.Cells["A1:E1"].Style.Font.Size = 20;
+                    worksheet.Cells["A1:E1"].Style.Font.Bold = true;
+                    worksheet.Cells["A2"].Value = title;
+                    worksheet.Cells["A2:E2"].Merge = true;
+                    worksheet.Cells["A2:E2"].Style.Font.Size = 20;
+                    worksheet.Cells["A2:E2"].Style.Font.Bold = true;
+                    worksheet.Cells["A3"].Value = unitName;
+                    worksheet.Cells["A3:E3"].Merge = true;
+                    worksheet.Cells["A3:E3"].Style.Font.Size = 20;
+                    worksheet.Cells["A3:E3"].Style.Font.Bold = true;
+                    worksheet.Cells["A4"].Value = date;
+                    worksheet.Cells["A4:E4"].Merge = true;
+                    worksheet.Cells["A4:E4"].Style.Font.Size = 20;
+                    worksheet.Cells["A4:E4"].Style.Font.Bold = true;
+                    worksheet.Cells["A6"].LoadFromDataTable(categoryDataTable, true);
+                    worksheet.Cells[startingRow + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count, columnE].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[$"A{startingRow + headerRow + tableGap + categoryDataTable.Rows.Count}"].LoadFromDataTable(unitCurrencyDataTable, true);
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[$"A{startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap}"].LoadFromDataTable(separatedUnitCurrencyDataTable, true);
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnD, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
+
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    var stream = new MemoryStream();
+                    package.SaveAs(stream);
+
+                    return stream;
+                }
+            }
+        }
+
+        [HttpGet("dispositions/download-pdf")]
+        public IActionResult DownloadPdfDisposition([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
+
+            try
+            {
+                if (!dueDate.HasValue)
+                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
+
+                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+
+                var filename = "Laporan Rekap Hutang & Disposisi Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Rekap Hutang & Disposisi Lokal Valas";
+                else if (isImport)
+                    filename = "Laporan Rekap Hutang & Disposisi Import";
+                filename += ".pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception e)
+            {
+                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
+            }
+        }
     }
 }

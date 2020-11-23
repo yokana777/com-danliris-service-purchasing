@@ -90,6 +90,74 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return stream;
         }
 
+        public static MemoryStream GenerateDisposition(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency)
+        {
+            var document = new Document(PageSize.A4.Rotate(), 20, 5, 25, 25);
+            var stream = new MemoryStream();
+            PdfWriter.GetInstance(document, stream);
+            document.Open();
+
+            var unitName = "SEMUA UNIT";
+            if (unitId > 0)
+            {
+                var summary = data.FirstOrDefault();
+                if (summary != null)
+                {
+                    unitName = $"UNIT {summary.UnitName}";
+                }
+            }
+
+            var title = "";
+            if (!isImport && !isForeignCurrency)
+            {
+                title = "LAPORAN REKAP DATA DISPOSISI LOKAL";
+            }
+
+
+            if (!isImport && isForeignCurrency)
+                title = "LAPORAN REKAP DATA DISPOSISI LOKAL VALAS";
+
+            if (isImport)
+                title = "LAPORAN REKAP DATA DISPOSISI IMPORT";
+
+            SetHeader(document, title, unitName, dueDate.AddHours(timezoneOffset));
+
+            var categoryData = data
+                .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+                .Select(element => new DebtAndDispositionSummaryDto()
+                {
+                    CategoryCode = element.Key.CategoryCode,
+                    CategoryName = element.FirstOrDefault().CategoryName,
+                    CurrencyCode = element.Key.CurrencyCode,
+                    DebtTotal = element.Sum(sum => sum.DebtTotal),
+                    DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                    Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                })
+                .ToList();
+
+            SetCategoryTable(document, categoryData);
+
+            document.Add(new Paragraph(" "));
+
+            if (!isImport && !isForeignCurrency)
+            {
+                SetUnitTable(document, data);
+            }
+            else
+            {
+                SetUnitCurrencyTable(document, data);
+                document.Add(new Paragraph(" "));
+                SetSeparatedUnitCurrencyTable(document, data);
+            }
+
+            document.Close();
+            byte[] byteInfo = stream.ToArray();
+            stream.Write(byteInfo, 0, byteInfo.Length);
+            stream.Position = 0;
+
+            return stream;
+        }
+
         private static void SetSeparatedUnitCurrencyTable(Document document, List<DebtAndDispositionSummaryDto> data)
         {
             var units = data.Select(element => element.UnitName).Distinct().ToList();

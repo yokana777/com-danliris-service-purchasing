@@ -272,5 +272,90 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
             return result;
         }
+
+        public ReadResponse<DebtAndDispositionSummaryDto> GetReportDisposition(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
+        {
+            var dispositionQuery = GetDispositionQuery(categoryId, accountingUnitId, divisionId, dueDate, isImport, isForeignCurrency);
+
+            var dispositions = dispositionQuery.ToList();
+
+            var result = new List<DebtAndDispositionSummaryDto>();
+            result.AddRange(dispositions);
+
+
+            result = result
+                .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+                .Select(element =>
+                {
+                    double.TryParse(element.FirstOrDefault().IncomeTaxRate, out var incomeTaxRate);
+                    var dispositionTotal = element.Sum(sum => sum.DispositionTotal);
+
+                    if (element.FirstOrDefault().UseIncomeTax && element.FirstOrDefault().IncomeTaxBy.ToUpper() == "SUPPLIER")
+                    {
+                        dispositionTotal += dispositionTotal * incomeTaxRate;
+                    }
+
+                    return new DebtAndDispositionSummaryDto()
+                    {
+                        CategoryCode = element.Key.CategoryCode,
+                        CategoryName = element.FirstOrDefault().CategoryName,
+                        CurrencyCode = element.Key.CurrencyCode,
+                        DispositionTotal = dispositionTotal,
+                        Total = dispositionTotal
+                    };
+                })
+                .ToList();
+
+            return new ReadResponse<DebtAndDispositionSummaryDto>(result, result.Count, new Dictionary<string, string>());
+        }
+
+        public List<DebtAndDispositionSummaryDto> GetDispositionSummary(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
+        {
+            var dispositionQuery = GetDispositionQuery(categoryId, accountingUnitId, divisionId, dueDate, isImport, isForeignCurrency);
+
+            var dispositions = dispositionQuery.ToList();
+
+            var result = new List<DebtAndDispositionSummaryDto>();
+            result.AddRange(dispositions);
+
+            result = result.Select(element =>
+            {
+                double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                var dispositionTotal = element.DispositionTotal;
+
+                if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                {
+                    dispositionTotal += dispositionTotal * incomeTaxRate;
+                }
+
+                return new DebtAndDispositionSummaryDto()
+                {
+                    CategoryCode = element.CategoryCode,
+                    CategoryId = element.CategoryId,
+                    CategoryName = element.CategoryName,
+                    CurrencyCode = element.CurrencyCode,
+                    CurrencyId = element.CurrencyId,
+                    CurrencyRate = element.CurrencyRate,
+                    DispositionPrice = element.DispositionPrice,
+                    DispositionQuantity = element.DispositionQuantity,
+                    DispositionTotal = dispositionTotal,
+                    DivisionCode = element.DivisionCode,
+                    DivisionId = element.DivisionId,
+                    DivisionName = element.DivisionName,
+                    DueDate = element.DueDate,
+                    IncomeTaxBy = element.IncomeTaxBy,
+                    IncomeTaxRate = element.IncomeTaxRate,
+                    IsImport = element.IsImport,
+                    IsPaid = element.IsPaid,
+                    Total = dispositionTotal,
+                    UnitCode = element.UnitCode,
+                    UnitId = element.UnitId,
+                    UnitName = element.UnitName,
+                    UseIncomeTax = element.UseIncomeTax
+                };
+            }).ToList();
+
+            return result;
+        }
     }
 }
