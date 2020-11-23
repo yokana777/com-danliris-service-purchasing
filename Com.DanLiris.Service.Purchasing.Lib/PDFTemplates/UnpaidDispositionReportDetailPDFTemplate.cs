@@ -299,7 +299,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(no.ToString(), _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.DispositionDate.GetValueOrDefault().AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
+                    cell.Phrase = new Phrase(data.DispositionDate.GetValueOrDefault().AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.DispositionNo, _smallerFont);
@@ -323,7 +323,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.PaymentDueDate.GetValueOrDefault().ToString("yyyy-dd-MM"), _smallerFont);
+                    cell.Phrase = new Phrase(data.PaymentDueDate.GetValueOrDefault().ToString("dd-MM-yyyy"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.CurrencyCode, _smallerFont);
