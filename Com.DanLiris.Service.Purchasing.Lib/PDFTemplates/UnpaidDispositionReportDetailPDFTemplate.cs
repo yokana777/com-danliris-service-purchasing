@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetHeader(document, dateTo.GetValueOrDefault(), timezoneOffset, isValas, isImport);
 
-            SetReportTable(document, viewModel, timezoneOffset);
+            SetReportTable(document, viewModel, timezoneOffset, isValas, isImport);
 
             document.Close();
             byte[] byteInfo = stream.ToArray();
@@ -129,58 +129,124 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         //    return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
         //}
 
-        //private static PdfPCell GetUnitSummaryTable(Dictionary<string, decimal> unitSummaries)
-        //{
-        //    var table = new PdfPTable(2)
-        //    {
-        //        WidthPercentage = 100
-        //    };
+        private static PdfPCell GetUnitSummaryTable(List<UnitSummary> unitSummaries)
+        {
+            var table = new PdfPTable(2)
+            {
+                WidthPercentage = 100
+            };
 
-        //    var widths = new List<float>() { 1f, 2f };
-        //    table.SetWidths(widths.ToArray());
+            var widths = new List<float>() { 1f, 2f };
+            table.SetWidths(widths.ToArray());
 
-        //    // set header
-        //    var cell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_CENTER,
-        //        VerticalAlignment = Element.ALIGN_CENTER
-        //    };
+            // set header
+            var cellHeader = new PdfPCell()
+            {
+                BackgroundColor = new BaseColor(23, 50, 80),
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
 
-        //    var emptyCell = new PdfPCell()
-        //    {
-        //        Border = Rectangle.NO_BORDER
-        //    };
+            var cell = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
 
-        //    cell.Phrase = new Phrase("Unit", _smallerFont);
-        //    table.AddCell(cell);
+            var emptyCell = new PdfPCell()
+            {
+                Border = Rectangle.NO_BORDER
+            };
 
-        //    cell.Phrase = new Phrase("Total (IDR)", _smallerFont);
-        //    table.AddCell(cell);
+            cellHeader.Phrase = new Phrase("Unit", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
 
-        //    decimal totalSummary = 0;
-        //    foreach (var unitSummary in unitSummaries)
-        //    {
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Phrase = new Phrase(unitSummary.Key, _smallerFont);
-        //        table.AddCell(cell);
+            cellHeader.Phrase = new Phrase("Total (IDR)", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
 
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", unitSummary.Value), _smallerFont);
-        //        table.AddCell(cell);
+            foreach (var unitSummary in unitSummaries)
+            {
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Phrase = new Phrase(unitSummary.Unit, _smallerFont);
+                table.AddCell(cell);
 
-        //        totalSummary += unitSummary.Value;
-        //    }
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Phrase = new Phrase(string.Format("{0:n}", unitSummary.SubTotal), _smallerFont);
+                table.AddCell(cell);
+            }
 
-        //    cell.Phrase = new Phrase("", _smallerFont);
-        //    table.AddCell(cell);
+            //cell.Phrase = new Phrase("", _smallerFont);
+            //table.AddCell(cell);
 
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", totalSummary), _smallerFont);
-        //    table.AddCell(cell);
+            //cell.Phrase = new Phrase(string.Format("{0:n}", totalSummary), _smallerFont);
+            //table.AddCell(cell);
 
-        //    return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
-        //}
+            return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
+        }
 
-        private static void SetReportTable(Document document, UnpaidDispositionReportDetailViewModel viewModel, int timezoneOffset)
+        private static PdfPCell GetUnitSummaryValasTable(List<UnitSummary> unitSummaries)
+        {
+            var table = new PdfPTable(3)
+            {
+                WidthPercentage = 100
+            };
+
+            var widths = new List<float>() { 2f, 1f, 2f };
+            table.SetWidths(widths.ToArray());
+
+            // set header
+            var cellHeader = new PdfPCell()
+            {
+                BackgroundColor = new BaseColor(23, 50, 80),
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cell = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var emptyCell = new PdfPCell()
+            {
+                Border = Rectangle.NO_BORDER
+            };
+
+            cellHeader.Phrase = new Phrase("Unit", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
+
+            cellHeader.Phrase = new Phrase("Currency", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
+
+            cellHeader.Phrase = new Phrase("Total", _smallerBoldWhiteFont);
+            table.AddCell(cellHeader);
+
+            foreach (var unitSummary in unitSummaries)
+            {
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Phrase = new Phrase(unitSummary.Unit, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Phrase = new Phrase(unitSummary.CurrencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Phrase = new Phrase(string.Format("{0:n}", unitSummary.SubTotal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            //cell.Phrase = new Phrase("", _smallerFont);
+            //table.AddCell(cell);
+
+            //cell.Phrase = new Phrase(string.Format("{0:n}", totalSummary), _smallerFont);
+            //table.AddCell(cell);
+
+            return new PdfPCell(table) { Border = Rectangle.NO_BORDER };
+        }
+
+        private static void SetReportTable(Document document, UnpaidDispositionReportDetailViewModel viewModel, int timezoneOffset, bool isValas, bool isImport)
         {
             var table = new PdfPTable(12)
             {
@@ -202,11 +268,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetReportTableHeader(table);
 
-            var grouppedByAccountingCategoriNames = viewModel.Reports.OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
+            var grouppedByCategoryNames = viewModel.Reports.GroupBy(x => x.CategoryName).ToList();
 
             var cell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE
+            };
+
+            var cellAlignRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
@@ -217,18 +289,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 Colspan = 9
             };
 
-            var cellAlignRight = new PdfPCell()
-            {
-                HorizontalAlignment = Element.ALIGN_RIGHT,
-                VerticalAlignment = Element.ALIGN_MIDDLE
-            };
 
-            var summaryUnit = new Dictionary<string, decimal>();
             int no = 1;
-            foreach (var grouppedAccountingCategory in grouppedByAccountingCategoriNames)
+            foreach (var grouppedCategory in grouppedByCategoryNames)
             {
-                double total = 0;
-                foreach (var data in grouppedAccountingCategory)
+                var totalCurrencies = new Dictionary<string, decimal>();
+                foreach (var data in grouppedCategory)
                 {
                     cell.Phrase = new Phrase(no.ToString(), _smallerFont);
                     table.AddCell(cell);
@@ -251,7 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.SupplierName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.AccountingCategoryName, _smallerFont);
+                    cell.Phrase = new Phrase(data.CategoryName, _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.AccountingUnitName, _smallerFont);
@@ -263,27 +329,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.CurrencyCode, _smallerFont);
                     table.AddCell(cell);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.TotalCurrency), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    total += data.TotalCurrency;
+                    // Currency summary
+                    if (totalCurrencies.ContainsKey(data.CurrencyCode))
+                    {
+                        totalCurrencies[data.CurrencyCode] += data.Total;
+                    }
+                    else
+                    {
+                        totalCurrencies.Add(data.CurrencyCode, data.Total);
+                    }
+
                     no++;
                 }
 
-                cellColspan9.Phrase = new Phrase();
-                table.AddCell(cellColspan9);
+                foreach(var totalCurrency in totalCurrencies)
+                {
+                    cellColspan9.Phrase = new Phrase();
+                    table.AddCell(cellColspan9);
 
-                cell.Phrase = new Phrase("JUMLAH", _smallerBoldFont);
-                table.AddCell(cell);
+                    cell.Phrase = new Phrase("JUMLAH", _smallerBoldFont);
+                    table.AddCell(cell);
 
-                cell.Phrase = new Phrase("IDR", _smallerBoldFont);
-                table.AddCell(cell);
+                    cell.Phrase = new Phrase(totalCurrency.Key, _smallerBoldFont);
+                    table.AddCell(cell);
 
-                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", total), _smallerBoldFont);
-                table.AddCell(cellAlignRight);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value), _smallerBoldFont);
+                    table.AddCell(cellAlignRight);
+                }
             }
 
             document.Add(table);
+
+            document.Add(new Paragraph("\n"));
+
+            var summaryTable = new PdfPTable(2)
+            {
+                WidthPercentage = 95,
+
+            };
+
+            var widthSummaryTable = new List<float>() { 3f, 7f };
+            summaryTable.SetWidths(widthSummaryTable.ToArray());
+
+            if (isValas || isImport)
+                summaryTable.AddCell(GetUnitSummaryValasTable(viewModel.UnitSummaries));
+            else
+                summaryTable.AddCell(GetUnitSummaryTable(viewModel.UnitSummaries));
+
+            summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+
+            document.Add(summaryTable);
         }
 
         private static void SetReportTableHeader(PdfPTable table)

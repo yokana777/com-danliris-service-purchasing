@@ -175,7 +175,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                          && f.IsDeleted == false && g.IsDeleted == false
                          //&& Inv.IsDeleted == false && HInv.IsDeleted == false 
                          //&& NI.IsDeleted == false && URN.IsDeleted == false && IURN.IsDeleted == false
-                         && URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
+                         //&& URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
                          && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
                          //&& d.BeacukaiDate.AddHours(offset).Date >= d1.Date && d.BeacukaiDate.AddHours(offset).Date <= d2.Date
                           && ((d1 != new DateTime(1970, 1, 1)) ? (d.ArrivalDate >= d1.Date && d.ArrivalDate <= d2.Date) : true)
@@ -221,7 +221,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             var internNoteIds = queryResult.Select(s => s.INNo).Distinct().ToList();
             var internNotes = dbContext.GarmentInternNotes.Where(w => internNoteIds.Contains(w.INNo)).Select(s => new { s.Id, s.INNo, s.INDate }).ToList();
             var unitReceiptNoteIds = queryResult.Select(s => s.URNId).Distinct().ToList();
-            var unitReceiptNotes = dbContext.GarmentUnitReceiptNotes.Where(w => unitReceiptNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.URNNo, s.ReceiptDate, s.UnitName }).ToList();
+            var unitReceiptNotes = dbContext.GarmentUnitReceiptNotes.Where(w => unitReceiptNoteIds.Contains(w.Id)).Select(s => new { s.Id, s.URNNo, s.ReceiptDate, s.UnitName, s.URNType }).ToList();
             var unitReceiptNoteItemIds = queryResult.Select(s => s.URNItemId).Distinct().ToList();
             var unitReceiptNoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ReceiptQuantity, s.UomUnit, s.PricePerDealUnit, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
 
@@ -286,11 +286,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.URNConversion = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.Conversion;
                 monitoringcentralbillreceptionViewModel.URNSmallQuantity = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.SmallQuantity;
                 monitoringcentralbillreceptionViewModel.URNSmallUOMUnit = unitReceiptNoteItem == null ? "-" : unitReceiptNoteItem.SmallUomUnit;
+                monitoringcentralbillreceptionViewModel.URNType = unitReceiptNote == null ? "-" : unitReceiptNote.URNType;
 
                 listDO.Add(monitoringcentralbillreceptionViewModel);
                 i++;
             }
-            return listDO;
+            return listDO.Where(x => x.URNType == "-" || x.URNType == "PEMBELIAN").ToList();
         }
 
 

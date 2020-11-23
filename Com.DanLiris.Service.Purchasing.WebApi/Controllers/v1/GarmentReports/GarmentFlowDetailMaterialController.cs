@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet]
-        public IActionResult GetReport(string category, DateTimeOffset? dateFrom, DateTimeOffset? dateTo,  int size = 25, int page = 1, string Order = "{}")
+        public IActionResult GetReport(string category, string productcode, string unit, DateTimeOffset? dateFrom, DateTimeOffset? dateTo,  int size = 25, int page = 1, string Order = "{}")
         {
             if (dateTo == null)
                 dateTo = DateTimeOffset.UtcNow;
@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             try
             {
 
-                var data = facade.GetReport(category, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset, Order, page, size);
+                var data = facade.GetReport(category, productcode, unit, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset, Order, 1, int.MaxValue);
 
                 return Ok(new
                 {
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string category, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int size = 25, int page = 1, string Order = "{}")
+        public IActionResult GetXls(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int size = 25, int page = 1, string Order = "{}")
         {
 
             if (dateTo == null)
@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 byte[] xlsInBytes;
 
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                var xls = facade.GenerateExcel(category, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset);
+                var xls = facade.GenerateExcel(category, productcode, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset);
 
                 string filename = "Laporan Rekap BUK";
                 if (dateFrom != null) filename += " " + ((DateTime)dateFrom.Value.DateTime).ToString("dd-MM-yyyy");

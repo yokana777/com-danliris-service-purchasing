@@ -39,14 +39,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] int categoryId, [FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        public IActionResult Get([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
         {
 
             try
             {
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.Now;
-                var result = _service.GetReport(categoryId, unitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetReport(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         }
 
         [HttpGet("download-excel")]
-        public IActionResult DownloadExcel([FromQuery] int categoryId, [FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        public IActionResult DownloadExcel([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
         {
 
             try
@@ -75,9 +75,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.Now;
 
-                var result = _service.GetSummary(categoryId, unitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), unitId, isImport, isForeignCurrency);
+                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
 
                 var filename = "LAPORAN REKAP DATA HUTANG DAN DISPOSISI";
                 filename += ".xlsx";
@@ -93,14 +93,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
-        private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency)
+        private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
         {
             var company = "PT DAN LIRIS";
             var title = "LAPORAN REKAP DATA HUTANG & DISPOSISI LOKAL";
             var unitName = "SEMUA UNIT";
             var date = $"JATUH TEMPO S.D. {dueDate:yyyy-dd-MM}";
 
-            if (unitId > 0)
+            if (accountingUnitId > 0)
             {
                 var datum = data.FirstOrDefault();
                 if (datum != null)
@@ -312,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         }
 
         [HttpGet("download-pdf")]
-        public IActionResult DownloadPdf([FromQuery] int categoryId, [FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        public IActionResult DownloadPdf([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
         {
 
             try
@@ -320,9 +320,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.Now;
 
-                var result = _service.GetSummary(categoryId, unitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), unitId, isImport, isForeignCurrency);
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
 
                 var filename = "LAPORAN REKAP DATA HUTANG DAN DISPOSISI";
                 filename += ".pdf";

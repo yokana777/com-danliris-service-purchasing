@@ -6,6 +6,7 @@ using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -31,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         }
 
 
-        public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category,  DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
+        public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
         {
             //DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom;
             //DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
@@ -39,14 +40,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Query = (from a in dbContext.GarmentUnitExpenditureNoteItems 
                          join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                          join c in dbContext.GarmentExternalPurchaseOrderItems on a.EPOItemId equals c.Id
-                         join d in dbContext.GarmentUnitDeliveryOrders on b.UnitDONo equals d.UnitDONo
+                         join e in dbContext.GarmentUnitDeliveryOrderItems on a.UnitDOItemId equals e.Id
+                         join d in dbContext.GarmentUnitDeliveryOrders on e.UnitDOId equals d.Id
 
-                         join e in dbContext.GarmentUnitDeliveryOrderItems on d.Id equals e.UnitDOId
-                         join f in dbContext.GarmentDeliveryOrderDetails on e.DODetailId equals f.Id
+                         
+                         join f in dbContext.GarmentDeliveryOrderDetails on a.DODetailId equals f.Id
                          where
                          f.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirment : category)
+                         && f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
                          && a.CreatedUtc.Date >= DateFrom
                          && a.CreatedUtc.Date <= DateTo
+                         && b.UnitRequestCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitRequestCode : unit)
 
                          orderby a.CreatedUtc descending
                          select new GarmentFlowDetailMaterialViewModel {
@@ -64,7 +68,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ExpenditureDate = b.ExpenditureDate,
                              Quantity = a.Quantity,
                              UomUnit = a.UomUnit,
-                             Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate
+                             Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate,
+                             UnitDestination = b.UnitRequestName
 
                          });
 
@@ -72,9 +77,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Query.AsQueryable();
         }
 
-        public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset, string order, int page, int size)
+        public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset, string order, int page, int size)
         {
-            var Query = GetQuery( category, DateFrom, DateTo, offset);
+            var Query = GetQuery(category, productcode, unit, DateFrom, DateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             //if (OrderDictionary.Count.Equals(0))
@@ -82,20 +87,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //	Query = Query.OrderByDescending(b => b.poExtDate);
             //}
 
-            Pageable<GarmentFlowDetailMaterialViewModel> pageable = new Pageable<GarmentFlowDetailMaterialViewModel>(Query, page - 1, size);
-            List<GarmentFlowDetailMaterialViewModel> Data = pageable.Data.ToList<GarmentFlowDetailMaterialViewModel>();
-            int TotalData = pageable.TotalCount;
+            //Pageable<GarmentFlowDetailMaterialViewModel> pageable = new Pageable<GarmentFlowDetailMaterialViewModel>(Query, page - 1, size);
+            //List<GarmentFlowDetailMaterialViewModel> Data = pageable.Data.ToList<GarmentFlowDetailMaterialViewModel>();
+            //int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData);
+            return Tuple.Create(Query.ToList(), Query.Count());
         }
 
-        public MemoryStream GenerateExcel(string category, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcel(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
         {
-            var Query = GetQuery(category, dateFrom, dateTo, offset);
+            var Query = GetQuery(category, productcode, unit, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
 
+            double ExpendQtyTotal = 0;
+            double ExpendPriceTotal = 0;
 
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
@@ -120,6 +127,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 int index = 0;
                 foreach (var item in Query)
                 {
+                    ExpendQtyTotal += item.Quantity;
+                    ExpendPriceTotal += item.Total.Value;
                     index++;
                     string tanggal = item.ExpenditureDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
@@ -137,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var col = (char)('A' + result.Columns.Count);
             string tglawal = dateFrom.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
             string tglakhir = dateTo.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENGELUARAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENGELUARAN {0}", string.IsNullOrWhiteSpace(productcode) ? categoryname : "INTERLINING");
             sheet.Cells[$"A1:{col}1"].Merge = true;
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
@@ -154,6 +163,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
 
             sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            var a = Query.Count();
+            sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{6 + a}:M{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"N{6 + a}"].Value = NumberFormat(ExpendQtyTotal);
+            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"P{6 + a}"].Value = NumberFormat(ExpendPriceTotal);
+            sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            //sheet.Cells[$"{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
             MemoryStream stream = new MemoryStream();
             package.SaveAs(stream);

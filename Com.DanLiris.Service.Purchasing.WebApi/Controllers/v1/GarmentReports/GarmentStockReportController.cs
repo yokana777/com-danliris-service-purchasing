@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, string category, string unitcode)
+        public IActionResult GetXls(DateTime? dateFrom, DateTime? dateTo, string category, string categoryname, string unitname, string unitcode)
         {
 
             try
@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 //DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 //DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                MemoryStream xls = _facade.GenerateExcelStockReport(category, unitcode, dateFrom, dateTo, offset);
+                MemoryStream xls = _facade.GenerateExcelStockReport(category, categoryname, unitname, unitcode, dateFrom, dateTo, offset);
 
 
                 string filename = String.IsNullOrWhiteSpace(unitcode) ? String.Format("Laporan Stock Gudang All Unit - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2A" ? String.Format("Laporan Stock Gudang KONFEKSI 2A - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2B" ? String.Format("Laporan Stock Gudang KONFEKSI 2B - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2C" ? String.Format("Laporan Stock Gudang KONFEKSI 2C - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C1B" ? String.Format("Laporan Stock Gudang KONFEKSI 2D - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : String.Format("Laporan  All KONFEKSI 1 MNS - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
