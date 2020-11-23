@@ -196,17 +196,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
 
             reportResult.UnitSummaries = reportResult.Reports
                         .GroupBy(report => new { report.AccountingUnitName, report.CurrencyCode })
-                        .Select(report => new UnitSummary()
+                        .Select(report => new Summary()
                         {
-                            Unit = report.Key.AccountingUnitName,
+                            Name = report.Key.AccountingUnitName,
                             CurrencyCode = report.Key.CurrencyCode,
                             SubTotal = report.Sum(sum => sum.Total),
                             SubTotalCurrency = report.Sum(sum => sum.TotalCurrency),
-                            AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
+                            //AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
                         })
-                        .OrderBy(report => report.AccountingLayoutIndex).ToList();
+                        .OrderBy(report => report.Name).ToList();
 
-            reportResult.Reports = reportResult.Reports.OrderBy(order => order.AccountingLayoutIndex).ToList();
+            reportResult.CurrencySummaries = reportResult.Reports
+                .GroupBy(report => new { report.CurrencyCode })
+                .Select(report => new Summary()
+                {
+                    CurrencyCode = report.Key.CurrencyCode,
+                    SubTotal = report.Sum(sum => sum.Total),
+                    SubTotalCurrency = report.Sum(sum => sum.TotalCurrency)
+                }).OrderBy(order => order.CurrencyCode).ToList();
+
+            reportResult.Reports = reportResult.Reports.OrderBy(order => order.CategoryId).ToList();
             reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.TotalCurrency);
             reportResult.UnitSummaryTotal = reportResult.UnitSummaries.Sum(categorySummary => categorySummary.SubTotalCurrency);
 
@@ -231,6 +240,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                 unitDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
                 unitDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
             }
+            
+            var currencyDataTable = new DataTable();
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
 
             int space = 0;
             if (result.Reports.Count > 0)
@@ -267,20 +280,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                 foreach (var unitSummary in result.UnitSummaries)
                 {
                     if (isForeignCurrency || isImport)
-                        unitDataTable.Rows.Add(unitSummary.Unit, unitSummary.CurrencyCode, unitSummary.SubTotal);
+                        unitDataTable.Rows.Add(unitSummary.Name, unitSummary.CurrencyCode, unitSummary.SubTotal);
                     else
-                        unitDataTable.Rows.Add(unitSummary.Unit, unitSummary.SubTotalCurrency);
+                        unitDataTable.Rows.Add(unitSummary.Name, unitSummary.SubTotalCurrency);
                 }
+
+                foreach(var currencySummary in result.CurrencySummaries)
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.SubTotal);
             }
 
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
-                var title = "BUKU PEMBELIAN LOKAL - DETAIL";
+                var title = "LAPORAN DISPOSISI BELUM DIBAYAR LOKAL - DETAIL";
                 if (isForeignCurrency)
-                    title = "BUKU PEMBELIAN LOKAL VALAS - DETAIL";
+                    title = "LAPORAN DISPOSISI BELUM DIBAYAR LOKAL VALAS - DETAIL";
                 else if (isImport)
-                    title = "BUKU PEMBELIAN IMPORT - DETAIL";
+                    title = "LAPORAN DISPOSISI BELUM DIBAYAR IMPORT - DETAIL";
                 var period = $"Periode sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
@@ -289,7 +305,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                 worksheet.Cells["A3"].Value = period;
                 worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
                 worksheet.Cells[$"A{4 + 3 + result.Reports.Count + space}"].LoadFromDataTable(unitDataTable, true);
-                //worksheet.Cells[$"A{4 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
+                worksheet.Cells[$"A{4 + result.Reports.Count + space + 3 + result.UnitSummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
