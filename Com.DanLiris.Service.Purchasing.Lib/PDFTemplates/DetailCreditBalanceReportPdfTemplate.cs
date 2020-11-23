@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetHeader(document, d2, timezoneOffset, isImport, isForeignCurrency);
             document.Add(new Paragraph("\n"));
-            SetReportTable(document, viewModel, timezoneOffset);
+            SetReportTable(document, viewModel, timezoneOffset, isImport, isForeignCurrency);
             //document.Add(new Paragraph("\n"));
             //SetCategoryCurrencySummaryTable(document, viewModel.CategorySummaries, viewModel.CategorySummaryTotal, viewModel.CurrencySummaries);
             //SetFooter(document);
@@ -111,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             table.AddCell(cell);
         }
 
-        private static void SetReportTable(Document document, DetailCreditBalanceReportViewModel viewModel, int timezoneOffset)
+        private static void SetReportTable(Document document, DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, bool isImport, bool isForeignCurrency)
         {
             var table = new PdfPTable(10)
             {
@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var listReports = viewModel.Reports.OrderBy(order => order.AccountingUnitName).GroupBy(x => x.AccountingUnitName).ToList();
+            var listReports = viewModel.Reports.OrderBy(order => order.CategoryName).GroupBy(x => x.CategoryName).ToList();
             var summaryUnit = new Dictionary<string, decimal>();
 
             foreach (var items in listReports)
@@ -410,7 +410,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                cell.Phrase = new Phrase(string.Format("{0:n}", currency.SubTotal), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", currency.SubTotalIDR), _smallerFont);
                 table.AddCell(cell);
             }
 

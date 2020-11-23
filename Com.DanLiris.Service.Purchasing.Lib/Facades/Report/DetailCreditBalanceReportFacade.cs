@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         public async Task<DetailCreditBalanceReportViewModel> GetReportData(int categoryId, int accountingUnitId, int divisionId, DateTime? dateTo, bool isImport, bool isForeignCurrency)
         {
             // var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
-            var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
+            var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.MaxValue).ToUniversalTime();
 
             var query = from urnWithItem in dbContext.UnitReceiptNoteItems
 
@@ -208,6 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 double currencyRate = 1;
                 var currencyCode = "IDR";
 
+                decimal totalDebtIDR = 0;
                 decimal totalDebt = 0;
                 decimal incomeTax = 0;
                 decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
@@ -232,12 +233,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
                 if (item.IncomeTaxBy == "Supplier")
                 {
-                    //totalDebt = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                    totalDebtIDR = (dpp + ppn - incomeTax) * (decimal)currencyRate;
                     totalDebt = dpp + ppn - incomeTax;
                 }
                 else
                 {
-                    //totalDebt = (dpp + ppn) * (decimal)currencyRate;
+                    totalDebtIDR = (dpp + ppn) * (decimal)currencyRate;
                     totalDebt = dpp + ppn;
                 }
 
@@ -253,6 +254,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     DueDate = item.DueDate,
                     CurrencyCode = currencyCode,
                     TotalSaldo = totalDebt,
+                    TotalSaldoIDR = totalDebtIDR,
                     //TotalSaldo = (decimal)item.TotalSaldo
                     //CategoryCode = item.CategoryCode,
                     //AccountingCategoryName = accountingCategory.Name,
@@ -293,18 +295,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         .Select(report => new SummaryDCB()
                         {
                             AccountingUnitName = report.Key.AccountingUnitName,
-                            SubTotal = report.Sum(sum => sum.TotalSaldo)
+                            SubTotal = report.Sum(sum => sum.TotalSaldo),
+                            SubTotalIDR = report.Sum(sum => sum.TotalSaldoIDR),
                         }).OrderBy(order => order.AccountingUnitName).ToList();
             reportResult.CurrencySummaries = reportResult.Reports
                 .GroupBy(report => new { report.CurrencyCode })
                 .Select(report => new SummaryDCB()
                 {
                     CurrencyCode = report.Key.CurrencyCode,
-                    SubTotal = report.Sum(sum => sum.TotalSaldo)
+                    SubTotal = report.Sum(sum => sum.TotalSaldo),
+                    SubTotalIDR = report.Sum(sum => sum.TotalSaldoIDR)
                 }).OrderBy(order => order.CurrencyCode).ToList();
             reportResult.Reports = reportResult.Reports;
             //reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
-            reportResult.AccountingUnitSummaryTotal = reportResult.AccountingUnitSummaries.Sum(summary => summary.SubTotal);
+            //reportResult.AccountingUnitSummaryTotal = reportResult.AccountingUnitSummaries.Sum(summary => summary.SubTotal);
 
             return reportResult;
         }
