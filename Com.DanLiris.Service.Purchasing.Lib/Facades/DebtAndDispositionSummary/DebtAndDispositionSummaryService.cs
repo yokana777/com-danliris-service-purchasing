@@ -188,18 +188,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
 
             result = result
-                .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
-                .Select(element => 
+                .Select(element =>
                 {
-                    double.TryParse(element.FirstOrDefault().IncomeTaxRate, out var incomeTaxRate);
-                    var debtTotal = element.Sum(sum => sum.DebtTotal);
-                    var dispositionTotal = element.Sum(sum => sum.DispositionTotal);
+                    double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                    var debtTotal = element.DebtTotal;
+                    var dispositionTotal = element.DispositionTotal;
 
-                    if (element.FirstOrDefault().UseIncomeTax && element.FirstOrDefault().IncomeTaxBy.ToUpper() == "SUPPLIER")
+                    if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                     {
                         debtTotal += debtTotal * (incomeTaxRate / 100);
                         dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
                     }
+
+                    return new DebtAndDispositionSummaryDto()
+                    {
+                        CategoryCode = element.CategoryCode,
+                        CategoryName = element.CategoryName,
+                        CurrencyCode = element.CurrencyCode,
+                        DebtTotal = debtTotal,
+                        DispositionTotal = dispositionTotal,
+                        Total = debtTotal + dispositionTotal
+                    };
+                })
+                .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+                .Select(element =>
+                {
+                    var debtTotal = element.Sum(sum => sum.DebtTotal);
+                    var dispositionTotal = element.Sum(sum => sum.DispositionTotal);
 
                     return new DebtAndDispositionSummaryDto()
                     {
@@ -284,16 +299,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
 
             result = result
+                .Select(element =>
+                {
+                    double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                    var dispositionTotal = element.DispositionTotal;
+
+                    if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                    {
+                        dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
+                    }
+
+                    return new DebtAndDispositionSummaryDto()
+                    {
+                        CategoryCode = element.CategoryCode,
+                        CategoryName = element.CategoryName,
+                        CurrencyCode = element.CurrencyCode,
+                        DispositionTotal = dispositionTotal,
+                        Total = dispositionTotal
+                    };
+                })
                 .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
                 .Select(element =>
                 {
-                    double.TryParse(element.FirstOrDefault().IncomeTaxRate, out var incomeTaxRate);
                     var dispositionTotal = element.Sum(sum => sum.DispositionTotal);
-
-                    if (element.FirstOrDefault().UseIncomeTax && element.FirstOrDefault().IncomeTaxBy.ToUpper() == "SUPPLIER")
-                    {
-                        dispositionTotal += dispositionTotal * incomeTaxRate;
-                    }
 
                     return new DebtAndDispositionSummaryDto()
                     {
