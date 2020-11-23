@@ -197,8 +197,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
                     if (element.FirstOrDefault().UseIncomeTax && element.FirstOrDefault().IncomeTaxBy.ToUpper() == "SUPPLIER")
                     {
-                        debtTotal += debtTotal * incomeTaxRate;
-                        dispositionTotal += dispositionTotal * incomeTaxRate;
+                        debtTotal += debtTotal * (incomeTaxRate / 100);
+                        dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
                     }
 
                     return new DebtAndDispositionSummaryDto()
@@ -236,8 +236,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
                 if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                 {
-                    debtTotal += debtTotal * incomeTaxRate;
-                    dispositionTotal += dispositionTotal * incomeTaxRate;
+                    debtTotal += debtTotal * (incomeTaxRate / 100);
+                    dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
                 }
 
                 return new DebtAndDispositionSummaryDto()
