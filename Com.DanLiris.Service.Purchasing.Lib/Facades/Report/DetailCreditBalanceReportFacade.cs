@@ -137,9 +137,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (categoryId > 0)
                 query = query.Where(urn => urn.CategoryId == categoryId.ToString());
 
-            var unitFilterIds = await _currencyProvider.GetUnitsIdsByAccountingUnitId(accountingUnitId);
-            if (unitFilterIds.Count() > 0)
-                query = query.Where(urn => unitFilterIds.Contains(urn.UnitId));
+            if (accountingUnitId > 0)
+            {
+                var unitFilterIds = await _currencyProvider.GetUnitsIdsByAccountingUnitId(accountingUnitId);
+                if (unitFilterIds.Count() > 0)
+                {
+                    query = query.Where(urn => unitFilterIds.Contains(urn.UnitId));
+                }
+            }
 
             if (divisionId > 0)
                 query = query.Where(urn => urn.DivisionId == divisionId.ToString());
@@ -227,11 +232,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
                 if (item.IncomeTaxBy == "Supplier")
                 {
-                    totalDebt = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                    //totalDebt = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                    totalDebt = dpp + ppn - incomeTax;
                 }
                 else
                 {
-                    totalDebt = (dpp + ppn) * (decimal)currencyRate;
+                    //totalDebt = (dpp + ppn) * (decimal)currencyRate;
+                    totalDebt = dpp + ppn;
                 }
 
                 var reportItem = new DetailCreditBalanceReport()
@@ -243,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     SupplierName = item.SupplierName,
                     CategoryName = item.CategoryName,
                     AccountingUnitName = accountingUnit.Name,
-                    DueDate = item.DueDate.ToString(),
+                    DueDate = item.DueDate,
                     CurrencyCode = currencyCode,
                     TotalSaldo = totalDebt,
                     //TotalSaldo = (decimal)item.TotalSaldo
@@ -335,7 +342,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.UPONo, report.URNNo, report.InvoiceNo, report.SupplierName, report.CategoryName, report.AccountingUnitName, report.AccountingUnitName, report.CurrencyCode, report.TotalSaldo);
+                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.UPONo, report.URNNo, report.InvoiceNo, report.SupplierName, report.CategoryName, report.AccountingUnitName, report.DueDate.ToString("dd/MM/yyyy"), report.CurrencyCode, report.TotalSaldo);
                 }
                 foreach (var accountingUnitSummary in result.AccountingUnitSummaries)
                     accountingUnitDataTable.Rows.Add(accountingUnitSummary.AccountingUnitName, accountingUnitSummary.SubTotal);

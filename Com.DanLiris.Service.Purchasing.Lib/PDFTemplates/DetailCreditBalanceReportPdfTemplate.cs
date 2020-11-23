@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase($"LAPORAN SALDO HUTANG (DETAIL) {sTitle}", _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):yyyy-dd-MM}", _subHeaderFont);
+            cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):dd-MM-yyyy}", _subHeaderFont);
             table.AddCell(cell);
 
             document.Add(table);
@@ -155,7 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (var element in items)
                 {
-                    cell.Phrase = new Phrase(element.ReceiptDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
+                    cell.Phrase = new Phrase(element.ReceiptDate.AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.UPONo, _smallerFont);
@@ -176,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(element.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase("", _smallerFont);
+                    cell.Phrase = new Phrase(element.DueDate.AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.CurrencyCode, _smallerFont);

@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string SupplierName { get; set; }
         public string CategoryName { get; set; }
         public string AccountingUnitName { get; internal set; }
-        public string DueDate { get; set; }
+        public DateTimeOffset DueDate { get; set; }
         public string CurrencyCode { get; set; }
         public decimal TotalSaldo { get; set; }
         //public decimal Saldo { get; set; }
