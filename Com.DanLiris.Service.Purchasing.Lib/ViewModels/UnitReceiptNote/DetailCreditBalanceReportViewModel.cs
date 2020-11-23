@@ -16,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public List<DetailCreditBalanceReport> Reports { get; set; }
         public List<SummaryDCB> AccountingUnitSummaries { get; set; }
         public List<SummaryDCB> CurrencySummaries { get; set; }
-        public decimal AccountingUnitSummaryTotal { get; set; }
+        //public decimal AccountingUnitSummaryTotal { get; set; }
         //public decimal GrandTotal { get; set; }
     }
 
@@ -25,6 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public string AccountingUnitName { get; set; }
         public string CurrencyCode { get; set; }
         public decimal SubTotal { get; set; }
+        public decimal SubTotalIDR { get; set; }
     }
 
     public class DetailCreditBalanceReport
@@ -39,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public DateTimeOffset DueDate { get; set; }
         public string CurrencyCode { get; set; }
         public decimal TotalSaldo { get; set; }
+        public decimal TotalSaldoIDR { get; set; }
         //public decimal Saldo { get; set; }
         //public string ProductName { get; set; }
         //public string UnitName { get; set; }
