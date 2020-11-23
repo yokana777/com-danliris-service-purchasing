@@ -11,18 +11,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public static class DebtAndDispositionSummaryPDFTemplate
     {
+        private static readonly BaseColor _headerBackgroundColor = new BaseColor(System.Drawing.Color.DarkBlue);
         private static readonly Font _headerFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
         private static readonly Font _subHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 16);
         private static readonly Font _normalFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+        private static readonly Font _smallerHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, new BaseColor(System.Drawing.Color.White));
         private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
         public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency)
         {
-            var document = new Document(PageSize.A4.Rotate(), 5, 5, 25, 25);
+            var document = new Document(PageSize.A4.Rotate(), 20, 5, 25, 25);
             var stream = new MemoryStream();
             PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -97,10 +99,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var table = new PdfPTable(4)
             {
-                WidthPercentage = 95
+                WidthPercentage = 50,
+                HorizontalAlignment = Element.ALIGN_LEFT
             };
             var widths = new List<float>() { 1f, 1f, 1f, 1f };
             table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor
+            };
 
             var cellAlignCenter = new PdfPCell()
             {
@@ -120,17 +130,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellAlignCenter.Phrase = new Phrase("UNIT", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("UNIT", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("MATA UANG", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("TOTAL (IDR)", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("TOTAL (IDR)", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
             foreach (var unit in units)
             {
@@ -230,10 +240,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var table = new PdfPTable(3)
             {
-                WidthPercentage = 95
+                WidthPercentage = 30,
+                HorizontalAlignment = Element.ALIGN_LEFT
             };
             var widths = new List<float>() { 1f, 1f, 1f };
             table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor
+            };
 
             var cellAlignCenter = new PdfPCell()
             {
@@ -253,14 +271,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellAlignCenter.Phrase = new Phrase("UNIT", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("UNIT", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("MATA UANG", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("TOTAL (IDR)", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("TOTAL (IDR)", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
             foreach (var unit in units)
             {
@@ -307,10 +325,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var table = new PdfPTable(3)
             {
-                WidthPercentage = 95
+                WidthPercentage = 30,
+                HorizontalAlignment = Element.ALIGN_LEFT
             };
             var widths = new List<float>() { 1f, 1f, 1f };
             table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor
+            };
 
             var cellAlignCenter = new PdfPCell()
             {
@@ -330,14 +356,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellAlignCenter.Phrase = new Phrase("UNIT", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("UNIT", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("Total (IDR)", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("Total (IDR)", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
             foreach (var unit in units)
             {
@@ -380,10 +406,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             var table = new PdfPTable(5)
             {
-                WidthPercentage = 95
+                WidthPercentage = 95,
+                HorizontalAlignment = Element.ALIGN_LEFT
             };
             var widths = new List<float>() { 2f, 1f, 2f, 2f, 2f };
             table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor,
+            };
 
             var cellAlignCenter = new PdfPCell()
             {
@@ -403,20 +437,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellAlignCenter.Phrase = new Phrase("KATEGORI", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("KATEGORI", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("MATA UANG", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("HUTANG", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("HUTANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("DISPOSISI", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("DISPOSISI", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenter.Phrase = new Phrase("JUMLAH", _smallerFont);
-            table.AddCell(cellAlignCenter);
+            cellAlignCenterHeader.Phrase = new Phrase("JUMLAH", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
 
             foreach (var datum in data)
             {
@@ -443,13 +477,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             var table = new PdfPTable(1)
             {
-                WidthPercentage = 95
+                WidthPercentage = 95,
+                HorizontalAlignment = Element.ALIGN_LEFT
             };
             var cell = new PdfPCell()
             {
                 Border = Rectangle.NO_BORDER,
                 HorizontalAlignment = Element.ALIGN_LEFT,
                 Phrase = new Phrase("PT DAN LIRIS", _headerFont),
+                PaddingLeft = 0
             };
             table.AddCell(cell);
 
