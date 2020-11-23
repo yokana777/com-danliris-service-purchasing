@@ -202,11 +202,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                             CurrencyCode = report.Key.CurrencyCode,
                             SubTotal = report.Sum(sum => sum.Total),
                             SubTotalCurrency = report.Sum(sum => sum.TotalCurrency),
-                            AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
+                            //AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
                         })
-                        .OrderBy(report => report.AccountingLayoutIndex).ToList();
+                        .OrderBy(report => report.Unit).ToList();
 
-            reportResult.Reports = reportResult.Reports.OrderBy(order => order.AccountingLayoutIndex).ToList();
+            reportResult.Reports = reportResult.Reports.OrderBy(order => order.CategoryId).ToList();
             reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.TotalCurrency);
             reportResult.UnitSummaryTotal = reportResult.UnitSummaries.Sum(categorySummary => categorySummary.SubTotalCurrency);
 
@@ -276,11 +276,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
-                var title = "BUKU PEMBELIAN LOKAL - DETAIL";
+                var title = "LAPORAN DISPOSISI BELUM DIBAYAR LOKAL - DETAIL";
                 if (isForeignCurrency)
-                    title = "BUKU PEMBELIAN LOKAL VALAS - DETAIL";
+                    title = "LAPORAN DISPOSISI BELUM DIBAYAR LOKAL VALAS - DETAIL";
                 else if (isImport)
-                    title = "BUKU PEMBELIAN IMPORT - DETAIL";
+                    title = "LAPORAN DISPOSISI BELUM DIBAYAR IMPORT - DETAIL";
                 var period = $"Periode sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");

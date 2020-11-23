@@ -78,11 +78,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnpaidDispositio
                 byte[] xlsInBytes;
                 var xls = await _service.GenerateExcel(categoryId, unitId, divisionId, dateTo.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                string filename = "Laporan Buku Pembelian Lokal";
+                string filename = "Laporan Disposisi Belum Dibayar Lokal - Detail";
                 if(isForeignCurrency)
-                    filename = "Laporan Buku Pembelian Lokal Valas";
+                    filename = "Laporan Disposisi Belum Dibayar Lokal Valas - Detail";
                 else if(isImport)
-                    filename = "Laporan Buku Pembelian Import";
+                    filename = "Laporan Disposisi Belum Dibayar Import - Detail";
                 //if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
                 filename += ".xlsx";
 
@@ -114,11 +114,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnpaidDispositio
 
                 var stream = UnpaidDispositionReportDetailPDFTemplate.Generate(data, clientTimeZoneOffset, dateTo, isForeignCurrency, isImport);
 
-                var filename = "Laporan Buku Pembelian Lokal";
+                var filename = "Laporan Disposisi Belum Dibayar Lokal - Detail";
                 if (isForeignCurrency)
-                    filename = "Laporan Buku Pembelian Lokal Valas";
+                    filename = "Laporan Disposisi Belum Dibayar Lokal Valas - Detail";
                 else if (isImport)
-                    filename = "Laporan Buku Pembelian Import";
+                    filename = "Laporan Disposisi Belum Dibayar Import - Detail";
 
                 filename += ".pdf";
 
