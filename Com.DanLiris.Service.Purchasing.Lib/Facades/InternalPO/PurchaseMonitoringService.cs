@@ -189,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var deliveryOrderItemIds = queryresult.Select(s => s.DOItemId).Distinct().ToList();
             var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
             var deliveryOrderDetailIds = queryresult.Select(s => s.DODetailId).Distinct().ToList();
-            var deliveryOrderDetails = _dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
+            var deliveryOrderDetails = _dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.DOQuantity, s.UomUnit }).ToList();
 
             var unitPaymentOrderIds = queryresult.Select(s => s.UPOId).Distinct().ToList();
             var unitPaymentOrders = _dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, }).ToList();
@@ -270,6 +270,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     DeliveryOrderNo = deliveryOrder != null ? deliveryOrder.DONo : "",
                     DeliveryOrderItemId = deliveryOrderItem == null ? 0 : deliveryOrderItem.Id,
                     DelveryOrderDetailId = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.Id,
+                    doQuantity = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.DOQuantity,
+                    doUom = deliveryOrderDetail == null ? "-" : deliveryOrderDetail.UomUnit,
                     UnitReceiptNoteId = unitReceiptNote == null ? 0 : unitReceiptNote.Id,
                     UnitReceiptNoteDate = unitReceiptNote != null && unitReceiptNote.ReceiptDate.Date != DateTime.MinValue ? unitReceiptNote.ReceiptDate.DateTime : (DateTime?)null,
                     UnitReceiptNoteNo = unitReceiptNote != null ? unitReceiptNote.URNNo : "",
@@ -415,7 +417,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Target Datang", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "No PO Eksternal", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(string) });
-
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Surat Jalan", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Surat Jalan", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Datang Barang", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Terima Unit", DataType = typeof(string) });
@@ -449,7 +452,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var queryResult = query.ToList();
 
             if (queryResult.Count == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var upoDetailIds = queryResult.Select(item => item.UnitPaymentOrderDetailId).ToList();
@@ -531,7 +534,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                     result.Rows.Add(index.ToString(), item.PurchaseRequestDate.ToString("dd MMMM yyyy"), item.PurchaseRequestCreatedDate.ToString("dd MMMM yyyy"), item.PurchaseRequestNo, item.CategoryName, item.DivisionName, item.BudgetName, item.ProductName, item.ProductCode, item.OrderQuantity, item.UOMUnit, item.ExternalPurchaseOrderQuantity, item.ExternalPurchaseOrderUomUnit,
                         item.Price, item.PriceTotal, item.CurrencyCode, item.SupplierCode, item.SupplierName, internalPurchaseOrderCreatedDate, externalPurchaseOrderDate, externalPurchaseOrderCreatedDate, externalPurchaseOrderExpectedDeliveryDate, externalPurchaseOrderDeliveryDate, item.ExternalPurchaseOrderNo, deliveryOrderDate,
-                        deliveryOrderArrivalDate, item.DeliveryOrderNo, unitReceiptNoteDate, item.UnitReceiptNoteNo, item.UnitReceiptNoteQuantity, item.UnitReceiptNoteUomUnit, item.ExternalPurchaseOrderPaymentDueDays, item.UnitPaymentOrderInvoiceDate, item.UnitPaymentOrderInvoiceNo, unitPaymentOrderDate,
+                        deliveryOrderArrivalDate, item.DeliveryOrderNo, item.doQuantity, item.doUom, unitReceiptNoteDate, item.UnitReceiptNoteNo, item.UnitReceiptNoteQuantity, item.UnitReceiptNoteUomUnit, item.ExternalPurchaseOrderPaymentDueDays, item.UnitPaymentOrderInvoiceDate, item.UnitPaymentOrderInvoiceNo, unitPaymentOrderDate,
                         item.UnitPaymentOrderNo, item.UnitPaymentOrderTotalPrice, unitPaymentOrderDueDate, unitPaymentOrderVATDate, item.UnitPaymentOrderVATNo, item.UnitPaymentOrderVAT, unitPaymentOrderIncomeTaxDate, item.UnitPaymentOrderIncomeTaxNo, item.UnitPaymentOrderIncomeTax, item.CorrectionDate,
                         item.CorrectionNo, item.CorrectionNominal, item.CorrectionType, item.ExternalPurchaseOrderRemark, item.InternalPurchaseOrderStatus, item.InternalPurchaseOrderStaff);
                 }
@@ -617,6 +620,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
         public string DeliveryOrderNo { get; set; }
         public long DeliveryOrderItemId { get; set; }
         public long DelveryOrderDetailId { get; set; }
+        public double doQuantity { get; set; }
+        public string doUom { get; set; }
         public long UnitReceiptNoteId { get; set; }
         public DateTime? UnitReceiptNoteDate { get; set; }
         public string UnitReceiptNoteNo { get; set; }

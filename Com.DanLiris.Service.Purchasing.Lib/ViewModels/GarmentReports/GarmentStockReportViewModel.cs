@@ -23,6 +23,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal EndingBalanceQty { get; set; }
         public string EndingUom { get; set; }
         public string PaymentMethod { get; set; }
+        public string UnitSenderCode { get; set; }
+        public string UnitRequestCode { get; set; }
+        public string UNitCode { get; set; }
         public long POId { get; set; }
     }
 }

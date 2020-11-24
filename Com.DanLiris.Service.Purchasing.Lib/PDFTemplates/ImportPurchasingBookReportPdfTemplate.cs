@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var listCategoryReports = viewModel.Reports.OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
+            var listCategoryReports = viewModel.Reports.Where(x => x.AccountingUnitName != null).OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
             var summaryUnit = new Dictionary<string, decimal>();
 
             foreach (var cat in listCategoryReports)

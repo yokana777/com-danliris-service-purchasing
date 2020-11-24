@@ -527,6 +527,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.DivisionName,
                 s.Vat,
                 s.IncomeTax,
+                s.IncomeTaxBy,
                 s.IsPaid,
                 s.TotalPaid,
                 s.Currency,

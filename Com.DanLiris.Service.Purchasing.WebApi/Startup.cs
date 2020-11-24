@@ -67,6 +67,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -166,6 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>()
                 .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
                 .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
+                .AddTransient<IDetailCreditBalanceReportFacade, DetailCreditBalanceReportFacade>()
                 .AddTransient<ICurrencyProvider, CurrencyProvider>()
                 .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
                 .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>()
@@ -184,7 +187,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
                 .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
                 .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>()
-                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>();
+                .AddTransient<IDebtAndDispositionSummaryService, DebtAndDispositionSummaryService>()
+                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>()
+                .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -243,6 +248,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterClassMap();
             MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
+            services.AddDistributedRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetValue<string>("RedisConnection") ?? Configuration["RedisConnection"];
+                options.InstanceName = Configuration.GetValue<string>("RedisConnectionName") ?? Configuration["RedisConnectionName"];
+            });
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });

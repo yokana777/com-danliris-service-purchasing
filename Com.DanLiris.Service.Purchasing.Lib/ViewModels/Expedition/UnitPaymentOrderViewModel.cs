@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public string IncomeTaxId { get; set; }
         public string IncomeTaxName { get; set; }
         public double IncomeTaxRate { get; set; }
+        public string IncomeTaxBy { get; set; }
         public double TotalPaid { get; set; }
         public string Currency { get; set; }
         public List<UnitPaymentOrderItemViewModel> Items { get; set; }

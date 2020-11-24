@@ -47,7 +47,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? a.SupplierCode.Substring(0, 2) == "DL" : a.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && d.ArrivalDate >= DateFrom.Date && d.ArrivalDate <= DateTo.Date
                                                                  && (string.IsNullOrWhiteSpace(jnsbc) ? true : (jnsbc == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
-                                                                 //&& d.BeacukaiNo.Substring(0, 4) != "BCDL"
                                                                  && a.SupplierCode != "GDG"
 
                                                                  select new GarmentDailyPurchasingTempViewModel
@@ -64,6 +63,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Satuan = c.UomUnit,
                                                                      Kurs = (double)a.DOCurrencyRate,
                                                                      Amount = c.PriceTotal,
+                                                                     CurrencyCode = a.DOCurrencyCode,
+                                                                     AmountIDR = c.PriceTotal * (double)a.DOCurrencyRate,
                                                                  };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d2 = from gc in dbContext.GarmentCorrectionNotes
@@ -93,10 +94,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Quantity = (decimal)gci.Quantity,
                                                                      Satuan = gci.UomIUnit,
                                                                      Kurs = (double)gdo.DOCurrencyRate,
-                                                                     // Amount = (double)(gci.PriceTotalAfter),
-                                                                     //Amount =(double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? (decimal)gdo.DOCurrencyRate * gci.PriceTotalAfter : (decimal)gdo.DOCurrencyRate * (gci.PriceTotalAfter - gci.PriceTotalBefore))
-                                                                     //Amount = (double)((decimal)gdo.DOCurrencyRate * (gci.PriceTotalAfter - gci.PriceTotalBefore))
-                                                                     Amount = (double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? gci.PriceTotalAfter : (gci.PriceTotalAfter - gci.PriceTotalBefore))
+                                                                     Amount = (double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? gci.PriceTotalAfter : (gci.PriceTotalAfter - gci.PriceTotalBefore)),
+                                                                     CurrencyCode = gdo.DOCurrencyCode,
+                                                                     AmountIDR = (double)(gc.CorrectionType == "Jumlah" || gc.CorrectionType == "Retur" ? gci.PriceTotalAfter * (decimal)gdo.DOCurrencyRate : (gci.PriceTotalAfter - gci.PriceTotalBefore) * (decimal)gdo.DOCurrencyRate),
                                                                  };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d3 = from gc in dbContext.GarmentCorrectionNotes
@@ -129,6 +129,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Satuan = gci.UomIUnit,
                                                                      Kurs = (double)gdo.DOCurrencyRate,
                                                                      Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * 10 / 100,
+                                                                     CurrencyCode = gdo.DOCurrencyCode,
+                                                                     AmountIDR = ((double)(gci.PriceTotalAfter - gci.PriceTotalBefore)) * (double)gdo.DOCurrencyRate * 10 / 100,
                                                                  };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d4 = from gc in dbContext.GarmentCorrectionNotes
@@ -161,6 +163,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Satuan = gci.UomIUnit,
                                                                      Kurs = (double)gdo.DOCurrencyRate,
                                                                      Amount = (double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * ((double)gc.IncomeTaxRate / 100),
+                                                                     CurrencyCode = gdo.DOCurrencyCode,
+                                                                     AmountIDR = ((double)(gci.PriceTotalAfter - gci.PriceTotalBefore) * ((double)gc.IncomeTaxRate / 100)) * (double)gdo.DOCurrencyRate * 10 / 100,
                                                                  };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d5 = from inv in dbContext.GarmentInvoices
@@ -195,6 +199,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Satuan = invd.UomUnit,
                                                                      Kurs = (double)gdo.DOCurrencyRate,
                                                                      Amount = invd.DOQuantity * invd.PricePerDealUnit * 10 / 100,
+                                                                     CurrencyCode = gdo.DOCurrencyCode,
+                                                                     AmountIDR = (invd.DOQuantity * invd.PricePerDealUnit * 10 / 100) * (double)gdo.DOCurrencyRate * 10 / 100,
                                                                  };
             IQueryable<GarmentDailyPurchasingTempViewModel> d6 = from inv in dbContext.GarmentInvoices
                                                                  join invi in dbContext.GarmentInvoiceItems on inv.Id equals invi.InvoiceId
@@ -227,11 +233,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Satuan = invd.UomUnit,
                                                                      Kurs = (double)gdo.DOCurrencyRate,
                                                                      Amount = invd.DOQuantity * invd.PricePerDealUnit * inv.IncomeTaxRate / 100,
+                                                                     CurrencyCode = gdo.DOCurrencyCode,
+                                                                     AmountIDR = (invd.DOQuantity * invd.PricePerDealUnit * inv.IncomeTaxRate / 100) * (double)gdo.DOCurrencyRate * 10 / 100,
                                                                  };
             List<GarmentDailyPurchasingTempViewModel> CombineData = d1.Union(d2).Union(d3).Union(d4).Union(d5).Union(d6).ToList();
 
             var Query = from data in CombineData
-                        group data by new { data.SuplName, data.BCNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg } into groupData
+                        group data by new { data.SuplName, data.BCNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg, data.CurrencyCode, data.Kurs } into groupData
                         select new GarmentDailyPurchasingReportViewModel
                         {
                             SupplierName = groupData.Key.SuplName,
@@ -244,7 +252,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             CodeRequirement = groupData.Key.JnsBrg,
                             UOMUnit = groupData.Key.Satuan,
                             Quantity = groupData.Sum(s => (double)s.Quantity),
-                            Amount = Math.Round(groupData.Sum(s => Math.Round((s.Amount * s.Kurs), 2)), 2),
+                            Amount = Math.Round(groupData.Sum(s => Math.Round(s.Amount, 2)), 2),
+                            CurrencyCode = groupData.Key.CurrencyCode,
+                            Rate = groupData.Key.Kurs,
+                            Amount6 = Math.Round(groupData.Sum(s => Math.Round((s.Amount * s.Kurs), 2)), 2)
                         };
             return Query.AsQueryable();
         }
@@ -258,7 +269,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
         public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
         {
             Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
-            //List<GarmentDailyPurchasingReportViewModel> Data = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset).ToList();
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
@@ -271,6 +281,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Bahan Embalase (Rp)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Bahan Pendukung (Rp)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Bahan Baku (Rp)", DataType = typeof(String) });
@@ -282,7 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
             if (Data.Item2 == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -293,46 +306,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 Dictionary<string, double> subTotalPRCSupplier = new Dictionary<string, double>();
                 Dictionary<string, double> subTotalPPNSupplier = new Dictionary<string, double>();
                 Dictionary<string, double> subTotalPPHSupplier = new Dictionary<string, double>();
+                Dictionary<string, double> subTotalDPPSupplier = new Dictionary<string, double>();
 
                 foreach (GarmentDailyPurchasingReportViewModel data in Data.Item1)
                 {
-                    string SupplierName = data.SupplierName;
-                    double Amount1 = 0, Amount2 = 0, Amount3 = 0, Amount4 = 0, Amount5 = 0, Amount6 = 0;
+                    string SupplierName = data.PaymentBill;
+                    double Amount1 = 0, Amount2 = 0, Amount3 = 0, Amount4 = 0, Amount5 = 0, Amount6 = 0, Amount7 = 0;
 
                     switch (data.CodeRequirement)
                     {
                         case "BE":
-                            Amount1 = data.Amount;
+                            Amount1 = data.Amount6;
                             Amount2 = 0;
                             Amount3 = 0;
                             Amount4 = 0;
                             Amount5 = 0;
                             Amount6 = 0;
+                            Amount7 = data.Amount;
                             break;
                         case "BP":
                             Amount1 = 0;
-                            Amount2 = data.Amount;
+                            Amount2 = data.Amount6;
                             Amount3 = 0;
                             Amount4 = 0;
                             Amount5 = 0;
                             Amount6 = 0;
+                            Amount7 = data.Amount;
                             break;
-
                         case "BB":
                             Amount1 = 0;
                             Amount2 = 0;
-                            Amount3 = data.Amount;
+                            Amount3 = data.Amount6;
                             Amount4 = 0;
                             Amount5 = 0;
                             Amount6 = 0;
+                            Amount7 = data.Amount;
                             break;
                         default:
                             Amount1 = 0;
                             Amount2 = 0;
                             Amount3 = 0;
-                            Amount4 = data.Amount;
+                            Amount4 = data.Amount6;
                             Amount5 = 0;
                             Amount6 = 0;
+                            Amount7 = data.Amount;
                             break;
                     }
 
@@ -342,8 +359,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                         Amount2 = 0;
                         Amount3 = 0;
                         Amount4 = 0;
-                        Amount5 = data.Amount;
+                        Amount5 = data.Amount6;
                         Amount6 = 0;
+                        Amount7 = data.Amount;
                     }
                     if (data.BillNo.Contains("NPH") || data.BillNo.Contains("NKPH"))
                     {
@@ -352,13 +370,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                         Amount3 = 0;
                         Amount4 = 0;
                         Amount5 = 0;
-                        Amount6 = data.Amount;
+                        Amount6 = data.Amount6;
+                        Amount7 = data.Amount;
                     }
 
                     if (!dataBySupplier.ContainsKey(SupplierName)) dataBySupplier.Add(SupplierName, new List<GarmentDailyPurchasingReportViewModel> { });
                     dataBySupplier[SupplierName].Add(new GarmentDailyPurchasingReportViewModel
                     {
-
+                        
                         SupplierName = data.SupplierName,
                         UnitName = data.UnitName,
                         BillNo = data.BillNo,
@@ -369,12 +388,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                         CodeRequirement = data.CodeRequirement,
                         UOMUnit = data.UOMUnit,
                         Quantity = data.Quantity,
+                        CurrencyCode = data.CurrencyCode,
+                        Rate = data.Rate,
                         Amount = Amount1,
                         Amount1 = Amount2,
                         Amount2 = Amount3,
                         Amount3 = Amount4,
                         Amount4 = Amount5,
-                        Amount5 = Amount6
+                        Amount5 = Amount6,
+                        Amount6 = Amount7,
                     });
 
                     if (!subTotalBESupplier.ContainsKey(SupplierName))
@@ -407,12 +429,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                         subTotalPPHSupplier.Add(SupplierName, 0);
                     };
 
+                    if (!subTotalDPPSupplier.ContainsKey(SupplierName))
+                    {
+                        subTotalDPPSupplier.Add(SupplierName, 0);
+                    };
+
                     subTotalBESupplier[SupplierName] += Amount1;
                     subTotalBPSupplier[SupplierName] += Amount2;
                     subTotalBBSupplier[SupplierName] += Amount3;
                     subTotalPRCSupplier[SupplierName] += Amount4;
                     subTotalPPNSupplier[SupplierName] += Amount5;
                     subTotalPPHSupplier[SupplierName] += Amount6;
+                    subTotalDPPSupplier[SupplierName] += Amount7;
                 }
 
                 double totalBE = 0;
@@ -421,22 +449,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 double totalPRC = 0;
                 double totalPPN = 0;
                 double totalPPH = 0;
+                double totalDPP = 0;
 
                 int rowPosition = 7;
 
                 foreach (KeyValuePair<string, List<GarmentDailyPurchasingReportViewModel>> SupplName in dataBySupplier)
                 {
                     string splCode = "";
+                    string mtUang = "";
                     int index = 0;
                     foreach (GarmentDailyPurchasingReportViewModel data in SupplName.Value)
                     {
                         index++;
-                        result.Rows.Add(index, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
+                        result.Rows.Add(index, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount6, 2), data.CurrencyCode, data.Rate, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
                         rowPosition += 1;
-                        splCode = data.SupplierName;
+                        splCode = data.PaymentBill;
+                        mtUang = data.CurrencyCode;
                     }
 
-                    result.Rows.Add("SUB TOTAL", "", "", "", "", "", "", "", splCode, "", Math.Round(subTotalBESupplier[SupplName.Key], 2), Math.Round(subTotalBPSupplier[SupplName.Key], 2), Math.Round(subTotalBBSupplier[SupplName.Key], 2), Math.Round(subTotalPRCSupplier[SupplName.Key], 2), Math.Round(subTotalPPNSupplier[SupplName.Key], 2), Math.Round(subTotalPPHSupplier[SupplName.Key], 2));
+                    result.Rows.Add("SUB TOTAL", "", "", "", "", "", "NO BON PUSAT KECIL", ":", splCode, ":", Math.Round(subTotalDPPSupplier[SupplName.Key], 2), mtUang, "", Math.Round(subTotalBESupplier[SupplName.Key], 2), Math.Round(subTotalBPSupplier[SupplName.Key], 2), Math.Round(subTotalBBSupplier[SupplName.Key], 2), Math.Round(subTotalPRCSupplier[SupplName.Key], 2), Math.Round(subTotalPPNSupplier[SupplName.Key], 2), Math.Round(subTotalPPHSupplier[SupplName.Key], 2));
 
                     rowPosition += 1;
                     mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
@@ -447,9 +478,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                     totalPRC += subTotalPRCSupplier[SupplName.Key];
                     totalPPN += subTotalPPNSupplier[SupplName.Key];
                     totalPPH += subTotalPPHSupplier[SupplName.Key];
+                    totalDPP += subTotalDPPSupplier[SupplName.Key];
                 }
 
-                result.Rows.Add("TOTAL", "", "", "", "", "", "", "", "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2), Math.Round(totalPPN, 2), Math.Round(totalPPH, 2));
+                //result.Rows.Add("TOTAL", "", "", "", "", "", "", "", "", "", Math.Round(totalDPP, 2), "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2), Math.Round(totalPPN, 2), Math.Round(totalPPH, 2));
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
 
                 rowPosition += 1;
                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
@@ -464,27 +497,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
             #region Kop Table
             var col = (char)('A' + result.Columns.Count);
-            sheet.Cells[$"A1:{col}1"].Value = "PT. Dan Liris";
+            sheet.Cells[$"A1:{col}1"].Value = "PT. DAN LIRIS";
             sheet.Cells[$"A1:{col}1"].Merge = true;
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
             sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
-            sheet.Cells[$"A2:{col}2"].Value = "Buku Harian";
+            sheet.Cells[$"A2:{col}2"].Value = "BUKU AHRIAN PEMBELIAN GARMENT";
             sheet.Cells[$"A2:{col}2"].Merge = true;
             sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
             sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-            sheet.Cells[$"A3:{col}3"].Value = string.Format("Bulan {0} {1}", Month, DateTo.Year);
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("BULAN {0} {1}", Month, DateTo.Year);
             sheet.Cells[$"A3:{col}3"].Merge = true;
             sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
             sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-            sheet.Cells[$"A4:{col}4"].Value = string.Format("Supplier {0}", supplierType == true ? "IMPORT" : "LOCAL");
+            sheet.Cells[$"A4:{col}4"].Value = string.Format("SUPPLIER {0}", supplierType == true ? "IMPORT" : "LOCAL");
             sheet.Cells[$"A4:{col}4"].Merge = true;
             sheet.Cells[$"A4:{col}4"].Style.Font.Bold = true;
             sheet.Cells[$"A4:{col}4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A4:{col}4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-            sheet.Cells[$"A5:{col}5"].Value = string.Format("Konveksi {0}", string.IsNullOrWhiteSpace(unitName) ? "ALL" : unitName);
+            sheet.Cells[$"A5:{col}5"].Value = string.Format("KONFEKSI {0}", string.IsNullOrWhiteSpace(unitName) ? "ALL" : unitName);
             sheet.Cells[$"A5:{col}5"].Merge = true;
             sheet.Cells[$"A5:{col}5"].Style.Font.Bold = true;
             sheet.Cells[$"A5:{col}5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;

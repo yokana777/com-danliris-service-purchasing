@@ -341,7 +341,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 
         #region Flow Detail Permintaan 
         [HttpGet("laporan")]
-        public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order = "{}")
+        public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page = 1, int size = int.MaxValue, string Order = "{}")
         {
             try
             {
