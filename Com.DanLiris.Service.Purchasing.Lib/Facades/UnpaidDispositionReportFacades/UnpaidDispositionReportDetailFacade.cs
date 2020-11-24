@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                     URNNo = item.URNNo,
                     IncomeTax = (decimal)item.IncomeTaxValue,
                     IncomeTaxBy = item.IncomeTaxBy,
-                    PaymentDueDate = item.PaymentDueDate
+                    PaymentDueDate = item.PaymentDueDate.DateTime
                 };
 
                 reportResult.Reports.Add(reportItem);
@@ -277,7 +277,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
 
                 }
 
+                List<Summary> summaries = new List<Summary>();
+
                 foreach (var unitSummary in result.UnitSummaries)
+                {
+                    if (summaries.Any(x => x.Name == unitSummary.Name))
+                        summaries.Add(new Summary
+                        {
+                            Name = "",
+                            CurrencyCode = unitSummary.CurrencyCode,
+                            SubTotal = unitSummary.SubTotal,
+                            SubTotalCurrency = unitSummary.SubTotalCurrency,
+                            AccountingLayoutIndex = unitSummary.AccountingLayoutIndex
+                        });
+                    else
+                        summaries.Add(unitSummary);
+                }
+
+                foreach (var unitSummary in summaries)
                 {
                     if (isForeignCurrency || isImport)
                         unitDataTable.Rows.Add(unitSummary.Name, unitSummary.CurrencyCode, unitSummary.SubTotal);
