@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -76,7 +77,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             DueDate = urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)),
                             IncomeTaxBy = urnEPO.IncomeTaxBy,
                             UseIncomeTax = urnEPO.UseIncomeTax,
-                            IncomeTaxRate = urnEPO.IncomeTaxRate
+                            IncomeTaxRate = urnEPO.IncomeTaxRate,
+                            UseVat = urnEPO.UseVat
                         };
 
             query = query.Where(entity => !entity.IsPaid && (entity.IsImport == isImport) && entity.DueDate <= dueDate);
@@ -140,12 +142,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             IsImport = pdItemEPO.SupplierIsImport,
                             IsPaid = pdWithItem.IsPaid,
                             DispositionPrice = purchasingDispositionDetail.PricePerDealUnit,
-                            DispositionQuantity = purchasingDispositionDetail.DealQuantity,
-                            DispositionTotal = purchasingDispositionDetail.PriceTotal,
+                            DispositionQuantity = purchasingDispositionDetail.PaidQuantity,
+                            DispositionTotal = purchasingDispositionDetail.PaidPrice,
                             DueDate = pdWithItem.PaymentDueDate,
                             IncomeTaxBy = pdItemEPO.IncomeTaxBy,
                             UseIncomeTax = pdItemEPO.UseIncomeTax,
-                            IncomeTaxRate = pdItemEPO.IncomeTaxRate
+                            IncomeTaxRate = pdItemEPO.IncomeTaxRate,
+                            UseVat = pdItemEPO.UseVat
                         };
 
             query = query.Where(entity => !entity.IsPaid && (entity.IsImport == isImport) && entity.DueDate <= dueDate);
@@ -190,14 +193,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             result = result
                 .Select(element =>
                 {
-                    double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                    double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var debtTotal = element.DebtTotal;
                     var dispositionTotal = element.DispositionTotal;
 
+                    if (element.UseVat)
+                    {
+                        debtTotal += element.DebtTotal * 0.1;
+                        dispositionTotal += element.DispositionTotal * 0.1;
+                    }
+
                     if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                     {
-                        debtTotal += debtTotal * (incomeTaxRate / 100);
-                        dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
+                        debtTotal -= element.DebtTotal * (incomeTaxRate / 100);
+                        dispositionTotal -= element.DispositionTotal * (incomeTaxRate / 100);
                     }
 
                     return new DebtAndDispositionSummaryDto()
@@ -245,14 +254,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
             result = result.Select(element =>
             {
-                double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                 var debtTotal = element.DebtTotal;
                 var dispositionTotal = element.DispositionTotal;
 
+                if (element.UseVat)
+                {
+                    debtTotal += element.DebtTotal * 0.1;
+                    dispositionTotal += element.DispositionTotal * 0.1;
+                }
+
                 if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                 {
-                    debtTotal += debtTotal * (incomeTaxRate / 100);
-                    dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
+                    debtTotal -= element.DebtTotal * (incomeTaxRate / 100);
+                    dispositionTotal -= element.DispositionTotal * (incomeTaxRate / 100);
                 }
 
                 return new DebtAndDispositionSummaryDto()
@@ -399,12 +414,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             result = result
                 .Select(element =>
                 {
-                    double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                    double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var dispositionTotal = element.DispositionTotal;
+
+                    if (element.UseVat)
+                    {
+                        dispositionTotal += element.DispositionTotal * 0.1;
+                    }
 
                     if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                     {
-                        dispositionTotal += dispositionTotal * (incomeTaxRate / 100);
+                        dispositionTotal -= element.DispositionTotal * (incomeTaxRate / 100);
                     }
 
                     return new DebtAndDispositionSummaryDto()
@@ -449,9 +469,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
                 var dispositionTotal = element.DispositionTotal;
 
+                if (element.UseVat)
+                {
+                    dispositionTotal += element.DispositionTotal * 0.1;
+                }
+
                 if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                 {
-                    dispositionTotal += dispositionTotal * incomeTaxRate;
+                    dispositionTotal -= element.DispositionTotal * (incomeTaxRate / 100);
                 }
 
                 return new DebtAndDispositionSummaryDto()

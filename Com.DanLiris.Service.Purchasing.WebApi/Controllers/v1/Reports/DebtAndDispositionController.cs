@@ -100,10 +100,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
        
         private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
         {
+            var dueDateString = $"{dueDate:yyyy-dd-MM}";
+            if (dueDate == DateTimeOffset.MaxValue)
+                dueDateString = "-";
+
             var company = "PT DAN LIRIS";
             var title = "LAPORAN REKAP DATA HUTANG & DISPOSISI LOKAL";
             var unitName = "SEMUA UNIT";
-            var date = $"JATUH TEMPO S.D. {dueDate:yyyy-dd-MM}";
+            var date = $"JATUH TEMPO S.D. {dueDateString}";
 
             if (accountingUnitId > 0)
             {
@@ -125,6 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             const int startingRow = 6;
             const int tableGap = 3;
             const int columnA = 1;
+            const int columnB = 2;
             const int columnC = 3;
             const int columnD = 4;
             const int columnE = 5;
@@ -202,7 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                     worksheet.Cells["A6"].LoadFromDataTable(categoryDataTable, true);
                     worksheet.Cells[startingRow + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count, columnE].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[$"A{startingRow + headerRow + tableGap + categoryDataTable.Rows.Count}"].LoadFromDataTable(unitCurrencyDataTable, true);
-                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnB, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[$"A{startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap}"].LoadFromDataTable(separatedUnitCurrencyDataTable, true);
                     worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnD, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
@@ -212,10 +217,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                     worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Left.Style = ExcelBorderStyle.Thin;
                     worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
                     worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Top.Style = ExcelBorderStyle.Thin;
                     worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
@@ -452,7 +457,138 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 }
             }
         }
-        
+
+        private DataTable GetSeparatedUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var units = data.Select(element => element.UnitName).Distinct().ToList();
+
+            var debtData = data.Where(element => element.DispositionTotal == 0);
+            var dispositionData = data.Where(element => element.DebtTotal == 0);
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+
+            foreach (var unit in units)
+            {
+                var currencyDebtData = debtData
+                    .Where(element => element.UnitName == unit)
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DebtTotal = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate),
+                    })
+                    .ToList();
+
+                var currencyDispositionData = dispositionData
+                    .Where(element => element.UnitName == unit)
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate),
+                    })
+                    .ToList();
+
+                table.Rows.Add("", "Hutang", "", "");
+                foreach (var currencyDebt in currencyDebtData)
+                {
+                    table.Rows.Add("", "", currencyDebt.CurrencyCode, currencyDebt.DebtTotal.ToString("#,##0.00"));
+                }
+
+                table.Rows.Add("", "Disposisi", "", "");
+                foreach (var currencyDisposition in currencyDispositionData)
+                {
+                    table.Rows.Add("", "", currencyDisposition.CurrencyCode, currencyDisposition.DispositionTotal.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var units = data.Select(element => element.UnitName).Distinct().ToList();
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
+
+            if (data.Count > 0)
+            {
+                //foreach (var unit in units)
+                //{
+                //    var currencyData = data
+                //        .Where(element => element.UnitName == unit)
+                //        .GroupBy(element => element.CurrencyCode)
+                //        .Select(element => new DebtAndDispositionSummaryDto()
+                //        {
+                //            CurrencyCode = element.Key,
+                //            DebtTotal = element.Sum(sum => sum.DebtTotal),
+                //            DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                //            Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                //        })
+                //        .ToList();
+
+                //    table.Rows.Add(unit, "", "");
+
+                //    foreach (var currency in currencyData)
+                //    {
+                //        table.Rows.Add("", currency.CurrencyCode, currency.Total.ToString("#,##0.00"));
+                //    }
+                //}
+                var currencyData = data
+                        .GroupBy(element => element.CurrencyCode)
+                        .Select(element => new DebtAndDispositionSummaryDto()
+                        {
+                            CurrencyCode = element.Key,
+                            DebtTotal = element.Sum(sum => sum.DebtTotal),
+                            DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                            Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                        })
+                        .ToList();
+
+                foreach (var currency in currencyData)
+                {
+                    table.Rows.Add(currency.CurrencyCode, currency.Total.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetUnitDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var units = data.Select(element => element.UnitName).Distinct().ToList();
+
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+
+            if (units.Count > 0)
+            {
+                foreach (var unit in units)
+                {
+                    var debtTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DebtTotal);
+                    var dispositionTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DispositionTotal);
+
+                    table.Rows.Add(unit, "", "");
+                    table.Rows.Add("", "HUTANG", debtTotal.ToString("#,##0.00"));
+                    table.Rows.Add("", "DISPOSISI", dispositionTotal.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
         [HttpGet("debt/download-pdf")]
         public IActionResult DownloadPdfDebt([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
         {
@@ -522,7 +658,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetDispositionSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
                 var stream = GenerateExcelDisposition(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
 
@@ -685,15 +821,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetDispositionSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = DebtAndDispositionSummaryPDFTemplate.GenerateDisposition(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
 
-                var filename = "Laporan Rekap Hutang & Disposisi Lokal";
+                var filename = "Laporan Rekap Disposisi Lokal";
                 if (isForeignCurrency)
-                    filename = "Laporan Rekap Hutang & Disposisi Lokal Valas";
+                    filename = "Laporan Rekap Disposisi Lokal Valas";
                 else if (isImport)
-                    filename = "Laporan Rekap Hutang & Disposisi Import";
+                    filename = "Laporan Rekap Disposisi Import";
                 filename += ".pdf";
 
                 return new FileStreamResult(stream, "application/pdf")
@@ -706,123 +842,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
             }
-        }
-
-        private DataTable GetSeparatedUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
-
-            var debtData = data.Where(element => element.DispositionTotal == 0);
-            var dispositionData = data.Where(element => element.DebtTotal == 0);
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
-
-            foreach (var unit in units)
-            {
-                var currencyDebtData = debtData
-                    .Where(element => element.UnitName == unit)
-                    .GroupBy(element => element.CurrencyCode)
-                    .Select(element => new DebtAndDispositionSummaryDto()
-                    {
-                        CurrencyCode = element.Key,
-                        DebtTotal = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate),
-                    })
-                    .ToList();
-
-                var currencyDispositionData = dispositionData
-                    .Where(element => element.UnitName == unit)
-                    .GroupBy(element => element.CurrencyCode)
-                    .Select(element => new DebtAndDispositionSummaryDto()
-                    {
-                        CurrencyCode = element.Key,
-                        DispositionTotal = element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate),
-                    })
-                    .ToList();
-
-                table.Rows.Add("", "Hutang", "", "");
-                foreach (var currencyDebt in currencyDebtData)
-                {
-                    table.Rows.Add("", "", currencyDebt.CurrencyCode, currencyDebt.DebtTotal.ToString("#,##0.00"));
-                }
-
-                table.Rows.Add("", "Disposisi", "", "");
-                foreach (var currencyDisposition in currencyDispositionData)
-                {
-                    table.Rows.Add("", "", currencyDisposition.CurrencyCode, currencyDisposition.DispositionTotal.ToString("#,##0.00"));
-                }
-            }
-
-            return table;
-        }
-
-        private DataTable GetUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
-
-            if (units.Count > 0)
-            {
-                foreach (var unit in units)
-                {
-                    var currencyData = data
-                        .Where(element => element.UnitName == unit)
-                        .GroupBy(element => element.CurrencyCode)
-                        .Select(element => new DebtAndDispositionSummaryDto()
-                        {
-                            CurrencyCode = element.Key,
-                            DebtTotal = element.Sum(sum => sum.DebtTotal),
-                            DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                            Total = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate) + element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate)
-                        })
-                        .ToList();
-
-                    table.Rows.Add(unit, "", "");
-
-                    foreach (var currency in currencyData)
-                    {
-                        table.Rows.Add("", currency.CurrencyCode, currency.Total.ToString("#,##0.00"));
-                    }
-                }
-            }
-
-            return table;
-        }
-
-        private DataTable GetUnitDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
-
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
-
-            if (units.Count > 0)
-            {
-                foreach (var unit in units)
-                {
-                    var debtTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DebtTotal);
-                    var dispositionTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DispositionTotal);
-
-                    table.Rows.Add(unit, "", "");
-                    table.Rows.Add("", "HUTANG", debtTotal.ToString("#,##0.00"));
-                    table.Rows.Add("", "DISPOSISI", dispositionTotal.ToString("#,##0.00"));
-                }
-            }
-
-            return table;
         }
 
         private DataTable GetCategoryDataTable(List<DebtAndDispositionSummaryDto> data)
