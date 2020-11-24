@@ -316,7 +316,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             result = result
                 .Select(element =>
                 {
-                    double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                    double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var debtTotal = element.DebtTotal;
 
                     if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
@@ -363,7 +363,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
             result = result.Select(element =>
             {
-                double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                 var debtTotal = element.DebtTotal;
 
                 if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
@@ -466,7 +466,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
             result = result.Select(element =>
             {
-                double.TryParse(element.IncomeTaxRate, out var incomeTaxRate);
+                double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                 var dispositionTotal = element.DispositionTotal;
 
                 if (element.UseVat)
@@ -508,5 +508,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
 
             return result;
         }
-       }
+    }
 }
