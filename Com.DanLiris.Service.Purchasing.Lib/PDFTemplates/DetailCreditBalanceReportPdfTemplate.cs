@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTime? dateTo, bool isImport, bool isForeignCurrency)
         {
             //var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
-            var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
+            var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.MaxValue).ToUniversalTime();
 
             var document = new Document(PageSize.A4.Rotate(), 5, 5, 25, 25);
             var stream = new MemoryStream();
@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var listReports = viewModel.Reports.OrderBy(order => order.CategoryName).GroupBy(x => x.CategoryName).ToList();
+            var listReports = viewModel.Reports.Where(item => item.CategoryName != null).OrderBy(order => order.CategoryName).GroupBy(x => x.CategoryName).ToList();
             var summaryUnit = new Dictionary<string, decimal>();
 
             foreach (var items in listReports)
@@ -185,24 +185,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.TotalSaldo), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    if (totalUnit.ContainsKey(element.AccountingUnitName))
-                        totalUnit[element.AccountingUnitName] += element.TotalSaldo;
-                    else
-                        totalUnit.Add(element.AccountingUnitName, element.TotalSaldo);
-
-                    if (totalCurrency.ContainsKey(element.CurrencyCode))
+                    if (element.AccountingUnitName != null)
                     {
+                        if (totalUnit.ContainsKey(element.AccountingUnitName))
+                            totalUnit[element.AccountingUnitName] += element.TotalSaldo;
+                        else
+                            totalUnit.Add(element.AccountingUnitName, element.TotalSaldo);
 
-                        //totalCurrency[element.CurrencyCode]["DPP"] += element.TotalSaldo;
-                        totalCurrency[element.CurrencyCode]["Total"] += element.TotalSaldo;
-                    }
-                    else
-                    { 
-                        totalCurrency.Add(element.CurrencyCode, new Dictionary<string, decimal>()
+                        if (totalCurrency.ContainsKey(element.CurrencyCode))
+                        {
+
+                            //totalCurrency[element.CurrencyCode]["DPP"] += element.TotalSaldo;
+                            totalCurrency[element.CurrencyCode]["Total"] += element.TotalSaldo;
+                        }
+                        else
+                        {
+                            totalCurrency.Add(element.CurrencyCode, new Dictionary<string, decimal>()
                         {
                             //{"DPP", element.TotalSaldo },
                             {"Total", element.TotalSaldo }
                         });
+                        }
                     }
 
                     total += element.TotalSaldo;
