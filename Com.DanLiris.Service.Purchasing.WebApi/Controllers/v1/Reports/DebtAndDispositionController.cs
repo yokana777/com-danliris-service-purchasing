@@ -97,38 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
             }
         }
-
-        [HttpGet("xls")]
-        public IActionResult Xls([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
-        {
-
-            try
-            {
-                if (!dueDate.HasValue)
-                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
-
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
-
-                var stream = GenerateXls(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
-
-                var filename = "Laporan Saldo Hutang (Rekap) Lokal";
-                if (isForeignCurrency)
-                    filename = "Laporan Saldo Hutang (Rekap) Lokal Valas";
-                else if (isImport)
-                    filename = "Laporan Saldo Hutang (Rekap) Impor";
-                filename += ".xlsx";
-
-                var bytes = stream.ToArray();
-
-                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
-            }
-            catch (Exception e)
-            {
-                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
-            }
-        }
-
+       
         private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
         {
             var company = "PT DAN LIRIS";
@@ -260,8 +229,99 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 }
             }
         }
+        
+        [HttpGet("download-pdf")]
+        public IActionResult DownloadPdf([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
 
-        private MemoryStream GenerateXls(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
+            try
+            {
+                if (!dueDate.HasValue)
+                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
+
+                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+
+                var filename = "Laporan Rekap Hutang & Disposisi Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Rekap Hutang & Disposisi Lokal Valas";
+                else if (isImport)
+                    filename = "Laporan Rekap Hutang & Disposisi Import";
+                filename += ".pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception e)
+            {
+                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
+            }
+        }
+
+        [HttpGet("debt")]
+        public IActionResult GetDebt([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
+
+            try
+            {
+                if (!dueDate.HasValue)
+                    dueDate = DateTimeOffset.MaxValue;
+                var result = _service.GetReportDebt(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result,
+                    info = new Dictionary<string, object>
+                    {
+                        { "page", 1 },
+                        { "size", 10 }
+                    },
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("debt/download-excel")]
+        public IActionResult DownloadExcelDebt([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        {
+
+            try
+            {
+                if (!dueDate.HasValue)
+                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
+
+                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+
+                var stream = GenerateExcelDebt(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+
+                var filename = "Laporan Saldo Hutang (Rekap) Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Saldo Hutang (Rekap) Lokal Valas";
+                else if (isImport)
+                    filename = "Laporan Saldo Hutang (Rekap) Impor";
+                filename += ".xlsx";
+
+                var bytes = stream.ToArray();
+
+                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception e)
+            {
+                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
+            }
+        }
+
+        private MemoryStream GenerateExcelDebt(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
         {
             var company = "PT DAN LIRIS";
             var title = "LAPORAN SALDO HUTANG USAHA (REKAP) LOKAL";
@@ -282,7 +342,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             if (isImport)
                 title = "LAPORAN SALDO HUTANG USAHA (REKAP) IMPOR";
 
-            var categoryDataTable = GetCategoryDataTableNoDisposition(data);
+            var categoryDataTable = GetCategoryDataTableDebt(data);
 
             const int headerRow = 1;
             const int startingRow = 6;
@@ -392,194 +452,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 }
             }
         }
-
-        private DataTable GetSeparatedUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
-
-            var debtData = data.Where(element => element.DispositionTotal == 0);
-            var dispositionData = data.Where(element => element.DebtTotal == 0);
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
-
-            foreach (var unit in units)
-            {
-                var currencyDebtData = debtData
-                    .Where(element => element.UnitName == unit)
-                    .GroupBy(element => element.CurrencyCode)
-                    .Select(element => new DebtAndDispositionSummaryDto()
-                    {
-                        CurrencyCode = element.Key,
-                        DebtTotal = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate),
-                    })
-                    .ToList();
-
-                var currencyDispositionData = dispositionData
-                    .Where(element => element.UnitName == unit)
-                    .GroupBy(element => element.CurrencyCode)
-                    .Select(element => new DebtAndDispositionSummaryDto()
-                    {
-                        CurrencyCode = element.Key,
-                        DispositionTotal = element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate),
-                    })
-                    .ToList();
-
-                table.Rows.Add("", "Hutang", "", "");
-                foreach (var currencyDebt in currencyDebtData)
-                {
-                    table.Rows.Add("", "", currencyDebt.CurrencyCode, currencyDebt.DebtTotal.ToString("#,##0.00"));
-                }
-
-                table.Rows.Add("", "Disposisi", "", "");
-                foreach (var currencyDisposition in currencyDispositionData)
-                {
-                    table.Rows.Add("", "", currencyDisposition.CurrencyCode, currencyDisposition.DispositionTotal.ToString("#,##0.00"));
-                }
-            }
-
-            return table;
-        }
-
-        private DataTable GetUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
-
-            if (units.Count > 0)
-            {
-                foreach (var unit in units)
-                {
-                    var currencyData = data
-                        .Where(element => element.UnitName == unit)
-                        .GroupBy(element => element.CurrencyCode)
-                        .Select(element => new DebtAndDispositionSummaryDto()
-                        {
-                            CurrencyCode = element.Key,
-                            DebtTotal = element.Sum(sum => sum.DebtTotal),
-                            DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                            Total = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate) + element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate)
-                        })
-                        .ToList();
-
-                    table.Rows.Add(unit, "", "");
-
-                    foreach (var currency in currencyData)
-                    {
-                        table.Rows.Add("", currency.CurrencyCode, currency.Total.ToString("#,##0.00"));
-                    }
-                }
-            }
-
-            return table;
-        }
-
-        private DataTable GetUnitDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
-
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
-
-            if (units.Count > 0)
-            {
-                foreach (var unit in units)
-                {
-                    var debtTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DebtTotal);
-                    var dispositionTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DispositionTotal);
-
-                    table.Rows.Add(unit, "", "");
-                    table.Rows.Add("", "HUTANG", debtTotal.ToString("#,##0.00"));
-                    table.Rows.Add("", "DISPOSISI", dispositionTotal.ToString("#,##0.00"));
-                }
-            }
-
-            return table;
-        }
-
-        private DataTable GetCategoryDataTable(List<DebtAndDispositionSummaryDto> data)
-        {
-            var categoryData = data
-               .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
-               .Select(element => new DebtAndDispositionSummaryDto()
-               {
-                   CategoryCode = element.Key.CategoryCode,
-                   CategoryName = element.FirstOrDefault().CategoryName,
-                   CurrencyCode = element.Key.CurrencyCode,
-                   DebtTotal = element.Sum(sum => sum.DebtTotal),
-                   DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                   Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
-               })
-               .ToList();
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Hutang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Disposisi", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
-
-            if (categoryData.Count > 0)
-            {
-                foreach (var categoryDatum in categoryData)
-                {
-                    table.Rows.Add(categoryDatum.CategoryName, categoryDatum.CurrencyCode, categoryDatum.DebtTotal.ToString("#,##0.00"), categoryDatum.DispositionTotal.ToString("#,##0.00"), categoryDatum.Total.ToString("#,##0.00"));
-                }
-            }
-
-            return table;
-        }
-
-        private DataTable GetCategoryDataTableNoDisposition(List<DebtAndDispositionSummaryDto> data)
-        {
-            var categoryData = data
-               .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
-               .Select(element => new DebtAndDispositionSummaryDto()
-               {
-                   CategoryCode = element.Key.CategoryCode,
-                   CategoryName = element.FirstOrDefault().CategoryName,
-                   CurrencyCode = element.Key.CurrencyCode,
-                   DebtTotal = element.Sum(sum => sum.DebtTotal),
-                   //DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                   Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
-               })
-               .ToList();
-
-            var table = new DataTable();
-
-            table.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Hutang", DataType = typeof(string) });
-            //table.Columns.Add(new DataColumn() { ColumnName = "Disposisi", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
-
-            if (categoryData.Count > 0)
-            {
-                foreach (var categoryDatum in categoryData)
-                {
-                    table.Rows.Add(categoryDatum.CategoryName, categoryDatum.CurrencyCode, categoryDatum.DebtTotal.ToString("#,##0.00"), categoryDatum.Total.ToString("#,##0.00"));
-                }
-            }
-
-            return table;
-        }
-
-        [HttpGet("download-pdf")]
-        public IActionResult DownloadPdf([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
+        
+        [HttpGet("debt/download-pdf")]
+        public IActionResult DownloadPdfDebt([FromQuery] int categoryId, [FromQuery] int accountingUnitId, [FromQuery] int divisionId, [FromQuery] DateTimeOffset? dueDate, [FromQuery] bool isImport, [FromQuery] bool isForeignCurrency)
         {
 
             try
@@ -589,13 +464,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = DebtSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
 
-                var filename = "Laporan Rekap Hutang & Disposisi Lokal";
+                var filename = "Laporan Saldo Hutang (Rekap) Lokal";
                 if (isForeignCurrency)
-                    filename = "Laporan Rekap Hutang & Disposisi Lokal Valas";
+                    filename = "Laporan Saldo Hutang (Rekap) Lokal Valas";
                 else if (isImport)
-                    filename = "Laporan Rekap Hutang & Disposisi Import";
+                    filename = "Laporan Saldo Hutang (Rekap) Impor";
                 filename += ".pdf";
 
                 return new FileStreamResult(stream, "application/pdf")
@@ -832,5 +707,191 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
             }
         }
+
+        private DataTable GetSeparatedUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var units = data.Select(element => element.UnitName).Distinct().ToList();
+
+            var debtData = data.Where(element => element.DispositionTotal == 0);
+            var dispositionData = data.Where(element => element.DebtTotal == 0);
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+
+            foreach (var unit in units)
+            {
+                var currencyDebtData = debtData
+                    .Where(element => element.UnitName == unit)
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DebtTotal = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate),
+                    })
+                    .ToList();
+
+                var currencyDispositionData = dispositionData
+                    .Where(element => element.UnitName == unit)
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate),
+                    })
+                    .ToList();
+
+                table.Rows.Add("", "Hutang", "", "");
+                foreach (var currencyDebt in currencyDebtData)
+                {
+                    table.Rows.Add("", "", currencyDebt.CurrencyCode, currencyDebt.DebtTotal.ToString("#,##0.00"));
+                }
+
+                table.Rows.Add("", "Disposisi", "", "");
+                foreach (var currencyDisposition in currencyDispositionData)
+                {
+                    table.Rows.Add("", "", currencyDisposition.CurrencyCode, currencyDisposition.DispositionTotal.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var units = data.Select(element => element.UnitName).Distinct().ToList();
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+
+            if (units.Count > 0)
+            {
+                foreach (var unit in units)
+                {
+                    var currencyData = data
+                        .Where(element => element.UnitName == unit)
+                        .GroupBy(element => element.CurrencyCode)
+                        .Select(element => new DebtAndDispositionSummaryDto()
+                        {
+                            CurrencyCode = element.Key,
+                            DebtTotal = element.Sum(sum => sum.DebtTotal),
+                            DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                            Total = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate) + element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate)
+                        })
+                        .ToList();
+
+                    table.Rows.Add(unit, "", "");
+
+                    foreach (var currency in currencyData)
+                    {
+                        table.Rows.Add("", currency.CurrencyCode, currency.Total.ToString("#,##0.00"));
+                    }
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetUnitDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var units = data.Select(element => element.UnitName).Distinct().ToList();
+
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+
+            if (units.Count > 0)
+            {
+                foreach (var unit in units)
+                {
+                    var debtTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DebtTotal);
+                    var dispositionTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DispositionTotal);
+
+                    table.Rows.Add(unit, "", "");
+                    table.Rows.Add("", "HUTANG", debtTotal.ToString("#,##0.00"));
+                    table.Rows.Add("", "DISPOSISI", dispositionTotal.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetCategoryDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var categoryData = data
+               .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+               .Select(element => new DebtAndDispositionSummaryDto()
+               {
+                   CategoryCode = element.Key.CategoryCode,
+                   CategoryName = element.FirstOrDefault().CategoryName,
+                   CurrencyCode = element.Key.CurrencyCode,
+                   DebtTotal = element.Sum(sum => sum.DebtTotal),
+                   DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                   Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+               })
+               .ToList();
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Hutang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Disposisi", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
+
+            if (categoryData.Count > 0)
+            {
+                foreach (var categoryDatum in categoryData)
+                {
+                    table.Rows.Add(categoryDatum.CategoryName, categoryDatum.CurrencyCode, categoryDatum.DebtTotal.ToString("#,##0.00"), categoryDatum.DispositionTotal.ToString("#,##0.00"), categoryDatum.Total.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetCategoryDataTableDebt(List<DebtAndDispositionSummaryDto> data)
+        {
+            var categoryData = data
+               .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+               .Select(element => new DebtAndDispositionSummaryDto()
+               {
+                   CategoryCode = element.Key.CategoryCode,
+                   CategoryName = element.FirstOrDefault().CategoryName,
+                   CurrencyCode = element.Key.CurrencyCode,
+                   DebtTotal = element.Sum(sum => sum.DebtTotal),
+                   //DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                   Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+               })
+               .ToList();
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Hutang", DataType = typeof(string) });
+            //table.Columns.Add(new DataColumn() { ColumnName = "Disposisi", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
+
+            if (categoryData.Count > 0)
+            {
+                foreach (var categoryDatum in categoryData)
+                {
+                    table.Rows.Add(categoryDatum.CategoryName, categoryDatum.CurrencyCode, categoryDatum.DebtTotal.ToString("#,##0.00"), categoryDatum.Total.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
     }
 }
