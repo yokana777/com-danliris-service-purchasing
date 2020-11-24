@@ -188,7 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                     URNNo = item.URNNo,
                     IncomeTax = (decimal)item.IncomeTaxValue,
                     IncomeTaxBy = item.IncomeTaxBy,
-                    PaymentDueDate = item.PaymentDueDate.DateTime
+                    PaymentDueDate = item.PaymentDueDate.Date
                 };
 
                 reportResult.Reports.Add(reportItem);
