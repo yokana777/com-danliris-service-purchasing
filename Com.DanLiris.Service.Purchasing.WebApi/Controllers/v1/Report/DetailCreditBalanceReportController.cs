@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
                 var data = await _service.GetReport(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
-                var stream = DetailCreditBalanceReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateTo, isImport, isForeignCurrency);
+                var stream = DetailCreditBalanceReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateTo, isImport, isForeignCurrency, accountingUnitId, divisionId);
 
                 var filename = isImport ? "Laporan Detail Saldo Hutang Usaha Impor" : isForeignCurrency ? "Laporan Detail Saldo Hutang Usaha Lokal Valas" : "Laporan Detail Saldo Hutang Usaha Lokal";
                 filename += ".pdf";

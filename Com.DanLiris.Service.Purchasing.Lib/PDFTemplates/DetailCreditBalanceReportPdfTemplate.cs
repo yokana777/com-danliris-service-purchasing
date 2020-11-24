@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
         private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
 
-        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency)
+        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency, int unitId, int divisionId)
         {
             //var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTimeOffset.MaxValue).ToUniversalTime();
@@ -31,7 +31,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfWriter.GetInstance(document, stream);
             document.Open();
 
-            SetHeader(document, d2, timezoneOffset, isImport, isForeignCurrency);
+            var unitName = "SEMUA UNIT";
+            var divisionName = "SEMUA DIVISI";
+            var separator = " - ";
+
+            if (unitId > 0)
+            {
+                var summary = viewModel.Reports.FirstOrDefault();
+                if (summary != null)
+                {
+                    unitName = $"UNIT {summary.AccountingUnitName}";
+                    separator = "";
+                    divisionName = "";
+                }
+                else
+                {
+                    unitName = "";
+                    separator = "";
+                    divisionName = "";
+                }
+            }
+            else if (divisionId > 0)
+            {
+                var summary = viewModel.Reports.FirstOrDefault();
+                if (summary != null)
+                {
+                    divisionName = $"DIVISI {summary.AccountingUnitName}";
+                    separator = "";
+                    unitName = "";
+                }
+                else
+                {
+                    divisionName = "";
+                    separator = "";
+                    unitName = "";
+                }
+            }
+
+            SetHeader(document, d2, timezoneOffset, isImport, isForeignCurrency, unitName, separator, divisionName);
             document.Add(new Paragraph("\n"));
             SetReportTable(document, viewModel, timezoneOffset, isImport, isForeignCurrency);
             //document.Add(new Paragraph("\n"));
@@ -46,8 +83,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return stream;
         }
 
-        private static void SetHeader(Document document, DateTimeOffset? dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency)
+        private static void SetHeader(Document document, DateTimeOffset? dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency, string unitName, string separator, string divisionName)
         {
+            var dueDateString = $"{dateTo:dd-MMM-yyyy}";
+            if (dateTo == DateTimeOffset.MaxValue)
+                dueDateString = "-";
+
             var table = new PdfPTable(1)
             {
                 WidthPercentage = 95
@@ -65,8 +106,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase($"LAPORAN SALDO HUTANG (DETAIL) {sTitle}", _headerFont);
             table.AddCell(cell);
 
+            cell.Phrase = new Phrase(unitName + separator + divisionName, _headerFont);
+            table.AddCell(cell);
+
             //cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):dd-MM-yyyy}", _subHeaderFont);
-            cell.Phrase = new Phrase($"Periode sampai {dateTo}", _subHeaderFont);
+            cell.Phrase = new Phrase($"Periode sampai {dueDateString}", _subHeaderFont);
             table.AddCell(cell);
 
             document.Add(table);
