@@ -21,10 +21,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
         private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
 
-        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTime? dateTo, bool isImport, bool isForeignCurrency)
+        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency)
         {
             //var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
-            var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.MaxValue).ToUniversalTime();
+            var d2 = (dateTo.HasValue ? dateTo.Value : DateTimeOffset.MaxValue).ToUniversalTime();
 
             var document = new Document(PageSize.A4.Rotate(), 5, 5, 25, 25);
             var stream = new MemoryStream();
@@ -46,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             return stream;
         }
 
-        private static void SetHeader(Document document, DateTime dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency)
+        private static void SetHeader(Document document, DateTimeOffset? dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency)
         {
             var table = new PdfPTable(1)
             {
@@ -65,7 +65,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase($"LAPORAN SALDO HUTANG (DETAIL) {sTitle}", _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):dd-MM-yyyy}", _subHeaderFont);
+            //cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):dd-MM-yyyy}", _subHeaderFont);
+            cell.Phrase = new Phrase($"Periode sampai {dateTo}", _subHeaderFont);
             table.AddCell(cell);
 
             document.Add(table);
@@ -155,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (var element in items)
                 {
-                    cell.Phrase = new Phrase(element.ReceiptDate.AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
+                    cell.Phrase = new Phrase(element.UPODate.GetValueOrDefault().AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.UPONo, _smallerFont);
@@ -176,39 +177,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(element.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(element.DueDate.AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
+                    cell.Phrase = new Phrase(element.DueDate.GetValueOrDefault().AddHours(timezoneOffset).ToString("dd-MM-yyyy"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.CurrencyCode, _smallerFont);
                     table.AddCell(cell);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.TotalSaldo), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", element.Total), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     if (element.AccountingUnitName != null)
                     {
                         if (totalUnit.ContainsKey(element.AccountingUnitName))
-                            totalUnit[element.AccountingUnitName] += element.TotalSaldo;
+                            totalUnit[element.AccountingUnitName] += element.Total;
                         else
-                            totalUnit.Add(element.AccountingUnitName, element.TotalSaldo);
+                            totalUnit.Add(element.AccountingUnitName, element.Total);
 
                         if (totalCurrency.ContainsKey(element.CurrencyCode))
                         {
 
                             //totalCurrency[element.CurrencyCode]["DPP"] += element.TotalSaldo;
-                            totalCurrency[element.CurrencyCode]["Total"] += element.TotalSaldo;
+                            totalCurrency[element.CurrencyCode]["Total"] += element.Total;
                         }
                         else
                         {
                             totalCurrency.Add(element.CurrencyCode, new Dictionary<string, decimal>()
                         {
                             //{"DPP", element.TotalSaldo },
-                            {"Total", element.TotalSaldo }
+                            {"Total", element.Total }
                         });
                         }
                     }
 
-                    total += element.TotalSaldo;
+                    total += element.Total;
                 }
 
                 if (totalCurrency.Count() > 0)
