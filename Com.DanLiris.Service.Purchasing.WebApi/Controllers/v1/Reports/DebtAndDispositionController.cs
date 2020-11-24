@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
        
-        private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
+        private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
             var dueDateString = $"{dueDate:yyyy-dd-MM}";
             if (dueDate == DateTimeOffset.MaxValue)
@@ -113,8 +113,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             {
                 var datum = data.FirstOrDefault();
                 if (datum != null)
-                    unitName = datum.UnitName;
+                    unitName = $"UNIT {datum.AccountingUnitName}";
+            }
 
+            if (divisionId > 0)
+            {
+                var datum = data.FirstOrDefault();
+                if (datum != null)
+                    unitName = $"DIVISI {datum.DivisionName} {unitName}";
             }
 
             if (isForeignCurrency && !isImport)
@@ -246,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)

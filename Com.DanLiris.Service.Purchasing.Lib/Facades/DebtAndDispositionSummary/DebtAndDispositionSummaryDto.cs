@@ -30,5 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
         public bool UseIncomeTax { get; internal set; }
         public string IncomeTaxRate { get; internal set; }
         public bool UseVat { get; internal set; }
+        public int CategoryLayoutIndex { get; internal set; }
+        public string AccountingUnitName { get; internal set; }
     }
 }

@@ -15,6 +15,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
     {
         private readonly PurchasingDbContext _dbContext;
         private readonly List<UnitDto> _units;
+        private readonly List<AccountingUnitDto> _accountingUnits;
+        private readonly List<CategoryDto> _categories;
+
 
         //private readonly IDistributedCache _cache;
 
@@ -23,7 +26,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             _dbContext = serviceProvider.GetService<PurchasingDbContext>();
             var cache = serviceProvider.GetService<IDistributedCache>();
             var jsonUnits = cache.GetString(MemoryCacheConstant.Units);
+            var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
+            var jsonAccountingUnits = cache.GetString(MemoryCacheConstant.AccountingUnits);
             _units = JsonConvert.DeserializeObject<List<UnitDto>>(jsonUnits, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
+
+            _accountingUnits = JsonConvert.DeserializeObject<List<AccountingUnitDto>>(jsonAccountingUnits, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
+
+            _categories = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonCategories, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
             });
@@ -196,6 +211,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var debtTotal = element.DebtTotal;
                     var dispositionTotal = element.DispositionTotal;
+                    
+                    var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                    var categoryLayoutIndex = 0;
+                    if (category != null)
+                        categoryLayoutIndex = category.ReportLayoutIndex;
 
                     if (element.UseVat)
                     {
@@ -213,6 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     {
                         CategoryCode = element.CategoryCode,
                         CategoryName = element.CategoryName,
+                        CategoryLayoutIndex = categoryLayoutIndex,
                         CurrencyCode = element.CurrencyCode,
                         DebtTotal = debtTotal,
                         DispositionTotal = dispositionTotal,
@@ -229,12 +250,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     {
                         CategoryCode = element.Key.CategoryCode,
                         CategoryName = element.FirstOrDefault().CategoryName,
+                        CategoryLayoutIndex = element.FirstOrDefault().CategoryLayoutIndex,
                         CurrencyCode = element.Key.CurrencyCode,
                         DebtTotal = debtTotal,
                         DispositionTotal = dispositionTotal,
                         Total = debtTotal + dispositionTotal
                     };
                 })
+                .OrderBy(element => element.CategoryLayoutIndex)
                 .ToList();
 
             return new ReadResponse<DebtAndDispositionSummaryDto>(result, result.Count, new Dictionary<string, string>());
@@ -257,6 +280,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                 var debtTotal = element.DebtTotal;
                 var dispositionTotal = element.DispositionTotal;
+
+                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                var categoryLayoutIndex = 0;
+                if (category != null)
+                    categoryLayoutIndex = category.ReportLayoutIndex;
+
+                var accountingUnitName = "";
+                var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
+                if (unit != null)
+                {
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
+                    if (accountingUnit != null)
+                        accountingUnitName = accountingUnit.Name;
+                }
 
                 if (element.UseVat)
                 {
@@ -296,9 +333,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     UnitCode = element.UnitCode,
                     UnitId = element.UnitId,
                     UnitName = element.UnitName,
-                    UseIncomeTax = element.UseIncomeTax
+                    UseIncomeTax = element.UseIncomeTax,
+                    AccountingUnitName = accountingUnitName,
+                    CategoryLayoutIndex = categoryLayoutIndex
                 };
-            }).ToList();
+            })
+                .OrderBy(element => element.CategoryLayoutIndex)
+                .ToList();
 
             return result;
         }

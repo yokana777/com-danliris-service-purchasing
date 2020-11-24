@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency)
+        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
             var document = new Document(PageSize.A4.Rotate(), 20, 5, 25, 25);
             var stream = new MemoryStream();
@@ -37,6 +37,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 {
                     unitName = $"UNIT {summary.UnitName}";
                 }
+            }
+
+            if (divisionId > 0)
+            {
+                var datum = data.FirstOrDefault();
+                if (datum != null)
+                    unitName = $"DIVISI {datum.DivisionName} {unitName}";
             }
 
             var title = "";
