@@ -74,6 +74,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         //&& urnItemUrn.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) <= d2 
                         //&& urnUPO != null && urnUPO.IsPaid == false && urnEPO != null && urnEPO.SupplierIsImport == isImport
 
+                        
+
                         select new
                         {
                             //urnWithItem.UnitReceiptNote.ReceiptDate,
@@ -133,6 +135,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         };
 
             //query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DateTo <= dateTo);
+
+            //query = query.GroupBy(x => x.UPONo).Select(y => y.First());
 
             if (categoryId > 0)
                 query = query.Where(urn => urn.CategoryId == categoryId.ToString());
@@ -297,16 +301,83 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             AccountingUnitName = report.Key.AccountingUnitName,
                             SubTotal = report.Sum(sum => sum.TotalSaldo),
                             SubTotalIDR = report.Sum(sum => sum.TotalSaldoIDR),
-                        }).OrderBy(order => order.AccountingUnitName).ToList();
+                        })
+                        .OrderBy(order => order.AccountingUnitName).ToList();
+            
             reportResult.CurrencySummaries = reportResult.Reports
-                .GroupBy(report => new { report.CurrencyCode })
-                .Select(report => new SummaryDCB()
-                {
-                    CurrencyCode = report.Key.CurrencyCode,
-                    SubTotal = report.Sum(sum => sum.TotalSaldo),
-                    SubTotalIDR = report.Sum(sum => sum.TotalSaldoIDR)
-                }).OrderBy(order => order.CurrencyCode).ToList();
-            reportResult.Reports = reportResult.Reports;
+                        .GroupBy(report => new { report.CurrencyCode })
+                        .Select(report => new SummaryDCB()
+                        {
+                            CurrencyCode = report.Key.CurrencyCode,
+                            SubTotal = report.Sum(sum => sum.TotalSaldo),
+                            SubTotalIDR = report.Sum(sum => sum.TotalSaldoIDR)
+                        })
+                        .OrderBy(order => order.CurrencyCode).ToList();
+
+            reportResult.Reports = reportResult.Reports
+                        .GroupBy(
+                            key => new 
+                            {
+                                key.UPONo,
+                                key.ReceiptDate,
+                                key.URNNo,
+                                key.InvoiceNo,
+                                key.SupplierName,
+                                key.CategoryName,
+                                key.AccountingUnitName,
+                                key.DueDate,
+                                key.CurrencyCode,
+                            },
+                            val => val,
+                            (key, val) => new DetailCreditBalanceReport()
+                            {
+                                UPONo = key.UPONo,
+                                ReceiptDate = key.ReceiptDate,
+                                URNNo = key.URNNo,
+                                InvoiceNo = key.InvoiceNo,
+                                SupplierName = key.SupplierName,
+                                CategoryName = key.CategoryName,
+                                AccountingUnitName = key.AccountingUnitName,
+                                DueDate = key.DueDate,
+                                CurrencyCode = key.CurrencyCode,
+                                TotalSaldo = val.Sum(s => s.TotalSaldo),
+                                TotalSaldoIDR = val.Sum(s => s.TotalSaldoIDR)
+                            })
+                        .OrderByDescending(order => order.DueDate).ToList();
+
+            //reportResult.Reports = reportResult.Reports
+            //            .GroupBy(report => new
+            //            {
+            //                report.UPONo,
+            //                report.ReceiptDate,
+            //                report.URNNo,
+            //                report.InvoiceNo,
+            //                report.SupplierName,
+            //                report.CategoryName,
+            //                report.AccountingUnitName,
+            //                report.DueDate,
+            //                report.CurrencyCode,
+            //                report.TotalSaldo,
+            //                report.TotalSaldoIDR
+            //            })
+            //            //.GroupBy(group => group.UPONo)
+            //            .Select(report => new DetailCreditBalanceReport() 
+            //            {
+            //                ReceiptDate = report.Key.ReceiptDate,
+            //                URNNo = report.Key.URNNo,
+            //                InvoiceNo = report.Key.InvoiceNo,
+            //                SupplierName = report.Key.SupplierName,
+            //                CategoryName = report.Key.CategoryName,
+            //                AccountingUnitName = report.Key.AccountingUnitName,
+            //                DueDate = report.Key.DueDate,
+            //                CurrencyCode = report.Key.CurrencyCode,
+            //                TotalSaldo = report.Sum(sum => sum.TotalSaldo),
+            //                TotalSaldoIDR = report.Sum(sum => sum.TotalSaldoIDR)
+            //            })
+            //            .OrderBy(order => order.DueDate).ToList();
+
+            //reportResult.Reports = reportResult.Reports;
+
             //reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
             //reportResult.AccountingUnitSummaryTotal = reportResult.AccountingUnitSummaries.Sum(summary => summary.SubTotal);
 
