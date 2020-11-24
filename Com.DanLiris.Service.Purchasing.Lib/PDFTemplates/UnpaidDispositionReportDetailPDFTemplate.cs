@@ -212,6 +212,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+            var cellNoBorderBot = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BorderWidthBottom = 0
+            };
+
+            var cellNoBorderTop = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BorderWidthTop = 0
+            };
+
+            var cellNoBorderTopAndBot = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BorderWidthTop = 0,
+                BorderWidthBottom = 0
+            };
+
             var emptyCell = new PdfPCell()
             {
                 Border = Rectangle.NO_BORDER
@@ -226,18 +248,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeader.Phrase = new Phrase("Total", _smallerBoldWhiteFont);
             table.AddCell(cellHeader);
 
+            List<Summary> summaries = new List<Summary>();
+
             foreach (var unitSummary in unitSummaries)
             {
-                cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                cell.Phrase = new Phrase(unitSummary.Name, _smallerFont);
-                table.AddCell(cell);
+                if (summaries.Any(x => x.Name == unitSummary.Name))
+                    summaries.Add(new Summary
+                    {
+                        Name = "",
+                        CurrencyCode = unitSummary.CurrencyCode,
+                        SubTotal = unitSummary.SubTotal,
+                        SubTotalCurrency = unitSummary.SubTotalCurrency,
+                        AccountingLayoutIndex = unitSummary.AccountingLayoutIndex
+                    });
+                else
+                    summaries.Add(unitSummary);
+            }
+
+            var lastItem = summaries.Last();
+            foreach (var summary in summaries)
+            {
+                if (summary.Equals(lastItem))
+                {
+                    cellNoBorderTop.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cellNoBorderTop.Phrase = new Phrase(summary.Name, _smallerFont);
+                    table.AddCell(cellNoBorderTop);
+                }
+                else if (String.IsNullOrEmpty(summary.Name))
+                {
+                    cellNoBorderTopAndBot.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cellNoBorderTopAndBot.Phrase = new Phrase(summary.Name, _smallerFont);
+                    table.AddCell(cellNoBorderTopAndBot);
+                }
+                else
+                {
+                    cellNoBorderBot.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cellNoBorderBot.Phrase = new Phrase(summary.Name, _smallerFont);
+                    table.AddCell(cellNoBorderBot);
+                }
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                cell.Phrase = new Phrase(unitSummary.CurrencyCode, _smallerFont);
+                cell.Phrase = new Phrase(summary.CurrencyCode, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                cell.Phrase = new Phrase(string.Format("{0:n}", unitSummary.SubTotal), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", summary.SubTotal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -349,7 +404,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     no++;
                 }
 
-                foreach(var totalCurrency in totalCurrencies)
+                foreach (var totalCurrency in totalCurrencies)
                 {
                     cellColspan9.Phrase = new Phrase();
                     table.AddCell(cellColspan9);
