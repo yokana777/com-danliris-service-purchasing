@@ -684,26 +684,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     Convert.ToDouble(item.ExpendReturQty), item.ExpendReturPrice, item.ExpendRestQty, item.ExpendRestPrice, item.ExpendProcessQty, item.ExpendProcessPrice, item.ExpendSampleQty, item.ExpendSamplePrice, item.ExpendKon2AQty, item.ExpendKon2APrice, item.ExpendKon2BQty, item.ExpendKon2BPrice, item.ExpendKon2CQty, item.ExpendKon2CPrice, item.ExpendKon1MNSQty, item.ExpendKon1MNSPrice, item.ExpendKon2DQty, item.ExpendKon2DPrice, Convert.ToDouble(item.EndingBalanceQty), Convert.ToDouble(item.EndingBalancePrice));
             }
 
-            result.Rows.Add("", "", "", "", "", "", "",
-                    SaldoAwalQtyTotal, "",
-                    SaldoAwalPriceTotal,
-                    KoreksiQtyTotal,
-                    KoreksiPriceTotal,
-                    PEMBELIANQtyTotal,
-                    PEMBELIANPriceTotal,
-                    PROSESQtyTotal,
-                    PROSESPriceTotal,
-                    Konfeksi2AQtyTotal,
-                    Konfeksi2APriceTotal,
-                    KONFEKSI2BQtyTotal,
-                    KONFEKSI2BPriceTotal,
-                    KONFEKSI2CQtyTotal,
-                    KONFEKSI2CPriceTotal,
-                    KONFEKSI1MNSQtyTotal,
-                    KONFEKSI1MNSPriceTotal,
-                    KONFEKSI2DQtyTotal,
-                    KONFEKSI2DPriceTotal,
-                    ReturQtyTotal, ReturJumlahTotal, SisaQtyTotal, SisaPriceTotal, ExpendPROSESQtyTotal, ExpendPROSESPriceTotal, SAMPLEQtyTotal, SAMPLEPriceTotal, ExpendKONFEKSI2AQtyTotal, ExpendKonfeksi2APriceTotal, ExpendKONFEKSI2BQtyTotal, ExpendKONFEKSI2BPriceTotal, ExpendKONFEKSI2CQtyTotal, ExpendKONFEKSI2CPriceTotal, ExpendKONFEKSI1MNSQtyTotal, ExpendKONFEKSI1MNSPriceTotal, ExpendKONFEKSI2DQtyTotal, ExpendKONFEKSI2DPriceTotal, Convert.ToDouble(EndingQty), Convert.ToDouble(EndingTotal));
+            //result.Rows.Add("", "", "", "", "", "", "",
+            //        SaldoAwalQtyTotal, "",
+            //        SaldoAwalPriceTotal,
+            //        KoreksiQtyTotal,
+            //        KoreksiPriceTotal,
+            //        PEMBELIANQtyTotal,
+            //        PEMBELIANPriceTotal,
+            //        PROSESQtyTotal,
+            //        PROSESPriceTotal,
+            //        Konfeksi2AQtyTotal,
+            //        Konfeksi2APriceTotal,
+            //        KONFEKSI2BQtyTotal,
+            //        KONFEKSI2BPriceTotal,
+            //        KONFEKSI2CQtyTotal,
+            //        KONFEKSI2CPriceTotal,
+            //        KONFEKSI1MNSQtyTotal,
+            //        KONFEKSI1MNSPriceTotal,
+            //        KONFEKSI2DQtyTotal,
+            //        KONFEKSI2DPriceTotal,
+            //        ReturQtyTotal, ReturJumlahTotal, SisaQtyTotal, SisaPriceTotal, ExpendPROSESQtyTotal, ExpendPROSESPriceTotal, SAMPLEQtyTotal, SAMPLEPriceTotal, ExpendKONFEKSI2AQtyTotal, ExpendKonfeksi2APriceTotal, ExpendKONFEKSI2BQtyTotal, ExpendKONFEKSI2BPriceTotal, ExpendKONFEKSI2CQtyTotal, ExpendKONFEKSI2CPriceTotal, ExpendKONFEKSI1MNSQtyTotal, ExpendKONFEKSI1MNSPriceTotal, ExpendKONFEKSI2DQtyTotal, ExpendKONFEKSI2DPriceTotal, Convert.ToDouble(EndingQty), Convert.ToDouble(EndingTotal));
 
 
             ExcelPackage package = new ExcelPackage();
@@ -770,7 +770,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["AA5"].Value = headers2[8];
             sheet.Cells["AA5:AB5"].Merge = true;
             sheet.Cells["AA5:AB5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AB5"].Value = headers2[9];
+            sheet.Cells["AC5"].Value = headers2[9];
             sheet.Cells["AC5:AD5"].Merge = true;
             sheet.Cells["AC5:AD5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             sheet.Cells["AE5"].Value = headers2[10];
@@ -821,10 +821,92 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["A4:AS6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells["A4:AS6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells["A4:AS6"].Style.Font.Bold = true;
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Value = "T O T A L";
+            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
             sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Merge = true;
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + result.Rows.Count}:G{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            sheet.Cells[$"H{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SaldoAwalQtyTotal);
+            sheet.Cells[$"H{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"I{6 + result.Rows.Count}"].Value = "";
+            sheet.Cells[$"I{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"J{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SaldoAwalPriceTotal);
+            sheet.Cells[$"J{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"K{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KoreksiQtyTotal);
+            sheet.Cells[$"K{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"L{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KoreksiPriceTotal);
+            sheet.Cells[$"L{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", PEMBELIANQtyTotal);
+            sheet.Cells[$"M{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", PEMBELIANPriceTotal);
+            sheet.Cells[$"N{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", PROSESQtyTotal);
+            sheet.Cells[$"O{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"P{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", PROSESPriceTotal);
+            sheet.Cells[$"P{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", Konfeksi2AQtyTotal);
+            sheet.Cells[$"Q{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"R{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", Konfeksi2APriceTotal);
+            sheet.Cells[$"R{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"S{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI2BQtyTotal);
+            sheet.Cells[$"S{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"T{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI2BPriceTotal);
+            sheet.Cells[$"T{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"U{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI2CQtyTotal);
+            sheet.Cells[$"U{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"V{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI2CPriceTotal);
+            sheet.Cells[$"V{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"W{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI1MNSQtyTotal);
+            sheet.Cells[$"W{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"X{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI1MNSPriceTotal);
+            sheet.Cells[$"X{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Y{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI2DQtyTotal);
+            sheet.Cells[$"Y{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Z{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", KONFEKSI2DPriceTotal);
+            sheet.Cells[$"Z{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AA{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SaldoAwalQtyTotal);
+            sheet.Cells[$"AA{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AB{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SaldoAwalPriceTotal);
+            sheet.Cells[$"AB{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AC{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ReturQtyTotal);
+            sheet.Cells[$"AC{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AD{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ReturJumlahTotal);
+            sheet.Cells[$"AD{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AE{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendPROSESQtyTotal);
+            sheet.Cells[$"AE{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AF{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendPROSESPriceTotal);
+            sheet.Cells[$"AF{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AG{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SAMPLEQtyTotal);
+            sheet.Cells[$"AG{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AH{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SAMPLEPriceTotal);
+            sheet.Cells[$"AH{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AI{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2AQtyTotal);
+            sheet.Cells[$"AI{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AJ{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKonfeksi2APriceTotal);
+            sheet.Cells[$"AJ{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AK{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2BQtyTotal);
+            sheet.Cells[$"AK{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AL{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2BPriceTotal);
+            sheet.Cells[$"AL{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AM{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2CQtyTotal);
+            sheet.Cells[$"AM{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AN{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2CPriceTotal);
+            sheet.Cells[$"AN{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AO{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2DQtyTotal);
+            sheet.Cells[$"AO{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AP{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI2DPriceTotal);
+            sheet.Cells[$"AP{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AQ{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI1MNSQtyTotal);
+            sheet.Cells[$"AQ{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AR{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", ExpendKONFEKSI1MNSPriceTotal);
+            sheet.Cells[$"AR{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AS{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", EndingQty);
+            sheet.Cells[$"AS{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AT{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", EndingTotal);
+            sheet.Cells[$"AT{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
 
             var widths = new int[] { 5, 10, 20, 15, 7, 20, 20, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
             foreach (var i in Enumerable.Range(0, headers.Length))
