@@ -407,6 +407,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             var result = await GetReport(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
+            var unitName = "SEMUA UNIT";
+            var divisionName = "SEMUA DIVISI";
+            var separator = " - ";
+
+            if (accountingUnitId > 0 && divisionId == 0)
+            {
+                var summary = result.Reports.FirstOrDefault();
+                if (summary != null)
+                {
+                    unitName = $"UNIT {summary.AccountingUnitName}";
+                    separator = "";
+                    divisionName = "";
+                }
+                else
+                {
+                    unitName = "";
+                    separator = "";
+                    divisionName = "";
+                }
+            }
+            else if (divisionId > 0 && accountingUnitId == 0)
+            {
+                var summary = result.Reports.FirstOrDefault();
+                if (summary != null)
+                {
+                    divisionName = $"DIVISI {summary.DivisionName}";
+                    separator = "";
+                    unitName = "";
+                }
+                else
+                {
+                    divisionName = "";
+                    separator = "";
+                    unitName = "";
+                }
+            }
+            else if (accountingUnitId > 0 && divisionId > 0)
+            {
+                var summary = result.Reports.FirstOrDefault();
+                if (summary != null)
+                {
+                    unitName = $"UNIT {summary.AccountingUnitName}";
+                    separator = " - ";
+                    divisionName = $"DIVISI {summary.DivisionName}";
+                }
+                else
+                {
+                    divisionName = "";
+                    separator = "";
+                    unitName = "";
+                }
+            }
+
             var reportDataTable = GetFormatReportExcel();
 
             var unitDataTable = new DataTable();
@@ -501,10 +554,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                 worksheet.Cells["A1"].Value = company;
                 worksheet.Cells["A2"].Value = title;
-                worksheet.Cells["A3"].Value = period;
-                worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
-                worksheet.Cells[$"A{4 + 3 + result.Reports.Count + space}"].LoadFromDataTable(unitDataTable, true);
-                worksheet.Cells[$"A{4 + result.Reports.Count + space + 3 + result.AccountingUnitSummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
+                worksheet.Cells["A3"].Value = unitName + separator + divisionName;
+                worksheet.Cells["A4"].Value = period;
+                worksheet.Cells["A5"].LoadFromDataTable(reportDataTable, true);
+                worksheet.Cells[$"A{5 + 3 + result.Reports.Count + space}"].LoadFromDataTable(unitDataTable, true);
+                worksheet.Cells[$"A{5 + result.Reports.Count + space + 3 + result.AccountingUnitSummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);

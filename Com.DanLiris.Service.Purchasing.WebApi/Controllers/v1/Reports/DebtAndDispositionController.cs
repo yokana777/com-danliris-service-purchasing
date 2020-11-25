@@ -308,9 +308,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             try
             {
                 if (!dueDate.HasValue)
-                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
+                    dueDate = DateTimeOffset.MaxValue;
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetDebtSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
                 var stream = GenerateExcelDebt(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, divisionId, isImport, isForeignCurrency);
 
@@ -340,55 +340,71 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 dueDateString = "-";
             }
 
-            var accountingUnitName = "SEMUA UNIT";
+            var unitName = "SEMUA UNIT";
             var divisionName = "SEMUA DIVISI";
             var separator = " - ";
 
-            if (accountingUnitId > 0)
+            if (accountingUnitId > 0 && divisionId == 0)
             {
                 var summary = data.FirstOrDefault();
                 if (summary != null)
                 {
-                    accountingUnitName = $"UNIT {summary.UnitName}";
+                    unitName = $"UNIT {summary.AccountingUnitName}";
                     separator = "";
                     divisionName = "";
                 }
                 else
                 {
-                    accountingUnitName = "";
+                    unitName = "";
                     separator = "";
                     divisionName = "";
                 }
             }
-            else if (divisionId > 0)
+            else if (divisionId > 0 && accountingUnitId == 0)
             {
                 var summary = data.FirstOrDefault();
                 if (summary != null)
                 {
                     divisionName = $"DIVISI {summary.DivisionName}";
                     separator = "";
-                    accountingUnitName = "";
+                    unitName = "";
                 }
                 else
                 {
                     divisionName = "";
                     separator = "";
-                    accountingUnitName = "";
+                    unitName = "";
+                }
+            }
+            else if (accountingUnitId > 0 && divisionId > 0)
+            {
+                var summary = data.FirstOrDefault();
+                if (summary != null)
+                {
+                    unitName = $"UNIT {summary.AccountingUnitName}";
+                    separator = " - ";
+                    divisionName = $"DIVISI {summary.DivisionName}";
+                }
+                else
+                {
+                    divisionName = "";
+                    separator = "";
+                    unitName = "";
                 }
             }
 
             var company = "PT DAN LIRIS";
             var title = "LAPORAN SALDO HUTANG USAHA (REKAP) LOKAL";
-            var unitName = accountingUnitName + separator + divisionName;
+            var unitDivisionName = unitName + separator + divisionName;
             var date = $"JATUH TEMPO S.D. {dueDateString}";
 
-            if (accountingUnitId > 0)
-            {
-                var datum = data.FirstOrDefault();
-                if (datum != null)
-                    unitName = datum.UnitName;
+            //if (accountingUnitId > 0)
+            //{
+            //    var datum = data.FirstOrDefault();
+            //    if (datum != null)
+            //        unitName = datum.UnitName;
 
-            }
+            //}
 
             if (isForeignCurrency && !isImport)
                 title = "LAPORAN SALDO HUTANG USAHA (REKAP) LOKAL VALAS";
@@ -421,7 +437,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                     worksheet.Cells["A2:E2"].Merge = true;
                     worksheet.Cells["A2:E2"].Style.Font.Size = 20;
                     worksheet.Cells["A2:E2"].Style.Font.Bold = true;
-                    worksheet.Cells["A3"].Value = unitName;
+                    worksheet.Cells["A3"].Value = unitDivisionName;
                     worksheet.Cells["A3:E3"].Merge = true;
                     worksheet.Cells["A3:E3"].Style.Font.Size = 20;
                     worksheet.Cells["A3:E3"].Style.Font.Bold = true;
@@ -706,7 +722,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             try
             {
                 if (!dueDate.HasValue)
-                    dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
+                    dueDate = DateTimeOffset.MaxValue;
 
                 var result = _service.GetDebtSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 

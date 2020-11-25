@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public static class DebtSummaryPDFTemplate
     {
-        private static readonly BaseColor _headerBackgroundColor = new BaseColor(System.Drawing.Color.DarkBlue);
+        private static readonly BaseColor _headerBackgroundColor = new BaseColor(23, 50, 80);
         private static readonly Font _headerFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
         private static readonly Font _subHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 16);
         private static readonly Font _normalFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -22,8 +22,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, int divisionId, bool isImport, bool isForeignCurrency)
+        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset? dueDate, int unitId, int divisionId, bool isImport, bool isForeignCurrency)
         {
+
+            var d2 = (dueDate.HasValue ? dueDate.Value : DateTimeOffset.MaxValue).ToUniversalTime();
+
             var document = new Document(PageSize.A4.Rotate(), 20, 5, 25, 25);
             var stream = new MemoryStream();
             PdfWriter.GetInstance(document, stream);
@@ -33,29 +36,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var divisionName = "SEMUA DIVISI";
             var separator = " - ";
 
-            if (unitId > 0)
+            if (unitId > 0 && divisionId == 0)
             {
                 var summary = data.FirstOrDefault();
-                if(summary != null)
+                if (summary != null)
                 {
-                    unitName = $"UNIT {summary.UnitName}";
+                    unitName = $"UNIT {summary.AccountingUnitName}";
                     separator = "";
                     divisionName = "";
-                }else
+                }
+                else
                 {
                     unitName = "";
                     separator = "";
                     divisionName = "";
                 }
-            } else if (divisionId > 0)
+            }
+            else if (divisionId > 0 && unitId == 0)
             {
                 var summary = data.FirstOrDefault();
-                if(summary != null)
+                if (summary != null)
                 {
                     divisionName = $"DIVISI {summary.DivisionName}";
                     separator = "";
                     unitName = "";
-                } else
+                }
+                else
+                {
+                    divisionName = "";
+                    separator = "";
+                    unitName = "";
+                }
+            }
+            else if (unitId > 0 && divisionId > 0)
+            {
+                var summary = data.FirstOrDefault();
+                if (summary != null)
+                {
+                    unitName = $"UNIT {summary.AccountingUnitName}";
+                    separator = " - ";
+                    divisionName = $"DIVISI {summary.DivisionName}";
+                }
+                else
                 {
                     divisionName = "";
                     separator = "";
@@ -76,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             if (isImport)
                 title = "LAPORAN SALDO HUTANG (REKAP) IMPOR";
 
-            SetHeader(document, title, unitName, divisionName, separator, dueDate.AddHours(timezoneOffset));
+            SetHeader(document, title, unitName, divisionName, separator, dueDate);
 
             var categoryData = data
                 .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
@@ -497,7 +519,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(table);
         }
 
-        private static void SetHeader(Document document, string title, string unitName, string divisionName, string separator, DateTimeOffset dueDate)
+        private static void SetHeader(Document document, string title, string unitName, string divisionName, string separator, DateTimeOffset? dueDate)
         {
             var dueDateString = $"{dueDate:dd-MMM-yyyy}";
             if (dueDate == DateTimeOffset.MaxValue)
