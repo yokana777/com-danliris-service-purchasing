@@ -837,7 +837,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetHeader(Document document, string title, string unitName, DateTimeOffset dueDate)
         {
-            var dueDateString = $"{dueDate:yyyy-dd-MM}";
+            var dueDateString = $"{dueDate:dd/MM/yy}";
             if (dueDate == DateTimeOffset.MaxValue)
                 dueDateString = "-";
             var table = new PdfPTable(1)
