@@ -286,7 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 if (category != null)
                     categoryLayoutIndex = category.ReportLayoutIndex;
 
-                var accountingUnitName = "";
+                var accountingUnitName = "-";
                 var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
                 if (unit != null)
                 {
@@ -510,6 +510,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                 var dispositionTotal = element.DispositionTotal;
 
+                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                var categoryLayoutIndex = 0;
+                if (category != null)
+                    categoryLayoutIndex = category.ReportLayoutIndex;
+
+                var accountingUnitName = "-";
+                var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
+                if (unit != null)
+                {
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
+                    if (accountingUnit != null)
+                        accountingUnitName = accountingUnit.Name;
+                }
+
                 if (element.UseVat)
                 {
                     dispositionTotal += element.DispositionTotal * 0.1;
@@ -543,9 +557,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     UnitCode = element.UnitCode,
                     UnitId = element.UnitId,
                     UnitName = element.UnitName,
-                    UseIncomeTax = element.UseIncomeTax
+                    UseIncomeTax = element.UseIncomeTax,
+                    CategoryLayoutIndex = categoryLayoutIndex,
+                    AccountingUnitName = accountingUnitName
                 };
-            }).ToList();
+            })
+                .OrderBy(element => element.CategoryLayoutIndex)
+                .ToList();
 
             return result;
         }
