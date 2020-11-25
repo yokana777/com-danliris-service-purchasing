@@ -1,0 +1,8 @@
+﻿namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
+{
+    public class CategoryDto
+    {
+        public int Id { get; set; }
+        public int ReportLayoutIndex { get; set; }
+    }
+}
