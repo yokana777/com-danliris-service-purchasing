@@ -360,9 +360,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var debtTotal = element.DebtTotal;
 
+                    if (element.UseVat)
+                    {
+                        debtTotal += element.DebtTotal * 0.1;
+                    }
+
                     if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
                     {
-                        debtTotal += debtTotal * (incomeTaxRate / 100);
+                        debtTotal -= element.DebtTotal * (incomeTaxRate / 100);
                     }
 
                     return new DebtAndDispositionSummaryDto()

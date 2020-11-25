@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency)
+        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, int divisionId, bool isImport, bool isForeignCurrency)
         {
             var document = new Document(PageSize.A4.Rotate(), 20, 5, 25, 25);
             var stream = new MemoryStream();
@@ -30,12 +30,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Open();
 
             var unitName = "SEMUA UNIT";
+            var divisionName = "SEMUA DIVISI";
+            var separator = " - ";
+
             if (unitId > 0)
             {
                 var summary = data.FirstOrDefault();
-                if (summary != null)
+                if(summary != null)
                 {
                     unitName = $"UNIT {summary.UnitName}";
+                    separator = "";
+                    divisionName = "";
+                }else
+                {
+                    unitName = "";
+                    separator = "";
+                    divisionName = "";
+                }
+            } else if (divisionId > 0)
+            {
+                var summary = data.FirstOrDefault();
+                if(summary != null)
+                {
+                    divisionName = $"DIVISI {summary.DivisionName}";
+                    separator = "";
+                    unitName = "";
+                } else
+                {
+                    divisionName = "";
+                    separator = "";
+                    unitName = "";
                 }
             }
 
@@ -52,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             if (isImport)
                 title = "LAPORAN SALDO HUTANG (REKAP) IMPOR";
 
-            SetHeader(document, title, unitName, dueDate.AddHours(timezoneOffset));
+            SetHeader(document, title, unitName, divisionName, separator, dueDate.AddHours(timezoneOffset));
 
             var categoryData = data
                 .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
@@ -473,8 +497,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(table);
         }
 
-        private static void SetHeader(Document document, string title, string unitName, DateTimeOffset dueDate)
+        private static void SetHeader(Document document, string title, string unitName, string divisionName, string separator, DateTimeOffset dueDate)
         {
+            var dueDateString = $"{dueDate:dd-MMM-yyyy}";
+            if (dueDate == DateTimeOffset.MaxValue)
+                dueDateString = "-";
+
             var table = new PdfPTable(1)
             {
                 WidthPercentage = 95,
@@ -492,10 +520,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase(title, _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase(unitName, _headerFont);
+            cell.Phrase = new Phrase(unitName + separator + divisionName, _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"JATUH TEMPO S.D. {dueDate:yyyy-dd-MM}", _subHeaderFont);
+            cell.Phrase = new Phrase($"JATUH TEMPO S.D. {dueDateString}", _subHeaderFont);
             table.AddCell(cell);
 
             cell.Phrase = new Phrase("", _headerFont);
