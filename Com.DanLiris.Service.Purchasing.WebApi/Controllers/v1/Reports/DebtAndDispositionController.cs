@@ -78,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault().AddHours(_identityService.TimezoneOffset), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
        
-        private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
+        private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
             var dueDateString = $"{dueDate:yyyy-dd-MM}";
             if (dueDate == DateTimeOffset.MaxValue)
@@ -113,8 +113,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             {
                 var datum = data.FirstOrDefault();
                 if (datum != null)
-                    unitName = datum.UnitName;
+                    unitName = $"UNIT {datum.AccountingUnitName}";
+            }
 
+            if (divisionId > 0)
+            {
+                var datum = data.FirstOrDefault();
+                if (datum != null)
+                    unitName = $"DIVISI {datum.DivisionName} {unitName}";
             }
 
             if (isForeignCurrency && !isImport)
@@ -246,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
@@ -460,7 +466,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
         private DataTable GetSeparatedUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
         {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
 
             var debtData = data.Where(element => element.DispositionTotal == 0);
             var dispositionData = data.Where(element => element.DebtTotal == 0);
@@ -470,27 +476,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
             table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
             table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
 
-            foreach (var unit in units)
+            foreach (var accountingUnit in accountingUnits)
             {
+                table.Rows.Add(accountingUnit, "", "", "");
+
                 var currencyDebtData = debtData
-                    .Where(element => element.UnitName == unit)
+                    .Where(element => element.AccountingUnitName == accountingUnit)
                     .GroupBy(element => element.CurrencyCode)
                     .Select(element => new DebtAndDispositionSummaryDto()
                     {
                         CurrencyCode = element.Key,
-                        DebtTotal = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate),
+                        DebtTotal = element.Sum(sum => sum.DebtTotal),
                     })
                     .ToList();
 
                 var currencyDispositionData = dispositionData
-                    .Where(element => element.UnitName == unit)
+                    .Where(element => element.AccountingUnitName == accountingUnit)
                     .GroupBy(element => element.CurrencyCode)
                     .Select(element => new DebtAndDispositionSummaryDto()
                     {
                         CurrencyCode = element.Key,
-                        DispositionTotal = element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate),
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
                     })
                     .ToList();
 
@@ -510,9 +518,45 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             return table;
         }
 
+        private DataTable GetSeparatedUnitCurrencyDispositionDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
+
+            var debtData = data.Where(element => element.DispositionTotal == 0);
+            var dispositionData = data.Where(element => element.DebtTotal == 0);
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
+
+            foreach (var accountingUnit in accountingUnits)
+            {
+                table.Rows.Add(accountingUnit, "", "");
+
+                var currencyDispositionData = dispositionData
+                    .Where(element => element.AccountingUnitName == accountingUnit)
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                    })
+                    .ToList();
+
+                foreach (var currencyDisposition in currencyDispositionData)
+                {
+                    table.Rows.Add("", currencyDisposition.CurrencyCode, currencyDisposition.DispositionTotal.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
         private DataTable GetUnitCurrencyDataTable(List<DebtAndDispositionSummaryDto> data)
         {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
 
             var table = new DataTable();
 
@@ -564,7 +608,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
         private DataTable GetUnitDataTable(List<DebtAndDispositionSummaryDto> data)
         {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
 
 
             var table = new DataTable();
@@ -573,16 +617,39 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             table.Columns.Add(new DataColumn() { ColumnName = " ", DataType = typeof(string) });
             table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
 
-            if (units.Count > 0)
+            if (accountingUnits.Count > 0)
             {
-                foreach (var unit in units)
+                foreach (var accountingUnit in accountingUnits)
                 {
-                    var debtTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DebtTotal);
-                    var dispositionTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DispositionTotal);
+                    var debtTotal = data.Where(element => element.AccountingUnitName == accountingUnit).Sum(sum => sum.DebtTotal);
+                    var dispositionTotal = data.Where(element => element.AccountingUnitName == accountingUnit).Sum(sum => sum.DispositionTotal);
 
-                    table.Rows.Add(unit, "", "");
+                    table.Rows.Add(accountingUnit, "", "");
                     table.Rows.Add("", "HUTANG", debtTotal.ToString("#,##0.00"));
                     table.Rows.Add("", "DISPOSISI", dispositionTotal.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetUnitDispositionDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
+
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+
+            if (accountingUnits.Count > 0)
+            {
+                foreach (var accountingUnit in accountingUnits)
+                {
+                    var dispositionTotal = data.Where(element => element.AccountingUnitName == accountingUnit).Sum(sum => sum.DispositionTotal);
+
+                    table.Rows.Add(accountingUnit, dispositionTotal.ToString("#,##0.00"));
                 }
             }
 
@@ -660,7 +727,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 var result = _service.GetDispositionSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = GenerateExcelDisposition(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency);
+                var stream = GenerateExcelDisposition(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault().AddHours(_identityService.TimezoneOffset), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Disposisi Lokal";
                 if (isForeignCurrency)
@@ -680,19 +747,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
-        private MemoryStream GenerateExcelDisposition(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency)
+        private MemoryStream GenerateExcelDisposition(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
+            var dueDateString = $"{dueDate:yyyy-dd-MM}";
+            if (dueDate == DateTimeOffset.MaxValue)
+                dueDateString = "-";
+
             var company = "PT DAN LIRIS";
             var title = "LAPORAN REKAP DATA DISPOSISI LOKAL";
             var unitName = "SEMUA UNIT";
-            var date = $"JATUH TEMPO S.D. {dueDate:yyyy-dd-MM}";
+            var date = $"JATUH TEMPO S.D. {dueDateString}";
 
             if (accountingUnitId > 0)
             {
                 var datum = data.FirstOrDefault();
                 if (datum != null)
                     unitName = datum.UnitName;
+            }
 
+            if (divisionId > 0)
+            {
+                var datum = data.FirstOrDefault();
+                if (datum != null)
+                    unitName = $"DIVISI {datum.DivisionName} {unitName}";
             }
 
             if (isForeignCurrency && !isImport)
@@ -701,53 +778,54 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             if (isImport)
                 title = "LAPORAN REKAP DATA DISPOSISI IMPORT";
 
-            var categoryDataTable = GetCategoryDataTable(data);
+            var categoryDataTable = GetCategoryDispositionDataTable(data);
 
             const int headerRow = 1;
             const int startingRow = 6;
             const int tableGap = 3;
             const int columnA = 1;
+            const int columnB = 2;
             const int columnC = 3;
             const int columnD = 4;
             const int columnE = 5;
 
             if (!isImport && !isForeignCurrency)
             {
-                var unitDataTable = GetUnitDataTable(data);
+                var unitDataTable = GetUnitDispositionDataTable(data);
 
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                     worksheet.Cells["A1"].Value = company;
-                    worksheet.Cells["A1:E1"].Merge = true;
-                    worksheet.Cells["A1:E1"].Style.Font.Size = 20;
-                    worksheet.Cells["A1:E1"].Style.Font.Bold = true;
+                    worksheet.Cells["A1:C1"].Merge = true;
+                    worksheet.Cells["A1:C1"].Style.Font.Size = 20;
+                    worksheet.Cells["A1:C1"].Style.Font.Bold = true;
                     worksheet.Cells["A2"].Value = title;
-                    worksheet.Cells["A2:E2"].Merge = true;
-                    worksheet.Cells["A2:E2"].Style.Font.Size = 20;
-                    worksheet.Cells["A2:E2"].Style.Font.Bold = true;
+                    worksheet.Cells["A2:C2"].Merge = true;
+                    worksheet.Cells["A2:C2"].Style.Font.Size = 20;
+                    worksheet.Cells["A2:C2"].Style.Font.Bold = true;
                     worksheet.Cells["A3"].Value = unitName;
-                    worksheet.Cells["A3:E3"].Merge = true;
-                    worksheet.Cells["A3:E3"].Style.Font.Size = 20;
-                    worksheet.Cells["A3:E3"].Style.Font.Bold = true;
+                    worksheet.Cells["A3:C3"].Merge = true;
+                    worksheet.Cells["A3:C3"].Style.Font.Size = 20;
+                    worksheet.Cells["A3:C3"].Style.Font.Bold = true;
                     worksheet.Cells["A4"].Value = date;
-                    worksheet.Cells["A4:E4"].Merge = true;
-                    worksheet.Cells["A4:E4"].Style.Font.Size = 20;
-                    worksheet.Cells["A4:E4"].Style.Font.Bold = true;
+                    worksheet.Cells["A4:C4"].Merge = true;
+                    worksheet.Cells["A4:C4"].Style.Font.Size = 20;
+                    worksheet.Cells["A4:C4"].Style.Font.Bold = true;
                     worksheet.Cells["A6"].LoadFromDataTable(categoryDataTable, true);
                     worksheet.Cells[startingRow + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count, columnE].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[$"A{startingRow + headerRow + categoryDataTable.Rows.Count + tableGap}"].LoadFromDataTable(unitDataTable, true);
-                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnB, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnB].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnB].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnB].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnB].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitDataTable.Rows.Count, columnB].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
                     worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
 
@@ -760,49 +838,49 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             else
             {
                 var unitCurrencyDataTable = GetUnitCurrencyDataTable(data);
-                var separatedUnitCurrencyDataTable = GetSeparatedUnitCurrencyDataTable(data);
+                var separatedUnitCurrencyDataTable = GetSeparatedUnitCurrencyDispositionDataTable(data);
 
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                     worksheet.Cells["A1"].Value = company;
-                    worksheet.Cells["A1:E1"].Merge = true;
-                    worksheet.Cells["A1:E1"].Style.Font.Size = 20;
-                    worksheet.Cells["A1:E1"].Style.Font.Bold = true;
+                    worksheet.Cells["A1:C1"].Merge = true;
+                    worksheet.Cells["A1:C1"].Style.Font.Size = 20;
+                    worksheet.Cells["A1:C1"].Style.Font.Bold = true;
                     worksheet.Cells["A2"].Value = title;
-                    worksheet.Cells["A2:E2"].Merge = true;
-                    worksheet.Cells["A2:E2"].Style.Font.Size = 20;
-                    worksheet.Cells["A2:E2"].Style.Font.Bold = true;
+                    worksheet.Cells["A2:C2"].Merge = true;
+                    worksheet.Cells["A2:C2"].Style.Font.Size = 20;
+                    worksheet.Cells["A2:C2"].Style.Font.Bold = true;
                     worksheet.Cells["A3"].Value = unitName;
-                    worksheet.Cells["A3:E3"].Merge = true;
-                    worksheet.Cells["A3:E3"].Style.Font.Size = 20;
-                    worksheet.Cells["A3:E3"].Style.Font.Bold = true;
+                    worksheet.Cells["A3:C3"].Merge = true;
+                    worksheet.Cells["A3:C3"].Style.Font.Size = 20;
+                    worksheet.Cells["A3:C3"].Style.Font.Bold = true;
                     worksheet.Cells["A4"].Value = date;
-                    worksheet.Cells["A4:E4"].Merge = true;
-                    worksheet.Cells["A4:E4"].Style.Font.Size = 20;
-                    worksheet.Cells["A4:E4"].Style.Font.Bold = true;
+                    worksheet.Cells["A4:C4"].Merge = true;
+                    worksheet.Cells["A4:C4"].Style.Font.Size = 20;
+                    worksheet.Cells["A4:C4"].Style.Font.Bold = true;
                     worksheet.Cells["A6"].LoadFromDataTable(categoryDataTable, true);
-                    worksheet.Cells[startingRow + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count, columnE].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[startingRow + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[$"A{startingRow + headerRow + tableGap + categoryDataTable.Rows.Count}"].LoadFromDataTable(unitCurrencyDataTable, true);
-                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnB, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[$"A{startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap}"].LoadFromDataTable(separatedUnitCurrencyDataTable, true);
-                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnD, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnC, startingRow + headerRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnC].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
 
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnE].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow, columnA, startingRow + categoryDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count, columnB].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnD].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnC].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnC].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnC].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow, columnA, startingRow + categoryDataTable.Rows.Count + tableGap + headerRow + unitCurrencyDataTable.Rows.Count + tableGap + headerRow + separatedUnitCurrencyDataTable.Rows.Count, columnC].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
                     var stream = new MemoryStream();
                     package.SaveAs(stream);
@@ -872,6 +950,38 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 foreach (var categoryDatum in categoryData)
                 {
                     table.Rows.Add(categoryDatum.CategoryName, categoryDatum.CurrencyCode, categoryDatum.DebtTotal.ToString("#,##0.00"), categoryDatum.DispositionTotal.ToString("#,##0.00"), categoryDatum.Total.ToString("#,##0.00"));
+                }
+            }
+
+            return table;
+        }
+
+        private DataTable GetCategoryDispositionDataTable(List<DebtAndDispositionSummaryDto> data)
+        {
+            var categoryData = data
+               .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
+               .Select(element => new DebtAndDispositionSummaryDto()
+               {
+                   CategoryCode = element.Key.CategoryCode,
+                   CategoryName = element.FirstOrDefault().CategoryName,
+                   CurrencyCode = element.Key.CurrencyCode,
+                   DebtTotal = element.Sum(sum => sum.DebtTotal),
+                   DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                   Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+               })
+               .ToList();
+
+            var table = new DataTable();
+
+            table.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            table.Columns.Add(new DataColumn() { ColumnName = "Disposisi", DataType = typeof(string) });
+
+            if (categoryData.Count > 0)
+            {
+                foreach (var categoryDatum in categoryData)
+                {
+                    table.Rows.Add(categoryDatum.CategoryName, categoryDatum.CurrencyCode, categoryDatum.DispositionTotal.ToString("#,##0.00"));
                 }
             }
 
