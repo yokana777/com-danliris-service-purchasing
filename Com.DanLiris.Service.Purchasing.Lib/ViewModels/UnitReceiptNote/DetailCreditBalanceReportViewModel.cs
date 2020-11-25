@@ -43,5 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public decimal Total { get; set; }
         public decimal TotalIDR { get; set; }
         public string CategoryId { get; set; }
+        public string DivisionName { get; set; }
+        public int CategoryLayoutIndex { get; internal set; }
     }
 }

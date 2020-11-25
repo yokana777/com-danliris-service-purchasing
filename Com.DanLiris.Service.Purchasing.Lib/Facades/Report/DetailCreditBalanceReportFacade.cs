@@ -21,6 +21,12 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using MongoDB.Bson;
 using System.Data.SqlClient;
 using System.Globalization;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
+using MongoDB.Bson.IO;
+using Newtonsoft.Json;
+using JsonConvert = Newtonsoft.Json.JsonConvert;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 {
@@ -30,12 +36,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         private readonly ICurrencyProvider _currencyProvider;
         private readonly IdentityService _identityService;
         //private const string IDRCurrencyCode = "IDR";
+        private readonly List<CategoryDto> _categories;
 
         public DetailCreditBalanceReportFacade(IServiceProvider serviceProvider)
         {
+            var cache = serviceProvider.GetService<IDistributedCache>();
+            var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
+
             _dbContext = serviceProvider.GetService<PurchasingDbContext>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             _identityService = serviceProvider.GetService<IdentityService>();
+
+            _categories = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonCategories, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
         }
 
         public async Task<DetailCreditBalanceReportViewModel> GetReportData(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency)
@@ -84,6 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             //TotalSaldo = urnWithItem.PricePerDealUnit * urnWithItem.ReceiptQuantity,
 
                             urnPR.CategoryId,
+                            urnPR.DivisionName,
                             urnWithItem.UnitReceiptNote.UnitId,
                             urnPR.DivisionId,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
@@ -91,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
                             urnWithItem.IncomeTaxBy,
                             urnEPO.UseIncomeTax,
-                            urnEPO.IncomeTaxRate
+                            urnEPO.IncomeTaxRate,
                         };
 
             if (!isForeignCurrency && !isImport)
@@ -148,14 +164,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
                 }
-                
-                int.TryParse(item.CategoryId, out var itemCategoryId);
-                var category = categories.FirstOrDefault(element => element.Id == itemCategoryId);
-                var accountingCategory = new AccountingCategory();
+
+                //int.TryParse(item.CategoryId, out var itemCategoryId);
+                //var category = categories.FirstOrDefault(element => element.Id == itemCategoryId);
+                //var accountingCategory = new AccountingCategory();
+                //if (category != null)
+                //{
+                //    accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
+                //}
+
+                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == item.CategoryId);
+                var categoryLayoutIndex = 0;
                 if (category != null)
-                {
-                    accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
-                }
+                    categoryLayoutIndex = category.ReportLayoutIndex;
 
                 decimal dpp = 0;
                 decimal dppCurrency = 0;
@@ -212,7 +233,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     CurrencyCode = currencyCode,
                     Total = totalDebt,
                     TotalIDR = totalDebtIDR,
-                    CategoryId = item.CategoryId
+                    CategoryId = item.CategoryId,
+                    DivisionName = item.DivisionName,
+                    CategoryLayoutIndex = categoryLayoutIndex,
                     //TotalSaldo = (decimal)item.TotalSaldo
                     //CategoryCode = item.CategoryCode,
                     //AccountingCategoryName = accountingCategory.Name,
@@ -283,6 +306,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                                 key.DueDate,
                                 key.CurrencyCode,
                                 key.CategoryId,
+                                key.DivisionName,
+                                key.CategoryLayoutIndex
                             },
                             val => val,
                             (key, val) => new DetailCreditBalanceReport()
@@ -298,9 +323,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                                 CurrencyCode = key.CurrencyCode,
                                 Total = val.Sum(s => s.Total),
                                 TotalIDR = val.Sum(s => s.TotalIDR),
-                                CategoryId = key.CategoryId
+                                CategoryId = key.CategoryId,
+                                DivisionName = key.DivisionName,
+                                CategoryLayoutIndex = key.CategoryLayoutIndex
                             })
-                        .OrderBy(order => order.CategoryId).ToList();
+                        .OrderBy(order => order.CategoryLayoutIndex).ToList();
 
             reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
             reportResult.AccountingUnitSummaryTotal = reportResult.AccountingUnitSummaries.Sum(summary => summary.SubTotal);
@@ -374,6 +401,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public async Task<MemoryStream> GenerateExcel(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency)
         {
+            var dueDateString = $"{dateTo:dd-MMM-yyyy}";
+            if (dateTo == DateTimeOffset.MaxValue)
+                dueDateString = "-";
+
             var result = await GetReport(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
             var reportDataTable = GetFormatReportExcel();
@@ -465,7 +496,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 else if (isImport)
                     title = "LAPORAN SALDO HUTANG (DETAIL) IMPOR";
                 //var period = $"Periode sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
-                var period = $"Periode sampai {dateTo.GetValueOrDefault()}";
+                var period = $"PERIODE S.D. {dueDateString}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                 worksheet.Cells["A1"].Value = company;
