@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
        
         private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
-            var dueDateString = $"{dueDate:yyyy-dd-MM}";
+            var dueDateString = $"{dueDate:dd/MM/yy}";
             if (dueDate == DateTimeOffset.MaxValue)
                 dueDateString = "-";
 
@@ -792,7 +792,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
         private MemoryStream GenerateExcelDisposition(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
-            var dueDateString = $"{dueDate:yyyy-dd-MM}";
+            var dueDateString = $"{dueDate:dd/MM/yy}";
             if (dueDate == DateTimeOffset.MaxValue)
                 dueDateString = "-";
 

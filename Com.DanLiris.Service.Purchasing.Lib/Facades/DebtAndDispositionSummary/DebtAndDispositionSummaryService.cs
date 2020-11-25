@@ -115,9 +115,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 query = query.Where(entity => entity.DivisionId == divisionId.ToString());
 
             if (!isForeignCurrency && !isImport)
-                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR");
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR" && !entity.IsImport);
             else if (isForeignCurrency)
-                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR");
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR" && !entity.IsImport);
+            else if (isImport)
+                query = query.Where(entity => entity.IsImport);
 
             return query;
         }
@@ -185,9 +187,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 query = query.Where(entity => entity.DivisionId == divisionId.ToString());
 
             if (!isForeignCurrency && !isImport)
-                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR");
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR" && !entity.IsImport);
             else if (isForeignCurrency)
-                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR");
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR" && !entity.IsImport);
+            else if (isImport)
+                query = query.Where(entity => entity.IsImport);
 
             return query;
         }
