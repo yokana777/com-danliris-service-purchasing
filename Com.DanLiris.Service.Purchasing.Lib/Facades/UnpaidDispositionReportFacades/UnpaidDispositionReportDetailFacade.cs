@@ -247,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
 
         public async Task<MemoryStream> GenerateExcel(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency)
         {
-            var dueDateString = $"{dateTo:dd-MMM-yyyy}";
+            var dueDateString = $"{dateTo:dd/MM/yyyy}";
             if (dateTo == DateTimeOffset.MaxValue)
                 dueDateString = "-";
 
