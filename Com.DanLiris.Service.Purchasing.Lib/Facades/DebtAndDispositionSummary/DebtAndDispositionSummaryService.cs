@@ -364,6 +364,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var debtTotal = element.DebtTotal;
 
+                    var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                    var categoryLayoutIndex = 0;
+                    if (category != null)
+                        categoryLayoutIndex = category.ReportLayoutIndex;
+
                     if (element.UseVat)
                     {
                         debtTotal += element.DebtTotal * 0.1;
@@ -378,6 +383,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     {
                         CategoryCode = element.CategoryCode,
                         CategoryName = element.CategoryName,
+                        CategoryLayoutIndex = categoryLayoutIndex,
                         CurrencyCode = element.CurrencyCode,
                         DebtTotal = debtTotal,
                         Total = debtTotal
@@ -392,11 +398,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     {
                         CategoryCode = element.Key.CategoryCode,
                         CategoryName = element.FirstOrDefault().CategoryName,
+                        CategoryLayoutIndex = element.FirstOrDefault().CategoryLayoutIndex,
                         CurrencyCode = element.Key.CurrencyCode,
                         DebtTotal = debtTotal,
                         Total = debtTotal
                     };
                 })
+                .OrderBy(element => element.CategoryLayoutIndex)
                 .ToList();
 
             return new ReadResponse<DebtAndDispositionSummaryDto>(result, result.Count, new Dictionary<string, string>());
@@ -488,6 +496,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var dispositionTotal = element.DispositionTotal;
 
+                    var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                    var categoryLayoutIndex = 0;
+                    if (category != null)
+                        categoryLayoutIndex = category.ReportLayoutIndex;
+
                     if (element.UseVat)
                     {
                         dispositionTotal += element.DispositionTotal * 0.1;
@@ -502,6 +515,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     {
                         CategoryCode = element.CategoryCode,
                         CategoryName = element.CategoryName,
+                        CategoryLayoutIndex = categoryLayoutIndex,
                         CurrencyCode = element.CurrencyCode,
                         DispositionTotal = dispositionTotal,
                         Total = dispositionTotal
@@ -516,11 +530,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     {
                         CategoryCode = element.Key.CategoryCode,
                         CategoryName = element.FirstOrDefault().CategoryName,
+                        CategoryLayoutIndex = element.FirstOrDefault().CategoryLayoutIndex,
                         CurrencyCode = element.Key.CurrencyCode,
                         DispositionTotal = dispositionTotal,
                         Total = dispositionTotal
                     };
                 })
+                .OrderBy(element => element.CategoryLayoutIndex)
                 .ToList();
 
             return new ReadResponse<DebtAndDispositionSummaryDto>(result, result.Count, new Dictionary<string, string>());
