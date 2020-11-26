@@ -107,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
                     dateTo = DateTimeOffset.MaxValue;
 
                 byte[] xlsInBytes;
-                var xls = await _service.GenerateExcel(categoryId, accountingUnitId, divisionId, dateTo.GetValueOrDefault(), isImport, isForeignCurrency);
+                var xls = await _service.GenerateExcel(categoryId, accountingUnitId, divisionId, dateTo, isImport, isForeignCurrency);
 
                 var sTitle = isImport ? "Impor" : isForeignCurrency ? "Lokal Valas" : "Lokal";
                 string filename = $"Laporan Saldo Hutang Usaha (Detail) {sTitle}";

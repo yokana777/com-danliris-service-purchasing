@@ -21,7 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
         private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
 
-        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency, int unitId, int divisionId)
+        public static MemoryStream Generate(DetailCreditBalanceReportViewModel viewModel, int timezoneOffset, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency, int accountingUnitId, int divisionId)
         {
             //var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTimeOffset.MaxValue).ToUniversalTime();
@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var divisionName = "SEMUA DIVISI";
             var separator = " - ";
 
-            if (unitId > 0 && divisionId == 0)
+            if (accountingUnitId > 0 && divisionId == 0)
             {
                 var summary = viewModel.Reports.FirstOrDefault();
                 if (summary != null)
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     divisionName = "";
                 }
             }
-            else if (divisionId > 0 && unitId == 0)
+            else if (divisionId > 0 && accountingUnitId == 0)
             {
                 var summary = viewModel.Reports.FirstOrDefault();
                 if (summary != null)
@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     unitName = "";
                 }
             }
-            else if (unitId > 0 && divisionId > 0)
+            else if (accountingUnitId > 0 && divisionId > 0)
             {
                 var summary = viewModel.Reports.FirstOrDefault();
                 if (summary != null)
