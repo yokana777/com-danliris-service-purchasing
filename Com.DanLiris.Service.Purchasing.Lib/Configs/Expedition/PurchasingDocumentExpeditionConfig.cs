@@ -24,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Configs.Expedition
             builder.Property(p => p.AccountingDivisionBy).HasMaxLength(255);
             builder.Property(p => p.NotVerifiedReason).HasMaxLength(255);
             builder.Property(p => p.BankExpenditureNoteNo).HasMaxLength(255);
+            builder.Property(p => p.IncomeTaxBy).HasMaxLength(128);
         }
     }
 }

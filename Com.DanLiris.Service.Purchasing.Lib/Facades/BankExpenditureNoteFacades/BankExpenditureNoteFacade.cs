@@ -479,7 +479,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         public ReadResponse<object> GetAllByPosition(int Page, int Size, string Order, string Keyword, string Filter)
         {
-            IQueryable<PurchasingDocumentExpedition> query = dbContext.PurchasingDocumentExpeditions;
+            var query = dbContext.PurchasingDocumentExpeditions.AsQueryable();
+
 
             query = query.Include(i => i.Items);
 
@@ -526,6 +527,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.DivisionName,
                 s.Vat,
                 s.IncomeTax,
+                s.IncomeTaxBy,
                 s.IsPaid,
                 s.TotalPaid,
                 s.Currency,

@@ -24,12 +24,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             this.importPurchasingBookReportFacade = importPurchasingBookReportFacade;
         }
 
+        //public async Task<IActionResult> Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         [HttpGet]
-        public async Task<IActionResult> Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> Get(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo)
         {
             try
             {
-                var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                //var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                var data = await importPurchasingBookReportFacade.GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 return Ok(new
@@ -51,14 +53,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             }
         }
 
+        //public async Task<IActionResult> GetPdf(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         [HttpGet("pdf")]
-        public async Task<IActionResult> GetPdf(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> GetPdf(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo)
         {
             try
             {
                 var clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
+                var data = await importPurchasingBookReportFacade.GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo);
+                //var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 var stream = ImportPurchasingBookReportPdfTemplate.Generate(data, clientTimeZoneOffset, dateFrom, dateTo);
@@ -79,14 +83,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
             }
         }
 
+        //public async Task<IActionResult> GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         [HttpGet("download")]
-        public async Task<IActionResult> GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> GetXls(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo)
         {
             try
             {
                 byte[] xlsInBytes;
 
-                var xls = await importPurchasingBookReportFacade.GenerateExcel(no, unit, category, dateFrom, dateTo);
+                var xls = await importPurchasingBookReportFacade.GenerateExcel(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo);
+                //var xls = await importpurchasingbookreportfacade.generateexcel(no, unit, category, datefrom, dateto);
 
                 string filename = "Laporan Buku Pembelian Impor";
 

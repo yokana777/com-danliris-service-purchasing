@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+        private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
 
         public static MemoryStream Generate(LocalPurchasingBookReportViewModel viewModel, int timezoneOffset, DateTime? dateFrom, DateTime? dateTo)
         {
@@ -226,15 +227,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static void SetReportTable(Document document, LocalPurchasingBookReportViewModel viewModel, int timezoneOffset)
 
         {
-            var table = new PdfPTable(18)
+            var table = new PdfPTable(16)
             {
                 WidthPercentage = 95
             };
 
             var widths = new List<float>();
-            for (var i = 0; i < 18; i++)
+            for (var i = 0; i < 16; i++)
             {
-                if (i == 1)
+                if (i == 1 || i == 10)
                 {
                     widths.Add(1f);
                     continue;
@@ -252,12 +253,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             SetReportTableHeader(table);
 
-            var grouppedByAccountingCategoriNames = viewModel.Reports.GroupBy(x => x.AccountingCategoryName).ToList();
+            var grouppedByAccountingCategoriNames = viewModel.Reports.Where(x => x.AccountingUnitName != null).OrderBy(order => order.AccountingLayoutIndex).GroupBy(x => x.AccountingCategoryName).ToList();
 
             var cell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE
+            };
+
+            var cellColspan2 = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                Colspan = 2
             };
 
             var cellAlignRight = new PdfPCell()
@@ -266,8 +274,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
+            var cellAlignRightColspan3 = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                Colspan = 3
+            };
+
             var categoryCell = new PdfPCell()
             {
+                BorderWidthTop = 0,
                 HorizontalAlignment = Element.ALIGN_LEFT,
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
@@ -275,7 +291,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var totalCell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_RIGHT,
-                VerticalAlignment = Element.ALIGN_MIDDLE
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                BorderWidthBottom = 0
+            };
+
+            var totalCellNoBorderTopAndBot = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                BorderWidthBottom = 0,
+                BorderWidthTop = 0
             };
 
             var cellNoBorderRight = new PdfPCell()
@@ -292,15 +317,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var cellNoBorderLeftColspan3 = new PdfPCell()
+            var totalDPPCell = new PdfPCell()
             {
-                BorderWidthLeft = 0,
                 HorizontalAlignment = Element.ALIGN_RIGHT,
-                VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 3
+                VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
-            var totalDPPCell = new PdfPCell()
+            var totalCategoryUnitCell = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_RIGHT,
                 VerticalAlignment = Element.ALIGN_MIDDLE
@@ -316,13 +339,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             foreach (var grouppedAccountingCategory in grouppedByAccountingCategoriNames)
             {
-                var accountingCategoryName = grouppedAccountingCategory.Select(x => x.CategoryName).FirstOrDefault();
+                var accountingCategoryName = grouppedAccountingCategory.Select(x => x.AccountingCategoryName).FirstOrDefault();
                 categoryCell.Phrase = new Phrase(accountingCategoryName, _smallBoldFont);
                 categoryCell.Colspan = 18;
                 table.AddCell(categoryCell);
 
-                var totalUnit = new Dictionary<string, decimal>();
-                var totalCurrencies = new Dictionary<string, Dictionary<string, decimal>>() { { "IDR", new Dictionary<string, decimal>() { { "DPP", 0 }, { "VAT", 0 } } } };
+                var totalUnit = new Dictionary<string, Dictionary<string, decimal>>();
+                var totalCurrencies = new Dictionary<string, Dictionary<string, decimal>>();
+                decimal totalIdrDpp = 0;
+                decimal totalIdr = 0;
+                decimal totalIdrVat = 0;
+                decimal totalIdrTax = 0;
 
                 foreach (var data in grouppedAccountingCategory)
                 {
@@ -338,14 +365,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.Remark, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.IPONo, _smallerFont);
-                    table.AddCell(cell);
+                    //cell.Phrase = new Phrase(data.IPONo, _smallerFont);
+                    //table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.URNNo, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.DONo, _smallerFont);
-                    table.AddCell(cell);
+                    //cell.Phrase = new Phrase(data.DONo, _smallerFont);
+                    //table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.InvoiceNo, _smallerFont);
                     table.AddCell(cell);
@@ -359,7 +386,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(data.CategoryCode + " - " + data.CategoryName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(data.UnitName, _smallerFont);
+                    cell.Phrase = new Phrase(data.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
                     cellNoBorderRight.Phrase = new Phrase(data.CurrencyCode, _smallerFont);
@@ -371,44 +398,74 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     //dppCell.Phrase = new Phrase(data.CurrencyCode + " " + string.Format("{0:n}", data.DPP), _smallerFont);
                     //table.AddCell(dppCell);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyRate), _smallerFont);
-                    table.AddCell(cellAlignRight);
+                    //cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyRate), _smallerFont);
+                    //table.AddCell(cellAlignRight);
 
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.DPPCurrency), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.VATCurrency), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.VAT * data.CurrencyRate), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    //cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax * data.CurrencyRate), _smallerFont);
-                    //table.AddCell(cellAlignRight);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.IncomeTax * data.CurrencyRate), _smallerFont);
+                    table.AddCell(cellAlignRight);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.Total), _smallerFont);
+                    //var subTotalIdr = data.IncomeTaxBy == "Supplier" ? data.Total + (data.IncomeTax * data.CurrencyRate) : data.Total;
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", data.TotalCurrency), _smallerFont);
                     table.AddCell(cellAlignRight);
 
                     // Units summary
                     if (totalUnit.ContainsKey(data.AccountingUnitName))
-                        totalUnit[data.AccountingUnitName] += data.Total;
+                    {
+                        totalUnit[data.AccountingUnitName]["DPP"] += data.DPP;
+                        totalUnit[data.AccountingUnitName]["VAT"] += data.VAT * data.CurrencyRate;
+                        totalUnit[data.AccountingUnitName]["TAX"] += data.IncomeTax * data.CurrencyRate;
+                        totalUnit[data.AccountingUnitName]["DPPCurrency"] += data.DPPCurrency;
+                        totalUnit[data.AccountingUnitName]["TOTAL"] += data.TotalCurrency;
+                    }
                     else
-                        totalUnit.Add(data.AccountingUnitName, data.Total);
+                    {
+                        totalUnit.Add(data.AccountingUnitName, new Dictionary<string, decimal>() {
+                            { "DPP", data.DPP },
+                            { "VAT", data.VAT * data.CurrencyRate},
+                            { "TAX", data.IncomeTax * data.CurrencyRate},
+                            { "DPPCurrency", data.DPPCurrency },
+                            { "TOTAL", data.TotalCurrency }
+                        });
+                    }
 
+                    if(summaryUnit.ContainsKey(data.AccountingUnitName))
+                        summaryUnit[data.AccountingUnitName] += data.TotalCurrency;
+                    else
+                        summaryUnit.Add(data.AccountingUnitName, data.TotalCurrency);
+
+
+                    //var dpp = data.IncomeTaxBy == "Supplier" ? data.DPP + data.IncomeTax : data.DPP;
+                    //var dppCurrency = data.IncomeTaxBy == "Supplier" ? data.DPPCurrency + (data.IncomeTax * data.CurrencyRate) : data.DPPCurrency;
                     // Currencies summary
                     if (totalCurrencies.ContainsKey(data.CurrencyCode))
                     {
                         totalCurrencies[data.CurrencyCode]["DPP"] += data.DPP;
-                        totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT;
-                        totalCurrencies["IDR"]["VAT"] += data.VATCurrency;
-                        totalCurrencies["IDR"]["DPP"] += data.DPPCurrency;
+                        totalCurrencies[data.CurrencyCode]["VAT"] += data.VAT * data.CurrencyRate;
+                        totalCurrencies[data.CurrencyCode]["TAX"] += data.IncomeTax * data.CurrencyRate;
+                        totalCurrencies[data.CurrencyCode]["DPPCurrency"] += data.DPPCurrency;
+                        totalCurrencies[data.CurrencyCode]["TOTAL"] += data.TotalCurrency;
                     }
                     else
                     {
                         totalCurrencies.Add(data.CurrencyCode, new Dictionary<string, decimal>() {
                             { "DPP", data.DPP },
-                            { "VAT", data.VAT }
-                        } );
-                        totalCurrencies["IDR"]["DPP"] += data.DPPCurrency;
-                        totalCurrencies["IDR"]["VAT"] += data.VATCurrency;
+                            { "VAT", data.VAT * data.CurrencyRate},
+                            { "TAX", data.IncomeTax * data.CurrencyRate},
+                            { "DPPCurrency", data.DPPCurrency },
+                            { "TOTAL", data.TotalCurrency }
+                    } );
                     }
+
+                    totalIdr += data.TotalCurrency;
+                    totalIdrDpp += data.DPPCurrency;
+                    totalIdrTax += data.IncomeTax * data.CurrencyRate;
+                    totalIdrVat += data.VAT * data.CurrencyRate;
                 }
 
                 //var cellGrandTotal = new PdfPCell()
@@ -423,43 +480,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 //cellGrandTotal.Phrase = new Phrase(string.Format("{0:n}", grandTotal), _smallerBoldFont);
                 //table.AddCell(cellGrandTotal);
+                totalCell.Phrase = new Phrase($"TOTAL {accountingCategoryName}", _smallBoldFont);
+                totalCell.Colspan = 10;
+                table.AddCell(totalCell);
+
                 foreach (var totalCurrency in totalCurrencies)
                 {
-                    totalCell.Phrase = new Phrase("Total  ", _smallBoldFont);
-                    totalCell.Colspan = 12;
-                    table.AddCell(totalCell);
-
                     cellNoBorderRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Key), _smallerFont);
                     table.AddCell(cellNoBorderRight);
 
-                    cellNoBorderLeftColspan3.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPP"]), _smallerFont);
-                    table.AddCell(cellNoBorderLeftColspan3);
+                    cellNoBorderLeft.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPP"]), _smallerFont);
+                    table.AddCell(cellNoBorderLeft);
+
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPPCurrency"]), _smallerFont);
+                    table.AddCell(cellAlignRight);
 
                     cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["VAT"]), _smallerFont);
                     table.AddCell(cellAlignRight);
 
-                    //cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalPPH), _smallerFont);
-                    //table.AddCell(cellAlignRight);
-
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["DPP"] - totalCurrency.Value["VAT"]), _smallerBoldFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["TAX"]), _smallerFont);
                     table.AddCell(cellAlignRight);
+
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalCurrency.Value["TOTAL"]), _smallerBoldFont);
+                    table.AddCell(cellAlignRight);
+
+                    totalCellNoBorderTopAndBot.Phrase = new Phrase();
+                    totalCellNoBorderTopAndBot.Colspan = 10;
+                    table.AddCell(totalCellNoBorderTopAndBot);
                 }
+
+                cellAlignRightColspan3.Phrase = new Phrase(string.Format("{0:n}", totalIdrDpp), _smallerFont);
+                table.AddCell(cellAlignRightColspan3);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrVat), _smallerFont);
+                table.AddCell(cellAlignRight);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdrTax), _smallerFont);
+                table.AddCell(cellAlignRight);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", totalIdr), _smallerBoldFont);
+                table.AddCell(cellAlignRight);
 
                 if (totalUnit.Count() > 0)
                     foreach (var v in totalUnit)
                     {
-                        totalCell.Phrase = new Phrase($"{v.Key}  ", _smallBoldFont);
-                        totalCell.Colspan = 12;
-                        table.AddCell(totalCell);
+                        totalCategoryUnitCell.Phrase = new Phrase($"{accountingCategoryName}", _smallBoldFont);
+                        totalCategoryUnitCell.Colspan = 8;
+                        table.AddCell(totalCategoryUnitCell);
 
-                        totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallFont);
-                        totalUnitCell.Colspan = 6;
-                        table.AddCell(totalUnitCell);
+                        cellColspan2.Phrase = new Phrase($"{v.Key}  ", _smallBoldFont);
+                        table.AddCell(cellColspan2);
 
-                        if (summaryUnit.ContainsKey(v.Key))
-                            summaryUnit[v.Key] += v.Value;
-                        else
-                            summaryUnit.Add(v.Key, v.Value);
+                        cellAlignRightColspan3.Phrase = new Phrase(string.Format("{0:n}", v.Value["DPPCurrency"]), _smallerFont);
+                        table.AddCell(cellAlignRightColspan3);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["VAT"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["TAX"]), _smallerFont);
+                        table.AddCell(cellAlignRight);
+
+                        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", v.Value["TOTAL"]), _smallerBoldFont);
+                        table.AddCell(cellAlignRight);
+
+                        //totalUnitCell.Phrase = new Phrase(string.Format("{0:n}", v.Value), _smallerFont);
+                        //totalUnitCell.Colspan = 6;
+                        //table.AddCell(totalUnitCell);
                     }
             }
 
@@ -489,12 +575,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             var cell = new PdfPCell()
             {
+                BackgroundColor = new BaseColor(23, 50, 80),
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
 
             var cellColspan5 = new PdfPCell()
             {
+                BackgroundColor = new BaseColor(23, 50, 80),
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 5
@@ -502,6 +590,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var cellColspan2 = new PdfPCell()
             {
+                BackgroundColor = new BaseColor(23, 50, 80),
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 2
@@ -509,67 +598,68 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var cellRowspan2 = new PdfPCell()
             {
+                BackgroundColor = new BaseColor(23, 50, 80),
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Rowspan = 2
             };
 
-            cellRowspan2.Phrase = new Phrase("Tanggal", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Tanggal", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Kode Supplier", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Kode Supplier", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Supplier", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Supplier", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Keterangan", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Keterangan", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. PO", _smallerFont);
+            //cellRowspan2.Phrase = new Phrase("No. PO", _smallerFont);
+            //table.AddCell(cellRowspan2);
+
+            cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Bon Penerimaan", _smallerFont);
+            //cellRowspan2.Phrase = new Phrase("No. Surat Jalan", _smallerFont);
+            //table.AddCell(cellRowspan2);
+
+            cellRowspan2.Phrase = new Phrase("No. Inv.", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Surat Jalan", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("No. Faktur Pajak", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Inv.", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("No. SPB/NI", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. Faktur Pajak", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Kategori", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("No. SPB/NI", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Unit", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellRowspan2.Phrase = new Phrase("Kategori", _smallerFont);
-            table.AddCell(cellRowspan2);
-
-            cellRowspan2.Phrase = new Phrase("Unit", _smallerFont);
-            table.AddCell(cellRowspan2);
-
-            cellColspan5.Phrase = new Phrase("Pembelian", _smallerFont);
+            cellColspan5.Phrase = new Phrase("Pembelian", _smallerBoldWhiteFont);
             table.AddCell(cellColspan5);
 
-            cellRowspan2.Phrase = new Phrase("Total", _smallerFont);
+            cellRowspan2.Phrase = new Phrase("Total (IDR)", _smallerBoldWhiteFont);
             table.AddCell(cellRowspan2);
 
-            cellColspan2.Phrase = new Phrase("DPP", _smallerFont);
+            cellColspan2.Phrase = new Phrase("DPP Valas", _smallerBoldWhiteFont);
             table.AddCell(cellColspan2);
 
-            cell.Phrase = new Phrase("Kurs BP", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("DPP (IDR)", _smallerFont);
-            table.AddCell(cell);
-
-            cell.Phrase = new Phrase("PPN (IDR)", _smallerFont);
-            table.AddCell(cell);
-
-            //cell.Phrase = new Phrase("PPh (IDR)", _smallerFont);
+            //cell.Phrase = new Phrase("Kurs BP", _smallerFont);
             //table.AddCell(cell);
+
+            cell.Phrase = new Phrase("DPP (IDR)", _smallerBoldWhiteFont);
+            table.AddCell(cell);
+
+            cell.Phrase = new Phrase("PPN (IDR)", _smallerBoldWhiteFont);
+            table.AddCell(cell);
+
+            cell.Phrase = new Phrase("PPH (IDR)", _smallerBoldWhiteFont);
+            table.AddCell(cell);
         }
 
         private static void SetHeader(Document document, DateTime dateFrom, DateTime dateTo, int timezoneOffset)

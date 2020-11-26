@@ -805,6 +805,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("IncomeTax");
 
+                    b.Property<string>("IncomeTaxBy")
+                        .HasMaxLength(128);
+
                     b.Property<string>("IncomeTaxId");
 
                     b.Property<string>("IncomeTaxName");
@@ -5164,6 +5167,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("IncomeTaxValue");
 
                     b.Property<bool>("IsDeleted");
+
+                    b.Property<bool>("IsPaid");
 
                     b.Property<string>("LastModifiedAgent")
                         .IsRequired()

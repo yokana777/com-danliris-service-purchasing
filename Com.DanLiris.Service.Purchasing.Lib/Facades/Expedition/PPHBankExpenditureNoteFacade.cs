@@ -95,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Currency = s.Currency,
                     Items = s.Items.Where(d => d.PurchasingDocumentExpeditionId == s.Id).ToList(),
                     LastModifiedUtc = s.LastModifiedUtc
-                });
+                }).OrderBy(s => s.UnitPaymentOrderNo.Remove(5, 6));
 
             List<object> list = new List<object>();
             list.AddRange(
@@ -286,7 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var journalTransactionToPost = new JournalTransaction()
             {
                 Date = model.Date,
-                Description = "Bon Terima Unit",
+                Description = "Pengajuan Pembayaran PPh",
                 ReferenceNo = model.No,
                 Status = "POSTED",
                 Items = new List<JournalTransactionItem>()
