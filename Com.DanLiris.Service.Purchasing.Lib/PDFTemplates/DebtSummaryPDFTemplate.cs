@@ -521,7 +521,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetHeader(Document document, string title, string unitName, string divisionName, string separator, DateTimeOffset? dueDate)
         {
-            var dueDateString = $"{dueDate:dd-MMM-yyyy}";
+            var dueDateString = $"{dueDate:dd/MM/yyyy}";
             if (dueDate == DateTimeOffset.MaxValue)
                 dueDateString = "-";
 
@@ -545,7 +545,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase(unitName + separator + divisionName, _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"JATUH TEMPO S.D. {dueDateString}", _subHeaderFont);
+            cell.Phrase = new Phrase($"JATUH TEMPO S.D. {dueDateString}", _headerFont);
             table.AddCell(cell);
 
             cell.Phrase = new Phrase("", _headerFont);

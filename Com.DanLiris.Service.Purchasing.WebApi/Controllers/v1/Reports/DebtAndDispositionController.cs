@@ -334,7 +334,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
         private MemoryStream GenerateExcelDebt(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, int divisionId, bool isImport, bool isForeignCurrency)
         {
-            var dueDateString = $"{dueDate:dd-MMM-yyyy}";
+            var dueDateString = $"{dueDate:dd/MM/yyyy}";
             if (dueDate == DateTimeOffset.MaxValue)
             {
                 dueDateString = "-";

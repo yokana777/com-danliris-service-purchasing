@@ -11,8 +11,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public static class UnpaidDispositionReportDetailPDFTemplate
     {
-        private static readonly Font _headerFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
-        private static readonly Font _subHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 16);
+        private static readonly Font _headerFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 11);
+        private static readonly Font _subHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
         private static readonly Font _normalFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
         private static readonly Font _smallFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
@@ -546,7 +546,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetHeader(Document document, DateTimeOffset dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency, string unitName, string separator, string divisionName)
         {
-            var dueDateString = $"{dateTo:dd-MMM-yyyy}";
+            var dueDateString = $"{dateTo:dd/MM/yyyy}";
             if (dateTo == DateTimeOffset.MaxValue)
                 dueDateString = "-";
 
@@ -575,7 +575,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase(unitName + separator + divisionName, _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"PERIODE S.D. {dueDateString}", _subHeaderFont);
+            cell.Phrase = new Phrase($"PERIODE S.D. {dueDateString}", _headerFont);
             table.AddCell(cell);
 
             cell.Phrase = new Phrase("", _headerFont);

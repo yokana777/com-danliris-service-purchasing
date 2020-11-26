@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetHeader(Document document, DateTimeOffset? dateTo, int timezoneOffset, bool isImport, bool isForeignCurrency, string unitName, string separator, string divisionName)
         {
-            var dueDateString = $"{dateTo:dd-MMM-yyyy}";
+            var dueDateString = $"{dateTo:dd/MM/yyyy}";
             if (dateTo == DateTimeOffset.MaxValue)
                 dueDateString = "-";
 
@@ -126,7 +126,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             table.AddCell(cell);
 
             //cell.Phrase = new Phrase($"Periode sampai {dateTo.AddHours(timezoneOffset):dd-MM-yyyy}", _subHeaderFont);
-            cell.Phrase = new Phrase($"PERIODE S.D. {dueDateString}", _subHeaderFont);
+            cell.Phrase = new Phrase($"PERIODE S.D. {dueDateString}", _headerFont);
             table.AddCell(cell);
 
             document.Add(table);
