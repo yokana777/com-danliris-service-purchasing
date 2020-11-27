@@ -33,19 +33,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
     public class DetailCreditBalanceReportFacade : IDetailCreditBalanceReportFacade
     {
         private readonly PurchasingDbContext _dbContext;
-        private readonly ICurrencyProvider _currencyProvider;
-        private readonly IdentityService _identityService;
-        //private const string IDRCurrencyCode = "IDR";
+        private readonly List<UnitDto> _units;
+        private readonly List<AccountingUnitDto> _accountingUnits;
         private readonly List<CategoryDto> _categories;
+        //private readonly IdentityService _identityService;
+        //private readonly ICurrencyProvider _currencyProvider;
+        //private const string IDRCurrencyCode = "IDR";
 
         public DetailCreditBalanceReportFacade(IServiceProvider serviceProvider)
         {
-            var cache = serviceProvider.GetService<IDistributedCache>();
-            var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
-
             _dbContext = serviceProvider.GetService<PurchasingDbContext>();
-            _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
-            _identityService = serviceProvider.GetService<IdentityService>();
+            var cache = serviceProvider.GetService<IDistributedCache>();
+            var jsonUnits = cache.GetString(MemoryCacheConstant.Units);
+            var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
+            var jsonAccountingUnits = cache.GetString(MemoryCacheConstant.AccountingUnits);
+            _units = JsonConvert.DeserializeObject<List<UnitDto>>(jsonUnits, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
+
+            _accountingUnits = JsonConvert.DeserializeObject<List<AccountingUnitDto>>(jsonAccountingUnits, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
 
             _categories = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonCategories, new JsonSerializerSettings
             {
@@ -55,115 +65,186 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public async Task<DetailCreditBalanceReportViewModel> GetReportData(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset? dateTo, bool isImport, bool isForeignCurrency)
         {
-            // var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.MaxValue).ToUniversalTime();
 
-            var query = from urnWithItem in _dbContext.UnitReceiptNoteItems
+            var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.AsQueryable();
+            var unitReceiptNotes = _dbContext.UnitReceiptNotes.AsQueryable();
+            var unitPaymentOrderItems = _dbContext.UnitPaymentOrderItems.AsQueryable();
+            var unitPaymentOrders = _dbContext.UnitPaymentOrders.AsQueryable();
+            var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
+            var purchaseRequests = _dbContext.PurchaseRequests.AsQueryable();
 
-                        join urn in _dbContext.UnitReceiptNotes on urnWithItem.URNId equals urn.Id into joinUnitReceiptNotes
-                        from urnItemUrn in joinUnitReceiptNotes.DefaultIfEmpty()
+            var query = from unitReceiptNoteItem in unitReceiptNoteItems
 
-                        join upoItem in _dbContext.UnitPaymentOrderItems on urnItemUrn.Id equals upoItem.URNId into joinUnitPaymentOrderItems
-                        from urnUPOItem in joinUnitPaymentOrderItems.DefaultIfEmpty()
+                        join unitReceiptNote in unitReceiptNotes on unitReceiptNoteItem.URNId equals unitReceiptNote.Id into urnWithItems
+                        from urnWithItem in urnWithItems.DefaultIfEmpty()
 
-                        join upo in _dbContext.UnitPaymentOrders on urnUPOItem.UPOId equals upo.Id into joinUnitPaymentOrders
-                        from urnUPO in joinUnitPaymentOrders.DefaultIfEmpty()
+                        join unitPaymentOrderItem in unitPaymentOrderItems on urnWithItem.Id equals unitPaymentOrderItem.URNId into urnUPOItems
+                        from urnUPOItem in urnUPOItems.DefaultIfEmpty()
 
-                        join epo in _dbContext.ExternalPurchaseOrders on urnWithItem.EPOId equals epo.Id into joinExternalPurchaseOrder
-                        from urnEPO in joinExternalPurchaseOrder.DefaultIfEmpty()
+                        join unitPaymentOrder in unitPaymentOrders on urnUPOItem.UPOId equals unitPaymentOrder.Id into upoWithItems
+                        from upoWithItem in upoWithItems.DefaultIfEmpty()
 
-                        join pr in _dbContext.PurchaseRequests on urnWithItem.PRId equals pr.Id into joinPurchaseRequest
-                        from urnPR in joinPurchaseRequest.DefaultIfEmpty()
+                        join externalPurchaseOrder in externalPurchaseOrders on unitReceiptNoteItem.EPOId equals externalPurchaseOrder.Id into urnEPOs
+                        from urnEPO in urnEPOs.DefaultIfEmpty()
+
+                        join purchaseRequest in purchaseRequests on unitReceiptNoteItem.PRId equals purchaseRequest.Id into urnPRs
+                        from urnPR in urnPRs.DefaultIfEmpty()
 
                         // Additional
-                        join epoDetail in _dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrderDetails
-                        from urnEPODetail in joinExternalPurchaseOrderDetails.DefaultIfEmpty()
+                        //join epoDetail in _dbContext.ExternalPurchaseOrderDetails on unitReceiptNoteItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrderDetails
+                        //from urnEPODetail in joinExternalPurchaseOrderDetails.DefaultIfEmpty()
 
-                        where urnItemUrn != null && urnItemUrn.ReceiptDate != null  
-                        && urnEPO != null && urnEPO.PaymentDueDays != null
-                        && urnItemUrn.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) <= d2
-                        && urnUPO != null && urnUPO.IsPaid == false && urnEPO != null && urnEPO.SupplierIsImport == isImport
+                        //where urnWithItem != null && urnWithItem.ReceiptDate != null  
+                        //&& urnEPO != null && urnEPO.PaymentDueDays != null
+                        //&& urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) <= d2
+                        //&& upoWithItem != null && upoWithItem.IsPaid == false && urnEPO != null && urnEPO.SupplierIsImport == isImport
                         
-                        select new
-                        {
-                            //urnWithItem.UnitReceiptNote.ReceiptDate,
-                            urnUPOItem.UnitPaymentOrder.Date,
-                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-                            urnWithItem.UnitReceiptNote.URNNo,
-                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-                            urnWithItem.UnitReceiptNote.SupplierName,
-                            urnPR.CategoryName,
-                            //AccountingUnitName = 
-                            DueDate = urnItemUrn != null && urnItemUrn.ReceiptDate != null && urnEPO != null ? urnItemUrn.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) : DateTimeOffset.Now,
-                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
-                            //TotalSaldo = urnWithItem.PricePerDealUnit * urnWithItem.ReceiptQuantity,
+                        //where upoWithItem != null && !upoWithItem.IsPaid && (urnWithItem.SupplierIsImport == isImport) && urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) <= d2
 
-                            urnPR.CategoryId,
-                            urnPR.DivisionName,
-                            urnWithItem.UnitReceiptNote.UnitId,
-                            urnPR.DivisionId,
-                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
-                            urnWithItem.ReceiptQuantity,
-                            EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
-                            urnWithItem.IncomeTaxBy,
-                            urnEPO.UseIncomeTax,
-                            urnEPO.IncomeTaxRate,
+                        select new DetailCreditBalanceReport
+                        {
+                            CurrencyId = urnEPO.CurrencyId,
+                            CurrencyCode = urnEPO.CurrencyCode,
+                            CurrencyRate = urnEPO.CurrencyRate,
+                            CategoryId = urnPR.CategoryId,
+                            CategoryCode = urnPR.CategoryCode,
+                            CategoryName = urnPR.CategoryName,
+                            UnitId = urnPR.UnitId,
+                            UnitCode = urnPR.UnitCode,
+                            UnitName = urnPR.UnitName,
+                            DivisionId = urnPR.DivisionId,
+                            DivisionCode = urnPR.DivisionCode,
+                            DivisionName = urnPR.DivisionName,
+                            IsImport = urnWithItem.SupplierIsImport,
+                            IsPaid = upoWithItem != null && upoWithItem.IsPaid,
+                            DebtPrice = unitReceiptNoteItem.PricePerDealUnit,
+                            DebtQuantity = unitReceiptNoteItem.ReceiptQuantity,
+                            DebtTotal = unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,
+                            DueDate = urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)),
+                            IncomeTaxBy = urnEPO.IncomeTaxBy,
+                            UseIncomeTax = urnEPO.UseIncomeTax,
+                            IncomeTaxRate = urnEPO.IncomeTaxRate,
+                            UseVat = urnEPO.UseVat,
+
+                            UPODate = urnUPOItem.UnitPaymentOrder.Date,
+                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
+                            URNNo = unitReceiptNoteItem.UnitReceiptNote != null ? unitReceiptNoteItem.UnitReceiptNote.URNNo : "",
+                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
+                            SupplierName = unitReceiptNoteItem.UnitReceiptNote.SupplierName,
+                            //urnPR.CategoryName,
+                            //AccountingUnitName = 
+                            //DueDate = urnWithItem != null && urnWithItem.ReceiptDate != null && urnEPO != null ? urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)) : DateTimeOffset.Now,
+                            //urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
+                            //TotalSaldo = unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,
+
+                            //urnPR.CategoryId,
+                            //urnPR.DivisionName,
+                            //unitReceiptNoteItem.UnitReceiptNote.UnitId,
+                            //urnPR.DivisionId,
+                            //urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
+                            //ReceiptQuantity = unitReceiptNoteItem.ReceiptQuantity,
+                            //EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
+                            //unitReceiptNoteItem.IncomeTaxBy,
+                            //urnEPO.UseIncomeTax,
+                            //urnEPO.IncomeTaxRate,
                         };
 
-            if (!isForeignCurrency && !isImport)
-                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR");
-            else if (isForeignCurrency)
-                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR");
+            query = query.Where(entity => !entity.IsPaid && (entity.IsImport == isImport) && entity.DueDate <= d2);
 
             if (categoryId > 0)
-                query = query.Where(urn => urn.CategoryId == categoryId.ToString());
+                query = query.Where(entity => entity.CategoryId == categoryId.ToString());
+
+            //if (accountingUnitId > 0)
+            //{
+            //    var unitFilterIds = await _currencyProvider.GetUnitsIdsByAccountingUnitId(accountingUnitId);
+            //    if (unitFilterIds.Count() > 0)
+            //    {
+            //        query = query.Where(unitReceiptNote => unitFilterIds.Contains(unitReceiptNote.UnitId));
+            //    }
+            //}
 
             if (accountingUnitId > 0)
             {
-                var unitFilterIds = await _currencyProvider.GetUnitsIdsByAccountingUnitId(accountingUnitId);
-                if (unitFilterIds.Count() > 0)
-                {
-                    query = query.Where(urn => unitFilterIds.Contains(urn.UnitId));
-                }
+                var unitIds = _units.Where(unit => unit.AccountingUnitId == accountingUnitId).Select(unit => unit.Id.ToString()).ToList();
+                if (unitIds.Count == 0)
+                    // intentionally added to make the query returns empty data
+                    unitIds.Add("0");
+                query = query.Where(entity => unitIds.Contains(entity.UnitId));
+
             }
 
             if (divisionId > 0)
-                query = query.Where(urn => urn.DivisionId == divisionId.ToString());
+                query = query.Where(entity => entity.DivisionId == divisionId.ToString());
 
-            var queryResult = query.OrderByDescending(item => item.DueDate).ToList();
-            
-            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.Date));
-            var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
+            if (!isForeignCurrency && !isImport)
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() == "IDR" && !entity.IsImport);
+            else if (isForeignCurrency)
+                query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR" && !entity.IsImport);
+            else if (isImport)
+                query = query.Where(entity => entity.IsImport);
 
-            var unitIds = queryResult.Select(item =>
-            {
-                int.TryParse(item.UnitId, out var unitId);
-                return unitId;
-            }).Distinct().ToList();
-            var units = await _currencyProvider.GetUnitsByUnitIds(unitIds);
-            var accountingUnits = await _currencyProvider.GetAccountingUnitsByUnitIds(unitIds);
+            //var queryResult = query.OrderByDescending(item => item.DueDate).ToList();
+            var queryResult = query.ToList();
 
-            var itemCategoryIds = queryResult.Select(item =>
-            {
-                int.TryParse(item.CategoryId, out var itemCategoryId);
-                return itemCategoryId;
-            }).Distinct().ToList();
-            var categories = await _currencyProvider.GetCategoriesByCategoryIds(itemCategoryIds);
-            var accountingCategories = await _currencyProvider.GetAccountingCategoriesByCategoryIds(itemCategoryIds);
+            //var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.Date));
+            //var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
+
+            //var unitIds = queryResult.Select(item =>
+            //{
+            //    int.TryParse(item.UnitId, out var unitId);
+            //    return unitId;
+            //}).Distinct().ToList();
+            //var units = await _currencyProvider.GetUnitsByUnitIds(unitIds);
+            //var accountingUnits = await _currencyProvider.GetAccountingUnitsByUnitIds(unitIds);
+
+            //var itemCategoryIds = queryResult.Select(item =>
+            //{
+            //    int.TryParse(item.CategoryId, out var itemCategoryId);
+            //    return itemCategoryId;
+            //}).Distinct().ToList();
+            //var categories = await _currencyProvider.GetCategoriesByCategoryIds(itemCategoryIds);
+            //var accountingCategories = await _currencyProvider.GetAccountingCategoriesByCategoryIds(itemCategoryIds);
             
 
             var reportResult = new DetailCreditBalanceReportViewModel();
-            foreach (var item in queryResult)
+            foreach (var element in queryResult)
             {
-                var currency = currencies.FirstOrDefault(f => f.Code == item.CurrencyCode);
+                //var currency = currencies.FirstOrDefault(f => f.Code == item.CurrencyCode);
+                double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
+                var debtTotal = element.DebtTotal;
 
-                int.TryParse(item.UnitId, out var unitId);
-                var unit = units.FirstOrDefault(element => element.Id == unitId);
-                var accountingUnit = new AccountingUnit();
+                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                var categoryLayoutIndex = 0;
+                if (category != null)
+                    categoryLayoutIndex = category.ReportLayoutIndex;
+
+                var accountingUnitName = "-";
+                var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
                 if (unit != null)
                 {
-                    accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
+                    if (accountingUnit != null)
+                        accountingUnitName = accountingUnit.Name;
                 }
+
+                if (element.UseVat)
+                {
+                    debtTotal += element.DebtTotal * 0.1;
+                }
+
+                if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                {
+                    debtTotal -= element.DebtTotal * (incomeTaxRate / 100);
+                }
+
+                //int.TryParse(element.UnitId, out var unitId);
+                //var unit = _units.FirstOrDefault(entity => entity.Id == unitId);
+                //var accountingUnit = new AccountingUnit();
+                //if (unit != null)
+                //{
+                //    accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                //}
 
                 //int.TryParse(item.CategoryId, out var itemCategoryId);
                 //var category = categories.FirstOrDefault(element => element.Id == itemCategoryId);
@@ -173,68 +254,68 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //    accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
                 //}
 
-                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == item.CategoryId);
-                var categoryLayoutIndex = 0;
-                if (category != null)
-                    categoryLayoutIndex = category.ReportLayoutIndex;
+                //var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == item.CategoryId);
+                //var categoryLayoutIndex = 0;
+                //if (category != null)
+                //    categoryLayoutIndex = category.ReportLayoutIndex;
 
-                decimal dpp = 0;
-                decimal dppCurrency = 0;
-                decimal ppn = 0;
-                decimal ppnCurrency = 0;
+                //decimal dpp = 0;
+                //decimal dppCurrency = 0;
+                //decimal ppn = 0;
+                //decimal ppnCurrency = 0;
 
-                double currencyRate = 1;
-                var currencyCode = "IDR";
+                //double currencyRate = 1;
+                //var currencyCode = "IDR";
 
-                decimal totalDebt = 0;
-                decimal totalDebtIDR = 0;
-                decimal incomeTax = 0;
-                decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
+                //decimal totalDebt = 0;
+                //decimal totalDebtIDR = 0;
+                //decimal incomeTax = 0;
+                //decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
 
 
-                if (item.UseVat)
-                    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
+                //if (item.UseVat)
+                //    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
 
-                if (currency != null && !currency.Code.Equals("IDR"))
-                {
-                    currencyRate = currency.Rate.GetValueOrDefault();
-                    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-                    dppCurrency = dpp * (decimal)currencyRate;
-                    ppnCurrency = ppn * (decimal)currencyRate;
-                    currencyCode = currency.Code;
-                }
-                else
-                    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                //if (currency != null && !currency.Code.Equals("IDR"))
+                //{
+                //    currencyRate = currency.Rate.GetValueOrDefault();
+                //    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                //    dppCurrency = dpp * (decimal)currencyRate;
+                //    ppnCurrency = ppn * (decimal)currencyRate;
+                //    currencyCode = currency.Code;
+                //}
+                //else
+                //    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
 
-                if (item.UseIncomeTax)
-                    incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
+                //if (item.UseIncomeTax)
+                //    incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
 
-                if (item.IncomeTaxBy == "Supplier")
-                {
-                    totalDebtIDR = (dpp + ppn - incomeTax) * (decimal)currencyRate;
-                    totalDebt = dpp + ppn - incomeTax;
-                }
-                else
-                {
-                    totalDebtIDR = (dpp + ppn) * (decimal)currencyRate;
-                    totalDebt = dpp + ppn;
-                }
+                //if (item.IncomeTaxBy == "Supplier")
+                //{
+                //    totalDebtIDR = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                //    totalDebt = dpp + ppn - incomeTax;
+                //}
+                //else
+                //{
+                //    totalDebtIDR = (dpp + ppn) * (decimal)currencyRate;
+                //    totalDebt = dpp + ppn;
+                //}
 
                 var reportItem = new DetailCreditBalanceReport()
                 {
-                    UPODate = item.Date,
-                    UPONo = item.UPONo,
-                    URNNo = item.URNNo,
-                    InvoiceNo = item.InvoiceNo,
-                    SupplierName = item.SupplierName,
-                    CategoryName = item.CategoryName,
-                    AccountingUnitName = accountingUnit.Name,
-                    DueDate = item.DueDate,
-                    CurrencyCode = currencyCode,
-                    Total = totalDebt,
-                    TotalIDR = totalDebtIDR,
-                    CategoryId = item.CategoryId,
-                    DivisionName = item.DivisionName,
+                    UPODate = element.UPODate,
+                    UPONo = element.UPONo,
+                    URNNo = element.URNNo,
+                    InvoiceNo = element.InvoiceNo,
+                    SupplierName = element.SupplierName,
+                    CategoryName = element.CategoryName,
+                    AccountingUnitName = accountingUnitName,
+                    DueDate = element.DueDate,
+                    CurrencyCode = element.CurrencyCode,
+                    Total = (decimal)debtTotal,
+                    TotalIDR = (decimal)debtTotal * (decimal)element.CurrencyRate,
+                    CategoryId = element.CategoryId,
+                    DivisionName = element.DivisionName,
                     CategoryLayoutIndex = categoryLayoutIndex,
                     //TotalSaldo = (decimal)item.TotalSaldo
                     //CategoryCode = item.CategoryCode,
@@ -292,13 +373,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         })
                         .OrderBy(order => order.CurrencyCode).ToList();
 
+            //reportResult.Reports = reportResult.Reports
             reportResult.Reports = reportResult.Reports
                         .GroupBy(
-                            key => new 
+                            key => new
                             {
+                                key.URNNo,
                                 key.UPONo,
                                 key.UPODate,
-                                key.URNNo,
                                 key.InvoiceNo,
                                 key.SupplierName,
                                 key.CategoryName,
@@ -312,9 +394,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             val => val,
                             (key, val) => new DetailCreditBalanceReport()
                             {
+                                URNNo = key.URNNo,
                                 UPONo = key.UPONo,
                                 UPODate = key.UPODate,
-                                URNNo = key.URNNo,
                                 InvoiceNo = key.InvoiceNo,
                                 SupplierName = key.SupplierName,
                                 CategoryName = key.CategoryName,
