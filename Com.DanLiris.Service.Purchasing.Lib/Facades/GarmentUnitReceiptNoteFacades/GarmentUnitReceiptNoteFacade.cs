@@ -1385,7 +1385,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             //        Status = new[] { "" };
             //        break;
             //}
+            var productname = (category == "SUBKON" ? "SUBKON" : "");
+            category = (category == "SUBKON" ? "BB" : category);
 
+            
             List<FlowDetailPenerimaanViewModels> Data = new List<FlowDetailPenerimaanViewModels>();
 
             var Query = (from a in dbContext.GarmentUnitReceiptNotes
@@ -1394,7 +1397,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                          join d in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals d.Id
                          join e in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals e.Id
                          join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
-                         join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id
+                         join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
+                         from gg in uen.DefaultIfEmpty()
                          //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
                          //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
                          where a.IsDeleted == false
@@ -1407,6 +1411,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                             && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
                             && d.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? d.CodeRequirment : category)
+                            && d.ProductName == (string.IsNullOrWhiteSpace(productname) ? d.ProductName : productname)
 
                          //&& (category == "Bahan Baku" ? Status.Contains(b.ProductName) : (category == "Bahan Pendukung" ? Status.Contains(b.ProductName) : (category == "Bahan Embalase" ? Status.Contains(b.ProductName) : b.ProductName == b.ProductName)))
 
@@ -1426,7 +1431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              jumlahterima = decimal.ToDouble(b.ReceiptQuantity),
                              satuanterima = b.SmallUomUnit,
                              jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
-                             asal = g.UnitSenderName,
+                             asal = gg == null ? "Pembelian Eksternal" : gg.UnitSenderName,
                              Jenis = a.URNType,
                              tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
 

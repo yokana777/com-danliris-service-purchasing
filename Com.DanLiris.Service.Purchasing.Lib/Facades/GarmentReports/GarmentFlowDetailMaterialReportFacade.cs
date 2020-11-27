@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          && f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
                          && a.CreatedUtc.Date >= DateFrom
                          && a.CreatedUtc.Date <= DateTo
-                         && b.UnitRequestCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitRequestCode : unit)
+                         && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
 
                          orderby a.CreatedUtc descending
                          select new GarmentFlowDetailMaterialViewModel {
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              Quantity = a.Quantity,
                              UomUnit = a.UomUnit,
                              Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate,
-                             UnitDestination = b.UnitRequestName
+                             UnitDestination = b.UnitRequestCode
 
                          });
 
