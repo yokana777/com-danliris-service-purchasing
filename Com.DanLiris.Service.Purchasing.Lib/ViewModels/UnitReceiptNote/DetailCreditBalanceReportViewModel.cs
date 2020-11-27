@@ -31,6 +31,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
 
     public class DetailCreditBalanceReport
     {
+        public string CurrencyId { get; set; }
+        public double CurrencyRate { get; set; }
+        public string CategoryCode { get; set; }
+        public string UnitId { get; set; }
+        public string UnitCode { get; set; }
+        public string UnitName { get; set; }
+        public string DivisionId { get; set; }
+        public string DivisionCode { get; set; }
+        public bool IsImport { get; set; }
+        public bool IsPaid { get; set; }
+        public double DebtPrice { get; set; }
+        public double DebtQuantity { get; set; }
+        public double DebtTotal { get; set; }
+        public string IncomeTaxBy { get; internal set; }
+        public bool UseIncomeTax { get; internal set; }
+        public string IncomeTaxRate { get; internal set; }
+        public bool UseVat { get; internal set; }
+
         public DateTimeOffset? UPODate { get; set; }
         public string UPONo { get; set; }
         public string URNNo { get; set; }
