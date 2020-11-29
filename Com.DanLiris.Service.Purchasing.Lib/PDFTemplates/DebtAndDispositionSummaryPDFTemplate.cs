@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int unitId, bool isImport, bool isForeignCurrency)
+        public static MemoryStream Generate(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
             var document = new Document(PageSize.A4.Rotate(), 20, 5, 25, 25);
             var stream = new MemoryStream();
@@ -30,13 +30,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Open();
 
             var unitName = "SEMUA UNIT";
-            if (unitId > 0)
+            if (accountingUnitId > 0)
             {
                 var summary = data.FirstOrDefault();
                 if (summary != null)
                 {
-                    unitName = $"UNIT {summary.UnitName}";
+                    unitName = $"UNIT {summary.AccountingUnitName}";
                 }
+            }
+
+            if (divisionId > 0)
+            {
+                var datum = data.FirstOrDefault();
+                if (datum != null)
+                    unitName = $"DIVISI {datum.DivisionName} {unitName}";
             }
 
             var title = "";
@@ -129,25 +136,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     CategoryCode = element.Key.CategoryCode,
                     CategoryName = element.FirstOrDefault().CategoryName,
                     CurrencyCode = element.Key.CurrencyCode,
-                    DebtTotal = element.Sum(sum => sum.DebtTotal),
-                    DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                    Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                    DispositionTotal = element.Sum(sum => sum.DispositionTotal)
                 })
                 .ToList();
 
-            SetCategoryTable(document, categoryData);
+            SetCategoryDispositionTable(document, categoryData);
 
             document.Add(new Paragraph(" "));
 
             if (!isImport && !isForeignCurrency)
             {
-                SetUnitTable(document, data);
+                SetUnitDispositionTable(document, data);
             }
             else
             {
-                SetUnitCurrencyTable(document, data);
+                SetUnitCurrencyDispositionTable(document, data);
                 document.Add(new Paragraph(" "));
-                SetSeparatedUnitCurrencyTable(document, data);
+                SetSeparatedUnitCurrencyDispositionTable(document, data);
             }
 
             document.Close();
@@ -160,7 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
         private static void SetSeparatedUnitCurrencyTable(Document document, List<DebtAndDispositionSummaryDto> data)
         {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
 
             var debtData = data.Where(element => element.DispositionTotal == 0);
             var dispositionData = data.Where(element => element.DebtTotal == 0);
@@ -207,12 +212,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
             table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenterHeader.Phrase = new Phrase("TOTAL (IDR)", _smallerHeaderFont);
+            cellAlignCenterHeader.Phrase = new Phrase("TOTAL", _smallerHeaderFont);
             table.AddCell(cellAlignCenterHeader);
 
-            foreach (var unit in units)
+            foreach (var accountingUnit in accountingUnits)
             {
-                cellAlignLeft.Phrase = new Phrase(unit, _smallerFont);
+                cellAlignLeft.Phrase = new Phrase(accountingUnit, _smallerFont);
                 table.AddCell(cellAlignLeft);
 
                 cellAlignLeft.Phrase = new Phrase("", _smallerFont);
@@ -225,12 +230,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 table.AddCell(cellAlignLeft);
 
                 var currencyDebtData = debtData
-                    .Where(element => element.UnitName == unit)
+                    .Where(element => element.AccountingUnitName == accountingUnit)
                     .GroupBy(element => element.CurrencyCode)
                     .Select(element => new DebtAndDispositionSummaryDto()
                     {
                         CurrencyCode = element.Key,
-                        DebtTotal = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate),
+                        DebtTotal = element.Sum(sum => sum.DebtTotal),
                     })
                     .ToList();
 
@@ -262,12 +267,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
 
                 var currencyDispositionData = dispositionData
-                    .Where(element => element.UnitName == unit)
+                    .Where(element => element.AccountingUnitName == accountingUnit)
                     .GroupBy(element => element.CurrencyCode)
                     .Select(element => new DebtAndDispositionSummaryDto()
                     {
                         CurrencyCode = element.Key,
-                        DispositionTotal = element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate),
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
                     })
                     .ToList();
 
@@ -302,13 +307,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(table);
         }
 
-        private static void SetUnitCurrencyTable(Document document, List<DebtAndDispositionSummaryDto> data)
+        private static void SetSeparatedUnitCurrencyDispositionTable(Document document, List<DebtAndDispositionSummaryDto> data)
         {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
+
+            var dispositionData = data.Where(element => element.DebtTotal == 0);
 
             var table = new PdfPTable(3)
             {
-                WidthPercentage = 30,
+                WidthPercentage = 50,
                 HorizontalAlignment = Element.ALIGN_LEFT
             };
             var widths = new List<float>() { 1f, 1f, 1f };
@@ -345,12 +352,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
             table.AddCell(cellAlignCenterHeader);
 
-            cellAlignCenterHeader.Phrase = new Phrase("TOTAL (IDR)", _smallerHeaderFont);
+            cellAlignCenterHeader.Phrase = new Phrase("DISPOSISI", _smallerHeaderFont);
             table.AddCell(cellAlignCenterHeader);
 
-            foreach (var unit in units)
+            foreach (var accountingUnit in accountingUnits)
             {
-                cellAlignLeft.Phrase = new Phrase(unit, _smallerFont);
+                cellAlignLeft.Phrase = new Phrase(accountingUnit, _smallerFont);
                 table.AddCell(cellAlignLeft);
 
                 cellAlignLeft.Phrase = new Phrase("", _smallerFont);
@@ -359,19 +366,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignLeft.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cellAlignLeft);
 
-                var currencyData = data
-                    .Where(element => element.UnitName == unit)
+                var currencyDispositionData = data
+                    .Where(element => element.AccountingUnitName == accountingUnit)
                     .GroupBy(element => element.CurrencyCode)
                     .Select(element => new DebtAndDispositionSummaryDto()
                     {
                         CurrencyCode = element.Key,
-                        DebtTotal = element.Sum(sum => sum.DebtTotal),
                         DispositionTotal = element.Sum(sum => sum.DispositionTotal),
-                        Total = element.Sum(sum => sum.DebtTotal * sum.CurrencyRate) + element.Sum(sum => sum.DispositionTotal * sum.CurrencyRate)
                     })
                     .ToList();
 
-                foreach (var currencyDatum in currencyData)
+                foreach (var currencyDatum in currencyDispositionData)
                 {
                     cellAlignLeft.Phrase = new Phrase("", _smallerFont);
                     table.AddCell(cellAlignLeft);
@@ -379,7 +384,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellAlignLeft.Phrase = new Phrase(currencyDatum.CurrencyCode, _smallerFont);
                     table.AddCell(cellAlignLeft);
 
-                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", currencyDatum.Total), _smallerFont);
+                    cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", currencyDatum.DispositionTotal), _smallerFont);
                     table.AddCell(cellAlignRight);
                 }
             }
@@ -387,9 +392,182 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(table);
         }
 
+        private static void SetUnitCurrencyTable(Document document, List<DebtAndDispositionSummaryDto> data)
+        {
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
+
+            var table = new PdfPTable(2)
+            {
+                WidthPercentage = 30,
+                HorizontalAlignment = Element.ALIGN_LEFT
+            };
+            var widths = new List<float>() { 1f, 1f };
+            table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor
+            };
+
+            var cellAlignCenter = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignLeft = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            //cellAlignCenterHeader.Phrase = new Phrase("UNIT", _smallerHeaderFont);
+            //table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("TOTAL", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            //foreach (var unit in units)
+            //{
+            //    cellAlignLeft.Phrase = new Phrase(unit, _smallerFont);
+            //    table.AddCell(cellAlignLeft);
+
+            //    cellAlignLeft.Phrase = new Phrase("", _smallerFont);
+            //    table.AddCell(cellAlignLeft);
+
+            //    cellAlignLeft.Phrase = new Phrase("", _smallerFont);
+            //    table.AddCell(cellAlignLeft);
+
+            //    var currencyData = data
+            //        .Where(element => element.UnitName == unit)
+            //        .GroupBy(element => element.CurrencyCode)
+            //        .Select(element => new DebtAndDispositionSummaryDto()
+            //        {
+            //            CurrencyCode = element.Key,
+            //            DebtTotal = element.Sum(sum => sum.DebtTotal),
+            //            DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+            //            Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+            //        })
+            //        .ToList();
+
+            //    foreach (var currencyDatum in currencyData)
+            //    {
+            //        cellAlignLeft.Phrase = new Phrase("", _smallerFont);
+            //        table.AddCell(cellAlignLeft);
+
+            //        cellAlignLeft.Phrase = new Phrase(currencyDatum.CurrencyCode, _smallerFont);
+            //        table.AddCell(cellAlignLeft);
+
+            //        cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", currencyDatum.Total), _smallerFont);
+            //        table.AddCell(cellAlignRight);
+            //    }
+            //}
+
+            var currencyData = data
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DebtTotal = element.Sum(sum => sum.DebtTotal),
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                        Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                    })
+                    .ToList();
+
+            foreach (var currencyDatum in currencyData)
+            {
+                cellAlignLeft.Phrase = new Phrase(currencyDatum.CurrencyCode, _smallerFont);
+                table.AddCell(cellAlignLeft);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", currencyDatum.Total), _smallerFont);
+                table.AddCell(cellAlignRight);
+            }
+
+            document.Add(table);
+        }
+
+        private static void SetUnitCurrencyDispositionTable(Document document, List<DebtAndDispositionSummaryDto> data)
+        {
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
+
+            var table = new PdfPTable(2)
+            {
+                WidthPercentage = 30,
+                HorizontalAlignment = Element.ALIGN_LEFT
+            };
+            var widths = new List<float>() { 1f, 1f };
+            table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor
+            };
+
+            var cellAlignCenter = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignLeft = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            //cellAlignCenterHeader.Phrase = new Phrase("UNIT", _smallerHeaderFont);
+            //table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("TOTAL", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            var currencyData = data
+                    .GroupBy(element => element.CurrencyCode)
+                    .Select(element => new DebtAndDispositionSummaryDto()
+                    {
+                        CurrencyCode = element.Key,
+                        DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                        Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+                    })
+                    .ToList();
+
+            foreach (var currencyDatum in currencyData)
+            {
+                cellAlignLeft.Phrase = new Phrase(currencyDatum.CurrencyCode, _smallerFont);
+                table.AddCell(cellAlignLeft);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", currencyDatum.DispositionTotal), _smallerFont);
+                table.AddCell(cellAlignRight);
+            }
+
+            document.Add(table);
+        }
+
         private static void SetUnitTable(Document document, List<DebtAndDispositionSummaryDto> data)
         {
-            var units = data.Select(element => element.UnitName).Distinct().ToList();
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
 
             var table = new PdfPTable(3)
             {
@@ -433,9 +611,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellAlignCenterHeader.Phrase = new Phrase("Total (IDR)", _smallerHeaderFont);
             table.AddCell(cellAlignCenterHeader);
 
-            foreach (var unit in units)
+            foreach (var accountingUnit in accountingUnits)
             {
-                cellAlignLeft.Phrase = new Phrase(unit, _smallerFont);
+                cellAlignLeft.Phrase = new Phrase(accountingUnit, _smallerFont);
                 table.AddCell(cellAlignLeft);
 
                 cellAlignLeft.Phrase = new Phrase("", _smallerFont);
@@ -444,7 +622,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignLeft.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cellAlignLeft);
 
-                var debtTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DebtTotal);
+                var debtTotal = data.Where(element => element.AccountingUnitName == accountingUnit).Sum(sum => sum.DebtTotal);
 
                 cellAlignRight.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cellAlignRight);
@@ -455,13 +633,70 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", debtTotal), _smallerFont);
                 table.AddCell(cellAlignRight);
 
-                var dispositionTotal = data.Where(element => element.UnitName == unit).Sum(sum => sum.DispositionTotal);
+                var dispositionTotal = data.Where(element => element.AccountingUnitName == accountingUnit).Sum(sum => sum.DispositionTotal);
 
                 cellAlignRight.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cellAlignRight);
 
                 cellAlignRight.Phrase = new Phrase("Disposisi", _smallerFont);
                 table.AddCell(cellAlignRight);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", dispositionTotal), _smallerFont);
+                table.AddCell(cellAlignRight);
+            }
+
+            document.Add(table);
+        }
+
+        private static void SetUnitDispositionTable(Document document, List<DebtAndDispositionSummaryDto> data)
+        {
+            var accountingUnits = data.Select(element => element.AccountingUnitName).Distinct().ToList();
+
+            var table = new PdfPTable(2)
+            {
+                WidthPercentage = 30,
+                HorizontalAlignment = Element.ALIGN_LEFT
+            };
+            var widths = new List<float>() { 1f, 1f };
+            table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor
+            };
+
+            var cellAlignCenter = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignLeft = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            cellAlignCenterHeader.Phrase = new Phrase("UNIT", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("Total", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            foreach (var accountingUnit in accountingUnits)
+            {
+                cellAlignLeft.Phrase = new Phrase(accountingUnit, _smallerFont);
+                table.AddCell(cellAlignLeft);
+
+                var dispositionTotal = data.Where(element => element.AccountingUnitName == accountingUnit).Sum(sum => sum.DispositionTotal);
 
                 cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", dispositionTotal), _smallerFont);
                 table.AddCell(cellAlignRight);
@@ -541,8 +776,70 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             document.Add(table);
         }
 
+        private static void SetCategoryDispositionTable(Document document, List<DebtAndDispositionSummaryDto> data)
+        {
+            var table = new PdfPTable(3)
+            {
+                WidthPercentage = 95,
+                HorizontalAlignment = Element.ALIGN_LEFT
+            };
+            var widths = new List<float>() { 2f, 1f, 2f};
+            table.SetWidths(widths.ToArray());
+
+            var cellAlignCenterHeader = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = _headerBackgroundColor,
+            };
+
+            var cellAlignCenter = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignLeft = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellAlignRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            cellAlignCenterHeader.Phrase = new Phrase("KATEGORI", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("MATA UANG", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            cellAlignCenterHeader.Phrase = new Phrase("DISPOSISI", _smallerHeaderFont);
+            table.AddCell(cellAlignCenterHeader);
+
+            foreach (var datum in data)
+            {
+                cellAlignLeft.Phrase = new Phrase(datum.CategoryName, _smallerFont);
+                table.AddCell(cellAlignLeft);
+
+                cellAlignCenter.Phrase = new Phrase(datum.CurrencyCode, _smallerFont);
+                table.AddCell(cellAlignCenter);
+
+                cellAlignRight.Phrase = new Phrase(string.Format("{0:n}", datum.DispositionTotal), _smallerFont);
+                table.AddCell(cellAlignRight);
+            }
+
+            document.Add(table);
+        }
+
         private static void SetHeader(Document document, string title, string unitName, DateTimeOffset dueDate)
         {
+            var dueDateString = $"{dueDate:dd/MM/yy}";
+            if (dueDate == DateTimeOffset.MaxValue)
+                dueDateString = "-";
             var table = new PdfPTable(1)
             {
                 WidthPercentage = 95,
@@ -563,7 +860,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cell.Phrase = new Phrase(unitName, _headerFont);
             table.AddCell(cell);
 
-            cell.Phrase = new Phrase($"JATUH TEMPO S.D. {dueDate:yyyy-dd-MM}", _subHeaderFont);
+            cell.Phrase = new Phrase($"JATUH TEMPO S.D. {dueDateString}", _subHeaderFont);
             table.AddCell(cell);
 
             cell.Phrase = new Phrase("", _headerFont);
