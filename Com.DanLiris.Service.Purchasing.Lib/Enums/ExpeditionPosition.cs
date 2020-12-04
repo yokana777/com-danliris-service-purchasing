@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         SEND_TO_ACCOUNTING_DIVISION = 5,
         SEND_TO_PURCHASING_DIVISION = 6,
         CASHIER_DIVISION = 7,
-        FINANCE_DIVISION = 8
+        FINANCE_DIVISION = 8,
+        //ACCOUNTING_DIVISION = 8,
     }
 }

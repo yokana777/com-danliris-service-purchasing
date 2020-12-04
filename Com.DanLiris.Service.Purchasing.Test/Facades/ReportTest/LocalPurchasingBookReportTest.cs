@@ -163,10 +163,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GetReport(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
+            var result = await facade.GetReport(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
             Assert.NotNull(result);
 
-            result = await facade.GetReport(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
+            result = await facade.GetReport(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
             Assert.NotNull(result);
         }
 
@@ -186,7 +186,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GetReport("Invalid URNNo", 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false);
+            var result = await facade.GetReport("Invalid URNNo", Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false);
             Assert.Empty(result.Reports);
         }
 
@@ -206,10 +206,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GenerateExcel(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false);
+            var result = await facade.GenerateExcel(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false);
             Assert.NotNull(result);
 
-            result = await facade.GenerateExcel(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
+            result = await facade.GenerateExcel(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
             Assert.NotNull(result);
         }
 
@@ -229,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GetReport(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
+            var result = await facade.GetReport(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true);
 
             var localPdf = LocalPurchasingBookReportPdfTemplate.Generate(result, 1, null, null);
             Assert.NotNull(localPdf);
