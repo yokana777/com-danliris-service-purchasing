@@ -69,6 +69,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -189,6 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>()
                 .AddTransient<IDebtAndDispositionSummaryService, DebtAndDispositionSummaryService>()
                 .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>()
+                .AddTransient<IBudgetCashflowService, BudgetCashflowService>()
                 .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>();
         }
 

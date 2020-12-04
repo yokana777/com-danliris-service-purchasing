@@ -30,6 +30,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistribution
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -133,6 +134,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentStockOpnameItem> GarmentStockOpnameItems { get; set; }
 
         public DbSet<BalanceStock> BalanceStocks { get; set; }
+
+        public DbSet<BudgetCashflowWorstCase> BudgetCashflowWorstCases { get; set; }
+        public DbSet<BudgetCashflowWorstCaseItem> BudgetCashflowWorstCaseItems { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
