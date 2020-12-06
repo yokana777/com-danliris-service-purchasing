@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
     {
         List<BudgetCashflowItemDto> GetBudgetCashflowWorstCase(DateTimeOffset dueDate, int unitId);
         List<BudgetCashflowItemDto> GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder layoutOrder, int unitId, DateTimeOffset dueDate);
-        Task<int> CreateWorstCaseBudgetCashflowUnit(WorstCaseBudgetCashflowFormDto form);
+        Task<int> UpsertWorstCaseBudgetCashflowUnit(WorstCaseBudgetCashflowFormDto form);
         Task<int> UpdateWorstCaseBudgetCashflowUnit(int year, int month, int unitId, WorstCaseBudgetCashflowFormDto form);
     }
 }

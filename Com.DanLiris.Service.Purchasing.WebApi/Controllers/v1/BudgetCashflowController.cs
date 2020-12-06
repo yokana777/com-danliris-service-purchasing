@@ -82,17 +82,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             }
         }
 
-        [HttpPost("worst-case")]
-        public async Task<IActionResult> Post([FromBody] WorstCaseBudgetCashflowFormDto form)
+        [HttpPut("worst-case")]
+        public async Task<IActionResult> Put([FromBody] WorstCaseBudgetCashflowFormDto form)
         {
             try
             {
                 _validateService.Validate(form);
 
-                var result = await _service.CreateWorstCaseBudgetCashflowUnit(form);
+                var result = await _service.UpsertWorstCaseBudgetCashflowUnit(form);
 
                 var response = new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE).Ok();
-                return Created(String.Concat(Request.Path, "/", 0), response);
+                return NoContent();
             }
             catch (ServiceValidationExeption e)
             {
