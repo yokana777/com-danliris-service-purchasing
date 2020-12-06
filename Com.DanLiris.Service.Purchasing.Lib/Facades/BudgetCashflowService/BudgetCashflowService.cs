@@ -42,16 +42,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             });
         }
 
-        public async Task<int> CreateWorstCaseBudgetCashflowUnit(WorstCaseBudgetCashflowFormDto form)
+        public async Task<int> UpsertWorstCaseBudgetCashflowUnit(WorstCaseBudgetCashflowFormDto form)
         {
-            var model = new BudgetCashflowWorstCase(form.Date.AddHours(_identityService.TimezoneOffset), form.UnitId);
-            EntityExtension.FlagForCreate(model, _identityService.Username, UserAgent);
-            _dbContext.BudgetCashflowWorstCases.Add(model);
+            var month = form.Date.AddHours(_identityService.TimezoneOffset).Month;
+            var year = form.Date.AddHours(_identityService.TimezoneOffset).Year;
+            var model = _dbContext.BudgetCashflowWorstCases.FirstOrDefault(entity => entity.UnitId == form.UnitId && entity.Month == month && entity.Year == year);
+
+            if (model == null)
+            {
+                model = new BudgetCashflowWorstCase(form.Date.AddHours(_identityService.TimezoneOffset), form.UnitId);
+                EntityExtension.FlagForCreate(model, _identityService.Username, UserAgent);
+                _dbContext.BudgetCashflowWorstCases.Add(model);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            var items = _dbContext.BudgetCashflowWorstCaseItems.Where(entity => entity.BudgetCashflowWorstCaseId == model.Id);
+
+            foreach (var formItem in form.Items)
+            {
+                var existingItem = items.FirstOrDefault(item => item.CurrencyId == formItem.Currency.Id && item.LayoutOrder == formItem.LayoutOrder);
+
+                if (existingItem != null)
+                {
+                    existingItem.UpdateNominal(formItem.CurrencyNominal, formItem.Nominal);
+                    EntityExtension.FlagForUpdate(existingItem, _identityService.Username, UserAgent);
+                    _dbContext.BudgetCashflowWorstCaseItems.Update(existingItem);
+                }
+                else
+                {
+                    var item = new BudgetCashflowWorstCaseItem(formItem.LayoutOrder, formItem.Currency.Id, formItem.CurrencyNominal, formItem.Nominal, model.Id);
+                    EntityExtension.FlagForCreate(item, _identityService.Username, UserAgent);
+                    _dbContext.BudgetCashflowWorstCaseItems.Add(item);
+                }
+            }
             await _dbContext.SaveChangesAsync();
 
-            var items = form.Items.Select(item => new BudgetCashflowWorstCaseItem(item.LayoutOrder, item.Currency.Id, item.CurrencyNominal, item.Nominal, model.Id));
-            _dbContext.BudgetCashflowWorstCaseItems.AddRange(items);
-            await _dbContext.SaveChangesAsync();
+            //var model = new BudgetCashflowWorstCase(form.Date.AddHours(_identityService.TimezoneOffset), form.UnitId);
+            //EntityExtension.FlagForCreate(model, _identityService.Username, UserAgent);
+            //_dbContext.BudgetCashflowWorstCases.Add(model);
+            //await _dbContext.SaveChangesAsync();
+
+            //var items = form.Items.Select(item => new BudgetCashflowWorstCaseItem(item.LayoutOrder, item.Currency.Id, item.CurrencyNominal, item.Nominal, model.Id));
+            //_dbContext.BudgetCashflowWorstCaseItems.AddRange(items);
+            //await _dbContext.SaveChangesAsync();
             return model.Id;
         }
 
