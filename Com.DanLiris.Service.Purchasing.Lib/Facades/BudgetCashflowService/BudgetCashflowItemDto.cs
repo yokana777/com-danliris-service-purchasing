@@ -12,7 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             CurrencyNominal = currencyNominal;
             Nominal = nominal;
             LayoutOrder = layoutOrder;
-            LayoutName = layoutOrder.GetDisplayName();
+            LayoutName = layoutOrder.ToDescriptionString();
         }
 
         public BudgetCashflowItemDto(string currencyIdString, string currencyCode, double currencyRate, double total, BudgetCashflowCategoryLayoutOrder layoutOrder)
@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             }
 
             LayoutOrder = layoutOrder;
+            LayoutName = layoutOrder.ToDescriptionString();
         }
 
         public int Id { get; private set; }
