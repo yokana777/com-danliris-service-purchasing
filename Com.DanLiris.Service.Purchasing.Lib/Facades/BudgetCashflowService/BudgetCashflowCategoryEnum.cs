@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
@@ -89,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         OtherSalesCost,
         [Description("PPN Keluaran Extern")]
         GeneralAdministrativeExternalOutcomeVATCalculation,
-        [Description("Pakal (PPN, PPh, PBB, PNBP, dll)")]
+        [Description("Pajak (PPN, PPh, PBB, PNBP, dll)")]
         TaxCost,
         [Description("Beban Gaji Staff Kantor")]
         GeneralAdministrativeSalaryCost,
@@ -165,11 +166,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         CashInCompanyReserves,
         [Description("Mesin")]
         CashInLoanWithdrawalOthers,
+        [Description("")]
         CashOutInstallments,
+        [Description("")]
         CashOutBankInterest,
+        [Description("")]
         CashOutBankAdministrationFee,
+        [Description("")]
         CashOutAffiliates,
+        [Description("")]
         CashOutForexTrading,
+        [Description("")]
         CashOutOthers
+    }
+
+    // Display Friendly Name for enum
+    // source : https://www.codingame.com/playgrounds/2487/c---how-to-display-friendly-names-for-enumerations
+    public static class BudgetCashflowCategoryLayoutOrderEnumExtensions
+    {
+        public static string ToDescriptionString(this BudgetCashflowCategoryLayoutOrder me)
+        {
+            var enumType = me.GetType();
+            var memberInfo = enumType.GetMember(me.ToString());
+            if (memberInfo != null && memberInfo.Length > 0)
+            {
+                var _attr = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+                if (_attr != null && _attr.Count() > 0)
+                {
+                    return ((DescriptionAttribute)_attr.ElementAt(0)).Description;
+                }
+            }
+            return me.ToString();
+        }
     }
 }
