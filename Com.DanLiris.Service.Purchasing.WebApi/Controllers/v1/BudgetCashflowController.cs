@@ -87,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         {
             try
             {
+                VerifyUser();
                 _validateService.Validate(form);
 
                 var result = await _service.UpsertWorstCaseBudgetCashflowUnit(form);
