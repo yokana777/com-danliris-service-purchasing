@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     element.Key,
                     element.FirstOrDefault().CurrencyCode,
                     element.FirstOrDefault().CurrencyRate,
-                    element.FirstOrDefault().Total,
+                    element.Sum(s => s.Total),
                     layoutOrder
                     ))
                 .ToList();
