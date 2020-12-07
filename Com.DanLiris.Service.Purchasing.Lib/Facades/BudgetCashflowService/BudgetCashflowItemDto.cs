@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 {
@@ -11,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             CurrencyNominal = currencyNominal;
             Nominal = nominal;
             LayoutOrder = layoutOrder;
+            LayoutName = layoutOrder.GetDisplayName();
         }
 
         public BudgetCashflowItemDto(string currencyIdString, string currencyCode, double currencyRate, double total, BudgetCashflowCategoryLayoutOrder layoutOrder)
@@ -30,10 +32,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             LayoutOrder = layoutOrder;
         }
 
-        public int Id { get; internal set; }
-        public int CurrencyId { get; internal set; }
-        public double CurrencyNominal { get; internal set; }
-        public double Nominal { get; internal set; }
-        public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; internal set; }
+        public int Id { get; private set; }
+        public int CurrencyId { get; private set; }
+        public double CurrencyNominal { get; private set; }
+        public double Nominal { get; private set; }
+        public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; private set; }
+        public string LayoutName { get; private set; }
     }
 }
