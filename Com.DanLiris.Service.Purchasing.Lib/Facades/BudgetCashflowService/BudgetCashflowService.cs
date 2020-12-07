@@ -107,9 +107,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
         public List<BudgetCashflowItemDto> GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder layoutOrder, int unitId, DateTimeOffset dueDate)
         {
-            var result = GetDebtAndDispositionSummary(layoutOrder, unitId, dueDate);
+            var queryResult = GetDebtAndDispositionSummary(layoutOrder, unitId, dueDate);
 
-            return result
+            var result = queryResult
                 .GroupBy(element => element.CurrencyId)
                 .Select(element => new BudgetCashflowItemDto(
                     element.Key,
@@ -119,6 +119,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     layoutOrder
                     ))
                 .ToList();
+            if (result.Count <= 0)
+            {
+                result = new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, layoutOrder) };
+            }
+
+
+            return result;
         }
 
         private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(List<int> budgetingCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport)
