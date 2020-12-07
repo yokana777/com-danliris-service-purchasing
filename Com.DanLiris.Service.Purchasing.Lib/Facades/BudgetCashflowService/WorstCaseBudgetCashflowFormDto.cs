@@ -35,25 +35,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 {
                     itemError += "{";
 
-                    if (item.Currency == null || item.Currency.Id <= 0)
-                    {
-                        itemErrorCount++;
-                        itemError += "Currency: 'Mata Uang harus diisi', ";
-                    }
-                    else
-                    {
-                        if (item.Currency.Code != "IDR" && item.CurrencyNominal <= 0)
-                        {
-                            itemErrorCount++;
-                            itemError += "CurrencyNominal: 'Nominal Valas harus lebih dari 0', ";
-                        }
-                    }
+                    //if (item.Currency == null || item.Currency.Id <= 0)
+                    //{
+                    //    itemErrorCount++;
+                    //    itemError += "Currency: 'Mata Uang harus diisi', ";
+                    //}
+                    //else
+                    //{
+                    //    if (item.Currency.Code != "IDR" && item.CurrencyNominal <= 0)
+                    //    {
+                    //        itemErrorCount++;
+                    //        itemError += "CurrencyNominal: 'Nominal Valas harus lebih dari 0', ";
+                    //    }
+                    //}
 
-                    if (item.Nominal <= 0)
-                    {
-                        itemErrorCount++;
-                        itemError += "Nominal: 'Nominal harus lebih dari 0', ";
-                    }
+                    //if (item.Nominal <= 0)
+                    //{
+                    //    itemErrorCount++;
+                    //    itemError += "Nominal: 'Nominal harus lebih dari 0', ";
+                    //}
 
                     itemError += "}, ";
                 }
