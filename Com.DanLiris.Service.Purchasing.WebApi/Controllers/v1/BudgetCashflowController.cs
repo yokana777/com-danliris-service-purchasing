@@ -106,5 +106,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, response);
             }
         }
+
+        [HttpGet("division")]
+        public IActionResult GetBudgetCashflowByDivision([FromQuery] BudgetCashflowCategoryLayoutOrder layoutOrder, [FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetBudgetCashflowDivision(layoutOrder, divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
     }
 }
