@@ -22,11 +22,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             if (currencyCode != "IDR")
             {
                 CurrencyNominal = total;
-                Nominal = total * currencyRate;
+                ActualNominal = total * currencyRate;
             }
             else
             {
                 Nominal = total;
+                ActualNominal = total;
             }
 
             LayoutOrder = layoutOrder;
@@ -36,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         public int Id { get; private set; }
         public int CurrencyId { get; private set; }
         public double CurrencyNominal { get; private set; }
+        public double ActualNominal { get; private set; }
         public double Nominal { get; private set; }
         public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; private set; }
         public string LayoutName { get; private set; }
