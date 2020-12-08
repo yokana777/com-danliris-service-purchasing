@@ -28,6 +28,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         ImportedRawMaterial,
         [Description("Bahan Baku Lokal")]
         LocalRawMaterial,
+        [Description("Biaya Tenaga Kerja Langsung/U. Karyawan")]
+        DirectLaborCostEmployeeFee,
         [Description("Bahan Pembantu")]
         AuxiliaryMaterial,
         [Description("SubCount")]
@@ -158,25 +160,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         ProjectPurchase,
         [Description("Desposito")]
         CashOutDesposit,
+        [Description("Loan Withdrawal")]
+        CashInLoanWithdrawal,
         [Description("Afiliasi")]
         CashInAffiliates,
         [Description("Jual Beli Valas")]
         CashInForexTrading,
         [Description("Cadangan Perusahaan")]
         CashInCompanyReserves,
-        [Description("Mesin")]
+        [Description("Lain-Lain (Klaim Ass)/ Tab THR/VB Import/Giro/DLL")]
         CashInLoanWithdrawalOthers,
-        [Description("")]
+        [Description("Angsuran Kredit")]
         CashOutInstallments,
-        [Description("")]
+        [Description("Biaya Bunga Bank")]
         CashOutBankInterest,
-        [Description("")]
+        [Description("Biaya Adm Bank")]
         CashOutBankAdministrationFee,
-        [Description("")]
+        [Description("Afiliasi (Psr, Group)")]
         CashOutAffiliates,
-        [Description("")]
+        [Description("Jual Beli Valas")]
         CashOutForexTrading,
-        [Description("")]
+        [Description("Lain-Lain/Efrata/B Mandiri/MD/Cad THR")]
         CashOutOthers
     }
 
