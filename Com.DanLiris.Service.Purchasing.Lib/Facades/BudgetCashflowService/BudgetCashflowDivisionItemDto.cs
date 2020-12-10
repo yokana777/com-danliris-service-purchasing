@@ -16,11 +16,12 @@
             if (currencyCode != "IDR")
             {
                 CurrencyNominal = total;
-                Nominal = total * currencyRate;
+                ActualNominal = total * currencyRate;
             }
             else
             {
                 Nominal = total;
+                ActualNominal = total;
             }
 
             LayoutOrder = layoutOrder;
@@ -30,6 +31,7 @@
         public int CurrencyId { get; private set; }
         public double CurrencyNominal { get; private set; }
         public double Nominal { get; private set; }
+        public double ActualNominal { get; private set; }
         public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; private set; }
         public string LayoutName { get; private set; }
         public int UnitId { get; private set; }
