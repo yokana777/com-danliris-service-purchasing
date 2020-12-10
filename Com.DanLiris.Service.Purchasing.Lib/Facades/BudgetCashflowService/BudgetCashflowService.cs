@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             foreach (var formItem in form.Items)
             {
                 var currencyId = formItem.Currency != null ? formItem.Currency.Id : 0;
-                var existingItem = items.FirstOrDefault(item => item.CurrencyId == currencyId && item.LayoutOrder == formItem.LayoutOrder);
+                var existingItem = items.FirstOrDefault(item => item.CurrencyId == currencyId && item.LayoutOrder == formItem.LayoutOrder && item.BudgetCashflowWorstCaseId == model.Id);
 
                 if (existingItem != null)
                 {
