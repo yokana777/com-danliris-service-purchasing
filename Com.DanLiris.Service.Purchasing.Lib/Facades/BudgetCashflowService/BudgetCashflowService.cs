@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 MissingMemberHandling = MissingMemberHandling.Ignore
             });
 
-            var jsonCategories = cache.GetString(MemoryCacheConstant.BudgetingCategories);
+            var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
             _categories = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonCategories, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
