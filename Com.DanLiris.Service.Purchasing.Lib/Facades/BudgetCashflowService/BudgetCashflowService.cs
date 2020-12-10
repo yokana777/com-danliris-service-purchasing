@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             return result;
         }
 
-        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(List<int> budgetingCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId)
+        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(List<int> budgetingCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId, bool isRawMaterial)
         {
             var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
             var purchasingDispositionDetails = _dbContext.PurchasingDispositionDetails.AsQueryable();
@@ -173,13 +173,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                             UseVat = pdItemEPO.UseVat
                         };
 
-            query = query.Where(entity => !entity.IsPaid && entity.DueDate <= dueDate && entity.IsImport == isImport);
+            query = query.Where(entity => !entity.IsPaid && entity.DueDate <= dueDate);
+
+            if (isRawMaterial)
+            {
+                query = query.Where(entity => entity.IsImport == isImport);
+            }
 
             if (budgetingCategoryIds.Count > 0)
             {
                 var categoryIds = _categories.Where(element => budgetingCategoryIds.Contains(element.BudgetingCategoryId)).Select(element => element.Id.ToString()).ToList();
 
-                query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
+                if (categoryIds.Count > 0)
+                {
+                    query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
+                }
             }
 
             if (unitId > 0)
@@ -195,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             return query;
         }
 
-        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(List<int> budgetingCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId)
+        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(List<int> budgetingCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId, bool isRawMaterial)
         {
             var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.AsQueryable();
             var unitReceiptNotes = _dbContext.UnitReceiptNotes.AsQueryable();
@@ -247,13 +255,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                             UseVat = urnEPO.UseVat
                         };
 
-            query = query.Where(entity => !entity.IsPaid && entity.DueDate <= dueDate && entity.IsImport == isImport);
+            query = query.Where(entity => !entity.IsPaid && entity.DueDate <= dueDate);
+
+            if (isRawMaterial)
+            {
+                query = query.Where(entity => entity.IsImport == isImport);
+            }
 
             if (budgetingCategoryIds.Count > 0)
             {
                 var categoryIds = _categories.Where(element => budgetingCategoryIds.Contains(element.BudgetingCategoryId)).Select(element => element.Id.ToString()).ToList();
 
-                query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
+                if (categoryIds.Count > 0)
+                {
+                    query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
+                }
             }
 
             if (unitId > 0)
@@ -269,10 +285,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             return query;
         }
 
-        private List<DebtAndDispositionSummaryDto> GetDebtDispositionSummary(List<int> budgetCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId)
+        private List<DebtAndDispositionSummaryDto> GetDebtDispositionSummary(List<int> budgetCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId, bool isRawMaterial)
         {
-            var debtQuery = GetDebtQuery(budgetCategoryIds, unitId, dueDate, isImport, divisionId);
-            var dispositionQuery = GetDispositionQuery(budgetCategoryIds, unitId, dueDate, isImport, divisionId);
+            var debtQuery = GetDebtQuery(budgetCategoryIds, unitId, dueDate, isImport, divisionId, isRawMaterial);
+            var dispositionQuery = GetDispositionQuery(budgetCategoryIds, unitId, dueDate, isImport, divisionId, isRawMaterial);
 
             var debts = debtQuery.ToList();
             var dispositions = dispositionQuery.ToList();
@@ -356,75 +372,75 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 case BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial:
                     budgetingCategoryNames = new List<string>() { "BAHAN BAKU" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, true, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, true, divisionId, true);
                 case BudgetCashflowCategoryLayoutOrder.LocalRawMaterial:
                     budgetingCategoryNames = new List<string>() { "BAHAN BAKU" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, true);
                 case BudgetCashflowCategoryLayoutOrder.AuxiliaryMaterial:
                     budgetingCategoryNames = new List<string>() { "BAHAN PEMBANTU" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.Embalage:
                     budgetingCategoryNames = new List<string>() { "EMBALAGE" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.Coal:
                     budgetingCategoryNames = new List<string>() { "BATU BARA" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.FuelOil:
                     budgetingCategoryNames = new List<string>() { "BBM & PELUMAS" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.SparePartsMachineMaintenance:
                     budgetingCategoryNames = new List<string>() { "SPARE PART & PEMELIHARAAN MESIN" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeBuildingMaintenance:
                     budgetingCategoryNames = new List<string>() { "PEMELIHARAAN GEDUNG" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeStationary:
                     budgetingCategoryNames = new List<string>() { "ALAT TULIS" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCorporateHousehold:
                     budgetingCategoryNames = new List<string>() { "URTP" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeVehicleCost:
                     budgetingCategoryNames = new List<string>() { "KENDARAAN (BEBAN)" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeOthersCost:
                     budgetingCategoryNames = new List<string>() { "LAIN-LAIN" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.MachineryPurchase:
                     budgetingCategoryNames = new List<string>() { "MESIN" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.VehiclePurchase:
                     budgetingCategoryNames = new List<string>() { "KENDARAAN" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.InventoryPurchase:
                     budgetingCategoryNames = new List<string>() { "INVENTARIS" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.ComputerToolsPurchase:
                     budgetingCategoryNames = new List<string>() { "ALAT KOMPUTER" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase:
                     budgetingCategoryNames = new List<string>() { "ALAT DAN BAHAN PRODUKSI" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.ProjectPurchase:
                     budgetingCategoryNames = new List<string>() { "PROYEK" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId);
+                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 default:
                     return result;
             }
