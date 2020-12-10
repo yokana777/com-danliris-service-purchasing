@@ -20,6 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseMode
             CurrencyNominal = currencyNominal;
             Nominal = nominal;
             BudgetCashflowWorstCaseId = budgetCashflowWorstCaseId;
+            Year = year;
+            Month = month;
+            UnitId = unitId;
         }
 
         public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; private set; }
@@ -27,6 +30,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseMode
         public double CurrencyNominal { get; private set; }
         public double Nominal { get; private set; }
         public int BudgetCashflowWorstCaseId { get; private set; }
+        public int Year { get; private set; }
+        public int Month { get; private set; }
+        public int UnitId { get; private set; }
 
         public void UpdateNominal(double currencyNominal, double nominal)
         {
