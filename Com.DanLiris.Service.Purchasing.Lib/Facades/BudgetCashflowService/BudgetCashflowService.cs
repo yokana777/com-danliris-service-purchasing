@@ -430,7 +430,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             }
         }
 
-        public List<BudgetCashflowDivisionItemDto> GetBudgetCashflowDivision(BudgetCashflowCategoryLayoutOrder layoutOrder, int divisionId, DateTimeOffset dueDate)
+        public BudgetCashflowDivisionDto GetBudgetCashflowDivision(BudgetCashflowCategoryLayoutOrder layoutOrder, int divisionId, DateTimeOffset dueDate)
         {
             var queryResult = GetDebtAndDispositionSummary(layoutOrder, 0, dueDate, divisionId);
 
@@ -452,8 +452,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 result = new List<BudgetCashflowDivisionItemDto>() { new BudgetCashflowDivisionItemDto("0", "", 0, "0", "0", 0, layoutOrder) };
             }
 
+            var unitIds = result.Where(element => element.UnitId != 0).Select(element => element.UnitId).Distinct().ToList();
 
-            return result;
+
+            return new BudgetCashflowDivisionDto(unitIds, result);
         }
     }
 }
