@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201204081902_BudgetCashflowWorstCase")]
+    partial class BudgetCashflowWorstCase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -460,8 +461,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<double>("ActualNominal");
-
                     b.Property<int>("BudgetCashflowWorstCaseId");
 
                     b.Property<string>("CreatedAgent")
@@ -503,8 +502,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("LayoutOrder");
 
                     b.Property<double>("Nominal");
-
-                    b.Property<int>("UnitId");
 
                     b.HasKey("Id");
 
