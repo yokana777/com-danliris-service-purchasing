@@ -513,5 +513,196 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
             return new BudgetCashflowDivisionDto(unitIds, result);
         }
+
+        public List<BudgetCashflowItemDto> GetCashInOperatingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            return new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0) };
+        }
+
+        public List<BudgetCashflowItemDto> GetCashOutOperatingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            var importRawMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial, unitId, dueDate);
+            var localRawMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.LocalRawMaterial, unitId, dueDate);
+            var auxiliaryMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.AuxiliaryMaterial, unitId, dueDate);
+            var embalage = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.Embalage, unitId, dueDate);
+            var coal = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.Coal, unitId, dueDate);
+            var fuelOil = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.FuelOil, unitId, dueDate);
+            var sparePart = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.SparePartsMachineMaintenance, unitId, dueDate);
+            var buildingMaintenance = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeBuildingMaintenance, unitId, dueDate);
+            var stationary = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeStationary, unitId, dueDate);
+            var corporateHousehold = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCorporateHousehold, unitId, dueDate);
+            var vehicleCost = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeVehicleCost, unitId, dueDate);
+            var othersCost = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeOthersCost, unitId, dueDate);
+
+            var worstCases = GetBudgetCashflowWorstCase(dueDate, unitId);
+
+            var bestCases = new List<BudgetCashflowItemDto>();
+            bestCases.AddRange(importRawMaterial);
+            bestCases.AddRange(localRawMaterial);
+            bestCases.AddRange(auxiliaryMaterial);
+            bestCases.AddRange(embalage);
+            bestCases.AddRange(coal);
+            bestCases.AddRange(fuelOil);
+            bestCases.AddRange(sparePart);
+            bestCases.AddRange(buildingMaintenance);
+            bestCases.AddRange(stationary);
+            bestCases.AddRange(corporateHousehold);
+            bestCases.AddRange(vehicleCost);
+            bestCases.AddRange(othersCost);
+
+            bestCases = bestCases
+                .GroupBy(element => new { element.CurrencyId, element.LayoutOrder })
+                .Select(element => new BudgetCashflowItemDto(
+                    element.Key.CurrencyId,
+                    0,
+                    0,
+                    0,
+                    element.Sum(s => s.CurrencyNominal),
+                    element.Sum(s => s.Nominal),
+                    element.Sum(s => s.ActualNominal),
+                    element.Key.LayoutOrder
+                    ))
+                .ToList();
+
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (var bestCase in bestCases)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == bestCase.CurrencyId && element.LayoutOrder == bestCase.LayoutOrder);
+                if (worstCase != null)
+                {
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, worstCase.CurrencyNominal, worstCase.Nominal, worstCase.ActualNominal, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                }
+                else
+                {
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, 0, 0, 0, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                }
+            }
+
+            return result;
+        }
+
+        public List<BudgetCashflowItemDto> GetDiffOperatingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            var cashOutItems = GetCashOutOperatingActivitiesByUnit(unitId, dueDate);
+            var cashInItems = GetCashInOperatingActivitiesByUnit(unitId, dueDate);
+
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (var cashOutItem in cashOutItems)
+            {
+                var cashInItem = cashInItems.FirstOrDefault(element => element.CurrencyId == cashOutItem.CurrencyId);
+                if (cashInItem == null)
+                    cashInItem = new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0);
+
+                result.Add(new BudgetCashflowItemDto(
+                    cashOutItem.CurrencyId,
+                    cashInItem.CurrencyNominal - cashOutItem.CurrencyNominal,
+                    cashInItem.Nominal - cashOutItem.Nominal,
+                    cashInItem.ActualNominal - cashOutItem.ActualNominal,
+                    cashInItem.BestCaseCurrencyNominal - cashOutItem.BestCaseCurrencyNominal,
+                    cashInItem.BestCaseNominal - cashOutItem.BestCaseNominal,
+                    cashInItem.BestCaseActualNominal - cashOutItem.BestCaseActualNominal,
+                    cashOutItem.LayoutOrder
+                    ));
+            }
+
+            return result;
+        }
+
+        public List<BudgetCashflowItemDto> GetCashInInvestingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            return new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0) };
+        }
+
+        public List<BudgetCashflowItemDto> GetCashOutInvestingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            var machine = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.MachineryPurchase, unitId, dueDate);
+            var vehicle = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.VehiclePurchase, unitId, dueDate);
+            var inventory = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.InventoryPurchase, unitId, dueDate);
+            var computerTools = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ComputerToolsPurchase, unitId, dueDate);
+            var productionToolsMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase, unitId, dueDate);
+            var project = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProjectPurchase, unitId, dueDate);
+
+            var worstCases = GetBudgetCashflowWorstCase(dueDate, unitId);
+
+            var bestCases = new List<BudgetCashflowItemDto>();
+            bestCases.AddRange(machine);
+            bestCases.AddRange(vehicle);
+            bestCases.AddRange(inventory);
+            bestCases.AddRange(computerTools);
+            bestCases.AddRange(productionToolsMaterial);
+            bestCases.AddRange(project);
+
+            bestCases = bestCases
+                .GroupBy(element => new { element.CurrencyId, element.LayoutOrder })
+                .Select(element => new BudgetCashflowItemDto(
+                    element.Key.CurrencyId,
+                    0,
+                    0,
+                    0,
+                    element.Sum(s => s.CurrencyNominal),
+                    element.Sum(s => s.Nominal),
+                    element.Sum(s => s.ActualNominal),
+                    element.Key.LayoutOrder
+                    ))
+                .ToList();
+
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (var bestCase in bestCases)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == bestCase.CurrencyId && element.LayoutOrder == bestCase.LayoutOrder);
+                if (worstCase != null)
+                {
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, worstCase.CurrencyNominal, worstCase.Nominal, worstCase.ActualNominal, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                }
+                else
+                {
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, 0, 0, 0, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                }
+            }
+
+            return result;
+        }
+
+        public List<BudgetCashflowItemDto> GetDiffInvestingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            var cashOutItems = GetCashOutInvestingActivitiesByUnit(unitId, dueDate);
+            var cashInItems = GetCashInInvestingActivitiesByUnit(unitId, dueDate);
+
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (var cashOutItem in cashOutItems)
+            {
+                var cashInItem = cashInItems.FirstOrDefault(element => element.CurrencyId == cashOutItem.CurrencyId);
+                if (cashInItem == null)
+                    cashInItem = new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0);
+
+                result.Add(new BudgetCashflowItemDto(
+                    cashOutItem.CurrencyId,
+                    cashInItem.CurrencyNominal - cashOutItem.CurrencyNominal,
+                    cashInItem.Nominal - cashOutItem.Nominal,
+                    cashInItem.ActualNominal - cashOutItem.ActualNominal,
+                    cashInItem.BestCaseCurrencyNominal - cashOutItem.BestCaseCurrencyNominal,
+                    cashInItem.BestCaseNominal - cashOutItem.BestCaseNominal,
+                    cashInItem.BestCaseActualNominal - cashOutItem.BestCaseActualNominal,
+                    cashOutItem.LayoutOrder
+                    ));
+            }
+
+            return result;
+        }
+
+        public List<BudgetCashflowItemDto> GetCashInFinancingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            return new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0) };
+        }
+
+        public List<BudgetCashflowItemDto> GetCashOutFinancingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            return new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0) };
+        }
+
+        public List<BudgetCashflowItemDto> GetDiffFinancingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
+        {
+            return new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0, 0, 0) };
+        }
     }
 }

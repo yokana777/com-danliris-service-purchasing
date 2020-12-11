@@ -35,10 +35,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             LayoutName = layoutOrder.ToDescriptionString();
         }
 
+        public BudgetCashflowItemDto(int currencyId, double currencyNominal, double nominal, double actualNominal, double bestCaseCurrencyNominal, double bestCaseNominal, double bestCaseActualNominal, BudgetCashflowCategoryLayoutOrder layoutOrder)
+        {
+            CurrencyId = currencyId;
+            CurrencyNominal = currencyNominal;
+            Nominal = nominal;
+            ActualNominal = actualNominal;
+            BestCaseCurrencyNominal = bestCaseCurrencyNominal;
+            BestCaseNominal = bestCaseNominal;
+            BestCaseActualNominal = bestCaseActualNominal;
+            LayoutOrder = layoutOrder;
+        }
+
         public int Id { get; private set; }
         public int CurrencyId { get; private set; }
         public double CurrencyNominal { get; private set; }
         public double ActualNominal { get; private set; }
+        public double BestCaseCurrencyNominal { get; private set; }
+        public double BestCaseNominal { get; private set; }
+        public double BestCaseActualNominal { get; private set; }
         public double Nominal { get; private set; }
         public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; private set; }
         public string LayoutName { get; private set; }
