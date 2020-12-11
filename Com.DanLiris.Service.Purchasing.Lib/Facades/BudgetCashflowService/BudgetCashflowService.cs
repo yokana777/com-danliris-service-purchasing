@@ -489,7 +489,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 var modelIds = models.Select(model => model.Id).ToList();
                 result = _dbContext
                     .BudgetCashflowWorstCaseItems
-                    .Where(entity => modelIds.Contains(entity.BudgetCashflowWorstCaseId))
+                    .Where(entity => modelIds.Contains(entity.BudgetCashflowWorstCaseId) && entity.LayoutOrder == layoutOrder)
                     .GroupBy(element => new { element.CurrencyId, element.UnitId })
                     .Select(element => new BudgetCashflowDivisionItemDto(
                         element.Key.CurrencyId,
