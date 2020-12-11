@@ -6,7 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 {
     public class WorstCaseBudgetCashflowFormDto : IValidatableObject
     {
-        public DateTimeOffset Date { get; set; }
+        public DateTimeOffset DueDate { get; set; }
         public int UnitId { get; set; }
         public ICollection<WorstCaseBudgetCashflowItemFormDto> Items { get; set; }
 
@@ -17,7 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 yield return new ValidationResult("Unit harus diisi", new List<string> { "Unit" });
             }
 
-            if (Date == null)
+            if (DueDate == null)
             {
                 yield return new ValidationResult("Tanggal harus diisi", new List<string> { "Date" });
             }

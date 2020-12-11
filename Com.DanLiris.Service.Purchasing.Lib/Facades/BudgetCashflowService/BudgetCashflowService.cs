@@ -51,13 +51,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
         public async Task<int> UpsertWorstCaseBudgetCashflowUnit(WorstCaseBudgetCashflowFormDto form)
         {
-            var month = form.Date.AddHours(_identityService.TimezoneOffset).Month;
-            var year = form.Date.AddHours(_identityService.TimezoneOffset).Year;
+            var month = form.DueDate.AddHours(_identityService.TimezoneOffset).Month;
+            var year = form.DueDate.AddHours(_identityService.TimezoneOffset).Year;
             var model = _dbContext.BudgetCashflowWorstCases.FirstOrDefault(entity => entity.UnitId == form.UnitId && entity.Month == month && entity.Year == year);
 
             if (model == null)
             {
-                model = new BudgetCashflowWorstCase(form.Date.AddHours(_identityService.TimezoneOffset), form.UnitId);
+                model = new BudgetCashflowWorstCase(form.DueDate.AddHours(_identityService.TimezoneOffset), form.UnitId);
                 EntityExtension.FlagForCreate(model, _identityService.Username, UserAgent);
                 _dbContext.BudgetCashflowWorstCases.Add(model);
                 await _dbContext.SaveChangesAsync();
@@ -487,7 +487,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             if (models.Count > 0)
             {
                 var modelIds = models.Select(model => model.Id).ToList();
-                var tempResult = _dbContext
+                result = _dbContext
                     .BudgetCashflowWorstCaseItems
                     .Where(entity => modelIds.Contains(entity.BudgetCashflowWorstCaseId))
                     .GroupBy(element => new { element.CurrencyId, element.UnitId })
@@ -502,6 +502,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     .OrderBy(entity => entity.LayoutOrder)
                     .ToList();
             }
+
+            if (result.Count <= 0)
+            {
+                result = new List<BudgetCashflowDivisionItemDto>() { new BudgetCashflowDivisionItemDto("0", "", 0, "0", "0", 0, layoutOrder) };
+            }
+
             return new BudgetCashflowDivisionDto(unitIds, result);
         }
     }
