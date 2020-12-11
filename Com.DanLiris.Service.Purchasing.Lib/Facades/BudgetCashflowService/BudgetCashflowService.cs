@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         private readonly IdentityService _identityService;
         private readonly List<BudgetingCategoryDto> _budgetingCategories;
         private readonly List<CategoryDto> _categories;
+        private readonly List<UnitDto> _units;
 
         public BudgetCashflowService(IServiceProvider serviceProvider)
         {
@@ -37,6 +38,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
             var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
             _categories = JsonConvert.DeserializeObject<List<CategoryDto>>(jsonCategories, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
+
+            var jsonUnits = cache.GetString(MemoryCacheConstant.Units);
+            _units = JsonConvert.DeserializeObject<List<UnitDto>>(jsonUnits, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
             });
@@ -65,13 +72,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
                 if (existingItem != null)
                 {
-                    existingItem.UpdateNominal(formItem.CurrencyNominal, formItem.Nominal);
+                    existingItem.UpdateNominal(formItem.CurrencyNominal, formItem.Nominal, formItem.ActualNominal);
                     EntityExtension.FlagForUpdate(existingItem, _identityService.Username, UserAgent);
                     _dbContext.BudgetCashflowWorstCaseItems.Update(existingItem);
                 }
                 else
                 {
-                    var item = new BudgetCashflowWorstCaseItem(formItem.LayoutOrder, currencyId, formItem.CurrencyNominal, formItem.Nominal, model.Id);
+                    var item = new BudgetCashflowWorstCaseItem(formItem.LayoutOrder, currencyId, formItem.CurrencyNominal, formItem.Nominal, formItem.ActualNominal, model.Id, form.UnitId);
                     EntityExtension.FlagForCreate(item, _identityService.Username, UserAgent);
                     _dbContext.BudgetCashflowWorstCaseItems.Add(item);
                 }
@@ -100,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     .BudgetCashflowWorstCaseItems
                     .Where(entity => entity.BudgetCashflowWorstCaseId == model.Id)
                     .OrderBy(entity => entity.LayoutOrder)
-                    .Select(entity => new BudgetCashflowItemDto(entity.Id, entity.CurrencyId, entity.CurrencyNominal, entity.Nominal, entity.LayoutOrder))
+                    .Select(entity => new BudgetCashflowItemDto(entity.Id, entity.CurrencyId, entity.CurrencyNominal, entity.Nominal, entity.ActualNominal, entity.LayoutOrder))
                     .ToList();
             }
             return result;
@@ -122,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 .ToList();
             if (result.Count <= 0)
             {
-                result = new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, layoutOrder) };
+                result = new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, layoutOrder) };
             }
 
 
@@ -448,29 +455,53 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
         public BudgetCashflowDivisionDto GetBudgetCashflowDivision(BudgetCashflowCategoryLayoutOrder layoutOrder, int divisionId, DateTimeOffset dueDate)
         {
-            var queryResult = GetDebtAndDispositionSummary(layoutOrder, 0, dueDate, divisionId);
+            //var queryResult = GetDebtAndDispositionSummary(layoutOrder, 0, dueDate, divisionId);
 
-            var result = queryResult
-                .GroupBy(element => new { element.CurrencyId, element.UnitId })
-                .Select(element => new BudgetCashflowDivisionItemDto(
-                    element.Key.CurrencyId,
-                    element.FirstOrDefault().CurrencyCode,
-                    element.FirstOrDefault().CurrencyRate,
-                    element.FirstOrDefault().DivisionId,
-                    element.Key.UnitId,
-                    element.Sum(s => s.Total),
-                    layoutOrder
-                    ))
-                .ToList();
+            //var result = queryResult
+            //    .GroupBy(element => new { element.CurrencyId, element.UnitId })
+            //    .Select(element => new BudgetCashflowDivisionItemDto(
+            //        element.Key.CurrencyId,
+            //        element.FirstOrDefault().CurrencyCode,
+            //        element.FirstOrDefault().CurrencyRate,
+            //        element.FirstOrDefault().DivisionId,
+            //        element.Key.UnitId,
+            //        element.Sum(s => s.Total),
+            //        layoutOrder
+            //        ))
+            //    .ToList();
 
-            if (result.Count <= 0)
+            //if (result.Count <= 0)
+            //{
+            //    result = new List<BudgetCashflowDivisionItemDto>() { new BudgetCashflowDivisionItemDto("0", "", 0, "0", "0", 0, layoutOrder) };
+            //}
+
+            //var unitIds = result.Where(element => element.UnitId != 0).Select(element => element.UnitId).Distinct().ToList();
+
+
+            //return new BudgetCashflowDivisionDto(unitIds, result);
+
+            var unitIds = _units.Where(element => element.DivisionId == divisionId).Select(element => element.Id).ToList();
+            var models = _dbContext.BudgetCashflowWorstCases.Where(entity => entity.Year == dueDate.AddMonths(1).Year && entity.Month == dueDate.AddMonths(1).Month && unitIds.Contains(entity.UnitId)).ToList();
+
+            var result = new List<BudgetCashflowDivisionItemDto>();
+            if (models.Count > 0)
             {
-                result = new List<BudgetCashflowDivisionItemDto>() { new BudgetCashflowDivisionItemDto("0", "", 0, "0", "0", 0, layoutOrder) };
+                var modelIds = models.Select(model => model.Id).ToList();
+                var tempResult = _dbContext
+                    .BudgetCashflowWorstCaseItems
+                    .Where(entity => modelIds.Contains(entity.BudgetCashflowWorstCaseId))
+                    .GroupBy(element => new { element.CurrencyId, element.UnitId })
+                    .Select(element => new BudgetCashflowDivisionItemDto(
+                        element.Key.CurrencyId,
+                        divisionId,
+                        element.Key.UnitId,
+                        element.Sum(s => s.Nominal),
+                        element.Sum(s => s.CurrencyNominal),
+                        element.Sum(s => s.ActualNominal),
+                        layoutOrder))
+                    .OrderBy(entity => entity.LayoutOrder)
+                    .ToList();
             }
-
-            var unitIds = result.Where(element => element.UnitId != 0).Select(element => element.UnitId).Distinct().ToList();
-
-
             return new BudgetCashflowDivisionDto(unitIds, result);
         }
     }
