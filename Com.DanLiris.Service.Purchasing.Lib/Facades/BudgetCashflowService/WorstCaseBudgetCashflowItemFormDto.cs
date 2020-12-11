@@ -6,5 +6,6 @@
         public CurrencyDto Currency { get; set; }
         public double CurrencyNominal { get; set; }
         public double Nominal { get; set; }
+        public double ActualNominal { get; set; }
     }
 }

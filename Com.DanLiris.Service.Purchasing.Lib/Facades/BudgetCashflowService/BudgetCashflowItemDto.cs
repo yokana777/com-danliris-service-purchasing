@@ -5,12 +5,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 {
     public class BudgetCashflowItemDto
     {
-        public BudgetCashflowItemDto(int id, int currencyId, double currencyNominal, double nominal, BudgetCashflowCategoryLayoutOrder layoutOrder)
+        public BudgetCashflowItemDto(int id, int currencyId, double currencyNominal, double nominal, double actualNominal, BudgetCashflowCategoryLayoutOrder layoutOrder)
         {
             Id = id;
             CurrencyId = currencyId;
             CurrencyNominal = currencyNominal;
             Nominal = nominal;
+            ActualNominal = actualNominal;
             LayoutOrder = layoutOrder;
             LayoutName = layoutOrder.ToDescriptionString();
         }
