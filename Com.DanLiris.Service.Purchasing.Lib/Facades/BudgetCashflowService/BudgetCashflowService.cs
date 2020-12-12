@@ -551,30 +551,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             bestCases.AddRange(othersCost);
 
             bestCases = bestCases
-                .GroupBy(element => new { element.CurrencyId, element.LayoutOrder })
+                .GroupBy(element => element.CurrencyId)
                 .Select(element => new BudgetCashflowItemDto(
-                    element.Key.CurrencyId,
+                    element.Key,
                     0,
                     0,
                     0,
                     element.Sum(s => s.CurrencyNominal),
                     element.Sum(s => s.Nominal),
                     element.Sum(s => s.ActualNominal),
-                    element.Key.LayoutOrder
+                    0
+                    ))
+                .ToList();
+
+            worstCases = worstCases
+                .GroupBy(element => element.CurrencyId)
+                .Select(element => new BudgetCashflowItemDto(
+                    element.Key,
+                    element.Sum(s => s.CurrencyNominal),
+                    element.Sum(s => s.Nominal),
+                    element.Sum(s => s.ActualNominal),
+                    0,
+                    0,
+                    0,
+                    0
                     ))
                 .ToList();
 
             var result = new List<BudgetCashflowItemDto>();
             foreach (var bestCase in bestCases)
             {
-                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == bestCase.CurrencyId && element.LayoutOrder == bestCase.LayoutOrder);
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == bestCase.CurrencyId);
                 if (worstCase != null)
                 {
-                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, worstCase.CurrencyNominal, worstCase.Nominal, worstCase.ActualNominal, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, worstCase.CurrencyNominal, worstCase.Nominal, worstCase.ActualNominal, bestCase.BestCaseCurrencyNominal, bestCase.BestCaseNominal, bestCase.BestCaseActualNominal, 0));
                 }
                 else
                 {
-                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, 0, 0, 0, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, 0, 0, 0, bestCase.BestCaseCurrencyNominal, bestCase.BestCaseNominal, bestCase.BestCaseActualNominal, 0));
                 }
             }
 
@@ -633,30 +647,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             bestCases.AddRange(project);
 
             bestCases = bestCases
-                .GroupBy(element => new { element.CurrencyId, element.LayoutOrder })
+                .GroupBy(element => element.CurrencyId)
                 .Select(element => new BudgetCashflowItemDto(
-                    element.Key.CurrencyId,
+                    element.Key,
                     0,
                     0,
                     0,
                     element.Sum(s => s.CurrencyNominal),
                     element.Sum(s => s.Nominal),
                     element.Sum(s => s.ActualNominal),
-                    element.Key.LayoutOrder
+                    0
+                    ))
+                .ToList();
+
+            worstCases = worstCases
+                .GroupBy(element => element.CurrencyId)
+                .Select(element => new BudgetCashflowItemDto(
+                    element.Key,
+                    element.Sum(s => s.CurrencyNominal),
+                    element.Sum(s => s.Nominal),
+                    element.Sum(s => s.ActualNominal),
+                    0,
+                    0,
+                    0,
+                    0
                     ))
                 .ToList();
 
             var result = new List<BudgetCashflowItemDto>();
             foreach (var bestCase in bestCases)
             {
-                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == bestCase.CurrencyId && element.LayoutOrder == bestCase.LayoutOrder);
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == bestCase.CurrencyId);
                 if (worstCase != null)
                 {
-                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, worstCase.CurrencyNominal, worstCase.Nominal, worstCase.ActualNominal, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, worstCase.CurrencyNominal, worstCase.Nominal, worstCase.ActualNominal, bestCase.BestCaseCurrencyNominal, bestCase.BestCaseNominal, bestCase.BestCaseActualNominal, 0));
                 }
                 else
                 {
-                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, 0, 0, 0, bestCase.CurrencyNominal, bestCase.Nominal, bestCase.ActualNominal, bestCase.LayoutOrder));
+                    result.Add(new BudgetCashflowItemDto(bestCase.CurrencyId, 0, 0, 0, bestCase.BestCaseCurrencyNominal, bestCase.BestCaseNominal, bestCase.BestCaseActualNominal, 0));
                 }
             }
 
