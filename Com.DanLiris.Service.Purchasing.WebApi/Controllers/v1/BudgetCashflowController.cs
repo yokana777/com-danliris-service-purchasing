@@ -350,5 +350,204 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
             }
         }
+
+        [HttpGet("division/cash-in-operational")]
+        public IActionResult GetDivisionCashInOperational([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetCashInOperatingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/cash-out-operational")]
+        public IActionResult GetDivisionCashOutOperational([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetCashOutOperatingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/diff-operational")]
+        public IActionResult GetDivisionDiffOperational([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetDiffOperatingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/cash-in-investment")]
+        public IActionResult GetDivisionCashInInvestment([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetCashInInvestingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/cash-out-investment")]
+        public IActionResult GetDivisionCashOutInvestment([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetCashOutInvestingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/diff-investment")]
+        public IActionResult GetDivisionDiffInvestment([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetDiffInvestingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/cash-in-financial")]
+        public IActionResult GetDivisionCashInFinancial([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetCashInFinancingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/cash-out-financial")]
+        public IActionResult GetDivisionCashOutFinancial([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetCashOutFinancingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/diff-financial")]
+        public IActionResult GetDivisionDiffFinancial([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetDiffFinancingActivitiesByUnit(divisionId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
     }
 }
