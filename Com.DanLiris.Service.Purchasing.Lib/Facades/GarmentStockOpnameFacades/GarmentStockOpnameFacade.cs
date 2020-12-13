@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -33,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentStockOpname> dbSet;
         private readonly DbSet<GarmentDOItems> dbSetDOItem;
+        private readonly DbSet<UnitReceiptNoteItem> dbSetUnitReceiptNoteItems;
 
         public GarmentStockOpnameFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -42,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentStockOpname>();
             dbSetDOItem = dbContext.Set<GarmentDOItems>();
+            dbSetUnitReceiptNoteItems = dbContext.Set<UnitReceiptNoteItem>();
         }
 
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -247,6 +250,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                         DOItem.RemainingQuantity = item.Quantity;
                         EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
                     }
+                }
+
+                var urnItem = dbSetUnitReceiptNoteItems.FirstOrDefault(urni => urni.Id == item.URNItemId);
+                if (urnItem != null)
+                {
+                    item.Price = item.Quantity * (decimal)item.DOCurrencyRate * (decimal)urnItem.PricePerDealUnit;
                 }
             }
 

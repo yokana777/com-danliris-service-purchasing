@@ -52,5 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel
 
         public decimal BeforeQuantity { get; set; }
         public decimal Quantity { get; set; }
+
+        public decimal Price { get; set; }
     }
 }
