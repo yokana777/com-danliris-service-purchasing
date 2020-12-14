@@ -51,8 +51,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
         public async Task<int> UpsertWorstCaseBudgetCashflowUnit(WorstCaseBudgetCashflowFormDto form)
         {
-            var month = form.DueDate.AddHours(_identityService.TimezoneOffset).Month;
-            var year = form.DueDate.AddHours(_identityService.TimezoneOffset).Year;
+            var month = form.DueDate.AddHours(_identityService.TimezoneOffset).AddMonths(1).Month;
+            var year = form.DueDate.AddHours(_identityService.TimezoneOffset).AddMonths(1).Year;
             var model = _dbContext.BudgetCashflowWorstCases.FirstOrDefault(entity => entity.UnitId == form.UnitId && entity.Month == month && entity.Year == year);
 
             if (model == null)
