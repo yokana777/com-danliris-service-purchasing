@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201211023011_ActualBestCase")]
+    partial class ActualBestCase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3725,12 +3726,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<double>("DOCurrencyRate");
-
                     b.Property<long>("DOItemId");
-
-                    b.Property<string>("DOItemNo")
-                        .HasMaxLength(255);
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -3741,13 +3737,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DesignColor")
-                        .HasMaxLength(255);
-
-                    b.Property<long>("DetailReferenceId");
-
-                    b.Property<long>("EPOItemId");
 
                     b.Property<int>("GarmentStockOpnameId");
 
@@ -3763,59 +3752,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<long>("POId");
-
-                    b.Property<long>("POItemId");
-
-                    b.Property<string>("POSerialNumber")
-                        .HasMaxLength(100);
-
-                    b.Property<long>("PRItemId");
-
-                    b.Property<decimal>("Price");
-
-                    b.Property<string>("ProductCode")
-                        .HasMaxLength(255);
-
-                    b.Property<long>("ProductId");
-
-                    b.Property<string>("ProductName")
-                        .HasMaxLength(1000);
-
                     b.Property<decimal>("Quantity");
 
-                    b.Property<string>("RO")
-                        .HasMaxLength(255);
-
-                    b.Property<decimal>("SmallQuantity");
-
-                    b.Property<long>("SmallUomId");
-
-                    b.Property<string>("SmallUomUnit")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("StorageCode")
-                        .HasMaxLength(255);
-
-                    b.Property<long>("StorageId");
-
-                    b.Property<string>("StorageName")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("UId")
-                        .HasMaxLength(100);
-
-                    b.Property<long>("URNItemId");
-
-                    b.Property<string>("UnitCode")
-                        .HasMaxLength(255);
-
-                    b.Property<long>("UnitId");
-
-                    b.Property<string>("UnitName")
-                        .HasMaxLength(1000);
-
                     b.HasKey("Id");
+
+                    b.HasIndex("DOItemId");
 
                     b.HasIndex("GarmentStockOpnameId");
 
@@ -6606,6 +6547,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel.GarmentStockOpnameItem", b =>
                 {
+                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel.GarmentDOItems", "DOItem")
+                        .WithMany()
+                        .HasForeignKey("DOItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel.GarmentStockOpname", "GarmentStockOpname")
                         .WithMany("Items")
                         .HasForeignKey("GarmentStockOpnameId")
