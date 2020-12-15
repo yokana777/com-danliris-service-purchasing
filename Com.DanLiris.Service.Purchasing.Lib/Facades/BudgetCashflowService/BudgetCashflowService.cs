@@ -531,6 +531,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 BudgetCashflowCategoryLayoutOrder.FuelOil,
                 BudgetCashflowCategoryLayoutOrder.SparePartsMachineMaintenance,
                 BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeBuildingMaintenance,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeStationary,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCorporateHousehold,
                 BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeVehicleCost,
                 BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeOthersCost
             };
