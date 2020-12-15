@@ -162,6 +162,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (unit != null)
                 {
                     accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                    if (accountingUnit == null)
+                        accountingUnit = new AccountingUnit();
                 }
 
                 int.TryParse(item.CategoryId, out var categoryId);
@@ -170,6 +172,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (category != null)
                 {
                     accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
+                    if (accountingCategory == null)
+                        accountingCategory = new AccountingCategory();
                 }
 
                 decimal dpp = 0;
@@ -539,6 +543,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (unit != null)
                 {
                     accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                    if (accountingUnit == null)
+                        accountingUnit = new AccountingUnit();
                 }
 
                 int.TryParse(item.CategoryId, out var categoryId);
@@ -547,6 +553,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (category != null)
                 {
                     accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
+                    if (accountingCategory == null)
+                        accountingCategory = new AccountingCategory();
                 }
 
                 decimal dpp = 0;
