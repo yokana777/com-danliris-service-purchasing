@@ -483,7 +483,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             var unitIds = _units.Where(element => element.DivisionId == divisionId).Select(element => element.Id).ToList();
             var query = _dbContext.BudgetCashflowWorstCases.Where(entity => entity.Year == dueDate.AddMonths(1).Year && entity.Month == dueDate.AddMonths(1).Month);
             if (divisionId > 0)
+            {
                 query = query.Where(entity => unitIds.Contains(entity.UnitId));
+            }
+            else
+            {
+                unitIds = query.Select(entity => entity.UnitId).Distinct().ToList();
+            }
+
             var models = query.ToList();
 
             var result = new List<BudgetCashflowDivisionItemDto>();
