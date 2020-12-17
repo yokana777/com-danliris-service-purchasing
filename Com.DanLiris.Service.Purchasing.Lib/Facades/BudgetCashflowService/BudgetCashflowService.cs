@@ -616,6 +616,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 }
             }
 
+            if (result.Count > 1)
+                result = result.Where(element => element.CurrencyId > 0).ToList();
+
             return result;
         }
 
@@ -642,6 +645,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     cashOutItem.LayoutOrder
                     ));
             }
+
+            if (result.Count > 1)
+                result = result.Where(element => element.CurrencyId > 0).ToList();
 
             return result;
         }
@@ -723,6 +729,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 }
             }
 
+            if (result.Count > 1)
+                result = result.Where(element => element.CurrencyId > 0).ToList();
+
             return result;
         }
 
@@ -749,6 +758,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     cashOutItem.LayoutOrder
                     ));
             }
+
+            if (result.Count > 1)
+                result = result.Where(element => element.CurrencyId > 0).ToList();
 
             return result;
         }
