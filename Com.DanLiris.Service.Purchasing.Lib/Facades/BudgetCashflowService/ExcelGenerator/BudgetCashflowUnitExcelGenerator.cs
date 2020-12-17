@@ -15,14 +15,14 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.ExcelGenerator
 {
-    public class BudgetCashflowUnit : IBudgetCashflowUnit
+    public class BudgetCashflowUnitExcelGenerator : IBudgetCashflowUnitExcelGenerator
     {
         private readonly IBudgetCashflowService _budgetCashflowService;
         private readonly IdentityService _identityService;
         private readonly List<UnitDto> _units;
         private readonly List<CurrencyDto> _currencies;
 
-        public BudgetCashflowUnit(IServiceProvider serviceProvider)
+        public BudgetCashflowUnitExcelGenerator(IServiceProvider serviceProvider)
         {
             _budgetCashflowService = serviceProvider.GetService<IBudgetCashflowService>();
             _identityService = serviceProvider.GetService<IdentityService>();
