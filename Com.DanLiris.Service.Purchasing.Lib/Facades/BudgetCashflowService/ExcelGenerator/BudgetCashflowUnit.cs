@@ -19,8 +19,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
     {
         private readonly IBudgetCashflowService _budgetCashflowService;
         private readonly IdentityService _identityService;
-        private readonly List<BudgetingCategoryDto> _budgetingCategories;
         private readonly List<UnitDto> _units;
+        private readonly List<CurrencyDto> _currencies;
 
         public BudgetCashflowUnit(IServiceProvider serviceProvider)
         {
@@ -34,26 +34,188 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
             });
+
+            var jsonCurrencies = cache.GetString(MemoryCacheConstant.Currencies);
+            _currencies = JsonConvert.DeserializeObject<List<CurrencyDto>>(jsonCurrencies, new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
         }
 
-        private List<BudgetCashflowItemDto> GetRowDataBestCase(int unitId, DateTimeOffset dueDate)
+        private List<BudgetCashflowItemDto> GetOperatingActivitiesCashIn(int unitId, DateTimeOffset dueDate)
         {
             var result = new List<BudgetCashflowItemDto>();
             foreach (BudgetCashflowCategoryLayoutOrder layoutOrder in Enum.GetValues(typeof(BudgetCashflowCategoryLayoutOrder)))
             {
-                result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                if (layoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else
+                    break;
             }
 
-            return result.OrderBy(element => new { element.LayoutOrder, element.CurrencyId }).ToList();
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetOperatingActivitiesCashInTotal(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetCashInOperatingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.CurrencyId).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetOperatingActivitiesCashOut(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (BudgetCashflowCategoryLayoutOrder layoutOrder in Enum.GetValues(typeof(BudgetCashflowCategoryLayoutOrder)))
+            {
+                if (layoutOrder < BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial)
+                    continue;
+                else if (layoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && layoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else
+                    break;
+            }
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetOperatingActivitiesCashOutTotal(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetCashOutOperatingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.CurrencyId).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetOperatingActivitiesDifference(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetDiffOperatingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.CurrencyId).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetInvestingActivitiesCashIn(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (BudgetCashflowCategoryLayoutOrder layoutOrder in Enum.GetValues(typeof(BudgetCashflowCategoryLayoutOrder)))
+            {
+                if (layoutOrder == BudgetCashflowCategoryLayoutOrder.CashInDeposit)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else if (layoutOrder == BudgetCashflowCategoryLayoutOrder.CashInOthers)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else if (layoutOrder < BudgetCashflowCategoryLayoutOrder.CashInDeposit)
+                    continue;
+                else
+                    break;
+            }
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetInvestingActivitiesCashInTotal(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetCashInInvestingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetInvestingActivitiesCashOut(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (BudgetCashflowCategoryLayoutOrder layoutOrder in Enum.GetValues(typeof(BudgetCashflowCategoryLayoutOrder)))
+            {
+                if (layoutOrder < BudgetCashflowCategoryLayoutOrder.MachineryPurchase)
+                    continue;
+                else if (layoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else
+                    break;
+            }
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetInvestingActivitiesCashOutTotal(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetCashOutInvestingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetInvestingActivitiesDifference(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetDiffInvestingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetFinancingActivitiesCashIn(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (BudgetCashflowCategoryLayoutOrder layoutOrder in Enum.GetValues(typeof(BudgetCashflowCategoryLayoutOrder)))
+            {
+                if (layoutOrder < BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal)
+                    continue;
+                else if (layoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else
+                    break;
+            }
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetFinancingActivitiesCashInTotal(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetCashInFinancingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetFinancingActivitiesCashOut(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            foreach (BudgetCashflowCategoryLayoutOrder layoutOrder in Enum.GetValues(typeof(BudgetCashflowCategoryLayoutOrder)))
+            {
+                if (layoutOrder < BudgetCashflowCategoryLayoutOrder.CashOutInstallments)
+                    continue;
+                else if (layoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers)
+                    result.AddRange(_budgetCashflowService.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate));
+                else
+                    break;
+            }
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetFinancingActivitiesCashOutTotal(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetCashOutFinancingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
+        }
+
+        private List<BudgetCashflowItemDto> GetFinancingActivitiesDifference(int unitId, DateTimeOffset dueDate)
+        {
+            var result = new List<BudgetCashflowItemDto>();
+            result.AddRange(_budgetCashflowService.GetDiffFinancingActivitiesByUnit(unitId, dueDate));
+
+            return result.OrderBy(element => element.LayoutOrder).ToList();
         }
 
         private List<BudgetCashflowItemDto> GetRowDataWorstCase(int unitId, DateTimeOffset dueDate)
         {
             var result = new List<BudgetCashflowItemDto>();
-
             result.AddRange(_budgetCashflowService.GetBudgetCashflowWorstCase(dueDate, unitId));
 
-            return result.OrderBy(element => new { element.LayoutOrder, element.CurrencyId }).ToList();
+            return result.OrderBy(element => element.LayoutOrder).ToList();
         }
 
         public MemoryStream Generate(int unitId, DateTimeOffset dueDate)
@@ -71,6 +233,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 worksheet.Cells["A5:K7"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet.Cells["A5:K7"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
+                // oaci = operating activities cash in
+                var oaci = GetOperatingActivitiesCashIn(unitId, dueDate);
+                // oaciTotal = operating activities cash in total
+                var oaciTotal = GetOperatingActivitiesCashInTotal(unitId, dueDate);
+                // oaco = operating activities cash out
+                var oaco = GetOperatingActivitiesCashOut(unitId, dueDate);
+                // oacoTotal = operating activities cash out total
+                var oacoTotal = GetOperatingActivitiesCashOutTotal(unitId, dueDate);
+                // oadiff = opearting activities difference
+                var oadiff = GetOperatingActivitiesDifference(unitId, dueDate);
+                // iaci = investing activities cash in
+                var iaci = GetInvestingActivitiesCashIn(unitId, dueDate);
+                // iaciTotal = investing activities cash in total
+                var iaciTotal = GetInvestingActivitiesCashInTotal(unitId, dueDate);
+                // iaco = investing activities cash out
+                var iaco = GetInvestingActivitiesCashOut(unitId, dueDate);
+                // iacoTotal = investing activities cash out total
+                var iacoTotal = GetInvestingActivitiesCashOutTotal(unitId, dueDate);
+                // iadiff = investing activities difference
+                var iadiff = GetInvestingActivitiesDifference(unitId, dueDate);
+                // faci = financing activities cash in
+                var faci = GetFinancingActivitiesCashIn(unitId, dueDate);
+                // faciTotal = financing activities cash in total
+                var faciTotal = GetFinancingActivitiesCashInTotal(unitId, dueDate);
+                // faco = financing activities cash out
+                var faco = GetFinancingActivitiesCashOut(unitId, dueDate);
+                // fatotal = financing activities cash out total
+                var facoTotal = GetFinancingActivitiesCashOutTotal(unitId, dueDate);
+                // fadiff = financing activities difference
+                var fadiff = GetFinancingActivitiesDifference(unitId, dueDate);
+
+                var worstCases = GetRowDataWorstCase(unitId, dueDate);
+
+                SetLeftRemarkColumn(oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, worksheet);
+                SetData(oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases, worksheet);
+
                 worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
 
                 var stream = new MemoryStream();
@@ -78,6 +276,1100 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
 
                 return stream;
             }
+        }
+
+        private void SetData(List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases, ExcelWorksheet worksheet)
+        {
+            var startingRow = 8;
+
+            worksheet.Cells[$"C{startingRow}"].Value = "Revenue";
+            worksheet.Cells[$"C{startingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{startingRow}:K{startingRow}"].Merge = true;
+            worksheet.Cells[$"C{startingRow}:K{startingRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"C{startingRow}:K{startingRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            var writeableRow = startingRow + 1;
+            var isRevenueFromOtherWritten = false;
+            foreach (var item in oaci)
+            {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales && !isRevenueFromOtherWritten)
+                {
+                    isRevenueFromOtherWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Revenue";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = worstCase.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = worstCase.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = worstCase.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            foreach (var item in oaciTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Cost of Good Sold";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            writeableRow += 1;
+
+            var isMarketingExpenseWritten = false;
+            var isSalesCostWritten = false;
+            var isGeneralAdministrativeExpenseWritten = false;
+            var isGeneralCostAdministrativeWritten = false;
+            var isOtherOperatingExpenseWritten = false;
+
+            foreach (var item in oaco)
+            {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.InternalOutcomeVATCalculation && !isMarketingExpenseWritten)
+                {
+                    isMarketingExpenseWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Marketing Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.InternalOutcomeVATCalculation && !isSalesCostWritten)
+                {
+                    isSalesCostWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Penjualan";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OtherSalesCost && !isGeneralAdministrativeExpenseWritten)
+                {
+                    isGeneralAdministrativeExpenseWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "General & Administrative Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.TaxCost && !isGeneralCostAdministrativeWritten)
+                {
+                    isGeneralCostAdministrativeWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "General & Administrative Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCommunicationCost && !isOtherOperatingExpenseWritten)
+                {
+                    isOtherOperatingExpenseWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Other Operating Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = worstCase.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = worstCase.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = worstCase.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            foreach (var item in oacoTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            foreach (var item in oadiff)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            writeableRow += 1;
+
+            foreach (var item in iaci)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = worstCase.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = worstCase.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = worstCase.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            foreach (var item in iaciTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Pembayaran pembelian asset tetap :";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            writeableRow += 1;
+
+            foreach (var item in iaco)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = worstCase.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = worstCase.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = worstCase.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            foreach (var item in iacoTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            foreach (var item in iadiff)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            writeableRow += 1;
+
+            foreach (var item in faci)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Font.Bold = true;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = worstCase.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = worstCase.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = worstCase.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            foreach (var item in faciTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Loan Installment and Interest expense";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            writeableRow += 1;
+
+            var isBankExpenseWritten = false;
+            var isOthersWritten = false;
+            foreach (var item in faco)
+            {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isBankExpenseWritten)
+                {
+                    isBankExpenseWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Bank Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isOthersWritten)
+                {
+                    isOthersWritten = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Others:";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = worstCase.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = worstCase.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = worstCase.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{writeableRow}"].Merge = true;
+            worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            foreach (var item in facoTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+
+            foreach (var item in fadiff)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                worksheet.Cells[$"D{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"D{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"D{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"E{writeableRow}"].Value = item.BestCaseCurrencyNominal;
+                worksheet.Cells[$"E{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"E{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"E{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"F{writeableRow}"].Value = item.BestCaseNominal;
+                worksheet.Cells[$"F{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"F{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"F{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"G{writeableRow}"].Value = item.BestCaseActualNominal;
+                worksheet.Cells[$"G{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"G{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"G{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"H{writeableRow}"].Value = currencyCode;
+                worksheet.Cells[$"H{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[$"H{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"I{writeableRow}"].Value = item.CurrencyNominal;
+                worksheet.Cells[$"I{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"I{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"I{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"J{writeableRow}"].Value = item.Nominal;
+                worksheet.Cells[$"J{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"J{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"J{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[$"K{writeableRow}"].Value = item.ActualNominal;
+                worksheet.Cells[$"K{writeableRow}"].Style.Numberformat.Format = "#,##0.00";
+                worksheet.Cells[$"K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells[$"K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                writeableRow += 1;
+            }
+        }
+
+        private void SetLeftRemarkColumn(int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, ExcelWorksheet worksheet)
+        {
+            var operatingActivitiesCashInRowCount = 2 + oaciCount + oaciTotalCount;
+            var operatingActivitiesCashOutRowCount = 6 + oacoCount + oacoTotalCount;
+            var operatingActivitiesRowsCount = 2 + oaciCount + oaciTotalCount + 6 + oacoCount + oacoTotalCount + oadiffCount;
+            var investingActivitiesCashInRowCount = 1 + iaciCount + iaciTotalCount;
+            var investingActivitiesCashOutRowCount = 1 + iacoCount + iacoTotalCount;
+            var investingActivitiesRowsCount = 1 + iaciCount + iaciTotalCount + 1 + iacoCount + iacoTotalCount + iadiffCount;
+            var financingActivitiesCashInRowsCount = 1 + faciCount + faciTotalCount;
+            var financingActivitiesCashOutRowsCount = 3 + facoCount + facoTotalCount;
+            var financingActivitiesRowsCount = 1 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
+
+            var operatingActivitiesStartingRow = 8;
+            worksheet.Cells[$"A{operatingActivitiesStartingRow}"].Value = "OPERATING ACTIVITIES";
+            worksheet.Cells[$"A{operatingActivitiesStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"A{operatingActivitiesStartingRow}:A{operatingActivitiesStartingRow + operatingActivitiesRowsCount - 1}"].Merge = true;
+            worksheet.Cells[$"A{operatingActivitiesStartingRow}:A{operatingActivitiesStartingRow + operatingActivitiesRowsCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"A{operatingActivitiesStartingRow}:A{operatingActivitiesStartingRow + operatingActivitiesRowsCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"A{operatingActivitiesStartingRow}:A{operatingActivitiesStartingRow + operatingActivitiesRowsCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            worksheet.Cells[$"B{operatingActivitiesStartingRow}"].Value = "CASH IN";
+            worksheet.Cells[$"B{operatingActivitiesStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{operatingActivitiesStartingRow}:B{operatingActivitiesStartingRow + operatingActivitiesCashInRowCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{operatingActivitiesStartingRow}:B{operatingActivitiesStartingRow + operatingActivitiesCashInRowCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"B{operatingActivitiesStartingRow}:B{operatingActivitiesStartingRow + operatingActivitiesCashInRowCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"B{operatingActivitiesStartingRow}:B{operatingActivitiesStartingRow + operatingActivitiesCashInRowCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            var operatingActivitiesCashOutStartingRow = operatingActivitiesStartingRow + operatingActivitiesCashInRowCount;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}"].Value = "CASH OUT";
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}:B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}:B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}:B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}:B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}"].Value = "Surplus/Deficit-Cash from Operating Activities";
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}:C{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount + oadiffCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}:C{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount + oadiffCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}:C{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount + oadiffCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            var investingActivitiesStartingRow = operatingActivitiesStartingRow + operatingActivitiesRowsCount;
+            worksheet.Cells[$"A{investingActivitiesStartingRow}"].Value = "INVESTING ACTIVITIES";
+            worksheet.Cells[$"A{investingActivitiesStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"A{investingActivitiesStartingRow}:A{investingActivitiesStartingRow + investingActivitiesRowsCount - 1}"].Merge = true;
+            worksheet.Cells[$"A{investingActivitiesStartingRow}:A{investingActivitiesStartingRow + investingActivitiesRowsCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"A{investingActivitiesStartingRow}:A{investingActivitiesStartingRow + investingActivitiesRowsCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"A{investingActivitiesStartingRow}:A{investingActivitiesStartingRow + investingActivitiesRowsCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            worksheet.Cells[$"B{investingActivitiesStartingRow}"].Value = "CASH IN";
+            worksheet.Cells[$"B{investingActivitiesStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{investingActivitiesStartingRow}:B{investingActivitiesStartingRow + investingActivitiesCashInRowCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{investingActivitiesStartingRow}:B{investingActivitiesStartingRow + investingActivitiesCashInRowCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"B{investingActivitiesStartingRow}:B{investingActivitiesStartingRow + investingActivitiesCashInRowCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"B{investingActivitiesStartingRow}:B{investingActivitiesStartingRow + investingActivitiesCashInRowCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            var investingActivitiesCashOutStartingRow = investingActivitiesStartingRow + investingActivitiesCashInRowCount;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}"].Value = "CASH OUT";
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}:B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}:B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}:B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}:B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}"].Value = "Surplus/Deficit-Cash from Investing Activities";
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}:C{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount + iadiffCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}:C{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount + iadiffCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}:C{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount + iadiffCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            var financingActivitiesStartingRow = investingActivitiesStartingRow + investingActivitiesRowsCount;
+            worksheet.Cells[$"A{financingActivitiesStartingRow}"].Value = "FINANCING ACTIVITIES";
+            worksheet.Cells[$"A{financingActivitiesStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"A{financingActivitiesStartingRow}:A{financingActivitiesStartingRow + financingActivitiesRowsCount - 1}"].Merge = true;
+            worksheet.Cells[$"A{financingActivitiesStartingRow}:A{financingActivitiesStartingRow + financingActivitiesRowsCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"A{financingActivitiesStartingRow}:A{financingActivitiesStartingRow + financingActivitiesRowsCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"A{financingActivitiesStartingRow}:A{financingActivitiesStartingRow + financingActivitiesRowsCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            worksheet.Cells[$"B{financingActivitiesStartingRow}"].Value = "CASH IN";
+            worksheet.Cells[$"B{financingActivitiesStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{financingActivitiesStartingRow}:B{financingActivitiesStartingRow + financingActivitiesCashInRowsCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"B{financingActivitiesStartingRow}:B{financingActivitiesStartingRow + financingActivitiesCashInRowsCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{financingActivitiesStartingRow}:B{financingActivitiesStartingRow + financingActivitiesCashInRowsCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"B{financingActivitiesStartingRow}:B{financingActivitiesStartingRow + financingActivitiesCashInRowsCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            var financingActivitiesCashOutStartingRow = financingActivitiesStartingRow + financingActivitiesCashInRowsCount;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}"].Value = "CASH OUT";
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}:B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}:B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount - 1}"].Style.TextRotation = 90;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}:B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}:B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}"].Value = "Surplus/Deficit-Cash from Financing Activities";
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}:C{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount + fadiffCount - 1}"].Merge = true;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}:C{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount + fadiffCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}:C{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount + fadiffCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            var footerStartingRow = operatingActivitiesStartingRow + operatingActivitiesRowsCount + investingActivitiesRowsCount + financingActivitiesRowsCount;
+            worksheet.Cells[$"A{footerStartingRow}"].Value = "BEGINNING BALANCE";
+            worksheet.Cells[$"A{footerStartingRow}"].Style.Font.Bold = true;
+            worksheet.Cells[$"A{footerStartingRow}:C{footerStartingRow}"].Merge = true;
+            worksheet.Cells[$"A{footerStartingRow}:C{footerStartingRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"A{footerStartingRow}:C{footerStartingRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            worksheet.Cells[$"A{footerStartingRow + 1}"].Value = "CASH SURPLUS/DEFICIT";
+            worksheet.Cells[$"A{footerStartingRow + 1}"].Style.Font.Bold = true;
+            worksheet.Cells[$"A{footerStartingRow + 1}:C{footerStartingRow + 1}"].Merge = true;
+            worksheet.Cells[$"A{footerStartingRow + 1}:C{footerStartingRow + 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"A{footerStartingRow + 1}:C{footerStartingRow + 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            worksheet.Cells[$"A{footerStartingRow + 2}"].Value = "ENDING BALANCE";
+            worksheet.Cells[$"A{footerStartingRow + 2}"].Style.Font.Bold = true;
+            worksheet.Cells[$"A{footerStartingRow + 2}:C{footerStartingRow + 2}"].Merge = true;
+            worksheet.Cells[$"A{footerStartingRow + 2}:C{footerStartingRow + 2}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"A{footerStartingRow + 2}:C{footerStartingRow + 2}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            worksheet.Cells[$"C{footerStartingRow + 3}"].Value = "Kenyataan";
+            worksheet.Cells[$"C{footerStartingRow + 3}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{footerStartingRow + 3}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"A{footerStartingRow + 3}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            worksheet.Cells[$"C{footerStartingRow + 4}"].Value = "Selisih";
+            worksheet.Cells[$"C{footerStartingRow + 4}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{footerStartingRow + 4}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"A{footerStartingRow + 4}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            worksheet.Cells[$"C{footerStartingRow + 5}"].Value = "Rate";
+            worksheet.Cells[$"C{footerStartingRow + 5}"].Style.Font.Bold = true;
+            worksheet.Cells[$"C{footerStartingRow + 5}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            worksheet.Cells[$"A{footerStartingRow + 5}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            worksheet.Cells[$"B{footerStartingRow + 6}"].Value = "TOTAL SURPLUS (DEFISIT) EQUIVALENT";
+            worksheet.Cells[$"B{footerStartingRow + 6}"].Style.Font.Bold = true;
+            worksheet.Cells[$"B{footerStartingRow + 6}:C{footerStartingRow + 6}"].Merge = true;
+            worksheet.Cells[$"B{footerStartingRow + 6}:C{footerStartingRow + 6}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            worksheet.Cells[$"B{footerStartingRow + 6}:C{footerStartingRow + 6}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
         }
 
         private void SetTableHeader(ExcelWorksheet worksheet, UnitDto unit)
@@ -207,7 +1499,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             if (unit != null)
                 unitName += unit.Name;
 
-            var dueDateString = $"{dueDate:dd/MM/yy}";
+            var dueDateString = $"{dueDate.AddHours(_identityService.TimezoneOffset):dd/MM/yy}";
             var date = $"JATUH TEMPO s.d. {dueDateString}";
 
             worksheet.Cells["A1"].Value = company;

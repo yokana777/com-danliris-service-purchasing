@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         [Description("Proyek")]
         ProjectPurchase,
         [Description("Desposito")]
-        CashOutDesposit,
+        CashOutDeposit,
         [Description("Loan Withdrawal")]
         CashInLoanWithdrawal,
         [Description("Afiliasi")]
