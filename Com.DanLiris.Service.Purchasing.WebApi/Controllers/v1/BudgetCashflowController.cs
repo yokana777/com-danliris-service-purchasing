@@ -23,7 +23,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         private readonly IBudgetCashflowService _service;
         private readonly IdentityService _identityService;
         private readonly IValidateService _validateService;
-        private readonly IBudgetCashflowUnit _budgetCashflowUnit;
+        private readonly IBudgetCashflowUnitExcelGenerator _budgetCashflowUnitExcelGenerator;
+        private readonly IBudgetCashflowDivisionExcelGenerator _budgetCashflowDivisionExcelGenerator;
         private const string ApiVersion = "1.0";
 
         public BudgetCashflowController(IServiceProvider serviceProvider)
@@ -31,7 +32,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             _service = serviceProvider.GetService<IBudgetCashflowService>();
             _identityService = serviceProvider.GetService<IdentityService>();
             _validateService = serviceProvider.GetService<IValidateService>();
-            _budgetCashflowUnit = serviceProvider.GetService<IBudgetCashflowUnit>();
+            _budgetCashflowUnitExcelGenerator = serviceProvider.GetService<IBudgetCashflowUnitExcelGenerator>();
+            _budgetCashflowDivisionExcelGenerator = serviceProvider.GetService<IBudgetCashflowDivisionExcelGenerator>();
         }
 
         private void VerifyUser()
@@ -290,9 +292,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             try
             {
                 VerifyUser();
-                var stream = _budgetCashflowUnit.Generate(unitId, dueDate);
+                var stream = _budgetCashflowUnitExcelGenerator.Generate(unitId, dueDate);
 
                 var filename = "Laporan Budget Cash Flow Unit";
+
+                var bytes = stream.ToArray();
+
+                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/xls")]
+        public IActionResult GenerateExcelDivision([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+
+            try
+            {
+                VerifyUser();
+                var stream = _budgetCashflowDivisionExcelGenerator.Generate(divisionId, dueDate);
+
+                var filename = "Laporan Budget Cash Flow Divisi";
 
                 var bytes = stream.ToArray();
 
