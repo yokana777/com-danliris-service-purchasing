@@ -205,7 +205,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (item.IncomeTaxBy == "Supplier")
                 {
                     total = (dpp + ppn - incomeTax) * (decimal)currencyRate;
-                } else
+                }
+                else
                 {
                     total = (dpp + ppn) * (decimal)currencyRate;
                 }
@@ -420,7 +421,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
@@ -457,6 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnWithItem.UnitReceiptNote.UnitCode,
                             urnWithItem.UnitReceiptNote.UnitName,
                             urnWithItem.UnitReceiptNote.UnitId,
+                            urnWithItem.UnitReceiptNote.DivisionId,
                             urnWithItem.EPODetailId,
                             urnWithItem.PricePerDealUnit,
                             urnWithItem.ReceiptQuantity,
@@ -494,6 +496,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 query = query.Where(urn => urn.CurrencyCode == IDRCurrencyCode);
             }
+
+            if (divisionId > 0)
+                query = query.Where(urn => urn.DivisionId == divisionId.ToString());
 
             if (!string.IsNullOrWhiteSpace(no))
                 query = query.Where(urn => urn.URNNo == no);
@@ -806,9 +811,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
-            return GetReportData(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+            return GetReportData(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
         }
 
         //public Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
@@ -928,9 +933,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //    }
         //}
 
-        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
-            var result = await GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+            var result = await GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
             //var Data = reportResult.Reports;
             var reportDataTable = GetFormatReportExcel(isValas);
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
@@ -1002,11 +1007,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
     }
 
-        public interface ILocalPurchasingBookReportFacade
+    public interface ILocalPurchasingBookReportFacade
     {
         //Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
-        Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas);
+        Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
         //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
-        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas);
+        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
     }
 }
