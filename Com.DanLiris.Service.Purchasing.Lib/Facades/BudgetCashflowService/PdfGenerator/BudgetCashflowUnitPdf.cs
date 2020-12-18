@@ -347,9 +347,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             var investingActivitiesCashInRowCount = 1 + iaciCount + iaciTotalCount;
             var investingActivitiesCashOutRowCount = 1 + iacoCount + iacoTotalCount;
             var investingActivitiesRowsCount = 1 + iaciCount + iaciTotalCount + 1 + iacoCount + iacoTotalCount + iadiffCount;
-            var financingActivitiesCashInRowsCount = 1 + faciCount + faciTotalCount;
+            var financingActivitiesCashInRowsCount = 2 + faciCount + faciTotalCount;
             var financingActivitiesCashOutRowsCount = 3 + facoCount + facoTotalCount;
-            var financingActivitiesRowsCount = 1 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
+            var financingActivitiesRowsCount = 2 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
 
             cell.Colspan = 5;
             cell.Rowspan = 3;
@@ -444,12 +444,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.Phrase = new Phrase("Revenue", _smallerBoldFont);
             table.AddCell(cell);
 
-            var isRevenueFromOtherWritten = false;
+            var isOthersSales = false;
+            
             foreach (var item in oaci)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales && !isRevenueFromOtherWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales && !isOthersSales)
                 {
-                    isRevenueFromOtherWritten = true;
+                    isOthersSales = true;
 
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
@@ -603,17 +604,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.Phrase = new Phrase("Cost of Good Sold", _smallerBoldFont);
             table.AddCell(cell);
 
-            var isMarketingExpenseWritten = false;
-            var isSalesCostWritten = false;
-            var isGeneralAdministrativeExpenseWritten = false;
-            var isGeneralCostAdministrativeWritten = false;
-            var isOtherOperatingExpenseWritten = false;
+            var isMarketingSalaryCost = false;
+            var isStillMarketingSalaryCost = false;
+            var isGeneralAdministrativeExternalOutcomeVATCalculation = false;
+            var isGeneralAdministrativeSalaryCost = false;
+            var isOthersOperationalCost = false;
 
             foreach (var item in oaco)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isMarketingExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isMarketingSalaryCost)
                 {
-                    isMarketingExpenseWritten = true;
+                    isMarketingSalaryCost = true;
 
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
@@ -622,9 +623,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isSalesCostWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isStillMarketingSalaryCost)
                 {
-                    isSalesCostWritten = true;
+                    isStillMarketingSalaryCost = true;
 
                     cell.Colspan = 1;
                     cell.Rowspan = 1;
@@ -638,9 +639,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeExternalOutcomeVATCalculation && !isGeneralAdministrativeExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeExternalOutcomeVATCalculation && !isGeneralAdministrativeExternalOutcomeVATCalculation)
                 {
-                    isGeneralAdministrativeExpenseWritten = true;
+                    isGeneralAdministrativeExternalOutcomeVATCalculation = true;
 
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
@@ -649,9 +650,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeSalaryCost && !isGeneralCostAdministrativeWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeSalaryCost && !isGeneralAdministrativeSalaryCost)
                 {
-                    isGeneralCostAdministrativeWritten = true;
+                    isGeneralAdministrativeSalaryCost = true;
 
                     cell.Colspan = 1;
                     cell.Rowspan = 1;
@@ -665,9 +666,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && !isOtherOperatingExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && !isOthersOperationalCost)
                 {
-                    isOtherOperatingExpenseWritten = true;
+                    isOthersOperationalCost = true;
 
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
@@ -756,6 +757,821 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
                 cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            foreach (var item in oadiff)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 4;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Operating Activities", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.Colspan = 1;
+            cell.Rowspan = investingActivitiesRowsCount;
+            cell.Phrase = new Phrase("INVESTING ACTIVITIES", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Colspan = 1;
+            cell.Rowspan = investingActivitiesCashInRowCount;
+            cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 0;
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 11;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            foreach (var item in iaci)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            foreach (var item in iaciTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = investingActivitiesCashOutRowCount;
+            cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 0;
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 11;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("Pembayaran pembelian asset tetap :", _smallerBoldFont);
+            table.AddCell(cell);
+
+            foreach (var item in iaco)
+            {
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("", _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 2;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var item in iacoTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var item in iadiff)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 4;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Investing Activities", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.Colspan = 1;
+            cell.Rowspan = financingActivitiesRowsCount;
+            cell.Phrase = new Phrase("FINANCING ACTIVITIES", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Colspan = 1;
+            cell.Rowspan = financingActivitiesCashInRowsCount;
+            cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 0;
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 11;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            var isCashInAffiliates = false;
+            
+            foreach (var item in faci)
+            {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashInAffiliates && !isCashInAffiliates)
+                {
+                    isCashInAffiliates = true;
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 11;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Others :", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("", _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 2;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var item in faciTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = financingActivitiesCashOutRowsCount;
+            cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 0;
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 11;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("Loan Installment and Interest expense", _smallerBoldFont);
+            table.AddCell(cell);
+
+            var isCashOutBankInterest = false;
+            var isOthersWritten = false;
+
+            foreach (var item in faco)
+            {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isCashOutBankInterest)
+                {
+                    isCashOutBankInterest = true;
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 11;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Bank Expenses", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isOthersWritten)
+                {
+                    isOthersWritten = true;
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 11;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Others :", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
+                if (worstCase == null)
+                    worstCase = new BudgetCashflowItemDto();
+
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("", _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 2;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var item in facoTotal)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            foreach (var item in fadiff)
+            {
+                var currencyCode = "";
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                    currencyCode = currency.Code;
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 4;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Financing Activities", _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
