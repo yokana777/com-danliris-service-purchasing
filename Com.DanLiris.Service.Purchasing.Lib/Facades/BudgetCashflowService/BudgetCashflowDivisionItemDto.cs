@@ -2,6 +2,11 @@
 {
     public class BudgetCashflowDivisionItemDto
     {
+        public BudgetCashflowDivisionItemDto()
+        {
+
+        }
+
         public BudgetCashflowDivisionItemDto(string currencyIdString, string currencyCode, double currencyRate, string divisionIdString, string unitIdString, double total, BudgetCashflowCategoryLayoutOrder layoutOrder)
         {
             int.TryParse(currencyIdString, out var currencyId);

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.ExcelGenerator
 {
-    public interface IBudgetCashflowUnit
+    public interface IBudgetCashflowUnitExcelGenerator
     {
         MemoryStream Generate(int unitId, DateTimeOffset dueDate);
     }

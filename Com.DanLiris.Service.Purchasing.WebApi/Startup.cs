@@ -72,6 +72,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFacades
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.ExcelGenerator;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfGenerator;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -193,8 +194,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IDebtAndDispositionSummaryService, DebtAndDispositionSummaryService>()
                 .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>()
                 .AddTransient<IBudgetCashflowService, BudgetCashflowService>()
-                .AddTransient<IBudgetCashflowUnit, BudgetCashflowUnit>()
                 .AddTransient<IBudgetCashflowUnitPdf, BudgetCashflowUnitPdf>()
+                .AddTransient<IBudgetCashflowUnitExcelGenerator, BudgetCashflowUnitExcelGenerator>()
+                .AddTransient<IBudgetCashflowDivisionExcelGenerator, BudgetCashflowDivisionExcelGenerator>()
+                .AddTransient<IGarmentPurchasingExpeditionService, GarmentPurchasingExpeditionService>()
                 .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>();
         }
 

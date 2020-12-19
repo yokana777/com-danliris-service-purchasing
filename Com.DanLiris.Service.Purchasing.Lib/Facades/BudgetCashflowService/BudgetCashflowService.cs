@@ -486,10 +486,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             {
                 query = query.Where(entity => unitIds.Contains(entity.UnitId));
             }
-            else
-            {
-                unitIds = query.Select(entity => entity.UnitId).Distinct().ToList();
-            }
+
+            unitIds = query.Select(entity => entity.UnitId).Distinct().ToList();
 
             var models = query.ToList();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Enums
@@ -16,5 +17,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         CASHIER_DIVISION = 7,
         FINANCE_DIVISION = 8,
         //ACCOUNTING_DIVISION = 8,
+    }
+
+    public enum PurchasingGarmentExpeditionPosition
+    {
+        Invalid = 0,
+        [Description("Pembelian")]
+        Purchasing = 1,
+        [Description("Kirim ke Verifikasi")]
+        SendToVerification = 2,
+        [Description("Verifikasi (Diterima)")]
+        VerificationAccepted = 3,
+        [Description("Kirim ke Kasir")]
+        SendToCashier = 4,
+        [Description("Kasir (Diterima)")]
+        CashierAccepted = 5,
+        [Description("Kirim ke Pembelian")]
+        SendToPurchasing = 6,
+        [Description("Kirim ke Accounting")]
+        SendToAccounting = 7,
+        [Description("Accounting (Diterima)")]
+        AccountingAccepted = 8
     }
 }
