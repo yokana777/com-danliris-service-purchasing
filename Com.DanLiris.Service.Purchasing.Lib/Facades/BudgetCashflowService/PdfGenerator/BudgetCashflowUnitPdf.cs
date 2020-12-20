@@ -24,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
         private static readonly Font _smallFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
         private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+        private static readonly Font _normalBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9, 0, BaseColor.White);
         private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
         private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
         private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
@@ -350,81 +351,97 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             var financingActivitiesCashOutRowsCount = 3 + facoCount + facoTotalCount;
             var financingActivitiesRowsCount = 2 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
 
+            cell.BackgroundColor = new BaseColor(197, 90, 17);
             cell.Colspan = 5;
             cell.Rowspan = 3;
-            cell.Phrase = new Phrase("KETERANGAN", _normalBoldFont);
+            cell.Phrase = new Phrase("KETERANGAN", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(146, 208, 80);
             cell.Colspan = 3;
             cell.Rowspan = 1;
             cell.Phrase = new Phrase("BEST CASE", _normalBoldFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(146, 208, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
             cell.Phrase = new Phrase("ACTUAL", _normalBoldFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(255, 0, 0);
             cell.Colspan = 3;
             cell.Rowspan = 1;
             cell.Phrase = new Phrase("WORST CASE", _normalBoldFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(255, 0, 0);
             cell.Colspan = 1;
             cell.Rowspan = 1;
             cell.Phrase = new Phrase("ACTUAL", _normalBoldFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 3;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(unitName, _normalBoldFont);
+            cell.Phrase = new Phrase(unitName, _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 2;
-            cell.Phrase = new Phrase("Rp. (000)", _normalBoldFont);
+            cell.Phrase = new Phrase("Rp. (000)", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 3;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(unitName, _normalBoldFont);
+            cell.Phrase = new Phrase(unitName, _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 2;
-            cell.Phrase = new Phrase("Rp. (000)", _normalBoldFont);
+            cell.Phrase = new Phrase("Rp. (000)", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("MATA UANG", _normalBoldFont);
+            cell.Phrase = new Phrase("MATA UANG", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("NOMINAL VALAS", _normalBoldFont);
+            cell.Phrase = new Phrase("NOMINAL VALAS", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("NOMINAL IDR", _normalBoldFont);
+            cell.Phrase = new Phrase("NOMINAL IDR", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("MATA UANG", _normalBoldFont);
+            cell.Phrase = new Phrase("MATA UANG", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("NOMINAL VALAS", _normalBoldFont);
+            cell.Phrase = new Phrase("NOMINAL VALAS", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("NOMINAL IDR", _normalBoldFont);
+            cell.Phrase = new Phrase("NOMINAL IDR", _normalBoldWhiteFont);
             table.AddCell(cell);
 
+            cell.BackgroundColor = new BaseColor(255, 255, 255);
             cell.Rotation = 90;
             cell.Colspan = 1;
             cell.Rowspan = operatingActivitiesRowsCount;
@@ -1621,6 +1638,360 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 5;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("BEGINNING BALANCE", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 5;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("CASH SURPLUS/DEFICIT", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 5;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("ENDING BALANCE", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 2;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 3;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("Kenyataan", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 2;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 3;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("Selisih", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 2;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 3;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("Rate", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 8;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 5;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("TOTAL SURPLUS (DEFISIT) EQUIVALENT", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            table.AddCell(cell);
 
             document.Add(table);
         }
