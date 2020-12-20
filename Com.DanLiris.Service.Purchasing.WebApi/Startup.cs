@@ -195,6 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>()
                 .AddTransient<IBudgetCashflowService, BudgetCashflowService>()
                 .AddTransient<IBudgetCashflowUnitPdf, BudgetCashflowUnitPdf>()
+                .AddTransient<IBudgetCashflowDivisionPdf, BudgetCashflowDivisionPdf>()
                 .AddTransient<IBudgetCashflowUnitExcelGenerator, BudgetCashflowUnitExcelGenerator>()
                 .AddTransient<IBudgetCashflowDivisionExcelGenerator, BudgetCashflowDivisionExcelGenerator>()
                 .AddTransient<IGarmentPurchasingExpeditionService, GarmentPurchasingExpeditionService>()

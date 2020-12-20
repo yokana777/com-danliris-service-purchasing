@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         private readonly IdentityService _identityService;
         private readonly IValidateService _validateService;
         private readonly IBudgetCashflowUnitPdf _budgetCashflowUnitPdf;
+        private readonly IBudgetCashflowDivisionPdf _budgetCashflowDivisionPdf;
         private readonly IBudgetCashflowUnitExcelGenerator _budgetCashflowUnitExcelGenerator;
         private readonly IBudgetCashflowDivisionExcelGenerator _budgetCashflowDivisionExcelGenerator;
         private const string ApiVersion = "1.0";
@@ -37,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             _identityService = serviceProvider.GetService<IdentityService>();
             _validateService = serviceProvider.GetService<IValidateService>();
             _budgetCashflowUnitPdf = serviceProvider.GetService<IBudgetCashflowUnitPdf>();
+            _budgetCashflowDivisionPdf = serviceProvider.GetService<IBudgetCashflowDivisionPdf>();
             _budgetCashflowUnitExcelGenerator = serviceProvider.GetService<IBudgetCashflowUnitExcelGenerator>();
             _budgetCashflowDivisionExcelGenerator = serviceProvider.GetService<IBudgetCashflowDivisionExcelGenerator>();
         }
@@ -347,6 +349,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 var bytes = stream.ToArray();
 
                 return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("division/pdf")]
+        public IActionResult GeneratePdfDivision([FromQuery] int divisionId, [FromQuery] DateTimeOffset dueDate)
+        {
+            try
+            {
+                VerifyUser();
+                var stream = _budgetCashflowDivisionPdf.Generate(divisionId, dueDate);
+
+                var filename = "Laporan Budget Cashflow Divisi";
+                filename += ".pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = filename
+                };
             }
             catch (Exception e)
             {
