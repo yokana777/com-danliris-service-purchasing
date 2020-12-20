@@ -272,12 +272,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             var worstCases = GetRowDataWorstCase(unitId, dueDate);
 
             SetTitle(document, unit, dueDate);
-            SetUnitTable(document, oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases);
-            //SetBestCaseWorstCaseMark(document);
-            //SetTableHeader(document, unit);
-            //SetLeftRemarkColumn(oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, document);
-            //SetData(oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases, document);
-
+            SetUnitTable(document, unit, oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases);
+           
             document.Close();
             byte[] byteInfo = stream.ToArray();
             stream.Write(byteInfo, 0, byteInfo.Length);
@@ -326,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             document.Add(table);
         }
 
-        private void SetUnitTable(Document document, int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases)
+        private void SetUnitTable(Document document, UnitDto unit, int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases)
         {
             var table = new PdfPTable(13)
             {
@@ -339,6 +335,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 HorizontalAlignment = Element.ALIGN_CENTER,
                 VerticalAlignment = Element.ALIGN_MIDDLE
             };
+
+            var unitName = "";
+            if (unit != null)
+                unitName = unit.Name;
 
             var operatingActivitiesCashInRowCount = 2 + oaciCount + oaciTotalCount;
             var operatingActivitiesCashOutRowCount = 6 + oacoCount + oacoTotalCount;
@@ -377,7 +377,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
 
             cell.Colspan = 3;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("UNIT", _normalBoldFont);
+            cell.Phrase = new Phrase(unitName, _normalBoldFont);
             table.AddCell(cell);
 
             cell.Colspan = 1;
@@ -387,7 +387,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
 
             cell.Colspan = 3;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("UNIT", _normalBoldFont);
+            cell.Phrase = new Phrase(unitName, _normalBoldFont);
             table.AddCell(cell);
 
             cell.Colspan = 1;
@@ -487,19 +487,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -511,19 +511,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -549,19 +549,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -573,19 +573,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -705,19 +705,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -729,19 +729,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -767,19 +767,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -791,19 +791,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -829,19 +829,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -853,19 +853,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -913,19 +913,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -937,19 +937,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -975,19 +975,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -999,19 +999,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -1060,19 +1060,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1084,19 +1084,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
             
@@ -1122,19 +1122,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1146,19 +1146,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
             
@@ -1184,19 +1184,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1208,19 +1208,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -1286,19 +1286,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1310,19 +1310,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
             
@@ -1348,19 +1348,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1372,19 +1372,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -1458,19 +1458,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1482,19 +1482,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(worstCase.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
             
@@ -1520,19 +1520,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1544,19 +1544,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
@@ -1582,19 +1582,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseCurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.BestCaseActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1606,1066 +1606,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.CurrencyNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.Nominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.ActualNominal.ToString(), _smallerFont);
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
 
             document.Add(table);
         }
-
-        //private void SetData(List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases, Document document)
-        //{
-
-        //}
-
-        //private void SetLeftRemarkColumn(int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, Document document)
-        //{
-        //    var table = new PdfPTable(5)
-        //    {
-        //        WidthPercentage = 35
-        //    };
-        //    table.SetWidths(new float[] { 8f, 8f, 2f, 2f, 80f });
-
-        //    // keterangan, mata uang, dll
-        //    var headerCell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_CENTER,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE
-        //    };
-
-        //    // oa, ia, fa
-        //    var sectionCell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_CENTER,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE,
-        //        Rotation = 90
-        //    };
-
-        //    // oaci, oaco, iaci, iaco, faci, faco
-        //    var subSectionCell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_CENTER,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE,
-        //        Rotation = 90
-        //    };
-
-        //    // items
-        //    var subSectionItemCell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_LEFT,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE
-        //    };
-
-        //    // total
-        //    var subSectionTotalCell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_RIGHT,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE
-        //    };
-
-        //    // surplus/deficit
-        //    var subSectionDiffCell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_LEFT,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE
-        //    };
-
-        //    int oaci = 10;
-        //    int oaciTotal = 1;
-        //    int oaco = 65;
-        //    int oacoTotal = 1;
-        //    int oaDiff = 1;
-        //    int oa = oaci + oaciTotal + oaco + oacoTotal + oaDiff;
-        //    int iaci = 2;
-        //    int iaciTotal = 1;
-        //    int iaco = 8;
-        //    int iacoTotal = 1;
-        //    int iaDiff = 1;
-        //    int ia = iaci + iaciTotal + iaco + iacoTotal + iaDiff;
-        //    int faci = 6;
-        //    int faciTotal = 1;
-        //    int faco = 9;
-        //    int facoTotal = 1;
-        //    int faDiff = 1;
-        //    int fa = faci + faciTotal + faco + facoTotal + faDiff;
-
-        //    sectionCell.Phrase = new Phrase("OPERATING ACTIVITIES", _smallBoldFont);
-        //    sectionCell.Rowspan = oa;
-        //    table.AddCell(sectionCell);
-
-        //    subSectionCell.Phrase = new Phrase("CASH IN", _smallBoldFont);
-        //    subSectionCell.Rowspan = oaci + oaciTotal;
-        //    table.AddCell(subSectionCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Revenue", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Penjualan Export", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Penjualan Lokal", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Penjualan Tunai", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Penjualan Intern (Antar Divisi)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Penjualan Intern (Antar Unit Satu Divisi)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("PPN Masukan Intern (Perhitungan)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Revenue from other operating", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Penjualan Lain-lain", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("PPN Masukan Extern (Pembelian Lokal)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionTotalCell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //    subSectionTotalCell.Colspan = 3;
-        //    table.AddCell(subSectionTotalCell);
-
-        //    subSectionCell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
-        //    subSectionCell.Rowspan = oaco + oacoTotal;
-        //    table.AddCell(subSectionCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Cost of Good Sold", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Bahan Baku Import", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Bahan Baku Lokal", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya Tenaga Kerja Langsung/U.Karyawan", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Bahan Pembantu", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("SubCount", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Embalage", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Listrik (PLN)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Batu Bara", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("BBM & Pelumas", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Spare Part & Pemeliharaan Mesin", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("BTKL Staf Unit", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("THR/Bonus Karyawan & Staf Unit", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Gaji/Honor Konsultan & TKA", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Askes & Jamsostek Unit", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Pesangon/Pensiun Unit", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Pengolahan Limbah, ABT, dll", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya Import (Inklaring, Demurage, dll)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Pembelian Intern (Antar Divisi)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Pembelian Intern (Antar Unit Satu Divisi)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("PPN Keluaran Intern (Perhitungan)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Marketing Expenses", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya Penjualan", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Beban Gaji Staf", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Upah Karyawan", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("jpk & jamsost staff& karyw", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("thr & bonus kary & staf", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban iklan, reklame, & pameran", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban perjalanan dinas", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban pengiriman/ongkos angkut", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban komisi penj lokal/exspP.", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban freight/emkl", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("biaya claim", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("biaya pengurusan doc", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban asuransi", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban penjualan lain2", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("General & Administrative Expenses", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("PPN Keluaran Extern (Pejualan Lokal)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Pajak (PPN, PPh,PBB, PNBP dll)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya umum dan administrasi", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban gaji staff kantor", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("upah karyw kantor", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("askes & jamsos kary& staf", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban gaji direksi/direktur", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Beban Pemeliharaan gedung", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban perjalanan dinas", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban pengiriman surat", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban alat tulis", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban air/abt", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban listrik", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban notaris & konsultan", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban training & pendidikan", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban perijinan & sertifikat", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("sumbangan", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("representatif, entertainment tamu dll", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("ass kend, gedung, dan mesin", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban URTP", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("pesangon staf & kary", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("thr & bonus kary & staf umum, dirktur &direksi", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban kendaraan", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban keamanan", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("beban lain-lain", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Telephone, Fax & Internet", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Other Operating Expenses", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya Lainya", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionTotalCell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //    subSectionTotalCell.Colspan = 3;
-        //    table.AddCell(subSectionTotalCell);
-
-        //    subSectionDiffCell.Phrase = new Phrase("Surplus/Deficit-Cash from Operating Activities", _smallerBoldFont);
-        //    subSectionDiffCell.Colspan = 4;
-        //    table.AddCell(subSectionDiffCell);
-
-        //    sectionCell.Phrase = new Phrase("INVESTING ACTIVITIES", _smallBoldFont);
-        //    sectionCell.Rowspan = ia;
-        //    table.AddCell(sectionCell);
-
-        //    subSectionCell.Phrase = new Phrase("CASH IN", _smallBoldFont);
-        //    subSectionCell.Rowspan = iaci + iaciTotal;
-        //    table.AddCell(subSectionCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Deposito", _smallerFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Lain-lain", _smallerFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionTotalCell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //    subSectionTotalCell.Colspan = 3;
-        //    table.AddCell(subSectionTotalCell);
-
-        //    subSectionCell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
-        //    subSectionCell.Rowspan = iaco + iacoTotal;
-        //    table.AddCell(subSectionCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Pembayaran pembelian asset tetap :", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Mesin", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Kendaraan", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Inventaris", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Alat Komputer", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Alat & Bahan Produksi", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Proyek", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Deposito", _smallerFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionTotalCell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //    subSectionTotalCell.Colspan = 3;
-        //    table.AddCell(subSectionTotalCell);
-
-        //    subSectionDiffCell.Phrase = new Phrase("Surplus/Deficit-Cash from Investing Activities", _smallerBoldFont);
-        //    subSectionDiffCell.Colspan = 4;
-        //    table.AddCell(subSectionDiffCell);
-
-        //    sectionCell.Phrase = new Phrase("FINANCING ACTIVITIES", _smallBoldFont);
-        //    sectionCell.Rowspan = fa;
-        //    table.AddCell(sectionCell);
-
-        //    subSectionCell.Phrase = new Phrase("CASH IN", _smallBoldFont);
-        //    subSectionCell.Rowspan = faci + faciTotal;
-        //    table.AddCell(subSectionCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Loan Withdrawal", _smallerFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Others :", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Afiliasi", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Jual Beli Valas", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Cadangan Perusahaan", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Lain-lain (Klaim ass)/tab thr/vb import/giro/dll", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionTotalCell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //    subSectionTotalCell.Colspan = 3;
-        //    table.AddCell(subSectionTotalCell);
-
-        //    subSectionCell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
-        //    subSectionCell.Rowspan = faco + facoTotal;
-        //    table.AddCell(subSectionCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Loan Installment and Interest expense", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Angsuran Kredit", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya Bunga Bank", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Bank Expenses", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Biaya Adm Bank", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Others :", _smallerBoldFont);
-        //    subSectionItemCell.Colspan = 3;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Afiliasi (Psr, Group)", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Jual Beli Valas", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("", _smallerFont);
-        //    subSectionItemCell.Colspan = 1;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionItemCell.Phrase = new Phrase("Lain-lain /efrata/b mndri/md/Cad THR", _smallerFont);
-        //    subSectionItemCell.Colspan = 2;
-        //    table.AddCell(subSectionItemCell);
-
-        //    subSectionTotalCell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //    subSectionTotalCell.Colspan = 3;
-        //    table.AddCell(subSectionTotalCell);
-
-        //    subSectionDiffCell.Phrase = new Phrase("Surplus/Deficit-Cash from Financing Activities", _smallerBoldFont);
-        //    subSectionDiffCell.Colspan = 4;
-        //    table.AddCell(subSectionDiffCell);
-
-        //    document.Add(table);
-
-        //}
-
-        //private void SetTableHeader(Document document, UnitDto unit)
-        //{
-
-        //}
-
-        //private void SetBestCaseWorstCaseMark(Document document)
-        //{
-
-        //}
 
     }
 }
