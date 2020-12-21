@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
         public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword)
         {
-            var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing);
+            var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing && entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.INNo.Contains(keyword));
