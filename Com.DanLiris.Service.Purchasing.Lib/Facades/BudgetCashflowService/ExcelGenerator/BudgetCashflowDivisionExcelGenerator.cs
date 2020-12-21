@@ -1964,7 +1964,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             if (division != null)
                 divisionName = $"DIVISI: {division.Name}";
 
-            var date = $"JATUH TEMPO s.d. {dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
+            var date = $"JATUH TEMPO s.d. {dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).DateTime.ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
 
             worksheet.Cells[1, 1].Value = company;
             worksheet.Cells[1, 1].Style.Font.Size = 20;

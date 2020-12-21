@@ -1500,7 +1500,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             if (unit != null)
                 unitName += unit.Name;
 
-            var dueDateString = $"{dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
+            var dueDateString = $"{dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).DateTime.ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
             var date = $"JATUH TEMPO s.d. {dueDateString}";
 
             worksheet.Cells["A1"].Value = company;
