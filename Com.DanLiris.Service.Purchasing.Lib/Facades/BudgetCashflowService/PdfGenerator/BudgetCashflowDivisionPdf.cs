@@ -154,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             {
                 if (i == 1 | i == 2)
                 {
-                    widths.Add(2f);
+                    widths.Add(3f);
                     continue;
                 }
 
@@ -944,17 +944,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     foreach (var unit in selectedUnits)
                     {
                         var currencyNominal = rowData
-                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && element.CurrencyId == currencyId && element.UnitId == unit.Id)
                             .Sum(element => element.CurrencyNominal);
                         divisionCurrencyNominal += currencyNominal;
 
                         var nominal = rowData
-                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && element.CurrencyId == currencyId && element.UnitId == unit.Id)
                             .Sum(element => element.Nominal);
                         divisionNominal += nominal;
 
                         var actual = rowData
-                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && element.CurrencyId == currencyId && element.UnitId == unit.Id)
                             .Sum(element => element.ActualNominal);
                         actualNominal += actual;
 
@@ -1770,7 +1770,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (!isBankExpensesWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee)
+                if (!isBankExpensesWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest)
                 {
                     isBankExpensesWritten = true;
 
@@ -2036,6 +2036,487 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Colspan = 1;
                 cell.Rowspan = 1;
                 cell.Phrase = new Phrase(string.Format("{0:n}", diffActualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            // DUMMY FOOTER
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 5;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("BEGINNING BALANCE", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 5;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("CASH SURPLUS/DEFICIT", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 5;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("ENDING BALANCE", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                table.AddCell(cell);
+            }
+            
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 2;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Kenyataan", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 2;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Selisih", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 2;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = 3;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("Rate", _smallerBoldFont);
+            table.AddCell(cell);
+
+            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            cell.Colspan = lastColumn - 5;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase(" ", _smallerFont);
+            table.AddCell(cell);
+
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 5;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("TOTAL SURPLUS (DEFISIT) EQUIVALENT", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(" ", _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
                 table.AddCell(cell);
             }
 

@@ -364,7 +364,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 VerifyUser();
                 var stream = _budgetCashflowDivisionPdf.Generate(divisionId, dueDate);
 
-                var filename = "Laporan Budget Cashflow Divisi";
+                var isAll = divisionId | 0;
+
+                var filename = "Laporan Budget Cashflow Semua Divisi";
+                if(isAll != 0)
+                    filename = "Laporan Budget Cashflow Divisi";
                 filename += ".pdf";
 
                 return new FileStreamResult(stream, "application/pdf")

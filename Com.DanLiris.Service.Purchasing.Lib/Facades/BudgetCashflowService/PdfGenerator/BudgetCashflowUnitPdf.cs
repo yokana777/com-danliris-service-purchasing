@@ -1420,7 +1420,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             table.AddCell(cell);
 
             var isCashOutBankInterest = false;
-            var isOthersWritten = false;
+            var isCashOutAffiliates = false;
 
             foreach (var item in faco)
             {
@@ -1435,9 +1435,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isOthersWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutAffiliates && !isCashOutAffiliates)
                 {
-                    isOthersWritten = true;
+                    isCashOutAffiliates = true;
 
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
