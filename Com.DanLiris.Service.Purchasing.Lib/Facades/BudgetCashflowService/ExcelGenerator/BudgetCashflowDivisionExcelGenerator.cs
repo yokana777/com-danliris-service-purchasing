@@ -7,6 +7,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -1963,7 +1964,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             if (division != null)
                 divisionName = $"DIVISI: {division.Name}";
 
-            var date = $"JATUH TEMPO s.d. {dueDate.AddHours(_identityService.TimezoneOffset):dd/MM/yy}";
+            var date = $"JATUH TEMPO s.d. {dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).DateTime.ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
 
             worksheet.Cells[1, 1].Value = company;
             worksheet.Cells[1, 1].Style.Font.Size = 20;
