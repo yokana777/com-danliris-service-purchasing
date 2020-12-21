@@ -9,6 +9,7 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -1499,7 +1500,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             if (unit != null)
                 unitName += unit.Name;
 
-            var dueDateString = $"{dueDate.AddHours(_identityService.TimezoneOffset):dd/MM/yy}";
+            var dueDateString = $"{dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
             var date = $"JATUH TEMPO s.d. {dueDateString}";
 
             worksheet.Cells["A1"].Value = company;
