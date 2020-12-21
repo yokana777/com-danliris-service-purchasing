@@ -88,11 +88,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
 
             var divisionIds = _units.Where(element => unitIds.Contains(element.Id)).Select(element => element.DivisionId).Distinct().ToList();
 
-            var lastColumn = 3 + 1 + (divisionIds.Count * 2) + (unitIds.Count * 2) + 1;
+            var lastColumn = 5 + 1 + (divisionIds.Count * 2) + (unitIds.Count * 2) + 1;
 
             SetTitle(document, divisionId, dueDate, lastColumn);
-            //SetUnitTable(document, unit, oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases);
-           
+            SetDivisionTable(document, unitIds, divisionIds, rowData, lastColumn);
+
             document.Close();
             byte[] byteInfo = stream.ToArray();
             stream.Write(byteInfo, 0, byteInfo.Length);
@@ -142,1678 +142,1904 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             document.Add(table);
         }
 
-        //private void SetUnitTable(Document document, UnitDto unit, int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases)
-        //{
-        //    var table = new PdfPTable(13)
-        //    {
-        //        WidthPercentage = 100
-        //    };
-        //    table.SetWidths(new float[] { 2f, 2f, 1f, 1f, 15f, 5f, 10f, 10f, 10f, 5f, 10f, 10f, 10f });
+        private void SetDivisionTable(Document document, List<int> unitIds, List<int> divisionIds, List<BudgetCashflowDivisionItemDto> rowData, int lastColumn)
+        {
+            var table = new PdfPTable(lastColumn)
+            {
+                WidthPercentage = 100
+            };
 
-        //    var cell = new PdfPCell()
-        //    {
-        //        HorizontalAlignment = Element.ALIGN_CENTER,
-        //        VerticalAlignment = Element.ALIGN_MIDDLE
-        //    };
+            var widths = new List<float>();
+            for (var i = 1; i <= lastColumn; i++)
+            {
+                if (i == 1 | i == 2)
+                {
+                    widths.Add(2f);
+                    continue;
+                }
 
-        //    var unitName = "";
-        //    if (unit != null)
-        //        unitName = unit.Name;
+                if (i == 3 | i == 4)
+                {
+                    widths.Add(1f);
+                    continue;
+                }
 
-        //    var operatingActivitiesCashInRowCount = 2 + oaciCount + oaciTotalCount;
-        //    var operatingActivitiesCashOutRowCount = 6 + oacoCount + oacoTotalCount;
-        //    var operatingActivitiesRowsCount = 2 + oaciCount + oaciTotalCount + 6 + oacoCount + oacoTotalCount + oadiffCount;
-        //    var investingActivitiesCashInRowCount = 1 + iaciCount + iaciTotalCount;
-        //    var investingActivitiesCashOutRowCount = 1 + iacoCount + iacoTotalCount;
-        //    var investingActivitiesRowsCount = 1 + iaciCount + iaciTotalCount + 1 + iacoCount + iacoTotalCount + iadiffCount;
-        //    var financingActivitiesCashInRowsCount = 2 + faciCount + faciTotalCount;
-        //    var financingActivitiesCashOutRowsCount = 3 + facoCount + facoTotalCount;
-        //    var financingActivitiesRowsCount = 2 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
+                if (i == 5)
+                {
+                    widths.Add(15f);
+                    continue;
+                }
 
-        //    cell.BackgroundColor = new BaseColor(197, 90, 17);
-        //    cell.Colspan = 5;
-        //    cell.Rowspan = 3;
-        //    cell.Phrase = new Phrase("KETERANGAN", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+                if (i == 6)
+                {
+                    widths.Add(5f);
+                    continue;
+                }
 
-        //    cell.BackgroundColor = new BaseColor(146, 208, 80);
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("BEST CASE", _normalBoldFont);
-        //    table.AddCell(cell);
+                widths.Add(10f);
+            }
+            table.SetWidths(widths.ToArray());
 
-        //    cell.BackgroundColor = new BaseColor(146, 208, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("ACTUAL", _normalBoldFont);
-        //    table.AddCell(cell);
+            var cell = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE
+            };
 
-        //    cell.BackgroundColor = new BaseColor(255, 0, 0);
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("WORST CASE", _normalBoldFont);
-        //    table.AddCell(cell);
+            cell.BackgroundColor = new BaseColor(197, 90, 17);
+            cell.Colspan = 5;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("KETERANGAN", _normalBoldWhiteFont);
+            table.AddCell(cell);
 
-        //    cell.BackgroundColor = new BaseColor(255, 0, 0);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("ACTUAL", _normalBoldFont);
-        //    table.AddCell(cell);
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("MATA UANG", _normalBoldWhiteFont);
+            table.AddCell(cell);
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(unitName, _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+            _selectedUnits = _units.Where(unit => unitIds.Contains(unit.Id)).ToList();
+            _selectedDivisions = _divisions.Where(division => divisionIds.Contains(division.Id)).ToList();
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 2;
-        //    cell.Phrase = new Phrase("Rp. (000)", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+            foreach (var division in _selectedDivisions)
+            {
+                var units = _selectedUnits.Where(unit => unit.DivisionId == division.Id);
+                foreach (var unit in units)
+                {
+                    cell.BackgroundColor = new BaseColor(23, 50, 80);
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase($"{unit.Name} VALAS", _normalBoldWhiteFont);
+                    table.AddCell(cell);
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(unitName, _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+                    cell.BackgroundColor = new BaseColor(23, 50, 80);
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase($"{unit.Name} IDR", _normalBoldWhiteFont);
+                    table.AddCell(cell);
+                }
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 2;
-        //    cell.Phrase = new Phrase("Rp. (000)", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+                cell.BackgroundColor = new BaseColor(23, 50, 80);
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase($"DIVISI {division.Name} VALAS", _normalBoldWhiteFont);
+                table.AddCell(cell);
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("MATA UANG", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+                cell.BackgroundColor = new BaseColor(23, 50, 80);
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase($"DIVISI {division.Name} IDR", _normalBoldWhiteFont);
+                table.AddCell(cell);
+            }
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("NOMINAL VALAS", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+            cell.BackgroundColor = new BaseColor(23, 50, 80);
+            cell.Colspan = 1;
+            cell.Rowspan = 1;
+            cell.Phrase = new Phrase("ACTUAL", _normalBoldWhiteFont);
+            table.AddCell(cell);
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("NOMINAL IDR", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+            // COUNT ROWS
+            var oaciRow = 0;
+            var oaciTotalRow = 0;
+            var oacoRow = 0;
+            var oacoTotalRow = 0;
+            var oaDiffRow = 0;
+            var iaciRow = 0;
+            var iaciTotalRow = 0;
+            var iacoRow = 0;
+            var iacoTotalRow = 0;
+            var iaDiffRow = 0;
+            var faciRow = 0;
+            var faciTotalRow = 0;
+            var facoRow = 0;
+            var facoTotalRow = 0;
+            var faDiffRow = 0;
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("MATA UANG", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+            // OACI ROWS
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.ExportSales; layoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("NOMINAL VALAS", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
 
-        //    cell.BackgroundColor = new BaseColor(23, 50, 80);
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("NOMINAL IDR", _normalBoldWhiteFont);
-        //    table.AddCell(cell);
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
 
-        //    cell.BackgroundColor = new BaseColor(255, 255, 255);
-        //    cell.Rotation = 90;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = operatingActivitiesRowsCount;
-        //    cell.Phrase = new Phrase("OPERATING ACTIVITIES", _smallBoldFont);
-        //    table.AddCell(cell);
+                    oaciRow += 1;
+                }
+            }
 
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = operatingActivitiesCashInRowCount;
-        //    cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
-        //    table.AddCell(cell);
+            var oaciTotalCurrencyIds = rowData
+                .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation)
+                .Select(element => element.CurrencyId)
+                .Distinct()
+                .ToList();
 
-        //    cell.Rotation = 0;
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 11;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Revenue", _smallerBoldFont);
-        //    table.AddCell(cell);
+            if (oaciTotalCurrencyIds.Count > 1)
+                oaciTotalCurrencyIds = oaciTotalCurrencyIds.Where(element => element > 0).ToList();
 
-        //    var isOthersSales = false;
+            // OACI TOTAL ROWS
+            foreach (var currencyId in oaciTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                oaciTotalRow += 1;
+            }
+
+            // OACO ROWS
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial; layoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    oacoRow += 1;
+                }
+            }
+
+            var oacoTotalCurrencyIds = rowData
+                .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost)
+                .Select(element => element.CurrencyId)
+                .Distinct()
+                .ToList();
+
+            if (oacoTotalCurrencyIds.Count > 1)
+                oacoTotalCurrencyIds = oacoTotalCurrencyIds.Where(element => element > 0).ToList();
+
+            // OACO TOTAL ROWS
+            foreach (var currencyId in oacoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                oacoTotalRow += 1;
+            }
+
+            var oadiffCurrencyIds = oaciTotalCurrencyIds.Concat(oacoTotalCurrencyIds).Distinct().ToList();
+            if (oadiffCurrencyIds.Count > 1)
+                oadiffCurrencyIds = oadiffCurrencyIds.Where(element => element > 0).ToList();
+
+            // OA DIFF ROWS
+            foreach (var currencyId in oadiffCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                oaDiffRow += 1;
+            }
+
+            // IACI ROWS
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.CashInDeposit; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers; layoutOrder++)
+            {
+
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    iaciRow += 1;
+                }
+            }
+
+            var iaciTotalCurrencyIds = rowData
+                .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers)
+                .Select(element => element.CurrencyId)
+                .Distinct()
+                .ToList();
+
+            if (iaciTotalCurrencyIds.Count > 1)
+                iaciTotalCurrencyIds = iaciTotalCurrencyIds.Where(element => element > 0).ToList();
+
+            // IACI TOTAL ROWS
+            foreach (var currencyId in iaciTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                iaciTotalRow += 1;
+            }
+
+            // IACO ROWS
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.MachineryPurchase; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    iacoRow += 1;
+                }
+            }
+
+            var iacoTotalCurrencyIds = rowData
+                .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit)
+                .Select(element => element.CurrencyId)
+                .Distinct()
+                .ToList();
+
+            if (iacoTotalCurrencyIds.Count > 1)
+                iacoTotalCurrencyIds = iacoTotalCurrencyIds.Where(element => element > 0).ToList();
+
+            // IACO TOTAL ROWS
+            foreach (var currencyId in iacoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                iacoTotalRow += 1;
+            }
+
+            var iadiffCurrencyIds = iaciTotalCurrencyIds.Concat(iacoTotalCurrencyIds).Distinct().ToList();
+            if (iadiffCurrencyIds.Count > 1)
+                iadiffCurrencyIds = iadiffCurrencyIds.Where(element => element > 0).ToList();
+
+            // IA DIFF ROWS
+            foreach (var currencyId in iadiffCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                iaDiffRow += 1;
+            }
+
+            // FACI ROWS
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers; layoutOrder++)
+            {
+
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    faciRow += 1;
+                }
+            }
+
+            var faciTotalCurrencyIds = rowData
+                .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers)
+                .Select(element => element.CurrencyId)
+                .Distinct()
+                .ToList();
+
+            if (faciTotalCurrencyIds.Count > 1)
+                faciTotalCurrencyIds = faciTotalCurrencyIds.Where(element => element > 0).ToList();
+
+            // FACI TOTAL ROWS
+            foreach (var currencyId in faciTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                faciTotalRow += 1;
+            }
+
+            // FACO ROWS
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.CashOutInstallments; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    facoRow += 1;
+                }
+            }
+
+            var facoTotalCurrencyIds = rowData
+                .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers)
+                .Select(element => element.CurrencyId)
+                .Distinct()
+                .ToList();
+
+            if (facoTotalCurrencyIds.Count > 1)
+                facoTotalCurrencyIds = facoTotalCurrencyIds.Where(element => element > 0).ToList();
+
+            // FACO TOTAL ROWS
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                facoTotalRow += 1;
+            }
+
+            var fadiffCurrencyIds = faciTotalCurrencyIds.Concat(facoTotalCurrencyIds).Distinct().ToList();
+            if (fadiffCurrencyIds.Count > 1)
+                fadiffCurrencyIds = fadiffCurrencyIds.Where(element => element > 0).ToList();
+
+            // FA DIFF ROWS
+            foreach (var currencyId in fadiffCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                faDiffRow += 1;
+            }
+
+            cell.BackgroundColor = new BaseColor(255, 255, 255);
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 2 + oaciRow + oaciTotalRow + 6 + oacoRow + oacoTotalRow + oaDiffRow;
+            cell.Phrase = new Phrase("OPERATING ACTIVITIES", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 2 + oaciRow + oaciTotalRow;
+            cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
+            table.AddCell(cell);
+
+            // OACI
+            var isRevenueWritten = false;
+            var isRevenueFromOtherWritten = false;
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.ExportSales; layoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation; layoutOrder++)
+            {
+
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                if (!isRevenueWritten)
+                {
+                    isRevenueWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Revenue", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isRevenueFromOtherWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales)
+                {
+                    isRevenueFromOtherWritten = true;
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Revenue from other operating", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("", _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(layoutOrder.ToDescriptionString(), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                    table.AddCell(cell);
+
+                    var actual = 0.0;
+                    foreach (var division in _selectedDivisions)
+                    {
+                        var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                        var currencyNominalDivision = 0.0;
+                        var nominalDivision = 0.0;
+                        foreach (var unit in selectedUnits)
+                        {
+                            var data = selectedData.FirstOrDefault(element => element.CurrencyId == currencyId && element.UnitId == unit.Id);
+                            if (data == null)
+                                data = new BudgetCashflowDivisionItemDto();
+
+                            currencyNominalDivision += data.CurrencyNominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyNominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            nominalDivision += data.Nominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.Nominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            actual += data.ActualNominal;
+                        }
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominalDivision), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominalDivision), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", actual), _smallerFont);
+                    table.AddCell(cell);
+                }
             
-        //    foreach (var item in oaci)
-        //    {
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales && !isOthersSales)
-        //        {
-        //            isOthersSales = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Revenue from other operating", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
-        //        if (worstCase == null)
-        //            worstCase = new BudgetCashflowItemDto();
-
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("", _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 2;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    foreach (var item in oaciTotal)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    cell.Rotation = 90;
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = operatingActivitiesCashOutRowCount;
-        //    cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Rotation = 0;
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 11;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Cost of Good Sold", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    var isMarketingSalaryCost = false;
-        //    var isStillMarketingSalaryCost = false;
-        //    var isGeneralAdministrativeExternalOutcomeVATCalculation = false;
-        //    var isGeneralAdministrativeSalaryCost = false;
-        //    var isOthersOperationalCost = false;
-
-        //    foreach (var item in oaco)
-        //    {
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isMarketingSalaryCost)
-        //        {
-        //            isMarketingSalaryCost = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Marketing Expenses", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isStillMarketingSalaryCost)
-        //        {
-        //            isStillMarketingSalaryCost = true;
-
-        //            cell.Colspan = 1;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("", _smallerBoldFont);
-        //            table.AddCell(cell);
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 10;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Biaya Penjualan", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeExternalOutcomeVATCalculation && !isGeneralAdministrativeExternalOutcomeVATCalculation)
-        //        {
-        //            isGeneralAdministrativeExternalOutcomeVATCalculation = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("General & Administrative Expenses", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeSalaryCost && !isGeneralAdministrativeSalaryCost)
-        //        {
-        //            isGeneralAdministrativeSalaryCost = true;
-
-        //            cell.Colspan = 1;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("", _smallerBoldFont);
-        //            table.AddCell(cell);
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 10;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Biaya umum dan administrasi", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && !isOthersOperationalCost)
-        //        {
-        //            isOthersOperationalCost = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Other Operating Expenses", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
-        //        if (worstCase == null)
-        //            worstCase = new BudgetCashflowItemDto();
-
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("", _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 2;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    foreach (var item in oacoTotal)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    foreach (var item in oadiff)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 4;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Surplus/Deficit-Cash from Operating Activities", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    cell.Rotation = 90;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = investingActivitiesRowsCount;
-        //    cell.Phrase = new Phrase("INVESTING ACTIVITIES", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = investingActivitiesCashInRowCount;
-        //    cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Rotation = 0;
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 11;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    foreach (var item in iaci)
-        //    {
-        //        var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
-        //        if (worstCase == null)
-        //            worstCase = new BudgetCashflowItemDto();
-
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    foreach (var item in iaciTotal)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    cell.Rotation = 90;
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = investingActivitiesCashOutRowCount;
-        //    cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Rotation = 0;
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 11;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Pembayaran pembelian asset tetap :", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    foreach (var item in iaco)
-        //    {
-        //        var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
-        //        if (worstCase == null)
-        //            worstCase = new BudgetCashflowItemDto();
-
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("", _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 2;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-            
-        //    foreach (var item in iacoTotal)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-            
-        //    foreach (var item in iadiff)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 4;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Surplus/Deficit-Cash from Investing Activities", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    cell.Rotation = 90;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = financingActivitiesRowsCount;
-        //    cell.Phrase = new Phrase("FINANCING ACTIVITIES", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = financingActivitiesCashInRowsCount;
-        //    cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Rotation = 0;
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 11;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    var isCashInAffiliates = false;
-            
-        //    foreach (var item in faci)
-        //    {
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashInAffiliates && !isCashInAffiliates)
-        //        {
-        //            isCashInAffiliates = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Others :", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
-        //        if (worstCase == null)
-        //            worstCase = new BudgetCashflowItemDto();
-
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("", _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 2;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-            
-        //    foreach (var item in faciTotal)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    cell.Rotation = 90;
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = financingActivitiesCashOutRowsCount;
-        //    cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.Rotation = 0;
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 11;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Loan Installment and Interest expense", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    var isCashOutBankInterest = false;
-        //    var isOthersWritten = false;
-
-        //    foreach (var item in faco)
-        //    {
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isCashOutBankInterest)
-        //        {
-        //            isCashOutBankInterest = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Bank Expenses", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isOthersWritten)
-        //        {
-        //            isOthersWritten = true;
-
-        //            cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //            cell.Colspan = 11;
-        //            cell.Rowspan = 1;
-        //            cell.Phrase = new Phrase("Others :", _smallerBoldFont);
-        //            table.AddCell(cell);
-        //        }
-
-        //        var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
-        //        if (worstCase == null)
-        //            worstCase = new BudgetCashflowItemDto();
-
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("", _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 2;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-            
-        //    foreach (var item in facoTotal)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 3;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Total", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    foreach (var item in fadiff)
-        //    {
-        //        var currencyCode = "";
-        //        var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
-        //        if (currency != null)
-        //            currencyCode = currency.Code;
-
-        //        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //        cell.Colspan = 4;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase("Surplus/Deficit-Cash from Financing Activities", _smallerBoldFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(currencyCode, _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
-        //        table.AddCell(cell);
-
-        //        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //        cell.Colspan = 1;
-        //        cell.Rowspan = 1;
-        //        cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
-        //        table.AddCell(cell);
-        //    }
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 5;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("BEGINNING BALANCE", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 5;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("CASH SURPLUS/DEFICIT", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 5;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("ENDING BALANCE", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 2;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Kenyataan", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 2;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Selisih", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 2;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 3;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("Rate", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        //    cell.Colspan = 8;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 5;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase("TOTAL SURPLUS (DEFISIT) EQUIVALENT", _smallerBoldFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_CENTER;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(" ", _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-        //    cell.Colspan = 1;
-        //    cell.Rowspan = 1;
-        //    cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-        //    table.AddCell(cell);
-
-        //    document.Add(table);
-        //}
-
+            }
+
+            // OACI TOTAL
+            foreach (var currencyId in oaciTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", actualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 6 + oacoRow + oacoTotalRow;
+            cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
+            table.AddCell(cell);
+            cell.Rotation = 0;
+
+            // OACO
+            var isCOGSWritten = false;
+            var isMarketingExpenseWritten = false;
+            var isSalesCost = false;
+            var isGeneralAdministrativeExpense = false;
+            var isGeneralAdministrationCost = false;
+            var isOtherOperatingExpense = false;
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial; layoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                if (!isCOGSWritten)
+                {
+                    isCOGSWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Cost of Good Sold", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isMarketingExpenseWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost)
+                {
+                    isMarketingExpenseWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Marketing Expenses", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isSalesCost && layoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost)
+                {
+                    isSalesCost = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerBoldFont);
+                    table.AddCell(cell);
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 3;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Biaya Penjualan", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isGeneralAdministrativeExpense && layoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeExternalOutcomeVATCalculation)
+                {
+                    isGeneralAdministrativeExpense = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("General & Administrative Expenses", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isGeneralAdministrationCost && layoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeSalaryCost)
+                {
+                    isGeneralAdministrationCost = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerBoldFont);
+                    table.AddCell(cell);
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 3;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Biaya umum dan administrasi", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isOtherOperatingExpense && layoutOrder == BudgetCashflowCategoryLayoutOrder.OthersOperationalCost)
+                {
+                    isOtherOperatingExpense = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Other Operating Expenses", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(layoutOrder.ToDescriptionString(), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                    table.AddCell(cell);
+
+                    var actual = 0.0;
+                    foreach (var division in _selectedDivisions)
+                    {
+                        var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                        var currencyNominalDivision = 0.0;
+                        var nominalDivision = 0.0;
+                        foreach (var unit in selectedUnits)
+                        {
+                            var data = selectedData.FirstOrDefault(element => element.CurrencyId == currencyId && element.UnitId == unit.Id);
+                            if (data == null)
+                                data = new BudgetCashflowDivisionItemDto();
+
+                            currencyNominalDivision += data.CurrencyNominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyNominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            nominalDivision += data.Nominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.Nominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            actual += data.ActualNominal;
+                        }
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominalDivision), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominalDivision), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", actual), _smallerFont);
+                    table.AddCell(cell);
+                }
+            }
+
+            // OACO TOTAL
+            foreach (var currencyId in oacoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", actualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            // OA DIFF
+            foreach (var currencyId in oadiffCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 4;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Operating Activities", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var diffActualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionDiffCurrencyNominal = 0.0;
+                    var divisionDiffNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var cashInCurrencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+
+                        var cashOutCurrencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+
+                        var cashInNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+
+                        var cashOutNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+
+                        var cashInActualNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ExportSales && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.ExternalIncomeVATCalculation && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+
+                        var cashOutActualNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+
+                        divisionDiffCurrencyNominal += cashInCurrencyNominal - cashOutCurrencyNominal;
+                        divisionDiffNominal += cashInNominal - cashOutNominal;
+                        diffActualNominal += cashInActualNominal - cashOutActualNominal;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", cashInCurrencyNominal - cashOutCurrencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", cashInNominal - cashOutNominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionDiffCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionDiffNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", diffActualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.BackgroundColor = new BaseColor(255, 255, 255);
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1 + iaciRow + iaciTotalRow + 1 + iacoRow + iacoTotalRow + iaDiffRow;
+            cell.Phrase = new Phrase("INVESTING ACTIVITIES", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1 + iaciRow + iaciTotalRow;
+            cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
+            table.AddCell(cell);
+
+            // IACI
+            var isEmptyWritten = false;
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.CashInDeposit; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                if (!isEmptyWritten)
+                {
+                    isEmptyWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("", _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(layoutOrder.ToDescriptionString(), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                    table.AddCell(cell);
+
+                    var actual = 0.0;
+                    foreach (var division in _selectedDivisions)
+                    {
+                        var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                        var currencyNominalDivision = 0.0;
+                        var nominalDivision = 0.0;
+                        foreach (var unit in selectedUnits)
+                        {
+                            var data = selectedData.FirstOrDefault(element => element.CurrencyId == currencyId && element.UnitId == unit.Id);
+                            if (data == null)
+                                data = new BudgetCashflowDivisionItemDto();
+
+                            currencyNominalDivision += data.CurrencyNominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyNominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            nominalDivision += data.Nominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.Nominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            actual += data.ActualNominal;
+                        }
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominalDivision), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominalDivision), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", actual), _smallerFont);
+                    table.AddCell(cell);
+                }
+            }
+
+            // IACI TOTAL
+            foreach (var currencyId in iaciTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", actualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 1 + iacoRow + iacoTotalRow;
+            cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
+            table.AddCell(cell);
+            cell.Rotation = 0;
+
+            // IACO
+            var isAssetPurchaseWritten = false;
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.MachineryPurchase; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                if (!isAssetPurchaseWritten)
+                {
+                    isAssetPurchaseWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Pembayaran pembelian asset tetap :", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(layoutOrder.ToDescriptionString(), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                    table.AddCell(cell);
+
+                    var actual = 0.0;
+                    foreach (var division in _selectedDivisions)
+                    {
+                        var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                        var currencyNominalDivision = 0.0;
+                        var nominalDivision = 0.0;
+                        foreach (var unit in selectedUnits)
+                        {
+                            var data = selectedData.FirstOrDefault(element => element.CurrencyId == currencyId && element.UnitId == unit.Id);
+                            if (data == null)
+                                data = new BudgetCashflowDivisionItemDto();
+
+                            currencyNominalDivision += data.CurrencyNominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyNominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            nominalDivision += data.Nominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.Nominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            actual += data.ActualNominal;
+                        }
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominalDivision), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominalDivision), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", actual), _smallerFont);
+                    table.AddCell(cell);
+                }
+            }
+
+            // IACO TOTAL
+            foreach (var currencyId in iacoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", actualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            // IA DIFF
+            foreach (var currencyId in iadiffCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 4;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Investing Activities", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var diffActualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionDiffCurrencyNominal = 0.0;
+                    var divisionDiffNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var cashInCurrencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+
+                        var cashOutCurrencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+
+                        var cashInNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+
+                        var cashOutNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+
+                        var cashInActualNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInDeposit && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+
+                        var cashOutActualNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.MachineryPurchase && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutDeposit && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+
+                        divisionDiffCurrencyNominal += cashInCurrencyNominal - cashOutCurrencyNominal;
+                        divisionDiffNominal += cashInNominal - cashOutNominal;
+                        diffActualNominal += cashInActualNominal - cashOutActualNominal;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", cashInCurrencyNominal - cashOutCurrencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", cashInNominal - cashOutNominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionDiffCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionDiffNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", diffActualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.BackgroundColor = new BaseColor(255, 255, 255);
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 2 + faciRow + faciTotalRow + 3 + facoRow + facoTotalRow + faDiffRow;
+            cell.Phrase = new Phrase("FINANCING ACTIVITIES", _smallBoldFont);
+            table.AddCell(cell);
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 2 + faciRow + faciTotalRow;
+            cell.Phrase = new Phrase("CASH IN", _smallBoldFont);
+            table.AddCell(cell);
+
+            // FACI
+            isEmptyWritten = false;
+            var isOthersWritten = false;
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                if (!isEmptyWritten)
+                {
+                    isEmptyWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isOthersWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashInAffiliates)
+                {
+                    isOthersWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Others :", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("", _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(layoutOrder.ToDescriptionString(), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                    table.AddCell(cell);
+
+                    var actual = 0.0;
+                    foreach (var division in _selectedDivisions)
+                    {
+                        var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                        var currencyNominalDivision = 0.0;
+                        var nominalDivision = 0.0;
+                        foreach (var unit in selectedUnits)
+                        {
+                            var data = selectedData.FirstOrDefault(element => element.CurrencyId == currencyId && element.UnitId == unit.Id);
+                            if (data == null)
+                                data = new BudgetCashflowDivisionItemDto();
+
+                            currencyNominalDivision += data.CurrencyNominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyNominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            nominalDivision += data.Nominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.Nominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            actual += data.ActualNominal;
+                        }
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominalDivision), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominalDivision), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", actual), _smallerFont);
+                    table.AddCell(cell);
+                }
+            }
+
+            // FACI TOTAL
+            foreach (var currencyId in faciTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", actualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            cell.Rotation = 90;
+            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell.Colspan = 1;
+            cell.Rowspan = 3 + facoRow + facoTotalRow;
+            cell.Phrase = new Phrase("CASH OUT", _smallBoldFont);
+            table.AddCell(cell);
+            cell.Rotation = 0;
+
+            // FACO
+            var isLoanInstallmentWritten = false;
+            var isBankExpensesWritten = false;
+            var isCashOutOthersWritten = false;
+            for (var layoutOrder = BudgetCashflowCategoryLayoutOrder.CashOutInstallments; layoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers; layoutOrder++)
+            {
+                var selectedData = rowData.Where(element => element.LayoutOrder == layoutOrder);
+
+                if (!isLoanInstallmentWritten)
+                {
+                    isLoanInstallmentWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Loan Installment and Interest expense", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isBankExpensesWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee)
+                {
+                    isBankExpensesWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Bank Expenses", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                if (!isCashOutOthersWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutAffiliates)
+                {
+                    isCashOutOthersWritten = true;
+
+                    cell.Rotation = 0;
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = lastColumn - 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase("Others :", _smallerBoldFont);
+                    table.AddCell(cell);
+                }
+
+                var currencyIds = selectedData.Select(item => item.CurrencyId).Distinct().ToList();
+                if (currencyIds.Count > 1)
+                    currencyIds = currencyIds.Where(element => element > 0).ToList();
+
+                foreach (var currencyId in currencyIds)
+                {
+                    var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                    if (currency == null)
+                        currency = new CurrencyDto();
+
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(" ", _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                    cell.Colspan = 2;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(layoutOrder.ToDescriptionString(), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                    table.AddCell(cell);
+
+                    var actual = 0.0;
+                    foreach (var division in _selectedDivisions)
+                    {
+                        var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                        var currencyNominalDivision = 0.0;
+                        var nominalDivision = 0.0;
+                        foreach (var unit in selectedUnits)
+                        {
+                            var data = selectedData.FirstOrDefault(element => element.CurrencyId == currencyId && element.UnitId == unit.Id);
+                            if (data == null)
+                                data = new BudgetCashflowDivisionItemDto();
+
+                            currencyNominalDivision += data.CurrencyNominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.CurrencyNominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            nominalDivision += data.Nominal;
+
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            cell.Colspan = 1;
+                            cell.Rowspan = 1;
+                            cell.Phrase = new Phrase(string.Format("{0:n}", data.Nominal), _smallerFont);
+                            table.AddCell(cell);
+
+                            actual += data.ActualNominal;
+                        }
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominalDivision), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominalDivision), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", actual), _smallerFont);
+                    table.AddCell(cell);
+                }
+            }
+
+            // FACO TOTAL
+            foreach (var currencyId in facoTotalCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 3;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var actualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionCurrencyNominal = 0.0;
+                    var divisionNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var currencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+                        divisionCurrencyNominal += currencyNominal;
+
+                        var nominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+                        divisionNominal += nominal;
+
+                        var actual = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+                        actualNominal += actual;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", currencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", nominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", actualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            // FA DIFF
+            foreach (var currencyId in fadiffCurrencyIds)
+            {
+                var currency = _currencies.FirstOrDefault(element => element.Id == currencyId);
+                if (currency == null)
+                    currency = new CurrencyDto();
+
+                cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                cell.Colspan = 4;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Financing Activities", _smallerBoldFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currency.Code, _smallerFont);
+                table.AddCell(cell);
+
+                var diffActualNominal = 0.0;
+                foreach (var division in _selectedDivisions)
+                {
+                    var selectedUnits = _selectedUnits.Where(unit => unit.DivisionId == division.Id).ToList();
+
+                    var divisionDiffCurrencyNominal = 0.0;
+                    var divisionDiffNominal = 0.0;
+                    foreach (var unit in selectedUnits)
+                    {
+                        var cashInCurrencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+
+                        var cashOutCurrencyNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.CurrencyNominal);
+
+                        var cashInNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+
+                        var cashOutNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.Nominal);
+
+                        var cashInActualNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawal && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashInLoanWithdrawalOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+
+                        var cashOutActualNominal = rowData
+                            .Where(element => element.LayoutOrder >= BudgetCashflowCategoryLayoutOrder.CashOutInstallments && element.LayoutOrder <= BudgetCashflowCategoryLayoutOrder.CashOutOthers && element.CurrencyId == currencyId && element.UnitId == unit.Id)
+                            .Sum(element => element.ActualNominal);
+
+                        divisionDiffCurrencyNominal += cashInCurrencyNominal - cashOutCurrencyNominal;
+                        divisionDiffNominal += cashInNominal - cashOutNominal;
+                        diffActualNominal += cashInActualNominal - cashOutActualNominal;
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", cashInCurrencyNominal - cashOutCurrencyNominal), _smallerFont);
+                        table.AddCell(cell);
+
+                        cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        cell.Colspan = 1;
+                        cell.Rowspan = 1;
+                        cell.Phrase = new Phrase(string.Format("{0:n}", cashInNominal - cashOutNominal), _smallerFont);
+                        table.AddCell(cell);
+                    }
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionDiffCurrencyNominal), _smallerFont);
+                    table.AddCell(cell);
+
+                    cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    cell.Colspan = 1;
+                    cell.Rowspan = 1;
+                    cell.Phrase = new Phrase(string.Format("{0:n}", divisionDiffNominal), _smallerFont);
+                    table.AddCell(cell);
+                }
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", diffActualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+
+            document.Add(table);
+        }
     }
 }
