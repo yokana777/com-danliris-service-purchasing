@@ -8,6 +8,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -291,7 +292,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             if (unit != null)
                 unitName += unit.Name;
 
-            var dueDateString = $"{dueDate.AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+            var dueDateString = $"{dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).DateTime.ToString("MMMM yyyy", new CultureInfo("id-ID")).ToUpper()}";
             var date = $"PERIODE S.D. {dueDateString}";
 
             var table = new PdfPTable(1)
@@ -461,7 +462,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             table.AddCell(cell);
 
             var isOthersSales = false;
-            
+            int firstOaci = 0;
             foreach (var item in oaci)
             {
                 if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales && !isOthersSales)
@@ -489,10 +490,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cell);
 
+                var oaciLabel = "";
+                if ((int)item.LayoutOrder != firstOaci)
+                {
+                    oaciLabel = item.LayoutOrder.ToDescriptionString();
+                    firstOaci = (int)item.LayoutOrder;
+                }
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                cell.Phrase = new Phrase(oaciLabel, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -544,6 +552,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 table.AddCell(cell);
             }
 
+            bool firstOaciTotal = true;
             foreach (var item in oaciTotal)
             {
                 var currencyCode = "";
@@ -551,10 +560,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var oaciTotalLabel = firstOaciTotal ? "Total" : "";
+                firstOaciTotal = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                cell.Phrase = new Phrase(oaciTotalLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -625,7 +637,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             var isGeneralAdministrativeExternalOutcomeVATCalculation = false;
             var isGeneralAdministrativeSalaryCost = false;
             var isOthersOperationalCost = false;
-
+            int firstOaco = 0;
             foreach (var item in oaco)
             {
                 if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isMarketingSalaryCost)
@@ -707,10 +719,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cell);
 
+                var oacoLabel = "";
+                if((int)item.LayoutOrder != firstOaco)
+                {
+                    oacoLabel = item.LayoutOrder.ToDescriptionString();
+                    firstOaco = (int)item.LayoutOrder;
+                }
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                cell.Phrase = new Phrase(oacoLabel, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -762,6 +781,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 table.AddCell(cell);
             }
 
+            bool firstOacoTotal = true;
             foreach (var item in oacoTotal)
             {
                 var currencyCode = "";
@@ -769,10 +789,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var oacoTotalLabel = firstOacoTotal ? "Total" : "";
+                firstOacoTotal = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                cell.Phrase = new Phrase(oacoTotalLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -824,6 +847,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 table.AddCell(cell);
             }
 
+            bool firstOaDiff = true;
             foreach (var item in oadiff)
             {
                 var currencyCode = "";
@@ -831,10 +855,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var oadiffLabel = firstOaDiff ? "Surplus/Deficit-Cash from Operating Activities" : "";
+                firstOaDiff = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 4;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Operating Activities", _smallerBoldFont);
+                cell.Phrase = new Phrase(oadiffLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -904,6 +931,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.Phrase = new Phrase(" ", _smallerFont);
             table.AddCell(cell);
 
+            int firstIaci = 0;
             foreach (var item in iaci)
             {
                 var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
@@ -915,10 +943,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var iaciLabel = "";
+                if ((int)item.LayoutOrder != firstIaci)
+                {
+                    iaciLabel = item.LayoutOrder.ToDescriptionString();
+                    firstIaci = (int)item.LayoutOrder;
+                }
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                cell.Phrase = new Phrase(iaciLabel, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -970,6 +1005,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 table.AddCell(cell);
             }
 
+            bool firstIaciTotal = true;
             foreach (var item in iaciTotal)
             {
                 var currencyCode = "";
@@ -977,10 +1013,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var iaciTotalLabel = firstIaciTotal ? "Total" : "";
+                firstIaciTotal = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                cell.Phrase = new Phrase(iaciTotalLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1046,6 +1085,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.Phrase = new Phrase("Pembayaran pembelian asset tetap :", _smallerBoldFont);
             table.AddCell(cell);
 
+            int firstIaco = 0;
             foreach (var item in iaco)
             {
                 var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
@@ -1062,10 +1102,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cell);
 
+                var iacoLabel = "";
+                if ((int)item.LayoutOrder != firstIaco)
+                {
+                    iacoLabel = item.LayoutOrder.ToDescriptionString();
+                    firstIaco = (int)item.LayoutOrder;
+                }
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                cell.Phrase = new Phrase(iacoLabel, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1116,7 +1163,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
-            
+
+            bool firstIacoTotal = true;
             foreach (var item in iacoTotal)
             {
                 var currencyCode = "";
@@ -1124,10 +1172,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var iacoTotalLabel = firstIacoTotal ? "Total" : "";
+                firstIacoTotal = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                cell.Phrase = new Phrase(iacoTotalLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1178,7 +1229,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
-            
+
+            bool firstIaDiff = true;
             foreach (var item in iadiff)
             {
                 var currencyCode = "";
@@ -1186,10 +1238,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var iadiffLabel = firstIaDiff ? "Surplus/Deficit-Cash from Investing Activities" : "";
+                firstIaDiff = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 4;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Investing Activities", _smallerBoldFont);
+                cell.Phrase = new Phrase(iadiffLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1260,7 +1315,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             table.AddCell(cell);
 
             var isCashInAffiliates = false;
-            
+            int firstFaci = 0;
             foreach (var item in faci)
             {
                 if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashInAffiliates && !isCashInAffiliates)
@@ -1288,10 +1343,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cell);
 
+                var faciLabel = "";
+                if ((int)item.LayoutOrder != firstFaci)
+                {
+                    faciLabel = item.LayoutOrder.ToDescriptionString();
+                    firstFaci = (int)item.LayoutOrder;
+                }
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                cell.Phrase = new Phrase(faciLabel, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1342,7 +1404,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
-            
+
+            bool firstFaciTotal = true;
             foreach (var item in faciTotal)
             {
                 var currencyCode = "";
@@ -1350,10 +1413,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var faciTotalLabel = firstFaciTotal ? "Total" : "";
+                firstFaciTotal = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                cell.Phrase = new Phrase(faciTotalLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1421,7 +1487,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
 
             var isCashOutBankInterest = false;
             var isCashOutAffiliates = false;
-
+            int firstFaco = 0;
             foreach (var item in faco)
             {
                 if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isCashOutBankInterest)
@@ -1460,10 +1526,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase("", _smallerFont);
                 table.AddCell(cell);
 
+                var facoLabel = "";
+                if ((int)item.LayoutOrder != firstFaco)
+                {
+                    facoLabel = item.LayoutOrder.ToDescriptionString();
+                    firstFaco = (int)item.LayoutOrder;
+                }
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(item.LayoutOrder.ToDescriptionString(), _smallerFont);
+                cell.Phrase = new Phrase(facoLabel, _smallerFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1514,7 +1587,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.Phrase = new Phrase(string.Format("{0:n}", worstCase.ActualNominal), _smallerFont);
                 table.AddCell(cell);
             }
-            
+
+            bool firstFacoTotal = true;
             foreach (var item in facoTotal)
             {
                 var currencyCode = "";
@@ -1522,10 +1596,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var facoTotalLabel = firstFacoTotal ? "Total" : "";
+                firstFacoTotal = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Total", _smallerBoldFont);
+                cell.Phrase = new Phrase(facoTotalLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1577,6 +1654,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 table.AddCell(cell);
             }
 
+            bool firstFaDiff = true;
             foreach (var item in fadiff)
             {
                 var currencyCode = "";
@@ -1584,10 +1662,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
+                var fadiffLabel = firstFaDiff ? "Surplus/Deficit-Cash from Financing Activities" : "";
+                firstFaDiff = false;
+
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 4;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase("Surplus/Deficit-Cash from Financing Activities", _smallerBoldFont);
+                cell.Phrase = new Phrase(fadiffLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
