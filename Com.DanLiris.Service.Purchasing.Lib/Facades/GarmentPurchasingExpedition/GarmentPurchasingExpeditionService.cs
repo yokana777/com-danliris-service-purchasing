@@ -42,7 +42,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var internalNoteIds = internalNotes.Select(element => element.Id).ToList();
             var internalNoteItems = _dbContext.GarmentInternNoteItems.Where(entity => internalNoteIds.Contains(entity.GarmentINId)).Select(entity => new { entity.Id, entity.GarmentINId, entity.InvoiceId }).ToList();
             var internalNoteItemIds = internalNoteItems.Select(element => element.Id).ToList();
-            var internalNoteDetails = _dbContext.GarmentInternNoteDetails.Where(entity => internalNoteItemIds.Contains(entity.GarmentItemINId)).Select(entity => new { entity.Id, entity.GarmentItemINId, entity.PaymentDueDate }).ToList();
+            var internalNoteDetails = _dbContext.GarmentInternNoteDetails.Where(entity => internalNoteItemIds.Contains(entity.GarmentItemINId)).Select(entity => new { entity.Id, entity.GarmentItemINId, entity.PaymentDueDate, entity.DOId }).ToList();
+
+            var doIds = internalNoteDetails.Select(element => element.DOId).ToList();
+            var corrections = _dbContext.GarmentCorrectionNotes.Where(entity => doIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId });
+            var correctionIds = corrections.Select(element => element.Id).ToList();
+            var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
+
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
             var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount }).ToList();
 
@@ -52,6 +58,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 var selectedInternalNoteItemIds = selectedInternalNoteItems.Select(element => element.Id).ToList();
                 var selectedInvoiceIds = selectedInternalNoteItems.Select(element => element.InvoiceId).ToList();
                 var internalNoteDetail = internalNoteDetails.Where(element => selectedInternalNoteItemIds.Contains(element.GarmentItemINId)).OrderByDescending(element => element.PaymentDueDate).FirstOrDefault();
+
+                var selectedInternalNoteDetails = internalNoteDetails.Where(element => selectedInternalNoteItemIds.Contains(element.GarmentItemINId)).ToList();
+                var selectedDOIds = selectedInternalNoteDetails.Select(element => element.DOId).ToList();
+                var selectedCorrections = corrections.Where(element => selectedDOIds.Contains(element.DOId)).ToList();
+
+                var correctionAmount = selectedCorrections.Sum(element =>
+                {
+                    var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
+
+                    var total = 0.0;
+                    if (element.CorrectionType.ToUpper() == "RETUR")
+                        total = (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity);
+                    else
+                        total = (double)element.TotalCorrection;
+
+                    return total;
+                });
 
                 var totalAmount = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Sum(element =>
                 {
@@ -65,6 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     return total;
                 });
+                totalAmount += correctionAmount;
 
                 var vatTotal = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Sum(element =>
                 {
