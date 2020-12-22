@@ -7,6 +7,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -581,7 +582,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 oadiffCurrencyIds = oadiffCurrencyIds.Where(element => element > 0).ToList();
 
             SetLeftCashInCashOutRemark(cashInCashOutStartingRow, operatingCashOutRow, "CASH OUT", worksheet);
-            SetActivitiesSummary(startingRow: operatingCashOutRow, endingRow: operatingCashOutRow + oadiffCurrencyIds.Count, remark: "Surplus/Deficit-Cash from Operating Activities", worksheet);
+            SetActivitiesSummary(startingRow: operatingCashOutRow, endingRow: operatingCashOutRow + oadiffCurrencyIds.Count, remark: "Surplus/Deficit-Cash from Operating Activities", worksheet: worksheet);
             cashInCashOutStartingRow = operatingCashOutRow + oadiffCurrencyIds.Count;
             var investingCashInRow = cashInCashOutStartingRow;
 
@@ -1681,7 +1682,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             }
 
             SetLeftRemarkActivities(startingLeftRemarkRow, financingActivitiesRow, "FINANCING ACTIVITIES", worksheet);
-            SetFooter(startingRow: financingActivitiesRow, worksheet);
+            SetFooter(startingRow: financingActivitiesRow, worksheet: worksheet);
         }
 
         private void SetFooter(int startingRow, ExcelWorksheet worksheet)
@@ -1963,7 +1964,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             if (division != null)
                 divisionName = $"DIVISI: {division.Name}";
 
-            var date = $"JATUH TEMPO s.d. {dueDate.AddHours(_identityService.TimezoneOffset):dd/MM/yy}";
+            var date = $"JATUH TEMPO s.d. {dueDate.AddMonths(1).AddHours(_identityService.TimezoneOffset).DateTime.ToString("MMMM yyyy", new CultureInfo("id-ID"))}";
 
             worksheet.Cells[1, 1].Value = company;
             worksheet.Cells[1, 1].Style.Font.Size = 20;
