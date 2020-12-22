@@ -582,7 +582,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 oadiffCurrencyIds = oadiffCurrencyIds.Where(element => element > 0).ToList();
 
             SetLeftCashInCashOutRemark(cashInCashOutStartingRow, operatingCashOutRow, "CASH OUT", worksheet);
-            SetActivitiesSummary(startingRow: operatingCashOutRow, endingRow: operatingCashOutRow + oadiffCurrencyIds.Count, remark: "Surplus/Deficit-Cash from Operating Activities", worksheet);
+            SetActivitiesSummary(startingRow: operatingCashOutRow, endingRow: operatingCashOutRow + oadiffCurrencyIds.Count, remark: "Surplus/Deficit-Cash from Operating Activities", worksheet: worksheet);
             cashInCashOutStartingRow = operatingCashOutRow + oadiffCurrencyIds.Count;
             var investingCashInRow = cashInCashOutStartingRow;
 
@@ -1682,7 +1682,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             }
 
             SetLeftRemarkActivities(startingLeftRemarkRow, financingActivitiesRow, "FINANCING ACTIVITIES", worksheet);
-            SetFooter(startingRow: financingActivitiesRow, worksheet);
+            SetFooter(startingRow: financingActivitiesRow, worksheet: worksheet);
         }
 
         private void SetFooter(int startingRow, ExcelWorksheet worksheet)
