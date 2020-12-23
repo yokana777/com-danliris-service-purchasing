@@ -63,6 +63,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 var selectedDOIds = selectedInternalNoteDetails.Select(element => element.DOId).ToList();
                 var selectedCorrections = corrections.Where(element => selectedDOIds.Contains(element.DOId)).ToList();
 
+                var amountDPP = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Sum(element => element.TotalAmount);
+
                 var correctionAmount = selectedCorrections.Sum(element =>
                 {
                     var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
@@ -110,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     return incomeTax;
                 });
 
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode);
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP);
             }).ToList();
 
             return result;
