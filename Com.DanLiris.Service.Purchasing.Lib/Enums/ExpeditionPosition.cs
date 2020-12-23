@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Enums
         SendToCashier = 4,
         [Description("Kasir (Diterima)")]
         CashierAccepted = 5,
-        [Description("Kirim ke Pembelian")]
+        [Description("Kirim ke Pembelian (Not Verified)")]
         SendToPurchasing = 6,
         [Description("Kirim ke Accounting")]
         SendToAccounting = 7,
