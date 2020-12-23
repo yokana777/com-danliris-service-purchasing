@@ -458,7 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Revenue", _smallerBoldFont);
+            cell.Phrase = new Phrase("Pendapatan Operasional:", _smallerBoldFont);
             table.AddCell(cell);
 
             var isOthersSales = false;
@@ -472,7 +472,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Revenue from other operating", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Pendapatan Operasional Lain-lain:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -560,7 +560,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var oaciTotalLabel = firstOaciTotal ? "Total" : "";
+                var oaciTotalLabel = firstOaciTotal ? "Total Penerimaan Operasional" : "";
                 firstOaciTotal = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -629,7 +629,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Cost of Good Sold", _smallerBoldFont);
+            cell.Phrase = new Phrase("HPP/Biaya Produksi:", _smallerBoldFont);
             table.AddCell(cell);
 
             var isMarketingSalaryCost = false;
@@ -647,7 +647,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Marketing Expenses", _smallerBoldFont);
+                    cell.Phrase = new Phrase(" ", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -663,7 +663,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 10;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Biaya Penjualan", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Biaya Penjualan:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -674,7 +674,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("General & Administrative Expenses", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Biaya Administrasi & Umum:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -701,7 +701,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Other Operating Expenses", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Biaya Operasional Lain-lain:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -789,7 +789,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var oacoTotalLabel = firstOacoTotal ? "Total" : "";
+                var oacoTotalLabel = firstOacoTotal ? "Total Pengeluaran Biaya Operasional" : "";
                 firstOacoTotal = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -855,7 +855,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var oadiffLabel = firstOaDiff ? "Surplus/Deficit-Cash from Operating Activities" : "";
+                var oadiffLabel = firstOaDiff ? "Surplus/Deficit- Kas dari kegiatan Operasional" : "";
                 firstOaDiff = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
@@ -928,7 +928,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(" ", _smallerFont);
+            cell.Phrase = new Phrase("Penerimaan dari Investasi:", _smallerFont);
             table.AddCell(cell);
 
             int firstIaci = 0;
@@ -1013,7 +1013,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var iaciTotalLabel = firstIaciTotal ? "Total" : "";
+                var iaciTotalLabel = firstIaciTotal ? "Total Penerimaan Investasi" : "";
                 firstIaciTotal = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -1082,7 +1082,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Pembayaran pembelian asset tetap :", _smallerBoldFont);
+            cell.Phrase = new Phrase("Pembayaran pembelian asset tetap:", _smallerBoldFont);
             table.AddCell(cell);
 
             int firstIaco = 0;
@@ -1172,7 +1172,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var iacoTotalLabel = firstIacoTotal ? "Total" : "";
+                var iacoTotalLabel = firstIacoTotal ? "Total Pengeluaran Investasi" : "";
                 firstIacoTotal = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -1238,7 +1238,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var iadiffLabel = firstIaDiff ? "Surplus/Deficit-Cash from Investing Activities" : "";
+                var iadiffLabel = firstIaDiff ? "Surplus/Deficit-Kas dalam kegiatan Investasi" : "";
                 firstIaDiff = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
@@ -1311,7 +1311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(" ", _smallerFont);
+            cell.Phrase = new Phrase("Penerimaan dari Pendanaan:", _smallerFont);
             table.AddCell(cell);
 
             var isCashInAffiliates = false;
@@ -1325,7 +1325,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Others :", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Penerimaan lain-lain dari pendanaan:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -1413,7 +1413,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var faciTotalLabel = firstFaciTotal ? "Total" : "";
+                var faciTotalLabel = firstFaciTotal ? "Total Penerimaan Pendanaan" : "";
                 firstFaciTotal = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -1482,7 +1482,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Loan Installment and Interest expense", _smallerBoldFont);
+            cell.Phrase = new Phrase("Pembayaran angsuran dan bunga Pinjaman:", _smallerBoldFont);
             table.AddCell(cell);
 
             var isCashOutBankInterest = false;
@@ -1497,7 +1497,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Bank Expenses", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Pembayaran Biaya Administrasi Bank:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -1508,7 +1508,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 11;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("Others :", _smallerBoldFont);
+                    cell.Phrase = new Phrase("Pengeluaran lain-lain dari Pendanaan:", _smallerBoldFont);
                     table.AddCell(cell);
                 }
 
@@ -1596,7 +1596,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var facoTotalLabel = firstFacoTotal ? "Total" : "";
+                var facoTotalLabel = firstFacoTotal ? "Total pengeluaran pendanaan" : "";
                 firstFacoTotal = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_RIGHT;
@@ -1662,7 +1662,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 if (currency != null)
                     currencyCode = currency.Code;
 
-                var fadiffLabel = firstFaDiff ? "Surplus/Deficit-Cash from Financing Activities" : "";
+                var fadiffLabel = firstFaDiff ? "Surplus/Deficit-Kas dalam kegiatan Pendanaan" : "";
                 firstFaDiff = false;
 
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
@@ -1723,7 +1723,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 5;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("BEGINNING BALANCE", _smallerBoldFont);
+            cell.Phrase = new Phrase("Saldo Awal Kas", _smallerBoldFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1777,7 +1777,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 5;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("CASH SURPLUS/DEFICIT", _smallerBoldFont);
+            cell.Phrase = new Phrase("TOTAL SURPLUS/DEFISIT KAS", _smallerBoldFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1831,7 +1831,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 5;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("ENDING BALANCE", _smallerBoldFont);
+            cell.Phrase = new Phrase("Saldo Akhir Kas", _smallerBoldFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1891,7 +1891,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 3;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Kenyataan", _smallerBoldFont);
+            cell.Phrase = new Phrase("Saldo Real Kas", _smallerBoldFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_CENTER;
