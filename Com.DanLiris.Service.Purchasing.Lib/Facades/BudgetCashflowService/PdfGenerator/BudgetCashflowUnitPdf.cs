@@ -655,13 +655,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 {
                     isStillMarketingSalaryCost = true;
 
-                    cell.Colspan = 1;
-                    cell.Rowspan = 1;
-                    cell.Phrase = new Phrase("", _smallerBoldFont);
-                    table.AddCell(cell);
-
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
-                    cell.Colspan = 10;
+                    cell.Colspan = 11;
                     cell.Rowspan = 1;
                     cell.Phrase = new Phrase("Biaya Penjualan:", _smallerBoldFont);
                     table.AddCell(cell);
@@ -928,7 +923,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Penerimaan dari Investasi:", _smallerFont);
+            cell.Phrase = new Phrase("Penerimaan dari Investasi:", _smallerBoldFont);
             table.AddCell(cell);
 
             int firstIaci = 0;
@@ -953,7 +948,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 3;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(iaciLabel, _smallerFont);
+                cell.Phrase = new Phrase(iaciLabel, _smallerBoldFont);
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1108,11 +1103,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     iacoLabel = item.LayoutOrder.ToDescriptionString();
                     firstIaco = (int)item.LayoutOrder;
                 }
-
+                    
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(iacoLabel, _smallerFont);
+                if (item.LayoutOrder.ToDescriptionString() == "Deposito")
+                {
+                    cell.Phrase = new Phrase(iacoLabel, _smallerBoldFont);
+                }
+                else
+                {
+                    cell.Phrase = new Phrase(iacoLabel, _smallerFont);
+                }
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1311,7 +1313,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_LEFT;
             cell.Colspan = 11;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase("Penerimaan dari Pendanaan:", _smallerFont);
+            cell.Phrase = new Phrase("Penerimaan dari Pendanaan:", _smallerBoldFont);
             table.AddCell(cell);
 
             var isCashInAffiliates = false;
@@ -1353,7 +1355,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                 cell.HorizontalAlignment = Element.ALIGN_LEFT;
                 cell.Colspan = 2;
                 cell.Rowspan = 1;
-                cell.Phrase = new Phrase(faciLabel, _smallerFont);
+                if (item.LayoutOrder.ToDescriptionString() == "Pencairan pinjaman (Loan Withdrawal)")
+                {
+                    cell.Phrase = new Phrase(faciLabel, _smallerBoldFont);
+                }
+                else
+                {
+                    cell.Phrase = new Phrase(faciLabel, _smallerFont);
+                }
                 table.AddCell(cell);
 
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1490,7 +1499,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             int firstFaco = 0;
             foreach (var item in faco)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isCashOutBankInterest)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isCashOutBankInterest)
                 {
                     isCashOutBankInterest = true;
 

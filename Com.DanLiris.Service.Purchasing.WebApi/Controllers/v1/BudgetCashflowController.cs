@@ -302,6 +302,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 var stream = _budgetCashflowUnitExcelGenerator.Generate(unitId, dueDate);
 
                 var filename = "Laporan Budget Cash Flow Unit";
+                filename += ".xls";
 
                 var bytes = stream.ToArray();
 
@@ -344,7 +345,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 VerifyUser();
                 var stream = _budgetCashflowDivisionExcelGenerator.Generate(divisionId, dueDate);
 
-                var filename = "Laporan Budget Cash Flow Divisi";
+                var isAll = divisionId | 0;
+
+                var filename = "Laporan Budget Cashflow Semua Divisi";
+                if (isAll != 0)
+                    filename = "Laporan Budget Cashflow Divisi";
+                filename += ".xls";
 
                 var bytes = stream.ToArray();
 

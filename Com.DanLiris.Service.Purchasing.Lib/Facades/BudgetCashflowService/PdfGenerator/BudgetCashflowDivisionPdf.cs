@@ -815,14 +815,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
 
                     cell.Rotation = 0;
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
-                    cell.Colspan = 1;
-                    cell.Rowspan = 1;
-                    cell.Phrase = new Phrase(" ", _smallerBoldFont);
-                    table.AddCell(cell);
-
-                    cell.Rotation = 0;
-                    cell.HorizontalAlignment = Element.ALIGN_LEFT;
-                    cell.Colspan = lastColumn - 3;
+                    cell.Colspan = lastColumn - 2;
                     cell.Rowspan = 1;
                     cell.Phrase = new Phrase("Biaya Penjualan:", _smallerBoldFont);
                     table.AddCell(cell);
@@ -1190,7 +1183,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 2;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase(iaciLabel, _smallerFont);
+                    cell.Phrase = new Phrase(iaciLabel, _smallerBoldFont);
                     table.AddCell(cell);
 
                     cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1384,7 +1377,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 2;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase(iacoLabel, _smallerFont);
+                    if (layoutOrder.ToDescriptionString() == "Deposito")
+                    {
+                        cell.Phrase = new Phrase(iacoLabel, _smallerBoldFont);
+                    }
+                    else
+                    {
+                        cell.Phrase = new Phrase(iacoLabel, _smallerFont);
+                    }
                     table.AddCell(cell);
 
                     cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1691,7 +1691,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     cell.HorizontalAlignment = Element.ALIGN_LEFT;
                     cell.Colspan = 2;
                     cell.Rowspan = 1;
-                    cell.Phrase = new Phrase(faciLabel, _smallerFont);
+                    if (layoutOrder.ToDescriptionString() == "Pencairan pinjaman (Loan Withdrawal)")
+                    {
+                        cell.Phrase = new Phrase(faciLabel, _smallerBoldFont);
+                    }
+                    else
+                    {
+                        cell.Phrase = new Phrase(faciLabel, _smallerFont);
+                    }
                     table.AddCell(cell);
 
                     cell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1862,7 +1869,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
                     table.AddCell(cell);
                 }
 
-                if (!isBankExpensesWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest)
+                if (!isBankExpensesWritten && layoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee)
                 {
                     isBankExpensesWritten = true;
 

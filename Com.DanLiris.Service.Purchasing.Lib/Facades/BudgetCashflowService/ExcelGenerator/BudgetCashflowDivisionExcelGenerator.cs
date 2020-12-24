@@ -700,6 +700,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 }
 
                 worksheet.Cells[writeableRow, writeableColumn].Value = layoutOrder.ToDescriptionString();
+                worksheet.Cells[writeableRow, writeableColumn].Style.Font.Bold = true;
                 worksheet.Cells[writeableRow, writeableColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[writeableRow, writeableColumn].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 writeableColumn += 1;
@@ -894,6 +895,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 }
 
                 worksheet.Cells[writeableRow, writeableColumn].Value = layoutOrder.ToDescriptionString();
+                if (layoutOrder.ToDescriptionString() == "Deposito")
+                {
+                    worksheet.Cells[writeableRow, writeableColumn].Style.Font.Bold = true;
+                }
                 worksheet.Cells[writeableRow, writeableColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[writeableRow, writeableColumn].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 writeableColumn += 1;
@@ -1198,6 +1203,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 }
 
                 worksheet.Cells[writeableRow, writeableColumn].Value = layoutOrder.ToDescriptionString();
+                if (layoutOrder.ToDescriptionString() == "Pencairan pinjaman (Loan Withdrawal)")
+                {
+                    worksheet.Cells[writeableRow, writeableColumn].Style.Font.Bold = true;
+                }
                 worksheet.Cells[writeableRow, writeableColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[writeableRow, writeableColumn].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 writeableColumn += 1;

@@ -428,7 +428,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
 
             foreach (var item in oaco)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.InternalOutcomeVATCalculation && !isMarketingExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isMarketingExpenseWritten)
                 {
                     isMarketingExpenseWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = " ";
@@ -439,7 +439,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.InternalOutcomeVATCalculation && !isSalesCostWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isSalesCostWritten)
                 {
                     isSalesCostWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Penjualan:";
@@ -450,7 +450,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OtherSalesCost && !isGeneralAdministrativeExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeExternalOutcomeVATCalculation && !isGeneralAdministrativeExpenseWritten)
                 {
                     isGeneralAdministrativeExpenseWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Administrasi & Umum:";
@@ -461,7 +461,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.TaxCost && !isGeneralCostAdministrativeWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeSalaryCost && !isGeneralCostAdministrativeWritten)
                 {
                     isGeneralCostAdministrativeWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = "Biaya umum dan administrasi";
@@ -472,7 +472,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCommunicationCost && !isOtherOperatingExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && !isOtherOperatingExpenseWritten)
                 {
                     isOtherOperatingExpenseWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Operasional Lain-lain:";
@@ -659,6 +659,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     currencyCode = currency.Code;
 
                 worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                 worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -777,6 +778,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     currencyCode = currency.Code;
 
                 worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                if (item.LayoutOrder.ToDescriptionString() == "Deposito")
+                {
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                }
                 worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -931,8 +936,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
 
             writeableRow += 1;
 
+            var isCashInAffiliates = false;
             foreach (var item in faci)
             {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashInAffiliates && !isCashInAffiliates)
+                {
+                    isCashInAffiliates = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Penerimaan lain-lain dari pendanaan:";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
                 var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
                 if (worstCase == null)
                     worstCase = new BudgetCashflowItemDto();
@@ -943,6 +960,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     currencyCode = currency.Code;
 
                 worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                if (item.LayoutOrder.ToDescriptionString() == "Pencairan pinjaman (Loan Withdrawal)")
+                {
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                }
                 worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -1054,7 +1075,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             var isOthersWritten = false;
             foreach (var item in faco)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isBankExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isBankExpenseWritten)
                 {
                     isBankExpenseWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = "Pembayaran Biaya Administrasi Bank:";
@@ -1065,7 +1086,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isOthersWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutAffiliates && !isOthersWritten)
                 {
                     isOthersWritten = true;
                     worksheet.Cells[$"C{writeableRow}"].Value = "Pengeluaran lain-lain dari Pendanaan:";
@@ -1241,7 +1262,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             var investingActivitiesCashInRowCount = 1 + iaciCount + iaciTotalCount;
             var investingActivitiesCashOutRowCount = 1 + iacoCount + iacoTotalCount;
             var investingActivitiesRowsCount = 1 + iaciCount + iaciTotalCount + 1 + iacoCount + iacoTotalCount + iadiffCount;
-            var financingActivitiesCashInRowsCount = 1 + faciCount + faciTotalCount;
+            var financingActivitiesCashInRowsCount = 2 + faciCount + faciTotalCount;
             var financingActivitiesCashOutRowsCount = 3 + facoCount + facoTotalCount;
             var financingActivitiesRowsCount = 1 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
 
