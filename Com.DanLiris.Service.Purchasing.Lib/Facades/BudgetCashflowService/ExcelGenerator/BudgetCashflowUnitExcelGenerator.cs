@@ -283,7 +283,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
         {
             var startingRow = 8;
 
-            worksheet.Cells[$"C{startingRow}"].Value = "Revenue";
+            worksheet.Cells[$"C{startingRow}"].Value = "Pendapatan Operasional:";
             worksheet.Cells[$"C{startingRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{startingRow}:K{startingRow}"].Merge = true;
             worksheet.Cells[$"C{startingRow}:K{startingRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -296,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersSales && !isRevenueFromOtherWritten)
                 {
                     isRevenueFromOtherWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "Revenue";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Pendapatan Operasional Lain-lain:";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -358,7 +358,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total Penerimaan Operasional";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -412,7 +412,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Cost of Good Sold";
+            worksheet.Cells[$"C{writeableRow}"].Value = "HPP/Biaya Produksi:";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -428,10 +428,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
 
             foreach (var item in oaco)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.InternalOutcomeVATCalculation && !isMarketingExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isMarketingExpenseWritten)
                 {
                     isMarketingExpenseWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "Marketing Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Value = " ";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -439,10 +439,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.InternalOutcomeVATCalculation && !isSalesCostWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.MarketingSalaryCost && !isSalesCostWritten)
                 {
                     isSalesCostWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Penjualan";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Penjualan:";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -450,10 +450,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OtherSalesCost && !isGeneralAdministrativeExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeExternalOutcomeVATCalculation && !isGeneralAdministrativeExpenseWritten)
                 {
                     isGeneralAdministrativeExpenseWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "General & Administrative Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Administrasi & Umum:";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -461,10 +461,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.TaxCost && !isGeneralCostAdministrativeWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeSalaryCost && !isGeneralCostAdministrativeWritten)
                 {
                     isGeneralCostAdministrativeWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "General & Administrative Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Biaya umum dan administrasi";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -472,10 +472,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCommunicationCost && !isOtherOperatingExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.OthersOperationalCost && !isOtherOperatingExpenseWritten)
                 {
                     isOtherOperatingExpenseWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "Other Operating Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Biaya Operasional Lain-lain:";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -537,7 +537,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total Pengeluaran Biaya Operasional";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -639,7 +639,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Penerimaan dari Investasi:";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -659,6 +659,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     currencyCode = currency.Code;
 
                 worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                 worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -703,7 +704,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total Penerimaan Investasi";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -757,7 +758,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Pembayaran pembelian asset tetap :";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Pembayaran pembelian asset tetap:";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -777,6 +778,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     currencyCode = currency.Code;
 
                 worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                if (item.LayoutOrder.ToDescriptionString() == "Deposito")
+                {
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                }
                 worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -821,7 +826,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total Pengeluaran Investasi";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -923,7 +928,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Penerimaan dari Pendanaan:";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -931,8 +936,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
 
             writeableRow += 1;
 
+            var isCashInAffiliates = false;
             foreach (var item in faci)
             {
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashInAffiliates && !isCashInAffiliates)
+                {
+                    isCashInAffiliates = true;
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Penerimaan lain-lain dari pendanaan:";
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    writeableRow += 1;
+                }
+
                 var worstCase = worstCases.FirstOrDefault(element => element.CurrencyId == item.CurrencyId && element.LayoutOrder == item.LayoutOrder);
                 if (worstCase == null)
                     worstCase = new BudgetCashflowItemDto();
@@ -943,6 +960,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     currencyCode = currency.Code;
 
                 worksheet.Cells[$"C{writeableRow}"].Value = item.LayoutOrder.ToDescriptionString();
+                if (item.LayoutOrder.ToDescriptionString() == "Pencairan pinjaman (Loan Withdrawal)")
+                {
+                    worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
+                }
                 worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 worksheet.Cells[$"C{writeableRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -988,7 +1009,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total Penerimaan Pendanaan";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -1042,7 +1063,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Loan Installment and Interest expense";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Pembayaran angsuran dan bunga Pinjaman:";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -1054,10 +1075,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             var isOthersWritten = false;
             foreach (var item in faco)
             {
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankInterest && !isBankExpenseWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isBankExpenseWritten)
                 {
                     isBankExpenseWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "Bank Expenses";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Pembayaran Biaya Administrasi Bank:";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -1065,10 +1086,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                     writeableRow += 1;
                 }
 
-                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutBankAdministrationFee && !isOthersWritten)
+                if (item.LayoutOrder == BudgetCashflowCategoryLayoutOrder.CashOutAffiliates && !isOthersWritten)
                 {
                     isOthersWritten = true;
-                    worksheet.Cells[$"C{writeableRow}"].Value = "Others:";
+                    worksheet.Cells[$"C{writeableRow}"].Value = "Pengeluaran lain-lain dari Pendanaan:";
                     worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Merge = true;
                     worksheet.Cells[$"C{writeableRow}:K{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -1130,7 +1151,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
                 writeableRow += 1;
             }
 
-            worksheet.Cells[$"C{writeableRow}"].Value = "Total";
+            worksheet.Cells[$"C{writeableRow}"].Value = "Total pengeluaran pendanaan";
             worksheet.Cells[$"C{writeableRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{writeableRow}"].Merge = true;
             worksheet.Cells[$"C{writeableRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -1241,7 +1262,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             var investingActivitiesCashInRowCount = 1 + iaciCount + iaciTotalCount;
             var investingActivitiesCashOutRowCount = 1 + iacoCount + iacoTotalCount;
             var investingActivitiesRowsCount = 1 + iaciCount + iaciTotalCount + 1 + iacoCount + iacoTotalCount + iadiffCount;
-            var financingActivitiesCashInRowsCount = 1 + faciCount + faciTotalCount;
+            var financingActivitiesCashInRowsCount = 2 + faciCount + faciTotalCount;
             var financingActivitiesCashOutRowsCount = 3 + facoCount + facoTotalCount;
             var financingActivitiesRowsCount = 1 + faciCount + faciTotalCount + 3 + facoCount + facoTotalCount + fadiffCount;
 
@@ -1268,7 +1289,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}:B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow}:B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
 
-            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}"].Value = "Surplus/Deficit-Cash from Operating Activities";
+            worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}"].Value = "Surplus/Deficit- Kas dari kegiatan Operasional";
             worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}"].Style.Font.Bold = true;
             worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}:C{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount + oadiffCount - 1}"].Merge = true;
             worksheet.Cells[$"B{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount}:C{operatingActivitiesCashOutStartingRow + operatingActivitiesCashOutRowCount + oadiffCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -1297,7 +1318,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}:B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             worksheet.Cells[$"B{investingActivitiesCashOutStartingRow}:B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
 
-            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}"].Value = "Surplus/Deficit-Cash from Investing Activities";
+            worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}"].Value = "Surplus/Deficit-Kas dalam kegiatan Investasi";
             worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}"].Style.Font.Bold = true;
             worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}:C{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount + iadiffCount - 1}"].Merge = true;
             worksheet.Cells[$"B{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount}:C{investingActivitiesCashOutStartingRow + investingActivitiesCashOutRowCount + iadiffCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -1326,32 +1347,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.Exce
             worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}:B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             worksheet.Cells[$"B{financingActivitiesCashOutStartingRow}:B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Top;
 
-            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}"].Value = "Surplus/Deficit-Cash from Financing Activities";
+            worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}"].Value = "Surplus/Deficit-Kas dalam kegiatan Pendanaan";
             worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}"].Style.Font.Bold = true;
             worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}:C{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount + fadiffCount - 1}"].Merge = true;
             worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}:C{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount + fadiffCount - 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             worksheet.Cells[$"B{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount}:C{financingActivitiesCashOutStartingRow + financingActivitiesCashOutRowsCount + fadiffCount - 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
             var footerStartingRow = operatingActivitiesStartingRow + operatingActivitiesRowsCount + investingActivitiesRowsCount + financingActivitiesRowsCount;
-            worksheet.Cells[$"A{footerStartingRow}"].Value = "BEGINNING BALANCE";
+            worksheet.Cells[$"A{footerStartingRow}"].Value = "Saldo Awal Kas";
             worksheet.Cells[$"A{footerStartingRow}"].Style.Font.Bold = true;
             worksheet.Cells[$"A{footerStartingRow}:C{footerStartingRow}"].Merge = true;
             worksheet.Cells[$"A{footerStartingRow}:C{footerStartingRow}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
             worksheet.Cells[$"A{footerStartingRow}:C{footerStartingRow}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
-            worksheet.Cells[$"A{footerStartingRow + 1}"].Value = "CASH SURPLUS/DEFICIT";
+            worksheet.Cells[$"A{footerStartingRow + 1}"].Value = "TOTAL SURPLUS/DEFISIT KAS";
             worksheet.Cells[$"A{footerStartingRow + 1}"].Style.Font.Bold = true;
             worksheet.Cells[$"A{footerStartingRow + 1}:C{footerStartingRow + 1}"].Merge = true;
             worksheet.Cells[$"A{footerStartingRow + 1}:C{footerStartingRow + 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
             worksheet.Cells[$"A{footerStartingRow + 1}:C{footerStartingRow + 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
-            worksheet.Cells[$"A{footerStartingRow + 2}"].Value = "ENDING BALANCE";
+            worksheet.Cells[$"A{footerStartingRow + 2}"].Value = "Saldo Akhir Kas";
             worksheet.Cells[$"A{footerStartingRow + 2}"].Style.Font.Bold = true;
             worksheet.Cells[$"A{footerStartingRow + 2}:C{footerStartingRow + 2}"].Merge = true;
             worksheet.Cells[$"A{footerStartingRow + 2}:C{footerStartingRow + 2}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
             worksheet.Cells[$"A{footerStartingRow + 2}:C{footerStartingRow + 2}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
-            worksheet.Cells[$"C{footerStartingRow + 3}"].Value = "Kenyataan";
+            worksheet.Cells[$"C{footerStartingRow + 3}"].Value = "Saldo Real Kas";
             worksheet.Cells[$"C{footerStartingRow + 3}"].Style.Font.Bold = true;
             worksheet.Cells[$"C{footerStartingRow + 3}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             worksheet.Cells[$"A{footerStartingRow + 3}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
