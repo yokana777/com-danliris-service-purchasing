@@ -4,7 +4,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 {
     public class GarmentInternalNoteDto
     {
-        public GarmentInternalNoteDto(int id, string documentNo, DateTimeOffset date, DateTimeOffset dueDate, int supplierId, string supplierName, double vat, double incomeTax, double totalPaid, int currencyId, string currencyCode, double amountDPP)
+        public GarmentInternalNoteDto(int id, string documentNo, DateTimeOffset date, DateTimeOffset dueDate, int supplierId, string supplierName, double vat, double incomeTax, double totalPaid, int currencyId, string currencyCode, double amountDPP, string paymentType, string paymentMethod, int paymentDueDays, string invoicesNo)
         {
             Id = id;
             DocumentNo = documentNo;
@@ -18,6 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             CurrencyId = currencyId;
             CurrencyCode = currencyCode;
             AmountDPP = amountDPP;
+            PaymentType = paymentType;
+            PaymentMethod = paymentMethod;
+            PaymentDueDays = paymentDueDays;
+            InvoicesNo = invoicesNo;
         }
 
         public int Id { get; private set; }
@@ -32,5 +36,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         public int CurrencyId { get; private set; }
         public string CurrencyCode { get; private set; }
         public double AmountDPP { get; private set; }
+        public string PaymentType { get; private set; }
+        public string PaymentMethod { get; private set; }
+        public int PaymentDueDays { get; private set; }
+        public string InvoicesNo { get; private set; }
     }
 }
