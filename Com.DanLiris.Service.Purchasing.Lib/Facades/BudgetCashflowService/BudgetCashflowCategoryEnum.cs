@@ -151,13 +151,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         InventoryPurchase,
         [Description("Alat Komputer")]
         ComputerToolsPurchase,
-        [Description("Alat & Bahan Produksi")]
-        ProductionToolsMaterialsPurchase,
+        //[Description("Alat & Bahan Produksi")]
+        //ProductionToolsMaterialsPurchase,
         [Description("Proyek")]
         ProjectPurchase,
-        [Description("Desposito")]
+        [Description("Deposito")]
         CashOutDeposit,
-        [Description("Loan Withdrawal")]
+        [Description("Pencairan pinjaman (Loan Withdrawal)")]
         CashInLoanWithdrawal,
         [Description("Afiliasi")]
         CashInAffiliates,

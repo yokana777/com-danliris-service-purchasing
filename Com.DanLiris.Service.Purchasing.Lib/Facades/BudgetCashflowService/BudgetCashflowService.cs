@@ -440,10 +440,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     budgetingCategoryNames = new List<string>() { "ALAT KOMPUTER" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
                     return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
-                case BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase:
-                    budgetingCategoryNames = new List<string>() { "ALAT DAN BAHAN PRODUKSI" };
-                    budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
+                //case BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase:
+                //    budgetingCategoryNames = new List<string>() { "ALAT DAN BAHAN PRODUKSI" };
+                //    budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
+                //    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.ProjectPurchase:
                     budgetingCategoryNames = new List<string>() { "PROYEK" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
@@ -483,7 +483,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             var unitIds = _units.Where(element => element.DivisionId == divisionId).Select(element => element.Id).ToList();
             var query = _dbContext.BudgetCashflowWorstCases.Where(entity => entity.Year == dueDate.AddMonths(1).Year && entity.Month == dueDate.AddMonths(1).Month);
             if (divisionId > 0)
+            {
                 query = query.Where(entity => unitIds.Contains(entity.UnitId));
+            }
+
+            unitIds = query.Select(entity => entity.UnitId).Distinct().ToList();
+
             var models = query.ToList();
 
             var result = new List<BudgetCashflowDivisionItemDto>();
@@ -521,6 +526,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
         public List<BudgetCashflowItemDto> GetCashOutOperatingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
         {
+            var layoutOrders = new List<BudgetCashflowCategoryLayoutOrder>()
+            {
+                BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial,
+                BudgetCashflowCategoryLayoutOrder.LocalRawMaterial,
+                BudgetCashflowCategoryLayoutOrder.AuxiliaryMaterial,
+                BudgetCashflowCategoryLayoutOrder.Embalage,
+                BudgetCashflowCategoryLayoutOrder.Coal,
+                BudgetCashflowCategoryLayoutOrder.FuelOil,
+                BudgetCashflowCategoryLayoutOrder.SparePartsMachineMaintenance,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeBuildingMaintenance,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeStationary,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeCorporateHousehold,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeVehicleCost,
+                BudgetCashflowCategoryLayoutOrder.GeneralAdministrativeOthersCost
+            };
+
             var importRawMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ImportedRawMaterial, unitId, dueDate);
             var localRawMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.LocalRawMaterial, unitId, dueDate);
             var auxiliaryMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.AuxiliaryMaterial, unitId, dueDate);
@@ -565,6 +586,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 .ToList();
 
             worstCases = worstCases
+                .Where(element => layoutOrders.Contains(element.LayoutOrder))
                 .GroupBy(element => element.CurrencyId)
                 .Select(element => new BudgetCashflowItemDto(
                     element.Key,
@@ -635,11 +657,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
         public List<BudgetCashflowItemDto> GetCashOutInvestingActivitiesByUnit(int unitId, DateTimeOffset dueDate)
         {
+            var layoutOrders = new List<BudgetCashflowCategoryLayoutOrder>()
+            {
+                BudgetCashflowCategoryLayoutOrder.MachineryPurchase,
+                BudgetCashflowCategoryLayoutOrder.VehiclePurchase,
+                BudgetCashflowCategoryLayoutOrder.InventoryPurchase,
+                BudgetCashflowCategoryLayoutOrder.ComputerToolsPurchase,
+                //BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase,
+                BudgetCashflowCategoryLayoutOrder.ProjectPurchase
+            };
+
             var machine = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.MachineryPurchase, unitId, dueDate);
             var vehicle = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.VehiclePurchase, unitId, dueDate);
             var inventory = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.InventoryPurchase, unitId, dueDate);
             var computerTools = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ComputerToolsPurchase, unitId, dueDate);
-            var productionToolsMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase, unitId, dueDate);
+            //var productionToolsMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase, unitId, dueDate);
             var project = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProjectPurchase, unitId, dueDate);
 
             var worstCases = GetBudgetCashflowWorstCase(dueDate, unitId);
@@ -649,7 +681,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             bestCases.AddRange(vehicle);
             bestCases.AddRange(inventory);
             bestCases.AddRange(computerTools);
-            bestCases.AddRange(productionToolsMaterial);
+            //bestCases.AddRange(productionToolsMaterial);
             bestCases.AddRange(project);
 
             bestCases = bestCases
@@ -667,6 +699,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 .ToList();
 
             worstCases = worstCases
+                .Where(element => layoutOrders.Contains(element.LayoutOrder))
                 .GroupBy(element => element.CurrencyId)
                 .Select(element => new BudgetCashflowItemDto(
                     element.Key,
