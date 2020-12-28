@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
 
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
-            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount }).ToList();
+            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount }).ToList();
 
             var result = internalNotes.Select(internalNote =>
             {
@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 {
                     var vat = 0.0;
 
-                    if (element.UseVat)
+                    if (element.UseVat && element.IsPayVat)
                         vat += element.TotalAmount * 0.1;
 
                     return vat;
