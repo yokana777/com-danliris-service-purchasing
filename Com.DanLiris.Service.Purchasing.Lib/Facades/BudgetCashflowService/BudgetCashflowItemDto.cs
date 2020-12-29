@@ -52,15 +52,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             LayoutOrder = layoutOrder;
         }
 
-        public int Id { get; private set; }
-        public int CurrencyId { get; private set; }
-        public double CurrencyNominal { get; private set; }
-        public double ActualNominal { get; private set; }
-        public double BestCaseCurrencyNominal { get; private set; }
-        public double BestCaseNominal { get; private set; }
-        public double BestCaseActualNominal { get; private set; }
-        public double Nominal { get; private set; }
-        public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; private set; }
-        public string LayoutName { get; private set; }
+        public int Id { get; set; }
+        public int CurrencyId { get; set; }
+        public double CurrencyNominal { get; set; }
+        public double ActualNominal { get; set; }
+        public double BestCaseCurrencyNominal { get; set; }
+        public double BestCaseNominal { get; set; }
+        public double BestCaseActualNominal { get; set; }
+        public double Nominal { get; set; }
+        public BudgetCashflowCategoryLayoutOrder LayoutOrder { get; set; }
+        public string LayoutName { get; set; }
     }
 }
