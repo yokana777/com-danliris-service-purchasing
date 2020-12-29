@@ -4,5 +4,6 @@
     {
         public string Code { get; set; }
         public int Id { get; set; }
+        public double Rate { get; set; }
     }
 }
