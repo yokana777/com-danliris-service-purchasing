@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 {
                     var total = element.TotalAmount;
 
-                    if (element.UseVat && element.IsPayTax)
+                    if (element.UseVat && element.IsPayVat)
                         total += element.TotalAmount * 0.1;
 
                     if (element.UseIncomeTax && element.IsPayTax)
