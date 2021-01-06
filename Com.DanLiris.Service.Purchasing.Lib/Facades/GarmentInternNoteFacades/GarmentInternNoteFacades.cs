@@ -155,6 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 SupplierName = s.SupplierName,
                 CreatedBy = s.CreatedBy,
                 LastModifiedUtc = s.LastModifiedUtc,
+                Position = s.Position,
                 Items = s.Items.Select(i => new GarmentInternNoteItem
                 {
                     InvoiceId = i.InvoiceId,
