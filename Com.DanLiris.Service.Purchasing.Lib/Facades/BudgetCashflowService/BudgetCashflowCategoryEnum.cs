@@ -151,8 +151,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         InventoryPurchase,
         [Description("Alat Komputer")]
         ComputerToolsPurchase,
-        [Description("Alat & Bahan Produksi")]
-        ProductionToolsMaterialsPurchase,
+        //[Description("Alat & Bahan Produksi")]
+        //ProductionToolsMaterialsPurchase,
         [Description("Proyek")]
         ProjectPurchase,
         [Description("Deposito")]

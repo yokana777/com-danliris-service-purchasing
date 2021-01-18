@@ -231,6 +231,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             return result.OrderBy(element => element.LayoutOrder).ToList();
         }
 
+        private List<BudgetCashflowItemDto> GetCashDiff(List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> fadiff)
+        {
+            var result = oadiff.Concat(iadiff).Concat(fadiff).GroupBy(element => new { element.CurrencyId }).Select(element => new BudgetCashflowItemDto()
+            {
+                CurrencyId = element.Key.CurrencyId,
+                ActualNominal = element.Sum(sum => sum.ActualNominal),
+                BestCaseActualNominal = element.Sum(sum => sum.BestCaseActualNominal),
+                BestCaseCurrencyNominal = element.Sum(sum => sum.BestCaseCurrencyNominal),
+                BestCaseNominal = element.Sum(sum => sum.BestCaseNominal),
+                CurrencyNominal = element.Sum(sum => sum.CurrencyNominal),
+                Nominal = element.Sum(sum => sum.Nominal),
+                //CategoryName = element.FirstOrDefault().CategoryName,
+                //CurrencyCode = element.Key.CurrencyCode,
+                //DispositionTotal = element.Sum(sum => sum.DispositionTotal),
+                //Total = element.Sum(sum => sum.DebtTotal) + element.Sum(sum => sum.DispositionTotal)
+            });
+
+            return result.ToList();
+        }
+
         public MemoryStream Generate(int unitId, DateTimeOffset dueDate)
         {
             var document = new Document(PageSize.A4.Rotate(), 20, 20, 20, 20);
@@ -273,8 +293,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
 
             var worstCases = GetRowDataWorstCase(unitId, dueDate);
 
+            var cashdiff = GetCashDiff(oadiff, iadiff, fadiff);
+
             SetTitle(document, unit, dueDate);
-            SetUnitTable(document, unit, oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases);
+            SetUnitTable(document, unit, oaci.Count, oaciTotal.Count, oaco.Count, oacoTotal.Count, oadiff.Count, iaci.Count, iaciTotal.Count, iaco.Count, iacoTotal.Count, iadiff.Count, faci.Count, faciTotal.Count, faco.Count, facoTotal.Count, fadiff.Count, oaci, oaciTotal, oaco, oacoTotal, oadiff, iaci, iaciTotal, iaco, iacoTotal, iadiff, faci, faciTotal, faco, facoTotal, fadiff, worstCases, cashdiff);
            
             document.Close();
             byte[] byteInfo = stream.ToArray();
@@ -324,7 +346,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             document.Add(table);
         }
 
-        private void SetUnitTable(Document document, UnitDto unit, int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases)
+        private void SetUnitTable(Document document, UnitDto unit, int oaciCount, int oaciTotalCount, int oacoCount, int oacoTotalCount, int oadiffCount, int iaciCount, int iaciTotalCount, int iacoCount, int iacoTotalCount, int iadiffCount, int faciCount, int faciTotalCount, int facoCount, int facoTotalCount, int fadiffCount, List<BudgetCashflowItemDto> oaci, List<BudgetCashflowItemDto> oaciTotal, List<BudgetCashflowItemDto> oaco, List<BudgetCashflowItemDto> oacoTotal, List<BudgetCashflowItemDto> oadiff, List<BudgetCashflowItemDto> iaci, List<BudgetCashflowItemDto> iaciTotal, List<BudgetCashflowItemDto> iaco, List<BudgetCashflowItemDto> iacoTotal, List<BudgetCashflowItemDto> iadiff, List<BudgetCashflowItemDto> faci, List<BudgetCashflowItemDto> faciTotal, List<BudgetCashflowItemDto> faco, List<BudgetCashflowItemDto> facoTotal, List<BudgetCashflowItemDto> fadiff, List<BudgetCashflowItemDto> worstCases, List<BudgetCashflowItemDto> cashdiff)
         {
             var table = new PdfPTable(13)
             {
@@ -1783,60 +1805,97 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
             table.AddCell(cell);
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 5;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase("TOTAL SURPLUS/DEFISIT KAS", _smallerBoldFont);
-            table.AddCell(cell);
+            double eqBestCaseCurrencyNominal = 0;
+            double eqBestCaseNominal = 0;
+            double eqBestCaseActualNominal = 0;
+            double eqCurrencyNominal = 0;
+            double eqNominal = 0;
+            double eqActualNominal = 0;
 
-            cell.HorizontalAlignment = Element.ALIGN_CENTER;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(" ", _smallerFont);
-            table.AddCell(cell);
+            bool firstCashDiff = true;
+            foreach (var item in cashdiff)
+            {
+                var currencyCode = "";
+                double currencyRate = 0;
+                var currency = _currencies.FirstOrDefault(element => element.Id == item.CurrencyId);
+                if (currency != null)
+                {
+                    currencyCode = currency.Code;
+                    currencyRate = currency.Rate;
+                }
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-            table.AddCell(cell);
+                double idrBestCaseCurrencyNominal = item.BestCaseCurrencyNominal * currencyRate;
+                double idrBestCaseNominal = item.BestCaseNominal * currencyRate;
+                double idrBestCaseActualNominal = item.BestCaseActualNominal * currencyRate;
+                double idrCurrencyNominal = item.CurrencyNominal * currencyRate;
+                double idrNominal = item.Nominal * currencyRate;
+                double idrActualNominal = item.ActualNominal * currencyRate;
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-            table.AddCell(cell);
+                eqBestCaseCurrencyNominal += idrBestCaseCurrencyNominal;
+                eqBestCaseNominal += idrBestCaseNominal;
+                eqBestCaseActualNominal += idrBestCaseActualNominal;
+                eqCurrencyNominal += idrCurrencyNominal;
+                eqNominal += idrNominal;
+                eqActualNominal += idrActualNominal;
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-            table.AddCell(cell);
+                var cashdiffLabel = firstCashDiff ? "TOTAL SURPLUS/DEFISIT KAS" : "";
+                firstCashDiff = false;
 
-            cell.HorizontalAlignment = Element.ALIGN_CENTER;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(" ", _smallerFont);
-            table.AddCell(cell);
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 5;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(cashdiffLabel, _smallerBoldFont);
+                table.AddCell(cell);
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-            table.AddCell(cell);
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-            table.AddCell(cell);
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseCurrencyNominal), _smallerFont);
+                table.AddCell(cell);
 
-            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
-            cell.Colspan = 1;
-            cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
-            table.AddCell(cell);
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseNominal), _smallerFont);
+                table.AddCell(cell);
 
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.BestCaseActualNominal), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(currencyCode, _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.CurrencyNominal), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.Nominal), _smallerFont);
+                table.AddCell(cell);
+
+                cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                cell.Colspan = 1;
+                cell.Rowspan = 1;
+                cell.Phrase = new Phrase(string.Format("{0:n}", item.ActualNominal), _smallerFont);
+                table.AddCell(cell);
+            }
+            
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 5;
             cell.Rowspan = 1;
@@ -2038,49 +2097,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
             cell.HorizontalAlignment = Element.ALIGN_CENTER;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(" ", _smallerFont);
+            cell.Phrase = new Phrase("IDR", _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            cell.Phrase = new Phrase(string.Format("{0:n}", eqBestCaseCurrencyNominal), _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            cell.Phrase = new Phrase(string.Format("{0:n}", eqBestCaseNominal), _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            cell.Phrase = new Phrase(string.Format("{0:n}", eqBestCaseActualNominal), _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_CENTER;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(" ", _smallerFont);
+            cell.Phrase = new Phrase("IDR", _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            cell.Phrase = new Phrase(string.Format("{0:n}", eqCurrencyNominal), _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            cell.Phrase = new Phrase(string.Format("{0:n}", eqNominal), _smallerFont);
             table.AddCell(cell);
 
             cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             cell.Colspan = 1;
             cell.Rowspan = 1;
-            cell.Phrase = new Phrase(string.Format("{0:n}", 0), _smallerFont);
+            cell.Phrase = new Phrase(string.Format("{0:n}", eqActualNominal), _smallerFont);
             table.AddCell(cell);
 
             document.Add(table);

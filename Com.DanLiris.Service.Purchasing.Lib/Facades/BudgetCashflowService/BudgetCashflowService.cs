@@ -467,10 +467,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                     budgetingCategoryNames = new List<string>() { "ALAT KOMPUTER" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
                     return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
-                case BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase:
-                    budgetingCategoryNames = new List<string>() { "ALAT DAN BAHAN PRODUKSI" };
-                    budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
-                    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
+                //case BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase:
+                //    budgetingCategoryNames = new List<string>() { "ALAT DAN BAHAN PRODUKSI" };
+                //    budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
+                //    return GetDebtDispositionSummary(budgetingCategoryIds, unitId, dueDate, false, divisionId, false);
                 case BudgetCashflowCategoryLayoutOrder.ProjectPurchase:
                     budgetingCategoryNames = new List<string>() { "PROYEK" };
                     budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
@@ -700,7 +700,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 BudgetCashflowCategoryLayoutOrder.VehiclePurchase,
                 BudgetCashflowCategoryLayoutOrder.InventoryPurchase,
                 BudgetCashflowCategoryLayoutOrder.ComputerToolsPurchase,
-                BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase,
+                //BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase,
                 BudgetCashflowCategoryLayoutOrder.ProjectPurchase
             };
 
@@ -708,7 +708,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             var vehicle = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.VehiclePurchase, unitId, dueDate);
             var inventory = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.InventoryPurchase, unitId, dueDate);
             var computerTools = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ComputerToolsPurchase, unitId, dueDate);
-            var productionToolsMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase, unitId, dueDate);
+            //var productionToolsMaterial = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProductionToolsMaterialsPurchase, unitId, dueDate);
             var project = GetBudgetCashflowUnit(BudgetCashflowCategoryLayoutOrder.ProjectPurchase, unitId, dueDate);
 
             var worstCases = GetBudgetCashflowWorstCase(dueDate, unitId);
@@ -718,7 +718,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             bestCases.AddRange(vehicle);
             bestCases.AddRange(inventory);
             bestCases.AddRange(computerTools);
-            bestCases.AddRange(productionToolsMaterial);
+            //bestCases.AddRange(productionToolsMaterial);
             bestCases.AddRange(project);
 
             bestCases = bestCases
