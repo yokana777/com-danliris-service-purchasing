@@ -118,13 +118,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             var queryResult = GetDebtAndDispositionSummary(layoutOrder, unitId, dueDate, 0);
 
             var result = queryResult
-                .GroupBy(element => element.CurrencyId)
+                .GroupBy(element => new { element.CurrencyId, element.UnitId, element.DivisionId })
                 .Select(element => new BudgetCashflowItemDto(
-                    element.Key,
+                    element.Key.CurrencyId,
                     element.FirstOrDefault().CurrencyCode,
                     element.FirstOrDefault().CurrencyRate,
                     element.Sum(s => s.Total),
-                    layoutOrder
+                    layoutOrder,
+                    element.Key.UnitId,
+                    element.Key.DivisionId
                     ))
                 .ToList();
             if (result.Count <= 0)
@@ -141,13 +143,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             var queryResult = GetDebtAndDispositionSummaryByCategory(categoryIds, unitId, dueDate, divisionId, isImport);
 
             var result = queryResult
-                .GroupBy(element => element.CurrencyId)
+                .GroupBy(element => new { element.CurrencyId, element.UnitId, element.DivisionId })
                 .Select(element => new BudgetCashflowItemDto(
-                    element.Key,
+                    element.Key.CurrencyId,
                     element.FirstOrDefault().CurrencyCode,
                     element.FirstOrDefault().CurrencyRate,
                     element.Sum(s => s.Total),
-                    0
+                    0,
+                    element.Key.UnitId,
+                    element.Key.DivisionId
                     ))
                 .ToList();
             if (result.Count <= 0)
