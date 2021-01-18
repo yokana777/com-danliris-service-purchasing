@@ -38,8 +38,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
 
             LayoutOrder = layoutOrder;
             LayoutName = layoutOrder.ToDescriptionString();
-            UnitId = unitId;
-            DivisionId = divisionId;
+            UnitId = int.Parse(unitId);
+            DivisionId = int.Parse(divisionId);
         }
 
         public BudgetCashflowItemDto(int currencyId, double currencyNominal, double nominal, double actualNominal, double bestCaseCurrencyNominal, double bestCaseNominal, double bestCaseActualNominal, BudgetCashflowCategoryLayoutOrder layoutOrder)
