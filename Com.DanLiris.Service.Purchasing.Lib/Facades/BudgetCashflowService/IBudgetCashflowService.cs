@@ -22,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
         List<BudgetCashflowItemDto> GetCashInFinancingActivitiesByUnit(int unitId, DateTimeOffset dueDate);
         List<BudgetCashflowItemDto> GetCashOutFinancingActivitiesByUnit(int unitId, DateTimeOffset dueDate);
         List<BudgetCashflowItemDto> GetDiffFinancingActivitiesByUnit(int unitId, DateTimeOffset dueDate);
+        List<BudgetCashflowItemDto> GetBudgetCashflowByCategoryAndUnitId(List<int> categoryIds, int unitId, DateTimeOffset dueDate, int divisionId, bool isImport)
     }
 }

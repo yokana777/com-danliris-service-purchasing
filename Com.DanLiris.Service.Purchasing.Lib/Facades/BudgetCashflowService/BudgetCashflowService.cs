@@ -136,6 +136,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
             return result;
         }
 
+        public List<BudgetCashflowItemDto> GetBudgetCashflowByCategoryAndUnitId(List<int> categoryIds, int unitId, DateTimeOffset dueDate, int divisionId, bool isImport)
+        {
+            var queryResult = GetDebtAndDispositionSummaryByCategory(categoryIds, unitId, dueDate, divisionId, isImport);
+
+            var result = queryResult
+                .GroupBy(element => element.CurrencyId)
+                .Select(element => new BudgetCashflowItemDto(
+                    element.Key,
+                    element.FirstOrDefault().CurrencyCode,
+                    element.FirstOrDefault().CurrencyRate,
+                    element.Sum(s => s.Total),
+                    0
+                    ))
+                .ToList();
+            if (result.Count <= 0)
+            {
+                result = new List<BudgetCashflowItemDto>() { new BudgetCashflowItemDto(0, 0, 0, 0, 0, 0) };
+            }
+
+
+            return result;
+        }
+
         private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(List<int> budgetingCategoryIds, int unitId, DateTimeOffset dueDate, bool isImport, int divisionId, bool isRawMaterial)
         {
             var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
@@ -451,6 +474,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService
                 default:
                     return result;
             }
+        }
+
+        private List<DebtAndDispositionSummaryDto> GetDebtAndDispositionSummaryByCategory(List<int> categoryIds, int unitId, DateTimeOffset dueDate, int divisionId, bool isImport)
+        {
+            var budgetingCategoryNames = new List<string>();
+            var budgetingCategoryIds = new List<int>();
+
+            budgetingCategoryIds = _budgetingCategories.Where(element => budgetingCategoryNames.Contains(element.Name.ToUpper())).Select(element => element.Id).ToList();
+            return GetDebtDispositionSummary(categoryIds, unitId, dueDate, isImport, divisionId, isImport);
+
         }
 
         public BudgetCashflowDivisionDto GetBudgetCashflowDivision(BudgetCashflowCategoryLayoutOrder layoutOrder, int divisionId, DateTimeOffset dueDate)
