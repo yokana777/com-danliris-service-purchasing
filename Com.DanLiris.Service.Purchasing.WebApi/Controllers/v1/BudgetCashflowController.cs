@@ -72,6 +72,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             }
         }
 
+        [HttpGet("best-case/by-category")]
+        public IActionResult GetBudgetCashflowBestCaseByCategory([FromQuery] List<int> categoryIds, [FromQuery] int unitId, [FromQuery] DateTimeOffset dueDate, [FromQuery] int divisionId, [FromQuery] bool isImport)
+        {
+
+            try
+            {
+                VerifyUser();
+                var result = _service.GetBudgetCashflowByCategoryAndUnitId(categoryIds, unitId, dueDate, divisionId, isImport);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
         [HttpGet("best-case/cash-in-operational")]
         public IActionResult GetCashInOperational([FromQuery] int unitId, [FromQuery] DateTimeOffset dueDate)
         {
