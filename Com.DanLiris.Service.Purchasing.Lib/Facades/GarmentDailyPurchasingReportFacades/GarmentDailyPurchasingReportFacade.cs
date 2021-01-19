@@ -481,7 +481,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                     totalDPP += subTotalDPPSupplier[SupplName.Key];
                 }
 
-                //result.Rows.Add("TOTAL", "", "", "", "", "", "", "", "", "", Math.Round(totalDPP, 2), "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2), Math.Round(totalPPN, 2), Math.Round(totalPPH, 2));
+                result.Rows.Add("TOTAL    ", "", "", "", "", "", "", "", "", "", Math.Round(totalDPP, 2), "", "", Math.Round(totalBE, 2), Math.Round(totalBP, 2), Math.Round(totalBB, 2), Math.Round(totalPRC, 2), Math.Round(totalPPN, 2), Math.Round(totalPPH, 2));
                 result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
 
                 rowPosition += 1;
@@ -502,7 +502,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
             sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
-            sheet.Cells[$"A2:{col}2"].Value = "BUKU AHRIAN PEMBELIAN GARMENT";
+            sheet.Cells[$"A2:{col}2"].Value = "BUKU HARIAN PEMBELIAN GARMENT";
             sheet.Cells[$"A2:{col}2"].Merge = true;
             sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
             sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
