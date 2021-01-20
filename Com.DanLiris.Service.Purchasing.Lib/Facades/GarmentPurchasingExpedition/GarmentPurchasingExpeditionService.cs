@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     return incomeTax;
                 });
 
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo);
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, correctionAmount, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo);
             }).ToList();
 
             return result;
