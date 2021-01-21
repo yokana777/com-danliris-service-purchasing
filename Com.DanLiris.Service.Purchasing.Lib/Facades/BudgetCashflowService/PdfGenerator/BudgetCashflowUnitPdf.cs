@@ -235,13 +235,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
         {
             var result = oadiff.Concat(iadiff).Concat(fadiff).GroupBy(element => new { element.CurrencyId }).Select(element => new BudgetCashflowItemDto()
             {
-                CurrencyId = element.Key.CurrencyId,
-                ActualNominal = element.Sum(sum => sum.ActualNominal),
-                BestCaseActualNominal = element.Sum(sum => sum.BestCaseActualNominal),
-                BestCaseCurrencyNominal = element.Sum(sum => sum.BestCaseCurrencyNominal),
-                BestCaseNominal = element.Sum(sum => sum.BestCaseNominal),
-                CurrencyNominal = element.Sum(sum => sum.CurrencyNominal),
-                Nominal = element.Sum(sum => sum.Nominal),
+                //CurrencyId = element.Key.CurrencyId,
+                //ActualNominal = element.Sum(sum => sum.ActualNominal),
+                //BestCaseActualNominal = element.Sum(sum => sum.BestCaseActualNominal),
+                //BestCaseCurrencyNominal = element.Sum(sum => sum.BestCaseCurrencyNominal),
+                //BestCaseNominal = element.Sum(sum => sum.BestCaseNominal),
+                //CurrencyNominal = element.Sum(sum => sum.CurrencyNominal),
+                //Nominal = element.Sum(sum => sum.Nominal),
                 //CategoryName = element.FirstOrDefault().CategoryName,
                 //CurrencyCode = element.Key.CurrencyCode,
                 //DispositionTotal = element.Sum(sum => sum.DispositionTotal),
