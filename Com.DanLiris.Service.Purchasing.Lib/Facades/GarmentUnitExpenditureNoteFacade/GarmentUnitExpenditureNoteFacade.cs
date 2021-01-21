@@ -947,6 +947,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 s.CreatedAgent,
                 s.CreatedBy,
                 s.LastModifiedUtc,
+                s.UnitDOId,
                 s.Items
             }));
 
