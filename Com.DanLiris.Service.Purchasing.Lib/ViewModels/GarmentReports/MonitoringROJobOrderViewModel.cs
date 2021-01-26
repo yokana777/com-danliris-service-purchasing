@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double BudgetQuantity { get; set; }
         public string UomPriceUnit { get; set; }
         public string Status { get; set; }
+        public string POMasterNumber { get; set; }
         public List<MonitoringROJobOrderItemViewModel> Items { get; set; }
     }
 

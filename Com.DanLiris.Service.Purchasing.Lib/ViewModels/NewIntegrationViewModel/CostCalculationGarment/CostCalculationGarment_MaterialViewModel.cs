@@ -5,6 +5,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
     public class CostCalculationGarment_MaterialViewModel : BaseViewModel
     {
         public string PO_SerialNumber { get; set; }
+        public string POMaster { get; set; }
         public GarmentProductViewModel Product { get; set; }
         public double BudgetQuantity { get; set; }
         public UomViewModel UOMPrice { get; set; }
