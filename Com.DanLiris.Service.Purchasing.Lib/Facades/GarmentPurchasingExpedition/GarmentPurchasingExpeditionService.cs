@@ -21,9 +21,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             _identityService = serviceProvider.GetService<IdentityService>();
         }
 
-        public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword)
+        public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter)
         {
-            var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            //var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            var internalNoteQuery = _dbContext.GarmentInternNotes.AsQueryable();
+            if(filter == null)
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            else
+                internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.INNo.Contains(keyword));
