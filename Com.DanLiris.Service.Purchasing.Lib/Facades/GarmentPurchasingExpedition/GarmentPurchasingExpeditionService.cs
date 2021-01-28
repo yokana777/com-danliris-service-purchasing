@@ -127,8 +127,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 });
 
                 var productInvoiceFirst = productInvoice.Count() <= 0 ? null : productInvoice.FirstOrDefault();
-
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productInvoiceFirst.ProductName,productInvoiceFirst.ProductId,productInvoiceFirst.ProductCode);
+                var productNameInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductName;
+                var productIdInvoiceFirst = productInvoiceFirst == null ? 0 : productInvoiceFirst.ProductId;
+                var productCodeInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductCode;
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productNameInvoiceFirst,productIdInvoiceFirst,productCodeInvoiceFirst);
             }).ToList();
 
             return result;
