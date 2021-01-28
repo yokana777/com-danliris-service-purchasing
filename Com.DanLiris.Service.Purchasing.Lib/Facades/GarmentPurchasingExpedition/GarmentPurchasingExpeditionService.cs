@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
 
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
-            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo }).ToList();
+            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo,entity }).ToList();
 
             var result = internalNotes.Select(internalNote =>
             {
@@ -118,7 +118,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     return incomeTax;
                 });
 
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, correctionAmount, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo);
+                var productInvoice = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Select(element => {
+                    var firstProduct = element.entity.Items.FirstOrDefault();
+                    if (firstProduct != null)
+                        return firstProduct.Details.Select(details => new { details.ProductId, details.ProductName, details.ProductCode }).FirstOrDefault();
+                    else
+                        return null;
+                });
+
+                var productInvoiceFirst = productInvoice.Count() <= 0 ? null : productInvoice.FirstOrDefault();
+
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productInvoiceFirst.ProductName,productInvoiceFirst.ProductId,productInvoiceFirst.ProductCode);
             }).ToList();
 
             return result;
