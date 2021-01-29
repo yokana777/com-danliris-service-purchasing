@@ -9,6 +9,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition
 {
+    //TODO : Adding API for View Nomor Internal yang memiliki TaxIncome, Tax Rate dan lain lain
     public class GarmentPurchasingExpeditionService : IGarmentPurchasingExpeditionService
     {
         private const string UserAgent = "purchasing-service";
@@ -119,9 +120,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 });
 
                 var productInvoice = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Select(element => {
-                    var firstProduct = element.entity.Items.FirstOrDefault();
+                    var firstProduct = element.entity.Items;
                     if (firstProduct != null)
-                        return firstProduct.Details.Select(details => new { details.ProductId, details.ProductName, details.ProductCode }).FirstOrDefault();
+                        return firstProduct.FirstOrDefault().Details.Select(details => new { details.ProductId, details.ProductName, details.ProductCode }).FirstOrDefault();
                     else
                         return null;
                 });
@@ -130,7 +131,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 var productNameInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductName;
                 var productIdInvoiceFirst = productInvoiceFirst == null ? 0 : productInvoiceFirst.ProductId;
                 var productCodeInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductCode;
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productNameInvoiceFirst,productIdInvoiceFirst,productCodeInvoiceFirst);
+
+                var invoiceFirst = invoices.FirstOrDefault();
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productNameInvoiceFirst,productIdInvoiceFirst,productCodeInvoiceFirst,invoiceFirst.Id);
             }).ToList();
 
             return result;
