@@ -6,7 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 {
     public interface IGarmentPurchasingExpeditionService
     {
-        List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword);
+        List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter);
         int UpdateInternNotePosition(UpdatePositionFormDto form);
     }
 }

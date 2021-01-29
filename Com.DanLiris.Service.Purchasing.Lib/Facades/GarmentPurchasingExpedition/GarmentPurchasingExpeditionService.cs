@@ -21,9 +21,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             _identityService = serviceProvider.GetService<IdentityService>();
         }
 
-        public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword)
+        public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter)
         {
-            var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            //var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            var internalNoteQuery = _dbContext.GarmentInternNotes.AsQueryable();
+            if(filter == null)
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            else
+                internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.INNo.Contains(keyword));
@@ -50,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
 
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
-            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo }).ToList();
+            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo,entity }).ToList();
 
             var result = internalNotes.Select(internalNote =>
             {
@@ -113,7 +118,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     return incomeTax;
                 });
 
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, correctionAmount, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo);
+                var productInvoice = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Select(element => {
+                    var firstProduct = element.entity.Items.FirstOrDefault();
+                    if (firstProduct != null)
+                        return firstProduct.Details.Select(details => new { details.ProductId, details.ProductName, details.ProductCode }).FirstOrDefault();
+                    else
+                        return null;
+                });
+
+                var productInvoiceFirst = productInvoice.Count() <= 0 ? null : productInvoice.FirstOrDefault();
+                var productNameInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductName;
+                var productIdInvoiceFirst = productInvoiceFirst == null ? 0 : productInvoiceFirst.ProductId;
+                var productCodeInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductCode;
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productNameInvoiceFirst,productIdInvoiceFirst,productCodeInvoiceFirst);
             }).ToList();
 
             return result;
