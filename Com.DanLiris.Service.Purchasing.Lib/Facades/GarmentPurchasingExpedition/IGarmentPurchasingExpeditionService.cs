@@ -8,5 +8,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
     {
         List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter);
         int UpdateInternNotePosition(UpdatePositionFormDto form);
+        List<Models.GarmentInternNoteModel.GarmentInternNote> GetGarmentInternNotesDetails(string keyword, GarmentInternalNoteFilterDto filter);
     }
 }

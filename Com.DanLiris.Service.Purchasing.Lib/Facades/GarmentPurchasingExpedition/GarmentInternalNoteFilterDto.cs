@@ -7,5 +7,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
     public class GarmentInternalNoteFilterDto
     {
         public List<int> PositionIds { get; set; }
+
+        public List<int> IncomeTaxId { get; set; }
+        public List<string> CurrencyCode { get; set; }
     }
 }

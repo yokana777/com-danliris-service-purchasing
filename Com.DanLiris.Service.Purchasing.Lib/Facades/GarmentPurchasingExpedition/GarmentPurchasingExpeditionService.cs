@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.Moonlay.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         {
             //var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
             var internalNoteQuery = _dbContext.GarmentInternNotes.AsQueryable();
-            if(filter == null)
+            if (filter == null)
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
             else
                 internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
@@ -56,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
 
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
-            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo,entity }).ToList();
+            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo, entity }).ToList();
 
             var result = internalNotes.Select(internalNote =>
             {
@@ -119,7 +120,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     return incomeTax;
                 });
 
-                var productInvoice = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Select(element => {
+                var productInvoice = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Select(element =>
+                {
                     var firstProduct = element.entity.Items;
                     if (firstProduct != null)
                         return firstProduct.FirstOrDefault().Details.Select(details => new { details.ProductId, details.ProductName, details.ProductCode }).FirstOrDefault();
@@ -133,10 +135,116 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 var productCodeInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductCode;
 
                 var invoiceFirst = invoices.FirstOrDefault();
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo,productNameInvoiceFirst,productIdInvoiceFirst,productCodeInvoiceFirst,invoiceFirst.Id);
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo, productNameInvoiceFirst, productIdInvoiceFirst, productCodeInvoiceFirst, invoiceFirst.Id);
             }).ToList();
 
             return result;
+        }
+
+        public List<Models.GarmentInternNoteModel.GarmentInternNote> GetGarmentInternNotesDetails(string keyword, GarmentInternalNoteFilterDto filter)
+        {
+            var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details)
+                .Select(element =>
+                new Models.GarmentInternNoteModel.GarmentInternNote
+                {
+                    Active = element.Active,
+                    DeletedAgent = element.DeletedAgent,
+                    CreatedAgent = element.CreatedAgent,
+                    LastModifiedAgent = element.LastModifiedAgent,
+                    CreatedBy = element.CreatedBy,
+                    CreatedUtc = element.CreatedUtc,
+                    CurrencyCode = element.CurrencyCode,
+                    CurrencyId = element.CurrencyId,
+                    CurrencyRate = element.CurrencyRate,
+                    DeletedBy = element.DeletedBy,
+                    DeletedUtc = element.DeletedUtc,
+                    Id = element.Id,
+                    INDate = element.INDate,
+                    INNo = element.INNo,
+                    IsCreatedVB = element.IsCreatedVB,
+                    SupplierId = element.SupplierId,
+                    SupplierName = element.SupplierName,
+                    IsDeleted = element.IsDeleted,
+                    SupplierCode = element.SupplierCode,
+                    LastModifiedBy = element.LastModifiedBy,
+                    LastModifiedUtc = element.LastModifiedUtc,
+                    Position = element.Position,
+                    Remark = element.Remark,
+                    UId = element.UId,
+                    Items = element.Items == null ? new List<Models.GarmentInternNoteModel.GarmentInternNoteItem>() :
+                    element.Items.Select(elementItem => new Models.GarmentInternNoteModel.GarmentInternNoteItem
+                    {
+                        Active = elementItem.Active,
+                        CreatedAgent = elementItem.CreatedAgent,
+                        CreatedBy = elementItem.CreatedBy,
+                        LastModifiedAgent = elementItem.LastModifiedAgent,
+                        TotalAmount = elementItem.TotalAmount,
+                        CreatedUtc = elementItem.CreatedUtc,
+                        DeletedAgent = elementItem.DeletedAgent,
+                        DeletedBy = elementItem.DeletedBy,
+                        DeletedUtc = elementItem.DeletedUtc,
+                        Id = elementItem.Id,
+                        InvoiceDate = elementItem.InvoiceDate,
+                        InvoiceId = elementItem.InvoiceId,
+                        InvoiceNo = elementItem.InvoiceNo,
+                        IsDeleted = elementItem.IsDeleted,
+                        LastModifiedBy = elementItem.LastModifiedBy,
+                        LastModifiedUtc = elementItem.LastModifiedUtc,
+                        Details = elementItem.Details == null ? new List<Models.GarmentInternNoteModel.GarmentInternNoteDetail>() :
+                        elementItem.Details.Select(elementDetails => new Models.GarmentInternNoteModel.GarmentInternNoteDetail
+                        {
+                            DOId = elementDetails.DOId,
+                            DONo = elementDetails.DONo,
+                            EPOId = elementDetails.EPOId,
+                            EPONo = elementDetails.EPONo,
+                            POSerialNumber = elementDetails.POSerialNumber,
+                            RONo = elementDetails.RONo,
+                            PaymentMethod = elementDetails.PaymentMethod,
+                            PaymentType = elementDetails.PaymentType,
+                            PaymentDueDays = elementDetails.PaymentDueDays,
+                            PaymentDueDate = elementDetails.PaymentDueDate,
+                            DODate = elementDetails.DODate,
+                            InvoiceDetailId = elementDetails.InvoiceDetailId,
+                            ProductCode = elementDetails.ProductCode,
+                            ProductId = elementDetails.ProductId,
+                            ProductName = elementDetails.ProductName,
+                            Quantity = elementDetails.Quantity,
+                            UnitId = elementDetails.UnitId,
+                            UnitCode = elementDetails.UnitCode,
+                            UnitName = elementDetails.UnitName,
+                            UOMId = elementDetails.UOMId,
+                            UOMUnit = elementDetails.UOMUnit,
+                            PricePerDealUnit = elementDetails.PricePerDealUnit,
+                            PriceTotal = elementDetails.PriceTotal
+                        }).ToList()
+                    }).ToList()
+                }).AsQueryable();
+            if (filter.PositionIds == null)
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            else
+                internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
+
+            if (filter.IncomeTaxId != null)
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Items.Any(item => filter.IncomeTaxId.Select(t => Convert.ToInt64(t)).Contains(item.GarmentINId)));
+
+            if (filter.CurrencyCode != null)
+                internalNoteQuery = internalNoteQuery.Where(entity => filter.CurrencyCode.Contains(entity.CurrencyCode));
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.INNo.Contains(keyword));
+
+            //var internalNotes = internalNoteQuery.Select(entity => new
+            //{
+            //    entity.Id,
+            //    entity.INNo,
+            //    entity.INDate,
+            //    entity.SupplierId,
+            //    entity.SupplierName,
+            //    entity.CurrencyCode,
+            //    entity.CurrencyId
+            //}).Take(10).ToList();
+
+            return internalNoteQuery.Take(10).ToList();
         }
 
         public int UpdateInternNotePosition(UpdatePositionFormDto form)

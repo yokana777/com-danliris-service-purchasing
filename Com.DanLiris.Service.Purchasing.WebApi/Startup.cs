@@ -322,16 +322,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
 
             /* Update Database */
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
+            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
 
-                if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
-                {
-                    context.Database.SetCommandTimeout(10 * 60 * 1000);
-                    context.Database.Migrate();
-                }
-            }
+            //    if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            //    {
+            //        context.Database.SetCommandTimeout(10 * 60 * 1000);
+            //        context.Database.Migrate();
+            //    }
+            //}
 
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);

@@ -1,4 +1,6 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
+﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -18,12 +20,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
     {
         private readonly IGarmentPurchasingExpeditionService _service;
         private readonly IdentityService _identityService;
+        private readonly IMapper _mapper;
         private const string ApiVersion = "1.0";
 
-        public GarmentPurchasingExpeditionController(IServiceProvider serviceProvider)
+        public GarmentPurchasingExpeditionController(IServiceProvider serviceProvider, IMapper mapper)
         {
             _service = serviceProvider.GetService<IGarmentPurchasingExpeditionService>();
             _identityService = serviceProvider.GetService<IdentityService>();
+            _mapper = mapper;
         }
 
         private void VerifyUser()
@@ -39,6 +43,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             try
             {
                 var result = _service.GetGarmentInternalNotes(keyword,filter);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("internal-notes-details")]
+        public IActionResult GetGarmentInternalNoteDetails([FromQuery] string keyword, [FromQuery] GarmentInternalNoteFilterDto filter)
+        {
+            try
+            {
+                var result = _service.GetGarmentInternNotesDetails(keyword, filter);
+                var viewModel = _mapper.Map<List<GarmentInternNote>>(result);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
