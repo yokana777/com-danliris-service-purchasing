@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
@@ -33,11 +34,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet("internal-notes")]
-        public IActionResult GetGarmentInternalNotes([FromQuery] string keyword)
+        public IActionResult GetGarmentInternalNotes([FromQuery] string keyword, [FromQuery] GarmentInternalNoteFilterDto filter)
         {
             try
             {
-                var result = _service.GetGarmentInternalNotes(keyword);
+                var result = _service.GetGarmentInternalNotes(keyword,filter);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,

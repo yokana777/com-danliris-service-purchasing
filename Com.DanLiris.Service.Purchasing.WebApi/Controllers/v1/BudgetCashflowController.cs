@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
 {
@@ -58,6 +59,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             {
                 VerifyUser();
                 var result = _service.GetBudgetCashflowUnit(layoutOrder, unitId, dueDate);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpGet("best-case/by-category")]
+        public IActionResult GetBudgetCashflowBestCaseByCategory([FromQuery] int unitId, [FromQuery] DateTimeOffset dueDate, [FromQuery] int divisionId, [FromQuery] bool isImport, [FromQuery] string categoryIds = "[]")
+        {
+
+            try
+            {
+                VerifyUser();
+                var parsedCategoryIds = JsonConvert.DeserializeObject<List<int>>(categoryIds);
+                var result = _service.GetBudgetCashflowByCategoryAndUnitId(parsedCategoryIds, unitId, dueDate, divisionId, isImport);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
