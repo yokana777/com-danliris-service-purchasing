@@ -72,6 +72,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             }
         }
 
+        [HttpGet("dpp-vat-bank-expenditures")]
+        public IActionResult GetDPPVATBankExpenditures([FromQuery] int currencyId, [FromQuery] int supplierId)
+        {
+            try
+            {
+                var result = facade.BankExpenditureReadInternalNotes(currencyId, supplierId);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
@@ -120,7 +141,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         s.inNo,
                         s.inDate,
                         supplier = new { s.supplier.Name },
-                        items = s.items.Select(i => new {
+                        items = s.items.Select(i => new
+                        {
                             //i.garmentInvoice,
                             garmentInvoice = new
                             {
@@ -193,7 +215,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                     foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                     {
                         GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
-                        if (garmentInvoice!=null)
+                        if (garmentInvoice != null)
                         {
                             GarmentInvoiceViewModel invoiceViewModel = mapper.Map<GarmentInvoiceViewModel>(garmentInvoice);
 
@@ -207,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                             {
                                 GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                                 detail.deliveryOrder.items = deliveryOrderViewModel.items;
-                                if (detail.invoiceDetailId!=0)
+                                if (detail.invoiceDetailId != 0)
                                 {
                                     var invoiceItem = garmentInvoice.Items.First(s => s.Details.Any(d => d.Id == detail.invoiceDetailId));
 
@@ -218,7 +240,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                                         detail.dODetailId = invoiceDetail.DODetailId;
                                     }
                                 }
-                                
+
                             }
                         }
                     }
@@ -240,7 +262,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
 
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<IActionResult> Post([FromBody]GarmentInternNoteViewModel ViewModel)
+        public async Task<IActionResult> Post([FromBody] GarmentInternNoteViewModel ViewModel)
         {
             try
             {
@@ -252,7 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
 
                 var model = mapper.Map<GarmentInternNote>(ViewModel);
 
-                await facade.Create(model,ViewModel.supplier.Import, identityService.Username);
+                await facade.Create(model, ViewModel.supplier.Import, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -276,7 +298,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]GarmentInternNoteViewModel ViewModel)
+        public async Task<IActionResult> Put(int id, [FromBody] GarmentInternNoteViewModel ViewModel)
         {
             try
             {
@@ -312,7 +334,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute]int id)
+        public IActionResult Delete([FromRoute] int id)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 

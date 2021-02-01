@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
@@ -47,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
 
-                    m.INNo = await GenerateNo(m,isImport, clientTimeZoneOffset);
+                    m.INNo = await GenerateNo(m, isImport, clientTimeZoneOffset);
                     m.INDate = DateTimeOffset.Now;
 
                     foreach (var item in m.Items)
@@ -66,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 detail.UnitCode = internalPurchaseOrder.UnitCode;
                                 detail.UnitName = internalPurchaseOrder.UnitName;
                             }
-                            if (garmentDeliveryOrder!=null)
+                            if (garmentDeliveryOrder != null)
                             {
                                 garmentDeliveryOrder.InternNo = m.INNo;
                             }
@@ -106,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     foreach (var item in model.Items)
                     {
                         GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
-                        
+
                         if (garmentInvoice != null)
                         {
                             garmentInvoice.HasInternNote = false;
@@ -115,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         foreach (var detail in item.Details)
                         {
                             GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
-                            if (garmentDeliveryOrder!=null)
+                            if (garmentDeliveryOrder != null)
                             {
                                 garmentDeliveryOrder.InternNo = null;
                             }
@@ -124,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     }
 
                     Deleted = dbContext.SaveChanges();
-					transaction.Commit();
+                    transaction.Commit();
                 }
                 catch (Exception e)
                 {
@@ -247,7 +248,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 {
                                     EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                                 }
-                                
+
                                 foreach (GarmentInternNoteDetail detail in item.Details)
                                 {
                                     if (item.Id <= 0)
@@ -278,7 +279,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     this.dbSet.Update(m);
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
-                
+
                 }
                 catch (Exception e)
                 {
@@ -289,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             return Updated;
         }
-        async Task<string> GenerateNo(GarmentInternNote model,bool isImport, int clientTimeZoneOffset)
+        async Task<string> GenerateNo(GarmentInternNote model, bool isImport, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
@@ -298,7 +299,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             string no = $"NI{Year}{Month}";
             int Padding = 4;
-            
+
             var lastNo = await this.dbSet.Where(w => w.INNo.StartsWith(no) && w.INNo.EndsWith(Supplier) && !w.IsDeleted).OrderByDescending(o => o.INNo).FirstOrDefaultAsync();
 
             if (lastNo == null)
@@ -308,10 +309,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             else
             {
                 //int lastNoNumber = Int32.Parse(lastNo.INNo.Replace(no, "")) + 1;
-                int.TryParse(lastNo.INNo.Replace(no, "").Replace(Supplier,""), out int lastno1);
+                int.TryParse(lastNo.INNo.Replace(no, "").Replace(Supplier, ""), out int lastno1);
                 int lastNoNumber = lastno1 + 1;
-                return no + lastNoNumber.ToString().PadLeft(Padding, '0') +Supplier;
-                
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0') + Supplier;
+
             }
         }
         #region Monitoring
@@ -361,7 +362,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                          let InItem = firstproduct.b
                          let InDetail = firstproduct.c
                          let Do = firstproduct.d
-                         select new 
+                         select new
                          {
                              InternNoteId = IN.Id,
                              internNoteItemId = InItem.Id,
@@ -460,6 +461,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>> { (new KeyValuePair<DataTable, string>(result, "Nota Intern")) }, true);
 
+        }
+
+        public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(int currencyId, int supplierId)
+        {
+            var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.SendToAccounting);
+
+            if (currencyId > 0)
+                query = query.Where(entity => entity.CurrencyId.GetValueOrDefault() == currencyId);
+
+            if (supplierId > 0)
+                query = query.Where(entity => entity.SupplierId.GetValueOrDefault() == supplierId);
+
+            var result = new List<GarmentInternalNoteDto>();
+            if (query.Count() > 0)
+            {
+                var internalNotes = query.Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
+                var internalNoteIds = internalNotes.Select(entity => entity.Id).ToList();
+
+                var invoiceIds = internalNotes.SelectMany(internalNote => internalNote.Items).Select(internalNoteItem => internalNoteItem.InvoiceId).ToList();
+
+                var garmentInvoices = dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
+
+                result = internalNotes
+                    .Select(internalNote =>
+                    {
+                        var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
+                        var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
+
+                        return new GarmentInternalNoteDto(internalNote, internalNoteInvoices);
+                    })
+                    .ToList();
+            }
+
+            return result;
         }
         #endregion
     }
