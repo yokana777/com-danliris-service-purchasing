@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -14,6 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
     public class DebtAndDispositionSummaryService : IDebtAndDispositionSummaryService
     {
         private readonly PurchasingDbContext _dbContext;
+        private readonly IdentityService _identityService;
         private readonly List<UnitDto> _units;
         private readonly List<AccountingUnitDto> _accountingUnits;
         private readonly List<CategoryDto> _categories;
@@ -24,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
         public DebtAndDispositionSummaryService(IServiceProvider serviceProvider)
         {
             _dbContext = serviceProvider.GetService<PurchasingDbContext>();
+            _identityService = serviceProvider.GetService<IdentityService>();
             var cache = serviceProvider.GetService<IDistributedCache>();
             var jsonUnits = cache.GetString(MemoryCacheConstant.Units);
             var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
@@ -124,6 +127,74 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return query;
         }
 
+        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(int unitId, int divisionId, int year, int month, bool isImport, List<string> categoryIds)
+        {
+            var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.AsQueryable();
+            var unitReceiptNotes = _dbContext.UnitReceiptNotes.AsQueryable();
+            var unitPaymentOrderItems = _dbContext.UnitPaymentOrderItems.AsQueryable();
+            var unitPaymentOrders = _dbContext.UnitPaymentOrders.AsQueryable();
+            var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
+            var purchaseRequests = _dbContext.PurchaseRequests.AsQueryable();
+
+            var query = from unitReceiptNoteItem in unitReceiptNoteItems
+
+                        join unitReceiptNote in unitReceiptNotes on unitReceiptNoteItem.URNId equals unitReceiptNote.Id into urnWithItems
+                        from urnWithItem in urnWithItems.DefaultIfEmpty()
+
+                        join unitPaymentOrderItem in unitPaymentOrderItems on urnWithItem.Id equals unitPaymentOrderItem.URNId into urnUPOItems
+                        from urnUPOItem in urnUPOItems.DefaultIfEmpty()
+
+                        join unitPaymentOrder in unitPaymentOrders on urnUPOItem.UPOId equals unitPaymentOrder.Id into upoWithItems
+                        from upoWithItem in upoWithItems.DefaultIfEmpty()
+
+                        join externalPurchaseOrder in externalPurchaseOrders on unitReceiptNoteItem.EPOId equals externalPurchaseOrder.Id into urnEPOs
+                        from urnEPO in urnEPOs.DefaultIfEmpty()
+
+                        join purchaseRequest in purchaseRequests on unitReceiptNoteItem.PRId equals purchaseRequest.Id into urnPRs
+                        from urnPR in urnPRs.DefaultIfEmpty()
+
+                        select new DebtAndDispositionSummaryDto
+                        {
+                            CurrencyId = urnEPO.CurrencyId,
+                            CurrencyCode = urnEPO.CurrencyCode,
+                            CurrencyRate = urnEPO.CurrencyRate,
+                            CategoryId = urnPR.CategoryId,
+                            CategoryCode = urnPR.CategoryCode,
+                            CategoryName = urnPR.CategoryName,
+                            UnitId = urnPR.UnitId,
+                            UnitCode = urnPR.UnitCode,
+                            UnitName = urnPR.UnitName,
+                            DivisionId = urnPR.DivisionId,
+                            DivisionCode = urnPR.DivisionCode,
+                            DivisionName = urnPR.DivisionName,
+                            IsImport = urnWithItem.SupplierIsImport,
+                            IsPaid = upoWithItem != null && upoWithItem.IsPaid,
+                            DebtPrice = unitReceiptNoteItem.PricePerDealUnit,
+                            DebtQuantity = unitReceiptNoteItem.ReceiptQuantity,
+                            DebtTotal = unitReceiptNoteItem.PricePerDealUnit * unitReceiptNoteItem.ReceiptQuantity,
+                            DueDate = urnWithItem.ReceiptDate.AddDays(Convert.ToInt32(urnEPO.PaymentDueDays)),
+                            IncomeTaxBy = urnEPO.IncomeTaxBy,
+                            UseIncomeTax = urnEPO.UseIncomeTax,
+                            IncomeTaxRate = urnEPO.IncomeTaxRate,
+                            UseVat = urnEPO.UseVat
+                        };
+
+            query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
+
+            if (categoryIds.Count > 0)
+                query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
+
+            if (unitId > 0)
+            {
+                query = query.Where(entity => unitId.ToString() == entity.UnitId);
+            }
+
+            if (divisionId > 0)
+                query = query.Where(entity => entity.DivisionId == divisionId.ToString());
+
+            return query;
+        }
+
         private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency)
         {
             var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
@@ -192,6 +263,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 query = query.Where(entity => entity.CurrencyCode.ToUpper() != "IDR" && !entity.IsImport);
             else if (isImport)
                 query = query.Where(entity => entity.IsImport);
+
+            return query;
+        }
+
+        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(int unitId, int divisionId, int year, int month, bool isImport, List<string> categoryIds)
+        {
+            var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
+            var purchasingDispositionDetails = _dbContext.PurchasingDispositionDetails.AsQueryable();
+            var purchasingDispositionItems = _dbContext.PurchasingDispositionItems.AsQueryable();
+            var purchasingDispositions = _dbContext.PurchasingDispositions.AsQueryable();
+
+            var query = from purchasingDispositionDetail in purchasingDispositionDetails
+
+                        join purchasingDispositionItem in purchasingDispositionItems on purchasingDispositionDetail.PurchasingDispositionItemId equals purchasingDispositionItem.Id into pdDetailItems
+                        from pdDetailItem in pdDetailItems.DefaultIfEmpty()
+
+                        join purchasingDisposition in purchasingDispositions on pdDetailItem.PurchasingDispositionId equals purchasingDisposition.Id into pdWithItems
+                        from pdWithItem in pdWithItems.DefaultIfEmpty()
+
+                        join externalPurchaseOrder in externalPurchaseOrders on pdDetailItem.EPOId equals externalPurchaseOrder.Id.ToString() into pdItemEPOs
+                        from pdItemEPO in pdItemEPOs.DefaultIfEmpty()
+
+                        select new DebtAndDispositionSummaryDto
+                        {
+                            CurrencyId = pdWithItem.CurrencyId,
+                            CurrencyCode = pdWithItem.CurrencyCode,
+                            CurrencyRate = pdWithItem.CurrencyRate,
+                            CategoryId = pdWithItem.CategoryId,
+                            CategoryCode = pdWithItem.CategoryCode,
+                            CategoryName = pdWithItem.CategoryName,
+                            UnitId = purchasingDispositionDetail.UnitId,
+                            UnitCode = purchasingDispositionDetail.UnitCode,
+                            UnitName = purchasingDispositionDetail.UnitName,
+                            DivisionId = pdWithItem.DivisionId,
+                            DivisionCode = pdWithItem.DivisionCode,
+                            DivisionName = pdWithItem.DivisionName,
+                            IsImport = pdItemEPO.SupplierIsImport,
+                            IsPaid = pdWithItem.IsPaid,
+                            DispositionPrice = purchasingDispositionDetail.PricePerDealUnit,
+                            DispositionQuantity = purchasingDispositionDetail.PaidQuantity,
+                            DispositionTotal = purchasingDispositionDetail.PaidPrice,
+                            DueDate = pdWithItem.PaymentDueDate,
+                            IncomeTaxBy = pdItemEPO.IncomeTaxBy,
+                            UseIncomeTax = pdItemEPO.UseIncomeTax,
+                            IncomeTaxRate = pdItemEPO.IncomeTaxRate,
+                            UseVat = pdItemEPO.UseVat
+                        };
+
+            query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
+
+            if (categoryIds.Count > 0)
+                query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
+
+            if (unitId > 0)
+            {
+                query = query.Where(entity => unitId.ToString() == entity.UnitId);
+            }
+
+            if (divisionId > 0)
+                query = query.Where(entity => entity.DivisionId == divisionId.ToString());
 
             return query;
         }
@@ -610,6 +741,162 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             })
                 .OrderBy(element => element.CategoryLayoutIndex)
                 .ToList();
+
+            return result;
+        }
+
+        public List<DebtAndDispositionSummaryDto> GetSummary(int unitId, int divisionId, int year, int month, bool isImport, string categoryIds = "[]")
+        {
+            var intCategoryIds = JsonConvert.DeserializeObject<List<int>>(categoryIds);
+            var stringCategoryIds = intCategoryIds.Select(element => element.ToString()).ToList();
+
+            var debtQuery = GetDebtQuery(unitId, divisionId, year, month, isImport, stringCategoryIds);
+            var dispositionQuery = GetDispositionQuery(unitId, divisionId, year, month, isImport, stringCategoryIds);
+
+            var debts = debtQuery.ToList();
+            var dispositions = dispositionQuery.ToList();
+
+            var result = new List<DebtAndDispositionSummaryDto>();
+            result.AddRange(debts);
+            result.AddRange(dispositions);
+
+            result = result.Select(element =>
+            {
+                double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
+                var debtTotal = element.DebtTotal;
+                var dispositionTotal = element.DispositionTotal;
+
+                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                var categoryLayoutIndex = 0;
+                if (category != null)
+                    categoryLayoutIndex = category.ReportLayoutIndex;
+
+                var accountingUnitName = "-";
+                var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
+                if (unit != null)
+                {
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
+                    if (accountingUnit != null)
+                        accountingUnitName = accountingUnit.Name;
+                }
+
+                if (element.UseVat)
+                {
+                    debtTotal += element.DebtTotal * 0.1;
+                    dispositionTotal += element.DispositionTotal * 0.1;
+                }
+
+                if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                {
+                    debtTotal -= element.DebtTotal * (incomeTaxRate / 100);
+                    dispositionTotal -= element.DispositionTotal * (incomeTaxRate / 100);
+                }
+
+                return new DebtAndDispositionSummaryDto()
+                {
+                    CategoryCode = element.CategoryCode,
+                    CategoryId = element.CategoryId,
+                    CategoryName = element.CategoryName,
+                    CurrencyCode = element.CurrencyCode,
+                    CurrencyId = element.CurrencyId,
+                    CurrencyRate = element.CurrencyRate,
+                    DebtPrice = element.DebtPrice,
+                    DebtQuantity = element.DebtQuantity,
+                    DebtTotal = debtTotal,
+                    DispositionPrice = element.DispositionPrice,
+                    DispositionQuantity = element.DispositionQuantity,
+                    DispositionTotal = dispositionTotal,
+                    DivisionCode = element.DivisionCode,
+                    DivisionId = element.DivisionId,
+                    DivisionName = element.DivisionName,
+                    DueDate = element.DueDate,
+                    IncomeTaxBy = element.IncomeTaxBy,
+                    IncomeTaxRate = element.IncomeTaxRate,
+                    IsImport = element.IsImport,
+                    IsPaid = element.IsPaid,
+                    Total = debtTotal + dispositionTotal,
+                    UnitCode = element.UnitCode,
+                    UnitId = element.UnitId,
+                    UnitName = element.UnitName,
+                    UseIncomeTax = element.UseIncomeTax,
+                    AccountingUnitName = accountingUnitName,
+                    CategoryLayoutIndex = categoryLayoutIndex
+                };
+            })
+                .OrderBy(element => element.CategoryLayoutIndex)
+                .ToList();
+
+            return result;
+        }
+
+        public List<DebtAndDispositionSummaryDto> GetDebtSummary(int unitId, int divisionId, int year, int month, bool isImport, string categoryIds = "[]")
+        {
+            var intCategoryIds = JsonConvert.DeserializeObject<List<int>>(categoryIds);
+            var stringCategoryIds = intCategoryIds.Select(element => element.ToString()).ToList();
+            var debtQuery = GetDebtQuery(unitId, divisionId, year, month, isImport, stringCategoryIds);
+
+            var debt = debtQuery.ToList();
+
+            var result = new List<DebtAndDispositionSummaryDto>();
+            result.AddRange(debt);
+
+            result = result.Select(element =>
+            {
+                double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
+                var debtTotal = element.DebtTotal;
+
+                var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
+                var categoryLayoutIndex = 0;
+                if (category != null)
+                    categoryLayoutIndex = category.ReportLayoutIndex;
+
+                var accountingUnitName = "-";
+                var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
+                if (unit != null)
+                {
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
+                    if (accountingUnit != null)
+                        accountingUnitName = accountingUnit.Name;
+                }
+
+                if (element.UseVat)
+                {
+                    debtTotal += element.DebtTotal * 0.1;
+                }
+
+                if (element.UseIncomeTax && element.IncomeTaxBy.ToUpper() == "SUPPLIER")
+                {
+                    debtTotal -= element.DebtTotal * (incomeTaxRate / 100);
+                }
+
+                return new DebtAndDispositionSummaryDto()
+                {
+                    CategoryCode = element.CategoryCode,
+                    CategoryId = element.CategoryId,
+                    CategoryName = element.CategoryName,
+                    CurrencyCode = element.CurrencyCode,
+                    CurrencyId = element.CurrencyId,
+                    CurrencyRate = element.CurrencyRate,
+                    DebtPrice = element.DebtPrice,
+                    DebtQuantity = element.DebtQuantity,
+                    DebtTotal = debtTotal,
+                    DivisionCode = element.DivisionCode,
+                    DivisionId = element.DivisionId,
+                    DivisionName = element.DivisionName,
+                    DueDate = element.DueDate,
+                    IncomeTaxBy = element.IncomeTaxBy,
+                    IncomeTaxRate = element.IncomeTaxRate,
+                    IsImport = element.IsImport,
+                    IsPaid = element.IsPaid,
+                    Total = debtTotal,
+                    UnitCode = element.UnitCode,
+                    UnitId = element.UnitId,
+                    UnitName = element.UnitName,
+                    UseIncomeTax = element.UseIncomeTax,
+                    CategoryLayoutIndex = categoryLayoutIndex,
+                    AccountingUnitName = accountingUnitName
+                };
+            }).OrderBy(element => element.CategoryLayoutIndex).ToList();
 
             return result;
         }
