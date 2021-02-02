@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             try
             {
                 var result = _service.GetGarmentInternNotesDetails(keyword, filter);
-                var viewModel = _mapper.Map<List<GarmentInternNote>>(result);
+                var viewModel = _mapper.Map<List<GarmentInternalNoteDetailsDto>>(result);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,

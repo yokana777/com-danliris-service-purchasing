@@ -10,5 +10,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
         public List<int> IncomeTaxId { get; set; }
         public List<string> CurrencyCode { get; set; }
+        public int isPPHMenu { get; set; }
     }
 }
