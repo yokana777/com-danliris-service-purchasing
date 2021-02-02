@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 
             VATAmount = internalNoteInvoices.Sum(element =>
             {
-                var total = element.TotalAmount;
+                var total = 0.0;
 
                 if (element.UseVat && element.IsPayVat)
                     total += element.TotalAmount * 0.1;
