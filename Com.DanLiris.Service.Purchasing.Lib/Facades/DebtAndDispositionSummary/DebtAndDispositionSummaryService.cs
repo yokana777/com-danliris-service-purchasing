@@ -179,7 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             UseVat = urnEPO.UseVat
                         };
 
-            query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
+            query = query.Where(entity => !entity.IsPaid && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
 
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
@@ -311,7 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             UseVat = pdItemEPO.UseVat
                         };
 
-            query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
+            query = query.Where(entity => !entity.IsPaid && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
 
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
