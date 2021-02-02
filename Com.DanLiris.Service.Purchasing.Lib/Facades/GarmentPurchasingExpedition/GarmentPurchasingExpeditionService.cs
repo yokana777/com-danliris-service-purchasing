@@ -272,22 +272,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                         })
                     .ToList()
                 }).AsQueryable();
-            //if (filter.PositionIds == null && filter.isPPHMenu != 1)
-            //    internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
-            //else
-            //{
-            //    if(filter.isPPHMenu != 1)
-            //        internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
-            //    else
-            //        internalNoteQuery = internalNoteQuery.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted|| entity.Position== PurchasingGarmentExpeditionPosition.CashierAccepted);
+            if (filter.PositionIds == null && filter.isPPHMenu != 1)
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            else
+            {
+                if (filter.isPPHMenu != 1)
+                    internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
+                else
+                    internalNoteQuery = internalNoteQuery.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
 
-            //}
+            }
 
-            //if (filter.IncomeTaxId != null)
-            //    internalNoteQuery = internalNoteQuery.Where(entity => entity.Items.Any(item => filter.IncomeTaxId.Select(t => Convert.ToInt64(t)).Contains(item.GarmentInvoice.IncomeTaxId)));
+            if (filter.IncomeTaxId != null)
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Items.Any(item => filter.IncomeTaxId.Select(t => Convert.ToInt64(t)).Contains(item.GarmentInvoice.IncomeTaxId)));
 
-            //if (filter.CurrencyCode != null)
-            //    internalNoteQuery = internalNoteQuery.Where(entity => filter.CurrencyCode.Contains(entity.CurrencyCode));
+            if (filter.CurrencyCode != null)
+                internalNoteQuery = internalNoteQuery.Where(entity => filter.CurrencyCode.Contains(entity.CurrencyCode));
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.INNo.Contains(keyword));
