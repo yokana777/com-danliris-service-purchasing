@@ -144,6 +144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         public List<GarmentInternalNoteDetailsDto> GetGarmentInternNotesDetails(string keyword, GarmentInternalNoteFilterDto filter)
         {
             var invoiceInfo = _dbContext.GarmentInvoiceDetails.Include(t => t.GarmentInvoiceItem).ThenInclude(t => t.GarmentInvoice);
+            var deliveryOrderInfo = _dbContext.GarmentDeliveryOrders;
             var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details)
                 .Select(element =>
                 new GarmentInternalNoteDetailsDto
@@ -233,7 +234,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                                 InvoiceId = elementItem.InvoiceId,
                                 InvoiceDate = elementItem.InvoiceDate,
                                 InvoiceTotalAmount = elementItem.TotalAmount,
-                                GarmentInvoiceDetail = invoiceInfo.FirstOrDefault(s => s.Id == elementDetails.InvoiceDetailId)
+                                GarmentInvoiceDetail = invoiceInfo.FirstOrDefault(s => s.Id == elementDetails.InvoiceDetailId),
+                                GarmentDeliveryOrder = deliveryOrderInfo.FirstOrDefault(s=> s.Id == elementDetails.DOId),
+                                
                             }).ToList()
                             //elementItem.Details.GroupBy(
                             //    productKey => productKey.DOId,
