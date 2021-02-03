@@ -145,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         {
             var invoiceInfo = _dbContext.GarmentInvoiceDetails.Include(t => t.GarmentInvoiceItem).ThenInclude(t => t.GarmentInvoice);
             var deliveryOrderInfo = _dbContext.GarmentDeliveryOrders;
+            var externalPurchasOrder = _dbContext.GarmentExternalPurchaseOrders;
             var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details)
                 .Select(element =>
                 new GarmentInternalNoteDetailsDto
@@ -222,6 +223,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                                 ProductCode = elementDetails.ProductCode,
                                 ProductId = elementDetails.ProductId,
                                 ProductName = elementDetails.ProductName,
+                                ProductCategory = externalPurchasOrder.FirstOrDefault(s=> s.Id == elementDetails.EPOId).Category,
                                 Quantity = elementDetails.Quantity,
                                 UnitId = elementDetails.UnitId,
                                 UnitCode = elementDetails.UnitCode,
