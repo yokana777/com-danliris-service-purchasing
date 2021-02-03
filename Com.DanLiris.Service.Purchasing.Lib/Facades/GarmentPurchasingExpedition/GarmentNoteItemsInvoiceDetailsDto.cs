@@ -45,5 +45,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         public DateTimeOffset? InvoiceDate { get; set; }
         public double? InvoiceTotalAmount { get; set; }
         public Models.GarmentInvoiceModel.GarmentInvoiceDetail GarmentInvoiceDetail { get; set; }
+        public Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder GarmentDeliveryOrder { get; set; }
     }
 }
