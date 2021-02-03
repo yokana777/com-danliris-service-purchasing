@@ -317,6 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             EndingBalanceQty = (bb == null ? 0 : bb.BeginningBalanceQty) + a.ReceiptQty + a.ReceiptCorrectionQty - (decimal)a.ExpendQty,
                             EndingUom = a.EndingUom,
                             ExpendQty = a.ExpendQty,
+                            ExpandUom = a.ExpandUom,
                             NoArticle = a.NoArticle,
                             PaymentMethod = a.PaymentMethod,
                             PlanPo = a.PlanPo,
@@ -381,10 +382,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DataTable result = new DataTable();
             var headers = new string[] { "No","Kode Barang", "No RO", "Plan PO", "Artikel", "Nama Barang","Keterangan Barang", "Buyer","Saldo Awal","Saldo Awal2", "Penerimaan", "Penerimaan1", "Penerimaan2","Pengeluaran","Pengeluaran1", "Saldo Akhir", "Saldo Akhir1", "Asal" }; 
             var subheaders = new string[] { "Jumlah", "Sat", "Jumlah", "Koreksi", "Sat", "Jumlah", "Sat", "Jumlah", "Sat" };
-            for (int i = 0; i < headers.Length; i++)
+            for (int i = 0; i < 8; i++)
             {
                 result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
             }
+
+            result.Columns.Add(new DataColumn() { ColumnName = headers[8], DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[9], DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[10], DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[11], DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[12], DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[13], DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[14], DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[15], DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[16], DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[17], DataType = typeof(String) });
             var index = 1;
             decimal BeginningQtyTotal = 0;
             decimal ReceiptQtyTotal = 0;

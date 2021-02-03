@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join f in dbContext.GarmentDeliveryOrderDetails on a.DODetailId equals f.Id
                          where
                          f.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirment : category)
-                         && f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
+                         //&& f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
                          && a.CreatedUtc.Date >= DateFrom
                          && a.CreatedUtc.Date <= DateTo
                          && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              Quantity = a.Quantity,
                              UomUnit = a.UomUnit,
                              Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate,
-                             UnitDestination = b.UnitRequestCode
+                             UnitDestination = b.ExpenditureType == "TRANSFER" ? b.UnitRequestName : b.ExpenditureType
 
                          });
 
@@ -117,9 +117,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Tujuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No.Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
                 result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0); // to allow column name to be generated properly for empty data as template
             else
