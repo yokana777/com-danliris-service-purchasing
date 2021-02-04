@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         public string ProductCode { get; set; }
         public long? ProductId { get; set; }
         public string ProductName { get; set; }
-
+        public string ProductCategory { get; set; }
         public double? Quantity { get; set; }
 
         /* Unit */

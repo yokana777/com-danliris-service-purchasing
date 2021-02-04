@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition
 {
@@ -145,7 +146,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         {
             var invoiceInfo = _dbContext.GarmentInvoiceDetails.Include(t => t.GarmentInvoiceItem).ThenInclude(t => t.GarmentInvoice);
             var deliveryOrderInfo = _dbContext.GarmentDeliveryOrders;
-            var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details)
+            var externalPurchasOrder = _dbContext.GarmentExternalPurchaseOrders;
+            var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details).Where(s=> !s.IsPphPaid)
                 .Select(element =>
                 new GarmentInternalNoteDetailsDto
                 {
@@ -222,6 +224,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                                 ProductCode = elementDetails.ProductCode,
                                 ProductId = elementDetails.ProductId,
                                 ProductName = elementDetails.ProductName,
+                                ProductCategory = externalPurchasOrder.FirstOrDefault(s=> s.Id == elementDetails.EPOId).Category,
                                 Quantity = elementDetails.Quantity,
                                 UnitId = elementDetails.UnitId,
                                 UnitCode = elementDetails.UnitCode,
@@ -282,7 +285,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 if (filter.isPPHMenu != 1)
                     internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
                 else
-                    internalNoteQuery = internalNoteQuery.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
+                {
+                    internalNoteQuery = internalNoteQuery.Where(entity => (entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted));
+                }
 
             }
 
@@ -323,6 +328,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
             _dbContext.GarmentInternNotes.UpdateRange(models);
             return _dbContext.SaveChanges();
+        }
+
+        public async Task UpdateInternNotesIsPphPaid(List<GarmentInternNoteUpdateIsPphPaidDto> listModel)
+        {
+            var listModelINId = listModel.Select(s => s.InternNoteId);
+            var existingData = _dbContext.GarmentInternNotes.Where(entity => listModelINId.Contains(entity.Id));
+            foreach(var data in existingData)
+            {
+                data.IsPphPaid = listModel.FirstOrDefault(s => s.InternNoteId == data.Id).IsPphPaid;
+                EntityExtension.FlagForUpdate(data, _identityService.Username, UserAgent);
+                _dbContext.GarmentInternNotes.Update(data);
+            }
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
