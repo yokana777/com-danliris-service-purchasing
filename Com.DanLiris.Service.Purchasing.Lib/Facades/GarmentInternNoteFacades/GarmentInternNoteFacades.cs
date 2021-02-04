@@ -465,7 +465,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(int currencyId, int supplierId)
         {
-            var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
+            var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted && !entity.DPPVATIsPaid);
 
             if (currencyId > 0)
                 query = query.Where(entity => entity.CurrencyId.GetValueOrDefault() == currencyId);
@@ -481,7 +481,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                 var invoiceIds = internalNotes.SelectMany(internalNote => internalNote.Items).Select(internalNoteItem => internalNoteItem.InvoiceId).ToList();
 
-                var garmentInvoices = dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
+                var garmentInvoices = dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id) && !entity.DPPVATIsPaid).Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
 
                 result = internalNotes
                     .Select(internalNote =>
@@ -495,6 +495,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             }
 
             return result;
+        }
+
+        public int BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, string internalNoteIds = "[]", string invoiceNoteIds = "[]")
+        {
+            var parsedInternalNoteIds = JsonConvert.DeserializeObject<List<long>>(internalNoteIds);
+            var parsedInvoiceNoteIds = JsonConvert.DeserializeObject<List<long>>(invoiceNoteIds);
+
+            var internalNotes = dbContext
+                .GarmentInternNotes
+                .Where(entity => parsedInternalNoteIds.Contains(entity.Id))
+                .ToList()
+                .Select(element =>
+                {
+                    element.DPPVATIsPaid = dppVATIsPaid;
+                    EntityExtension.FlagForUpdate(element, element.CreatedBy, USER_AGENT);
+
+                    return element;
+                })
+                .ToList();
+            dbContext.GarmentInternNotes.UpdateRange(internalNotes);
+
+            var invoiceNotes = dbContext
+                .GarmentInvoices
+                .Where(entity => parsedInvoiceNoteIds.Contains(entity.Id))
+                .ToList()
+                .Select(element =>
+                {
+                    element.DPPVATIsPaid = dppVATIsPaid;
+                    EntityExtension.FlagForUpdate(element, element.CreatedBy, USER_AGENT);
+
+                    return element;
+                })
+                .ToList();
+            dbContext.GarmentInvoices.UpdateRange(invoiceNotes);
+
+            return dbContext.SaveChanges();
         }
         #endregion
     }
