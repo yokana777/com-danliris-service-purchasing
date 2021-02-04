@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return query;
         }
 
-        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(int unitId, int divisionId, int year, int month, bool isImport, List<string> categoryIds)
+        private IQueryable<DebtAndDispositionSummaryDto> GetDebtQuery(int unitId, int divisionId, int year, int month, bool isImport, DateTimeOffset date, List<string> categoryIds)
         {
             var unitReceiptNoteItems = _dbContext.UnitReceiptNoteItems.AsQueryable();
             var unitReceiptNotes = _dbContext.UnitReceiptNotes.AsQueryable();
@@ -179,7 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             UseVat = urnEPO.UseVat
                         };
 
-            query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
+            query = query.Where(entity => !entity.IsPaid && entity.DueDate <= date);
 
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
@@ -267,7 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return query;
         }
 
-        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(int unitId, int divisionId, int year, int month, bool isImport, List<string> categoryIds)
+        private IQueryable<DebtAndDispositionSummaryDto> GetDispositionQuery(int unitId, int divisionId, int year, int month, bool isImport, DateTimeOffset date, List<string> categoryIds)
         {
             var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
             var purchasingDispositionDetails = _dbContext.PurchasingDispositionDetails.AsQueryable();
@@ -311,7 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                             UseVat = pdItemEPO.UseVat
                         };
 
-            query = query.Where(entity => !entity.IsPaid && entity.IsImport == isImport && entity.DueDate.AddMonths(1).Month == month && entity.DueDate.AddMonths(1).Year == year);
+            query = query.Where(entity => !entity.IsPaid && entity.DueDate <= date);
 
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
@@ -745,13 +745,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return result;
         }
 
-        public List<DebtAndDispositionSummaryDto> GetSummary(int unitId, int divisionId, int year, int month, bool isImport, string categoryIds = "[]")
+        public List<DebtAndDispositionSummaryDto> GetSummary(int unitId, int divisionId, int year, int month, bool isImport, DateTimeOffset date, string categoryIds = "[]")
         {
             var intCategoryIds = JsonConvert.DeserializeObject<List<int>>(categoryIds);
             var stringCategoryIds = intCategoryIds.Select(element => element.ToString()).ToList();
 
-            var debtQuery = GetDebtQuery(unitId, divisionId, year, month, isImport, stringCategoryIds);
-            var dispositionQuery = GetDispositionQuery(unitId, divisionId, year, month, isImport, stringCategoryIds);
+            var debtQuery = GetDebtQuery(unitId, divisionId, year, month, isImport, date, stringCategoryIds);
+            var dispositionQuery = GetDispositionQuery(unitId, divisionId, year, month, isImport, date, stringCategoryIds);
 
             var debts = debtQuery.ToList();
             var dispositions = dispositionQuery.ToList();
@@ -829,11 +829,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             return result;
         }
 
-        public List<DebtAndDispositionSummaryDto> GetDebtSummary(int unitId, int divisionId, int year, int month, bool isImport, string categoryIds = "[]")
+        public List<DebtAndDispositionSummaryDto> GetDebtSummary(int unitId, int divisionId, int year, int month, bool isImport, DateTimeOffset date, string categoryIds = "[]")
         {
             var intCategoryIds = JsonConvert.DeserializeObject<List<int>>(categoryIds);
             var stringCategoryIds = intCategoryIds.Select(element => element.ToString()).ToList();
-            var debtQuery = GetDebtQuery(unitId, divisionId, year, month, isImport, stringCategoryIds);
+            var debtQuery = GetDebtQuery(unitId, divisionId, year, month, isImport, date, stringCategoryIds);
 
             var debt = debtQuery.ToList();
 

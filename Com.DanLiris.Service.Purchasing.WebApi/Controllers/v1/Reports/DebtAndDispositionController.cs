@@ -302,12 +302,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         }
 
         [HttpGet("debt-budget-cashflow")]
-        public IActionResult GetDebt([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds)
+        public IActionResult GetDebt([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
         {
 
             try
             {
-                var result = _service.GetDebtSummary(unitId, divisionId, year, month, isImport, categoryIds);
+                var result = _service.GetDebtSummary(unitId, divisionId, year, month, isImport, date, categoryIds);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
@@ -328,12 +328,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         }
 
         [HttpGet("budget-cashflow-summary")]
-        public IActionResult GetSummary([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds)
+        public IActionResult GetSummary([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
         {
 
             try
             {
-                var result = _service.GetSummary(unitId, divisionId, year, month, isImport, categoryIds);
+                var result = _service.GetSummary(unitId, divisionId, year, month, isImport, date, categoryIds);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
