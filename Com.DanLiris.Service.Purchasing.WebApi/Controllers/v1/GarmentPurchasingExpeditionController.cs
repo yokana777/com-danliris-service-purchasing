@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         {
             try
             {
-                var result = _service.UpdateInternNotesIsPphPaid(listModel);
+                _service.UpdateInternNotesIsPphPaid(listModel);
                 //var viewModel = _mapper.Map<List<GarmentInternalNoteDetailsDto>>(result);
                 return Ok(new
                 {
