@@ -78,6 +78,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             }
         }
 
+        [HttpPut("internal-notes-update-paid-pph")]
+        public IActionResult UpdateGarmentInternalNoteIsPaidPph([FromBody] List<GarmentInternNoteUpdateIsPphPaidDto> listModel )
+        {
+            try
+            {
+                var result = _service.UpdateInternNotesIsPphPaid(listModel);
+                //var viewModel = _mapper.Map<List<GarmentInternalNoteDetailsDto>>(result);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
         [HttpPut("internal-notes/position")]
         public IActionResult UpdateGarmentInternalNotePosition([FromBody] UpdatePositionFormDto form)
         {
