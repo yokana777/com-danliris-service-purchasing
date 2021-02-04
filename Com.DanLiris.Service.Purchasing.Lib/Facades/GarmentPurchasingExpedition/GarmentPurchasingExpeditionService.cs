@@ -330,17 +330,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             return _dbContext.SaveChanges();
         }
 
-        public async Task UpdateInternNotesIsPphPaid(List<GarmentInternNoteUpdateIsPphPaidDto> listModel)
+        public void UpdateInternNotesIsPphPaid(List<GarmentInternNoteUpdateIsPphPaidDto> listModel)
         {
             var listModelINId = listModel.Select(s => s.InternNoteId);
             var existingData = _dbContext.GarmentInternNotes.Where(entity => listModelINId.Contains(entity.Id));
             foreach(var data in existingData)
             {
                 data.IsPphPaid = listModel.FirstOrDefault(s => s.InternNoteId == data.Id).IsPphPaid;
-                EntityExtension.FlagForUpdate(data, _identityService.Username, UserAgent);
+                EntityExtension.FlagForUpdate(data, "finance-service", UserAgent);
                 _dbContext.GarmentInternNotes.Update(data);
             }
-            await _dbContext.SaveChangesAsync();
+            _dbContext.SaveChanges();
         }
     }
 }
