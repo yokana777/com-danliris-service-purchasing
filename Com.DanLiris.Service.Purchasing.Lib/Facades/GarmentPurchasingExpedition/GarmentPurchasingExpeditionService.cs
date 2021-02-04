@@ -337,7 +337,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             foreach(var data in existingData)
             {
                 data.IsPphPaid = listModel.FirstOrDefault(s => s.InternNoteId == data.Id).IsPphPaid;
-                EntityExtension.FlagForUpdate(data, _identityService.Username, UserAgent);
+                EntityExtension.FlagForUpdate(data, "finance-service", UserAgent);
                 _dbContext.GarmentInternNotes.Update(data);
             }
             _dbContext.SaveChanges();
