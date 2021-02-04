@@ -147,6 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var invoiceInfo = _dbContext.GarmentInvoiceDetails.Include(t => t.GarmentInvoiceItem).ThenInclude(t => t.GarmentInvoice);
             var deliveryOrderInfo = _dbContext.GarmentDeliveryOrders;
             var externalPurchasOrder = _dbContext.GarmentExternalPurchaseOrders;
+            var invoiceInfoHeader = _dbContext.GarmentInvoices;
             var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details).Where(s=> !s.IsPphPaid)
                 .Select(element =>
                 new GarmentInternalNoteDetailsDto
@@ -202,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                             IsDeleted = elementItem.IsDeleted,
                             LastModifiedBy = elementItem.LastModifiedBy,
                             LastModifiedUtc = elementItem.LastModifiedUtc,
-                            GarmentInvoice = _dbContext.GarmentInvoices.FirstOrDefault(s=> s.Id == elementItem.InvoiceId),
+                            GarmentInvoice = invoiceInfoHeader.FirstOrDefault(s=> s.Id == elementItem.InvoiceId),
                             TotalIncomeTax = _dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == elementItem.InvoiceId) == null ? 0:
                             (_dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == elementItem.InvoiceId).IncomeTaxRate / 100 )* elementItem.TotalAmount,
                             Details = elementItem.Details == null ? new List<GarmentNoteItemsInvoiceDetailsDto>() :
@@ -311,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             //    entity.CurrencyId
             //}).Take(10).ToList();
 
-            return internalNoteQuery.Take(10).ToList();
+            return internalNoteQuery.ToList();
         }
 
         public int UpdateInternNotePosition(UpdatePositionFormDto form)
