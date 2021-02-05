@@ -42,8 +42,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join c in dbContext.GarmentExternalPurchaseOrderItems on a.EPOItemId equals c.Id
                          join e in dbContext.GarmentUnitDeliveryOrderItems on a.UnitDOItemId equals e.Id
                          join d in dbContext.GarmentUnitDeliveryOrders on e.UnitDOId equals d.Id
-
-                         
                          join f in dbContext.GarmentDeliveryOrderDetails on a.DODetailId equals f.Id
                          where
                          f.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirment : category)

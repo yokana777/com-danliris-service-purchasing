@@ -1397,11 +1397,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                          join d in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals d.Id
                          join e in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals e.Id
                          join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
-                         join h in dbContext.GarmentUnitExpenditureNoteItems on b.Id equals h.URNItemId
+                         //join h in dbContext.GarmentUnitExpenditureNoteItems on b.UENItemId equals h.URNItemId
                          join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
                          from gg in uen.DefaultIfEmpty()
-                         //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
-                         //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
+                             //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
+                             //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
                          where a.IsDeleted == false
                             && b.IsDeleted == false
                             && c.IsDeleted == false
@@ -1431,7 +1431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              satuanbeli = a.URNType == "PEMBELIAN" ? d.UomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
                              jumlahterima = decimal.ToDouble(b.SmallQuantity),
                              satuanterima = b.SmallUomUnit,
-                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
+                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.SmallQuantity),
                              asal = a.URNType == "PROSES" ? a.UnitName : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
                              Jenis = a.URNType,
                              tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
