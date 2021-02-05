@@ -465,7 +465,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(int currencyId, int supplierId)
         {
-            var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted && !entity.DPPVATIsPaid);
+            var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
 
             if (currencyId > 0)
                 query = query.Where(entity => entity.CurrencyId.GetValueOrDefault() == currencyId);
@@ -483,15 +483,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                 var garmentInvoices = dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id) && !entity.DPPVATIsPaid).Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
 
-                result = internalNotes
-                    .Select(internalNote =>
-                    {
-                        var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
-                        var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
+                foreach (var internalNote in internalNotes)
+                {
+                    var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
+                    var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
 
-                        return new GarmentInternalNoteDto(internalNote, internalNoteInvoices);
-                    })
-                    .ToList();
+                    if (internalNoteInvoices.Count > 0)
+                    {
+                        result.Add(new GarmentInternalNoteDto(internalNote, internalNoteInvoices));
+                    }
+                }
+
+                //result = internalNotes
+                //    .Select(internalNote =>
+                //    {
+                //        var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
+                //        var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
+
+                //        return new GarmentInternalNoteDto(internalNote, internalNoteInvoices);
+                //    })
+                //    .ToList();
             }
 
             return result;
