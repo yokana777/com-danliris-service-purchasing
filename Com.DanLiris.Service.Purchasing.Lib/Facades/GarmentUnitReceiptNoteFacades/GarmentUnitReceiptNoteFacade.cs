@@ -1397,10 +1397,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                          join d in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals d.Id
                          join e in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals e.Id
                          join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
+                         //join h in dbContext.GarmentUnitExpenditureNoteItems on b.UENItemId equals h.URNItemId
                          join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
                          from gg in uen.DefaultIfEmpty()
-                         //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
-                         //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
+                             //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
+                             //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
                          where a.IsDeleted == false
                             && b.IsDeleted == false
                             && c.IsDeleted == false
@@ -1426,12 +1427,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              kdbuyer = c.BuyerCode,
                              nobukti = a.URNNo,
                              tanggal = a.CreatedUtc,
-                             jumlahbeli = a.URNType == "PEMBELIAN" ? d.DOQuantity : a.URNType == "PROSES" ? (double)b.SmallQuantity : (double)b.SmallQuantity,
-                             satuanbeli = a.URNType == "PEMBELIAN" ? d.SmallUomUnit : a.URNType == "PROSES" ? b.SmallUomUnit : b.SmallUomUnit,
-                             jumlahterima = decimal.ToDouble(b.ReceiptQuantity),
+                             jumlahbeli = a.URNType == "PEMBELIAN" ? d.DOQuantity : a.URNType == "PROSES" ? (double)b.ReceiptQuantity : (double)b.ReceiptQuantity,
+                             satuanbeli = a.URNType == "PEMBELIAN" ? d.UomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
+                             jumlahterima = decimal.ToDouble(b.SmallQuantity),
                              satuanterima = b.SmallUomUnit,
-                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
-                             asal = gg == null ? "Pembelian Eksternal" : gg.UnitSenderName,
+                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.SmallQuantity),
+                             asal = a.URNType == "PROSES" ? a.UnitName : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
                              Jenis = a.URNType,
                              tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
 
@@ -1499,7 +1500,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, 1, int.MaxValue);
 
             DataTable result = new DataTable();
-            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(String) });
@@ -1507,15 +1508,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "No R/O", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Metode Pembayaran", DataType = typeof(String) });
 
 
@@ -1526,7 +1527,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             double PriceReceiptTotal = 0;
             if (Query.ToArray().Count() == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1535,7 +1537,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     index++;
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.Jenis, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
                     ReceiptQtyTotal += data.jumlahterima;
                     PriceReceiptTotal += data.jumlah;
                 }
