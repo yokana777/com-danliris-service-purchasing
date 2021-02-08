@@ -66,6 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string PlanPo { get; set; }
         public string NoArticle { get; set; }
         public decimal QtyReceipt { get; set; }
+        public double QtyDo { get; set; }
         public double QtyCorrection { get; set; }
         public double QtyExpend { get; set; }
         public decimal PriceReceipt { get; set; }

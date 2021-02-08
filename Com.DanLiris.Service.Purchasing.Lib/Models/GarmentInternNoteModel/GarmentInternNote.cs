@@ -32,6 +32,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel
         public virtual ICollection<GarmentInternNoteItem> Items { get; set; }
 
         public bool IsCreatedVB { get; set; }
+        public bool IsPphPaid { get; set; }
+        public bool DPPVATIsPaid { get; set; }
         public PurchasingGarmentExpeditionPosition Position { get; set; }
 
     }

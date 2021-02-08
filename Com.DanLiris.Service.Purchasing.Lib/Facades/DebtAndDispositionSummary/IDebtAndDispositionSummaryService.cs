@@ -11,7 +11,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
         ReadResponse<DebtAndDispositionSummaryDto> GetReportDebt(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency);
         ReadResponse<DebtAndDispositionSummaryDto> GetReportDisposition(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency);
         List<DebtAndDispositionSummaryDto> GetSummary(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency);
+        List<DebtAndDispositionSummaryDto> GetDebtSummary(int unitId, int divisionId, int year, int month, bool isImport, DateTimeOffset date, string categoryIds = "[]");
         List<DebtAndDispositionSummaryDto> GetDebtSummary(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency);
+        List<DebtAndDispositionSummaryDto> GetSummary(int unitId, int divisionId, int year, int month, bool isImport, DateTimeOffset date, string categoryIds = "[]");
         List<DebtAndDispositionSummaryDto> GetDispositionSummary(int categoryId, int accountingUnitId, int divisionId, DateTimeOffset dueDate, bool isImport, bool isForeignCurrency);
     }
 }

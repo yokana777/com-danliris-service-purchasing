@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210203221036_AddingFlaggingInInternNoteispphPaid")]
+    partial class AddingFlaggingInInternNoteispphPaid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2460,8 +2461,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<double>("CurrencyRate")
                         .HasMaxLength(1000);
 
-                    b.Property<bool>("DPPVATIsPaid");
-
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -3006,8 +3005,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("CurrencyCode");
 
                     b.Property<long>("CurrencyId");
-
-                    b.Property<bool>("DPPVATIsPaid");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
