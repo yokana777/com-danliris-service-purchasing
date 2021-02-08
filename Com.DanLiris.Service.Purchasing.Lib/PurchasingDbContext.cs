@@ -31,6 +31,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseModel;
+//using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -137,6 +138,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<BudgetCashflowWorstCase> BudgetCashflowWorstCases { get; set; }
         public DbSet<BudgetCashflowWorstCaseItem> BudgetCashflowWorstCaseItems { get; set; }
+
+        //public DbSet<ImportValue> ImportValues { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -174,6 +174,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			}
 		}
 
+		//[HttpGet("import-value-loader")]
+		//public async Task<IActionResult> GetImportValueList(string keyword)
+		//{
+		//	try
+		//	{
+		//		var model = facade.ReadImportValue(keyword);
+				
+		//		Dictionary<string, object> Result =
+		//			new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+		//			.Ok(model);
+		//		return Ok(Result);
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		Dictionary<string, object> Result =
+		//			new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+		//			.Fail();
+		//		return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+		//	}
+		//}
+
 		[HttpDelete("{id}")]
 		public IActionResult Delete([FromRoute]int id)
 		{

@@ -6,6 +6,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 {
     public class InvoiceDto
     {
+        public InvoiceDto(GarmentInvoiceInternNoteViewModel internalNoteInvoice)
+        {
+            DocumentNo = internalNoteInvoice.GarmentInvoices.InvoiceNo;
+            Date = internalNoteInvoice.GarmentInvoices.InvoiceDate;
+            ProductNames = string.Join("\n", internalNoteInvoice.GarmentInvoices.Items.SelectMany(item => item.Details).Select(detail => detail.ProductName));
+            Category = internalNoteInvoice.Category;
+            Amount = internalNoteInvoice.GarmentInvoices.TotalAmount;
+            Id = (int)internalNoteInvoice.GarmentInvoices.Id;
+        }
+
         public InvoiceDto(GarmentInvoice internalNoteInvoice)
         {
             DocumentNo = internalNoteInvoice.InvoiceNo;
