@@ -487,7 +487,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     .Select(internalNote =>
                     {
                         var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
-                        var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
+                        var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).Select(s=> new GarmentInvoiceInternNoteViewModel
+                        { 
+                        GarmentInvoices = s,
+                        Category = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).Select(categ => new CategoryDto { Id = 0, Name = categ.Category}).FirstOrDefault()
+                        //TODO : Category ID 0 karena tidak terpakai jadi tidak di ambil
+                        }).ToList();
 
                         return new GarmentInternalNoteDto(internalNote, internalNoteInvoices);
                     })
