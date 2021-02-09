@@ -9,5 +9,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
     {
         public GarmentInvoice GarmentInvoices { get; set; }
         public CategoryDto Category { get; set; }
+        public string PaymentMethod { get; internal set; }
     }
 }
