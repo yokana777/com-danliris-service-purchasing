@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             Date = internalNoteInvoice.GarmentInvoices.InvoiceDate;
             ProductNames = string.Join("\n", internalNoteInvoice.GarmentInvoices.Items.SelectMany(item => item.Details).Select(detail => detail.ProductName));
             Category = internalNoteInvoice.Category;
+            PaymentMethod = internalNoteInvoice.PaymentMethod;
             Amount = internalNoteInvoice.GarmentInvoices.TotalAmount;
             Id = (int)internalNoteInvoice.GarmentInvoices.Id;
         }
@@ -30,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public DateTimeOffset Date { get; set; }
         public string ProductNames { get; set; }
         public CategoryDto Category { get; set; }
+        public string PaymentMethod { get; private set; }
         public double Amount { get; set; }
         public int Id { get; set; }
     }
