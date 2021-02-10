@@ -335,5 +335,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 			return Updated;
 
 		}
-	}
+
+   //     public async Task<List<ImportValueViewModel>> ReadImportValue(string keyword)
+   //     {
+			//var query = dbContext.ImportValues.AsQueryable();
+			//if (!string.IsNullOrEmpty(keyword))
+			//	query = query.Where(s => s.Name.Contains(keyword));
+
+			//return await query.Select(s=> new ImportValueViewModel { 
+			//	Name = s.Name,
+			//	Id = s.Id
+			//	})
+			//	.ToListAsync();
+   //     }
+    }
 }

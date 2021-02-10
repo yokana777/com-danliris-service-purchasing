@@ -8,7 +8,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         {
             Invoice = new InvoiceDto(internalNoteInvoice);
         }
-
+        public InternalNoteInvoiceDto(GarmentInvoiceInternNoteViewModel internalNoteInvoice)
+        {
+            Invoice = new InvoiceDto(internalNoteInvoice);
+        }
         public InvoiceDto Invoice { get; set; }
     }
 }
