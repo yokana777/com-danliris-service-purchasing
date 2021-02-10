@@ -1427,12 +1427,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              kdbuyer = c.BuyerCode,
                              nobukti = a.URNNo,
                              tanggal = a.CreatedUtc,
-                             jumlahbeli = a.URNType == "PEMBELIAN" ? d.DOQuantity : a.URNType == "PROSES" ? (double)b.ReceiptQuantity : (double)b.ReceiptQuantity,
+                             jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
                              satuanbeli = a.URNType == "PEMBELIAN" ? d.UomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
-                             jumlahterima = decimal.ToDouble(b.SmallQuantity),
+                             //jumlahterima = decimal.ToDouble(b.SmallQuantity),
+                             jumlahterima = decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion),
                              satuanterima = b.SmallUomUnit,
-                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.SmallQuantity),
-                             asal = a.URNType == "PROSES" ? a.UnitName : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
+                             asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
                              Jenis = a.URNType,
                              tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
 
@@ -1525,6 +1526,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             double ReceiptQtyTotal = 0;
             double PriceReceiptTotal = 0;
+            double PurchaseQtyTotal = 0;
             if (Query.ToArray().Count() == 0)
             {
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
@@ -1539,6 +1541,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
                     ReceiptQtyTotal += data.jumlahterima;
+                    PurchaseQtyTotal += data.jumlahbeli;
                     PriceReceiptTotal += data.jumlah;
                 }
 
@@ -1573,17 +1576,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             var a = Query.Count();
             sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
-            sheet.Cells[$"A{6 + a}:N{6 + a}"].Merge = true;
-            sheet.Cells[$"A{6 + a}:N{6 + a}"].Style.Font.Bold = true;
-            sheet.Cells[$"A{6 + a}:N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"A{6 + a}:N{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{6 + a}:N{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[$"O{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
+            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Q{6 + a}"].Value = PriceReceiptTotal;
-            sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"P{6 + a}"].Value = PriceReceiptTotal;
             sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"R{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
 
             MemoryStream stream = new MemoryStream();
