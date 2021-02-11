@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              Quantity = a.Quantity,
                              UomUnit = a.UomUnit,
                              Total = a.Quantity * a.PricePerDealUnit* a.DOCurrencyRate,
-                             UnitDestination = b.ExpenditureType == "TRANSFER" ? b.UnitRequestName : b.ExpenditureType
+                             UnitDestination = b.ExpenditureType == "TRANSFER" ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
 
                          });
 
