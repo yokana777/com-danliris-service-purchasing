@@ -913,7 +913,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells[$"AP{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"AQ{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2DQtyTotal;
             sheet.Cells[$"AQ{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AR{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2DQtyPriceTotal;
+            sheet.Cells[$"AR{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2DPriceTotal;
             sheet.Cells[$"AR{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"AS{6 + result.Rows.Count}"].Value = EndingQty;
             sheet.Cells[$"AS{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
