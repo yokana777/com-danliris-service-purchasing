@@ -73,6 +73,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.ExcelGenerator;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfGenerator;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -199,7 +200,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBudgetCashflowUnitExcelGenerator, BudgetCashflowUnitExcelGenerator>()
                 .AddTransient<IBudgetCashflowDivisionExcelGenerator, BudgetCashflowDivisionExcelGenerator>()
                 .AddTransient<IGarmentPurchasingExpeditionService, GarmentPurchasingExpeditionService>()
-                .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>();
+                .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>()
+                .AddTransient<IGarmentPurchasingBookReportService, GarmentPurchasingBookReportService>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
