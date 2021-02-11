@@ -8,11 +8,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
         {
             Total = dppAmount;
 
+            var vatAmount = 0.0;
             if (isUseVAT && isPayVAT)
-                Total += dppAmount * 0.1;
+            {
+                vatAmount = dppAmount * 0.1;
+                Total += vatAmount;
+            }
 
+            var incomeTaxAmount = 0.0;
             if (isIncomeTaxPaidBySupplier)
-                Total -= dppAmount * incomeTaxRate;
+            {
+                incomeTaxAmount = dppAmount * incomeTaxRate;
+                Total -= incomeTaxAmount;
+            }
 
             CustomsArrivalDate = customsArrivalDate;
             SupplierId = supplierId;
