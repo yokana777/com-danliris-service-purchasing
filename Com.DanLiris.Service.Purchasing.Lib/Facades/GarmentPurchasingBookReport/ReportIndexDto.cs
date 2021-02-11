@@ -4,7 +4,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 {
     public class ReportIndexDto
     {
-        public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate)
+        public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate, double vatAmount, double incomeTaxAmount)
         {
             Total = dppAmount;
 
