@@ -497,6 +497,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         GarmentInvoices = s,
                         BillsNo = string.Join("\n", internalNoteDeliveryOrders.Select(element => $"- {element.BillNo}")),
                         PaymentBills = string.Join("\n", internalNoteDeliveryOrders.Select(element => $"- {element.PaymentBill}")),
+                        DeliveryOrdersNo = string.Join("\n", internalNoteDeliveryOrders.Select(element => $"- {element.DONo}")),
                         Category = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).Select(categ => new CategoryDto { Id = 0, Name = categ.Category }).FirstOrDefault(),
                         PaymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).FirstOrDefault().PaymentMethod
                         //TODO : Category ID 0 karena tidak terpakai jadi tidak di ambil
