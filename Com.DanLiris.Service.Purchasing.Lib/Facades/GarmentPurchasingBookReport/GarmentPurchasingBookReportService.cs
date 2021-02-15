@@ -18,22 +18,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         public List<BillNoPaymentBillAutoCompleteDto> GetBillNos(string keyword)
         {
-            var query = _dbContext.GarmentDeliveryOrders.Select(entity => new BillNoPaymentBillAutoCompleteDto(entity.BillNo)).Distinct();
+            var query = _dbContext.GarmentDeliveryOrders.Select(entity => entity.BillNo).Distinct();
 
             if (!string.IsNullOrWhiteSpace(keyword))
-                query = query.Where(entity => entity.Value.Contains(keyword));
+                query = query.Where(entity => entity.Contains(keyword));
 
-            return query.Take(10).ToList();
+            return query.Take(10).Select(entity => new BillNoPaymentBillAutoCompleteDto(entity)).ToList();
         }
 
         public List<BillNoPaymentBillAutoCompleteDto> GetPaymentBills(string keyword)
         {
-            var query = _dbContext.GarmentDeliveryOrders.Select(entity => new BillNoPaymentBillAutoCompleteDto(entity.PaymentBill)).Distinct();
+            var query = _dbContext.GarmentDeliveryOrders.Select(entity => entity.PaymentBill).Distinct();
 
             if (!string.IsNullOrWhiteSpace(keyword))
-                query = query.Where(entity => entity.Value.Contains(keyword));
+                query = query.Where(entity => entity.Contains(keyword));
 
-            return query.Take(10).ToList();
+            return query.Take(10).Select(entity => new BillNoPaymentBillAutoCompleteDto(entity)).ToList();
         }
 
         public ReportDto GetReport(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier)
