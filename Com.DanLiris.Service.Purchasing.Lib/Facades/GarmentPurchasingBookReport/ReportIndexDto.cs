@@ -1,9 +1,74 @@
-﻿using System;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using System;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport
 {
     public class ReportIndexDto
     {
+        public ReportIndexDto(GarmentDeliveryOrder garmentDeliveryOrders, GarmentBeacukaiItem deliveryOrderCustoms, GarmentDeliveryOrderItem deliveryOrderItems, GarmentInvoiceItem deliveryOrderInvoiceItems, GarmentInvoice deliveryOrderInvoices, GarmentExternalPurchaseOrder deliveryOrderExternalPurchaseOrders, GarmentInternNoteDetail deliveryOrderInternalNoteDetails, GarmentInternNoteItem deliveryOrderInternalNoteItems, GarmentInternNote deliveryOrderInternalNotes)
+        {
+            if (deliveryOrderCustoms != null)
+            {
+                CustomsArrivalDate = deliveryOrderCustoms.ArrivalDate;
+            }
+
+            if (deliveryOrderExternalPurchaseOrders != null)
+            {
+                SupplierId = deliveryOrderExternalPurchaseOrders.SupplierId;
+                SupplierName = deliveryOrderExternalPurchaseOrders.SupplierName;
+                IsImportSupplier = deliveryOrderExternalPurchaseOrders.SupplierImport;
+                AccountingCategoryName = deliveryOrderExternalPurchaseOrders.Category;
+                PurchasingCategoryName = deliveryOrderExternalPurchaseOrders.Category;
+
+            }
+
+            var dppAmount = 0.0;
+            if (deliveryOrderInternalNoteDetails != null)
+            {
+                ProductName = deliveryOrderInternalNoteDetails.ProductName;
+                InternalNoteQuantity = deliveryOrderInternalNoteDetails.Quantity;
+                dppAmount = deliveryOrderInternalNoteDetails.PriceTotal;
+                Total = dppAmount;
+            }
+
+            if (garmentDeliveryOrders != null)
+            {
+                GarmentDeliveryOrderId = (int)garmentDeliveryOrders.Id;
+                GarmentDeliveryOrderNo = garmentDeliveryOrders.DONo;
+                BillNo = garmentDeliveryOrders.BillNo;
+                PaymentBill = garmentDeliveryOrders.PaymentBill;
+            }
+
+            if (deliveryOrderInvoices != null)
+            {
+                InvoiceId = (int)deliveryOrderInvoices.Id;
+                InvoiceNo = deliveryOrderInvoices.InvoiceNo;
+                VATNo = deliveryOrderInvoices.VatNo;
+
+                var vatAmount = 0.0;
+                if (deliveryOrderInvoices.UseVat && deliveryOrderInvoices.IsPayVat)
+                {
+                    vatAmount = dppAmount * 0.1;
+                    Total += vatAmount;
+                }
+
+                var incomeTaxAmount = 0.0;
+                if (deliveryOrderInvoices.UseIncomeTax && deliveryOrderInvoices.IsPayTax)
+                {
+                    incomeTaxAmount = dppAmount * deliveryOrderInvoices.IncomeTaxRate / 100;
+                    Total += incomeTaxAmount;
+                }
+
+                VATAmount = vatAmount;
+                IncomeTaxAmount = incomeTaxAmount;
+            }
+        }
+        //select new ReportIndexDto(deliveryOrderCustoms.ArrivalDate, deliveryOrderExternalPurchaseOrders.SupplierId, deliveryOrderExternalPurchaseOrders.SupplierName, deliveryOrderExternalPurchaseOrders.SupplierImport, deliveryOrderInternalNoteDetails.ProductName, (int) garmentDeliveryOrders.Id, garmentDeliveryOrders.DONo, garmentDeliveryOrders.BillNo, garmentDeliveryOrders.PaymentBill, (int) deliveryOrderInvoices.Id, deliveryOrderInvoices.InvoiceNo, deliveryOrderInvoices.VatNo, (int) deliveryOrderInternalNotes.Id, deliveryOrderInternalNotes.INNo, 0, deliveryOrderExternalPurchaseOrders.Category, 0, deliveryOrderExternalPurchaseOrders.Category, deliveryOrderInternalNoteDetails.Quantity, (int) deliveryOrderInternalNotes.CurrencyId.GetValueOrDefault(), deliveryOrderInternalNotes.CurrencyCode, deliveryOrderInternalNotes.CurrencyRate, deliveryOrderInternalNoteDetails.PriceTotal, deliveryOrderInvoices.UseVat, deliveryOrderInvoices.IsPayVat, deliveryOrderInvoices.UseIncomeTax, deliveryOrderInvoices.IsPayTax, deliveryOrderInvoices.IncomeTaxRate);
+
         public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate)
         {
             Total = dppAmount;
