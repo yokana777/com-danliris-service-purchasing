@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         public ReportDto GetReport(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier)
         {
-            var query = from garmentDeliveryOrders in _dbContext.GarmentDeliveryOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable()
+            var query = from garmentDeliveryOrders in _dbContext.GarmentDeliveryOrders.AsQueryable()
 
                         join customsItems in _dbContext.GarmentBeacukaiItems.AsQueryable() on garmentDeliveryOrders.Id equals customsItems.GarmentDOId into doCustoms
                         from deliveryOrderCustoms in doCustoms.DefaultIfEmpty()
