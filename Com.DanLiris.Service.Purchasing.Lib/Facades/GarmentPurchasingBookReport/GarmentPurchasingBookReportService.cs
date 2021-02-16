@@ -51,8 +51,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         join garmentDeliveryOrderItems in _dbContext.GarmentDeliveryOrderItems.AsQueryable() on garmentDeliveryOrders.Id equals garmentDeliveryOrderItems.GarmentDOId into garmentDOItems
                         from deliveryOrderItems in garmentDOItems.DefaultIfEmpty()
 
-                            //join garmentDeliveryOrderDetails in _dbContext.GarmentDeliveryOrderDetails.AsQueryable() on deliveryOrderItems.Id equals garmentDeliveryOrderDetails.GarmentDOItemId into garmentDODetails
-                            //from deliveryOrderDetails in garmentDODetails.DefaultIfEmpty()
+                        join garmentDeliveryOrderDetails in _dbContext.GarmentDeliveryOrderDetails.AsQueryable() on deliveryOrderItems.Id equals garmentDeliveryOrderDetails.GarmentDOItemId into garmentDODetails
+                        from deliveryOrderDetails in garmentDODetails.DefaultIfEmpty()
 
                         join invoiceItems in _dbContext.GarmentInvoiceItems.AsQueryable() on garmentDeliveryOrders.Id equals invoiceItems.DeliveryOrderId into garmentDOInvoiceItems
                         from deliveryOrderInvoiceItems in garmentDOInvoiceItems.DefaultIfEmpty()
@@ -84,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             CurrencyCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyCode : null,
                             CurrencyId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyId : 0,
                             CurrencyRate = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyRate : 0,
-                            AccountingCategoryName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.Category : null,
+                            AccountingCategoryName = deliveryOrderDetails != null ? deliveryOrderDetails.CodeRequirment : null,
                             ProductName = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.ProductName : null,
                             DeliveryOrderId = garmentDeliveryOrders != null ? garmentDeliveryOrders.Id : 0,
                             DeliveryOrderNo = garmentDeliveryOrders != null ? garmentDeliveryOrders.DONo : null,
@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             if (!string.IsNullOrWhiteSpace(garmentCategory))
             {
-                query = query.Where(entity => entity.PurchasingCategoryName == garmentCategory);
+                query = query.Where(entity => entity.AccountingCategoryName == garmentCategory);
             }
 
             if (isImportSupplier)
@@ -138,7 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             var data = query.ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate)).ToList();
 
             var reportCategories = data
-                .GroupBy(element => element.AccountingCategoryName)
+                .GroupBy(element => element.PurchasingCategoryName)
                 .Select(element => new ReportCategoryDto(0, element.Key, element.Sum(sum => sum.Total)))
                 .ToList();
 
