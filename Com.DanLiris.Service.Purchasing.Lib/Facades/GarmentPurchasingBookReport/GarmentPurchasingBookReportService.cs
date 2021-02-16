@@ -16,24 +16,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             _dbContext = serviceProvider.GetService<PurchasingDbContext>();
         }
 
-        public List<BillNoPaymentBillAutoCompleteDto> GetBillNos(string keyword)
+        public List<AutoCompleteDto> GetBillNos(string keyword)
         {
             var query = _dbContext.GarmentDeliveryOrders.Select(entity => entity.BillNo).Distinct();
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(entity => entity.Contains(keyword));
 
-            return query.Take(10).Select(entity => new BillNoPaymentBillAutoCompleteDto(entity)).ToList();
+            return query.Take(10).Select(entity => new AutoCompleteDto(entity)).ToList();
         }
 
-        public List<BillNoPaymentBillAutoCompleteDto> GetPaymentBills(string keyword)
+        public List<AutoCompleteDto> GetPaymentBills(string keyword)
         {
             var query = _dbContext.GarmentDeliveryOrders.Select(entity => entity.PaymentBill).Distinct();
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(entity => entity.Contains(keyword));
 
-            return query.Take(10).Select(entity => new BillNoPaymentBillAutoCompleteDto(entity)).ToList();
+            return query.Take(10).Select(entity => new AutoCompleteDto(entity)).ToList();
+        }
+
+        public List<AutoCompleteDto> GetAccountingCategories(string keyword)
+        {
+            var query = _dbContext.GarmentDeliveryOrderDetails.Select(entity => entity.CodeRequirment).Distinct();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+                query = query.Where(entity => entity.Contains(keyword));
+
+            return query.Take(10).Select(entity => new AutoCompleteDto(entity)).ToList();
         }
 
         public ReportDto GetReport(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier)
