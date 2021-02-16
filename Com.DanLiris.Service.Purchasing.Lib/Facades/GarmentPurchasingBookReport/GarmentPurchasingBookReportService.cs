@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             if (!string.IsNullOrWhiteSpace(garmentCategory))
             {
-                query = query.Where(entity => entity.PurchasingCategoryName == garmentCategory);
+                query = query.Where(entity => entity.AccountingCategoryName == garmentCategory);
             }
 
             if (isImportSupplier)
@@ -133,7 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             var data = query.ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate)).ToList();
 
             var reportCategories = data
-                .GroupBy(element => element.AccountingCategoryName)
+                .GroupBy(element => element.PurchasingCategoryName)
                 .Select(element => new ReportCategoryDto(0, element.Key, element.Sum(sum => sum.Total)))
                 .ToList();
 

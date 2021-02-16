@@ -71,21 +71,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate)
         {
-            Total = dppAmount;
+            CurrencyDPPAmount = dppAmount;
+            DPPAmount = dppAmount * currencyRate;
 
-            var vatAmount = 0.0;
             if (isUseVAT && isPayVAT)
             {
-                vatAmount = dppAmount * 0.1;
-                Total += vatAmount;
+                VATAmount = DPPAmount * 0.1;
             }
 
-            var incomeTaxAmount = 0.0;
             if (isUseIncomeTax && isIncomeTaxPaidBySupplier)
             {
-                incomeTaxAmount = dppAmount * incomeTaxRate;
-                Total -= incomeTaxAmount;
+                IncomeTaxAmount = DPPAmount * incomeTaxRate / 100;
             }
+
+            Total = DPPAmount + VATAmount - IncomeTaxAmount;
 
             CustomsArrivalDate = customsArrivalDate;
             SupplierId = supplierId;
@@ -109,9 +108,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             CurrencyId = currencyId;
             CurrencyCode = currencyCode;
             CurrencyRate = currencyRate;
-            DPPAmount = dppAmount;
-            VATAmount = vatAmount;
-            IncomeTaxAmount = incomeTaxAmount;
             IsIncomeTaxPaidBySupplier = isIncomeTaxPaidBySupplier;
         }
 
@@ -142,5 +138,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
         public double VATAmount { get; private set; }
         public double IncomeTaxAmount { get; private set; }
         public bool IsIncomeTaxPaidBySupplier { get; private set; }
+        public double CurrencyTotal { get; private set; }
+        public double CurrencyDPPAmount { get; private set; }
     }
 }
