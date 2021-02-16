@@ -46,8 +46,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         join garmentDeliveryOrderItems in _dbContext.GarmentDeliveryOrderItems.AsQueryable() on garmentDeliveryOrders.Id equals garmentDeliveryOrderItems.GarmentDOId into garmentDOItems
                         from deliveryOrderItems in garmentDOItems.DefaultIfEmpty()
 
-                            //join garmentDeliveryOrderDetails in _dbContext.GarmentDeliveryOrderDetails.AsQueryable() on deliveryOrderItems.Id equals garmentDeliveryOrderDetails.GarmentDOItemId into garmentDODetails
-                            //from deliveryOrderDetails in garmentDODetails.DefaultIfEmpty()
+                        join garmentDeliveryOrderDetails in _dbContext.GarmentDeliveryOrderDetails.AsQueryable() on deliveryOrderItems.Id equals garmentDeliveryOrderDetails.GarmentDOItemId into garmentDODetails
+                        from deliveryOrderDetails in garmentDODetails.DefaultIfEmpty()
 
                         join invoiceItems in _dbContext.GarmentInvoiceItems.AsQueryable() on garmentDeliveryOrders.Id equals invoiceItems.DeliveryOrderId into garmentDOInvoiceItems
                         from deliveryOrderInvoiceItems in garmentDOInvoiceItems.DefaultIfEmpty()
@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             CurrencyCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyCode : null,
                             CurrencyId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyId : 0,
                             CurrencyRate = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyRate : 0,
-                            AccountingCategoryName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.Category : null,
+                            AccountingCategoryName = deliveryOrderDetails != null ? deliveryOrderDetails.CodeRequirment : null,
                             ProductName = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.ProductName : null,
                             DeliveryOrderId = garmentDeliveryOrders != null ? garmentDeliveryOrders.Id : 0,
                             DeliveryOrderNo = garmentDeliveryOrders != null ? garmentDeliveryOrders.DONo : null,
