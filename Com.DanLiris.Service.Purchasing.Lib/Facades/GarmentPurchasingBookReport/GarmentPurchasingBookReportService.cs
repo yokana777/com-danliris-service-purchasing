@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         public ReportDto GetReport(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier)
         {
-            var query = from garmentDeliveryOrders in _dbContext.GarmentDeliveryOrders.Include(entity => entity.Items).ThenInclude(entity => entity.Details).AsQueryable()
+            var query = from garmentDeliveryOrders in _dbContext.GarmentDeliveryOrders.AsQueryable()
 
                         join customsItems in _dbContext.GarmentBeacukaiItems.AsQueryable() on garmentDeliveryOrders.Id equals customsItems.GarmentDOId into doCustoms
                         from deliveryOrderCustoms in doCustoms.DefaultIfEmpty()
@@ -51,8 +51,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         join garmentDeliveryOrderItems in _dbContext.GarmentDeliveryOrderItems.AsQueryable() on garmentDeliveryOrders.Id equals garmentDeliveryOrderItems.GarmentDOId into garmentDOItems
                         from deliveryOrderItems in garmentDOItems.DefaultIfEmpty()
 
-                            //join garmentDeliveryOrderDetails in _dbContext.GarmentDeliveryOrderDetails.AsQueryable() on deliveryOrderItems.Id equals garmentDeliveryOrderDetails.GarmentDOItemId into garmentDODetails
-                            //from deliveryOrderDetails in garmentDODetails.DefaultIfEmpty()
+                        join garmentDeliveryOrderDetails in _dbContext.GarmentDeliveryOrderDetails.AsQueryable() on deliveryOrderItems.Id equals garmentDeliveryOrderDetails.GarmentDOItemId into garmentDODetails
+                        from deliveryOrderDetails in garmentDODetails.DefaultIfEmpty()
 
                         join invoiceItems in _dbContext.GarmentInvoiceItems.AsQueryable() on garmentDeliveryOrders.Id equals invoiceItems.DeliveryOrderId into garmentDOInvoiceItems
                         from deliveryOrderInvoiceItems in garmentDOInvoiceItems.DefaultIfEmpty()
@@ -72,7 +72,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         join internalNotes in _dbContext.GarmentInternNotes.AsQueryable() on deliveryOrderInternalNoteItems.GarmentINId equals internalNotes.Id into doInternalNotes
                         from deliveryOrderInternalNotes in doInternalNotes.DefaultIfEmpty()
 
-                        select new ReportIndexDto(garmentDeliveryOrders, deliveryOrderCustoms, deliveryOrderItems, deliveryOrderInvoiceItems, deliveryOrderInvoices, deliveryOrderExternalPurchaseOrders, deliveryOrderInternalNoteDetails, deliveryOrderInternalNoteItems, deliveryOrderInternalNotes);
+                        select new
+                        {
+                            CustomsArrivalDate = deliveryOrderCustoms != null ? deliveryOrderCustoms.ArrivalDate : DateTimeOffset.MinValue,
+                            BillNo = garmentDeliveryOrders != null ? garmentDeliveryOrders.BillNo : null,
+                            PaymentBill = garmentDeliveryOrders != null ? garmentDeliveryOrders.PaymentBill : null,
+                            PurchasingCategoryName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.Category : null,
+                            SupplierId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierId : 0,
+                            SupplierName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierName : null,
+                            IsImportSupplier = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierImport : false,
+                            CurrencyCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyCode : null,
+                            CurrencyId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyId : 0,
+                            CurrencyRate = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyRate : 0,
+                            AccountingCategoryName = deliveryOrderDetails != null ? deliveryOrderDetails.CodeRequirment : null,
+                            ProductName = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.ProductName : null,
+                            DeliveryOrderId = garmentDeliveryOrders != null ? garmentDeliveryOrders.Id : 0,
+                            DeliveryOrderNo = garmentDeliveryOrders != null ? garmentDeliveryOrders.DONo : null,
+                            InvoiceId = deliveryOrderInvoices != null ? deliveryOrderInvoices.Id : 0,
+                            InvoiceNo = deliveryOrderInvoices != null ? deliveryOrderInvoices.InvoiceNo : null,
+                            VATNo = deliveryOrderInvoices != null ? deliveryOrderInvoices.VatNo : null,
+                            InternalNoteId = deliveryOrderInternalNotes != null ? deliveryOrderInternalNotes.Id : 0,
+                            InternalNoteNo = deliveryOrderInternalNotes != null ? deliveryOrderInternalNotes.INNo : "",
+                            InternalNoteQuantity = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.Quantity : 0,
+                            DPPAmount = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.PriceTotal : 0,
+                            IsUseVAT = deliveryOrderInvoices != null ? deliveryOrderInvoices.UseVat: false,
+                            IsPayVAT = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayVat : false,
+                            IsUseIncomeTax = deliveryOrderInvoices != null ? deliveryOrderInvoices.UseIncomeTax : false,
+                            IsIncomeTaxPaidBySupplier = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayTax: false,
+                            IncomeTaxRate = deliveryOrderInvoices != null ? deliveryOrderInvoices.IncomeTaxRate : 0.0
+                        };
+
+            //select new ReportIndexDto(deliveryOrderCustoms.ArrivalDate, deliveryOrderExternalPurchaseOrders.SupplierId, deliveryOrderExternalPurchaseOrders.SupplierName, deliveryOrderExternalPurchaseOrders.SupplierImport, deliveryOrderInternalNoteDetails.ProductName, (int) garmentDeliveryOrders.Id, garmentDeliveryOrders.DONo, garmentDeliveryOrders.BillNo, garmentDeliveryOrders.PaymentBill, (int) deliveryOrderInvoices.Id, deliveryOrderInvoices.InvoiceNo, deliveryOrderInvoices.VatNo, (int) deliveryOrderInternalNotes.Id, deliveryOrderInternalNotes.INNo, 0, deliveryOrderExternalPurchaseOrders.Category, 0, deliveryOrderExternalPurchaseOrders.Category, deliveryOrderInternalNoteDetails.Quantity, (int) deliveryOrderInternalNotes.CurrencyId.GetValueOrDefault(), deliveryOrderInternalNotes.CurrencyCode, deliveryOrderInternalNotes.CurrencyRate, deliveryOrderInternalNoteDetails.PriceTotal, deliveryOrderInvoices.UseVat, deliveryOrderInvoices.IsPayVat, deliveryOrderInvoices.UseIncomeTax, deliveryOrderInvoices.IsPayTax, deliveryOrderInvoices.IncomeTaxRate);
 
             query = query.Where(entity => entity.CustomsArrivalDate >= startDate && entity.CustomsArrivalDate <= endDate);
 
@@ -88,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             if (!string.IsNullOrWhiteSpace(garmentCategory))
             {
-                query = query.Where(entity => entity.PurchasingCategoryName == garmentCategory);
+                query = query.Where(entity => entity.AccountingCategoryName == garmentCategory);
             }
 
             if (isImportSupplier)
@@ -105,10 +135,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 query = query.Where(entity => entity.CurrencyCode != "IDR");
             }
 
-            var data = query.ToList();
+            var data = query.ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate)).ToList();
 
             var reportCategories = data
-                .GroupBy(element => element.AccountingCategoryName)
+                .GroupBy(element => element.PurchasingCategoryName)
                 .Select(element => new ReportCategoryDto(0, element.Key, element.Sum(sum => sum.Total)))
                 .ToList();
 

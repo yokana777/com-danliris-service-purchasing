@@ -12,5 +12,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public string PaymentMethod { get; internal set; }
         public string BillsNo { get; internal set; }
         public string PaymentBills { get; internal set; }
+        public string DeliveryOrdersNo { get; internal set; }
     }
 }
