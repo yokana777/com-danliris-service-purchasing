@@ -111,12 +111,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
                 endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
 
+                billNo = billNo == "undefined" ? null : billNo;
+                paymentBill = paymentBill == "undefined" ? null : paymentBill;
+
                 var filename = "Laporan Buku Pembelian Lokal";
                 if (isForeignCurrency)
                     filename = "Laporan Buku Pembelian Lokal Valas";
                 else if (!isForeignCurrency && isImportSupplier)
                     filename = "Laporan Buku Pembelian Impor";
                 filename += ".xlsx";
+
 
                 var result = await _service.GenerateExcel(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier,_identityService.TimezoneOffset);
 
