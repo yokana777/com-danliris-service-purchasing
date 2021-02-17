@@ -156,10 +156,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
                 endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
 
-
-                startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
-                endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
-
                 var result = _service.GetReport(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier);
 
                 var stream = GarmentPurchasingBookReportPDFGenerator.Generate(result, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier, _identityService.TimezoneOffset);
