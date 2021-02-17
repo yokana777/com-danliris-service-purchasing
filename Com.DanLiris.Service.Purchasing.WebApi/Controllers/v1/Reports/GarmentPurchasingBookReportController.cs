@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
     public class GarmentPurchasingBookReportController : Controller
     {
         private readonly IGarmentPurchasingBookReportService _service;
+        private readonly IdentityService _identityService;
         private string ApiVersion = "1.0.0";
 
         public GarmentPurchasingBookReportController(IServiceProvider serviceProvider)
         {
             _service = serviceProvider.GetService<IGarmentPurchasingBookReportService>();
+            _identityService = serviceProvider.GetService<IdentityService>();
+
         }
 
         [HttpGet]
@@ -81,6 +85,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             try
             {
                 var result = _service.GetPaymentBills(keyword);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = result,
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("download/xls")]
+        public async Task<IActionResult> GetXls([FromQuery] string billNo, [FromQuery] string paymentBill, [FromQuery] string category, [FromQuery] DateTimeOffset? startDate, [FromQuery] DateTimeOffset? endDate, [FromQuery] bool isForeignCurrency, [FromQuery] bool isImportSupplier)
+        {
+            try
+            {
+                startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
+                endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
+
+                var result = await _service.GenerateExcel(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier,_identityService.TimezoneOffset);
 
                 return Ok(new
                 {
