@@ -1,8 +1,8 @@
 ﻿namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport
 {
-    public class BillNoPaymentBillAutoCompleteDto
+    public class AutoCompleteDto
     {
-        public BillNoPaymentBillAutoCompleteDto(string value)
+        public AutoCompleteDto(string value)
         {
             Value = value;
         }
