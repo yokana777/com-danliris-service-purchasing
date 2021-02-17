@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             var reportCurrencies = data
                 .GroupBy(element => element.CurrencyId)
-                .Select(element => new ReportCurrencyDto(element.Key, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total)))
+                .Select(element => new ReportCurrencyDto(element.Key, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total), element.Sum(sum => sum.CurrencyDPPAmount)))
                 .ToList();
 
             return new ReportDto(data, reportCategories, reportCurrencies);

@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             SetTitle(document, startDate, endDate, isForeignCurrency, isImportSupplier, timezoneOffset);
             SetTable(document, report, isForeignCurrency, isImportSupplier, timezoneOffset);
             SetCategory(document, report.Categories);
-            SetCurrency(document, report.Currencies);
+            SetCurrency(document, report.Currencies, isForeignCurrency, isImportSupplier);
             document.Close();
             byte[] byteInfo = stream.ToArray();
             stream.Write(byteInfo, 0, byteInfo.Length);
@@ -40,14 +40,142 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             return stream;
         }
 
-        private static void SetCurrency(Document document, List<ReportCurrencyDto> currencies)
+        private static void SetCurrency(Document document, List<ReportCurrencyDto> currencies, bool isForeignCurrency, bool isImportSupplier)
         {
-            throw new NotImplementedException();
+            if (isForeignCurrency || isImportSupplier)
+            {
+                var table = new PdfPTable(3)
+                {
+                    WidthPercentage = 100,
+                    HorizontalAlignment = Element.ALIGN_LEFT
+                };
+
+                var cellCenter = new PdfPCell()
+                {
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    VerticalAlignment = Element.ALIGN_CENTER
+                };
+
+                var cellLeft = new PdfPCell()
+                {
+                    HorizontalAlignment = Element.ALIGN_LEFT,
+                    VerticalAlignment = Element.ALIGN_CENTER
+                };
+
+                var cellRight = new PdfPCell()
+                {
+                    HorizontalAlignment = Element.ALIGN_RIGHT,
+                    VerticalAlignment = Element.ALIGN_CENTER
+                };
+
+                cellCenter.Phrase = new Phrase("Mata Uang", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Total", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+                table.AddCell(cellCenter);
+
+                foreach (var currency in currencies)
+                {
+                    cellLeft.Phrase = new Phrase(currency.CurrencyCode, _normalFont);
+                    table.AddCell(cellLeft);
+                    cellRight.Phrase = new Phrase(currency.CurrencyAmount.ToString(), _normalFont);
+                    table.AddCell(cellRight);
+                    cellRight.Phrase = new Phrase(currency.Amount.ToString(), _normalFont);
+                    table.AddCell(cellRight);
+                }
+
+                document.Add(table);
+
+                document.Add(new Paragraph("\n"));
+            }
+            else
+            {
+                var table = new PdfPTable(2)
+                {
+                    WidthPercentage = 100,
+                    HorizontalAlignment = Element.ALIGN_LEFT
+                };
+
+                var cellCenter = new PdfPCell()
+                {
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    VerticalAlignment = Element.ALIGN_CENTER
+                };
+
+                var cellLeft = new PdfPCell()
+                {
+                    HorizontalAlignment = Element.ALIGN_LEFT,
+                    VerticalAlignment = Element.ALIGN_CENTER
+                };
+
+                var cellRight = new PdfPCell()
+                {
+                    HorizontalAlignment = Element.ALIGN_RIGHT,
+                    VerticalAlignment = Element.ALIGN_CENTER
+                };
+
+                cellCenter.Phrase = new Phrase("Mata Uang", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+                table.AddCell(cellCenter);
+
+                foreach (var currency in currencies)
+                {
+                    cellLeft.Phrase = new Phrase(currency.CurrencyCode, _normalFont);
+                    table.AddCell(cellLeft);
+                    cellRight.Phrase = new Phrase(currency.Amount.ToString(), _normalFont);
+                    table.AddCell(cellRight);
+                }
+
+                document.Add(table);
+
+                document.Add(new Paragraph("\n"));
+            }
         }
 
         private static void SetCategory(Document document, List<ReportCategoryDto> categories)
         {
-            throw new NotImplementedException();
+            var table = new PdfPTable(2)
+            {
+                WidthPercentage = 100,
+                HorizontalAlignment = Element.ALIGN_LEFT
+            };
+
+            var cellCenter = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellLeft = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            var cellRight = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_RIGHT,
+                VerticalAlignment = Element.ALIGN_CENTER
+            };
+
+            cellCenter.Phrase = new Phrase("Kategori", _subHeaderFont);
+            table.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+            table.AddCell(cellCenter);
+
+            foreach (var category in categories)
+            {
+                cellLeft.Phrase = new Phrase(category.CategoryName, _normalFont);
+                table.AddCell(cellLeft);
+                cellRight.Phrase = new Phrase(category.Amount.ToString(), _normalFont);
+                table.AddCell(cellRight);
+            }
+
+            document.Add(table);
+
+            document.Add(new Paragraph("\n"));
         }
 
         private static void SetTable(Document document, ReportDto report, bool isForeignCurrency, bool isImportSupplier, int timezoneOffset)
