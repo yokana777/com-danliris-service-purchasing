@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
                 endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
 
-                var result = await _service.GenerateExcel(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier,_identityService.TimezoneOffset);
+                var result = _service.GetReport(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier);
 
                 return Ok(new
                 {
@@ -143,10 +143,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             try
             {
                 VerifyUser();
-                startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
-                endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
-
-
                 startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
                 endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
 
