@@ -9,8 +9,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
     public interface IGarmentPurchasingBookReportService
     {
         ReportDto GetReport(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier);
-        List<BillNoPaymentBillAutoCompleteDto> GetBillNos(string keyword);
-        List<BillNoPaymentBillAutoCompleteDto> GetPaymentBills(string keyword);
+        List<AutoCompleteDto> GetBillNos(string keyword);
+        List<AutoCompleteDto> GetPaymentBills(string keyword);
+        List<AutoCompleteDto> GetAccountingCategories(string keyword);
         Task<MemoryStream> GenerateExcel(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier, int timeZone);
     }
 }
