@@ -208,7 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount);
 
                 foreach (var currencySummary in result.Currencies)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount, 0);//TODO : change to Currency TOtal Idr
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount, currencySummary.CurrencyRate);//TODO : change to Currency TOtal Idr
             }
 
             using (var package = new ExcelPackage())
