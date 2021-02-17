@@ -215,14 +215,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount);
 
                 foreach (var currencySummary in result.Currencies)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount, 0);//TODO : change to Currency TOtal Idr
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount, currencySummary.CurrencyRate);//TODO : change to Currency TOtal Idr
             }
 
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
                 var title = "BUKU PEMBELIAN Import";
-                var period = $"Dari {startDate.AddHours(timeZone):dd/MM/yyyy} Sampai {endDate.AddHours(timeZone):dd/MM/yyyy}";
+                var startDateStr = startDate == DateTimeOffset.MinValue ? "-" : startDate.AddHours(timeZone).ToString("dd/MM/yyyy");
+                var endDateStr = endDate == DateTimeOffset.MaxValue ? "-" : endDate.AddHours(timeZone).ToString("dd/MM/yyyy");
+                var period = $"Dari {startDateStr} Sampai {endDateStr}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                 worksheet.Cells["A1"].Value = company;

@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
-        [HttpGet("download/xls")]
+        [HttpGet("downloads/xls")]
         public async Task<IActionResult> GetXls([FromQuery] string billNo, [FromQuery] string paymentBill, [FromQuery] string category, [FromQuery] DateTimeOffset? startDate, [FromQuery] DateTimeOffset? endDate, [FromQuery] bool isForeignCurrency, [FromQuery] bool isImportSupplier)
         {
             try
@@ -118,15 +118,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
                 endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
 
-                var result = _service.GetReport(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier);
+                var filename = "Laporan Buku Pembelian Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Buku Pembelian Lokal Valas";
+                else if (!isForeignCurrency && isImportSupplier)
+                    filename = "Laporan Buku Pembelian Impor";
+                filename += ".xlsx";
 
-                return Ok(new
-                {
-                    apiVersion = ApiVersion,
-                    data = result,
-                    message = General.OK_MESSAGE,
-                    statusCode = General.OK_STATUS_CODE
-                });
+                var result = await _service.GenerateExcel(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier,_identityService.TimezoneOffset);
+
+                //return Ok(new
+                //{
+                //    apiVersion = ApiVersion,
+                //    data = result,
+                //    message = General.OK_MESSAGE,
+                //    statusCode = General.OK_STATUS_CODE
+                //});
+                var bytes = result.ToArray();
+
+                return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
             }
             catch (Exception e)
             {
