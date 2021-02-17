@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using iTextSharp.text;
 using System;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport
@@ -69,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
         }
         //select new ReportIndexDto(deliveryOrderCustoms.ArrivalDate, deliveryOrderExternalPurchaseOrders.SupplierId, deliveryOrderExternalPurchaseOrders.SupplierName, deliveryOrderExternalPurchaseOrders.SupplierImport, deliveryOrderInternalNoteDetails.ProductName, (int) garmentDeliveryOrders.Id, garmentDeliveryOrders.DONo, garmentDeliveryOrders.BillNo, garmentDeliveryOrders.PaymentBill, (int) deliveryOrderInvoices.Id, deliveryOrderInvoices.InvoiceNo, deliveryOrderInvoices.VatNo, (int) deliveryOrderInternalNotes.Id, deliveryOrderInternalNotes.INNo, 0, deliveryOrderExternalPurchaseOrders.Category, 0, deliveryOrderExternalPurchaseOrders.Category, deliveryOrderInternalNoteDetails.Quantity, (int) deliveryOrderInternalNotes.CurrencyId.GetValueOrDefault(), deliveryOrderInternalNotes.CurrencyCode, deliveryOrderInternalNotes.CurrencyRate, deliveryOrderInternalNoteDetails.PriceTotal, deliveryOrderInvoices.UseVat, deliveryOrderInvoices.IsPayVat, deliveryOrderInvoices.UseIncomeTax, deliveryOrderInvoices.IsPayTax, deliveryOrderInvoices.IncomeTaxRate);
 
-        public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate)
+        public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate, DateTimeOffset customsDate, string customsNo, string customsType, string importValueRemark)
         {
             CurrencyDPPAmount = dppAmount;
             DPPAmount = dppAmount * currencyRate;
@@ -109,6 +110,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             CurrencyCode = currencyCode;
             CurrencyRate = currencyRate;
             IsIncomeTaxPaidBySupplier = isIncomeTaxPaidBySupplier;
+            CustomsDate = customsDate;
+            CustomsNo = customsNo;
+            CustomsType = customsType;
+            ImportValueRemark = importValueRemark;
         }
 
         public double Total { get; private set; }
@@ -140,5 +145,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
         public bool IsIncomeTaxPaidBySupplier { get; private set; }
         public double CurrencyTotal { get; private set; }
         public double CurrencyDPPAmount { get; private set; }
+        public DateTimeOffset CustomsDate { get; private set; }
+        public string CustomsNo { get; private set; }
+        public string CustomsType { get; private set; }
+        public string ImportValueRemark { get; private set; }
     }
 }

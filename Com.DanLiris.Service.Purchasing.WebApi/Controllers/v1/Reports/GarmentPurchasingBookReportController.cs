@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport.PDF;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +26,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         {
             _service = serviceProvider.GetService<IGarmentPurchasingBookReportService>();
             _identityService = serviceProvider.GetService<IdentityService>();
+        }
 
+        private void VerifyUser()
+        {
+            _identityService.Username = User.Claims.ToArray().SingleOrDefault(p => p.Type.Equals("username")).Value;
+            _identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            _identityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         }
 
         [HttpGet]
@@ -137,6 +144,42 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("download/pdf")]
+        public IActionResult GetPDF([FromQuery] string billNo, [FromQuery] string paymentBill, [FromQuery] string category, [FromQuery] DateTimeOffset? startDate, [FromQuery] DateTimeOffset? endDate, [FromQuery] bool isForeignCurrency, [FromQuery] bool isImportSupplier)
+        {
+            try
+            {
+                VerifyUser();
+                startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
+                endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
+
+
+                startDate = startDate.HasValue ? startDate.GetValueOrDefault() : DateTimeOffset.MinValue;
+                endDate = endDate.HasValue ? endDate.GetValueOrDefault() : DateTimeOffset.MaxValue;
+
+                var result = _service.GetReport(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier);
+
+                var stream = GarmentPurchasingBookReportPDFGenerator.Generate(result, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier, _identityService.TimezoneOffset);
+
+                var filename = "Laporan Buku Pembelian Lokal";
+                if (isForeignCurrency)
+                    filename = "Laporan Buku Pembelian Lokal Valas";
+                else if (isImportSupplier)
+                    filename = "Laporan Buku Pembelian Import";
+                filename += ".pdf";
+
+                return new FileStreamResult(stream, "application/pdf")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception e)
+            {
+                var result = new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message).Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, result);
             }
         }
     }

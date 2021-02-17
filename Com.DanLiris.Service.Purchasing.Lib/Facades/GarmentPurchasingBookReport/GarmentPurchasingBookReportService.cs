@@ -55,7 +55,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
         {
             var query = from garmentDeliveryOrders in _dbContext.GarmentDeliveryOrders.AsQueryable()
 
-                        join customsItems in _dbContext.GarmentBeacukaiItems.AsQueryable() on garmentDeliveryOrders.Id equals customsItems.GarmentDOId into doCustoms
+                        join customsItems in _dbContext.GarmentBeacukaiItems.AsQueryable() on garmentDeliveryOrders.Id equals customsItems.GarmentDOId into doCustomItems
+                        from deliveryOrderCustomItems in doCustomItems.DefaultIfEmpty()
+
+                        join customs in _dbContext.GarmentBeacukais.AsQueryable() on deliveryOrderCustomItems.BeacukaiId equals customs.Id into doCustoms
                         from deliveryOrderCustoms in doCustoms.DefaultIfEmpty()
 
                         join garmentDeliveryOrderItems in _dbContext.GarmentDeliveryOrderItems.AsQueryable() on garmentDeliveryOrders.Id equals garmentDeliveryOrderItems.GarmentDOId into garmentDOItems
@@ -84,7 +87,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
                         select new
                         {
-                            CustomsArrivalDate = deliveryOrderCustoms != null ? deliveryOrderCustoms.ArrivalDate : DateTimeOffset.MinValue,
+                            CustomsArrivalDate = deliveryOrderCustomItems != null ? deliveryOrderCustomItems.ArrivalDate : DateTimeOffset.MinValue,
+                            CustomsDate = deliveryOrderCustoms != null ? deliveryOrderCustoms.BeacukaiDate : DateTimeOffset.MinValue,
+                            CustomsNo = deliveryOrderCustoms != null ? deliveryOrderCustoms.BeacukaiNo : null,
+                            CustomsType = deliveryOrderCustoms != null ? deliveryOrderCustoms.CustomsType : null,
+                            ImportValueRemark = deliveryOrderCustoms != null ? deliveryOrderCustoms.ImportValue : null,
                             BillNo = garmentDeliveryOrders != null ? garmentDeliveryOrders.BillNo : null,
                             PaymentBill = garmentDeliveryOrders != null ? garmentDeliveryOrders.PaymentBill : null,
                             PurchasingCategoryName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.Category : null,
@@ -109,7 +116,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             IsPayVAT = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayVat : false,
                             IsUseIncomeTax = deliveryOrderInvoices != null ? deliveryOrderInvoices.UseIncomeTax : false,
                             IsIncomeTaxPaidBySupplier = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayTax: false,
-                            IncomeTaxRate = deliveryOrderInvoices != null ? deliveryOrderInvoices.IncomeTaxRate : 0.0
+                            IncomeTaxRate = deliveryOrderInvoices != null ? deliveryOrderInvoices.IncomeTaxRate : 0.0,
                         };
 
             //select new ReportIndexDto(deliveryOrderCustoms.ArrivalDate, deliveryOrderExternalPurchaseOrders.SupplierId, deliveryOrderExternalPurchaseOrders.SupplierName, deliveryOrderExternalPurchaseOrders.SupplierImport, deliveryOrderInternalNoteDetails.ProductName, (int) garmentDeliveryOrders.Id, garmentDeliveryOrders.DONo, garmentDeliveryOrders.BillNo, garmentDeliveryOrders.PaymentBill, (int) deliveryOrderInvoices.Id, deliveryOrderInvoices.InvoiceNo, deliveryOrderInvoices.VatNo, (int) deliveryOrderInternalNotes.Id, deliveryOrderInternalNotes.INNo, 0, deliveryOrderExternalPurchaseOrders.Category, 0, deliveryOrderExternalPurchaseOrders.Category, deliveryOrderInternalNoteDetails.Quantity, (int) deliveryOrderInternalNotes.CurrencyId.GetValueOrDefault(), deliveryOrderInternalNotes.CurrencyCode, deliveryOrderInternalNotes.CurrencyRate, deliveryOrderInternalNoteDetails.PriceTotal, deliveryOrderInvoices.UseVat, deliveryOrderInvoices.IsPayVat, deliveryOrderInvoices.UseIncomeTax, deliveryOrderInvoices.IsPayTax, deliveryOrderInvoices.IncomeTaxRate);
@@ -145,7 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 query = query.Where(entity => entity.CurrencyCode != "IDR");
             }
 
-            var data = query.ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate)).ToList();
+            var data = query.Distinct().ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate, entity.CustomsDate, entity.CustomsNo, entity.CustomsType, entity.ImportValueRemark)).ToList();
 
             var reportCategories = data
                 .GroupBy(element => element.PurchasingCategoryName)
@@ -154,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             var reportCurrencies = data
                 .GroupBy(element => element.CurrencyId)
-                .Select(element => new ReportCurrencyDto(element.Key, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total)))
+                .Select(element => new ReportCurrencyDto(element.Key, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total), element.Sum(sum => sum.CurrencyDPPAmount)))
                 .ToList();
 
             return new ReportDto(data, reportCategories, reportCurrencies);
