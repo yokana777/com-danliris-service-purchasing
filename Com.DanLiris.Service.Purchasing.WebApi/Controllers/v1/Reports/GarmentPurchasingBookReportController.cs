@@ -110,6 +110,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
+        [HttpGet("garment-accounting-categories")]
+        public IActionResult GetGarmentAccountingCategories([FromQuery] string keyword)
+        {
+            try
+            {
+                var result = _service.GetAccountingCategories(keyword);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = result,
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("downloads/xls")]
         public async Task<IActionResult> GetXls([FromQuery] string billNo, [FromQuery] string paymentBill, [FromQuery] string category, [FromQuery] DateTimeOffset? startDate, [FromQuery] DateTimeOffset? endDate, [FromQuery] bool isForeignCurrency, [FromQuery] bool isImportSupplier)
         {
