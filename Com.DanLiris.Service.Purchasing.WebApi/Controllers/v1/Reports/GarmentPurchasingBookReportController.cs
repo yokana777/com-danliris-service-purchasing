@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -144,16 +145,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
                 billNo = billNo == "undefined" ? null : billNo;
                 paymentBill = paymentBill == "undefined" ? null : paymentBill;
+                
+                var data = _service.GetReport(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier);
 
+                MemoryStream result = new MemoryStream();
                 var filename = "Laporan Buku Pembelian Lokal";
                 if (isForeignCurrency)
+                {
                     filename = "Laporan Buku Pembelian Lokal Valas";
+                    result = await Lib.Facades.GarmentPurchasingBookReport.Excel.GarmentPurchasingBookReportValasLocalExcel.GenerateExcel(startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), data, _identityService.TimezoneOffset);
+                }
                 else if (!isForeignCurrency && isImportSupplier)
+                {
                     filename = "Laporan Buku Pembelian Impor";
+                    result = await Lib.Facades.GarmentPurchasingBookReport.Excel.GarmentPurchasingBookReportImportExcel.GenerateExcel(startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), data, _identityService.TimezoneOffset);
+                }
+                else
+                    result = await Lib.Facades.GarmentPurchasingBookReport.Excel.GarmentPurchasingBookReportLocalExcel.GenerateExcel(startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), data, _identityService.TimezoneOffset);
+
                 filename += ".xlsx";
 
 
-                var result = await _service.GenerateExcel(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier,_identityService.TimezoneOffset);
+                //result = await _service.GenerateExcel(billNo, paymentBill, category, startDate.GetValueOrDefault(), endDate.GetValueOrDefault(), isForeignCurrency, isImportSupplier,_identityService.TimezoneOffset);
 
                 //return Ok(new
                 //{
