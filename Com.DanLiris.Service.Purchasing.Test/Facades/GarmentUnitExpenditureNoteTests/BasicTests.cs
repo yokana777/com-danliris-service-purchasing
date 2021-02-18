@@ -785,10 +785,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateFrom = dateTo.AddDays(-30);
             var results = reportService.GenerateExcel("", "", "", "", "", dateFrom, dateTo, 0);
 
-
-
             Assert.NotNull(results);
         }
+
         [Fact]
         public async Task Should_Success_GetXLS_Flow_Detail_Expend()
         {
