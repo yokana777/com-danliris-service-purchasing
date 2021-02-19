@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         private static void SetTableImport(Document document, ReportDto report, int timezoneOffset)
         {
-            var table = new PdfPTable(19)
+            var table = new PdfPTable(18)
             {
                 WidthPercentage = 100,
                 HorizontalAlignment = Element.ALIGN_LEFT
@@ -242,8 +242,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             cellCenter.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("No. NI", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kategori Pembelian", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
             table.AddCell(cellCenter);
@@ -297,8 +295,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.InternalNoteNo, _normalFont);
                 table.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase(item.PurchasingCategoryName, _normalFont);
-                table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.AccountingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.CustomsDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy"), _normalFont);
@@ -326,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         private static void SetTableLocalForeignCurrency(Document document, ReportDto report, int timezoneOffset)
         {
-            var table = new PdfPTable(19)
+            var table = new PdfPTable(18)
             {
                 WidthPercentage = 100,
                 HorizontalAlignment = Element.ALIGN_LEFT
@@ -368,8 +364,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             cellCenter.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("No. NI", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kategori Pembelian", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
             table.AddCell(cellCenter);
@@ -419,8 +413,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 cellCenter.Phrase = new Phrase(item.VATNo, _normalFont);
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.InternalNoteNo, _normalFont);
-                table.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase(item.PurchasingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.AccountingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
@@ -536,8 +528,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 cellCenter.Phrase = new Phrase(item.VATNo, _normalFont);
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.InternalNoteNo, _normalFont);
-                table.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase(item.PurchasingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.AccountingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
