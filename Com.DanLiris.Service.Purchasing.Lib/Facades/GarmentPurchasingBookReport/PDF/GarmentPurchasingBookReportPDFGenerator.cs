@@ -2,6 +2,7 @@
 using iTextSharp.text.pdf;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -79,9 +80,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 {
                     cellLeft.Phrase = new Phrase(currency.CurrencyCode, _normalFont);
                     table.AddCell(cellLeft);
-                    cellRight.Phrase = new Phrase(currency.CurrencyAmount.ToString(), _normalFont);
+                    cellRight.Phrase = new Phrase(currency.CurrencyAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                     table.AddCell(cellRight);
-                    cellRight.Phrase = new Phrase(currency.Amount.ToString(), _normalFont);
+                    cellRight.Phrase = new Phrase(currency.Amount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                     table.AddCell(cellRight);
                 }
 
@@ -124,7 +125,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 {
                     cellLeft.Phrase = new Phrase(currency.CurrencyCode, _normalFont);
                     table.AddCell(cellLeft);
-                    cellRight.Phrase = new Phrase(currency.Amount.ToString(), _normalFont);
+                    cellRight.Phrase = new Phrase(currency.Amount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                     table.AddCell(cellRight);
                 }
 
@@ -169,7 +170,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 cellLeft.Phrase = new Phrase(category.CategoryName, _normalFont);
                 table.AddCell(cellLeft);
-                cellRight.Phrase = new Phrase(category.Amount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(category.Amount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
             }
 
@@ -310,11 +311,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 table.AddCell(cellCenter);
                 cellRight.Phrase = new Phrase(item.CurrencyCode, _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.CurrencyDPPAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.CurrencyDPPAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.CurrencyRate.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.CurrencyRate.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.Total.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.Total.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
             }
 
@@ -423,21 +424,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.AccountingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
-                cellRight.Phrase = new Phrase(item.InternalNoteQuantity.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.InternalNoteQuantity.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
                 cellRight.Phrase = new Phrase(item.CurrencyCode, _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.CurrencyRate.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.CurrencyRate.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.CurrencyDPPAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.CurrencyDPPAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.DPPAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.DPPAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.VATAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.VATAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.IncomeTaxAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.IncomeTaxAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.Total.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.Total.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
             }
 
@@ -448,7 +449,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         private static void SetTableLocal(Document document, ReportDto report, int timezoneOffset)
         {
-            var table = new PdfPTable(17)
+            var table = new PdfPTable(16)
             {
                 WidthPercentage = 100,
                 HorizontalAlignment = Element.ALIGN_LEFT
@@ -477,7 +478,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Supplier", _subHeaderFont);
             table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Keterangan", _subHeaderFont);
+            cellCenter.Phrase = new Phrase("Nama Barang", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
             table.AddCell(cellCenter);
@@ -490,8 +491,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             cellCenter.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("No. NI", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kategori Pembelian", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
             table.AddCell(cellCenter);
@@ -520,7 +519,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 cellCenter.Rowspan = 1;
                 cellCenter.Colspan = 1;
-                cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy"), _normalFont);
+                cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy"), _normalFont);
                 table.AddCell(cellCenter);
                 cellLeft.Phrase = new Phrase(item.SupplierName, _normalFont);
                 table.AddCell(cellLeft);
@@ -542,17 +541,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.AccountingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
-                cellRight.Phrase = new Phrase(item.InternalNoteQuantity.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.InternalNoteQuantity.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
                 cellRight.Phrase = new Phrase(item.CurrencyCode, _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.DPPAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.DPPAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.VATAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.VATAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.IncomeTaxAmount.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.IncomeTaxAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
-                cellRight.Phrase = new Phrase(item.Total.ToString(), _normalFont);
+                cellRight.Phrase = new Phrase(item.Total.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
                 table.AddCell(cellRight);
             }
 
@@ -570,8 +569,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             if (isImportSupplier)
                 title = "LAPORAN BUKU PEMBELIAN IMPOR";
 
-            var start = startDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy");
-            var end = endDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy");
+            var start = startDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy");
+            var end = endDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy");
 
             var table = new PdfPTable(1)
             {
