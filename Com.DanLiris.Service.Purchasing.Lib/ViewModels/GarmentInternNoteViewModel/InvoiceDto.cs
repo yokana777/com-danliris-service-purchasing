@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             Category = internalNoteInvoice.Category;
             PaymentMethod = internalNoteInvoice.PaymentMethod;
             Id = (int)internalNoteInvoice.GarmentInvoices.Id;
-            DeliveryOrdersNo = string.Join("\n", internalNoteInvoice.GarmentInvoices.Items.Select(item => item.DeliveryOrderNo));
+            DeliveryOrdersNo = internalNoteInvoice.DeliveryOrdersNo;
             BillsNo = internalNoteInvoice.BillsNo;
             PaymentBills = internalNoteInvoice.PaymentBills;
 
