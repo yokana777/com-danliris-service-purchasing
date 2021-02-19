@@ -134,13 +134,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ReceiptKon1AQty = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C1A") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion : 0,
                     ReceiptKon1BQty = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C1B") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion : 0,
                     ReceiptCorrectionPrice = 0,
-                    ReceiptPurchasePrice = sapenerimaanunitreceiptnote.URNType == "PEMBELIAN" ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptProcessPrice = sapenerimaanunitreceiptnote.URNType == "PROSES" ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon2APrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C2A") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon2BPrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C2B") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon2CPrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C2C") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon1APrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C1A") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon1BPrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C1B") ? (decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptPurchasePrice = sapenerimaanunitreceiptnote.URNType == "PEMBELIAN" ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptProcessPrice = sapenerimaanunitreceiptnote.URNType == "PROSES" ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon2APrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C2A") ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon2BPrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C2B") ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon2CPrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C2C") ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon1APrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C1A") ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon1BPrice = sapenerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (sapenerimaanUnitExpenditureNote == null ? false : sapenerimaanUnitExpenditureNote.UnitSenderCode == "C1B") ? Math.Round((decimal)sapenerimaanuntreceiptnoteItem.ReceiptQuantity * sapenerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)sapenerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)sapenerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
                     ExpendReturQty = 0,
                     ExpendRestQty = 0,
                     ExpendProcessQty = 0,
@@ -298,7 +298,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   ExpendKon2CPrice = Math.Round((double)data.Sum(x => x.ExpendKon2CPrice), 2),
                                   ExpendKon1APrice = Math.Round((double)data.Sum(x => x.ExpendKon1APrice), 2),
                                   ExpendKon1BPrice = Math.Round((double)data.Sum(x => x.ExpendKon1BPrice), 2),
-                                  EndingBalanceQty = Math.Round((decimal)data.Sum(x => x.BeginningBalanceQty) + (decimal)data.Sum(x => x.ReceiptCorrectionQty) + (decimal)data.Sum(x => x.ReceiptPurchaseQty) + (decimal)data.Sum(x => x.ReceiptProcessQty) + (decimal)data.Sum(x => x.ReceiptKon2AQty) + (decimal)data.Sum(x => x.ReceiptKon2BQty) + (decimal)data.Sum(x => x.ReceiptKon2CQty) + (decimal)data.Sum(x => x.ReceiptKon1AQty) + (decimal)data.Sum(x => x.ReceiptKon1BQty) - ((decimal)data.Sum(x => x.ExpendReturQty) + (decimal)data.Sum(x => x.ExpendRestQty) + (decimal)data.Sum(x => x.ExpendProcessQty) + (decimal)data.Sum(x => x.ExpendKon2AQty) + (decimal)data.Sum(x => x.ExpendKon2BQty) + (decimal)data.Sum(x => x.ExpendKon2CQty) + (decimal)data.Sum(x => x.ExpendKon1AQty) + (decimal)data.Sum(x => x.ExpendKon1BQty)), 2),
+                                  EndingBalanceQty = Math.Round((decimal)data.Sum(x => x.BeginningBalanceQty) + (decimal)data.Sum(x => x.ReceiptCorrectionQty) + (decimal)data.Sum(x => x.ReceiptPurchaseQty) + (decimal)data.Sum(x => x.ReceiptProcessQty) + (decimal)data.Sum(x => x.ReceiptKon2AQty) + (decimal)data.Sum(x => x.ReceiptKon2BQty) + (decimal)data.Sum(x => x.ReceiptKon2CQty) + (decimal)data.Sum(x => x.ReceiptKon1AQty) + (decimal)data.Sum(x => x.ReceiptKon1BQty) - ((decimal)data.Sum(x => x.ExpendReturQty) + (decimal)data.Sum(x => x.ExpendRestQty) + (decimal)data.Sum(x => x.ExpendProcessQty) + (decimal)data.Sum(x=>x.ExpendSampleQty) + (decimal)data.Sum(x => x.ExpendKon2AQty) + (decimal)data.Sum(x => x.ExpendKon2BQty) + (decimal)data.Sum(x => x.ExpendKon2CQty) + (decimal)data.Sum(x => x.ExpendKon1AQty) + (decimal)data.Sum(x => x.ExpendKon1BQty)), 2),
                                   EndingBalancePrice = Math.Round((decimal)data.Sum(x => x.BeginningBalancePrice) + (decimal)data.Sum(x => x.ReceiptCorrectionPrice) + (decimal)data.Sum(x => x.ReceiptPurchasePrice) + (decimal)data.Sum(x => x.ReceiptProcessPrice) + (decimal)data.Sum(x => x.ReceiptKon2APrice) + (decimal)data.Sum(x => x.ReceiptKon2BPrice) + (decimal)data.Sum(x => x.ReceiptKon2CPrice) + (decimal)data.Sum(x => x.ReceiptKon1APrice) + (decimal)data.Sum(x => x.ReceiptKon1BPrice) - ((decimal)data.Sum(x => x.ExpendReturPrice) + (decimal)data.Sum(x => x.ExpendRestPrice) + (decimal)data.Sum(x => x.ExpendProcessPrice) + (decimal)data.Sum(x => x.ExpendSamplePrice) + (decimal)data.Sum(x => x.ExpendKon2APrice) + (decimal)data.Sum(x => x.ExpendKon2BPrice) + (decimal)data.Sum(x => x.ExpendKon2CPrice) + (decimal)data.Sum(x => x.ExpendKon1APrice) + (decimal)data.Sum(x => x.ExpendKon1BPrice)), 2),
                                   POId = data.FirstOrDefault().POId
                               }).ToList();
@@ -371,13 +371,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ReceiptKon1AQty = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C1A") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion : 0,
                     ReceiptKon1BQty = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C1B") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion : 0,
                     ReceiptCorrectionPrice = 0,
-                    ReceiptPurchasePrice = penerimaanunitreceiptnote.URNType == "PEMBELIAN" ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptProcessPrice = penerimaanunitreceiptnote.URNType == "PROSES" ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon2APrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C2A") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon2BPrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C2B") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon2CPrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C2C") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon1APrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C1A") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
-                    ReceiptKon1BPrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C1B") ? (decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptPurchasePrice = penerimaanunitreceiptnote.URNType == "PEMBELIAN" ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptProcessPrice = penerimaanunitreceiptnote.URNType == "PROSES" ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon2APrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C2A") ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon2BPrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C2B") ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon2CPrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C2C") ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon1APrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C1A") ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
+                    ReceiptKon1BPrice = penerimaanunitreceiptnote.URNType == "GUDANG LAIN" && (penerimaanUnitExpenditureNote == null ? false : penerimaanUnitExpenditureNote.UnitSenderCode == "C1B") ? Math.Round((decimal)penerimaanuntreceiptnoteItem.ReceiptQuantity * penerimaanuntreceiptnoteItem.Conversion, 2) * (decimal)penerimaanuntreceiptnoteItem.DOCurrencyRate * (decimal)penerimaanuntreceiptnoteItem.PricePerDealUnit : 0,
                     ExpendReturQty = 0,
                     ExpendRestQty = 0,
                     ExpendProcessQty = 0,
@@ -662,7 +662,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             foreach (var item in Query)
             {
                 var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon1BQty : unitcode == "C1A" ? item.ReceiptPurchaseQty + item.ReceiptKon1AQty : item.ReceiptPurchaseQty + item.ReceiptKon2AQty + item.ReceiptKon2BQty + item.ReceiptKon2CQty + item.ReceiptKon1BQty + item.ReceiptKon1AQty;
-                var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon1BPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1APrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon1BPrice + item.ReceiptKon1APrice;
+                var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchasePrice + item.ReceiptKon1BPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1APrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon1BPrice + item.ReceiptKon1APrice;
                 var ReceiptKon2AQty = unitcode == "C2A" ? 0 : item.ReceiptKon2AQty;
                 var ReceiptKon2APrice = unitcode == "C2A" ? 0 : item.ReceiptKon2APrice;
                 var ReceiptKon2BPrice = unitcode == "C2B" ? 0 : item.ReceiptKon2BPrice;
@@ -853,91 +853,91 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["A4:AS6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells["A4:AS6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells["A4:AS6"].Style.Font.Bold = true;
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Merge = true;
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.Font.Bold = true;
-            sheet.Cells[$"A{6 + result.Rows.Count}:G{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{result.Rows.Count + 6}:G{result.Rows.Count + 6}"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Merge = true;
+            sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{7 + result.Rows.Count}:G{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
 
-            sheet.Cells[$"H{6 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SaldoAwalQtyTotal);
-            sheet.Cells[$"H{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"I{6 + result.Rows.Count}"].Value = "";
-            sheet.Cells[$"I{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"J{6 + result.Rows.Count}"].Value = SaldoAwalPriceTotal;
-            sheet.Cells[$"J{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"K{6 + result.Rows.Count}"].Value = KoreksiQtyTotal;
-            sheet.Cells[$"K{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"L{6 + result.Rows.Count}"].Value = KoreksiPriceTotal;
-            sheet.Cells[$"L{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"M{6 + result.Rows.Count}"].Value = PEMBELIANQtyTotal;
-            sheet.Cells[$"M{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"N{6 + result.Rows.Count}"].Value = PEMBELIANPriceTotal;
-            sheet.Cells[$"N{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"O{6 + result.Rows.Count}"].Value = PROSESQtyTotal;
-            sheet.Cells[$"O{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"P{6 + result.Rows.Count}"].Value = PROSESPriceTotal;
-            sheet.Cells[$"P{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Q{6 + result.Rows.Count}"].Value = Konfeksi2AQtyTotal;
-            sheet.Cells[$"Q{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"R{6 + result.Rows.Count}"].Value = Konfeksi2APriceTotal;
-            sheet.Cells[$"R{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"S{6 + result.Rows.Count}"].Value = KONFEKSI2BQtyTotal;
-            sheet.Cells[$"S{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"T{6 + result.Rows.Count}"].Value = KONFEKSI2BPriceTotal;
-            sheet.Cells[$"T{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"U{6 + result.Rows.Count}"].Value = KONFEKSI2CQtyTotal;
-            sheet.Cells[$"U{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"V{6 + result.Rows.Count}"].Value = KONFEKSI2CPriceTotal;
-            sheet.Cells[$"V{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"W{6 + result.Rows.Count}"].Value = KONFEKSI1AQtyTotal;
-            sheet.Cells[$"W{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"X{6 + result.Rows.Count}"].Value = KONFEKSI1APriceTotal;
-            sheet.Cells[$"X{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Y{6 + result.Rows.Count}"].Value = KONFEKSI1BQtyTotal;
-            sheet.Cells[$"Y{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Z{6 + result.Rows.Count}"].Value = KONFEKSI1BPriceTotal;
-            sheet.Cells[$"Z{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AA{6 + result.Rows.Count}"].Value = ReturQtyTotal;
-            sheet.Cells[$"AA{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AB{6 + result.Rows.Count}"].Value = ReturJumlahTotal;
-            sheet.Cells[$"AB{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AC{6 + result.Rows.Count}"].Value = SisaQtyTotal;
-            sheet.Cells[$"AC{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AD{6 + result.Rows.Count}"].Value = SisaPriceTotal;
-            sheet.Cells[$"AD{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AE{6 + result.Rows.Count}"].Value = ExpendPROSESQtyTotal;
-            sheet.Cells[$"AE{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AF{6 + result.Rows.Count}"].Value = ExpendPROSESPriceTotal;
-            sheet.Cells[$"AF{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AG{6 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
-            sheet.Cells[$"AG{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AH{6 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
-            sheet.Cells[$"AH{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AI{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
-            sheet.Cells[$"AI{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AJ{6 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
-            sheet.Cells[$"AJ{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AK{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
-            sheet.Cells[$"AK{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AL{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
-            sheet.Cells[$"AL{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AM{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
-            sheet.Cells[$"AM{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AN{6 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
-            sheet.Cells[$"AN{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AO{6 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
-            sheet.Cells[$"AO{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AP{6 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
-            sheet.Cells[$"AP{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AQ{6 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
-            sheet.Cells[$"AQ{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AR{6 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
-            sheet.Cells[$"AR{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AS{6 + result.Rows.Count}"].Value = EndingQty;
-            sheet.Cells[$"AS{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AT{6 + result.Rows.Count}"].Value = EndingTotal;
-            sheet.Cells[$"AT{6 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"H{7 + result.Rows.Count}"].Value = string.Format("{0:0,0.00}", SaldoAwalQtyTotal);
+            sheet.Cells[$"H{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"I{7 + result.Rows.Count}"].Value = "";
+            sheet.Cells[$"I{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"J{7 + result.Rows.Count}"].Value = SaldoAwalPriceTotal;
+            sheet.Cells[$"J{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"K{7 + result.Rows.Count}"].Value = KoreksiQtyTotal;
+            sheet.Cells[$"K{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"L{7 + result.Rows.Count}"].Value = KoreksiPriceTotal;
+            sheet.Cells[$"L{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{7 + result.Rows.Count}"].Value = PEMBELIANQtyTotal;
+            sheet.Cells[$"M{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{7 + result.Rows.Count}"].Value = PEMBELIANPriceTotal;
+            sheet.Cells[$"N{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{7 + result.Rows.Count}"].Value = PROSESQtyTotal;
+            sheet.Cells[$"O{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"P{7 + result.Rows.Count}"].Value = PROSESPriceTotal;
+            sheet.Cells[$"P{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{7 + result.Rows.Count}"].Value = Konfeksi2AQtyTotal;
+            sheet.Cells[$"Q{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"R{7 + result.Rows.Count}"].Value = Konfeksi2APriceTotal;
+            sheet.Cells[$"R{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"S{7 + result.Rows.Count}"].Value = KONFEKSI2BQtyTotal;
+            sheet.Cells[$"S{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"T{7 + result.Rows.Count}"].Value = KONFEKSI2BPriceTotal;
+            sheet.Cells[$"T{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"U{7 + result.Rows.Count}"].Value = KONFEKSI2CQtyTotal;
+            sheet.Cells[$"U{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"V{7 + result.Rows.Count}"].Value = KONFEKSI2CPriceTotal;
+            sheet.Cells[$"V{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"W{7 + result.Rows.Count}"].Value = KONFEKSI1AQtyTotal;
+            sheet.Cells[$"W{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"X{7 + result.Rows.Count}"].Value = KONFEKSI1APriceTotal;
+            sheet.Cells[$"X{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Y{7 + result.Rows.Count}"].Value = KONFEKSI1BQtyTotal;
+            sheet.Cells[$"Y{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Z{7 + result.Rows.Count}"].Value = KONFEKSI1BPriceTotal;
+            sheet.Cells[$"Z{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AA{7 + result.Rows.Count}"].Value = ReturQtyTotal;
+            sheet.Cells[$"AA{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AB{7 + result.Rows.Count}"].Value = ReturJumlahTotal;
+            sheet.Cells[$"AB{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AC{7 + result.Rows.Count}"].Value = SisaQtyTotal;
+            sheet.Cells[$"AC{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AD{7 + result.Rows.Count}"].Value = SisaPriceTotal;
+            sheet.Cells[$"AD{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AE{7 + result.Rows.Count}"].Value = ExpendPROSESQtyTotal;
+            sheet.Cells[$"AE{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AF{7 + result.Rows.Count}"].Value = ExpendPROSESPriceTotal;
+            sheet.Cells[$"AF{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AG{7 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
+            sheet.Cells[$"AG{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AH{7 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
+            sheet.Cells[$"AH{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AI{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
+            sheet.Cells[$"AI{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AJ{7 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
+            sheet.Cells[$"AJ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AK{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
+            sheet.Cells[$"AK{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AL{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
+            sheet.Cells[$"AL{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AM{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
+            sheet.Cells[$"AM{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AN{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
+            sheet.Cells[$"AN{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AO{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
+            sheet.Cells[$"AO{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AP{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
+            sheet.Cells[$"AP{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AQ{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
+            sheet.Cells[$"AQ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AR{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
+            sheet.Cells[$"AR{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AS{7 + result.Rows.Count}"].Value = EndingQty;
+            sheet.Cells[$"AS{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AT{7 + result.Rows.Count}"].Value = EndingTotal;
+            sheet.Cells[$"AT{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
 
             var widths = new int[] { 5, 10, 20, 15, 7, 20, 20, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
