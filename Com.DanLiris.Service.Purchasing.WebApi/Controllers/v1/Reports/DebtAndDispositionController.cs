@@ -301,8 +301,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
+        //[HttpGet("debt-budget-cashflow")]
+        //public IActionResult GetDebt([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        //{
+
+        //    try
+        //    {
+        //        var result = _service.GetDebtSummary(unitId, divisionId, year, month, isImport, date, categoryIds);
+        //        return Ok(new
+        //        {
+        //            apiVersion = ApiVersion,
+        //            statusCode = General.OK_STATUS_CODE,
+        //            message = General.OK_MESSAGE,
+        //            data = result,
+        //            info = new Dictionary<string, object>
+        //            {
+        //                { "page", 1 },
+        //                { "size", 10 }
+        //            },
+        //        });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+        //    }
+        //}
+
         [HttpGet("debt-budget-cashflow")]
-        public IActionResult GetDebt([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        public IActionResult GetDebt([FromQuery] List<int> unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
         {
 
             try
@@ -327,8 +353,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
+        //[HttpGet("budget-cashflow-summary")]
+        //public IActionResult GetSummary([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        //{
+
+        //    try
+        //    {
+        //        var result = _service.GetSummary(unitId, divisionId, year, month, isImport, date, categoryIds);
+        //        return Ok(new
+        //        {
+        //            apiVersion = ApiVersion,
+        //            statusCode = General.OK_STATUS_CODE,
+        //            message = General.OK_MESSAGE,
+        //            data = result,
+        //            info = new Dictionary<string, object>
+        //            {
+        //                { "page", 1 },
+        //                { "size", 10 }
+        //            },
+        //        });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+        //    }
+        //}
+
         [HttpGet("budget-cashflow-summary")]
-        public IActionResult GetSummary([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        public IActionResult GetSummary([FromQuery] List<int> unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
         {
 
             try
