@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
     {
         public static async Task<MemoryStream> GenerateExcel(DateTimeOffset startDate, DateTimeOffset endDate, ReportDto data, int timeZone)
         {
+            CultureInfo ci = new CultureInfo("en-us");
             var result = data;
             var reportDataTable = new DataTable();
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon", DataType = typeof(string) });
@@ -63,17 +65,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         report.InternalNoteQuantity,
                         report.CurrencyCode,
                         report.CurrencyRate,
-                        report.CurrencyDPPAmount.ToString("C2"),
-                        report.DPPAmount.ToString("C2"),
-                        report.VATAmount.ToString("C2"),
-                        report.IncomeTaxAmount.ToString("C2"),
-                        report.Total.ToString("C2"));
+                        report.CurrencyDPPAmount.ToString("N2", ci),
+                        report.DPPAmount.ToString("N2", ci),
+                        report.VATAmount.ToString("N2", ci),
+                        report.IncomeTaxAmount.ToString("N2", ci),
+                        report.Total.ToString("N2", ci));
                 }
                 foreach (var categorySummary in result.Categories)
-                    categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount.ToString("C2"),categorySummary.Amount.ToString("C2"));
+                    categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount.ToString("N2", ci),categorySummary.Amount.ToString("N2", ci));
 
                 foreach (var currencySummary in result.Currencies)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount.ToString("C2"), currencySummary.Amount.ToString("C2"));//TODO : change to Currency TOtal Idr
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount.ToString("N2", ci), currencySummary.Amount.ToString("N2", ci));//TODO : change to Currency TOtal Idr
             }
 
             using (var package = new ExcelPackage())
