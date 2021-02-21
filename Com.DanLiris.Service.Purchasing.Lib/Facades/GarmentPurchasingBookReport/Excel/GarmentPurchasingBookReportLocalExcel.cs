@@ -51,7 +51,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 foreach (var report in result.Data)
                 {
                     reportDataTable.Rows.Add(report.CustomsArrivalDate.AddHours(timeZone).ToString("dd/MM/yyyy"),
-                        report.SupplierName,
+                        //report.SupplierName,
+                        report.SupplierCode + " - " + report.SupplierName,
+
                         report.ProductName, 
                         report.GarmentDeliveryOrderNo, 
                         report.BillNo, 
