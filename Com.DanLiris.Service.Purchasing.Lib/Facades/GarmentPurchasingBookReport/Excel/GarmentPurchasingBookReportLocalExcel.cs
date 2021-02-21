@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     }
                 }
                 worksheet.Cells[$"A{6 + 3 + result.Data.Count}"].LoadFromDataTable(categoryDataTable, true,OfficeOpenXml.Table.TableStyles.Light18);
-                worksheet.Cells[$"A{6 + result.Data.Count + 3 + result.Data.Count + 3}"].LoadFromDataTable(currencyDataTable, true,OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + result.Data.Count + 3 + result.Categories.Count + 3}"].LoadFromDataTable(currencyDataTable, true,OfficeOpenXml.Table.TableStyles.Light18);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
