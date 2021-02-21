@@ -39,12 +39,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             var categoryDataTable = new DataTable();
             categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
-            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
+            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Total Valas", DataType = typeof(string) });
+            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Total IDR", DataType = typeof(string) });
 
             var currencyDataTable = new DataTable();
             currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(string) });
-            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(string) });
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total Valas", DataType = typeof(string) });
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total IDR", DataType = typeof(string) });
 
             if (result.Data.Count > 0)
             {
@@ -71,11 +73,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         report.IncomeTaxAmount.ToString("N2", ci),
                         report.Total.ToString("N2", ci));
                 }
-                foreach (var categorySummary in result.Categories)
-                    categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount.ToString("N2", ci),categorySummary.Amount.ToString("N2", ci));
+                //foreach (var categorySummary in result.Categories)
+                //    categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount.ToString("N2", ci),categorySummary.Amount.ToString("N2", ci));
+
+                foreach (var categorySummary in result.CurrencyAndCategory)
+                    categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.CurrencyCode, categorySummary.CurrencyAmount.ToString("N2", ci), categorySummary.Amount.ToString("N2", ci));
 
                 foreach (var currencySummary in result.Currencies)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount.ToString("N2", ci), currencySummary.Amount.ToString("N2", ci));//TODO : change to Currency TOtal Idr
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.CurrencyAmount.ToString("N2", ci), currencySummary.Amount.ToString("N2", ci));//TODO : change to Currency TOtal Idr
             }
 
             using (var package = new ExcelPackage())
@@ -143,8 +148,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                         worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
                 }
-                worksheet.Cells[$"A{6 + 3 + result.Data.Count}"].LoadFromDataTable(categoryDataTable, false,OfficeOpenXml.Table.TableStyles.Light18);
-                worksheet.Cells[$"A{6 + result.Data.Count + 3 + result.Data.Count + 3}"].LoadFromDataTable(currencyDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + 3 + result.Data.Count}"].LoadFromDataTable(categoryDataTable, true,OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + result.Data.Count + 3 + result.CurrencyAndCategory.Count + 3}"].LoadFromDataTable(currencyDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
