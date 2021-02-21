@@ -85,7 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.CurrencyCode, categorySummary.CurrencyAmount.ToString("N2", ci), categorySummary.Amount.ToString("N2", ci));
 
                 foreach (var currencySummary in result.Currencies)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.Amount.ToString("N2", ci), currencySummary.Amount.ToString("N2", ci));//TODO : change to Currency TOtal Idr
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.CurrencyAmount.ToString("N2", ci), currencySummary.Amount.ToString("N2", ci));//TODO : change to Currency TOtal Idr
             }
 
             using (var package = new ExcelPackage())
