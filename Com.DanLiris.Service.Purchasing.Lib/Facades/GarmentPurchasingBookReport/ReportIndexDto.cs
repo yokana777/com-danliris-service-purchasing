@@ -115,11 +115,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             CustomsType = customsType;
             ImportValueRemark = importValueRemark;
         }
+        public ReportIndexDto(DateTimeOffset customsArrivalDate, int supplierId, string supplierName, bool isImportSupplier, string productName, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, string billNo, string paymentBill, int invoiceId, string invoiceNo, string vatNo, int internalNoteId, string internalNoteNo, int purchasingCategoryId, string purchasingCategoryName, int accountingCategoryId, string accountingCategoryName, double internalNoteQuantity, int currencyId, string currencyCode, double currencyRate, double dppAmount, bool isUseVAT, bool isPayVAT, bool isUseIncomeTax, bool isIncomeTaxPaidBySupplier, double incomeTaxRate, DateTimeOffset customsDate, string customsNo, string customsType, string importValueRemark,string supplierCode)
+        {
+            CurrencyDPPAmount = dppAmount;
+            DPPAmount = dppAmount * currencyRate;
+
+            if (isUseVAT && isPayVAT)
+            {
+                VATAmount = DPPAmount * 0.1;
+            }
+
+            if (isUseIncomeTax && isIncomeTaxPaidBySupplier)
+            {
+                IncomeTaxAmount = DPPAmount * incomeTaxRate / 100;
+            }
+
+            Total = DPPAmount + VATAmount - IncomeTaxAmount;
+
+            CustomsArrivalDate = customsArrivalDate;
+            SupplierId = supplierId;
+            SupplierName = supplierName;
+            IsImportSupplier = isImportSupplier;
+            ProductName = productName;
+            GarmentDeliveryOrderId = garmentDeliveryOrderId;
+            GarmentDeliveryOrderNo = garmentDeliveryOrderNo;
+            BillNo = billNo;
+            PaymentBill = paymentBill;
+            InvoiceId = invoiceId;
+            InvoiceNo = invoiceNo;
+            VATNo = vatNo;
+            InternalNoteId = internalNoteId;
+            InternalNoteNo = internalNoteNo;
+            PurchasingCategoryId = purchasingCategoryId;
+            PurchasingCategoryName = purchasingCategoryName;
+            AccountingCategoryId = accountingCategoryId;
+            AccountingCategoryName = accountingCategoryName;
+            InternalNoteQuantity = internalNoteQuantity;
+            CurrencyId = currencyId;
+            CurrencyCode = currencyCode;
+            CurrencyRate = currencyRate;
+            IsIncomeTaxPaidBySupplier = isIncomeTaxPaidBySupplier;
+            CustomsDate = customsDate;
+            CustomsNo = customsNo;
+            CustomsType = customsType;
+            ImportValueRemark = importValueRemark;
+            SupplierCode = supplierCode;
+        }
 
         public double Total { get; private set; }
         public DateTimeOffset CustomsArrivalDate { get; private set; }
         public int SupplierId { get; private set; }
         public string SupplierName { get; private set; }
+        public string SupplierCode { get; private set; }
         public bool IsImportSupplier { get; private set; }
         public string ProductName { get; private set; }
         public int GarmentDeliveryOrderId { get; private set; }

@@ -58,7 +58,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 {
                     reportDataTable.Rows.Add(
                         report.CustomsArrivalDate.AddHours(timeZone).ToString("dd/MM/yyyy"),
-                        report.SupplierName,
+                        //report.SupplierName,
+                        report.SupplierCode + " - " + report.SupplierName,
+
                         report.ProductName,
                         report.GarmentDeliveryOrderNo,
                         report.BillNo,
@@ -91,7 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
-                var title = "BUKU PEMBELIAN Import";
+                var title = "LAPORAN BUKU PEMBELIAN IMPORT";
 
                 var startDateStr = startDate == DateTimeOffset.MinValue ? "-" : startDate.AddHours(timeZone).ToString("dd/MM/yyyy");
                 var endDateStr = endDate == DateTimeOffset.MaxValue ? "-" : endDate.AddHours(timeZone).ToString("dd/MM/yyyy");

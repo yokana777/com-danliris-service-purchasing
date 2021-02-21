@@ -97,6 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             PurchasingCategoryName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.Category : null,
                             SupplierId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierId : 0,
                             SupplierName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierName : null,
+                            SupplierCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierCode:null,
                             IsImportSupplier = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierImport : false,
                             CurrencyCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyCode : null,
                             CurrencyId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyId : 0,
@@ -152,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 query = query.Where(entity => entity.CurrencyCode != "IDR");
             }
 
-            var data = query.Distinct().ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate, entity.CustomsDate, entity.CustomsNo, entity.CustomsType, entity.ImportValueRemark)).ToList();
+            var data = query.Distinct().ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate, entity.CustomsDate, entity.CustomsNo, entity.CustomsType, entity.ImportValueRemark,entity.SupplierCode)).ToList();
 
             var reportCategories = data
                 .GroupBy(element => element.AccountingCategoryName)
