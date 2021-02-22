@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             using (var package = new ExcelPackage())
             {
                 var company = "PT DAN LIRIS";
-                var title = "LAPORAN BUKU PEMBELIAN VALAS LOKAL";
+                var title = "LAPORAN BUKU PEMBELIAN LOKAL VALAS";
 
                 var startDateStr = startDate == DateTimeOffset.MinValue ? "-" : startDate.AddHours(timeZone).ToString("dd/MM/yyyy");
                 var endDateStr = endDate == DateTimeOffset.MaxValue ? "-" : endDate.AddHours(timeZone).ToString("dd/MM/yyyy");
