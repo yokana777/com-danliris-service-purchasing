@@ -16,8 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
     {
         private readonly PurchasingDbContext _dbContext;
         private readonly IdentityService _identityService;
-        //private readonly List<UnitDto> _units;
-        private readonly List<AccountingUnitDto> _units;
+        private readonly List<UnitDto> _units;
+        //private readonly List<AccountingUnitDto> _units;
 
         private readonly List<AccountingUnitDto> _accountingUnits;
         private readonly List<CategoryDto> _categories;
@@ -33,10 +33,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             var jsonUnits = cache.GetString(MemoryCacheConstant.Units);
             var jsonCategories = cache.GetString(MemoryCacheConstant.Categories);
             var jsonAccountingUnits = cache.GetString(MemoryCacheConstant.AccountingUnits);
-            _units = JsonConvert.DeserializeObject<List<AccountingUnitDto>>(jsonUnits, new JsonSerializerSettings
+            _units = JsonConvert.DeserializeObject<List<UnitDto>>(jsonUnits, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
             });
+            //_units = JsonConvert.DeserializeObject<List<AccountingUnitDto>>(jsonUnits, new JsonSerializerSettings
+            //{
+            //    MissingMemberHandling = MissingMemberHandling.Ignore
+            //});
 
             _accountingUnits = JsonConvert.DeserializeObject<List<AccountingUnitDto>>(jsonAccountingUnits, new JsonSerializerSettings
             {
@@ -254,7 +258,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
 
-            if (unitId.Count > 0)
+            if (unitId.Where(s=> s != "0").Count() > 0 && unitId.Count > 0)
             {
                 //query = query.Where(entity => (entity.UnitId == null? false :  unitId.Contains(entity.UnitId.ToString())) && true );
                 //var unitIdFirst = unitId.FirstOrDefault();
@@ -449,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
 
-            if (unitId.Count > 0)
+            if (unitId.Where(s=> s !="0").Count() > 0 && unitId.Count>0 )
             {
                 //query = query.Where(entity => (entity.UnitId == null ? false : unitId.Contains(entity.UnitId.ToString())) && true );
                 query = query.Where(entity => entity.UnitId != null && unitId.Contains(entity.UnitId.ToString()));
@@ -992,12 +996,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     categoryLayoutIndex = category.ReportLayoutIndex;
 
                 var accountingUnitName = "-";
+                var accountingUnitId = "-";
                 var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
                 if (unit != null)
                 {
                     var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.Id);
                     if (accountingUnit != null)
+                    {
                         accountingUnitName = accountingUnit.Name;
+                        accountingUnitId = accountingUnit.Id.ToString();
+                    }
                 }
 
                 if (element.UseVat)
@@ -1038,8 +1046,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     UnitCode = element.UnitCode,
                     UnitId = element.UnitId,
                     UnitName = element.UnitName,
+                    //UnitId = element.AccountingUnitId,
+                    //UnitName = element.AccountingUnitName,
                     UseIncomeTax = element.UseIncomeTax,
                     AccountingUnitName = accountingUnitName,
+                    AccountingUnitId = accountingUnitId,
                     CategoryLayoutIndex = categoryLayoutIndex
                 };
             })
@@ -1145,12 +1156,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     categoryLayoutIndex = category.ReportLayoutIndex;
 
                 var accountingUnitName = "-";
+                var accountingUnitId = "-";
                 var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
                 if (unit != null)
                 {
                     var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.Id);
                     if (accountingUnit != null)
+                    {
                         accountingUnitName = accountingUnit.Name;
+                        accountingUnitId = accountingUnit.Id.ToString();
+                    }
                 }
 
                 if (element.UseVat)
@@ -1186,9 +1201,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     UnitCode = element.UnitCode,
                     UnitId = element.UnitId,
                     UnitName = element.UnitName,
+                    //UnitId = accountingUnitId,
+                    //UnitName = accountingUnitName,
                     UseIncomeTax = element.UseIncomeTax,
                     CategoryLayoutIndex = categoryLayoutIndex,
-                    AccountingUnitName = accountingUnitName
+                    AccountingUnitName = accountingUnitName,
+                    AccountingUnitId = accountingUnitId
                 };
             }).OrderBy(element => element.CategoryLayoutIndex).ToList();
 
