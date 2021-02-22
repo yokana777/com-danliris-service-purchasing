@@ -168,7 +168,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
         public int SupplierId { get; private set; }
         public string SupplierCode { get; private set; }
         public string SupplierName { get; private set; }
-        public string SupplierCode { get; private set; }
         public bool IsImportSupplier { get; private set; }
         public string ProductName { get; private set; }
         public int GarmentDeliveryOrderId { get; private set; }

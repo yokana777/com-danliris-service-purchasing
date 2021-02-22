@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
             SetTitle(document, startDate, endDate, isForeignCurrency, isImportSupplier, timezoneOffset);
             SetTable(document, report, isForeignCurrency, isImportSupplier, timezoneOffset);
-            SetCategory(document, report.Categories);
+            SetCategory(document, report.Categories, isForeignCurrency, isImportSupplier);
             SetCurrency(document, report.Currencies, isForeignCurrency, isImportSupplier);
             document.Close();
             byte[] byteInfo = stream.ToArray();
@@ -135,14 +135,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             }
         }
 
-        private static void SetCategory(Document document, List<ReportCategoryDto> categories)
+        private static void SetCategory(Document document, List<ReportCategoryDto> categories, bool isForeignCurrency, bool isImportSupplier)
         {
-            var table = new PdfPTable(2)
-            {
-                WidthPercentage = 100,
-                HorizontalAlignment = Element.ALIGN_LEFT
-            };
-
             var cellCenter = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_CENTER,
@@ -161,20 +155,60 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellCenter.Phrase = new Phrase("Kategori", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
-
-            foreach (var category in categories)
+            if (isForeignCurrency || isImportSupplier)
             {
-                cellLeft.Phrase = new Phrase(category.CategoryName, _normalFont);
-                table.AddCell(cellLeft);
-                cellRight.Phrase = new Phrase(category.Amount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
-                table.AddCell(cellRight);
-            }
+                var table = new PdfPTable(4)
+                {
+                    WidthPercentage = 100,
+                    HorizontalAlignment = Element.ALIGN_LEFT
+                };
 
-            document.Add(table);
+                cellCenter.Phrase = new Phrase("Kategori", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Mata Uang", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Total Valas", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+                table.AddCell(cellCenter);
+
+                foreach (var category in categories)
+                {
+                    cellLeft.Phrase = new Phrase(category.CategoryName, _normalFont);
+                    table.AddCell(cellLeft);
+                    cellLeft.Phrase = new Phrase(category.CurrencyCode, _normalFont);
+                    table.AddCell(cellLeft);
+                    cellRight.Phrase = new Phrase(category.CurrencyAmount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
+                    table.AddCell(cellRight);
+                    cellRight.Phrase = new Phrase(category.Amount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
+                    table.AddCell(cellRight);
+                }
+
+                document.Add(table);
+            }
+            else
+            {
+                var table = new PdfPTable(2)
+                {
+                    WidthPercentage = 100,
+                    HorizontalAlignment = Element.ALIGN_LEFT
+                };
+
+                cellCenter.Phrase = new Phrase("Kategori", _subHeaderFont);
+                table.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+                table.AddCell(cellCenter);
+
+                foreach (var category in categories)
+                {
+                    cellLeft.Phrase = new Phrase(category.CategoryName, _normalFont);
+                    table.AddCell(cellLeft);
+                    cellRight.Phrase = new Phrase(category.Amount.ToString("0,0.00", CultureInfo.InvariantCulture), _normalFont);
+                    table.AddCell(cellRight);
+                }
+
+                document.Add(table);
+            }
 
             document.Add(new Paragraph("\n"));
         }
@@ -229,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Supplier", _subHeaderFont);
             table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Keterangan", _subHeaderFont);
+            cellCenter.Phrase = new Phrase("Nama Barang", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
             table.AddCell(cellCenter);
@@ -351,7 +385,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("Supplier", _subHeaderFont);
             table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Keterangan", _subHeaderFont);
+            cellCenter.Phrase = new Phrase("Nama Barang", _subHeaderFont);
             table.AddCell(cellCenter);
             cellCenter.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
             table.AddCell(cellCenter);
