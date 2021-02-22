@@ -98,6 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             SupplierId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierId : 0,
                             SupplierCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierCode :null,
                             SupplierName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierName : null,
+                            SupplierCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierCode:null,
                             IsImportSupplier = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierImport : false,
                             CurrencyCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyCode : null,
                             CurrencyId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyId : 0,
@@ -165,7 +166,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 .Select(element => new ReportCurrencyDto(element.Key, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total), element.Sum(sum => sum.CurrencyDPPAmount)))
                 .ToList();
 
-            return new ReportDto(data, reportCategories, reportCurrencies);
+            var reportCurrencyAndCategory = data
+                .GroupBy(element => new { element.CurrencyId, element.AccountingCategoryName })
+                .Select(element => new ReportCurrencyAndCategoryDto(element.Key.CurrencyId, element.FirstOrDefault(e => element.Key.CurrencyId == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key.CurrencyId == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total), element.Sum(sum => sum.CurrencyDPPAmount),element.Key.AccountingCategoryName))
+                .ToList();
+
+            return new ReportDto(data, reportCategories, reportCurrencies, reportCurrencyAndCategory);
         }
 
         public async Task<MemoryStream> GenerateExcel(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier, int timeZone)
