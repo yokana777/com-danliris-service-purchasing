@@ -258,12 +258,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
 
-            if (unitId.Where(s=> s != "0").Count() > 0 && unitId.Count > 0)
+            if (unitId.Where(s => s != "0").Count() > 0 && unitId.Count > 0)
             {
                 //query = query.Where(entity => (entity.UnitId == null? false :  unitId.Contains(entity.UnitId.ToString())) && true );
                 //var unitIdFirst = unitId.FirstOrDefault();
                 //query = query.Where(entity => entity.UnitId != null && unitId.Contains(entity.UnitId.ToString()));
-                query = query.Where(entity => unitId.Contains(entity.UnitId)) ;
+                query = query.Where(entity => unitId.Contains(entity.UnitId));
 
 
             }
@@ -410,7 +410,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             var externalPurchaseOrders = _dbContext.ExternalPurchaseOrders.AsQueryable();
             var purchasingDispositionDetails = _dbContext.PurchasingDispositionDetails.AsQueryable();
             var purchasingDispositionItems = _dbContext.PurchasingDispositionItems.AsQueryable();
-            var purchasingDispositions = _dbContext.PurchasingDispositions.AsQueryable(); 
+            var purchasingDispositions = _dbContext.PurchasingDispositions.AsQueryable();
             var query = from purchasingDispositionDetail in purchasingDispositionDetails
 
                         join purchasingDispositionItem in purchasingDispositionItems on purchasingDispositionDetail.PurchasingDispositionItemId equals purchasingDispositionItem.Id into pdDetailItems
@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (categoryIds.Count > 0)
                 query = query.Where(entity => categoryIds.Contains(entity.CategoryId));
 
-            if (unitId.Where(s=> s !="0").Count() > 0 && unitId.Count>0 )
+            if (unitId.Where(s => s != "0").Count() > 0 && unitId.Count > 0)
             {
                 //query = query.Where(entity => (entity.UnitId == null ? false : unitId.Contains(entity.UnitId.ToString())) && true );
                 query = query.Where(entity => entity.UnitId != null && unitId.Contains(entity.UnitId.ToString()));
@@ -485,7 +485,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                     double.TryParse(element.IncomeTaxRate, NumberStyles.Any, CultureInfo.InvariantCulture, out var incomeTaxRate);
                     var debtTotal = element.DebtTotal;
                     var dispositionTotal = element.DispositionTotal;
-                    
+
                     var category = _categories.FirstOrDefault(_category => _category.Id.ToString() == element.CategoryId);
                     var categoryLayoutIndex = 0;
                     if (category != null)
@@ -1000,7 +1000,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
                 if (unit != null)
                 {
-                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.Id);
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
                     if (accountingUnit != null)
                     {
                         accountingUnitName = accountingUnit.Name;
@@ -1160,7 +1160,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
                 if (unit != null)
                 {
-                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.Id);
+                    var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
                     if (accountingUnit != null)
                     {
                         accountingUnitName = accountingUnit.Name;
