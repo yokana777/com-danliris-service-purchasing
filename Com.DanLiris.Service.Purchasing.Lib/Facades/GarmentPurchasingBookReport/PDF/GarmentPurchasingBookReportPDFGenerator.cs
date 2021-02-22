@@ -322,7 +322,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     cellLeft.Colspan = 1;
                 }
 
-                foreach (var item in report.Data)
+                foreach (var item in items)
                 {
                     cellCenter.Rowspan = 1;
                     cellCenter.Colspan = 1;
