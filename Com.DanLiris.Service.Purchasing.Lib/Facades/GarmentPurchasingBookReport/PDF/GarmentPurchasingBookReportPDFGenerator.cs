@@ -277,9 +277,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 cellCenter.Rowspan = 1;
                 cellCenter.Colspan = 1;
-                cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy"), _normalFont);
+                cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy"), _normalFont);
                 table.AddCell(cellCenter);
-                cellLeft.Phrase = new Phrase(item.SupplierName, _normalFont);
+                cellLeft.Phrase = new Phrase($"{item.SupplierCode} - {item.SupplierName}", _normalFont);
                 table.AddCell(cellLeft);
                 cellLeft.Phrase = new Phrase(item.ProductName, _normalFont);
                 table.AddCell(cellLeft);
@@ -297,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.AccountingCategoryName, _normalFont);
                 table.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase(item.CustomsDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy"), _normalFont);
+                cellCenter.Phrase = new Phrase(item.CustomsDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy"), _normalFont);
                 table.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase(item.CustomsNo, _normalFont);
                 table.AddCell(cellCenter);
@@ -396,7 +396,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 cellCenter.Rowspan = 1;
                 cellCenter.Colspan = 1;
-                cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MMMM/yyyy"), _normalFont);
+                cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy"), _normalFont);
                 table.AddCell(cellCenter);
                 cellLeft.Phrase = new Phrase(item.SupplierName, _normalFont);
                 table.AddCell(cellLeft);
