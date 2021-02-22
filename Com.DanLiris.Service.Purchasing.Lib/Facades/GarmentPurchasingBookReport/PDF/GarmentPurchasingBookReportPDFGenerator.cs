@@ -432,7 +432,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 cellCenter.Colspan = 1;
                 cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy"), _normalFont);
                 table.AddCell(cellCenter);
-                cellLeft.Phrase = new Phrase(item.SupplierName, _normalFont);
+                cellLeft.Phrase = new Phrase($"{item.SupplierCode} - {item.SupplierName}", _normalFont);
                 table.AddCell(cellLeft);
                 cellLeft.Phrase = new Phrase(item.ProductName, _normalFont);
                 table.AddCell(cellLeft);
@@ -547,7 +547,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 cellCenter.Colspan = 1;
                 cellCenter.Phrase = new Phrase(item.CustomsArrivalDate.AddHours(timezoneOffset).ToString("dd/MM/yyyy"), _normalFont);
                 table.AddCell(cellCenter);
-                cellLeft.Phrase = new Phrase(item.SupplierName, _normalFont);
+                cellLeft.Phrase = new Phrase($"{item.SupplierCode} - {item.SupplierName}", _normalFont);
                 table.AddCell(cellLeft);
                 cellLeft.Phrase = new Phrase(item.ProductName, _normalFont);
                 table.AddCell(cellLeft);
