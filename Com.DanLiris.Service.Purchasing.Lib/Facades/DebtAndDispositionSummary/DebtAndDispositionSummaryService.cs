@@ -456,7 +456,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
             if (unitId.Where(s => s != "0").Count() > 0 && unitId.Count > 0)
             {
                 //query = query.Where(entity => (entity.UnitId == null ? false : unitId.Contains(entity.UnitId.ToString())) && true );
-                query = query.Where(entity => entity.UnitId != null && unitId.Contains(entity.UnitId.ToString()));
+                //query = query.Where(entity => entity.UnitId != null && unitId.Contains(entity.UnitId.ToString()));
+                query = query.Where(entity => unitId.Contains(entity.UnitId));
+
             }
 
             if (divisionId > 0)
