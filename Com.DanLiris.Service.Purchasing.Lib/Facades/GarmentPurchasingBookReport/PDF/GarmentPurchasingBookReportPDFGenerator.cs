@@ -12,17 +12,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
     public static class GarmentPurchasingBookReportPDFGenerator
     {
 
-        private static readonly Font _headerFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 11);
-        private static readonly Font _subHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
-        private static readonly Font _normalFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
-        private static readonly Font _smallFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
-        private static readonly Font _smallerFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
-        private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
-        private static readonly Font _normalBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9, 0, BaseColor.White);
-        private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
-        private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
-        private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7, 0, BaseColor.White);
-        private static readonly List<string> _accountingCategories = new List<string>() { "BB", "BP", "BE" };
+        private static readonly Font _headerFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+        private static readonly Font _subHeaderFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
+        private static readonly Font _normalFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+        private static readonly Font _smallFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+        private static readonly Font _smallerFont = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 6);
+        private static readonly Font _normalBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+        private static readonly Font _normalBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8, 0, BaseColor.White);
+        private static readonly Font _smallBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+        private static readonly Font _smallerBoldFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 6);
+        private static readonly Font _smallerBoldWhiteFont = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 6, 0, BaseColor.White);
+        private static readonly List<string> _accountingCategories = new List<string>() { "BB", "BP", "BE", "PRC" };
 
         public static MemoryStream Generate(ReportDto report, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier, int timezoneOffset)
         {
@@ -248,6 +248,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+            var cellCenterWithBackground = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = new BaseColor(23, 50, 80)
+            };
+
             var cellLeft = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_LEFT,
@@ -260,54 +267,54 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellCenter.Rowspan = 2;
-            cellCenter.Phrase = new Phrase("Tanggal Bon", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Supplier", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Nama Barang", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BP Besar", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BP Kecil", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Invoice", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. NI", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 1;
-            cellCenter.Colspan = 4;
-            cellCenter.Phrase = new Phrase("Bea Cukai", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Colspan = 3;
-            cellCenter.Phrase = new Phrase("Pembelian", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 2;
-            cellCenter.Colspan = 1;
-            cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 1;
-            cellCenter.Colspan = 1;
-            cellCenter.Phrase = new Phrase("Tanggal BC", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BC", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Jenis BC", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Ket Nilai Impor", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Mata Uang", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("DPP Valas", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Rate", _subHeaderFont);
-            table.AddCell(cellCenter);
+            cellCenterWithBackground.Rowspan = 2;
+            cellCenterWithBackground.Phrase = new Phrase("Tanggal Bon", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Supplier", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Nama Barang", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BP Besar", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BP Kecil", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Invoice", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. NI", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 1;
+            cellCenterWithBackground.Colspan = 4;
+            cellCenterWithBackground.Phrase = new Phrase("Bea Cukai", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Colspan = 3;
+            cellCenterWithBackground.Phrase = new Phrase("Pembelian", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 2;
+            cellCenterWithBackground.Colspan = 1;
+            cellCenterWithBackground.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 1;
+            cellCenterWithBackground.Colspan = 1;
+            cellCenterWithBackground.Phrase = new Phrase("Tanggal BC", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BC", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Jenis BC", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Ket Nilai Impor", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Mata Uang", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("DPP Valas", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Rate", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
 
             foreach (var accountingCategory in _accountingCategories)
             {
@@ -423,6 +430,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+            var cellCenterWithBackground = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = new BaseColor(23, 50, 80)
+            };
+
             var cellLeft = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_LEFT,
@@ -435,51 +449,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellCenter.Rowspan = 2;
-            cellCenter.Phrase = new Phrase("Tanggal Bon", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Supplier", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Nama Barang", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BP Besar", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BP Kecil", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Invoice", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. NI", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kuantitas", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Mata Uang", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kurs", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 1;
-            cellCenter.Colspan = 4;
-            cellCenter.Phrase = new Phrase("Pembelian", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 2;
-            cellCenter.Colspan = 1;
-            cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 1;
-            cellCenter.Colspan = 1;
-            cellCenter.Phrase = new Phrase("DPP Valas", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("DPP (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("PPN (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("PPh (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
+            cellCenterWithBackground.Rowspan = 2;
+            cellCenterWithBackground.Phrase = new Phrase("Tanggal Bon", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Supplier", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Nama Barang", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BP Besar", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BP Kecil", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Invoice", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. NI", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Kuantitas", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Mata Uang", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Kurs", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 1;
+            cellCenterWithBackground.Colspan = 4;
+            cellCenterWithBackground.Phrase = new Phrase("Pembelian", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 2;
+            cellCenterWithBackground.Colspan = 1;
+            cellCenterWithBackground.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 1;
+            cellCenterWithBackground.Colspan = 1;
+            cellCenterWithBackground.Phrase = new Phrase("DPP Valas", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("DPP (IDR)", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("PPN (IDR)", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("PPh (IDR)", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
 
             foreach (var accountingCategory in _accountingCategories)
             {
@@ -602,6 +616,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+            var cellCenterWithBackground = new PdfPCell()
+            {
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_CENTER,
+                BackgroundColor = new BaseColor(23, 50, 80)
+            };
+
             var cellLeft = new PdfPCell()
             {
                 HorizontalAlignment = Element.ALIGN_LEFT,
@@ -614,47 +635,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
-            cellCenter.Rowspan = 2;
-            cellCenter.Phrase = new Phrase("Tanggal Bon", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Supplier", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Nama Barang", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BP Besar", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. BP Kecil", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Invoice", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("No. NI", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Kuantitas", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Mata Uang", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 1;
-            cellCenter.Colspan = 3;
-            cellCenter.Phrase = new Phrase("Pembelian", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 2;
-            cellCenter.Colspan = 1;
-            cellCenter.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Rowspan = 1;
-            cellCenter.Colspan = 1;
-            cellCenter.Phrase = new Phrase("DPP", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("PPN", _subHeaderFont);
-            table.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("PPh", _subHeaderFont);
-            table.AddCell(cellCenter);
+            cellCenterWithBackground.Rowspan = 2;
+            cellCenterWithBackground.Phrase = new Phrase("Tanggal Bon", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Supplier", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Nama Barang", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Surat Jalan", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BP Besar", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. BP Kecil", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Invoice", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. Faktur Pajak", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("No. NI", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Kategori Pembukuan", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Kuantitas", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("Mata Uang", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 1;
+            cellCenterWithBackground.Colspan = 3;
+            cellCenterWithBackground.Phrase = new Phrase("Pembelian", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 2;
+            cellCenterWithBackground.Colspan = 1;
+            cellCenterWithBackground.Phrase = new Phrase("Total (IDR)", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Rowspan = 1;
+            cellCenterWithBackground.Colspan = 1;
+            cellCenterWithBackground.Phrase = new Phrase("DPP", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("PPN", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
+            cellCenterWithBackground.Phrase = new Phrase("PPh", _subHeaderFont);
+            table.AddCell(cellCenterWithBackground);
 
             foreach (var accountingCategory in _accountingCategories)
             {
@@ -748,6 +769,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     return "Bahan Pembantu";
                 case "BE":
                     return "Bahan Embalage";
+                case "PRC":
+                    return "Proses";
                 default:
                     return "";
             }    
