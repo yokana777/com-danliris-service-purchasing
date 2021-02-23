@@ -96,6 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             PaymentBill = garmentDeliveryOrders != null ? garmentDeliveryOrders.PaymentBill : null,
                             PurchasingCategoryName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.Category : null,
                             SupplierId = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierId : 0,
+                            SupplierCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierCode : null,
                             SupplierName = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierName : null,
                             IsImportSupplier = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.SupplierImport : false,
                             CurrencyCode = deliveryOrderExternalPurchaseOrders != null ? deliveryOrderExternalPurchaseOrders.CurrencyCode : null,
@@ -112,10 +113,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                             InternalNoteNo = deliveryOrderInternalNotes != null ? deliveryOrderInternalNotes.INNo : "",
                             InternalNoteQuantity = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.Quantity : 0,
                             DPPAmount = deliveryOrderInternalNoteDetails != null ? deliveryOrderInternalNoteDetails.PriceTotal : 0,
-                            IsUseVAT = deliveryOrderInvoices != null ? deliveryOrderInvoices.UseVat: false,
+                            IsUseVAT = deliveryOrderInvoices != null ? deliveryOrderInvoices.UseVat : false,
                             IsPayVAT = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayVat : false,
                             IsUseIncomeTax = deliveryOrderInvoices != null ? deliveryOrderInvoices.UseIncomeTax : false,
-                            IsIncomeTaxPaidBySupplier = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayTax: false,
+                            IsIncomeTaxPaidBySupplier = deliveryOrderInvoices != null ? deliveryOrderInvoices.IsPayTax : false,
                             IncomeTaxRate = deliveryOrderInvoices != null ? deliveryOrderInvoices.IncomeTaxRate : 0.0,
                         };
 
@@ -152,11 +153,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 query = query.Where(entity => entity.CurrencyCode != "IDR");
             }
 
-            var data = query.Distinct().ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate, entity.CustomsDate, entity.CustomsNo, entity.CustomsType, entity.ImportValueRemark)).ToList();
+            if (!isForeignCurrency && !isImportSupplier)
+            {
+                query = query.Where(entity => entity.CurrencyCode == "IDR");
+            }
+
+            var data = query.Distinct().ToList().Select(entity => new ReportIndexDto(entity.CustomsArrivalDate, entity.SupplierId, entity.SupplierCode, entity.SupplierName, entity.IsImportSupplier, entity.ProductName, (int)entity.DeliveryOrderId, entity.DeliveryOrderNo, entity.BillNo, entity.PaymentBill, (int)entity.InvoiceId, entity.InvoiceNo, entity.VATNo, (int)entity.InternalNoteId, entity.InternalNoteNo, 0, entity.PurchasingCategoryName, 0, entity.AccountingCategoryName, entity.InternalNoteQuantity, entity.CurrencyId, entity.CurrencyCode, entity.CurrencyRate, entity.DPPAmount, entity.IsUseVAT, entity.IsPayVAT, entity.IsUseIncomeTax, entity.IsIncomeTaxPaidBySupplier, entity.IncomeTaxRate, entity.CustomsDate, entity.CustomsNo, entity.CustomsType, entity.ImportValueRemark)).ToList();
 
             var reportCategories = data
-                .GroupBy(element => element.PurchasingCategoryName)
-                .Select(element => new ReportCategoryDto(0, element.Key, element.Sum(sum => sum.Total)))
+                .GroupBy(element => new { element.CurrencyCode, element.AccountingCategoryName })
+                .Select(element => new ReportCategoryDto(0, element.Key.AccountingCategoryName, element.Key.CurrencyCode, element.Sum(sum => sum.CurrencyDPPAmount), element.Sum(sum => sum.Total)))
                 .ToList();
 
             var reportCurrencies = data
@@ -164,10 +170,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                 .Select(element => new ReportCurrencyDto(element.Key, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total), element.Sum(sum => sum.CurrencyDPPAmount)))
                 .ToList();
 
-            return new ReportDto(data, reportCategories, reportCurrencies);
+            var reportCurrencyAndCategory = data
+                .GroupBy(element => new { element.CurrencyId, element.AccountingCategoryName })
+                .Select(element => new ReportCurrencyAndCategoryDto(element.Key.CurrencyId, element.FirstOrDefault(e => element.Key.CurrencyId == e.CurrencyId).CurrencyCode, element.FirstOrDefault(e => element.Key.CurrencyId == e.CurrencyId).CurrencyRate, element.Sum(sum => sum.Total), element.Sum(sum => sum.CurrencyDPPAmount), element.Key.AccountingCategoryName))
+                .ToList();
+
+            return new ReportDto(data, reportCategories, reportCurrencies, reportCurrencyAndCategory);
         }
 
-        public async Task<MemoryStream> GenerateExcel(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier,int timeZone)
+        public async Task<MemoryStream> GenerateExcel(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier, int timeZone)
         {
             var result = GetReport(billNo, paymentBill, garmentCategory, startDate, endDate, isForeignCurrency, isImportSupplier);
             //var Data = reportResult.Reports;
@@ -209,7 +220,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 foreach (var report in result.Data)
                 {
-                    reportDataTable.Rows.Add(report.CustomsArrivalDate.ToString("dd/MM/yyyy"),report.SupplierName,report.ProductName,report.GarmentDeliveryOrderNo,report.BillNo, report.PaymentBill,report.InvoiceNo,report.VATNo,report.InternalNoteNo,report.PurchasingCategoryName, report.AccountingCategoryName,report.InternalNoteQuantity,report.CurrencyCode,report.DPPAmount,report.VATAmount,report.IncomeTaxAmount,report.Total);
+                    reportDataTable.Rows.Add(report.CustomsArrivalDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.GarmentDeliveryOrderNo, report.BillNo, report.PaymentBill, report.InvoiceNo, report.VATNo, report.InternalNoteNo, report.PurchasingCategoryName, report.AccountingCategoryName, report.InternalNoteQuantity, report.CurrencyCode, report.DPPAmount, report.VATAmount, report.IncomeTaxAmount, report.Total);
                 }
                 foreach (var categorySummary in result.Categories)
                     categoryDataTable.Rows.Add(categorySummary.CategoryName, categorySummary.Amount);
@@ -226,7 +237,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
                     title = "BUKU PEMBELIAN Lokal Valas";
                 else if (!isForeignCurrency && isImportSupplier)
                     title = "BUKU PEMBELIAN Impor";
-                
+
                 var startDateStr = startDate == DateTimeOffset.MinValue ? "-" : startDate.AddHours(timeZone).ToString("dd/MM/yyyy");
                 var endDateStr = endDate == DateTimeOffset.MaxValue ? "-" : endDate.AddHours(timeZone).ToString("dd/MM/yyyy");
                 var period = $"Dari {startDateStr} Sampai {endDateStr}";

@@ -486,21 +486,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var deliveryOrderIds = garmentInvoices.SelectMany(element => element.Items).Select(element => element.DeliveryOrderId).ToList();
                 var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).ToList();
 
+                var externalPurchaseOrderIds = internalNotes.SelectMany(internalNote => internalNote.Items).SelectMany(item => item.Details).Select(detail => detail.EPOId).ToList();
+                var internalPurchaseOrderIds = dbContext.GarmentExternalPurchaseOrderItems.Where(externalPurchaseOrderItem => externalPurchaseOrderIds.Contains(externalPurchaseOrderItem.GarmentEPOId)).Select(externalPurchaseOrderItem => (long)externalPurchaseOrderItem.POId).ToList();
+                var internalPurchaseOrderItems = dbContext.GarmentInternalPurchaseOrderItems.Where(internalPurchaseOrderItem => internalPurchaseOrderIds.Contains(internalPurchaseOrderItem.GPOId)).ToList();
+
                 foreach (var internalNote in internalNotes)
                 {
                     var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
                     var internalNoteDOIds = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).SelectMany(element => element.Items).Select(element => element.DeliveryOrderId).ToList();
                     var internalNoteDeliveryOrders = deliveryOrders.Where(element => internalNoteDOIds.Contains(element.Id)).ToList();
                     //var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
-                    var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).Select(s => new GarmentInvoiceInternNoteViewModel
+                    var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).Select(s =>
                     {
-                        GarmentInvoices = s,
-                        BillsNo = string.Join("\n", internalNoteDeliveryOrders.Select(element => $"- {element.BillNo}")),
-                        PaymentBills = string.Join("\n", internalNoteDeliveryOrders.Select(element => $"- {element.PaymentBill}")),
-                        DeliveryOrdersNo = string.Join("\n", internalNoteDeliveryOrders.Select(element => $"- {element.DONo}")),
-                        Category = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).Select(categ => new CategoryDto { Id = 0, Name = categ.Category }).FirstOrDefault(),
-                        PaymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).FirstOrDefault().PaymentMethod
-                        //TODO : Category ID 0 karena tidak terpakai jadi tidak di ambil
+                        var selectedDeliveryOrderIds = s.Items.Select(item => item.DeliveryOrderId).ToList();
+                        return new GarmentInvoiceInternNoteViewModel
+                        {
+                            GarmentInvoices = s,
+                            BillsNo = string.Join("\n", internalNoteDeliveryOrders.Where(deliveryOrder => selectedDeliveryOrderIds.Contains(deliveryOrder.Id)).Select(element => $"- {element.BillNo}")),
+                            PaymentBills = string.Join("\n", internalNoteDeliveryOrders.Where(deliveryOrder => selectedDeliveryOrderIds.Contains(deliveryOrder.Id)).Select(element => $"- {element.PaymentBill}")),
+                            DeliveryOrdersNo = string.Join("\n", internalNoteDeliveryOrders.Where(deliveryOrder => selectedDeliveryOrderIds.Contains(deliveryOrder.Id)).Select(element => $"- {element.DONo}")),
+                            Category = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).Select(categ => new CategoryDto { Id = 0, Name = categ.Category }).FirstOrDefault(),
+                            PaymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).FirstOrDefault().PaymentMethod
+                            //TODO : Category ID 0 karena tidak terpakai jadi tidak di ambil
+                        };
                     }).ToList();
 
                     if (internalNoteInvoices.Count > 0)

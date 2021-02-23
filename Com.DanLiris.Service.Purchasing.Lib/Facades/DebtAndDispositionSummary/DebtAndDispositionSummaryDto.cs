@@ -32,5 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
         public bool UseVat { get; internal set; }
         public int CategoryLayoutIndex { get; internal set; }
         public string AccountingUnitName { get; internal set; }
+        public string AccountingUnitId { get; internal set; }
+
     }
 }

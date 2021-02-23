@@ -201,7 +201,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBudgetCashflowDivisionExcelGenerator, BudgetCashflowDivisionExcelGenerator>()
                 .AddTransient<IGarmentPurchasingExpeditionService, GarmentPurchasingExpeditionService>()
                 .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>()
-                .AddTransient<IGarmentPurchasingBookReportService, GarmentPurchasingBookReportService>();
+                .AddTransient<IGarmentPurchasingBookReportService, GarmentPurchasingBookReportService>()
+                .AddTransient<IROFeatureFacade, ROFeatureFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
