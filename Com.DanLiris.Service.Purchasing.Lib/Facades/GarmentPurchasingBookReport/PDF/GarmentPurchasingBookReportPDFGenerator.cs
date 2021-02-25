@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 var table = new PdfPTable(3)
                 {
-                    WidthPercentage = 100,
+                    WidthPercentage = 50,
                     HorizontalAlignment = Element.ALIGN_LEFT
                 };
 
@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 var table = new PdfPTable(2)
                 {
-                    WidthPercentage = 100,
+                    WidthPercentage = 50,
                     HorizontalAlignment = Element.ALIGN_LEFT
                 };
 
@@ -161,8 +161,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 var table = new PdfPTable(4)
                 {
-                    WidthPercentage = 100,
-                    HorizontalAlignment = Element.ALIGN_LEFT
+                    WidthPercentage = 30,
+                    HorizontalAlignment = Element.ALIGN_LEFT,
                 };
 
                 cellCenter.Phrase = new Phrase("Kategori", _subHeaderFont);
@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
             {
                 var table = new PdfPTable(2)
                 {
-                    WidthPercentage = 100,
+                    WidthPercentage = 30,
                     HorizontalAlignment = Element.ALIGN_LEFT
                 };
 
