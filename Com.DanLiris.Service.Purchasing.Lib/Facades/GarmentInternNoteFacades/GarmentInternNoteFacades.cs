@@ -316,9 +316,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             }
         }
         #region Monitoring
-        public Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetReportInternNote(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset, page, size);
+            var Query = GetReportInternNote(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, offset, page, size);
             //Console.WriteLine(Query);
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -333,7 +333,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             return Tuple.Create(Query, TotalCountReport);
         }
         public int TotalCountReport { get; set; } = 0;
-        public List<GarmentInternNoteReportViewModel> GetReportInternNote(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
+        public List<GarmentInternNoteReportViewModel> GetReportInternNote(string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset, int page, int size)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -343,12 +343,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                          join b in dbContext.GarmentInternNoteItems on a.Id equals b.GarmentINId
                          join c in dbContext.GarmentInternNoteDetails on b.Id equals c.GarmentItemINId
                          join d in dbContext.GarmentDeliveryOrders on c.DOId equals d.Id
+                         join e in dbContext.GarmentInvoices on b.InvoiceId equals e.Id
                          where a.IsDeleted == false
                          && b.IsDeleted == false
                          && c.IsDeleted == false
                          && d.IsDeleted == false
+                         && e.IsDeleted == false
                          && a.INNo == (string.IsNullOrWhiteSpace(no) ? a.INNo : no)
                          && b.InvoiceNo == (string.IsNullOrWhiteSpace(invoiceNo) ? b.InvoiceNo : invoiceNo)
+                         && e.NPN == (string.IsNullOrWhiteSpace(npn) ? e.NPN : npn)
                          && c.DONo == (string.IsNullOrWhiteSpace(doNo) ? c.DONo : doNo)
                          && d.BillNo == (string.IsNullOrWhiteSpace(billNo) ? d.BillNo : billNo)
                          && d.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? d.PaymentBill : paymentBill)
@@ -356,18 +359,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                          && a.INDate.AddHours(offset).Date >= DateFrom.Date
                          && a.INDate.AddHours(offset).Date <= DateTo.Date
                          && a.CurrencyCode == (string.IsNullOrWhiteSpace(curencyCode) ? a.CurrencyCode : curencyCode)
-                         group new { a, b, c, d } by new { c.DONo } into pg
+                         group new { a, b, c, d, e } by new { c.DONo } into pg
                          let firstproduct = pg.FirstOrDefault()
                          let IN = firstproduct.a
                          let InItem = firstproduct.b
                          let InDetail = firstproduct.c
                          let Do = firstproduct.d
+                         let Inv = firstproduct.e
                          select new
                          {
                              InternNoteId = IN.Id,
                              internNoteItemId = InItem.Id,
                              internNoteDetailId = InDetail.Id,
                              deliveryOrderId = Do.Id,
+                             invoiceId = Inv.Id,
                              priceTotal = pg.Sum(m => m.c.PriceTotal),
                              INDate = IN.INDate
                          });
@@ -379,9 +384,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             var internnoteitemIds = queryResult.Distinct().Select(x => x.internNoteItemId).ToList();
             var internnoteitems = dbContext.GarmentInternNoteItems.Where(x => internnoteitemIds.Contains(x.Id)).Select(x => new { x.Id, x.InvoiceNo, x.InvoiceDate }).ToList();
             var internnotedetailIds = queryResult.Distinct().Select(x => x.internNoteDetailId).ToList();
-            var internnotedetails = dbContext.GarmentInternNoteDetails.Where(x => internnotedetailIds.Contains(x.Id)).Select(x => new { x.Id, x.DONo, x.DODate }).ToList();
+            var internnotedetails = dbContext.GarmentInternNoteDetails.Where(x => internnotedetailIds.Contains(x.Id)).Select(x => new { x.Id, x.DONo, x.DODate, x.ProductName }).ToList();
             var deliveryorderIds = queryResult.Distinct().Select(x => x.deliveryOrderId).ToList();
             var deliveryorders = dbContext.GarmentDeliveryOrders.Where(x => deliveryorderIds.Contains(x.Id)).Select(x => new { x.Id, x.BillNo, x.PaymentBill, x.DOCurrencyRate, x.PaymentMethod }).ToList();
+            var invoiceIds = queryResult.Distinct().Select(x => x.invoiceId).ToList();
+            var invoices = dbContext.GarmentInvoices.Where(x => invoiceIds.Contains(x.Id)).Select(x => new { x.Id, x.NPN, x.VatNo }).ToList();
 
             foreach (var item in queryResult)
             {
@@ -389,6 +396,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var internnoteitem = internnoteitems.FirstOrDefault(x => x.Id.Equals(item.internNoteItemId));
                 var internnotedetail = internnotedetails.FirstOrDefault(x => x.Id.Equals(item.internNoteDetailId));
                 var deliveryorder = deliveryorders.FirstOrDefault(x => x.Id.Equals(item.deliveryOrderId));
+                var invoice = invoices.FirstOrDefault(x => x.Id.Equals(item.invoiceId));
+
                 list.Add(new GarmentInternNoteReportViewModel
                 {
                     inNo = internnote.INNo,
@@ -397,10 +406,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     supplierName = internnote.SupplierName,
                     invoiceNo = internnoteitem.InvoiceNo,
                     invoiceDate = internnoteitem.InvoiceDate,
+                    NPN = invoice.NPN,
+                    VatNo = invoice.VatNo,
                     //pOSerialNumber = String.Join(",",pg.Select(m=>m.c.POSerialNumber)),//InDetail.POSerialNumber,
                     priceTotal = item.priceTotal,//InDetail.PriceTotal,
                     doNo = internnotedetail.DONo,
                     doDate = internnotedetail.DODate,
+                    ProductName = internnotedetail.ProductName,
                     supplierCode = internnote.SupplierCode,
                     createdBy = internnote.CreatedBy,
                     billNo = deliveryorder.BillNo,
@@ -412,9 +424,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             return list;
         }
 
-        public MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportInternNote(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset, 1, int.MaxValue);
+            var Query = GetReportInternNote(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, offset, 1, int.MaxValue);
             Query = Query.OrderByDescending(b => b.iNDate).ToList();
             Query = Query.OrderByDescending(c => c.invoiceNo).ToList();
             DataTable result = new DataTable();
@@ -432,6 +444,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Nota Pajak", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Faktur", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jenis Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bayar", DataType = typeof(String) });
@@ -439,7 +454,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
 
             if (Query.Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "");
             else
             {
                 int index = 0;
@@ -455,7 +470,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     //double totalHarga = item.pricePerDealUnit * item.quantity;
 
                     //result.Rows.Add(index, item.inNo, date, item.currencyCode, item.supplierName, item.paymentMethod, item.paymentType, DueDate, item.invoiceNo, invoDate, item.doNo, Dodate, item.pOSerialNumber, item.rONo, item.productCode, item.productName, item.quantity, item.uOMUnit, item.pricePerDealUnit, totalHarga);
-                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.currencyCode, item.doCurrencyRate, item.paymentType);
+                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.paymentType);
                 }
             }
 
