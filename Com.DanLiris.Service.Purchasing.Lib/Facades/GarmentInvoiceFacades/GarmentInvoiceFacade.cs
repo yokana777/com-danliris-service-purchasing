@@ -3,9 +3,11 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
         private readonly DbSet<GarmentInvoice> dbSet;
 		private readonly DbSet<GarmentDeliveryOrder> dbSetDeliveryOrder;
 		public readonly IServiceProvider serviceProvider;
-
+        private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
 
         public GarmentInvoiceFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
@@ -30,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             this.dbSet = dbContext.Set<GarmentInvoice>();
 			this.dbSetDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
+			_garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
         }
 		public Tuple<List<GarmentInvoice>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
 		{
@@ -99,6 +102,53 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 					
 					this.dbSet.Add(model);
 					Created = await dbContext.SaveChangesAsync();
+
+					foreach (var item in model.Items)
+                    {
+						var deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+						if(deliveryOrder != null)
+                        {
+							var amount = 0.0;
+							var currencyAmount = 0.0;
+							var vatAmount = 0.0;
+							var currencyVATAmount = 0.0;
+							var incomeTaxAmount = 0.0;
+							var currencyIncomeTaxAmount = 0.0;
+
+							if (model.CurrencyCode == "IDR")
+                            {
+								amount = item.TotalAmount;
+								if (model.IsPayVat)
+                                {
+									vatAmount = item.TotalAmount * 0.1;
+                                }
+
+								if (model.IsPayTax)
+                                {
+									incomeTaxAmount = item.TotalAmount * model.IncomeTaxRate / 100;
+                                }
+                            }
+							else
+                            {
+								amount = item.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+								currencyAmount = item.TotalAmount;
+								if (model.IsPayVat)
+								{
+									vatAmount = amount * 0.1;
+									currencyVATAmount = item.TotalAmount * 0.1;
+								}
+
+								if (model.IsPayTax)
+								{
+									incomeTaxAmount = amount * model.IncomeTaxRate / 100;
+									currencyIncomeTaxAmount = item.TotalAmount * model.IncomeTaxRate / 100;
+								}
+							}
+
+							await _garmentDebtBalanceService.UpdateFromInvoice((int)deliveryOrder.Id, new InvoiceFormDto((int)model.Id, model.InvoiceDate, model.InvoiceNo, amount, currencyAmount, vatAmount, incomeTaxAmount, model.IsPayVat, model.IsPayTax, currencyVATAmount, currencyIncomeTaxAmount));
+                        }
+					}
+
 					transaction.Commit();
 				}
 				catch (Exception e)

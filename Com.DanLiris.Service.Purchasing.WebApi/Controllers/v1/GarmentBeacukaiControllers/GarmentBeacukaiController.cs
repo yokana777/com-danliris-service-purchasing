@@ -44,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
 				if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
@@ -71,6 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 				var Data = facade.Read(page, size, order, keyword, filter);
 
 				var viewModel = mapper.Map<List<GarmentBeacukaiViewModel>>(Data.Item1);
@@ -109,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -199,6 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 		public IActionResult Delete([FromRoute]int id)
 		{
 			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+			identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 			try
 			{
@@ -216,6 +220,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			try
 		{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
