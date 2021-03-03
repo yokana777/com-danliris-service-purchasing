@@ -431,14 +431,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
         #region Monitoring
         [HttpGet("monitoring")]
-        public IActionResult GetReportIN(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, int page = 1, int size = 25, string Order = "{}")
+        public IActionResult GetReportIN(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = facade.GetReport(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReport(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
 
                 return Ok(new
                 {
@@ -458,7 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             }
         }
         [HttpGet("monitoring/download")]
-        public IActionResult GetXlsDO2(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill)
+        public IActionResult GetXlsDO2(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill)
         {
             //Console.WriteLine("sampai sini");
             try
@@ -469,7 +469,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcelIn(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcelIn(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, offset);
                 string filename = String.Format("Nota Intern - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
