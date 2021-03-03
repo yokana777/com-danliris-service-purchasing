@@ -1,4 +1,6 @@
-﻿namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
+﻿using System;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
 {
     public class CustomsFormDto
     {
@@ -7,7 +9,7 @@
 
         }
 
-        public CustomsFormDto(int purchasingCategoryId, string purchasingCategoryName, string billsNo, string paymentBills, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, int supplierId, string supplierCode, string supplierName, bool supplierIsImport, int currencyId, string currencyCode, double currencyRate)
+        public CustomsFormDto(int purchasingCategoryId, string purchasingCategoryName, string billsNo, string paymentBills, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, int supplierId, string supplierCode, string supplierName, bool supplierIsImport, int currencyId, string currencyCode, double currencyRate, string productNames, DateTimeOffset arrivalDate)
         {
             PurchasingCategoryId = purchasingCategoryId;
             PurchasingCategoryName = purchasingCategoryName;
@@ -22,6 +24,8 @@
             CurrencyId = currencyId;
             CurrencyCode = currencyCode;
             CurrencyRate = currencyRate;
+            ProductNames = productNames;
+            ArrivalDate = arrivalDate;
         }
 
         public int PurchasingCategoryId { get; private set; }
@@ -37,5 +41,7 @@
         public int CurrencyId { get; private set; }
         public string CurrencyCode { get; private set; }
         public double CurrencyRate { get; private set; }
+        public string ProductNames { get; private set; }
+        public DateTimeOffset ArrivalDate { get; private set; }
     }
 }
