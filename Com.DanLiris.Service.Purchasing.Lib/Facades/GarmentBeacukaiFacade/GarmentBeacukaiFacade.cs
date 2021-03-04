@@ -206,7 +206,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             .ThenInclude(i => i.Details)
                             .FirstOrDefault(s => s.Id == item.GarmentDOId);
                         var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
-                        await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, "", deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate));
+
+                        if (deliveryOrder != null)
+                        {
+                            var dppAmount = 0.0;
+                            var currencyDPPAmount = 0.0;
+
+                            if (deliveryOrder.DOCurrencyCode == "IDR")
+                            {
+                                dppAmount = deliveryOrder.TotalAmount;
+                            }
+                            else
+                            {
+                                currencyDPPAmount = deliveryOrder.TotalAmount;
+                                dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                            }
+
+                            var categories = deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(detail => detail.CodeRequirment);
+
+                            await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", $"- {deliveryOrder.Id}"), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount));
+                        }
                     }
                 }
                 catch (Exception e)
