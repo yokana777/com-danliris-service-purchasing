@@ -6,10 +6,12 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -28,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         private readonly DbSet<GarmentInternNote> dbSet;
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetExternalPurchaseOrderItem;
         public readonly IServiceProvider serviceProvider;
+        private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
 
         public GarmentInternNoteFacades(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
@@ -36,6 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             dbSet = dbContext.Set<GarmentInternNote>();
             dbSetExternalPurchaseOrderItem = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             this.serviceProvider = serviceProvider;
+            _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
         }
 
         public async Task<int> Create(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7)
@@ -531,7 +535,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             return result;
         }
 
-        public int BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, string internalNoteIds = "[]", string invoiceNoteIds = "[]")
+        public async Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, string internalNoteIds = "[]", string invoiceNoteIds = "[]")
         {
             var parsedInternalNoteIds = JsonConvert.DeserializeObject<List<long>>(internalNoteIds);
             var parsedInvoiceNoteIds = JsonConvert.DeserializeObject<List<long>>(invoiceNoteIds);
@@ -563,6 +567,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 })
                 .ToList();
             dbContext.GarmentInvoices.UpdateRange(invoiceNotes);
+
+            var existingInvoiceNoteIds = invoiceNotes.Select(element => element.Id).ToList();
+
+            var invoiceNoteItems = dbContext
+                .GarmentInvoiceItems
+                .Where(entity => existingInvoiceNoteIds.Contains(entity.InvoiceId))
+                .ToList();
+
+            foreach (var invoiceNoteItem in invoiceNoteItems)
+            {
+                var deliveryOrder = dbContext.GarmentDeliveryOrders.FirstOrDefault(entity => entity.Id == invoiceNoteItem.DeliveryOrderId);
+
+                if (deliveryOrder != null)
+                {
+                    if (deliveryOrder.DOCurrencyCode == "IDR")
+                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(0, "", invoiceNoteItem.TotalAmount, 0));
+                    else
+                    {
+                        var totalAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(0, "", totalAmount, invoiceNoteItem.TotalAmount));
+
+                    }
+
+                }
+            }
 
             return dbContext.SaveChanges();
         }

@@ -50,6 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
                 string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
                 if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
@@ -98,6 +99,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 var result = facade.BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(dppVATIsPaid, internalNoteIds, invoiceNoteIds);
 
                 Dictionary<string, object> Result =
@@ -288,6 +292,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -323,6 +330,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -375,6 +385,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
                 GarmentInternNote model = facade.ReadById(id);
