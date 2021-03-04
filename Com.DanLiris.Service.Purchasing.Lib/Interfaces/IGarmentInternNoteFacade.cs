@@ -18,6 +18,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset);
         List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(int currencyId, int supplierId);
-        Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, string internalNoteIds = "[]", string invoiceNoteIds = "[]");
+        Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, int bankExpenditureNoteId, string bankExpenditureNoteNo, string internalNoteIds = "[]", string invoiceNoteIds = "[]");
     }
 }

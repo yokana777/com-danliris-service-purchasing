@@ -535,7 +535,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             return result;
         }
 
-        public async Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, string internalNoteIds = "[]", string invoiceNoteIds = "[]")
+        public async Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, int bankExpenditureNoteId, string bankExpenditureNoteNo, string internalNoteIds = "[]", string invoiceNoteIds = "[]")
         {
             var parsedInternalNoteIds = JsonConvert.DeserializeObject<List<long>>(internalNoteIds);
             var parsedInvoiceNoteIds = JsonConvert.DeserializeObject<List<long>>(invoiceNoteIds);
@@ -582,11 +582,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 if (deliveryOrder != null)
                 {
                     if (deliveryOrder.DOCurrencyCode == "IDR")
-                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(0, "", invoiceNoteItem.TotalAmount, 0));
+                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, invoiceNoteItem.TotalAmount, 0));
                     else
                     {
                         var totalAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
-                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(0, "", totalAmount, invoiceNoteItem.TotalAmount));
+                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, totalAmount, invoiceNoteItem.TotalAmount));
 
                     }
 
