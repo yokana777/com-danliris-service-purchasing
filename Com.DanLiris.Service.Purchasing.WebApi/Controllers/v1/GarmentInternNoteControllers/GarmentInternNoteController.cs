@@ -95,14 +95,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpPut("dpp-vat-bank-expenditures/is-paid")]
-        public IActionResult UpdateIsPaidDPPVATBankExpenditures([FromQuery] bool dppVATIsPaid, [FromQuery] string internalNoteIds = "[]", [FromQuery] string invoiceNoteIds = "[]")
+        public IActionResult UpdateIsPaidDPPVATBankExpenditures([FromQuery] bool dppVATIsPaid, [FromQuery] int bankExpenditureNoteId, [FromQuery] string bankExpenditureNoteNo, [FromQuery] string internalNoteIds = "[]", [FromQuery] string invoiceNoteIds = "[]")
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
-                var result = facade.BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(dppVATIsPaid, internalNoteIds, invoiceNoteIds);
+                var result = facade.BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(dppVATIsPaid, bankExpenditureNoteId, bankExpenditureNoteNo, internalNoteIds, invoiceNoteIds);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
