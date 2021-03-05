@@ -28,9 +28,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
             return (int)response.StatusCode;
         }
 
-        public Task<int> UpdateFromBankExpenditureNote(int deliveryOrderId, BankExpenditureNoteFormDto form)
+        public async Task<int> UpdateFromBankExpenditureNote(int deliveryOrderId, BankExpenditureNoteFormDto form)
         {
-            throw new NotImplementedException();
+            var uri = "garment-debt-balances/bank-expenditure-note/";
+            var httpClient = _serviceProvider.GetService<IHttpClientService>();
+            var response = await httpClient.PutAsync($"{APIEndpoint.Finance}{uri}{deliveryOrderId}", new StringContent(JsonConvert.SerializeObject(form).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            return (int)response.StatusCode;
         }
 
         public async Task<int> UpdateFromInternalNote(int deliveryOrderId, InternalNoteFormDto form)
