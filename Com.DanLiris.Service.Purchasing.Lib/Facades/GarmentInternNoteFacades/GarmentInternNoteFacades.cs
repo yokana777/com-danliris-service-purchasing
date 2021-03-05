@@ -581,14 +581,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                 if (deliveryOrder != null)
                 {
+                    var dppAmount = 0.0;
+                    var currencyDPPAmount = 0.0;
+
                     if (deliveryOrder.DOCurrencyCode == "IDR")
-                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, invoiceNoteItem.TotalAmount, 0));
+                    {
+                        dppAmount = deliveryOrder.TotalAmount;
+                    }
                     else
                     {
-                        var totalAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
-                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, totalAmount, invoiceNoteItem.TotalAmount));
-
+                        currencyDPPAmount = deliveryOrder.TotalAmount;
+                        dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
                     }
+
+                    await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, dppAmount, currencyDPPAmount));
 
                 }
             }
