@@ -578,23 +578,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             foreach (var invoiceNoteItem in invoiceNoteItems)
             {
                 var deliveryOrder = dbContext.GarmentDeliveryOrders.FirstOrDefault(entity => entity.Id == invoiceNoteItem.DeliveryOrderId);
+                var invoiceNote = invoiceNotes.FirstOrDefault(element => element.Id == invoiceNoteItem.InvoiceId);
 
                 if (deliveryOrder != null)
                 {
-                    var dppAmount = 0.0;
-                    var currencyDPPAmount = 0.0;
+                    var amount = 0.0;
+                    var currencyAmount = 0.0;
+                    var vatAmount = 0.0;
+                    var currencyVATAmount = 0.0;
+                    var incomeTaxAmount = 0.0;
+                    var currencyIncomeTaxAmount = 0.0;
 
-                    if (deliveryOrder.DOCurrencyCode == "IDR")
+                    if (invoiceNote.CurrencyCode == "IDR")
                     {
-                        dppAmount = deliveryOrder.TotalAmount;
+                        amount = invoiceNoteItem.TotalAmount;
+                        if (invoiceNote.IsPayVat)
+                        {
+                            vatAmount = invoiceNoteItem.TotalAmount * 0.1;
+                        }
+
+                        if (invoiceNote.IsPayTax)
+                        {
+                            incomeTaxAmount = invoiceNoteItem.TotalAmount * invoiceNote.IncomeTaxRate / 100;
+                        }
                     }
                     else
                     {
-                        currencyDPPAmount = deliveryOrder.TotalAmount;
-                        dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                        amount = invoiceNoteItem.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                        currencyAmount = invoiceNoteItem.TotalAmount;
+                        if (invoiceNote.IsPayVat)
+                        {
+                            vatAmount = amount * 0.1;
+                            currencyVATAmount = invoiceNoteItem.TotalAmount * 0.1;
+                        }
+
+                        if (invoiceNote.IsPayTax)
+                        {
+                            incomeTaxAmount = amount * invoiceNote.IncomeTaxRate / 100;
+                            currencyIncomeTaxAmount = invoiceNoteItem.TotalAmount * invoiceNote.IncomeTaxRate / 100;
+                        }
                     }
 
-                    await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, dppAmount, currencyDPPAmount));
+                    amount = amount + vatAmount - incomeTaxAmount;
+                    currencyAmount = currencyAmount + currencyVATAmount - currencyIncomeTaxAmount;
+                    await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, amount, currencyAmount));
 
                 }
             }
