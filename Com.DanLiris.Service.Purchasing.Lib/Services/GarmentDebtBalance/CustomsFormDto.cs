@@ -9,7 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
 
         }
 
-        public CustomsFormDto(int purchasingCategoryId, string purchasingCategoryName, string billsNo, string paymentBills, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, int supplierId, string supplierCode, string supplierName, bool supplierIsImport, int currencyId, string currencyCode, double currencyRate, string productNames, DateTimeOffset arrivalDate, double dppAmount, double currencyDPPAmount)
+        public CustomsFormDto(int purchasingCategoryId, string purchasingCategoryName, string billsNo, string paymentBills, int garmentDeliveryOrderId, string garmentDeliveryOrderNo, int supplierId, string supplierCode, string supplierName, bool supplierIsImport, int currencyId, string currencyCode, double currencyRate, string productNames, DateTimeOffset arrivalDate, double dppAmount, double currencyDPPAmount, string paymentType)
         {
             PurchasingCategoryId = purchasingCategoryId;
             PurchasingCategoryName = purchasingCategoryName;
@@ -28,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
             ArrivalDate = arrivalDate;
             DPPAmount = dppAmount;
             CurrencyDPPAmount = currencyDPPAmount;
+            PaymentType = paymentType;
         }
 
         public int PurchasingCategoryId { get; private set; }
@@ -47,5 +48,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
         public DateTimeOffset ArrivalDate { get; private set; }
         public double DPPAmount { get; private set; }
         public double CurrencyDPPAmount { get; private set; }
+        public string PaymentType { get; private set; }
     }
 }
