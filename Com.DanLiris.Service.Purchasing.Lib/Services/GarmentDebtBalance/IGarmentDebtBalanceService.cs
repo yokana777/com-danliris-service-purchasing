@@ -11,5 +11,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
         Task<int> UpdateFromInvoice(int deliveryOrderId, InvoiceFormDto form);
         Task<int> UpdateFromInternalNote(int deliveryOrderId, InternalNoteFormDto form);
         Task<int> UpdateFromBankExpenditureNote(int deliveryOrderId, BankExpenditureNoteFormDto form);
+
+        Task<int> RemoveCustoms(int deliveryOrderId);
+        Task<int> EmptyInvoice(int deliveryOrderId);
+        Task<int> EmptyInternalNote(int deliveryOrderId);
+        Task<int> EmptyBankExpenditureNote(int deliveryOrderId);
     }
 }
